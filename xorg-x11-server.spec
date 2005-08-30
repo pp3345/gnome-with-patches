@@ -1,10 +1,15 @@
 %define tarball xorg-server
+%define moduledir %{_libdir}/xorg/modules
+%define sdkdir %{_includedir}/xorg
+
+%define cvsdate cvs20050830
+
 Summary:   Xorg X11 Server
 Name:      xorg-x11-server
 Version:   0.99.1
-Release:   2.cvs20050825.0
+Release:   2.%{cvsdate}
 URL:       http://www.x.org
-Source0:   http://xorg.freedesktop.org/X11R7.0-RC0/xserver/%{tarball}-%{version}-cvs20050825.tar.bz2
+Source0:   http://xorg.freedesktop.org/X11R7.0-RC0/xserver/%{tarball}-%{version}-%{cvsdate}.tar.bz2
 License:   MIT/MIT
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
@@ -122,21 +127,16 @@ drivers, input drivers, or other X modules should install this package.
 # -------------------------------------------------------------------
 
 %prep
-%setup -q -c %{name}-%{version}
+%setup -q -n %{tarball}-%{version}-%{cvsdate}
 
 %build
-{
-   pushd %{tarball}-%{version}
-   %configure %{xservers} --enable-composite --disable-xprint --disable-static
-   make
-}
+%configure %{xservers} --enable-composite --disable-xprint --disable-static --with-module-dir=%{moduledir}
+make
+
 %install
 rm -rf $RPM_BUILD_ROOT
-{
-   pushd %{tarball}-%{version}
-   make install DESTDIR=$RPM_BUILD_ROOT
-   popd
-}
+%makeinstall moduledir=$RPM_BUILD_ROOT%{moduledir} sdkdir=$RPM_BUILD_ROOT%{sdkdir}
+
 # Remove all libtool archives (*.la) from modules directory, as we do not
 # ship these.
 find $RPM_BUILD_ROOT%{_libdir}/xorg/modules -name '*.la'| xargs rm
@@ -159,11 +159,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/Xorg
 %dir %{_libdir}/xorg
 %dir %{_libdir}/xorg/modules
-%dir %{_libdir}/xorg/modules/multimedia
 %dir %{_libdir}/xorg/modules/drivers
 %dir %{_libdir}/xorg/modules/input
 %{_libdir}/xorg/modules/*.so
-%{_libdir}/xorg/modules/multimedia/*.so
 
 # ----- Xnest -------------------------------------------------------
 
@@ -201,6 +199,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Aug 30 2005  <krh@redhat.com> - 0.99.1-2.cvs20050830
+- Go back to %spec -n, use new cvs snapshot that supports overriding
+  moduledir during make install, use %makeinstall.
+- Drop %{moduledir}/multimedia globs.
+
 * Fri Aug 26 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050825.0
 - Added build dependency on xorg-x11-libfontenc-devel, as the build fails
   half way through without it, even though upstream dependencies do not
