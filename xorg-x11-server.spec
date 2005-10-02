@@ -4,51 +4,51 @@
 
 %define cvsdate cvs20050830
 
-Summary:   Xorg X11 Server
+Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.1
-Release:   2.%{cvsdate}
+Release:   2.%{cvsdate}.1
 URL:       http://www.x.org
-Source0:   http://xorg.freedesktop.org/X11R7.0-RC0/xserver/%{tarball}-%{version}-%{cvsdate}.tar.bz2
+#Source0:   http://xorg.freedesktop.org/X11R7.0-RC0/everything/%{tarball}-%{version}.tar.bz2
+Source0:   %{tarball}-%{version}-%{cvsdate}.tar.bz2
 License:   MIT/MIT
 Group:     User Interface/X
-BuildRoot: %{_tmppath}/%{name}-%{version}-root
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
 Excludearch: s390 s390x ppc64
 
 %define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest
 
-
 BuildRequires: xorg-x11-proto-devel
 BuildRequires: xorg-x11-xtrans-devel
-BuildRequires: xorg-x11-libXfont-devel
-BuildRequires: xorg-x11-libXau-devel
-BuildRequires: xorg-x11-libxkbfile-devel
-# xorg-x11-libXdmcp-devel needed for Xdmx
-BuildRequires: xorg-x11-libXdmcp-devel
-# xorg-x11-libXmu-devel needed for Xdmx
-BuildRequires: xorg-x11-libXmu-devel
-# xorg-x11-libXext-devel needed for Xdmx
-BuildRequires: xorg-x11-libXext-devel
-# xorg-x11-libX11-devel needed for Xdmx
-BuildRequires: xorg-x11-libX11-devel
-# xorg-x11-libXrender-devel needed for Xdmx
-BuildRequires: xorg-x11-libXrender-devel
-# xorg-x11-libXi-devel needed for Xdmx
-BuildRequires: xorg-x11-libXi-devel
-# xorg-x11-libfontenc-devel needed for Xorg, but not specified by
+BuildRequires: libXfont-devel
+BuildRequires: libXau-devel
+BuildRequires: libxkbfile-devel
+# libXdmcp-devel needed for Xdmx
+BuildRequires: libXdmcp-devel
+# libXmu-devel needed for Xdmx
+BuildRequires: libXmu-devel
+# libXext-devel needed for Xdmx
+BuildRequires: libXext-devel
+# libX11-devel needed for Xdmx
+BuildRequires: libX11-devel
+# libXrender-devel needed for Xdmx
+BuildRequires: libXrender-devel
+# libXi-devel needed for Xdmx
+BuildRequires: libXi-devel
+# libfontenc-devel needed for Xorg, but not specified by
 # upstream deps.  Build fails without it.
-BuildRequires: xorg-x11-libfontenc-devel
+BuildRequires: libfontenc-devel
 BuildRequires: pkgconfig
 
 %description
-Xserver RPM
+X.Org X11 X server
 
 # ----- Xorg --------------------------------------------------------
 
 %package Xorg
-Summary: The primary Xorg server
+Summary: Xorg X server
 Group: User Interface/X
 Obsoletes: XFree86 xorg-x11
 Provides: Xorg
@@ -130,8 +130,12 @@ drivers, input drivers, or other X modules should install this package.
 %setup -q -n %{tarball}-%{version}-%{cvsdate}
 
 %build
-%configure %{xservers} --enable-composite --disable-xprint --disable-static --with-module-dir=%{moduledir}
-make
+%configure %{xservers} \
+	--enable-composite \
+	--disable-xprint \
+	--disable-static \
+	--with-module-dir=%{moduledir}
+make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -199,7 +203,12 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
-* Tue Aug 30 2005  <krh@redhat.com> - 0.99.1-2.cvs20050830
+* Sun Oct  2 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050830.1
+- Update BuildRequires for new library package naming (libX...)
+- Use Fedora Extras style BuildRoot tag
+- Invoke make with _smp_mflags to take advantage of SMP systems
+
+* Tue Aug 30 2005 Kristian Hogsberg <krh@redhat.com> 0.99.1-2.cvs20050830
 - Go back to %spec -n, use new cvs snapshot that supports overriding
   moduledir during make install, use %makeinstall.
 - Drop %{moduledir}/multimedia globs.
@@ -209,5 +218,5 @@ rm -rf $RPM_BUILD_ROOT
   half way through without it, even though upstream dependencies do not
   specify it as required.
 
-* Tue Aug 23 2005  <krh@redhat.com> 0.99.1-1
+* Tue Aug 23 2005 Kristian Hogsberg <krh@redhat.com> 0.99.1-1
 - Initial spec file for the modular X server.
