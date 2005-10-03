@@ -7,11 +7,11 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.1
-Release:   2.%{cvsdate}.1
+Release:   2.%{cvsdate}.2
 URL:       http://www.x.org
 #Source0:   http://xorg.freedesktop.org/X11R7.0-RC0/everything/%{tarball}-%{version}.tar.bz2
 Source0:   %{tarball}-%{version}-%{cvsdate}.tar.bz2
-License:   MIT/MIT
+License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -81,7 +81,7 @@ applications without running them on their real X server.
 Summary: Distributed Multihead X Server and utilities
 Group: User Interface/X
 Requires: %{name}-Xorg = %{version}-%{release}
-Obsoletes: xorg-x11-Xnest
+Obsoletes: xorg-x11-Xdmx
 Provides: Xdmx
 
 %description Xdmx
@@ -116,7 +116,8 @@ is normally used for testing servers.
 Summary: SDK for X server driver module development
 Group: User Interface/X
 Obsoletes: XFree86-sdk xorg-x11-sdk
-Provides: xorg-x11-server-sdk = 7.0.0
+# FIXME: Not sure why this was here, but it seems wrong, so I commented it out.
+#Provides: xorg-x11-server-sdk = 7.0.0
 
 %description sdk
 The SDK package provides the developmental files which are necessary for
@@ -203,6 +204,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Oct  3 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050830.2
+- Fix license tag to be "MIT/X11"
+- Change Xdmx subpackage to Obsolete xorg-x11-Xdmx instead of xorg-x11-Xnest
+
 * Sun Oct  2 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050830.1
 - Update BuildRequires for new library package naming (libX...)
 - Use Fedora Extras style BuildRoot tag
