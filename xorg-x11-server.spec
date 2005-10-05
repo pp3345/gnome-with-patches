@@ -16,7 +16,7 @@ Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
-Excludearch: s390 s390x ppc64
+ExcludeArch: s390 s390x ppc64
 
 %define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest
 
