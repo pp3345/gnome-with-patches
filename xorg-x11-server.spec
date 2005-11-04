@@ -51,6 +51,8 @@ BuildRequires: libX11-devel
 BuildRequires: libXrender-devel
 # libXi-devel needed for Xdmx
 BuildRequires: libXi-devel
+# libXres-devel needed for something that links to libXres that I never bothered to figure out yet
+BuildRequires: libXres-devel
 # libfontenc-devel needed for Xorg, but not specified by
 # upstream deps.  Build fails without it.
 BuildRequires: libfontenc-devel
@@ -367,7 +369,8 @@ rm -rf $RPM_BUILD_ROOT
   conditionally, defaulting to "off".  These utilities are potentially
   dangerous and can physically damage hardware and/or destroy data, so are
   not shipped by default.
-- Added "BuildRequires: libdmx-devel" for dmx utilities et al.
+- Added "BuildRequires: libdmx-devel" for dmx utilities
+- Added "BuildRequires: libXres-devel" for Xres examples
 
 * Mon Oct  3 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050830.2
 - Fix license tag to be "MIT/X11"
