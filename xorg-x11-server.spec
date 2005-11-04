@@ -37,6 +37,8 @@ BuildRequires: xorg-x11-xtrans-devel
 BuildRequires: libXfont-devel
 BuildRequires: libXau-devel
 BuildRequires: libxkbfile-devel
+# libdmx-devel needed for Xdmx
+BuildRequires: libdmx-devel
 # libXdmcp-devel needed for Xdmx
 BuildRequires: libXdmcp-devel
 # libXmu-devel needed for Xdmx
@@ -365,6 +367,7 @@ rm -rf $RPM_BUILD_ROOT
   conditionally, defaulting to "off".  These utilities are potentially
   dangerous and can physically damage hardware and/or destroy data, so are
   not shipped by default.
+- Added "BuildRequires: libdmx-devel" for dmx utilities et al.
 
 * Mon Oct  3 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050830.2
 - Fix license tag to be "MIT/X11"
