@@ -192,6 +192,16 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm $RPM_BUILD_ROOT%{_libdir}/X11/Cards
     rm $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/cfg.sample
     rm $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/xorg.cfg
+%if ! %{with_developer_utils}
+    rm -f $RPM_BUILD_ROOT%{_bindir}/inb
+    rm -f $RPM_BUILD_ROOT%{_bindir}/inl
+    rm -f $RPM_BUILD_ROOT%{_bindir}/inw
+    rm -f $RPM_BUILD_ROOT%{_bindir}/ioport
+    rm -f $RPM_BUILD_ROOT%{_bindir}/outb
+    rm -f $RPM_BUILD_ROOT%{_bindir}/outl
+    rm -f $RPM_BUILD_ROOT%{_bindir}/outw
+    rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
+%endif
 }
 
 # FIXME: Move/rename manpages to correct location
@@ -280,6 +290,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libxf8_16bpp.so
 %{_libdir}/xorg/modules/libxf8_32bpp.so
 %{_libdir}/xorg/modules/libxf8_32wid.so
+%dir %{_libdir}/xserver
+%{_libdir}/xserver/SecurityPolicy
 %dir %{_mandir}
 %dir %{_mandir}/man1x
 %{_mandir}/man1x/getconfig.1x*
@@ -371,6 +383,7 @@ rm -rf $RPM_BUILD_ROOT
   not shipped by default.
 - Added "BuildRequires: libdmx-devel" for dmx utilities
 - Added "BuildRequires: libXres-devel" for Xres examples
+- Added {_libdir}/xserver/SecurityPolicy to Xorg subpackage for XSECURITY
 
 * Mon Oct  3 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050830.2
 - Fix license tag to be "MIT/X11"
