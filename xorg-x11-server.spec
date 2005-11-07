@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.2
-Release:   1
+Release:   2
 URL:       http://www.x.org
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC1/everything/%{tarball}-%{version}.tar.bz2
 #ource0:   %{tarball}-%{version}-%{cvsdate}.tar.bz2
@@ -69,7 +69,11 @@ X.Org X11 X server
 Summary: Xorg X server
 Group: User Interface/X
 Obsoletes: XFree86 xorg-x11
-Provides: Xorg
+# NOTE: This virtual provide should be used when one wants to depend on
+# the implementation specific (and optionally version specific) Xorg X
+# server, but in an OS packaging independent manner.  This futureproofs
+# package dependencies against possible future Xorg package renaming.
+Provides: Xorg = %{version}-%{release}
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -84,6 +88,9 @@ Summary: A nested server.
 Group: User Interface/X
 #Requires: %{name} = %{version}-%{release}
 Obsoletes: XFree86-Xnest xorg-x11-Xnest
+# NOTE: This virtual provide should be used by packages which want to depend
+# on an implementation nonspecific Xnest X server.  It is intentionally not
+# versioned, since it should be agnostic.
 Provides: Xnest
 
 %description Xnest
@@ -100,6 +107,9 @@ Summary: Distributed Multihead X Server and utilities
 Group: User Interface/X
 #Requires: %{name}-Xorg = %{version}-%{release}
 Obsoletes: xorg-x11-Xdmx
+# NOTE: This virtual provide should be used by packages which want to depend
+# on an implementation nonspecific Xdmx X server.  It is intentionally not
+# versioned, since it should be agnostic.
 Provides: Xdmx
 
 %description Xdmx
@@ -119,6 +129,9 @@ Summary: A X Windows System virtual framebuffer X server.
 Group: User Interface/X
 #Requires: %{name} = %{version}-%{release}
 Obsoletes: XFree86-Xvfb xorg-x11-Xvfb
+# NOTE: This virtual provide should be used by packages which want to depend
+# on an implementation nonspecific Xvfb X server.  It is intentionally not
+# versioned, since it should be agnostic.
 Provides: Xvfb
 
 %description Xvfb
@@ -365,6 +378,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Nov 7 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-2
+- Added versioning to Xorg virtual Provide, to allow config tools and driver
+  packages to have version based requires.
+
 * Thu Oct 27 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-1
 - Update to xorg-server-0.99.2 from X11R7 RC1.
 - Add "BuildRequires: xorg-x11-util-macros >= 0.99.1".
