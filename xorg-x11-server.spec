@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.2
-Release:   2
+Release:   3
 URL:       http://www.x.org
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC1/everything/%{tarball}-%{version}.tar.bz2
 #ource0:   %{tarball}-%{version}-%{cvsdate}.tar.bz2
@@ -56,6 +56,8 @@ BuildRequires: libXres-devel
 # libfontenc-devel needed for Xorg, but not specified by
 # upstream deps.  Build fails without it.
 BuildRequires: libfontenc-devel
+# Required for Xtst examples
+BuildRequires: libXtst-devel
 # Needed at least for DRI enabled builds
 %if %{with_dri}
 BuildRequires: mesa-source >= 6.4-4
@@ -378,6 +380,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Nov 9 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-3
+- Added "BuildRequires: libXtst-devel" for Xtst examples.
+
 * Mon Nov 7 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-2
 - Added versioning to Xorg virtual Provide, to allow config tools and driver
   packages to have version based requires.
