@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.2
-Release:   3
+Release:   4
 URL:       http://www.x.org
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC1/everything/%{tarball}-%{version}.tar.bz2
 #ource0:   %{tarball}-%{version}-%{cvsdate}.tar.bz2
@@ -71,6 +71,8 @@ X.Org X11 X server
 Summary: Xorg X server
 Group: User Interface/X
 Obsoletes: XFree86 xorg-x11
+# NOTE: The X server invokes xkbcomp directly, so this is required.
+Requires: xkbcomp
 # NOTE: This virtual provide should be used when one wants to depend on
 # the implementation specific (and optionally version specific) Xorg X
 # server, but in an OS packaging independent manner.  This futureproofs
@@ -89,7 +91,7 @@ upon.
 Summary: A nested server.
 Group: User Interface/X
 #Requires: %{name} = %{version}-%{release}
-Obsoletes: XFree86-Xnest xorg-x11-Xnest
+Obsoletes: XFree86-Xnest, xorg-x11-Xnest
 # NOTE: This virtual provide should be used by packages which want to depend
 # on an implementation nonspecific Xnest X server.  It is intentionally not
 # versioned, since it should be agnostic.
@@ -380,6 +382,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Nov 10 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-4
+- Added "Requires: xkbcomp" for Xorg server, as it invokes it internally.
+
 * Wed Nov 9 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-3
 - Added "BuildRequires: libXtst-devel" for Xtst examples.
 
