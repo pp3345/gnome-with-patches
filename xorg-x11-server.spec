@@ -191,7 +191,9 @@ drivers, input drivers, or other X modules should install this package.
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
 	--disable-xorgcfg
 
-make %{?_smp_mflags}
+make
+# FIXME: disable smp_mflags on the above make, to test if it is causing a build problem. 
+#%{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -228,10 +230,15 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 # FIXME: Move/rename manpages to correct location (still broke in RC2)
 %if 1
 {
-    mv $RPM_BUILD_ROOT%{_mandir}/man1 $RPM_BUILD_ROOT%{_mandir}/man1x
-    for each in $RPM_BUILD_ROOT%{_mandir}/man1x/* ; do
+    WRONG_DIR=$RPM_BUILD_ROOT%{_mandir}/man1
+    MAN1X_DIR=$RPM_BUILD_ROOT%{_mandir}/man1x
+
+    [ ! -d $MAN1X_DIR ] && mkdir -p $MAN1X_DIR
+    mv ${WRONG_DIR}/* ${MAN1X_DIR}/
+    for each in ${MAN1X_DIR}/* ; do
         mv $each ${each/.1/.1x}
     done
+    rmdir $WRONG_DIR
 }
 %endif
 
