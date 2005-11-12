@@ -3,10 +3,10 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   0.99.2
-Release:   4
+Version:   0.99.3
+Release:   1
 URL:       http://www.x.org
-Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC1/everything/%{tarball}-%{version}.tar.bz2
+Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{tarball}-%{version}.tar.bz2
 #ource0:   %{tarball}-%{version}-%{cvsdate}.tar.bz2
 License:   MIT/X11
 Group:     User Interface/X
@@ -16,15 +16,22 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 ExcludeArch: s390 s390x ppc64
 
 %define moduledir %{_libdir}/xorg/modules
+# FIXME:  This stuff should probably be in /usr/share or /usr/lib/X11
+# somewhere instead of in includedir, as it is C source, not include files.
 %define sdkdir %{_includedir}/xorg
+
+%ifarch %{ix86} x86_64 ppc ia64
 %define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest
+%else
+%define xservers --disable-xorg --disable-dmx --enable-xvfb --enable-xnest
+%endif
 
 # NOTE: The developer utils are intended for low level video driver hackers,
 # doing low level bit twiddling, who really know what they are doing, and are
 # disabled by default, as they are not generally useful to end users.
 %define with_developer_utils	0
 
-%ifarch %{ix86} x86_64 ia64 ppc
+%ifarch %{ix86} x86_64 ppc ia64
 %define with_dri	1
 %else
 %define with_dri	0
@@ -165,8 +172,6 @@ drivers, input drivers, or other X modules should install this package.
 %setup -q -n %{tarball}-%{version}
 
 %build
-# FIXME: Using ./configure directly to see if it works around a problem during
-# %%insall when %%configure is used and "make install DESTDIR" is used
 %configure %{xservers} \
 	--disable-dependency-tracking \
 	--disable-xprint \
@@ -194,11 +199,10 @@ rm -rf $RPM_BUILD_ROOT
 # DESTDIR=$RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir} sdkdir=%{sdkdir}
 
-# Remove all libtool archives (*.la) from modules directory, as we do not
-# ship these.
-#find $RPM_BUILD_ROOT%{_libdir}/xorg/modules -type f -name '*.la' | xargs rm -f -- || :
+# Remove all libtool archives (*.la)
 find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 
+# FIXME: This should be done upstream, so it's one less thing to hack.
 # Make these directories now so the Xorg package can own them.
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
@@ -221,14 +225,15 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 %endif
 }
 
-# FIXME: Move/rename manpages to correct location
+# FIXME: Move/rename manpages to correct location (still broke in RC2)
+%if 1
 {
     mv $RPM_BUILD_ROOT%{_mandir}/man1 $RPM_BUILD_ROOT%{_mandir}/man1x
     for each in $RPM_BUILD_ROOT%{_mandir}/man1x/* ; do
         mv $each ${each/.1/.1x}
     done
 }
-
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -382,6 +387,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Nov 11 2005 Mike A. Harris <mharris@redhat.com> 0.99.3-1
+- Update to xorg-server-0.99.3 from X11R7 RC2.
+
 * Thu Nov 10 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-4
 - Added "Requires: xkbcomp" for Xorg server, as it invokes it internally.
 
