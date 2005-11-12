@@ -253,6 +253,7 @@ rm -rf $RPM_BUILD_ROOT
 # FIXME: The build fails to find the Changelog for some reason.
 #%doc ChangeLog
 %dir %{_bindir}
+%{_bindir}/X
 %{_bindir}/Xorg
 %{_bindir}/getconfig
 %{_bindir}/getconfig.pl
@@ -390,12 +391,14 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_includedir}
 %dir %{_includedir}/xorg
 %{_includedir}/xorg/*.h
+%{_datadir}/aclocal/xorg-server.m4
 
 # -------------------------------------------------------------------
 
 %changelog
 * Fri Nov 11 2005 Mike A. Harris <mharris@redhat.com> 0.99.3-1
 - Update to xorg-server-0.99.3 from X11R7 RC2.
+- Add xorg-server.m4 to sdk subpackage, and "X" symlink to Xorg subpackage.
 
 * Thu Nov 10 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-4
 - Added "Requires: xkbcomp" for Xorg server, as it invokes it internally.
