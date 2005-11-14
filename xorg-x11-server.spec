@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.3
-Release:   2
+Release:   3
 URL:       http://www.x.org
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{tarball}-%{version}.tar.bz2
 #ource0:   %{tarball}-%{version}-%{cvsdate}.tar.bz2
@@ -85,9 +85,10 @@ Requires: xkbcomp
 # server, but in an OS packaging independent manner.  This futureproofs
 # package dependencies against possible future Xorg package renaming.
 Provides: Xorg = %{version}-%{release}
+Provides: Xserver
 # require some basic things like keyboard/mouse driver, base fonts, rgb db
 Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-fonts-base
-Requires: xorg-x11-server-utils
+Requires: xorg-x11-server-utils xorg-x11-utils
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -399,6 +400,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-3
+- provide Xserver
+- add another requires for basic bits
+
 * Sun Nov 13 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-2
 - add some deps to the Xorg subpackage for base fonts, keyboard and mouse 
   drivers, and rgb.txt that the server really won't work without
