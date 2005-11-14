@@ -85,8 +85,8 @@ Requires: xkbcomp
 # NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
 # by xorg-x11-fonts-base
 Requires: xorg-x11-fonts-base
-# NOTE: Require some basic drivers for minimal configuration.
-Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard
+# NOTE: Require some basic drivers for minimal configuration. (#173060)
+Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
 # NOTE: We use implementation non-specific "xkbdata" here, to make it easy
 # to switch to the freedesktop.org 'xkeyboard-config' project replacment
 # in the future.
@@ -422,6 +422,7 @@ rm -rf $RPM_BUILD_ROOT
   of easily switching implementations to "xkeyboard-config" at a future
   date, if we decide to go that route.
 - Re-enable _smp_mflags during build.
+- Added "Requires: xorg-x11-drv-vesa" to Xorg subpackage (#173060)
 
 * Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-3
 - provide Xserver
