@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.3
-Release:   3
+Release:   4
 URL:       http://www.x.org
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{tarball}-%{version}.tar.bz2
 #ource0:   %{tarball}-%{version}-%{cvsdate}.tar.bz2
@@ -41,7 +41,10 @@ BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 0.99.1
 BuildRequires: xorg-x11-proto-devel
 BuildRequires: xorg-x11-xtrans-devel
-BuildRequires: libXfont-devel
+# FIXME: The version specification can be removed from here in the future,
+# as it is not really mandatory, but forces a bugfix workaround on people who
+# are using pre-rawhide modular X.
+BuildRequires: libXfont-devel >= 0.99.2-3
 BuildRequires: libXau-devel
 BuildRequires: libxkbfile-devel
 # libdmx-devel needed for Xdmx
@@ -77,18 +80,31 @@ X.Org X11 X server
 %package Xorg
 Summary: Xorg X server
 Group: User Interface/X
-Obsoletes: XFree86 xorg-x11
 # NOTE: The X server invokes xkbcomp directly, so this is required.
 Requires: xkbcomp
+# NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
+# by xorg-x11-fonts-base
+Requires: xorg-x11-fonts-base
+# NOTE: Require some basic drivers for minimal configuration.
+Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard
+# NOTE: We use implementation non-specific "xkbdata" here, to make it easy
+# to switch to the freedesktop.org 'xkeyboard-config' project replacment
+# in the future.
+Requires: xkbdata
+# FIXME: Investigate these two and see what utils are needed, and use virtuals
+Requires: xorg-x11-server-utils xorg-x11-utils
+# FIXME: This Requires on libXfont can be removed from here in the future,
+# as it is not really mandatory, but forces a bugfix workaround on people who
+# are using pre-rawhide modular X.
+Requires: libXfont >= 0.99.2-3
+
+Obsoletes: XFree86 xorg-x11
 # NOTE: This virtual provide should be used when one wants to depend on
 # the implementation specific (and optionally version specific) Xorg X
 # server, but in an OS packaging independent manner.  This futureproofs
 # package dependencies against possible future Xorg package renaming.
 Provides: Xorg = %{version}-%{release}
 Provides: Xserver
-# require some basic things like keyboard/mouse driver, base fonts, rgb db
-Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-fonts-base
-Requires: xorg-x11-server-utils xorg-x11-utils
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -142,7 +158,6 @@ application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 %package Xvfb
 Summary: A X Windows System virtual framebuffer X server.
 Group: User Interface/X
-#Requires: %{name} = %{version}-%{release}
 Obsoletes: XFree86-Xvfb xorg-x11-Xvfb
 # NOTE: This virtual provide should be used by packages which want to depend
 # on an implementation nonspecific Xvfb X server.  It is intentionally not
@@ -195,9 +210,7 @@ drivers, input drivers, or other X modules should install this package.
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
 	--disable-xorgcfg
 
-make
-# FIXME: disable smp_mflags on the above make, to test if it is causing a build problem. 
-#%{?_smp_mflags}
+make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -400,6 +413,16 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Nov 14 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-4
+- Added temporary "BuildRequires: libXfont-devel >= 0.99.2-3" and
+  "Requires: libXfont-devel >= 0.99.2-3" to ensure early-testers of
+  pre-rawhide modular X have installed the work around for (#172997).
+- Added implementation specific "Requires: xkbdata" to Xorg subpackage, as
+  we want to ensure the xkb data files are present, but allow us the option
+  of easily switching implementations to "xkeyboard-config" at a future
+  date, if we decide to go that route.
+- Re-enable _smp_mflags during build.
+
 * Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-3
 - provide Xserver
 - add another requires for basic bits
