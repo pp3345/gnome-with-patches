@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.3
-Release:   4
+Release: 5
 URL:       http://www.x.org
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{tarball}-%{version}.tar.bz2
 #ource0:   %{tarball}-%{version}-%{cvsdate}.tar.bz2
@@ -271,7 +271,7 @@ rm -rf $RPM_BUILD_ROOT
 #%doc ChangeLog
 %dir %{_bindir}
 %{_bindir}/X
-%{_bindir}/Xorg
+%attr(4711, root, root) %{_bindir}/Xorg
 %{_bindir}/getconfig
 %{_bindir}/getconfig.pl
 %{_bindir}/gtf
@@ -413,6 +413,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-5
+- xserver should be suid for users to be able to run startx (#173064)
+
 * Mon Nov 14 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-4
 - Added temporary "BuildRequires: libXfont-devel >= 0.99.2-3" and
   "Requires: libXfont-devel >= 0.99.2-3" to ensure early-testers of
