@@ -1,13 +1,12 @@
-%define tarball xorg-server
+%define pkgname xorg-server
 %define cvsdate xxxxxxxxxxx
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.3
-Release: 5
+Release:   5
 URL:       http://www.x.org
-Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{tarball}-%{version}.tar.bz2
-#ource0:   %{tarball}-%{version}-%{cvsdate}.tar.bz2
+Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{pkgname}-%{version}.tar.bz2
 License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -188,7 +187,7 @@ drivers, input drivers, or other X modules should install this package.
 # -------------------------------------------------------------------
 
 %prep
-%setup -q -n %{tarball}-%{version}
+%setup -q -n %{pkgname}-%{version}
 
 %build
 %configure %{xservers} \
