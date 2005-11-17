@@ -75,6 +75,7 @@ BuildRequires: libXtst-devel
 # Needed at least for DRI enabled builds
 %if %{with_dri}
 BuildRequires: mesa-source >= 6.4-4
+BuildRequires: libdrm-devel
 %endif
 %description
 X.Org X11 X server
@@ -490,6 +491,7 @@ rm -rf $RPM_BUILD_ROOT
   xorg-x11 package to fix Xinerama bug.
 - Added xorg-redhat-die-ugly-pattern-die-die-die.patch to kill the ugly grey
   stipple once again for bug (#173423).
+- Added "BuildRequires: libdrm-devel" for DRI enabled builds.
 
 * Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-5
 - Xorg server should be suid for users to be able to run startx (#173064)
