@@ -1,15 +1,17 @@
+#!/bin/bash
 %define pkgname xorg-server
 %define cvsdate xxxxxxxxxxx
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.3
-Release:   5
+Release:   6
 URL:       http://www.x.org
-Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{pkgname}-%{version}.tar.bz2
 License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{pkgname}-%{version}.tar.bz2
+Patch0: xorg-x11-server-0.99.3-init-origins-fix.patch
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
 ExcludeArch: s390 s390x ppc64
@@ -28,6 +30,8 @@ ExcludeArch: s390 s390x ppc64
 # NOTE: The developer utils are intended for low level video driver hackers,
 # doing low level bit twiddling, who really know what they are doing, and are
 # disabled by default, as they are not generally useful to end users.
+# FIXME: Reconfigure the spec file to put them in a separate subpackage, so
+# I can build one build with them enabled, install them, then disable it again.
 %define with_developer_utils	0
 
 %ifarch %{ix86} x86_64 ppc ia64
@@ -188,6 +192,7 @@ drivers, input drivers, or other X modules should install this package.
 
 %prep
 %setup -q -n %{pkgname}-%{version}
+%patch0 -p0 -b .init-origins-fix
 
 %build
 %configure %{xservers} \
@@ -260,6 +265,65 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+
+
+%pre Xorg
+{
+  pushd /etc/X11
+  # Migrate any pre-existing XFree86 4.x config file to xorg.conf if it
+  # doesn't already exist, and rename any remaining XFree86 4.x congig files
+  # to have .obsoleted file extensions, to help avoid end user confusion for
+  # people unaware of the config file name change between server
+  # implementations, and avoid bug reports.  If this turns out to confuse
+  # users, I can modify it to add comments to the top of the obsoleted files
+  # to point users to xorg.conf   <mharris@redhat.com>
+  for configfile in XF86Config XF86Config-4 ; do
+    if [ -r $configfile ]; then
+      if [ -r xorg.conf ]; then
+        mv -f $configfile $configfile.obsoleted
+    else
+        mv -f $configfile xorg.conf
+      fi
+    fi
+  done
+  # Massage pre-existing config files to work properly with X.org X11
+  # - Remove xie and pex5 modules from the config files, as they are long
+  #   since obsolete, and not provided since XFree86 4.2.0
+  # - Remove Option "XkbRules" "xfree86" to help work around upgrade problems
+  #   such as https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=120858
+#  for configfile in xorg.conf ; do
+    configfile="xorg.conf"
+    if [ -r $configfile -a -w $configfile ]; then
+      # Remove module load lines from the config file for obsolete modules
+      perl -p -i -e 's/^.*Load.*"(pex5|xie|xtt).*\n$"//gi' $configfile
+      # Change the keyboard configuration from the deprecated "keyboard"
+      # driver, to the newer "kbd" driver.
+      perl -p -i -e 's/^\s*Driver(.*)"keyboard"/Driver\1"kbd"/gi' $configfile
+      # Remove any Options "XkbRules" lines that may be present
+      perl -p -i -e 's/^.*Option.*"XkbRules".*"(xfree86|xorg)".*\n$//gi' $configfile
+      # Remove RgbPath specifications from the config file as they are
+      # unnecessary, and break upgrades from monolithic to modular X.
+      # Fixes bugs (#173036, 173435, 173453, 173428)
+      perl -p -i -e 's#^\s*RgbPath.*$##gi' $configfile
+      # If ModulePath is specified in the config file, check for the old
+      # monolithic module path, and replace it with the new one.
+      perl -p -i -e 'm#^\s*ModulePath.*"/usr/X11R6/lib/modules".*$#; s#/usr/X11R6/lib/modules#%{moduledir}#' $configfile
+    fi
+#  done
+  popd
+
+# FIXME: I don't think this is needed anymore.  We'll block it for now and see what breaks.
+%if 0
+  # Do this for upgrades or installs
+  XKB_DIR=%{_x11datadir}/X11/xkb/compiled
+  if [ ! -L $XKB_DIR -a -d $XKB_DIR ]; then
+    mkdir -p /var/lib/xkb
+    mv -f $XKB_DIR /var/lib/xkb/
+    ln -sf ../../../../../var/lib/xkb $XKB_DIR
+  fi
+%endif
+} &> /dev/null || :
 
 
 # ----- Xorg --------------------------------------------------------
@@ -412,8 +476,18 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Nov 17 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-6
+- Add the missing rpm pre script from monolithic xorg-x11 packaging,
+  clean it up a bit, reorder it for slight performance gain.
+- Add some perl magic to pre script to remove RgbPath from xorg.conf,
+  in order to fix bug (#173036, 173435, 173453, 173428)
+- Add more perl magic to pre script to update ModulePath to the new
+  location if it is specified in xorg.conf.
+- Added xorg-x11-server-0.99.3-init-origins-fix.patch ported from monolithic
+  xorg-x11 package to fix Xinerama bug.
+
 * Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-5
-- xserver should be suid for users to be able to run startx (#173064)
+- Xorg server should be suid for users to be able to run startx (#173064)
 
 * Mon Nov 14 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-4
 - Added temporary "BuildRequires: libXfont-devel >= 0.99.2-3" and
