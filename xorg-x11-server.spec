@@ -12,6 +12,7 @@ Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{pkgname}-%{version}.tar.bz2
 Patch0: xorg-x11-server-0.99.3-init-origins-fix.patch
+Patch100: xorg-redhat-die-ugly-pattern-die-die-die.patch
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
 ExcludeArch: s390 s390x ppc64
@@ -193,6 +194,8 @@ drivers, input drivers, or other X modules should install this package.
 %prep
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p0 -b .init-origins-fix
+
+%patch100 -p0 -b .redhat-die-ugly-pattern-die-die-die
 
 %build
 %configure %{xservers} \
@@ -485,6 +488,8 @@ rm -rf $RPM_BUILD_ROOT
   location if it is specified in xorg.conf.
 - Added xorg-x11-server-0.99.3-init-origins-fix.patch ported from monolithic
   xorg-x11 package to fix Xinerama bug.
+- Added xorg-redhat-die-ugly-pattern-die-die-die.patch to kill the ugly grey
+  stipple once again for bug (#173423).
 
 * Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-5
 - Xorg server should be suid for users to be able to run startx (#173064)
