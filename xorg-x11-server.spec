@@ -5,14 +5,19 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.3
-Release:   6
+Release:   7
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{pkgname}-%{version}.tar.bz2
-Patch0: xorg-x11-server-0.99.3-init-origins-fix.patch
-Patch100: xorg-redhat-die-ugly-pattern-die-die-die.patch
+
+Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
+# https://bugs.freedesktop.org/show_bug.cgi?id=5093
+Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
+
+Patch100:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
 ExcludeArch: s390 s390x ppc64
@@ -97,7 +102,8 @@ Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
 # in the future.
 Requires: xkbdata
 # FIXME: Investigate these two and see what utils are needed, and use virtuals
-Requires: xorg-x11-server-utils xorg-x11-utils
+Requires: xorg-x11-server-utils >= 0.99.2-5
+Requires: xorg-x11-utils
 # FIXME: This Requires on libXfont can be removed from here in the future,
 # as it is not really mandatory, but forces a bugfix workaround on people who
 # are using pre-rawhide modular X.
@@ -183,6 +189,7 @@ Summary: SDK for X server driver module development
 Group: User Interface/X
 Obsoletes: XFree86-sdk xorg-x11-sdk
 Requires: xorg-x11-util-macros
+Requires(pre): xorg-x11-filesystem >= 0.99.2-3
 
 %description sdk
 The SDK package provides the developmental files which are necessary for
@@ -195,6 +202,7 @@ drivers, input drivers, or other X modules should install this package.
 %prep
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p0 -b .init-origins-fix
+%patch1 -p0 -b .fbmmx-fix-for-non-SSE-cpu
 
 %patch100 -p0 -b .redhat-die-ugly-pattern-die-die-die
 
@@ -216,6 +224,7 @@ drivers, input drivers, or other X modules should install this package.
 	--with-os-name="Fedora Core 5" \
 	--with-os-vendor="Red Hat, Inc." \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
+	--with-rgb-path=%{_datadir}/X11/rgb \
 	--disable-xorgcfg
 
 make %{?_smp_mflags}
@@ -298,6 +307,7 @@ rm -rf $RPM_BUILD_ROOT
   #   such as https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=120858
 #  for configfile in xorg.conf ; do
     configfile="xorg.conf"
+    OLD_MODULEPATH="/usr/X11R6/lib/modules"
     if [ -r $configfile -a -w $configfile ]; then
       # Remove module load lines from the config file for obsolete modules
       perl -p -i -e 's/^.*Load.*"(pex5|xie|xtt).*\n$"//gi' $configfile
@@ -312,7 +322,7 @@ rm -rf $RPM_BUILD_ROOT
       perl -p -i -e 's#^\s*RgbPath.*$##gi' $configfile
       # If ModulePath is specified in the config file, check for the old
       # monolithic module path, and replace it with the new one.
-      perl -p -i -e 'm#^\s*ModulePath.*"/usr/X11R6/lib/modules".*$#; s#/usr/X11R6/lib/modules#%{moduledir}#' $configfile
+      perl -p -i -e "m,^\s*ModulePath.*\"${OLD_MODULEPATH}\".*$,; s,${OLD_MODULEPATH},%{moduledir}," $configfile
     fi
 #  done
   popd
@@ -480,6 +490,15 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Nov 23 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-7
+- Update xorg-x11-server-utils dep to 0.99.2-5 to ensure rgb.txt is installed
+  in correct location - _datadir/X11/rgb
+- Added --with-rgb-path configure option to specify _datadir/X11/rgb so the
+  X server finds the rgb.txt database properly, for bugs (#173453, 173435,
+  173428, 173483, 173734, 173737, 173594)
+- Added xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch to prevent SSE/MMX
+  code from being activated on non-capable VIA CPU. (#173384,fdo#5093)
+
 * Thu Nov 17 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-6
 - Add the missing rpm pre script from monolithic xorg-x11 packaging,
   clean it up a bit, reorder it for slight performance gain.
@@ -513,7 +532,7 @@ rm -rf $RPM_BUILD_ROOT
 
 * Sun Nov 13 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-2
 - add some deps to the Xorg subpackage for base fonts, keyboard and mouse 
-  drivers, and rgb.txt that the server really won't work without
+  drivers, and rgb.txt that the server really wont work without
 
 * Fri Nov 11 2005 Mike A. Harris <mharris@redhat.com> 0.99.3-1
 - Update to xorg-server-0.99.3 from X11R7 RC2.
