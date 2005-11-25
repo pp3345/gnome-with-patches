@@ -23,8 +23,7 @@ Patch100:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 ExcludeArch: s390 s390x ppc64
 
 %define moduledir	%{_libdir}/xorg/modules
-%define xorgdatadir	%{_datadir}/xorg
-%define sdkdir		%{_datadir}/xorg/sdk
+%define sdkdir		%{_includedir}/xorg/sdk
 
 %ifarch %{ix86} x86_64 ppc ia64
 %define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest
@@ -488,8 +487,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %dir %{_libdir}/pkgconfig
 %{_libdir}/pkgconfig/xorg-server.pc
-%dir %{xorgdatadir}
-%dir %{sdkdir}
+%dir %{_includedir}/xorg
+%dir %{_includedir}/xorg/sdk
 %{sdkdir}/*.h
 %{_datadir}/aclocal/xorg-server.m4
 
