@@ -495,7 +495,7 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
-* Wed Nov 23 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-8
+* Fri Nov 25 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-8
 - Added xorg-server-0.99.3-rgb.txt-dix-config-fix.patch which fixes the
   --with-rgb-path option to actually *work*.
 - Updated libdrm dep to 1.0.5
