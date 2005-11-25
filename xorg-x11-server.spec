@@ -95,6 +95,18 @@ Requires: xkbcomp
 Requires: xorg-x11-fonts-base
 # NOTE: Require some basic drivers for minimal configuration. (#173060)
 Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
+# NOTE: Require the driver meta-package to ensure that all drivers are always
+# installed all of the time.  Why?  To guarantee that the drivers for your
+# video and input devices are always installed all of the time, and ensure
+# that OS installs and upgrades "work" without ending up with "oops, my
+# driver isn't installed".  Drivers have always been "all installed" in
+# every previous OS release, and this one is no different.  Drivers are split
+# up into individual packages to facilitate making easy individual driver
+# updates, NOT for allowing people to uninstall drivers to save $0.01 of
+# hard disk space.  Why?  Because there is no "good" reason not to do so,
+# necause 1Gb of hard disk space costs about $0.75 right now for starters.
+Requires: xorg-x11-drivers >= 0.99.2-4
+
 # NOTE: We use implementation non-specific "xkbdata" here, to make it easy
 # to switch to the freedesktop.org 'xkeyboard-config' project replacment
 # in the future.
@@ -496,8 +508,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Fri Nov 25 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-9
-- Bump and rebuild unchanged because beehive refuses to build -8, saying it
-  is already built somewhere, when it is _NOT_.
+- Added "Requires: xorg-x11-drivers >= 0.99.2-4" as a dependency of the Xorg
+  subpackage, to ensure that anaconda installs all of the drivers during OS
+  installs and upgrades, as requested by Jeremy Katz.
 
 * Fri Nov 25 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-8
 - Added xorg-server-0.99.3-rgb.txt-dix-config-fix.patch which fixes the
