@@ -1,11 +1,10 @@
-#!/bin/bash
 %define pkgname xorg-server
 %define cvsdate xxxxxxxxxxx
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.3
-Release:   7
+Release:   8
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -16,16 +15,16 @@ Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{pkgname
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=5093
 Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
-
+# xorg-server-0.99.3-rgb.txt-dix-config-fix.patch is from post-RC2 CVS
+Patch2:    xorg-server-0.99.3-rgb.txt-dix-config-fix.patch
 Patch100:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
 ExcludeArch: s390 s390x ppc64
 
-%define moduledir %{_libdir}/xorg/modules
-# FIXME:  This stuff should probably be in /usr/share or /usr/lib/X11
-# somewhere instead of in includedir, as it is C source, not include files.
-%define sdkdir %{_includedir}/xorg
+%define moduledir	%{_libdir}/xorg/modules
+%define xorgdatadir	%{_datadir}/xorg
+%define sdkdir		%{_datadir}/xorg/sdk
 
 %ifarch %{ix86} x86_64 ppc ia64
 %define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest
@@ -80,7 +79,7 @@ BuildRequires: libXtst-devel
 # Needed at least for DRI enabled builds
 %if %{with_dri}
 BuildRequires: mesa-source >= 6.4-4
-BuildRequires: libdrm-devel
+BuildRequires: libdrm-devel >= 1.0.5-1
 %endif
 %description
 X.Org X11 X server
@@ -203,19 +202,26 @@ drivers, input drivers, or other X modules should install this package.
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p0 -b .init-origins-fix
 %patch1 -p0 -b .fbmmx-fix-for-non-SSE-cpu
+%patch2 -p0 -b .rgb.txt-dix-config-fix
 
 %patch100 -p0 -b .redhat-die-ugly-pattern-die-die-die
 
 %build
+#FONTDIR="${datadir}/X11/fonts"
+#DEFAULT_FONT_PATH="${FONTDIR}/misc:unscaled,${FONTDIR}/TTF/,${FONTDIR}/OTF,${FONTDIR}/Type1/,${FONTDIR}/CID/,${FONTDIR}/100dpi:unscaled,${FONTDIR}/75dpi:unscaled"
+
+aclocal --force ; automake ; autoconf
 %configure %{xservers} \
 	--disable-dependency-tracking \
 	--disable-xprint \
 	--disable-static \
 	--enable-composite \
+%if %{with_dri}
 	--enable-xtrap \
 	--enable-xcsecurity \
 	--enable-xevie \
 	--enable-lbx \
+%endif
 %if %{with_dri}
 	--enable-dri \
 	--with-mesa-source=%{_datadir}/mesa/source \
@@ -482,14 +488,19 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %dir %{_libdir}/pkgconfig
 %{_libdir}/pkgconfig/xorg-server.pc
-%dir %{_includedir}
-%dir %{_includedir}/xorg
-%{_includedir}/xorg/*.h
+%dir %{xorgdatadir}
+%dir %{sdkdir}
+%{sdkdir}/*.h
 %{_datadir}/aclocal/xorg-server.m4
 
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Nov 23 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-8
+- Added xorg-server-0.99.3-rgb.txt-dix-config-fix.patch which fixes the
+  --with-rgb-path option to actually *work*.
+- Updated libdrm dep to 1.0.5
+
 * Wed Nov 23 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-7
 - Update xorg-x11-server-utils dep to 0.99.2-5 to ensure rgb.txt is installed
   in correct location - _datadir/X11/rgb
