@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   0.99.3
-Release:   8
+Release:   9
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -495,6 +495,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Nov 25 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-9
+- Bump and rebuild unchanged because beehive refuses to build -8, saying it
+  is already built somewhere, when it is _NOT_.
+
 * Fri Nov 25 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-8
 - Added xorg-server-0.99.3-rgb.txt-dix-config-fix.patch which fixes the
   --with-rgb-path option to actually *work*.
