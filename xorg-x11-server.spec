@@ -53,6 +53,7 @@ BuildRequires: xorg-x11-xtrans-devel
 # are using pre-rawhide modular X.
 BuildRequires: libXfont-devel >= 0.99.2-3
 BuildRequires: libXau-devel
+BuildRequires: mesa-libGL-devel
 BuildRequires: libxkbfile-devel
 # libdmx-devel needed for Xdmx
 BuildRequires: libdmx-devel
@@ -73,8 +74,12 @@ BuildRequires: libXres-devel
 # libfontenc-devel needed for Xorg, but not specified by
 # upstream deps.  Build fails without it.
 BuildRequires: libfontenc-devel
+# liblbxutil-devel needed for lbx
+BuildRequires: liblbxutil-devel
 # Required for Xtst examples
 BuildRequires: libXtst-devel
+# For Xdmxconfig 
+BuildRequires: libXt-devel libXpm-devel libXaw-devel
 # Needed at least for DRI enabled builds
 %if %{with_dri}
 BuildRequires: mesa-source >= 6.4-4
@@ -507,6 +512,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Nov 28 2005 Kristian Høgsberg <krh@redhat.com>
+- Add a few missing BuildRequires.
+
 * Fri Nov 25 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-9
 - Added "Requires: xorg-x11-drivers >= 0.99.2-4" as a dependency of the Xorg
   subpackage, to ensure that anaconda installs all of the drivers during OS
