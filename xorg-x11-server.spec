@@ -3,14 +3,14 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   0.99.3
-Release:   9
+Version:   1.0.0
+Release:   1
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC2/everything/%{pkgname}-%{version}.tar.bz2
+Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC4/everything/%{pkgname}-%{version}.tar.bz2
 
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=5093
@@ -23,7 +23,7 @@ Patch100:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 ExcludeArch: s390 s390x ppc64
 
 %define moduledir	%{_libdir}/xorg/modules
-%define sdkdir		%{_includedir}/xorg/sdk
+%define sdkdir		%{_includedir}/xorg
 
 %ifarch %{ix86} x86_64 ppc ia64
 %define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest
@@ -53,7 +53,7 @@ BuildRequires: xorg-x11-xtrans-devel
 # are using pre-rawhide modular X.
 BuildRequires: libXfont-devel >= 0.99.2-3
 BuildRequires: libXau-devel
-BuildRequires: mesa-libGL-devel
+BuildRequires: mesa-libGL-devel >= 6.4.1-1
 BuildRequires: libxkbfile-devel
 # libdmx-devel needed for Xdmx
 BuildRequires: libdmx-devel
@@ -80,10 +80,12 @@ BuildRequires: liblbxutil-devel
 BuildRequires: libXtst-devel
 # For Xdmxconfig 
 BuildRequires: libXt-devel libXpm-devel libXaw-devel
+# To query fontdir from fontutil.pc
+BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 # Needed at least for DRI enabled builds
 %if %{with_dri}
-BuildRequires: mesa-source >= 6.4-4
-BuildRequires: libdrm-devel >= 1.0.5-1
+BuildRequires: mesa-source >= 6.4.1-1
+BuildRequires: libdrm-devel >= 2.0-1
 %endif
 %description
 X.Org X11 X server
@@ -217,8 +219,8 @@ drivers, input drivers, or other X modules should install this package.
 %prep
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p0 -b .init-origins-fix
-%patch1 -p0 -b .fbmmx-fix-for-non-SSE-cpu
-%patch2 -p0 -b .rgb.txt-dix-config-fix
+#%patch1 -p0 -b .fbmmx-fix-for-non-SSE-cpu
+#%patch2 -p0 -b .rgb.txt-dix-config-fix
 
 %patch100 -p0 -b .redhat-die-ugly-pattern-die-die-die
 
@@ -226,18 +228,17 @@ drivers, input drivers, or other X modules should install this package.
 #FONTDIR="${datadir}/X11/fonts"
 #DEFAULT_FONT_PATH="${FONTDIR}/misc:unscaled,${FONTDIR}/TTF/,${FONTDIR}/OTF,${FONTDIR}/Type1/,${FONTDIR}/CID/,${FONTDIR}/100dpi:unscaled,${FONTDIR}/75dpi:unscaled"
 
-aclocal --force ; automake ; autoconf
+#	--disable-dependency-tracking \
+
+#aclocal --force ; automake ; autoconf
 %configure %{xservers} \
-	--disable-dependency-tracking \
 	--disable-xprint \
 	--disable-static \
 	--enable-composite \
-%if %{with_dri}
 	--enable-xtrap \
 	--enable-xcsecurity \
 	--enable-xevie \
 	--enable-lbx \
-%endif
 %if %{with_dri}
 	--enable-dri \
 	--with-mesa-source=%{_datadir}/mesa/source \
@@ -247,15 +248,19 @@ aclocal --force ; automake ; autoconf
 	--with-os-vendor="Red Hat, Inc." \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
 	--with-rgb-path=%{_datadir}/X11/rgb \
-	--disable-xorgcfg
+	--disable-xorgcfg \
+	--enable-install-libxf86config \
+	--with-fontdir=%(pkg-config --variable=fontdir fontutil)
+
+
+#	sdkdir=%{sdkdir}
 
 make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-#makeinstall moduledir=$RPM_BUILD_ROOT%{moduledir} sdkdir=$RPM_BUILD_ROOT%{sdkdir}
-# DESTDIR=$RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir} sdkdir=%{sdkdir}
+make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
+# sdkdir=%{sdkdir}
 
 # Remove all libtool archives (*.la)
 find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
@@ -269,6 +274,7 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm $RPM_BUILD_ROOT%{_bindir}/xorgconfig
     rm $RPM_BUILD_ROOT%{_mandir}/man1/xorgconfig.1*
     rm $RPM_BUILD_ROOT%{_libdir}/X11/Cards
+    rm $RPM_BUILD_ROOT%{_libdir}/X11/Options
     rm $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/cfg.sample
     rm $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/xorg.cfg
 %if ! %{with_developer_utils}
@@ -284,7 +290,7 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 }
 
 # FIXME: Move/rename manpages to correct location (still broke in RC2)
-%if 1
+%if 0
 {
     WRONG_DIR=$RPM_BUILD_ROOT%{_mandir}/man1
     MAN1X_DIR=$RPM_BUILD_ROOT%{_mandir}/man1x
@@ -389,45 +395,47 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules
 %dir %{_libdir}/xorg/modules/drivers
 %dir %{_libdir}/xorg/modules/extensions
+%{_libdir}/xorg/modules/extensions/libGLcore.so
+%{_libdir}/xorg/modules/extensions/libdbe.so
 %{_libdir}/xorg/modules/extensions/libdri.so
+%{_libdir}/xorg/modules/extensions/libextmod.so
+%{_libdir}/xorg/modules/extensions/libglx.so
+%{_libdir}/xorg/modules/extensions/librecord.so
+%{_libdir}/xorg/modules/extensions/libxtrap.so
 %dir %{_libdir}/xorg/modules/input
+%dir %{_libdir}/xorg/modules/fonts
+%{_libdir}/xorg/modules/fonts/libbitmap.so
+%{_libdir}/xorg/modules/fonts/libfreetype.so
+%{_libdir}/xorg/modules/fonts/libtype1.so
 %dir %{_libdir}/xorg/modules/linux
 %{_libdir}/xorg/modules/linux/libdrm.so
+%{_libdir}/xorg/modules/linux/libfbdevhw.so
 %dir %{_libdir}/xorg/modules/multimedia
 %{_libdir}/xorg/modules/multimedia/bt829_drv.so
 %{_libdir}/xorg/modules/multimedia/fi1236_drv.so
-%{_libdir}/xorg/modules/multimedia/libi2c.so
 %{_libdir}/xorg/modules/multimedia/msp3430_drv.so
 %{_libdir}/xorg/modules/multimedia/tda8425_drv.so
 %{_libdir}/xorg/modules/multimedia/tda9850_drv.so
 %{_libdir}/xorg/modules/multimedia/tda9885_drv.so
 %{_libdir}/xorg/modules/multimedia/uda1380_drv.so
-%{_libdir}/xorg/modules/libGLcore.so
 %{_libdir}/xorg/modules/libafb.so
-%{_libdir}/xorg/modules/libbitmap.so
 %{_libdir}/xorg/modules/libcfb.so
 %{_libdir}/xorg/modules/libcfb16.so
 %{_libdir}/xorg/modules/libcfb24.so
 %{_libdir}/xorg/modules/libcfb32.so
-%{_libdir}/xorg/modules/libdbe.so
 %{_libdir}/xorg/modules/libddc.so
 %{_libdir}/xorg/modules/libexa.so
-%{_libdir}/xorg/modules/libextmod.so
 %{_libdir}/xorg/modules/libfb.so
-%{_libdir}/xorg/modules/libfbdevhw.so
-%{_libdir}/xorg/modules/libfreetype.so
-%{_libdir}/xorg/modules/libglx.so
+%{_libdir}/xorg/modules/libi2c.so
 %{_libdir}/xorg/modules/libint10.so
 %{_libdir}/xorg/modules/liblayer.so
 %{_libdir}/xorg/modules/libmfb.so
 %{_libdir}/xorg/modules/libpcidata.so
 %{_libdir}/xorg/modules/librac.so
 %{_libdir}/xorg/modules/libramdac.so
-%{_libdir}/xorg/modules/librecord.so
 %{_libdir}/xorg/modules/libscanpci.so
 %{_libdir}/xorg/modules/libshadow.so
 %{_libdir}/xorg/modules/libshadowfb.so
-%{_libdir}/xorg/modules/libtype1.so
 %{_libdir}/xorg/modules/libvbe.so
 %{_libdir}/xorg/modules/libvgahw.so
 %{_libdir}/xorg/modules/libxaa.so
@@ -439,18 +447,19 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xserver
 %{_libdir}/xserver/SecurityPolicy
 %dir %{_mandir}
-%dir %{_mandir}/man1x
-%{_mandir}/man1x/getconfig.1x*
-%{_mandir}/man1x/gtf.1x*
-%{_mandir}/man1x/pcitweak.1x*
-%{_mandir}/man1x/scanpci.1x*
-%{_mandir}/man1x/Xorg.1x*
-%{_mandir}/man1x/Xserver.1x*
-%dir %{_mandir}/man4x
-%{_mandir}/man4x/fbdevhw.4x*
-%dir %{_mandir}/man5x
-%{_mandir}/man5x/getconfig.5x*
-%{_mandir}/man5x/xorg.conf.5x*
+%dir %{_mandir}/man1
+%{_mandir}/man1/getconfig.1x*
+%{_mandir}/man1/gtf.1x*
+%{_mandir}/man1/pcitweak.1x*
+%{_mandir}/man1/scanpci.1x*
+%{_mandir}/man1/Xorg.1x*
+%{_mandir}/man1/Xserver.1x*
+%dir %{_mandir}/man4
+#%{_mandir}/man4/fbdevhw.4x*
+%{_mandir}/man4/fbdevhw.4*
+%dir %{_mandir}/man5
+%{_mandir}/man5/getconfig.5x*
+%{_mandir}/man5/xorg.conf.5x*
 %dir %{_localstatedir}/lib/xkb
 %{_localstatedir}/lib/xkb/README.compiled
 
@@ -461,8 +470,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_bindir}
 %{_bindir}/Xnest
 %dir %{_mandir}
-%dir %{_mandir}/man1x
-%{_mandir}/man1x/Xnest.1x*
+%dir %{_mandir}/man1
+%{_mandir}/man1/Xnest.1x*
 
 # ----- Xdmx --------------------------------------------------------
 
@@ -482,11 +491,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/xdmx
 %{_bindir}/xdmxconfig
 %dir %{_mandir}
-%dir %{_mandir}/man1x
-%{_mandir}/man1x/Xdmx.1x*
-%{_mandir}/man1x/dmxtodmx.1x*
-%{_mandir}/man1x/vdltodmx.1x*
-%{_mandir}/man1x/xdmxconfig.1x*
+%dir %{_mandir}/man1
+%{_mandir}/man1/Xdmx.1x*
+%{_mandir}/man1/dmxtodmx.1x*
+%{_mandir}/man1/vdltodmx.1x*
+%{_mandir}/man1/xdmxconfig.1x*
 
 # ----- Xvfb --------------------------------------------------------
 
@@ -495,23 +504,29 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_bindir}
 %{_bindir}/Xvfb
 %dir %{_mandir}
-%dir %{_mandir}/man1x
-%{_mandir}/man1x/Xvfb.1x*
+%dir %{_mandir}/man1
+%{_mandir}/man1/Xvfb.1x*
 
 # ----- sdk ---------------------------------------------------------
 
 %files sdk
 %defattr(-,root,root,-)
+%{_libdir}/libxf86config.a
 %dir %{_libdir}/pkgconfig
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
-%dir %{_includedir}/xorg/sdk
+#%dir %{_includedir}/xorg/sdk
 %{sdkdir}/*.h
 %{_datadir}/aclocal/xorg-server.m4
 
 # -------------------------------------------------------------------
 
 %changelog
+* Sat Dec 17 2005 Mike A. Harris <mharris@redhat.com> 1.0.0-1
+- Removed xorg-server-0.99.3-rgb.txt-dix-config-fix.patch which is integrated
+- manNx -> manN
+- Added libxf86config.a to sdk
+
 * Mon Nov 28 2005 Kristian Høgsberg <krh@redhat.com>
 - Add a few missing BuildRequires.
 
