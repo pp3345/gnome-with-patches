@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.0
-Release:   1
+Release:   2
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -17,6 +17,7 @@ Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
 Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
 # xorg-server-0.99.3-rgb.txt-dix-config-fix.patch is from post-RC2 CVS
 Patch2:    xorg-server-0.99.3-rgb.txt-dix-config-fix.patch
+Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch100:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
@@ -221,6 +222,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch0 -p0 -b .init-origins-fix
 #%patch1 -p0 -b .fbmmx-fix-for-non-SSE-cpu
 #%patch2 -p0 -b .rgb.txt-dix-config-fix
+%patch3 -p0 -b .parser-add-missing-headers-to-sdk
 
 %patch100 -p0 -b .redhat-die-ugly-pattern-die-die-die
 
@@ -230,7 +232,7 @@ drivers, input drivers, or other X modules should install this package.
 
 #	--disable-dependency-tracking \
 
-#aclocal --force ; automake ; autoconf
+automake-1.7 ; autoconf
 %configure %{xservers} \
 	--disable-xprint \
 	--disable-static \
@@ -522,10 +524,25 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Dec 21 2005 Mike A. Harris <mharris@redhat.com> 1.0.0-2
+- Added xserver-1.0.0-parser-add-missing-headers-to-sdk.patch to provide the
+  necessary libxf86config.a headers to be able to use the library. (#173084)
+
 * Sat Dec 17 2005 Mike A. Harris <mharris@redhat.com> 1.0.0-1
-- Removed xorg-server-0.99.3-rgb.txt-dix-config-fix.patch which is integrated
-- manNx -> manN
-- Added libxf86config.a to sdk
+- Updated to xserver 1.0.0 from X11R7 RC4
+- Removed the following patches, which are now integrated upstream:
+  - xorg-server-0.99.3-rgb.txt-dix-config-fix.patch,
+  - xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
+- Changed manNx directories to manN to match upstream defaults.
+- Added libxf86config.a to sdk subpackage.
+- Updated build dependency of "mesa-libGL-devel >= 6.4.1-1"
+- Added "BuildRequires: xorg-x11-font-utils >= 1.0.0-1" to be able to query
+  the fontdir from fontutil.pc which is implemented currently by a custom
+  patch.
+- Enable xtrap, xcsecurity, xevie, and lbx on all builds, not just DRI builds.
+- Fix sdk installation path, so that drivers can find the files again.
+- Update file manifest, to deal with X server modules that have moved to
+  a subdir, etc.
 
 * Mon Nov 28 2005 Kristian Høgsberg <krh@redhat.com>
 - Add a few missing BuildRequires.
