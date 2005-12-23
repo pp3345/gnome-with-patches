@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.0
-Release:   2
+Release:   3
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -208,6 +208,8 @@ Group: User Interface/X
 Obsoletes: XFree86-sdk xorg-x11-sdk
 Requires: xorg-x11-util-macros
 Requires(pre): xorg-x11-filesystem >= 0.99.2-3
+
+Provides: libxf86config-devel = %{version}-%{release}
 
 %description sdk
 The SDK package provides the developmental files which are necessary for
@@ -524,6 +526,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Dec 22 2005 Mike A. Harris <mharris@redhat.com> 1.0.0-3
+- Added "Provides: libxf86config-devel = %{version}-%{release}" to sdk package.
+
 * Wed Dec 21 2005 Mike A. Harris <mharris@redhat.com> 1.0.0-2
 - Added xserver-1.0.0-parser-add-missing-headers-to-sdk.patch to provide the
   necessary libxf86config.a headers to be able to use the library. (#173084)
