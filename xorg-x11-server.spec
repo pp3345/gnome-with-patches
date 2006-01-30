@@ -3,14 +3,14 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.0.0
-Release:   3
+Version:   1.0.1
+Release:   1
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Source0:   http://xorg.freedesktop.org/releases/X11R7.0-RC4/everything/%{pkgname}-%{version}.tar.bz2
+Source0:   http://xorg.freedesktop.org/releases/X11R7.0/src/everything/%{pkgname}-%{version}.tar.bz2
 
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=5093
@@ -526,6 +526,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Jan 18 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-1
+- Updated to xserver 1.0.1 from X11R7.0
+
 * Thu Dec 22 2005 Mike A. Harris <mharris@redhat.com> 1.0.0-3
 - Added "Provides: libxf86config-devel = %{version}-%{release}" to sdk package.
 
