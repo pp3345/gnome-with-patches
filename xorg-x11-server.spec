@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.1
-Release:   2
+Release:   3
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -18,6 +18,7 @@ Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
 # xorg-server-0.99.3-rgb.txt-dix-config-fix.patch is from post-RC2 CVS
 Patch2:    xorg-server-0.99.3-rgb.txt-dix-config-fix.patch
 Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
+Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 
 # Patches taken from xserver/xorg CVS HEAD, post-1.0.1
 Patch100:  xorg-x11-server-1.0.1-fbpict-fix-rounding.patch
@@ -230,6 +231,7 @@ drivers, input drivers, or other X modules should install this package.
 #%patch1 -p0 -b .fbmmx-fix-for-non-SSE-cpu
 #%patch2 -p0 -b .rgb.txt-dix-config-fix
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
+%patch4 -p0 -b .composite-fastpath-fdo4320
 
 %patch100 -p2 -b .fbpict-fix-rounding
 %patch101 -p2 -b .SEGV-on-null-interface
@@ -264,15 +266,11 @@ automake-1.7 ; autoconf
 	--enable-install-libxf86config \
 	--with-fontdir=%(pkg-config --variable=fontdir fontutil)
 
-
-#	sdkdir=%{sdkdir}
-
 make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
-# sdkdir=%{sdkdir}
 
 # Remove all libtool archives (*.la)
 find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
@@ -301,25 +299,8 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 %endif
 }
 
-# FIXME: Move/rename manpages to correct location (still broke in RC2)
-%if 0
-{
-    WRONG_DIR=$RPM_BUILD_ROOT%{_mandir}/man1
-    MAN1X_DIR=$RPM_BUILD_ROOT%{_mandir}/man1x
-
-    [ ! -d $MAN1X_DIR ] && mkdir -p $MAN1X_DIR
-    mv ${WRONG_DIR}/* ${MAN1X_DIR}/
-    for each in ${MAN1X_DIR}/* ; do
-        mv $each ${each/.1/.1x}
-    done
-    rmdir $WRONG_DIR
-}
-%endif
-
 %clean
 rm -rf $RPM_BUILD_ROOT
-
-
 
 %pre Xorg
 {
@@ -367,26 +348,12 @@ rm -rf $RPM_BUILD_ROOT
 #  done
   popd
 
-# FIXME: I don't think this is needed anymore.  We'll block it for now and see what breaks.
-%if 0
-  # Do this for upgrades or installs
-  XKB_DIR=%{_x11datadir}/X11/xkb/compiled
-  if [ ! -L $XKB_DIR -a -d $XKB_DIR ]; then
-    mkdir -p /var/lib/xkb
-    mv -f $XKB_DIR /var/lib/xkb/
-    ln -sf ../../../../../var/lib/xkb $XKB_DIR
-  fi
-%endif
-} &> /dev/null || :
-
-
 # ----- Xorg --------------------------------------------------------
 
 %files Xorg
 %defattr(-,root,root,-)
 # FIXME: The build fails to find the Changelog for some reason.
 #%doc ChangeLog
-%dir %{_bindir}
 %{_bindir}/X
 %attr(4711, root, root) %{_bindir}/Xorg
 %{_bindir}/getconfig
@@ -458,18 +425,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libxf8_32wid.so
 %dir %{_libdir}/xserver
 %{_libdir}/xserver/SecurityPolicy
-%dir %{_mandir}
-%dir %{_mandir}/man1
+#%dir %{_mandir}/man1x
 %{_mandir}/man1/getconfig.1x*
 %{_mandir}/man1/gtf.1x*
 %{_mandir}/man1/pcitweak.1x*
 %{_mandir}/man1/scanpci.1x*
 %{_mandir}/man1/Xorg.1x*
 %{_mandir}/man1/Xserver.1x*
-%dir %{_mandir}/man4
+#%dir %{_mandir}/man4x
 #%{_mandir}/man4/fbdevhw.4x*
 %{_mandir}/man4/fbdevhw.4*
-%dir %{_mandir}/man5
+#%dir %{_mandir}/man5x
 %{_mandir}/man5/getconfig.5x*
 %{_mandir}/man5/xorg.conf.5x*
 %dir %{_localstatedir}/lib/xkb
@@ -479,17 +445,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %files Xnest
 %defattr(-,root,root,-)
-%dir %{_bindir}
 %{_bindir}/Xnest
-%dir %{_mandir}
-%dir %{_mandir}/man1
+#%dir %{_mandir}/man1x
 %{_mandir}/man1/Xnest.1x*
 
 # ----- Xdmx --------------------------------------------------------
 
 %files Xdmx
 %defattr(-,root,root,-)
-%dir %{_bindir}
 %{_bindir}/Xdmx
 %{_bindir}/dmxaddinput
 %{_bindir}/dmxaddscreen
@@ -502,8 +465,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/vdltodmx
 %{_bindir}/xdmx
 %{_bindir}/xdmxconfig
-%dir %{_mandir}
-%dir %{_mandir}/man1
+#%dir %{_mandir}/man1x
 %{_mandir}/man1/Xdmx.1x*
 %{_mandir}/man1/dmxtodmx.1x*
 %{_mandir}/man1/vdltodmx.1x*
@@ -513,10 +475,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files Xvfb
 %defattr(-,root,root,-)
-%dir %{_bindir}
 %{_bindir}/Xvfb
-%dir %{_mandir}
-%dir %{_mandir}/man1
+#%dir %{_mandir}/man1x
 %{_mandir}/man1/Xvfb.1x*
 
 # ----- sdk ---------------------------------------------------------
@@ -534,6 +494,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Feb  6 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-3
+- Added xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch with changes
+  suggested by ajax to fix (fdo#4320).
+- Cosmetic cleanups to satiate the banshees.
+
 * Sun Feb  5 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-2
 - Added xorg-x11-server-1.0.1-fbpict-fix-rounding.patch from CVS HEAD.
 - Added xorg-x11-server-1.0.1-SEGV-on-null-interface.patch which prevents a
