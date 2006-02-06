@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.1
-Release:   1
+Release:   2
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -18,7 +18,12 @@ Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
 # xorg-server-0.99.3-rgb.txt-dix-config-fix.patch is from post-RC2 CVS
 Patch2:    xorg-server-0.99.3-rgb.txt-dix-config-fix.patch
 Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
-Patch100:  xorg-redhat-die-ugly-pattern-die-die-die.patch
+
+# Patches taken from xserver/xorg CVS HEAD, post-1.0.1
+Patch100:  xorg-x11-server-1.0.1-fbpict-fix-rounding.patch
+Patch101:  xorg-x11-server-1.0.1-SEGV-on-null-interface.patch
+
+Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
 ExcludeArch: s390 s390x ppc64
@@ -226,7 +231,10 @@ drivers, input drivers, or other X modules should install this package.
 #%patch2 -p0 -b .rgb.txt-dix-config-fix
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
 
-%patch100 -p0 -b .redhat-die-ugly-pattern-die-die-die
+%patch100 -p2 -b .fbpict-fix-rounding
+%patch101 -p2 -b .SEGV-on-null-interface
+
+%patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -526,6 +534,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Sun Feb  5 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-2
+- Added xorg-x11-server-1.0.1-fbpict-fix-rounding.patch from CVS HEAD.
+- Added xorg-x11-server-1.0.1-SEGV-on-null-interface.patch which prevents a
+  SEGV on null interfaces (#174279,178986)
+
 * Wed Jan 18 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-1
 - Updated to xserver 1.0.1 from X11R7.0
 
