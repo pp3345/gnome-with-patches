@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.1
-Release:   3
+Release:   4
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -347,6 +347,7 @@ rm -rf $RPM_BUILD_ROOT
     fi
 #  done
   popd
+} &> /dev/null || :
 
 # ----- Xorg --------------------------------------------------------
 
@@ -494,6 +495,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Feb  6 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-4
+- Fix brown paper bag error introduced in rpm post script in 1.0.1-4.
+
 * Mon Feb  6 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-3
 - Added xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch with changes
   suggested by ajax to fix (fdo#4320).
