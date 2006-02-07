@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.1
-Release:   4
+Release:   5
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -60,7 +60,6 @@ BuildRequires: xorg-x11-xtrans-devel
 # are using pre-rawhide modular X.
 BuildRequires: libXfont-devel >= 0.99.2-3
 BuildRequires: libXau-devel
-BuildRequires: mesa-libGL-devel >= 6.4.1-1
 BuildRequires: libxkbfile-devel
 # libdmx-devel needed for Xdmx
 BuildRequires: libdmx-devel
@@ -91,7 +90,9 @@ BuildRequires: libXt-devel libXpm-devel libXaw-devel
 BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 # Needed at least for DRI enabled builds
 %if %{with_dri}
-BuildRequires: mesa-source >= 6.4.1-1
+BuildRequires: mesa-libGL-devel >= 6.4.1-1
+# "mesa-libGL-source >= 6.4.2-2" required for the solution for bug #176976
+BuildRequires: mesa-source >= 6.4.2-2
 BuildRequires: libdrm-devel >= 2.0-1
 %endif
 %description
@@ -495,6 +496,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Feb  7 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-5
+- Updated "BuildRequires: mesa-source >= 6.4.2-2" to get fix for (#176976)
+
 * Mon Feb  6 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-4
 - Fix brown paper bag error introduced in rpm post script in 1.0.1-4.
 
