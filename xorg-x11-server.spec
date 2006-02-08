@@ -4,13 +4,14 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.1
-Release:   5
+Release:   6
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0/src/everything/%{pkgname}-%{version}.tar.bz2
+Source100: comment-header-modefiles.txt
 
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=5093
@@ -25,6 +26,7 @@ Patch100:  xorg-x11-server-1.0.1-fbpict-fix-rounding.patch
 Patch101:  xorg-x11-server-1.0.1-SEGV-on-null-interface.patch
 
 Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
+Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
 ExcludeArch: s390 s390x ppc64
@@ -238,6 +240,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch101 -p2 -b .SEGV-on-null-interface
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
+%patch1001 -p0 -b .Red-Hat-extramodes
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -279,6 +282,17 @@ find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 # FIXME: This should be done upstream, so it's one less thing to hack.
 # Make these directories now so the Xorg package can own them.
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
+
+# Install the vesamodes and extramodes files to let our install/config tools
+# be able to parse the same modelist as the X server uses (rhpxl).
+{
+    mkdir -p $RPM_BUILD_ROOT%{_datadir}/xorg
+    for each in vesamodes extramodes ; do
+        install -m 0644 %{SOURCE100} $RPM_BUILD_ROOT%{_datadir}/xorg/$each
+        cat hw/xfree86/common/$each >> $RPM_BUILD_ROOT%{_datadir}/xorg/$each
+        chmod 0444 $RPM_BUILD_ROOT%{_datadir}/xorg/$each
+    done
+}
 
 # FIXME: Remove unwanted files/dirs
 {
@@ -372,6 +386,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/pcitweak
 %endif
 %{_bindir}/scanpci
+%dir %{_datadir}/xorg
+%{_datadir}/xorg/vesamodes
+%{_datadir}/xorg/extramodes
 %dir %{_libdir}/xorg
 %dir %{_libdir}/xorg/modules
 %dir %{_libdir}/xorg/modules/drivers
@@ -496,6 +513,14 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Feb  8 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-6
+- Added xorg-x11-server-1.0.1-Red-Hat-extramodes.patch which is a merger of
+  XFree86-4.2.99.2-redhat-custom-modelines.patch and
+  xorg-x11-6.8.2-laptop-modes.patch from FC4 for (#180301)
+- Install a copy of the vesamodes and extramodes files which contain the list
+  of video modes that are built into the X server, so that the "rhpxl" package
+  does not have to carry around an out of sync copy for itself. (#180301)
+
 * Tue Feb  7 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-5
 - Updated "BuildRequires: mesa-source >= 6.4.2-2" to get fix for (#176976)
 
