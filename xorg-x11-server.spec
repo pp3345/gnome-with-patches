@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.1
-Release:   6
+Release:   6.1
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -513,6 +513,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> - 1.0.1-6.1
+- bump again for double-long bug on ppc(64)
+
 * Wed Feb  8 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-6
 - Added xorg-x11-server-1.0.1-Red-Hat-extramodes.patch which is a merger of
   XFree86-4.2.99.2-redhat-custom-modelines.patch and
