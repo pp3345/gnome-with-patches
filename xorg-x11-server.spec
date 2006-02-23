@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.1
-Release:   6.1
+Release:   7
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -21,6 +21,8 @@ Patch2:    xorg-server-0.99.3-rgb.txt-dix-config-fix.patch
 Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch5:    xorg-server-1.0.1-backtrace.patch
+# https://bugs.freedesktop.org/show_bug.cgi?id=6010
+Patch6:    xserver-1.0.1-randr-sdk.patch
 
 # Patches taken from xserver/xorg CVS HEAD, post-1.0.1
 Patch100:  xorg-x11-server-1.0.1-fbpict-fix-rounding.patch
@@ -237,6 +239,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
 %patch4 -p0 -b .composite-fastpath-fdo4320
 %patch5 -p0 -b .backtrace
+%patch6 -p1 -b .randrsdk
 
 %patch100 -p2 -b .fbpict-fix-rounding
 %patch101 -p2 -b .SEGV-on-null-interface
@@ -515,6 +518,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Feb 22 2006 Jeremy Katz <katzj@redhat.com> - 1.0.1-7
+- install randrstr.h as part of sdk as required for building some drivers
+
 * Tue Feb 21 2006 Mike A. Harris <mharris@redhat.com>
 - Added xorg-server-1.0.1-backtrace.patch which enables the Xorg server's
   built in backtrace support by default, as it was inadvertently disabled in
