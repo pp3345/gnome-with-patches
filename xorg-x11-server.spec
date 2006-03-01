@@ -324,9 +324,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre Xorg
 {
+  # Install/Upgrade section
   pushd /etc/X11
   # Migrate any pre-existing XFree86 4.x config file to xorg.conf if it
-  # doesn't already exist, and rename any remaining XFree86 4.x congig files
+  # doesn't already exist, and rename any remaining XFree86 4.x config files
   # to have .obsoleted file extensions, to help avoid end user confusion for
   # people unaware of the config file name change between server
   # implementations, and avoid bug reports.  If this turns out to confuse
@@ -518,7 +519,7 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
-* Wed Feb 22 2006 Jeremy Katz <katzj@redhat.com> - 1.0.1-7
+* Wed Feb 22 2006 Jeremy Katz <katzj@redhat.com> 1.0.1-7
 - install randrstr.h as part of sdk as required for building some drivers
 
 * Tue Feb 21 2006 Mike A. Harris <mharris@redhat.com>
@@ -614,7 +615,7 @@ rm -rf $RPM_BUILD_ROOT
   stipple once again for bug (#173423).
 - Added "BuildRequires: libdrm-devel" for DRI enabled builds.
 
-* Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-5
+* Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> 0.99.3-5
 - Xorg server should be suid for users to be able to run startx (#173064)
 
 * Mon Nov 14 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-4
@@ -628,11 +629,11 @@ rm -rf $RPM_BUILD_ROOT
 - Re-enable _smp_mflags during build.
 - Added "Requires: xorg-x11-drv-vesa" to Xorg subpackage (#173060)
 
-* Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-3
+* Mon Nov 14 2005 Jeremy Katz <katzj@redhat.com> 0.99.3-3
 - provide Xserver
 - add another requires for basic bits
 
-* Sun Nov 13 2005 Jeremy Katz <katzj@redhat.com> - 0.99.3-2
+* Sun Nov 13 2005 Jeremy Katz <katzj@redhat.com> 0.99.3-2
 - add some deps to the Xorg subpackage for base fonts, keyboard and mouse 
   drivers, and rgb.txt that the server really wont work without
 
