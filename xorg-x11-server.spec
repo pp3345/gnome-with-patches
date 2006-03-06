@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.1
-Release:   7
+Release:   8
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -23,6 +23,8 @@ Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch5:    xorg-server-1.0.1-backtrace.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=6010
 Patch6:    xserver-1.0.1-randr-sdk.patch
+# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
+Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
 
 # Patches taken from xserver/xorg CVS HEAD, post-1.0.1
 Patch100:  xorg-x11-server-1.0.1-fbpict-fix-rounding.patch
@@ -240,12 +242,13 @@ drivers, input drivers, or other X modules should install this package.
 %patch4 -p0 -b .composite-fastpath-fdo4320
 %patch5 -p0 -b .backtrace
 %patch6 -p1 -b .randrsdk
+%patch7 -p1 -b .xf86configfpic
 
 %patch100 -p2 -b .fbpict-fix-rounding
 %patch101 -p2 -b .SEGV-on-null-interface
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
-%patch1001 -p0 -b .Red-Hat-extramodes
+%patch1001 -p1 -b .Red-Hat-extramodes
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -519,6 +522,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Mar  6 2006 Jeremy Katz <katzj@redhat.com> - 1.0.1-8
+- build libxf86config with -fPIC (#181292)
+- fix sgi 1600sw extra mode (#182430)
+
 * Wed Feb 22 2006 Jeremy Katz <katzj@redhat.com> 1.0.1-7
 - install randrstr.h as part of sdk as required for building some drivers
 
