@@ -5,7 +5,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.99.1
-Release:   1
+Release:   2
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -27,6 +27,7 @@ Patch5:    xorg-server-1.0.1-backtrace.patch
 Patch6:    xserver-1.0.1-randr-sdk.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
+Patch8:    xorg-server-1.0.99-composite-visibility.patch
 
 Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
@@ -241,6 +242,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch5 -p0 -b .backtrace
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .xf86configfpic
+%patch8 -p1 -b .composite-visibility
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -519,6 +521,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Mar 22 2006 Soren Sandmann <sandmann@redhat.com> 1.0.99.1-2
+- Add xorg-server-1.0.99-composite-visibility.patch to get rid of flashing
+  titlebars in compositing metacity.
+
 * Tue Mar 21 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.1-1
 - Update to 1.0.99.1 snapshot.
 
