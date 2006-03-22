@@ -1,16 +1,18 @@
 %define pkgname xorg-server
-%define cvsdate xxxxxxxxxxx
+%define cvsdate cvs20060321
+%define mesalib MesaLib-6.5-cvs20060321.tar.bz2
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.0.1
-Release:   8
+Version:   1.0.99.1
+Release:   1
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0/src/everything/%{pkgname}-%{version}.tar.bz2
+Source1:   %{mesalib}
 Source100: comment-header-modefiles.txt
 
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
@@ -25,10 +27,6 @@ Patch5:    xorg-server-1.0.1-backtrace.patch
 Patch6:    xserver-1.0.1-randr-sdk.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
-
-# Patches taken from xserver/xorg CVS HEAD, post-1.0.1
-Patch100:  xorg-x11-server-1.0.1-fbpict-fix-rounding.patch
-Patch101:  xorg-x11-server-1.0.1-SEGV-on-null-interface.patch
 
 Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
@@ -99,7 +97,7 @@ BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 %if %{with_dri}
 BuildRequires: mesa-libGL-devel >= 6.4.1-1
 # "mesa-libGL-source >= 6.4.2-2" required for the solution for bug #176976
-BuildRequires: mesa-source >= 6.4.2-2
+# BuildRequires: mesa-source >= 6.4.2-2
 BuildRequires: libdrm-devel >= 2.0-1
 %endif
 %description
@@ -244,11 +242,10 @@ drivers, input drivers, or other X modules should install this package.
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .xf86configfpic
 
-%patch100 -p2 -b .fbpict-fix-rounding
-%patch101 -p2 -b .SEGV-on-null-interface
-
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
+
+tar xfj %{_sourcedir}/%{mesalib}
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -256,7 +253,7 @@ drivers, input drivers, or other X modules should install this package.
 
 #	--disable-dependency-tracking \
 
-automake-1.7 ; autoconf
+automake; autoconf
 %configure %{xservers} \
 	--disable-xprint \
 	--disable-static \
@@ -267,7 +264,7 @@ automake-1.7 ; autoconf
 	--enable-lbx \
 %if %{with_dri}
 	--enable-dri \
-	--with-mesa-source=%{_datadir}/mesa/source \
+	--with-mesa-source=%{_builddir}/%{pkgname}-%{version}/Mesa-6.5 \
 %endif
 	--with-module-dir=%{moduledir} \
 	--with-os-name="Fedora Core 5" \
@@ -319,6 +316,7 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_bindir}/outl
     rm -f $RPM_BUILD_ROOT%{_bindir}/outw
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
+    rm -f $RPM_BUILD_ROOT%{_bindir}/cvt
 %endif
 }
 
@@ -393,6 +391,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/outl
 %{_bindir}/outw
 %{_bindir}/pcitweak
+%{_bindir}/cvt
 %endif
 %{_bindir}/scanpci
 %dir %{_datadir}/xorg
@@ -428,14 +427,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libafb.so
 %{_libdir}/xorg/modules/libcfb.so
 %{_libdir}/xorg/modules/libcfb16.so
-%{_libdir}/xorg/modules/libcfb24.so
 %{_libdir}/xorg/modules/libcfb32.so
 %{_libdir}/xorg/modules/libddc.so
 %{_libdir}/xorg/modules/libexa.so
 %{_libdir}/xorg/modules/libfb.so
 %{_libdir}/xorg/modules/libi2c.so
 %{_libdir}/xorg/modules/libint10.so
-%{_libdir}/xorg/modules/liblayer.so
 %{_libdir}/xorg/modules/libmfb.so
 %{_libdir}/xorg/modules/libpcidata.so
 %{_libdir}/xorg/modules/librac.so
@@ -450,7 +447,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libxf4bpp.so
 %{_libdir}/xorg/modules/libxf8_16bpp.so
 %{_libdir}/xorg/modules/libxf8_32bpp.so
-%{_libdir}/xorg/modules/libxf8_32wid.so
 %dir %{_libdir}/xserver
 %{_libdir}/xserver/SecurityPolicy
 #%dir %{_mandir}/man1x
@@ -460,6 +456,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/scanpci.1x*
 %{_mandir}/man1/Xorg.1x*
 %{_mandir}/man1/Xserver.1x*
+%{_mandir}/man1/cvt.1*
 #%dir %{_mandir}/man4x
 #%{_mandir}/man4/fbdevhw.4x*
 %{_mandir}/man4/fbdevhw.4*
@@ -522,6 +519,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Mar 21 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.1-1
+- Update to 1.0.99.1 snapshot.
+
 * Mon Mar  6 2006 Jeremy Katz <katzj@redhat.com> - 1.0.1-8
 - build libxf86config with -fPIC (#181292)
 - fix sgi 1600sw extra mode (#182430)

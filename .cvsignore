@@ -1,3 +1,4 @@
-*.tar.bz2
-*.tar.gz
-clog
+xorg-server-1.0.99.1
+MesaLib-6.5.tar.bz2
+xorg-server-1.0.99.1.tar.bz2
+MesaLib-6.5-cvs20060321.tar.bz2
