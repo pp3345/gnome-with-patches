@@ -27,6 +27,8 @@ Patch5:    xorg-server-1.0.1-backtrace.patch
 Patch6:    xserver-1.0.1-randr-sdk.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
+
+# Already in CVS as of Thu Mar 23 17:48:39 EST 2006
 Patch8:    xorg-server-1.0.99-composite-visibility.patch
 
 Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
@@ -36,6 +38,7 @@ Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
 ExcludeArch: s390 s390x ppc64
 
 %define moduledir	%{_libdir}/xorg/modules
+%define drimoduledir	%{_libdir}/dri
 %define sdkdir		%{_includedir}/xorg
 
 %ifarch %{ix86} x86_64 ppc ia64
@@ -267,6 +270,7 @@ automake; autoconf
 %if %{with_dri}
 	--enable-dri \
 	--with-mesa-source=%{_builddir}/%{pkgname}-%{version}/Mesa-6.5 \
+	--with-dri-driver-path=%{drimoduledir} \
 %endif
 	--with-module-dir=%{moduledir} \
 	--with-os-name="Fedora Core 5" \
@@ -521,6 +525,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Mar 23 2006 Kristian Høgsberg <krh@redhat.com>
+- Pass --with-dri-driver-path so we're sure to point it to the right path.
+
 * Wed Mar 22 2006 Soren Sandmann <sandmann@redhat.com> 1.0.99.1-2
 - Add xorg-server-1.0.99-composite-visibility.patch to get rid of flashing
   titlebars in compositing metacity.
