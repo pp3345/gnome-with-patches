@@ -1,35 +1,27 @@
 %define pkgname xorg-server
 %define cvsdate cvs20060321
-%define mesalib MesaLib-6.5-cvs20060321.tar.bz2
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.0.99.1
-Release:   2
+Version:   1.0.99.2
+Release:   1
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Source0:   http://xorg.freedesktop.org/releases/X11R7.0/src/everything/%{pkgname}-%{version}.tar.bz2
-Source1:   %{mesalib}
 Source100: comment-header-modefiles.txt
 
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=5093
 Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
-# xorg-server-0.99.3-rgb.txt-dix-config-fix.patch is from post-RC2 CVS
-Patch2:    xorg-server-0.99.3-rgb.txt-dix-config-fix.patch
 Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
-Patch5:    xorg-server-1.0.1-backtrace.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=6010
 Patch6:    xserver-1.0.1-randr-sdk.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
-
-# Already in CVS as of Thu Mar 23 17:48:39 EST 2006
-Patch8:    xorg-server-1.0.99-composite-visibility.patch
 
 Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
@@ -99,9 +91,8 @@ BuildRequires: libXt-devel libXpm-devel libXaw-devel
 BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 # Needed at least for DRI enabled builds
 %if %{with_dri}
-BuildRequires: mesa-libGL-devel >= 6.4.1-1
-# "mesa-libGL-source >= 6.4.2-2" required for the solution for bug #176976
-# BuildRequires: mesa-source >= 6.4.2-2
+BuildRequires: mesa-libGL-devel >= 6.5-1
+BuildRequires: mesa-source >= 6.5-1
 BuildRequires: libdrm-devel >= 2.0-1
 %endif
 %description
@@ -239,18 +230,13 @@ drivers, input drivers, or other X modules should install this package.
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p0 -b .init-origins-fix
 #%patch1 -p0 -b .fbmmx-fix-for-non-SSE-cpu
-#%patch2 -p0 -b .rgb.txt-dix-config-fix
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
 %patch4 -p0 -b .composite-fastpath-fdo4320
-%patch5 -p0 -b .backtrace
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .xf86configfpic
-%patch8 -p1 -b .composite-visibility
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
-
-tar xfj %{_sourcedir}/%{mesalib}
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -269,7 +255,7 @@ automake; autoconf
 	--enable-lbx \
 %if %{with_dri}
 	--enable-dri \
-	--with-mesa-source=%{_builddir}/%{pkgname}-%{version}/Mesa-6.5 \
+	--with-mesa-source=%{_datadir}/mesa/source \
 	--with-dri-driver-path=%{drimoduledir} \
 %endif
 	--with-module-dir=%{moduledir} \
@@ -525,6 +511,12 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Apr  4 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.2-1
+- Update to 1.0.99.2 snapshot and go back to using mesa-source package.
+- Drop xorg-server-1.0.99-composite-visibility.patch.
+- Drop xorg-server-1.0.1-backtrace.patch.
+- Drop xorg-server-0.99.3-rgb.txt-dix-config-fix.patch.
+
 * Thu Mar 23 2006 Kristian Høgsberg <krh@redhat.com>
 - Pass --with-dri-driver-path so we're sure to point it to the right path.
 
