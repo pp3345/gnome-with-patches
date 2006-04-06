@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.99.2
-Release:   1
+Release:   2
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -22,6 +22,8 @@ Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch6:    xserver-1.0.1-randr-sdk.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
+# REMOVE ME FOR 1.0.99.3
+Patch8:	   xorg-x11-server-1.0.99.2-no-kdrive-dri.patch
 
 # Spiffiffity feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
@@ -84,8 +86,6 @@ BuildRequires: libXres-devel
 # libfontenc-devel needed for Xorg, but not specified by
 # upstream deps.  Build fails without it.
 BuildRequires: libfontenc-devel
-# liblbxutil-devel needed for lbx
-BuildRequires: liblbxutil-devel
 # Required for Xtst examples
 BuildRequires: libXtst-devel
 # For Xdmxconfig 
@@ -210,6 +210,27 @@ Xvfb simulates a dumb framebuffer using virtual memory.  Xvfb does
 not open any devices, but behaves otherwise as an X display.  Xvfb
 is normally used for testing servers.
 
+# ----- Xephyr -------------------------------------------------------
+
+%package Xephyr
+Summary: A nested server.
+Group: User Interface/X
+#Requires: %{name} = %{version}-%{release}
+# NOTE: This virtual provide should be used by packages which want to depend
+# on an implementation nonspecific Xephyr X server.  It is intentionally not
+# versioned, since it should be agnostic.
+Provides: Xephyr
+
+%description Xephyr
+Xephyr is an X server, which has been implemented as an ordinary
+X application.  It runs in a window just like other X applications,
+but it is an X server itself in which you can run other software.  It
+is a very useful tool for developers who wish to test their
+applications without running them on their real X server.  Unlike
+Xnest, Xephyr renders to an X image rather than relaying the
+X protocol, and therefore supports the newer X extensions like
+Render and Composite.
+
 # ----- sdk ---------------------------------------------------------
 
 %package sdk
@@ -237,6 +258,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch4 -p0 -b .composite-fastpath-fdo4320
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .xf86configfpic
+%patch8 -p0 -b .no-kdrive-dri
 
 %patch100 -p0 -b .spiffiffity
 
@@ -248,6 +270,7 @@ drivers, input drivers, or other X modules should install this package.
 #DEFAULT_FONT_PATH="${FONTDIR}/misc:unscaled,${FONTDIR}/TTF/,${FONTDIR}/OTF,${FONTDIR}/Type1/,${FONTDIR}/CID/,${FONTDIR}/100dpi:unscaled,${FONTDIR}/75dpi:unscaled"
 
 #	--disable-dependency-tracking \
+# also, --enable-kdrive just for Xephyr is overkill, should fix that upstream
 
 automake; autoconf
 %configure %{xservers} \
@@ -257,7 +280,8 @@ automake; autoconf
 	--enable-xtrap \
 	--enable-xcsecurity \
 	--enable-xevie \
-	--enable-lbx \
+	--enable-kdrive \
+	--enable-xephyr \
 %if %{with_dri}
 	--enable-dri \
 	--with-mesa-source=%{_datadir}/mesa/source \
@@ -315,6 +339,22 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_bindir}/cvt
 %endif
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xati
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xchips
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xepson
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xfake
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xfbdev
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xi810
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xmach64
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xmga
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xneomagic
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xnvidia
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xpm2
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xr128
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xsdl
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xsmi
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xvesa
+    rm -f $RPM_BUILD_ROOT%{_bindir}/Xvia
 }
 
 %clean
@@ -501,6 +541,15 @@ rm -rf $RPM_BUILD_ROOT
 #%dir %{_mandir}/man1x
 %{_mandir}/man1/Xvfb.1x*
 
+# ----- Xephyr -------------------------------------------------------
+
+%files Xephyr
+%defattr(-,root,root,-)
+%{_bindir}/Xephyr
+# no manpage yet
+#%dir %{_mandir}/man1x
+#%{_mandir}/man1/Xephyr.1x*
+
 # ----- sdk ---------------------------------------------------------
 
 %files sdk
@@ -516,6 +565,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Apr  6 2006 Adam Jackson <ajax@redhat.com> 1.0.99.2-2
+- Remove LBX to match upstream policy.
+- Add Xephyr server.
+
 * Tue Apr  4 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.2-1
 - Update to 1.0.99.2 snapshot and go back to using mesa-source package.
 - Drop xorg-server-1.0.99-composite-visibility.patch.
