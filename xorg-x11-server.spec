@@ -3,8 +3,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.0.99.2
-Release:   2
+Version:   1.0.99.901
+Release:   1
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -23,7 +23,7 @@ Patch6:    xserver-1.0.1-randr-sdk.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
 # REMOVE ME FOR 1.0.99.3
-Patch8:	   xorg-x11-server-1.0.99.2-no-kdrive-dri.patch
+#Patch8:	   xorg-x11-server-1.0.99.2-no-kdrive-dri.patch
 
 # Spiffiffity feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
@@ -258,7 +258,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch4 -p0 -b .composite-fastpath-fdo4320
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .xf86configfpic
-%patch8 -p0 -b .no-kdrive-dri
+#%patch8 -p0 -b .no-kdrive-dri
 
 %patch100 -p0 -b .spiffiffity
 
@@ -565,6 +565,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Sat Apr  8 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.901-1
+- Update to 7.1 RC1.
+
 * Thu Apr  6 2006 Adam Jackson <ajax@redhat.com> 1.0.99.2-2
 - Remove LBX to match upstream policy.
 - Add Xephyr server.
