@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.99.901
-Release:   1
+Release:   2
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -565,6 +565,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Apr 11 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.901-2
+- Bump for fc5 build.
+
 * Sat Apr  8 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.901-1
 - Update to 7.1 RC1.
 
