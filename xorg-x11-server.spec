@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.99.901
-Release:   2
+Release:   3
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -22,8 +22,9 @@ Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch6:    xserver-1.0.1-randr-sdk.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
-# REMOVE ME FOR 1.0.99.3
-#Patch8:	   xorg-x11-server-1.0.99.2-no-kdrive-dri.patch
+
+# REMOVE ME FOR 1.0.99.902
+Patch8:	   xorg-x11-server-1.0.99.901-cow-fix.patch
 
 # Spiffiffity feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
@@ -258,7 +259,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch4 -p0 -b .composite-fastpath-fdo4320
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .xf86configfpic
-#%patch8 -p0 -b .no-kdrive-dri
+%patch8 -p0 -b .cow-fix
 
 %patch100 -p0 -b .spiffiffity
 
@@ -565,6 +566,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Apr 12 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.901-3
+- Add xorg-x11-server-1.0.99.901-cow-fix.patch to fix crash when
+  releasing the COW.
+
 * Tue Apr 11 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.901-2
 - Bump for fc5 build.
 
