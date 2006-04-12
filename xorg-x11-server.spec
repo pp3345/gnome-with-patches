@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.99.901
-Release:   3
+Release:   4
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -566,6 +566,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Apr 12 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.901-4
+- Bump for rawhide build.
+
 * Wed Apr 12 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.901-3
 - Add xorg-x11-server-1.0.99.901-cow-fix.patch to fix crash when
   releasing the COW.
