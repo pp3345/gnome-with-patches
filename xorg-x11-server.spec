@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.99.901
-Release:   4
+Release:   5
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -566,6 +566,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Apr 13 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.901-5
+- Update spiffiffity patch to only suppress move damage events for
+  manually redirected windows.
+
 * Wed Apr 12 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.901-4
 - Bump for rawhide build.
 
