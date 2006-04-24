@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.99.901
-Release:   5
+Release:   6
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -23,8 +23,11 @@ Patch6:    xserver-1.0.1-randr-sdk.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
 
-# REMOVE ME FOR 1.0.99.902
+# REMOVE ME: backports from branch tip, remove on next snapshot
+# TODO: After .902, start these at Patch50
 Patch8:	   xorg-x11-server-1.0.99.901-cow-fix.patch
+Patch9:    xorg-x11-server-1.0.99.901-render-x4a4-crash.patch
+# END REMOVE ME
 
 # Spiffiffity feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
@@ -259,7 +262,11 @@ drivers, input drivers, or other X modules should install this package.
 %patch4 -p0 -b .composite-fastpath-fdo4320
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .xf86configfpic
+
+# REMOVE ME
 %patch8 -p0 -b .cow-fix
+%patch9 -p0 -b .render-x4a4-crash
+# END REMOVE ME
 
 %patch100 -p0 -b .spiffiffity
 
@@ -566,6 +573,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Apr 24 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.901-6
+- Backport a Render crash fix from HEAD.
+
 * Thu Apr 13 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.901-5
 - Update spiffiffity patch to only suppress move damage events for
   manually redirected windows.
