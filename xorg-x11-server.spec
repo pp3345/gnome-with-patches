@@ -3,8 +3,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.0.99.901
-Release:   6
+Version:   1.0.99.902
+Release:   1
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -23,11 +23,9 @@ Patch6:    xserver-1.0.1-randr-sdk.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
 
-# REMOVE ME: backports from branch tip, remove on next snapshot
-# TODO: After .902, start these at Patch50
-Patch8:	   xorg-x11-server-1.0.99.901-cow-fix.patch
-Patch9:    xorg-x11-server-1.0.99.901-render-x4a4-crash.patch
-# END REMOVE ME
+# backports from branch tip, remove on next snapshot.  start at Patch50
+Patch50:    xorg-server-1.0.99.902-mitri.patch
+# end backports
 
 # Spiffiffity feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
@@ -259,14 +257,11 @@ drivers, input drivers, or other X modules should install this package.
 %patch0 -p0 -b .init-origins-fix
 #%patch1 -p0 -b .fbmmx-fix-for-non-SSE-cpu
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
-%patch4 -p0 -b .composite-fastpath-fdo4320
+#%patch4 -p0 -b .composite-fastpath-fdo4320
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .xf86configfpic
 
-# REMOVE ME
-%patch8 -p0 -b .cow-fix
-%patch9 -p0 -b .render-x4a4-crash
-# END REMOVE ME
+%patch50 -p0 -b .mitri
 
 %patch100 -p0 -b .spiffiffity
 
@@ -573,6 +568,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon May  1 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.902-1
+- Update to 7.1RC2 plus fix for CVE 2006-1526.  Disable the fastpathing
+  patch for fdo bug #4320 since that should be covered in the generic
+  Render code now.
+
 * Mon Apr 24 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.901-6
 - Backport a Render crash fix from HEAD.
 
