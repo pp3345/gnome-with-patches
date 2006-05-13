@@ -3,7 +3,7 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.0.99.902
+Version:   1.0.99.903
 Release:   1
 URL:       http://www.x.org
 License:   MIT/X11
@@ -24,7 +24,7 @@ Patch6:    xserver-1.0.1-randr-sdk.patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
 
 # backports from branch tip, remove on next snapshot.  start at Patch50
-Patch50:    xorg-server-1.0.99.902-mitri.patch
+Patch50:    fb-fix-transforms.patch
 # end backports
 
 # Spiffiffity feature/optimization patches.
@@ -61,7 +61,7 @@ ExcludeArch: s390 s390x ppc64
 
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 0.99.1
-BuildRequires: xorg-x11-proto-devel
+BuildRequires: xorg-x11-proto-devel >= 7.0-13
 BuildRequires: xorg-x11-xtrans-devel
 # FIXME: The version specification can be removed from here in the future,
 # as it is not really mandatory, but forces a bugfix workaround on people who
@@ -261,7 +261,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .xf86configfpic
 
-%patch50 -p0 -b .mitri
+%patch50 -p0 -b .fbtransform
 
 %patch100 -p0 -b .spiffiffity
 
@@ -568,6 +568,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri May 12 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.903-1
+- Update to 7.1RC3, plus experimental fix for fdo bug #6827.
+
 * Mon May  1 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.902-1
 - Update to 7.1RC2 plus fix for CVE 2006-1526.  Disable the fastpathing
   patch for fdo bug #4320 since that should be covered in the generic
