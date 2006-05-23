@@ -4,7 +4,8 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.0.99.903
-Release:   1
+Release:   2
+
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -92,6 +93,9 @@ BuildRequires: libfontenc-devel
 BuildRequires: libXtst-devel
 # For Xdmxconfig 
 BuildRequires: libXt-devel libXpm-devel libXaw-devel
+
+BuildRequires: freetype-devel >= 2.1.10
+
 # To query fontdir from fontutil.pc
 BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 # Needed at least for DRI enabled builds
@@ -125,7 +129,9 @@ Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
 # updates, NOT for allowing people to uninstall drivers to save $0.01 of
 # hard disk space.  Why?  Because there is no "good" reason not to do so,
 # necause 1Gb of hard disk space costs about $0.75 right now for starters.
-Requires: xorg-x11-drivers >= 0.99.2-4
+# *** UPDATE ***
+# This is disabled now for OLPC for bug #191781.  <sigh>
+#Requires: xorg-x11-drivers >= 0.99.2-4
 
 # NOTE: We use implementation non-specific "xkbdata" here, to make it easy
 # to switch to the freedesktop.org 'xkeyboard-config' project replacment
@@ -568,6 +574,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue May 23 2006 Mike A. Harris <mharris@redhat.com> 1.0.99.903-2
+- Disable dependency on xorg-x11-drivers package, for OLPC.  (#191781)
+- Add "BuildRequires: freetype-devel >= 2.1.10" for bug (#192021)
+
 * Fri May 12 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.903-1
 - Update to 7.1RC3, plus experimental fix for fdo bug #6827.
 
