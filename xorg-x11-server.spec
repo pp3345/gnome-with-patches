@@ -3,15 +3,15 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.0.99.903
-Release:   2
+Version:   1.1.0
+Release:   1
 
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Source0:   http://xorg.freedesktop.org/releases/X11R7.0/src/everything/%{pkgname}-%{version}.tar.bz2
+Source0:   http://xorg.freedesktop.org/releases/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source100: comment-header-modefiles.txt
 
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
@@ -23,10 +23,6 @@ Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch6:    xserver-1.0.1-randr-sdk.patch
 # https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
 Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
-
-# backports from branch tip, remove on next snapshot.  start at Patch50
-Patch50:    fb-fix-transforms.patch
-# end backports
 
 # Spiffiffity feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
@@ -266,8 +262,6 @@ drivers, input drivers, or other X modules should install this package.
 #%patch4 -p0 -b .composite-fastpath-fdo4320
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .xf86configfpic
-
-%patch50 -p0 -b .fbtransform
 
 %patch100 -p0 -b .spiffiffity
 
@@ -574,6 +568,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue May 23 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-1
+- Xorg 7.1 final.
+
 * Tue May 23 2006 Mike A. Harris <mharris@redhat.com> 1.0.99.903-2
 - Disable dependency on xorg-x11-drivers package, for OLPC.  (#191781)
 - Add "BuildRequires: freetype-devel >= 2.1.10" for bug (#192021)
