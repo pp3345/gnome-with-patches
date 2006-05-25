@@ -1,11 +1,10 @@
 %define pkgname xorg-server
-%define cvsdate cvs20060321
+%define cvsdate cvsYYYYMMDD
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   1
-
+Release:   2
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -242,6 +241,8 @@ Summary: SDK for X server driver module development
 Group: User Interface/X
 Obsoletes: XFree86-sdk xorg-x11-sdk
 Requires: xorg-x11-util-macros
+Requires: xorg-x11-proto-devel
+
 Requires(pre): xorg-x11-filesystem >= 0.99.2-3
 
 Provides: libxf86config-devel = %{version}-%{release}
@@ -568,6 +569,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu May 25 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-2
+- Add "Requires: xorg-x11-proto-devel >= 7.1-1" to sdk for numerous (52) bug
+  reports of drivers failing to build with mock.
+
 * Tue May 23 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-1
 - Xorg 7.1 final.
 
