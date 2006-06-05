@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   2
+Release:   3
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -20,8 +20,6 @@ Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=6010
 Patch6:    xserver-1.0.1-randr-sdk.patch
-# https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=181292.  hacky patch
-Patch7:    xorg-x11-server-1.0.1-fpic-libxf86config.patch
 
 # Spiffiffity feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
@@ -113,19 +111,10 @@ Requires: xkbcomp
 # by xorg-x11-fonts-base
 Requires: xorg-x11-fonts-base
 # NOTE: Require some basic drivers for minimal configuration. (#173060)
+# We _should_ install every driver, but OLPC wants different (#191781),
+# which is quite lame and wants an better solution.
 Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
-# NOTE: Require the driver meta-package to ensure that all drivers are always
-# installed all of the time.  Why?  To guarantee that the drivers for your
-# video and input devices are always installed all of the time, and ensure
-# that OS installs and upgrades "work" without ending up with "oops, my
-# driver isn't installed".  Drivers have always been "all installed" in
-# every previous OS release, and this one is no different.  Drivers are split
-# up into individual packages to facilitate making easy individual driver
-# updates, NOT for allowing people to uninstall drivers to save $0.01 of
-# hard disk space.  Why?  Because there is no "good" reason not to do so,
-# necause 1Gb of hard disk space costs about $0.75 right now for starters.
-# *** UPDATE ***
-# This is disabled now for OLPC for bug #191781.  <sigh>
+Requires: xorg-x11-drv-void xorg-x11-drv-evdev
 #Requires: xorg-x11-drivers >= 0.99.2-4
 
 # NOTE: We use implementation non-specific "xkbdata" here, to make it easy
@@ -258,11 +247,8 @@ drivers, input drivers, or other X modules should install this package.
 %prep
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p0 -b .init-origins-fix
-#%patch1 -p0 -b .fbmmx-fix-for-non-SSE-cpu
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
-#%patch4 -p0 -b .composite-fastpath-fdo4320
 %patch6 -p1 -b .randrsdk
-%patch7 -p1 -b .xf86configfpic
 
 %patch100 -p0 -b .spiffiffity
 
@@ -280,17 +266,13 @@ automake; autoconf
 %configure %{xservers} \
 	--disable-xprint \
 	--disable-static \
+	--with-pic \
 	--enable-composite \
 	--enable-xtrap \
 	--enable-xcsecurity \
 	--enable-xevie \
 	--enable-kdrive \
 	--enable-xephyr \
-%if %{with_dri}
-	--enable-dri \
-	--with-mesa-source=%{_datadir}/mesa/source \
-	--with-dri-driver-path=%{drimoduledir} \
-%endif
 	--with-module-dir=%{moduledir} \
 	--with-os-name="Fedora Core 5" \
 	--with-os-vendor="Red Hat, Inc." \
@@ -298,7 +280,12 @@ automake; autoconf
 	--with-rgb-path=%{_datadir}/X11/rgb \
 	--disable-xorgcfg \
 	--enable-install-libxf86config \
-	--with-fontdir=%(pkg-config --variable=fontdir fontutil)
+	--with-fontdir=%(pkg-config --variable=fontdir fontutil) \
+%if %{with_dri}
+	--enable-dri \
+	--with-mesa-source=%{_datadir}/mesa/source \
+	--with-dri-driver-path=%{drimoduledir} \
+%endif
 
 make %{?_smp_mflags}
 
@@ -569,6 +556,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Jun 05 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-3
+- Drop the libxf86config -fPIC patch, just build the whole thing with
+  --with-pic instead.  Add void and evdev to the required driver list for
+  upcoming autoconfig magic.
+
 * Thu May 25 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-2
 - Add "Requires: xorg-x11-proto-devel >= 7.1-1" to sdk for numerous (52) bug
   reports of drivers failing to build with mock.
