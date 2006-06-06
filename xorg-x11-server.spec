@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   3
+Release:   4
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -26,6 +26,7 @@ Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
 
 Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
+Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
 ExcludeArch: s390 s390x ppc64
@@ -254,6 +255,7 @@ drivers, input drivers, or other X modules should install this package.
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
+%patch1002 -p1 -b .xephyr
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -330,22 +332,6 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_bindir}/cvt
 %endif
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xati
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xchips
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xepson
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xfake
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xfbdev
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xi810
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xmach64
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xmga
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xneomagic
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xnvidia
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xpm2
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xr128
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xsdl
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xsmi
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xvesa
-    rm -f $RPM_BUILD_ROOT%{_bindir}/Xvia
 }
 
 %clean
@@ -410,6 +396,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/getconfig
 %{_bindir}/getconfig.pl
 %{_bindir}/gtf
+%{_bindir}/cvt
 %if %{with_developer_utils}
 %{_bindir}/inb
 %{_bindir}/inl
@@ -419,7 +406,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/outl
 %{_bindir}/outw
 %{_bindir}/pcitweak
-%{_bindir}/cvt
 %endif
 %{_bindir}/scanpci
 %dir %{_datadir}/xorg
@@ -556,6 +542,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Jun 06 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-4
+- Hack the kdrive makefile to only attempt to build Xephyr, avoids linking
+  sixteen extra servers just to delete them.
+- Move cvt to the default install set, same as gtf.
+
 * Mon Jun 05 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-3
 - Drop the libxf86config -fPIC patch, just build the whole thing with
   --with-pic instead.  Add void and evdev to the required driver list for
