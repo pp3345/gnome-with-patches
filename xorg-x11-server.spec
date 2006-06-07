@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   4
+Release: 5
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -29,7 +29,7 @@ Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
 Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
 
 # INFO: We don't ship the X server on s390/s390x/ppc64
-ExcludeArch: s390 s390x ppc64
+ExcludeArch: s390 s390x
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -542,6 +542,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Jun  7 2006 Jeremy Katz <katzj@redhat.com> - 1.1.0-5
+- build on ppc64 so that we have an X server there
+
 * Tue Jun 06 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-4
 - Hack the kdrive makefile to only attempt to build Xephyr, avoids linking
   sixteen extra servers just to delete them.
