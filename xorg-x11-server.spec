@@ -48,7 +48,7 @@ ExcludeArch: s390 s390x
 # I can build one build with them enabled, install them, then disable it again.
 %define with_developer_utils	0
 
-%ifarch %{ix86} x86_64 ppc ia64
+%ifarch %{ix86} x86_64 ppc ia64 ppc64
 %define with_dri	1
 %else
 %define with_dri	0
