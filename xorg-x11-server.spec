@@ -398,8 +398,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/getconfig
 %{_bindir}/getconfig.pl
 %{_bindir}/gtf
-%{_bindir}/cvt
 %if %{with_developer_utils}
+%{_bindir}/cvt
 %{_bindir}/inb
 %{_bindir}/inl
 %{_bindir}/inw
