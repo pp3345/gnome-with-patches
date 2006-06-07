@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release: 5
+Release: 6
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -54,6 +54,8 @@ ExcludeArch: s390 s390x
 %define with_dri	0
 %endif
 
+BuildRequires: automake
+BuildRequires: autoconf
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 0.99.1
 BuildRequires: xorg-x11-proto-devel >= 7.0-13
@@ -542,6 +544,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Jun  7 2006 Jeremy Katz <katzj@redhat.com> - 1.1.0-6
+- BR automake and autoconf
+
 * Wed Jun  7 2006 Jeremy Katz <katzj@redhat.com> - 1.1.0-5
 - build on ppc64 so that we have an X server there
 
