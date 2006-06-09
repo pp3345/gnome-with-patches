@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release: 6
+Release:   7
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -90,7 +90,7 @@ BuildRequires: libXtst-devel
 # For Xdmxconfig 
 BuildRequires: libXt-devel libXpm-devel libXaw-devel
 
-BuildRequires: freetype-devel >= 2.1.10
+BuildRequires: freetype-devel >= 2.1.9
 
 # To query fontdir from fontutil.pc
 BuildRequires: xorg-x11-font-utils >= 1.0.0-1
@@ -544,10 +544,16 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
-* Wed Jun  7 2006 Jeremy Katz <katzj@redhat.com> - 1.1.0-6
+* Thu Jun 08 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-7
+- Change "BuildRequires: freetype-devel >= 2.1.10" to 2.1.9, as Xorg 7.0
+  contains 2.1.9 in "extras" and 7.1 does not appear to have a requirement on
+  a newer freetype.
+- Janitorial cleanups for spec file changelog consistency.
+
+* Wed Jun 07 2006 Jeremy Katz <katzj@redhat.com> 1.1.0-6
 - BR automake and autoconf
 
-* Wed Jun  7 2006 Jeremy Katz <katzj@redhat.com> - 1.1.0-5
+* Wed Jun 07 2006 Jeremy Katz <katzj@redhat.com> 1.1.0-5
 - build on ppc64 so that we have an X server there
 
 * Tue Jun 06 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-4
@@ -574,7 +580,7 @@ rm -rf $RPM_BUILD_ROOT
 * Fri May 12 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.903-1
 - Update to 7.1RC3, plus experimental fix for fdo bug #6827.
 
-* Mon May  1 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.902-1
+* Mon May 01 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.902-1
 - Update to 7.1RC2 plus fix for CVE 2006-1526.  Disable the fastpathing
   patch for fdo bug #4320 since that should be covered in the generic
   Render code now.
@@ -596,14 +602,14 @@ rm -rf $RPM_BUILD_ROOT
 * Tue Apr 11 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.901-2
 - Bump for fc5 build.
 
-* Sat Apr  8 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.901-1
+* Sat Apr 08 2006 Adam Jackson <ajackson@redhat.com> 1.0.99.901-1
 - Update to 7.1 RC1.
 
-* Thu Apr  6 2006 Adam Jackson <ajax@redhat.com> 1.0.99.2-2
+* Thu Apr 06 2006 Adam Jackson <ajax@redhat.com> 1.0.99.2-2
 - Remove LBX to match upstream policy.
 - Add Xephyr server.
 
-* Tue Apr  4 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.2-1
+* Tue Apr 04 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.2-1
 - Update to 1.0.99.2 snapshot and go back to using mesa-source package.
 - Drop xorg-server-1.0.99-composite-visibility.patch.
 - Drop xorg-server-1.0.1-backtrace.patch.
@@ -620,7 +626,7 @@ rm -rf $RPM_BUILD_ROOT
 * Tue Mar 21 2006 Kristian Høgsberg <krh@redhat.com> 1.0.99.1-1
 - Update to 1.0.99.1 snapshot.
 
-* Mon Mar  6 2006 Jeremy Katz <katzj@redhat.com> - 1.0.1-8
+* Mon Mar 06 2006 Jeremy Katz <katzj@redhat.com> 1.0.1-8
 - build libxf86config with -fPIC (#181292)
 - fix sgi 1600sw extra mode (#182430)
 
@@ -635,7 +641,7 @@ rm -rf $RPM_BUILD_ROOT
 * Fri Feb 10 2006 Jesse Keating <jkeating@redhat.com> 1.0.1-6.1
 - bump again for double-long bug on ppc(64)
 
-* Wed Feb  8 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-6
+* Wed Feb 08 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-6
 - Added xorg-x11-server-1.0.1-Red-Hat-extramodes.patch which is a merger of
   XFree86-4.2.99.2-redhat-custom-modelines.patch and
   xorg-x11-6.8.2-laptop-modes.patch from FC4 for (#180301)
@@ -643,18 +649,18 @@ rm -rf $RPM_BUILD_ROOT
   of video modes that are built into the X server, so that the "rhpxl" package
   does not have to carry around an out of sync copy for itself. (#180301)
 
-* Tue Feb  7 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-5
+* Tue Feb 07 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-5
 - Updated "BuildRequires: mesa-source >= 6.4.2-2" to get fix for (#176976)
 
-* Mon Feb  6 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-4
+* Mon Feb 06 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-4
 - Fix brown paper bag error introduced in rpm post script in 1.0.1-4.
 
-* Mon Feb  6 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-3
+* Mon Feb 06 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-3
 - Added xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch with changes
   suggested by ajax to fix (fdo#4320).
 - Cosmetic cleanups to satiate the banshees.
 
-* Sun Feb  5 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-2
+* Sun Feb 05 2006 Mike A. Harris <mharris@redhat.com> 1.0.1-2
 - Added xorg-x11-server-1.0.1-fbpict-fix-rounding.patch from CVS HEAD.
 - Added xorg-x11-server-1.0.1-SEGV-on-null-interface.patch which prevents a
   SEGV on null interfaces (#174279,178986)
@@ -749,10 +755,10 @@ rm -rf $RPM_BUILD_ROOT
 * Thu Nov 10 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-4
 - Added "Requires: xkbcomp" for Xorg server, as it invokes it internally.
 
-* Wed Nov 9 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-3
+* Wed Nov 09 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-3
 - Added "BuildRequires: libXtst-devel" for Xtst examples.
 
-* Mon Nov 7 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-2
+* Mon Nov 07 2005 Mike A. Harris <mharris@redhat.com> 0.99.2-2
 - Added versioning to Xorg virtual Provide, to allow config tools and driver
   packages to have version based requires.
 
@@ -776,11 +782,11 @@ rm -rf $RPM_BUILD_ROOT
 - Added "BuildRequires: libXres-devel" for Xres examples
 - Added {_libdir}/xserver/SecurityPolicy to Xorg subpackage for XSECURITY
 
-* Mon Oct  3 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050830.2
+* Mon Oct 03 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050830.2
 - Fix license tag to be "MIT/X11"
 - Change Xdmx subpackage to Obsolete xorg-x11-Xdmx instead of xorg-x11-Xnest
 
-* Sun Oct  2 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050830.1
+* Sun Oct 02 2005 Mike A. Harris <mharris@redhat.com> 0.99.1-2.cvs20050830.1
 - Update BuildRequires for new library package naming (libX...)
 - Use Fedora Extras style BuildRoot tag
 - Invoke make with _smp_mflags to take advantage of SMP systems
