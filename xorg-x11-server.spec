@@ -266,7 +266,7 @@ drivers, input drivers, or other X modules should install this package.
 #	--disable-dependency-tracking \
 # also, --enable-kdrive just for Xephyr is overkill, should fix that upstream
 
-automake; autoconf
+aclocal --force; automake ; autoconf
 %configure %{xservers} \
 	--disable-xprint \
 	--disable-static \
@@ -549,6 +549,8 @@ rm -rf $RPM_BUILD_ROOT
   contains 2.1.9 in "extras" and 7.1 does not appear to have a requirement on
   a newer freetype.
 - Janitorial cleanups for spec file changelog consistency.
+- Call aclocal before automake, otherwise automake >= 1.9.6 is required in
+  order to rebuild the package.
 
 * Wed Jun 07 2006 Jeremy Katz <katzj@redhat.com> 1.1.0-6
 - BR automake and autoconf
