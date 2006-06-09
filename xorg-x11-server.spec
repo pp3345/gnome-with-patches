@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   7
+Release:   8
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -57,6 +57,7 @@ ExcludeArch: s390 s390x
 #BuildRequires: automake17
 BuildRequires: automake
 BuildRequires: autoconf
+BuildRequires: libtool
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 0.99.1
 BuildRequires: xorg-x11-proto-devel >= 7.0-13
@@ -545,6 +546,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Jun  9 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-8
+- Add our friend, libtool, to BuildRequires.
+
 * Thu Jun 08 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-7
 - Change "BuildRequires: freetype-devel >= 2.1.10" to 2.1.9, as Xorg 7.0
   contains 2.1.9 in "extras" and 7.1 does not appear to have a requirement on
