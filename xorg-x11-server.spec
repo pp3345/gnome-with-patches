@@ -54,7 +54,8 @@ ExcludeArch: s390 s390x
 %define with_dri	0
 %endif
 
-BuildRequires: automake17
+#BuildRequires: automake17
+BuildRequires: automake
 BuildRequires: autoconf
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 0.99.1
@@ -549,11 +550,10 @@ rm -rf $RPM_BUILD_ROOT
   contains 2.1.9 in "extras" and 7.1 does not appear to have a requirement on
   a newer freetype.
 - Janitorial cleanups for spec file changelog consistency.
-- Call aclocal-1.7 before automake, otherwise automake >= 1.9.6 is required in
+- Call aclocal before automake, otherwise automake >= 1.9.6 is required in
   order to rebuild the package.
 - Build 1.1.0-4, 1.1.0-5, and 1.1.0-6 appear to have failed in brew but nobody
-  fixed them.  It appears automake 1.9 doesn't like things.  Forcing
-  automake-1.7 on the build to see if that makes a difference.
+  fixed them.  It appears automake 1.9 breaks the build.
 
 * Wed Jun 07 2006 Jeremy Katz <katzj@redhat.com> 1.1.0-6
 - BR automake and autoconf
