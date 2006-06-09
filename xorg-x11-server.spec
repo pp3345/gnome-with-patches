@@ -266,7 +266,7 @@ drivers, input drivers, or other X modules should install this package.
 #	--disable-dependency-tracking \
 # also, --enable-kdrive just for Xephyr is overkill, should fix that upstream
 
-aclocal-1.7 ; automake-1.7 ; autoconf
+aclocal ; automake ; autoconf
 %configure %{xservers} \
 	--disable-xprint \
 	--disable-static \
