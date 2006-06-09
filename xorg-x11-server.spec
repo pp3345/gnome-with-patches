@@ -54,7 +54,7 @@ ExcludeArch: s390 s390x
 %define with_dri	0
 %endif
 
-BuildRequires: automake
+BuildRequires: automake17
 BuildRequires: autoconf
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 0.99.1
@@ -266,7 +266,7 @@ drivers, input drivers, or other X modules should install this package.
 #	--disable-dependency-tracking \
 # also, --enable-kdrive just for Xephyr is overkill, should fix that upstream
 
-aclocal --force; automake ; autoconf
+aclocal --force; automake-1.7 ; autoconf
 %configure %{xservers} \
 	--disable-xprint \
 	--disable-static \
@@ -551,6 +551,9 @@ rm -rf $RPM_BUILD_ROOT
 - Janitorial cleanups for spec file changelog consistency.
 - Call aclocal before automake, otherwise automake >= 1.9.6 is required in
   order to rebuild the package.
+- Build 1.1.0-4, 1.1.0-5, and 1.1.0-6 appear to have failed in brew but nobody
+  fixed them.  It appears automake 1.9 doesn't like things.  Forcing
+  automake 1.7 on the build to see if that makes a difference.
 
 * Wed Jun 07 2006 Jeremy Katz <katzj@redhat.com> 1.1.0-6
 - BR automake and autoconf
