@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   9
+Release:   10
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -20,6 +20,7 @@ Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=6010
 Patch6:    xserver-1.0.1-randr-sdk.patch
+Patch7:	   xorg-x11-server-1.1.0-ppc64-build-fix.patch
 
 # Spiffiffity feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
@@ -254,6 +255,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch0 -p0 -b .init-origins-fix
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
 %patch6 -p1 -b .randrsdk
+%patch7 -p1 -b .ppc64
 
 %patch100 -p0 -b .spiffiffity
 
@@ -545,6 +547,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Jun 12 2006 Adam Jackson <ajax@redhat.com> 1.1.0-10
+- Misc build fixes for ppc64.
+
 * Mon Jun 12 2006 Adam Jackson <ajax@redhat.com> 1.1.0-9
 - --enable-xorg on ppc64 too.
 - Re-add cvt, got dropped somehow.
