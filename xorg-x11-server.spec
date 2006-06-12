@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   8
+Release:   9
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -28,14 +28,14 @@ Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
 Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
 
-# INFO: We don't ship the X server on s390/s390x/ppc64
+# INFO: We don't ship the X server on s390/s390x
 ExcludeArch: s390 s390x
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
 %define sdkdir		%{_includedir}/xorg
 
-%ifarch %{ix86} x86_64 ppc ia64
+%ifarch %{ix86} x86_64 ppc ia64 ppc64
 %define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest
 %else
 %define xservers --disable-xorg --disable-dmx --enable-xvfb --enable-xnest
@@ -334,7 +334,6 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_bindir}/outl
     rm -f $RPM_BUILD_ROOT%{_bindir}/outw
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
-    rm -f $RPM_BUILD_ROOT%{_bindir}/cvt
 %endif
 }
 
@@ -400,8 +399,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/getconfig
 %{_bindir}/getconfig.pl
 %{_bindir}/gtf
-%if %{with_developer_utils}
 %{_bindir}/cvt
+%if %{with_developer_utils}
 %{_bindir}/inb
 %{_bindir}/inl
 %{_bindir}/inw
@@ -546,6 +545,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Jun 12 2006 Adam Jackson <ajax@redhat.com> 1.1.0-9
+- --enable-xorg on ppc64 too.
+- Re-add cvt, got dropped somehow.
+
 * Fri Jun  9 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-8
 - Add our friend, libtool, to BuildRequires.
 
