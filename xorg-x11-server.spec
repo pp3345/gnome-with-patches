@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   10
+Release:   11
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -24,6 +24,7 @@ Patch7:	   xorg-x11-server-1.1.0-ppc64-build-fix.patch
 
 # Spiffiffity feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
+Patch101:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
 
 Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
@@ -258,6 +259,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch7 -p1 -b .ppc64
 
 %patch100 -p0 -b .spiffiffity
+%patch101 -p0 -b .gl-include-inferiors
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -547,6 +549,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Jun 12 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-11
+- Add xorg-x11-server-1.1.0-gl-include-inferiors.patch to let GL
+  rendering include child windows.
+
 * Mon Jun 12 2006 Adam Jackson <ajax@redhat.com> 1.1.0-10
 - Misc build fixes for ppc64.
 
