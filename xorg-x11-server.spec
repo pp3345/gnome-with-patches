@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   11
+Release:   12
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -29,6 +29,13 @@ Patch101:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
 Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
 Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
+
+# autoconfiguration feature patches
+#Patch3000:  xorg-x11-server-1.1.0-input-autoconfig-2.patch
+Patch3001:  xorg-x11-server-1.1.0-edid-mode-injection-1.patch
+Patch3002:  xorg-x11-server-1.1.0-cvt-generator-in-core.patch
+Patch3003:  xorg-x11-server-1.1.0-edid-mode-injection-2.patch
+Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
 
 # INFO: We don't ship the X server on s390/s390x
 ExcludeArch: s390 s390x
@@ -264,6 +271,13 @@ drivers, input drivers, or other X modules should install this package.
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
 %patch1002 -p1 -b .xephyr
+
+#%patch2000 -p1 -b .autoconfig
+
+%patch3001 -p1 -b .edid1
+%patch3002 -p1 -b .cvt
+%patch3003 -p1 -b .edid2
+%patch3004 -p1 -b .targetrefresh
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -549,6 +563,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Jun 13 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-12
+- Add EDID mode autodetection.
+
 * Mon Jun 12 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-11
 - Add xorg-x11-server-1.1.0-gl-include-inferiors.patch to let GL
   rendering include child windows.
