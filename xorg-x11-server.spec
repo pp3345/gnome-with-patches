@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   13
+Release:   14
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -566,6 +566,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Jun 14 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-14
+- Change selection atom to _COMPIZ_GL_INCLUDE_INFERIORS in
+  xorg-x11-server-1.1.0-gl-include-inferiors.patch.
+
 * Tue Jun 13 2006 Jeremy Katz <katzj@redhat.com> - 1.1.0-13
 - put back my -fPIC patch, libxf86config isn't built with fPIC otherwise
 
