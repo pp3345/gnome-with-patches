@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   14
+Release:   15
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -38,6 +38,8 @@ Patch3001:  xorg-x11-server-1.1.0-edid-mode-injection-1.patch
 Patch3002:  xorg-x11-server-1.1.0-cvt-generator-in-core.patch
 Patch3003:  xorg-x11-server-1.1.0-edid-mode-injection-2.patch
 Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
+Patch3005:  xorg-x11-server-1.1.0-pci-driver-detection.patch
+Patch3006:  xorg-x11-server-1.1.0-fix-default-mouse-device.patch
 
 # INFO: We don't ship the X server on s390/s390x
 ExcludeArch: s390 s390x
@@ -281,6 +283,8 @@ drivers, input drivers, or other X modules should install this package.
 %patch3002 -p1 -b .cvt
 %patch3003 -p1 -b .edid2
 %patch3004 -p1 -b .targetrefresh
+%patch3005 -p1 -b .pci-loader
+%patch3006 -p1 -b .mice
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -566,6 +570,12 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Jun 15 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-15
+- Add loader infrastructure for publishing PCI ID lists in the drivers, and
+  autodetecting drivers based on that.  Currently unused since no drivers
+  publish such a list yet.
+- Fix mouse autoconfig to use /dev/input/mice instead of /dev/mouse.
+
 * Wed Jun 14 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-14
 - Change selection atom to _COMPIZ_GL_INCLUDE_INFERIORS in
   xorg-x11-server-1.1.0-gl-include-inferiors.patch.
