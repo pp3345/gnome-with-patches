@@ -324,6 +324,8 @@ aclocal ; automake ; autoconf
 	--enable-dri \
 	--with-mesa-source=%{_datadir}/mesa/source \
 	--with-dri-driver-path=%{drimoduledir} \
+%else
+	--disable-dri \
 %endif
 
 make %{?_smp_mflags}
@@ -592,6 +594,8 @@ rm -rf $RPM_BUILD_ROOT
 - Add with_dmx_server to disable DMX on s390/s390x.
 - Added "release" number to "BuildRequires: freetype-devel >= 2.1.9-1" for
   dependency futureproofing.
+- Force "--disable-dri" on s390/s390x, to attempt to work around ./configure
+  failure to find libdrm, which should not be needed on s390 builds anyway.
 
 * Thu Jun 15 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-15
 - Add loader infrastructure for publishing PCI ID lists in the drivers, and
