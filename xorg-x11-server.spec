@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   15
+Release:   16
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -41,17 +41,21 @@ Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
 Patch3005:  xorg-x11-server-1.1.0-pci-driver-detection.patch
 Patch3006:  xorg-x11-server-1.1.0-fix-default-mouse-device.patch
 
-# INFO: We don't ship the X server on s390/s390x
-ExcludeArch: s390 s390x
-
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
 %define sdkdir		%{_includedir}/xorg
 
-%ifarch %{ix86} x86_64 ppc ia64 ppc64
-%define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest
-%else
-%define xservers --disable-xorg --disable-dmx --enable-xvfb --enable-xnest
+%ifarch %{ix86} x86_64 ppc ppc64 ia64 alpha sparc sparc64
+%define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr
+# --enable-xephyr
+%define with_hw_servers 1
+%define with_dmx_server 1
+%endif
+%ifarch s390 s390x
+%define xservers --disable-xorg --disable-dmx --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr
+# --enable-xephyr
+%define with_hw_servers 0
+%define with_dmx_server 0
 %endif
 
 # NOTE: The developer utils are intended for low level video driver hackers,
@@ -61,19 +65,23 @@ ExcludeArch: s390 s390x
 # I can build one build with them enabled, install them, then disable it again.
 %define with_developer_utils	0
 
-%ifarch %{ix86} x86_64 ppc ia64 ppc64
+%ifarch %{ix86} x86_64 ppc ia64 ppc64 alpha sparc sparc64
 %define with_dri	1
 %else
 %define with_dri	0
 %endif
 
+# FIXME: Temporary Build deps on autotools, as needed...
 #BuildRequires: automake17
 BuildRequires: automake
 BuildRequires: autoconf
 BuildRequires: libtool
+
+
+
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 0.99.1
-BuildRequires: xorg-x11-proto-devel >= 7.0-13
+BuildRequires: xorg-x11-proto-devel >= 7.1-1
 BuildRequires: xorg-x11-xtrans-devel
 # FIXME: The version specification can be removed from here in the future,
 # as it is not really mandatory, but forces a bugfix workaround on people who
@@ -81,6 +89,16 @@ BuildRequires: xorg-x11-xtrans-devel
 BuildRequires: libXfont-devel >= 0.99.2-3
 BuildRequires: libXau-devel
 BuildRequires: libxkbfile-devel
+# libXres-devel needed for something that links to libXres that I never bothered to figure out yet
+BuildRequires: libXres-devel
+# libfontenc-devel needed for Xorg, but not specified by
+# upstream deps.  Build fails without it.
+BuildRequires: libfontenc-devel
+# Required for Xtst examples
+BuildRequires: libXtst-devel
+# For Xdmxconfig 
+BuildRequires: libXt-devel libXpm-devel libXaw-devel
+%if %{with_dmx_server}
 # libdmx-devel needed for Xdmx
 BuildRequires: libdmx-devel
 # libXdmcp-devel needed for Xdmx
@@ -95,17 +113,9 @@ BuildRequires: libX11-devel
 BuildRequires: libXrender-devel
 # libXi-devel needed for Xdmx
 BuildRequires: libXi-devel
-# libXres-devel needed for something that links to libXres that I never bothered to figure out yet
-BuildRequires: libXres-devel
-# libfontenc-devel needed for Xorg, but not specified by
-# upstream deps.  Build fails without it.
-BuildRequires: libfontenc-devel
-# Required for Xtst examples
-BuildRequires: libXtst-devel
-# For Xdmxconfig 
-BuildRequires: libXt-devel libXpm-devel libXaw-devel
+%endif
 
-BuildRequires: freetype-devel >= 2.1.9
+BuildRequires: freetype-devel >= 2.1.9-1
 
 # To query fontdir from fontutil.pc
 BuildRequires: xorg-x11-font-utils >= 1.0.0-1
@@ -119,7 +129,7 @@ BuildRequires: libdrm-devel >= 2.0-1
 X.Org X11 X server
 
 # ----- Xorg --------------------------------------------------------
-
+%if %{with_hw_servers}
 %package Xorg
 Summary: Xorg X server
 Group: User Interface/X
@@ -160,7 +170,7 @@ X.org X11 is an open source implementation of the X Window System.  It
 provides the basic low level functionality which full fledged
 graphical user interfaces (GUIs) such as GNOME and KDE are designed
 upon.
-
+%endif
 # ----- Xnest -------------------------------------------------------
 
 %package Xnest
@@ -181,7 +191,7 @@ is a very useful tool for developers who wish to test their
 applications without running them on their real X server.
 
 # ----- Xdmx --------------------------------------------------------
-
+%if %{with_dmx_server}
 %package Xdmx
 Summary: Distributed Multihead X Server and utilities
 Group: User Interface/X
@@ -201,7 +211,7 @@ for Xdmx would be to provide multi-head support using two desktop machines,
 each of which has a single display device attached to it.  A complex
 application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 (each attached to one of 16 computers) into a unified 5120x4096 display.
-
+%endif
 # ----- Xvfb --------------------------------------------------------
 
 %package Xvfb
@@ -242,7 +252,7 @@ X protocol, and therefore supports the newer X extensions like
 Render and Composite.
 
 # ----- sdk ---------------------------------------------------------
-
+%if %{with_hw_servers}
 %package sdk
 Summary: SDK for X server driver module development
 Group: User Interface/X
@@ -259,7 +269,7 @@ The SDK package provides the developmental files which are necessary for
 developing X server driver modules, and for compiling driver modules
 outside of the standard X11 source code tree.  Developers writing video
 drivers, input drivers, or other X modules should install this package.
-
+%endif
 # -------------------------------------------------------------------
 
 %prep
@@ -302,8 +312,6 @@ aclocal ; automake ; autoconf
 	--enable-xtrap \
 	--enable-xcsecurity \
 	--enable-xevie \
-	--enable-kdrive \
-	--enable-xephyr \
 	--with-module-dir=%{moduledir} \
 	--with-os-name="Fedora Core 5" \
 	--with-os-vendor="Red Hat, Inc." \
@@ -324,9 +332,8 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
 
-# Remove all libtool archives (*.la)
-find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 
+%if %{with_hw_servers}
 # FIXME: This should be done upstream, so it's one less thing to hack.
 # Make these directories now so the Xorg package can own them.
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
@@ -341,6 +348,7 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
         chmod 0444 $RPM_BUILD_ROOT%{_datadir}/xorg/$each
     done
 }
+%endif
 
 # FIXME: Remove unwanted files/dirs
 {
@@ -360,11 +368,14 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_bindir}/outw
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
 %endif
+    # Remove all libtool archives (*.la)
+    find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 }
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%if %{with_hw_servers}
 %pre Xorg
 {
   # Install/Upgrade section
@@ -412,9 +423,11 @@ rm -rf $RPM_BUILD_ROOT
 #  done
   popd
 } &> /dev/null || :
+%endif
 
 # ----- Xorg --------------------------------------------------------
 
+%if %{with_hw_servers}
 %files Xorg
 %defattr(-,root,root,-)
 # FIXME: The build fails to find the Changelog for some reason.
@@ -507,6 +520,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/xorg.conf.5x*
 %dir %{_localstatedir}/lib/xkb
 %{_localstatedir}/lib/xkb/README.compiled
+%endif
 
 # ----- Xnest -------------------------------------------------------
 
@@ -518,6 +532,7 @@ rm -rf $RPM_BUILD_ROOT
 
 # ----- Xdmx --------------------------------------------------------
 
+%if %{with_dmx_server}
 %files Xdmx
 %defattr(-,root,root,-)
 %{_bindir}/Xdmx
@@ -537,6 +552,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/dmxtodmx.1x*
 %{_mandir}/man1/vdltodmx.1x*
 %{_mandir}/man1/xdmxconfig.1x*
+%endif
 
 # ----- Xvfb --------------------------------------------------------
 
@@ -556,7 +572,7 @@ rm -rf $RPM_BUILD_ROOT
 #%{_mandir}/man1/Xephyr.1x*
 
 # ----- sdk ---------------------------------------------------------
-
+%if %{with_hw_servers}
 %files sdk
 %defattr(-,root,root,-)
 %{_libdir}/libxf86config.a
@@ -566,10 +582,17 @@ rm -rf $RPM_BUILD_ROOT
 #%dir %{_includedir}/xorg/sdk
 %{sdkdir}/*.h
 %{_datadir}/aclocal/xorg-server.m4
-
+%endif
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Jun 16 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-16
+- Enable spec support for s390, s390x, alpha, sparc, and sparc64 architectures.
+- Add with_hw_servers conditional to disable hardware servers on s390/s390x.
+- Add with_dmx_server to disable DMX on s390/s390x.
+- Added "release" number to "BuildRequires: freetype-devel >= 2.1.9-1" for
+  dependency futureproofing.
+
 * Thu Jun 15 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-15
 - Add loader infrastructure for publishing PCI ID lists in the drivers, and
   autodetecting drivers based on that.  Currently unused since no drivers
