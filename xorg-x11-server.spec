@@ -96,13 +96,13 @@ BuildRequires: libXres-devel
 BuildRequires: libfontenc-devel
 # Required for Xtst examples
 BuildRequires: libXtst-devel
-# For Xdmxconfig 
-BuildRequires: libXt-devel libXpm-devel libXaw-devel
+# libXdmcp-devel needed for Xdmx, and Xnest
+BuildRequires: libXdmcp-devel
+
+
 %if %{with_dmx_server}
 # libdmx-devel needed for Xdmx
 BuildRequires: libdmx-devel
-# libXdmcp-devel needed for Xdmx
-BuildRequires: libXdmcp-devel
 # libXmu-devel needed for Xdmx
 BuildRequires: libXmu-devel
 # libXext-devel needed for Xdmx
@@ -113,6 +113,8 @@ BuildRequires: libX11-devel
 BuildRequires: libXrender-devel
 # libXi-devel needed for Xdmx
 BuildRequires: libXi-devel
+# For Xdmxconfig 
+BuildRequires: libXt-devel libXpm-devel libXaw-devel
 %endif
 
 BuildRequires: freetype-devel >= 2.1.9-1
