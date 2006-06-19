@@ -55,13 +55,11 @@ Patch3007:  xorg-x11-server-1.1.0-edid-mode-injection-3.patch
 
 %ifarch %{ix86} x86_64 ppc ppc64 ia64 alpha sparc sparc64
 %define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr
-# --enable-xephyr
 %define with_hw_servers 1
 %define with_dmx_server 1
 %endif
 %ifarch s390 s390x
 %define xservers --disable-xorg --disable-dmx --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr
-# --enable-xephyr
 %define with_hw_servers 0
 %define with_dmx_server 0
 %endif
