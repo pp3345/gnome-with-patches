@@ -38,6 +38,7 @@ Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
 Patch2000:  xorg-x11-server-1.1.0-cw-crash-fix.patch
 Patch2001:  xorg-x11-server-1.1.0-pci-scan-fixes.patch
 Patch2002:  xorg-x11-server-1.1.0-hush-crash-message.patch
+Patch2003:  xorg-x11-server-1.1.0-loader-diet.patch
 
 # autoconfiguration feature patches
 #Patch3000:  xorg-x11-server-1.1.0-input-autoconfig-2.patch
@@ -298,6 +299,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch2000 -p1 -b .cw-crash
 %patch2001 -p1 -b .pci-scan
 %patch2002 -p1 -b .crash-message
+%patch2003 -p1 -b .loader-diet
 
 %patch3001 -p1 -b .edid1
 %patch3002 -p1 -b .cvt
@@ -602,8 +604,8 @@ rm -rf $RPM_BUILD_ROOT
 * Mon Jun 19 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-17
 - Disable filling in monitor gamma info from EDID momentarily, since drivers
   will use that field to set the card's gamma ramp.
-- Backport some stuff from git: cw crash fix, faster pci scanning, and a
-  log message cleanup.
+- Backport some stuff from git: cw crash fix, faster pci scanning, some
+  log message cleanup, and a massive debloating of the loader.
 
 * Fri Jun 16 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-16
 - Enable spec support for s390, s390x, alpha, sparc, and sparc64 architectures.
