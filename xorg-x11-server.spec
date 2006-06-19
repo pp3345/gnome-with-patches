@@ -22,15 +22,22 @@ Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch6:    xserver-1.0.1-randr-sdk.patch
 Patch7:	   xorg-x11-server-1.1.0-ppc64-build-fix.patch
 
-Patch50: xorg-x11-server-1.0.1-fpic-libxf86config.patch
 
 # Spiffiffity feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
 Patch101:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
 
+# Red Hat specific tweaking, not intended for upstream
+# XXX move these to the end of the list
 Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
 Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
+Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
+
+# Backports of post-1.1 stuff.
+Patch2000:  xorg-x11-server-1.1.0-cw-crash-fix.patch
+Patch2001:  xorg-x11-server-1.1.0-pci-scan-fixes.patch
+Patch2002:  xorg-x11-server-1.1.0-hush-crash-message.patch
 
 # autoconfiguration feature patches
 #Patch3000:  xorg-x11-server-1.1.0-input-autoconfig-2.patch
@@ -40,6 +47,7 @@ Patch3003:  xorg-x11-server-1.1.0-edid-mode-injection-2.patch
 Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
 Patch3005:  xorg-x11-server-1.1.0-pci-driver-detection.patch
 Patch3006:  xorg-x11-server-1.1.0-fix-default-mouse-device.patch
+Patch3007:  xorg-x11-server-1.1.0-edid-mode-injection-3.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -280,7 +288,6 @@ drivers, input drivers, or other X modules should install this package.
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .ppc64
-%patch50 -p1 -b .fpic
 
 %patch100 -p0 -b .spiffiffity
 %patch101 -p0 -b .gl-include-inferiors
@@ -288,8 +295,11 @@ drivers, input drivers, or other X modules should install this package.
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
 %patch1002 -p1 -b .xephyr
+%patch1003 -p1 -b .fpic
 
-#%patch2000 -p1 -b .autoconfig
+%patch2000 -p1 -b .cw-crash
+%patch2001 -p1 -b .pci-scan
+%patch2002 -p1 -b .crash-message
 
 %patch3001 -p1 -b .edid1
 %patch3002 -p1 -b .cvt
@@ -297,6 +307,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3004 -p1 -b .targetrefresh
 %patch3005 -p1 -b .pci-loader
 %patch3006 -p1 -b .mice
+%patch3007 -p1 -b .edid3
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -590,6 +601,12 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Jun 19 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-17
+- Disable filling in monitor gamma info from EDID momentarily, since drivers
+  will use that field to set the card's gamma ramp.
+- Backport some stuff from git: cw crash fix, faster pci scanning, and a
+  log message cleanup.
+
 * Fri Jun 16 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-16
 - Enable spec support for s390, s390x, alpha, sparc, and sparc64 architectures.
 - Add with_hw_servers conditional to disable hardware servers on s390/s390x.
