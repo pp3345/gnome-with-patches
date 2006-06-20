@@ -394,6 +394,25 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 %endif
     # Remove all libtool archives (*.la)
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
+
+%ifarch s390 s390x
+    # FIXME: The following files get installed on s390/s390x and we don't
+    # want some of them on s390 at all, and others should be in a -common
+    # subpackage, but it's not worth doing that for 3 files right now.
+#    error: Installed (but unpackaged) file(s) found:
+#	   /randrstr.h
+#	   /usr/lib/pkgconfig/xorg-server.pc
+#	      /usr/lib/xserver/SecurityPolicy
+#	      /usr/share/aclocal/xorg-server.m4
+#	      /usr/share/man/man1/Xserver.1x.gz
+#	      /var/lib/xkb/README.compiled
+    rm -f $RPM_BUILD_ROOT/randrstr.h
+    rm -rf $RPM_BUILD_ROOT%{_libdir}/pkgconfig
+    rm -rf $RPM_BUILD_ROOT%{_libdir}/xserver
+    rm -rf $RPM_BUILD_ROOT%{_datadir}/aclocal
+    rm -f $RPM_BUILD_ROOT%{_datadir}/Xserver.1x*
+    rm -rf $RPM_BUILD_ROOT/var/lib/xkb
+%endif
 }
 
 %clean
@@ -613,6 +632,7 @@ rm -rf $RPM_BUILD_ROOT
 * Mon Jun 19 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-20
 - Remove with_xnest_server conditional, and fix more BuildRequires to pull
   in libX11-devel, libXext-devel, zlib-devel, etc. for Xnest and Xephyr.
+- Remove unwanted files leftover in buildroot for s390/s390x builds.
 
 * Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> 1.1.0-19
 - Add with_xnest_server conditional and disable on s390, since Xnest
