@@ -378,12 +378,12 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
 # FIXME: Remove unwanted files/dirs
 {
-    rm $RPM_BUILD_ROOT%{_bindir}/xorgconfig
-    rm $RPM_BUILD_ROOT%{_mandir}/man1/xorgconfig.1*
-    rm $RPM_BUILD_ROOT%{_libdir}/X11/Cards
-    rm $RPM_BUILD_ROOT%{_libdir}/X11/Options
-    rm $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/cfg.sample
-    rm $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/xorg.cfg
+    rm -f $RPM_BUILD_ROOT%{_bindir}/xorgconfig
+    rm -f $RPM_BUILD_ROOT%{_mandir}/man1/xorgconfig.1*
+    rm -f $RPM_BUILD_ROOT%{_libdir}/X11/Cards
+    rm -f $RPM_BUILD_ROOT%{_libdir}/X11/Options
+    rm -f $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/cfg.sample
+    rm -f $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/xorg.cfg
 %if ! %{with_developer_utils}
     rm -f $RPM_BUILD_ROOT%{_bindir}/inb
     rm -f $RPM_BUILD_ROOT%{_bindir}/inl
@@ -617,6 +617,7 @@ rm -rf $RPM_BUILD_ROOT
 * Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-19
 - Add with_xnest_server conditional and disable on s390, since Xnest
   fails to build on there (Xlib doesn't get added to the link line).
+- Add -f to removal of xorgconfig and others which may or may not be built.
 
 * Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-18
 - Add xorg-x11-server-1.1.0-convolution-filter-fix.patch and
