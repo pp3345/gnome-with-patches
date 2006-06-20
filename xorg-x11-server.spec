@@ -105,6 +105,10 @@ BuildRequires: libfontenc-devel
 BuildRequires: libXtst-devel
 # libXdmcp-devel needed for Xdmx, and Xnest
 BuildRequires: libXdmcp-devel
+# FIXME: Should be wrapped in with_dmx_server - for Xdmxconfig, probably
+# should only be needed for DMX builds, but the build explodes with a
+# bogus configure check failure if this is missing.
+BuildRequires: libXt-devel
 
 
 %if %{with_dmx_server}
@@ -120,8 +124,8 @@ BuildRequires: libX11-devel
 BuildRequires: libXrender-devel
 # libXi-devel needed for Xdmx
 BuildRequires: libXi-devel
-# For Xdmxconfig 
-BuildRequires: libXt-devel libXpm-devel libXaw-devel
+BuildRequires: libXpm-devel
+BuildRequires: libXaw-devel
 %endif
 
 BuildRequires: freetype-devel >= 2.1.9-1
