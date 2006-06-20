@@ -410,8 +410,8 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -rf $RPM_BUILD_ROOT%{_libdir}/pkgconfig
     rm -rf $RPM_BUILD_ROOT%{_libdir}/xserver
     rm -rf $RPM_BUILD_ROOT%{_datadir}/aclocal
-    rm -f $RPM_BUILD_ROOT%{_datadir}/Xserver.1x*
     rm -rf $RPM_BUILD_ROOT/var/lib/xkb
+#    rm -f $RPM_BUILD_ROOT%{_datadir}/man/man1/Xserver.1x*
 %endif
 }
 
@@ -572,6 +572,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/Xnest
 #%dir %{_mandir}/man1x
 %{_mandir}/man1/Xnest.1x*
+# NOTE: Xserver.1x intentionally present in multiple subpackages
+%{_mandir}/man1/Xserver.1x*
 
 # ----- Xdmx --------------------------------------------------------
 
@@ -595,6 +597,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/dmxtodmx.1x*
 %{_mandir}/man1/vdltodmx.1x*
 %{_mandir}/man1/xdmxconfig.1x*
+# NOTE: Xserver.1x intentionally present in multiple subpackages
+%{_mandir}/man1/Xserver.1x*
 %endif
 
 # ----- Xvfb --------------------------------------------------------
@@ -604,6 +608,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/Xvfb
 #%dir %{_mandir}/man1x
 %{_mandir}/man1/Xvfb.1x*
+# NOTE: Xserver.1x intentionally present in multiple subpackages
+%{_mandir}/man1/Xserver.1x*
 
 # ----- Xephyr -------------------------------------------------------
 
@@ -613,6 +619,8 @@ rm -rf $RPM_BUILD_ROOT
 # no manpage yet
 #%dir %{_mandir}/man1x
 #%{_mandir}/man1/Xephyr.1x*
+# NOTE: Xserver.1x intentionally present in multiple subpackages
+%{_mandir}/man1/Xserver.1x*
 
 # ----- sdk ---------------------------------------------------------
 %if %{with_hw_servers}
@@ -633,6 +641,8 @@ rm -rf $RPM_BUILD_ROOT
 - Remove with_xnest_server conditional, and fix more BuildRequires to pull
   in libX11-devel, libXext-devel, zlib-devel, etc. for Xnest and Xephyr.
 - Remove unwanted files leftover in buildroot for s390/s390x builds.
+- Add Xserver.1x manpage to multiple subpackages, as it applies equally to
+  Xorg, Xnest, Xvfb, Xephyr.
 
 * Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> 1.1.0-19
 - Add with_xnest_server conditional and disable on s390, since Xnest
