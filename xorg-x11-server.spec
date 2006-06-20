@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   18
+Release:   19
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -59,11 +59,13 @@ Patch3007:  xorg-x11-server-1.1.0-edid-mode-injection-3.patch
 %define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr
 %define with_hw_servers 1
 %define with_dmx_server 1
+%define with_xnest_server 1
 %endif
 %ifarch s390 s390x
-%define xservers --disable-xorg --disable-dmx --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr
+%define xservers --disable-xorg --disable-dmx --enable-xvfb --disable-xnest --enable-kdrive --enable-xephyr
 %define with_hw_servers 0
 %define with_dmx_server 0
+%define with_xnest_server 0
 %endif
 
 # NOTE: The developer utils are intended for low level video driver hackers,
@@ -185,8 +187,9 @@ provides the basic low level functionality which full fledged
 graphical user interfaces (GUIs) such as GNOME and KDE are designed
 upon.
 %endif
-# ----- Xnest -------------------------------------------------------
 
+# ----- Xnest -------------------------------------------------------
+%if %{with_xnest_server}
 %package Xnest
 Summary: A nested server.
 Group: User Interface/X
@@ -203,6 +206,7 @@ X application.  It runs in a window just like other X applications,
 but it is an X server itself in which you can run other software.  It
 is a very useful tool for developers who wish to test their
 applications without running them on their real X server.
+%endif
 
 # ----- Xdmx --------------------------------------------------------
 %if %{with_dmx_server}
@@ -546,11 +550,13 @@ rm -rf $RPM_BUILD_ROOT
 
 # ----- Xnest -------------------------------------------------------
 
+%if %{with_xnest_server}
 %files Xnest
 %defattr(-,root,root,-)
 %{_bindir}/Xnest
 #%dir %{_mandir}/man1x
 %{_mandir}/man1/Xnest.1x*
+%endif
 
 # ----- Xdmx --------------------------------------------------------
 
@@ -608,6 +614,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-19
+- Add with_xnest_server conditional and disable on s390, since Xnest
+  fails to build on there (Xlib doesn't get added to the link line).
+
 * Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-18
 - Add xorg-x11-server-1.1.0-convolution-filter-fix.patch and
   xorg-x11-server-1.1.0-tfp-damage.patch backported to make compiz go
