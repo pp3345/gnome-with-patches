@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   17
+Release:   18
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -22,10 +22,11 @@ Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch6:    xserver-1.0.1-randr-sdk.patch
 Patch7:	   xorg-x11-server-1.1.0-ppc64-build-fix.patch
 
-
-# Spiffiffity feature/optimization patches.
+# Spiffiffity/compiz feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
 Patch101:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
+Patch102:  xorg-x11-server-1.1.0-convolution-filter-fix.patch
+Patch103:  xorg-x11-server-1.1.0-tfp-damage.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -294,6 +295,8 @@ drivers, input drivers, or other X modules should install this package.
 
 %patch100 -p0 -b .spiffiffity
 %patch101 -p0 -b .gl-include-inferiors
+%patch102 -p1 -b .convolution-filter-fix
+%patch103 -p0 -b .tfp-damage
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -605,6 +608,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-18
+- Add xorg-x11-server-1.1.0-convolution-filter-fix.patch and
+  xorg-x11-server-1.1.0-tfp-damage.patch backported to make compiz go
+  faster and make compiz shadows work.
+
 * Mon Jun 19 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-17
 - Disable filling in monitor gamma info from EDID momentarily, since drivers
   will use that field to set the card's gamma ramp.
