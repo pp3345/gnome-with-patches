@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   19
+Release:   20
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -59,13 +59,11 @@ Patch3007:  xorg-x11-server-1.1.0-edid-mode-injection-3.patch
 %define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr
 %define with_hw_servers 1
 %define with_dmx_server 1
-%define with_xnest_server 1
 %endif
 %ifarch s390 s390x
 %define xservers --disable-xorg --disable-dmx --enable-xvfb --disable-xnest --enable-kdrive --enable-xephyr
 %define with_hw_servers 0
 %define with_dmx_server 0
-%define with_xnest_server 0
 %endif
 
 # NOTE: The developer utils are intended for low level video driver hackers,
@@ -106,11 +104,19 @@ BuildRequires: libXres-devel
 BuildRequires: libfontenc-devel
 # Required for Xtst examples
 BuildRequires: libXtst-devel
-# libXdmcp-devel needed for Xdmx, and Xnest
+# libXdmcp-devel needed for Xdmx, Xnest, Xephyr
 BuildRequires: libXdmcp-devel
-# FIXME: Should be wrapped in with_dmx_server - for Xdmxconfig, probably
-# should only be needed for DMX builds, but the build explodes with a
-# bogus configure check failure if this is missing.
+# libX11-devel needed for Xdmx, Xnest, Xephyr
+BuildRequires: libX11-devel
+# libXext-devel needed for Xdmx, Xnest, Xephyr
+BuildRequires: libXext-devel
+#
+BuildRequires: freetype-devel >= 2.1.9-1
+BuildRequires: zlib-devel
+
+# FIXME: libXt-devel should be wrapped in with_dmx_server - for Xdmxconfig,
+# probably should only be needed for DMX builds, but the build explodes with
+# a bogus configure check failure if this is missing.
 BuildRequires: libXt-devel
 
 
@@ -119,10 +125,6 @@ BuildRequires: libXt-devel
 BuildRequires: libdmx-devel
 # libXmu-devel needed for Xdmx
 BuildRequires: libXmu-devel
-# libXext-devel needed for Xdmx
-BuildRequires: libXext-devel
-# libX11-devel needed for Xdmx
-BuildRequires: libX11-devel
 # libXrender-devel needed for Xdmx
 BuildRequires: libXrender-devel
 # libXi-devel needed for Xdmx
@@ -130,8 +132,6 @@ BuildRequires: libXi-devel
 BuildRequires: libXpm-devel
 BuildRequires: libXaw-devel
 %endif
-
-BuildRequires: freetype-devel >= 2.1.9-1
 
 # To query fontdir from fontutil.pc
 BuildRequires: xorg-x11-font-utils >= 1.0.0-1
@@ -189,7 +189,6 @@ upon.
 %endif
 
 # ----- Xnest -------------------------------------------------------
-%if %{with_xnest_server}
 %package Xnest
 Summary: A nested server.
 Group: User Interface/X
@@ -206,7 +205,6 @@ X application.  It runs in a window just like other X applications,
 but it is an X server itself in which you can run other software.  It
 is a very useful tool for developers who wish to test their
 applications without running them on their real X server.
-%endif
 
 # ----- Xdmx --------------------------------------------------------
 %if %{with_dmx_server}
@@ -550,13 +548,11 @@ rm -rf $RPM_BUILD_ROOT
 
 # ----- Xnest -------------------------------------------------------
 
-%if %{with_xnest_server}
 %files Xnest
 %defattr(-,root,root,-)
 %{_bindir}/Xnest
 #%dir %{_mandir}/man1x
 %{_mandir}/man1/Xnest.1x*
-%endif
 
 # ----- Xdmx --------------------------------------------------------
 
@@ -614,12 +610,16 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
-* Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-19
+* Mon Jun 19 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-20
+- Remove with_xnest_server conditional, and fix more BuildRequires to pull
+  in libX11-devel, libXext-devel, zlib-devel, etc. for Xnest and Xephyr.
+
+* Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> 1.1.0-19
 - Add with_xnest_server conditional and disable on s390, since Xnest
   fails to build on there (Xlib doesn't get added to the link line).
 - Add -f to removal of xorgconfig and others which may or may not be built.
 
-* Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-18
+* Mon Jun 19 2006 Kristian Høgsberg <krh@redhat.com> 1.1.0-18
 - Add xorg-x11-server-1.1.0-convolution-filter-fix.patch and
   xorg-x11-server-1.1.0-tfp-damage.patch backported to make compiz go
   faster and make compiz shadows work.
@@ -645,17 +645,17 @@ rm -rf $RPM_BUILD_ROOT
   publish such a list yet.
 - Fix mouse autoconfig to use /dev/input/mice instead of /dev/mouse.
 
-* Wed Jun 14 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-14
+* Wed Jun 14 2006 Kristian Høgsberg <krh@redhat.com> 1.1.0-14
 - Change selection atom to _COMPIZ_GL_INCLUDE_INFERIORS in
   xorg-x11-server-1.1.0-gl-include-inferiors.patch.
 
-* Tue Jun 13 2006 Jeremy Katz <katzj@redhat.com> - 1.1.0-13
+* Tue Jun 13 2006 Jeremy Katz <katzj@redhat.com> 1.1.0-13
 - put back my -fPIC patch, libxf86config isn't built with fPIC otherwise
 
 * Tue Jun 13 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-12
 - Add EDID mode autodetection.
 
-* Mon Jun 12 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-11
+* Mon Jun 12 2006 Kristian Høgsberg <krh@redhat.com> 1.1.0-11
 - Add xorg-x11-server-1.1.0-gl-include-inferiors.patch to let GL
   rendering include child windows.
 
@@ -666,7 +666,7 @@ rm -rf $RPM_BUILD_ROOT
 - --enable-xorg on ppc64 too.
 - Re-add cvt, got dropped somehow.
 
-* Fri Jun  9 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-8
+* Fri Jun 09 2006 Kristian Høgsberg <krh@redhat.com> 1.1.0-8
 - Add our friend, libtool, to BuildRequires.
 
 * Thu Jun 08 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-7
