@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   21
+Release:   22
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -21,6 +21,7 @@ Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=6010
 Patch6:    xserver-1.0.1-randr-sdk.patch
 Patch7:	   xorg-x11-server-1.1.0-ppc64-build-fix.patch
+Patch8:    ftp://ftp.freedesktop.org/pub/xorg/X11R7.1/patches/xorg-xserver-1.1.0-setuid.diff
 
 # Spiffiffity/compiz feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
@@ -294,6 +295,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
 %patch6 -p1 -b .randrsdk
 %patch7 -p1 -b .ppc64
+%patch8 -p0 -b .setuid
 
 %patch100 -p0 -b .spiffiffity
 %patch101 -p0 -b .gl-include-inferiors
@@ -637,7 +639,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
-* Tue Jun 20 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-21
+* Tue Jun 20 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-22
+- Added xorg-xserver-1.1.0-setuid.diff to fix potential security issue (#196094)
+
+* Tue Jun 20 2006 Kristian Høgsberg <krh@redhat.com> 1.1.0-21
 - Update xorg-x11-server-1.1.0-tfp-damage.patch to use glTexSubImage2D
   to only update the part of the texture that changed, based on damage
   regions.
