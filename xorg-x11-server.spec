@@ -74,9 +74,10 @@ Patch3007:  xorg-x11-server-1.1.0-edid-mode-injection-3.patch
 # I can build one build with them enabled, install them, then disable it again.
 %define with_developer_utils	0
 
-%ifarch %{ix86} x86_64 ppc ia64 ppc64 alpha sparc sparc64
+%ifarch %{ix86} x86_64 ppc ia64 alpha sparc sparc64
 %define with_dri	1
-%else
+%endif
+%ifarch ppc64 s390 s390x
 %define with_dri	0
 %endif
 
@@ -641,6 +642,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Tue Jun 20 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-22
 - Added xorg-xserver-1.1.0-setuid.diff to fix potential security issue (#196094)
+- Disable DRI on ppc64 builds.
 
 * Tue Jun 20 2006 Kristian Høgsberg <krh@redhat.com> 1.1.0-21
 - Update xorg-x11-server-1.1.0-tfp-damage.patch to use glTexSubImage2D
