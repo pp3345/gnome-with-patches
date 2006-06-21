@@ -502,11 +502,13 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules
 %dir %{_libdir}/xorg/modules/drivers
 %dir %{_libdir}/xorg/modules/extensions
+%if %{with_dri}
 %{_libdir}/xorg/modules/extensions/libGLcore.so
-%{_libdir}/xorg/modules/extensions/libdbe.so
 %{_libdir}/xorg/modules/extensions/libdri.so
-%{_libdir}/xorg/modules/extensions/libextmod.so
 %{_libdir}/xorg/modules/extensions/libglx.so
+%endif
+%{_libdir}/xorg/modules/extensions/libdbe.so
+%{_libdir}/xorg/modules/extensions/libextmod.so
 %{_libdir}/xorg/modules/extensions/librecord.so
 %{_libdir}/xorg/modules/extensions/libxtrap.so
 %dir %{_libdir}/xorg/modules/input
@@ -515,7 +517,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/fonts/libfreetype.so
 %{_libdir}/xorg/modules/fonts/libtype1.so
 %dir %{_libdir}/xorg/modules/linux
+%if %{with_dri}
 %{_libdir}/xorg/modules/linux/libdrm.so
+%endif
 %{_libdir}/xorg/modules/linux/libfbdevhw.so
 %dir %{_libdir}/xorg/modules/multimedia
 %{_libdir}/xorg/modules/multimedia/bt829_drv.so
@@ -643,6 +647,7 @@ rm -rf $RPM_BUILD_ROOT
 * Tue Jun 20 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-22
 - Added xorg-xserver-1.1.0-setuid.diff to fix potential security issue (#196094)
 - Disable DRI on ppc64 builds.
+- Conditionalize inclusion of DRI related X server modules to with_dri builds.
 
 * Tue Jun 20 2006 Kristian Høgsberg <krh@redhat.com> 1.1.0-21
 - Update xorg-x11-server-1.1.0-tfp-damage.patch to use glTexSubImage2D
