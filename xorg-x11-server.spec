@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   20
+Release:   21
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -637,6 +637,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Jun 20 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-21
+- Update xorg-x11-server-1.1.0-tfp-damage.patch to use glTexSubImage2D
+  to only update the part of the texture that changed, based on damage
+  regions.
+
 * Mon Jun 19 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-20
 - Remove with_xnest_server conditional, and fix more BuildRequires to pull
   in libX11-devel, libXext-devel, zlib-devel, etc. for Xnest and Xephyr.
