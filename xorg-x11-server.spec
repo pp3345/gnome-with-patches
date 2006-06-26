@@ -4,7 +4,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   22
+Release:   23
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -45,8 +45,8 @@ Patch2002:  xorg-x11-server-1.1.0-hush-crash-message.patch
 # autoconfiguration feature patches
 #Patch3000:  xorg-x11-server-1.1.0-input-autoconfig-2.patch
 Patch3001:  xorg-x11-server-1.1.0-edid-mode-injection-1.patch
-Patch3002:  xorg-x11-server-1.1.0-cvt-generator-in-core.patch
-Patch3003:  xorg-x11-server-1.1.0-edid-mode-injection-2.patch
+Patch3002:  xorg-x11-server-1.1.0-edid-mode-injection-2.patch
+Patch3003:  xorg-x11-server-1.1.0-cvt-generator-in-core.patch
 Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
 Patch3005:  xorg-x11-server-1.1.0-pci-driver-detection.patch
 Patch3006:  xorg-x11-server-1.1.0-fix-default-mouse-device.patch
@@ -314,12 +314,11 @@ drivers, input drivers, or other X modules should install this package.
 #%patch2003 -p1 -b .loader-diet
 
 %patch3001 -p1 -b .edid1
-%patch3002 -p1 -b .cvt
-%patch3003 -p1 -b .edid2
+%patch3002 -p1 -b .edid2
+%patch3003 -p1 -b .cvt
 %patch3004 -p1 -b .targetrefresh
 %patch3005 -p1 -b .pci-loader
 %patch3006 -p1 -b .mice
-%patch3007 -p1 -b .edid3
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -644,6 +643,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Jun 26 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-23
+- Fix an open-coded check for reduced-blanking modes to only apply to analog
+  connectors.
+- Reorder the EDID patches slightly.
+
 * Tue Jun 20 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-22
 - Added xorg-xserver-1.1.0-setuid.diff to fix potential security issue (#196094)
 - Disable DRI on ppc64 builds.
