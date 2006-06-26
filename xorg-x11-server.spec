@@ -50,7 +50,6 @@ Patch3003:  xorg-x11-server-1.1.0-cvt-generator-in-core.patch
 Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
 Patch3005:  xorg-x11-server-1.1.0-pci-driver-detection.patch
 Patch3006:  xorg-x11-server-1.1.0-fix-default-mouse-device.patch
-Patch3007:  xorg-x11-server-1.1.0-edid-mode-injection-3.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
