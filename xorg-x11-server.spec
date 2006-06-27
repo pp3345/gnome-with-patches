@@ -41,6 +41,7 @@ Patch2000:  xorg-x11-server-1.1.0-cw-crash-fix.patch
 Patch2001:  xorg-x11-server-1.1.0-pci-scan-fixes.patch
 Patch2002:  xorg-x11-server-1.1.0-hush-crash-message.patch
 #Patch2003:  xorg-x11-server-1.1.0-loader-diet.patch
+Patch2004:  xorg-x11-server-1.1.0-no-zlib.patch
 
 # autoconfiguration feature patches
 #Patch3000:  xorg-x11-server-1.1.0-input-autoconfig-2.patch
@@ -311,6 +312,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch2001 -p1 -b .pci-scan
 %patch2002 -p1 -b .crash-message
 #%patch2003 -p1 -b .loader-diet
+%patch2004 -p1 -b .zlib
 
 %patch3001 -p1 -b .edid1
 %patch3002 -p1 -b .edid2
@@ -642,6 +644,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Jun 27 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-24
+- Don't (uselessly) link the server against zlib.
+- Fix the 1680x1050 modes to be the CVT timings instead of GTF.
+
 * Mon Jun 26 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-23
 - Fix an open-coded check for reduced-blanking modes to only apply to analog
   connectors.
