@@ -114,7 +114,9 @@ BuildRequires: libX11-devel
 BuildRequires: libXext-devel
 #
 BuildRequires: freetype-devel >= 2.1.9-1
-BuildRequires: zlib-devel
+# FIXME: Disabling zlib-devel dep as we are applying the xorg-x11-server-1.1.0-no-zlib.patch
+# patch which should remove any dependency on zlib anyway.
+#BuildRequires: zlib-devel
 
 # FIXME: libXt-devel should be wrapped in with_dmx_server - for Xdmxconfig,
 # probably should only be needed for DMX builds, but the build explodes with
@@ -644,6 +646,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Jun 28 2006 Mike A. Harris <mharris@redhat.com>
+- Disable build dependency on zlib-devel now that we are not uselessly linking
+  against it.
+
 * Tue Jun 27 2006 Adam Jackson <ajackson@redhat.com> 1.1.0-24
 - Don't (uselessly) link the server against zlib.
 - Fix the 1680x1050 modes to be the CVT timings instead of GTF.
