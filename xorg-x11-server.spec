@@ -10,7 +10,7 @@ License:   MIT/X11
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Source0:   http://xorg.freedesktop.org/releases/individual/xserver/%{pkgname}-%{version}.tar.bz2
+Source0:   ftp://ftp.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source100: comment-header-modefiles.txt
 
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
