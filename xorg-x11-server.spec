@@ -4,7 +4,12 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.0
-Release:   24
+# NOTE: Now using the 'dist' tag as per http://fedoraproject.org/wiki/DistTag
+# For rawhide builds, bump the number /before/ the dist tag.  For package
+# upgrades to officially released distribution releases, if the package
+# Version field above is not changing, append and/or bump a digit /after/
+# the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
+Release:   25%{dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -646,6 +651,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Jun 30 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-25.fc5
+- Start using the new %%{dist} tag <http://fedoraproject.org/wiki/DistTag>
+  experimentally in the package Release field to help prevent problems like
+  (#197266) from occuring in the future.
+
 * Wed Jun 28 2006 Mike A. Harris <mharris@redhat.com>
 - Disable build dependency on zlib-devel now that we are not uselessly linking
   against it.
