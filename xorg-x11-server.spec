@@ -9,7 +9,7 @@ Version:   1.1.0
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   25%{dist}
+Release:   26%{dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -33,6 +33,7 @@ Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
 Patch101:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
 Patch102:  xorg-x11-server-1.1.0-convolution-filter-fix.patch
 Patch103:  xorg-x11-server-1.1.0-tfp-damage.patch
+Patch104:  xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -309,6 +310,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch101 -p0 -b .gl-include-inferiors
 %patch102 -p1 -b .convolution-filter-fix
 %patch103 -p0 -b .tfp-damage
+%patch104 -p0 -b .mesa-copy-sub-buffer
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -651,6 +653,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Jul  7 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-26
+- Add xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch to hook up the
+  GLX_MESA_copy_sub_buffer extension.
+
 * Fri Jun 30 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-25.fc5
 - Start using the new %%{dist} tag <http://fedoraproject.org/wiki/DistTag>
   experimentally in the package Release field to help prevent problems like
