@@ -9,7 +9,7 @@ Version:   1.1.0
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   26%{dist}
+Release:   27%{dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -356,6 +356,7 @@ aclocal ; automake ; autoconf
 	--with-fontdir=%(pkg-config --variable=fontdir fontutil) \
 %if %{with_dri}
 	--enable-dri \
+	--enable-glx-tls \
 	--with-mesa-source=%{_datadir}/mesa/source \
 	--with-dri-driver-path=%{drimoduledir} \
 %else
@@ -653,6 +654,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Sat Jul  8 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-27%{dist}
+- Enable TLS for GLX to match the mesa build config.
+
 * Fri Jul  7 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-26
 - Add xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch to hook up the
   GLX_MESA_copy_sub_buffer extension.
