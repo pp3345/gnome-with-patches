@@ -3,13 +3,13 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.1.0
+Version:   1.1.1
 # NOTE: Now using the 'dist' tag as per http://fedoraproject.org/wiki/DistTag
 # For rawhide builds, bump the number /before/ the dist tag.  For package
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   27%{dist}
+Release:   0%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -23,15 +23,10 @@ Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
 Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
 Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
-# https://bugs.freedesktop.org/show_bug.cgi?id=6010
-Patch6:    xserver-1.0.1-randr-sdk.patch
-Patch7:	   xorg-x11-server-1.1.0-ppc64-build-fix.patch
-Patch8:    ftp://ftp.freedesktop.org/pub/xorg/X11R7.1/patches/xorg-xserver-1.1.0-setuid.diff
 
 # Spiffiffity/compiz feature/optimization patches.
 Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
 Patch101:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
-Patch102:  xorg-x11-server-1.1.0-convolution-filter-fix.patch
 Patch103:  xorg-x11-server-1.1.0-tfp-damage.patch
 Patch104:  xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch
 
@@ -43,20 +38,15 @@ Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
 Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
 
 # Backports of post-1.1 stuff.
-Patch2000:  xorg-x11-server-1.1.0-cw-crash-fix.patch
 Patch2001:  xorg-x11-server-1.1.0-pci-scan-fixes.patch
-Patch2002:  xorg-x11-server-1.1.0-hush-crash-message.patch
-#Patch2003:  xorg-x11-server-1.1.0-loader-diet.patch
 Patch2004:  xorg-x11-server-1.1.0-no-zlib.patch
 
 # autoconfiguration feature patches
-#Patch3000:  xorg-x11-server-1.1.0-input-autoconfig-2.patch
 Patch3001:  xorg-x11-server-1.1.0-edid-mode-injection-1.patch
 Patch3002:  xorg-x11-server-1.1.0-edid-mode-injection-2.patch
 Patch3003:  xorg-x11-server-1.1.0-cvt-generator-in-core.patch
 Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
 Patch3005:  xorg-x11-server-1.1.0-pci-driver-detection.patch
-Patch3006:  xorg-x11-server-1.1.0-fix-default-mouse-device.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -302,13 +292,9 @@ drivers, input drivers, or other X modules should install this package.
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p0 -b .init-origins-fix
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
-%patch6 -p1 -b .randrsdk
-%patch7 -p1 -b .ppc64
-%patch8 -p0 -b .setuid
 
 %patch100 -p0 -b .spiffiffity
 %patch101 -p0 -b .gl-include-inferiors
-%patch102 -p1 -b .convolution-filter-fix
 %patch103 -p0 -b .tfp-damage
 %patch104 -p0 -b .mesa-copy-sub-buffer
 
@@ -317,10 +303,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch1002 -p1 -b .xephyr
 %patch1003 -p1 -b .fpic
 
-%patch2000 -p1 -b .cw-crash
 %patch2001 -p1 -b .pci-scan
-%patch2002 -p1 -b .crash-message
-#%patch2003 -p1 -b .loader-diet
 %patch2004 -p1 -b .zlib
 
 %patch3001 -p1 -b .edid1
@@ -328,7 +311,6 @@ drivers, input drivers, or other X modules should install this package.
 %patch3003 -p1 -b .cvt
 %patch3004 -p1 -b .targetrefresh
 %patch3005 -p1 -b .pci-loader
-%patch3006 -p1 -b .mice
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -654,6 +636,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Sat Jul  8 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-0.fc6
+- Update to 1.1.1.
+
 * Sat Jul  8 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-27%{dist}
 - Enable TLS for GLX to match the mesa build config.
 
