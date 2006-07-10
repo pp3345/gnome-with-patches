@@ -9,7 +9,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   0%{?dist}
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -636,7 +636,7 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
-* Sat Jul  8 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-0.fc6
+* Sat Jul  8 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-1.fc6
 - Update to 1.1.1.
 
 * Sat Jul  8 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-27%{dist}
