@@ -9,7 +9,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -47,6 +47,7 @@ Patch3002:  xorg-x11-server-1.1.0-edid-mode-injection-2.patch
 Patch3003:  xorg-x11-server-1.1.0-cvt-generator-in-core.patch
 Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
 Patch3005:  xorg-x11-server-1.1.1-getconfig-pl-die-die-die.patch
+Patch3006:  xorg-x11-server-1.1.1-dpms-on-by-default.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -311,6 +312,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3003 -p1 -b .cvt
 %patch3004 -p1 -b .targetrefresh
 %patch3005 -p1 -b .getconfig-pl-die-die-die
+%patch3006 -p1 -b .dpms-on-by-default
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -636,6 +638,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Jul 11 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-3.fc6
+- Enable DPMS by default.
+
 * Tue Jul 11 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-2.fc6
 - Remove nonsensical runtime perl dependency.
 
