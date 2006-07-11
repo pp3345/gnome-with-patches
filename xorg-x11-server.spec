@@ -9,7 +9,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -46,7 +46,7 @@ Patch3001:  xorg-x11-server-1.1.0-edid-mode-injection-1.patch
 Patch3002:  xorg-x11-server-1.1.0-edid-mode-injection-2.patch
 Patch3003:  xorg-x11-server-1.1.0-cvt-generator-in-core.patch
 Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
-Patch3005:  xorg-x11-server-1.1.0-pci-driver-detection.patch
+Patch3005:  xorg-x11-server-1.1.1-getconfig-pl-die-die-die.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -310,7 +310,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3002 -p1 -b .edid2
 %patch3003 -p1 -b .cvt
 %patch3004 -p1 -b .targetrefresh
-%patch3005 -p1 -b .pci-loader
+%patch3005 -p1 -b .getconfig-pl-die-die-die
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -377,6 +377,8 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_libdir}/X11/Options
     rm -f $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/cfg.sample
     rm -f $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/xorg.cfg
+    rm -f $RPM_BUILD_ROOT%{_bindir}/getconfig
+    rm -f $RPM_BUILD_ROOT%{_bindir}/getconfig.pl
 %if ! %{with_developer_utils}
     rm -f $RPM_BUILD_ROOT%{_bindir}/inb
     rm -f $RPM_BUILD_ROOT%{_bindir}/inl
@@ -387,6 +389,8 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_bindir}/outw
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
 %endif
+    rm -f $RPM_BUILD_ROOT%{_mandir}/man1/getconfig.1x*
+    rm -f $RPM_BUILD_ROOT%{_mandir}/man5/getconfig.5x*
     # Remove all libtool archives (*.la)
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 
@@ -472,8 +476,6 @@ rm -rf $RPM_BUILD_ROOT
 #%doc ChangeLog
 %{_bindir}/X
 %attr(4711, root, root) %{_bindir}/Xorg
-%{_bindir}/getconfig
-%{_bindir}/getconfig.pl
 %{_bindir}/gtf
 %{_bindir}/cvt
 %if %{with_developer_utils}
@@ -547,7 +549,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xserver
 %{_libdir}/xserver/SecurityPolicy
 #%dir %{_mandir}/man1x
-%{_mandir}/man1/getconfig.1x*
 %{_mandir}/man1/gtf.1x*
 %{_mandir}/man1/pcitweak.1x*
 %{_mandir}/man1/scanpci.1x*
@@ -558,7 +559,6 @@ rm -rf $RPM_BUILD_ROOT
 #%{_mandir}/man4/fbdevhw.4x*
 %{_mandir}/man4/fbdevhw.4*
 #%dir %{_mandir}/man5x
-%{_mandir}/man5/getconfig.5x*
 %{_mandir}/man5/xorg.conf.5x*
 %dir %{_localstatedir}/lib/xkb
 %{_localstatedir}/lib/xkb/README.compiled
@@ -636,6 +636,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Jul 11 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-2.fc6
+- Remove nonsensical runtime perl dependency.
+
 * Sat Jul  8 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-1.fc6
 - Update to 1.1.1.
 
