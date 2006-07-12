@@ -9,7 +9,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   3.1%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -48,6 +48,7 @@ Patch3003:  xorg-x11-server-1.1.0-cvt-generator-in-core.patch
 Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
 Patch3005:  xorg-x11-server-1.1.1-getconfig-pl-die-die-die.patch
 Patch3006:  xorg-x11-server-1.1.1-dpms-on-by-default.patch
+Patch3007:  xorg-x11-server-1.1.1-edid-root-window-properties.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -313,6 +314,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3004 -p1 -b .targetrefresh
 %patch3005 -p1 -b .getconfig-pl-die-die-die
 %patch3006 -p1 -b .dpms-on-by-default
+%patch3007 -p1 -b .edid-on-root-window
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -638,7 +640,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
-* Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> - sh: line 0: fg: no job control
+* Wed Jul 12 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-4.fc6
+- Restore placing the raw EDID block on the root window.
+
+* Wed Jul 12 2006 Jesse Keating <jkeating@redhat.com> 1.1.1-3.1.fc6
 - rebuild
 
 * Tue Jul 11 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-3.fc6
