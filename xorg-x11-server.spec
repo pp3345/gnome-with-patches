@@ -1,5 +1,4 @@
 %define pkgname xorg-server
-%define cvsdate cvsYYYYMMDD
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
@@ -9,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   4%{?dist}
+Release:   5%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -24,9 +23,10 @@ Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
 Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 
-# Spiffiffity/compiz feature/optimization patches.
-Patch100:  xorg-server-1.0.99.2-spiffiffity.patch
-Patch101:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
+# OpenGL compositing manager feature/optimization patches.
+Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
+Patch101:  xorg-x11-server-1.1.0-dont-backfill-bg-none.patch
+Patch102:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
 Patch103:  xorg-x11-server-1.1.0-tfp-damage.patch
 Patch104:  xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch
 
@@ -295,8 +295,9 @@ drivers, input drivers, or other X modules should install this package.
 %patch0 -p0 -b .init-origins-fix
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
 
-%patch100 -p0 -b .spiffiffity
-%patch101 -p0 -b .gl-include-inferiors
+%patch100 -p0 -b .no-move-damage
+%patch101 -p0 -b .dont-backfill-bg-none
+%patch102 -p0 -b .gl-include-inferiors
 %patch103 -p0 -b .tfp-damage
 %patch104 -p0 -b .mesa-copy-sub-buffer
 
@@ -640,6 +641,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Jul 12 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-5.fc5.aiglx
+- Split spiffiffity patch into one patch per change:
+  xorg-x11-server-1.1.0-no-move-damage.patch and
+  xorg-x11-server-1.1.0-dont-backfill-bg-none.patch.
+
 * Wed Jul 12 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-4.fc6
 - Restore placing the raw EDID block on the root window.
 
