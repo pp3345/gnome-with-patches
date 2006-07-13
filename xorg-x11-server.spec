@@ -29,6 +29,7 @@ Patch101:  xorg-x11-server-1.1.0-dont-backfill-bg-none.patch
 Patch102:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
 Patch103:  xorg-x11-server-1.1.0-tfp-damage.patch
 Patch104:  xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch
+Patch105:  xorg-x11-server-1.1.1-enable-composite.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -300,6 +301,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch102 -p0 -b .gl-include-inferiors
 %patch103 -p0 -b .tfp-damage
 %patch104 -p0 -b .mesa-copy-sub-buffer
+%patch105 -p0 -b .enable-composite
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -642,6 +644,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Wed Jul 12 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-5.fc5.aiglx
+- Enable composite by default.
 - Split spiffiffity patch into one patch per change:
   xorg-x11-server-1.1.0-no-move-damage.patch and
   xorg-x11-server-1.1.0-dont-backfill-bg-none.patch.
