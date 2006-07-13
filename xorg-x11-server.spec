@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   5.fc5.aiglx
+Release:   5%{dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -643,6 +643,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Jul 13 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-5.fc6
+- Tag as 1.1.1-5.fc6.
+
 * Wed Jul 12 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-5.fc5.aiglx
 - Enable composite by default.
 - Split spiffiffity patch into one patch per change:
