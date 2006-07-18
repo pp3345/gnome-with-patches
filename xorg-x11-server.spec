@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   5%{dist}
+Release:   6%{dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -50,6 +50,7 @@ Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
 Patch3005:  xorg-x11-server-1.1.1-getconfig-pl-die-die-die.patch
 Patch3006:  xorg-x11-server-1.1.1-dpms-on-by-default.patch
 Patch3007:  xorg-x11-server-1.1.1-edid-root-window-properties.patch
+Patch3008:  xorg-x11-server-1.1.1-sanedefaultmode.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -318,6 +319,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3005 -p1 -b .getconfig-pl-die-die-die
 %patch3006 -p1 -b .dpms-on-by-default
 %patch3007 -p1 -b .edid-on-root-window
+%patch3008 -p1 -b .sanedefaultmode
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -643,6 +645,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Jul 18 2006 Jeremy Katz <katzj@redhat.com> - 1.1.1-6.fc6
+- Saner defaults for hsync/vrefresh on monitors that can't be probed
+
 * Thu Jul 13 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-5.fc6
 - Tag as 1.1.1-5.fc6.
 
