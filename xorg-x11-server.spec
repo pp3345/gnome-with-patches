@@ -412,6 +412,7 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_bindir}/outl
     rm -f $RPM_BUILD_ROOT%{_bindir}/outw
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
+    rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
 %endif
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/getconfig.1x*
     rm -f $RPM_BUILD_ROOT%{_mandir}/man5/getconfig.5x*
