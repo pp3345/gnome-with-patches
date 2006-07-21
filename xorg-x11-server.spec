@@ -22,6 +22,7 @@ Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
 Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
 Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
+Patch5:    xorg-x11-server-libxf86config-dont-write-empty-sections.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -296,6 +297,7 @@ drivers, input drivers, or other X modules should install this package.
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p0 -b .init-origins-fix
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
+%patch5 -p0 -b .libxf86config-dont-write-empty-sections
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -303,6 +305,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch103 -p0 -b .tfp-damage
 %patch104 -p0 -b .mesa-copy-sub-buffer
 %patch105 -p0 -b .enable-composite
+%patch106 -p0 -b .libxf86config-dont-write-empty-sections
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -650,6 +653,8 @@ rm -rf $RPM_BUILD_ROOT
 * Fri Jul 21 2006 Mike A. Harris <mharris@redhat.com> 1.1.1-7.fc6
 - Only ship pcitweak manpage if we are building it (#199653)
 - Fix dist tag usage (Was {dist}, should be {?dist})
+- Added xorg-x11-server-libxf86config-dont-write-empty-sections.patch to
+  prevent config file parser/writer from writing out empty sections (#198653)
 
 * Tue Jul 18 2006 Jeremy Katz <katzj@redhat.com> 1.1.1-6.fc6
 - Saner defaults for hsync/vrefresh on monitors that can't be probed
