@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   6%{dist}
+Release:   7%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -558,8 +558,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xserver
 %{_libdir}/xserver/SecurityPolicy
 #%dir %{_mandir}/man1x
-%{_mandir}/man1/gtf.1x*
+%if %{with_developer_utils}
 %{_mandir}/man1/pcitweak.1x*
+%endif
+%{_mandir}/man1/gtf.1x*
 %{_mandir}/man1/scanpci.1x*
 %{_mandir}/man1/Xorg.1x*
 %{_mandir}/man1/Xserver.1x*
@@ -645,13 +647,17 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
-* Tue Jul 18 2006 Jeremy Katz <katzj@redhat.com> - 1.1.1-6.fc6
+* Fri Jul 21 2006 Mike A. Harris <mharris@redhat.com> 1.1.1-7.fc6
+- Only ship pcitweak manpage if we are building it (#199653)
+- Fix dist tag usage (Was {dist}, should be {?dist})
+
+* Tue Jul 18 2006 Jeremy Katz <katzj@redhat.com> 1.1.1-6.fc6
 - Saner defaults for hsync/vrefresh on monitors that can't be probed
 
-* Thu Jul 13 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-5.fc6
+* Thu Jul 13 2006 Kristian Høgsberg <krh@redhat.com>  1.1.1-5.fc6
 - Tag as 1.1.1-5.fc6.
 
-* Wed Jul 12 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-5.fc5.aiglx
+* Wed Jul 12 2006 Kristian Høgsberg <krh@redhat.com>  1.1.1-5.fc5.aiglx
 - Enable composite by default.
 - Split spiffiffity patch into one patch per change:
   xorg-x11-server-1.1.0-no-move-damage.patch and
@@ -669,17 +675,17 @@ rm -rf $RPM_BUILD_ROOT
 * Tue Jul 11 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-2.fc6
 - Remove nonsensical runtime perl dependency.
 
-* Sat Jul  8 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-1.fc6
+* Sat Jul 08 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-1.fc6
 - Update to 1.1.1.
 
-* Sat Jul  8 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-27%{dist}
+* Sat Jul 08 2006 Kristian Høgsberg <krh@redhat.com>  1.1.0-27.fc6
 - Enable TLS for GLX to match the mesa build config.
 
-* Fri Jul  7 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.0-26
+* Fri Jul 07 2006 Kristian Høgsberg <krh@redhat.com>  1.1.0-26
 - Add xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch to hook up the
   GLX_MESA_copy_sub_buffer extension.
 
-* Fri Jun 30 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-25.fc5
+* Fri Jun 30 2006 Mike A. Harris <mharris@redhat.com> 1.1.0-25.fc6
 - Start using the new %%{dist} tag <http://fedoraproject.org/wiki/DistTag>
   experimentally in the package Release field to help prevent problems like
   (#197266) from occuring in the future.
