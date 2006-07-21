@@ -305,7 +305,6 @@ drivers, input drivers, or other X modules should install this package.
 %patch103 -p0 -b .tfp-damage
 %patch104 -p0 -b .mesa-copy-sub-buffer
 %patch105 -p0 -b .enable-composite
-%patch106 -p0 -b .libxf86config-dont-write-empty-sections
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
