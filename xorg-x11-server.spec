@@ -197,12 +197,15 @@ upon.
 %package Xnest
 Summary: A nested server.
 Group: User Interface/X
-#Requires: %{name} = %{version}-%{release}
 Obsoletes: XFree86-Xnest, xorg-x11-Xnest
 # NOTE: This virtual provide should be used by packages which want to depend
 # on an implementation nonspecific Xnest X server.  It is intentionally not
 # versioned, since it should be agnostic.
 Provides: Xnest
+
+# NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
+# by xorg-x11-fonts-base
+Requires: xorg-x11-fonts-base
 
 %description Xnest
 Xnest is an X server, which has been implemented as an ordinary
@@ -216,12 +219,15 @@ applications without running them on their real X server.
 %package Xdmx
 Summary: Distributed Multihead X Server and utilities
 Group: User Interface/X
-#Requires: %{name}-Xorg = %{version}-%{release}
 Obsoletes: xorg-x11-Xdmx
 # NOTE: This virtual provide should be used by packages which want to depend
 # on an implementation nonspecific Xdmx X server.  It is intentionally not
 # versioned, since it should be agnostic.
 Provides: Xdmx
+
+# NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
+# by xorg-x11-fonts-base
+Requires: xorg-x11-fonts-base
 
 %description Xdmx
 Xdmx is proxy X server that provides multi-head support for multiple displays
@@ -244,6 +250,10 @@ Obsoletes: XFree86-Xvfb xorg-x11-Xvfb
 # versioned, since it should be agnostic.
 Provides: Xvfb
 
+# NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
+# by xorg-x11-fonts-base
+Requires: xorg-x11-fonts-base
+
 %description Xvfb
 Xvfb (X Virtual Frame Buffer) is an X server that is able to run on
 machines with no display hardware and no physical input devices.
@@ -256,11 +266,14 @@ is normally used for testing servers.
 %package Xephyr
 Summary: A nested server.
 Group: User Interface/X
-#Requires: %{name} = %{version}-%{release}
 # NOTE: This virtual provide should be used by packages which want to depend
 # on an implementation nonspecific Xephyr X server.  It is intentionally not
 # versioned, since it should be agnostic.
 Provides: Xephyr
+
+# NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
+# by xorg-x11-fonts-base
+Requires: xorg-x11-fonts-base
 
 %description Xephyr
 Xephyr is an X server, which has been implemented as an ordinary
@@ -654,6 +667,7 @@ rm -rf $RPM_BUILD_ROOT
 - Fix dist tag usage (Was {dist}, should be {?dist})
 - Added xorg-x11-server-libxf86config-dont-write-empty-sections.patch to
   prevent config file parser/writer from writing out empty sections (#198653)
+- Add dependency on xorg-x11-fonts-base to all X server subpackages (#186091)
 
 * Tue Jul 18 2006 Jeremy Katz <katzj@redhat.com> 1.1.1-6.fc6
 - Saner defaults for hsync/vrefresh on monitors that can't be probed
