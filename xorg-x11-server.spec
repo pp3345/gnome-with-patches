@@ -663,6 +663,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Jul 21 2006 Mike A. Harris <mharris@redhat.com>
+- Added "1152x864 @ 100.00" GTF mode to Red-Hat-extramodes patch (#49264)
+
 * Fri Jul 21 2006 Mike A. Harris <mharris@redhat.com> 1.1.1-7.fc6
 - Only ship pcitweak manpage if we are building it (#199653)
 - Fix dist tag usage (Was {dist}, should be {?dist})
