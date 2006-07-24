@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   7%{?dist}
+Release:   8%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -35,7 +35,7 @@ Patch105:  xorg-x11-server-1.1.1-enable-composite.patch
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
 Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
-Patch1001:  xorg-x11-server-1.0.1-Red-Hat-extramodes.patch
+Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
 Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
 Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
 
@@ -663,6 +663,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Jul 24 2006 Mike A. Harris <mharris@redhat.com> 1.1.1-8.fc6
+- Added "1440x900@60" CVT mode to Red-Hat-extramodes patch for (#179865)
+
 * Fri Jul 21 2006 Mike A. Harris <mharris@redhat.com>
 - Added "1152x864 @ 100.00" GTF mode to Red-Hat-extramodes patch (#49264)
 
