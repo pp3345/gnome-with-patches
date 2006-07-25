@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   8%{?dist}
+Release:   9%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -31,6 +31,7 @@ Patch102:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
 Patch103:  xorg-x11-server-1.1.0-tfp-damage.patch
 Patch104:  xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch
 Patch105:  xorg-x11-server-1.1.1-enable-composite.patch
+Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -38,10 +39,12 @@ Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
 Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
 Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
+Patch1004:  xorg-x11-server-1.1.1-selinux-awareness.patch
 
 # Backports of post-1.1 stuff.
 Patch2001:  xorg-x11-server-1.1.0-pci-scan-fixes.patch
 Patch2004:  xorg-x11-server-1.1.0-no-zlib.patch
+Patch2005:  xorg-x11-server-1.1.1-Xdmx-render-fix-fdo7482.patch
 
 # autoconfiguration feature patches
 Patch3001:  xorg-x11-server-1.1.0-edid-mode-injection-1.patch
@@ -143,7 +146,7 @@ BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 # Needed at least for DRI enabled builds
 %if %{with_dri}
 BuildRequires: mesa-libGL-devel >= 6.5-1
-BuildRequires: mesa-source >= 6.5-1
+BuildRequires: mesa-source >= 6.5-17
 BuildRequires: libdrm-devel >= 2.0-1
 %endif
 %description
@@ -318,14 +321,17 @@ drivers, input drivers, or other X modules should install this package.
 %patch103 -p0 -b .tfp-damage
 %patch104 -p0 -b .mesa-copy-sub-buffer
 %patch105 -p0 -b .enable-composite
+%patch106 -p1 -b .no-xnest-composite
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
 %patch1002 -p1 -b .xephyr
 %patch1003 -p1 -b .fpic
+%patch1004 -p1 -b .selinux-awareness
 
 %patch2001 -p1 -b .pci-scan
 %patch2004 -p1 -b .zlib
+%patch2005 -p1 -b .Xdmx
 
 %patch3001 -p1 -b .edid1
 %patch3002 -p1 -b .edid2
@@ -663,6 +669,14 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Jul 25 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-10.fc6
+- xorg-x11-server-1.1.1-selinux-awareness.patch: Added for new Mesa
+  selinux code.
+- xorg-x11-server-1.1.1-Xdmx-render-fix-fdo7482.patch: Backport a Render
+  fix for Xdmx.
+- xorg-x11-server-1.1.1-no-composite-in-xnest.patch: Disable Composite in
+  Xnest, as it's known not to work.
+
 * Mon Jul 24 2006 Mike A. Harris <mharris@redhat.com> 1.1.1-8.fc6
 - Added "1440x900@60" CVT mode to Red-Hat-extramodes patch for (#179865)
 
