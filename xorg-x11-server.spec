@@ -92,8 +92,6 @@ BuildRequires: automake
 BuildRequires: autoconf
 BuildRequires: libtool
 
-
-
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 0.99.1
 BuildRequires: xorg-x11-proto-devel >= 7.1-1
@@ -150,6 +148,9 @@ BuildRequires: mesa-libGL-devel >= 6.5-1
 BuildRequires: mesa-source >= 6.5-19
 BuildRequires: libdrm-devel >= 2.0-1
 %endif
+
+BuildRequires: libselinux-devel
+
 %description
 X.Org X11 X server
 
@@ -672,7 +673,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Tue Jul 25 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-11.fc6
-- Bump to appease brew.
+- Add selinux{,-devel} buildreqs.
 
 * Tue Jul 25 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-10.fc6
 - xorg-x11-server-1.1.1-selinux-awareness.patch: Added for new Mesa
