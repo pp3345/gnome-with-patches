@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   9%{?dist}
+Release:   10%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -55,6 +55,7 @@ Patch3005:  xorg-x11-server-1.1.1-getconfig-pl-die-die-die.patch
 Patch3006:  xorg-x11-server-1.1.1-dpms-on-by-default.patch
 Patch3007:  xorg-x11-server-1.1.1-edid-root-window-properties.patch
 Patch3008:  xorg-x11-server-1.1.1-sanedefaultmode.patch
+Patch3009:  xorg-x11-server-1.1.1-module-list.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -341,6 +342,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3006 -p1 -b .dpms-on-by-default
 %patch3007 -p1 -b .edid-on-root-window
 %patch3008 -p1 -b .sanedefaultmode
+%patch3009 -p1 -b .module-list
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -358,6 +360,7 @@ aclocal ; automake ; autoconf
 	--enable-xtrap \
 	--enable-xcsecurity \
 	--enable-xevie \
+	--with-default-font-path="unix/:7100" \
 	--with-module-dir=%{moduledir} \
 	--with-os-name="Fedora Core 5" \
 	--with-os-vendor="Red Hat, Inc." \
@@ -368,7 +371,6 @@ aclocal ; automake ; autoconf
 	--with-fontdir=%(pkg-config --variable=fontdir fontutil) \
 %if %{with_dri}
 	--enable-dri \
-	--enable-glx-tls \
 	--with-mesa-source=%{_datadir}/mesa/source \
 	--with-dri-driver-path=%{drimoduledir} \
 %else
@@ -676,6 +678,9 @@ rm -rf $RPM_BUILD_ROOT
   fix for Xdmx.
 - xorg-x11-server-1.1.1-no-composite-in-xnest.patch: Disable Composite in
   Xnest, as it's known not to work.
+- Fix default font path to match the config file we used to generate.
+- Fix default module set to match the config file we used to generate.
+- Disable use of TLS GLX dispatch to match Mesa selinux nonsense.
 
 * Mon Jul 24 2006 Mike A. Harris <mharris@redhat.com> 1.1.1-8.fc6
 - Added "1440x900@60" CVT mode to Red-Hat-extramodes patch for (#179865)
