@@ -147,7 +147,7 @@ BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 # Needed at least for DRI enabled builds
 %if %{with_dri}
 BuildRequires: mesa-libGL-devel >= 6.5-1
-BuildRequires: mesa-source >= 6.5-17
+BuildRequires: mesa-source >= 6.5-19
 BuildRequires: libdrm-devel >= 2.0-1
 %endif
 %description
