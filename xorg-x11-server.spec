@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   13%{?dist}
+Release:   13.fc5.aiglx
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -150,6 +150,10 @@ BuildRequires: libdrm-devel >= 2.0-1
 %endif
 
 BuildRequires: libselinux-devel
+
+# Make sure we pull ABI compatible drivers.
+Conflicts: xorg-x11-drv-ati < 6.6.1
+Conflicts: xorg-x11-drv-i810 < 1.6.0
 
 %description
 X.Org X11 X server
@@ -672,6 +676,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Jul 28 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-13.fc5.aiglx
+- Add conflicts for ABI incompatible version of xorg-x11-drv-i810 and
+  xorg-x11-drv-ati.
+
 * Fri Jul 28 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-13.fc6
 - Comment out the 848x480 modes from the extramodes patch.  Any panel that
   wants it should be doing EDID injection by now, and it screws up
