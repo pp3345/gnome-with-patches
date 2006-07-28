@@ -1,9 +1,6 @@
-Please keep the modes in the extramodes file sorted by the X resolution, then
-by the Y resolution for readability and ease of maintenance.
-
---- hw/xfree86/common/extramodes.Red-Hat-extramodes	2006-07-05 14:31:40.000000000 -0400
-+++ hw/xfree86/common/extramodes	2006-07-26 07:52:01.000000000 -0400
-@@ -3,21 +3,143 @@
+--- xorg-server-1.1.1/hw/xfree86/common/extramodes.Red-Hat-extramodes	2006-07-05 14:31:40.000000000 -0400
++++ xorg-server-1.1.1/hw/xfree86/common/extramodes	2006-07-28 15:06:01.000000000 -0400
+@@ -3,21 +3,147 @@
  //
  // $XFree86: xc/programs/Xserver/hw/xfree86/etc/extramodes,v 1.5 2002/06/05 19:43:05 dawes Exp $
  //
@@ -13,17 +10,21 @@ by the Y resolution for readability and ease of maintenance.
  # 832x624 @ 75Hz (74.55Hz) (fix if the official/Apple spec is different) hsync: 49.725kHz
  ModeLine "832x624" 57.284 832  864  928 1152  624  625  628  667 -Hsync -Vsync
  
++# Disable the 848x480 modes for now.  They're quite rare, and they screw up
++# the autosizing logic.  They're panel modes anyway, and EDID injection
++# should cover that now. - ajax, 2006-07-28
++
 +# 848x480 @ 60.00 Hz (GTF) hsync: 29.82 kHz; pclk: 31.49 MHz
-+Modeline "848x480"  31.49  848 864 952 1056  480 481 484 497  -HSync +Vsync
++# Modeline "848x480"  31.49  848 864 952 1056  480 481 484 497  -HSync +Vsync
 +
 +# 848x480 @ 70.00 Hz (GTF) hsync: 35.00 kHz; pclk: 37.52 MHz
-+Modeline "848x480"  37.52  848 872 960 1072  480 481 484 500  -HSync +Vsync
++# Modeline "848x480"  37.52  848 872 960 1072  480 481 484 500  -HSync +Vsync
 +
 +# 848x480 @ 75.00 Hz (GTF) hsync: 37.65 kHz; pclk: 40.96 MHz
-+Modeline "848x480"  40.96  848 880 968 1088  480 481 484 502  -HSync +Vsync
++# Modeline "848x480"  40.96  848 880 968 1088  480 481 484 502  -HSync +Vsync
 +
 +# 848x480 @ 85.00 Hz (GTF) hsync: 42.92 kHz; pclk: 47.39 MHz
-+Modeline "848x480"  47.39  848 888 976 1104  480 481 484 505  -HSync +Vsync
++# Modeline "848x480"  47.39  848 888 976 1104  480 481 484 505  -HSync +Vsync
 +
  # 1152x768 @ 54.8Hz (Titanium PowerBook) hsync: 44.2kHz
  ModeLine "1152x768"   64.995 1152 1178 1314 1472  768  771  777  806 +hsync +vsync
@@ -149,7 +150,7 @@ by the Y resolution for readability and ease of maintenance.
  
  # 1920x1440 @ 85Hz (VESA GTF) hsync: 128.5kHz
  Modeline "1920x1440" 341.35  1920 2072 2288 2656  1440 1441 1444 1512 -hsync +vsync
-@@ -31,3 +153,14 @@
+@@ -31,3 +157,14 @@
  # 2048x1536 @ 85Hz (VESA GTF) hsync: 137.0kHz
  Modeline "2048x1536" 388.04  2048 2216 2440 2832  1536 1537 1540 1612 -hsync +vsync
  

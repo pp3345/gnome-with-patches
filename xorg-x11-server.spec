@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   12%{?dist}
+Release:   13%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -326,7 +326,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch106 -p1 -b .no-xnest-composite
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
-%patch1001 -p0 -b .Red-Hat-extramodes
+%patch1001 -p1 -b .Red-Hat-extramodes
 %patch1002 -p1 -b .xephyr
 %patch1003 -p1 -b .fpic
 %patch1004 -p1 -b .selinux-awareness
@@ -672,6 +672,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Jul 28 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-13.fc6
+- Comment out the 848x480 modes from the extramodes patch.  Any panel that
+  wants it should be doing EDID injection by now, and it screws up
+  autoconfig by _just_ fitting in the ranges for 800x600.
+
 * Wed Jul 26 2006 Mike A. Harris <mharris@redhat.com> 1.1.1-12.fc6
 - Added "1920x1080" CVT modes to Red-Hat-extramodes patch for (#195272)
 - Sorted the extramodes file by X res, then Y res for ease of maintenance.
