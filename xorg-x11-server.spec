@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   13%{?dist}
+Release:   14%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -45,6 +45,7 @@ Patch1004:  xorg-x11-server-1.1.1-selinux-awareness.patch
 Patch2001:  xorg-x11-server-1.1.0-pci-scan-fixes.patch
 Patch2004:  xorg-x11-server-1.1.0-no-zlib.patch
 Patch2005:  xorg-x11-server-1.1.1-Xdmx-render-fix-fdo7482.patch
+Patch2006:  xorg-x11-server-1.1.1-revert-xkb-change.patch
 
 # autoconfiguration feature patches
 Patch3001:  xorg-x11-server-1.1.0-edid-mode-injection-1.patch
@@ -338,6 +339,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch2001 -p1 -b .pci-scan
 %patch2004 -p1 -b .zlib
 %patch2005 -p1 -b .Xdmx
+%patch2006 -p1 -b .revert-xkb-change
 
 %patch3001 -p1 -b .edid1
 %patch3002 -p1 -b .edid2
@@ -676,6 +678,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Jul 28 2006 Kevin E Martin <kem@redhat.com> - 1.1.1-14.fc6
+- xorg-x11-server-1.1.1-revert-xkb-change.patch: Revert change to xkb that
+  broke XkbGetKeyboard().
+
 * Fri Jul 28 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-13.fc5.aiglx
 - Add conflicts for ABI incompatible version of xorg-x11-drv-i810 and
   xorg-x11-drv-ati.
