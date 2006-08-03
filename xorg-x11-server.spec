@@ -678,6 +678,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Aug  2 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-15.fc6
+- xorg-x11-server-1.1.0-edid-mode-injection-2.patch: Allow HorizSync and
+  VertRefresh to be overridden independently.
+
 * Fri Jul 28 2006 Kevin E Martin <kem@redhat.com> - 1.1.1-14.fc6
 - xorg-x11-server-1.1.1-revert-xkb-change.patch: Revert change to xkb that
   broke XkbGetKeyboard().
