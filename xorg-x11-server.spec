@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   14%{?dist}
+Release:   15%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
