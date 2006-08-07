@@ -1,0 +1,17 @@
+Patch to force pixmaps to be allocated in host memory.  Work in
+progress, will eventually allow the xserver to keep pixmaps in video
+memory until the root window is redirected.  At that point pixmaps are
+evicted to host memory and subsequent pixmap allocations are done in
+host memory.
+
+--- ./hw/xfree86/xaa/xaaInitAccel.c.no-offscreen-pixmaps	2006-08-07 14:21:11.000000000 -0400
++++ ./hw/xfree86/xaa/xaaInitAccel.c	2006-08-07 14:20:44.000000000 -0400
+@@ -92,7 +92,7 @@
+     {XAAOPT_PIXMAP_CACHE,		"XaaNoPixmapCache",
+ 				OPTV_BOOLEAN,	{0}, FALSE },
+     {XAAOPT_OFFSCREEN_PIXMAPS,		"XaaNoOffscreenPixmaps",
+-				OPTV_BOOLEAN,	{0}, FALSE },
++				OPTV_BOOLEAN,	{0}, TRUE },
+     { -1,				NULL,
+ 				OPTV_NONE,	{0}, FALSE }
+ };

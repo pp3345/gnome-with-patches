@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   16%{?dist}
+Release:   17%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -32,6 +32,8 @@ Patch103:  xorg-x11-server-1.1.0-tfp-damage.patch
 Patch104:  xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch
 Patch105:  xorg-x11-server-1.1.1-enable-composite.patch
 Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
+# Work-in-progress; for now just defaults XaaNoOffscreenPixmaps to false.
+Patch107:  xorg-x11-server-1.1.1-offscreen-pixmaps.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -329,6 +331,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch104 -p0 -b .mesa-copy-sub-buffer
 %patch105 -p0 -b .enable-composite
 %patch106 -p1 -b .no-xnest-composite
+%patch107 -p0 -b .offscreen-pixmaps
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -678,6 +681,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Aug  7 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-17.fc6
+- Add xorg-x11-server-1.1.1-offscreen-pixmaps.patch to default
+  XaaNoOffscreenPixmaps to false, for now.
+
 * Mon Aug  7 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-16.fc6
 - xorg-x11-server-1.1.0-edid-mode-injection-2.patch: Off-by-one error in
   range storage.
