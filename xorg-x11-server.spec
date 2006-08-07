@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   15%{?dist}
+Release:   16%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -678,6 +678,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Aug  7 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-16.fc6
+- xorg-x11-server-1.1.0-edid-mode-injection-2.patch: Off-by-one error in
+  range storage.
+
 * Wed Aug  2 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-15.fc6
 - xorg-x11-server-1.1.0-edid-mode-injection-2.patch: Allow HorizSync and
   VertRefresh to be overridden independently.
