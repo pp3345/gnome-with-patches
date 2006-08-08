@@ -1,6 +1,22 @@
---- ./hw/xfree86/xaa/xaaInit.c.offscreen-pixmaps	2006-07-05 14:31:42.000000000 -0400
-+++ ./hw/xfree86/xaa/xaaInit.c	2006-08-07 18:44:21.000000000 -0400
-@@ -98,6 +98,34 @@
+--- xorg-server-1.1.1/hw/xfree86/xaa/xaaInit.c.offscreen-pixmaps	2006-07-05 14:31:42.000000000 -0400
++++ xorg-server-1.1.1/hw/xfree86/xaa/xaaInit.c	2006-08-08 14:02:05.000000000 -0400
+@@ -4,6 +4,7 @@
+ #include <xorg-config.h>
+ #endif
+ 
++#include <string.h>
+ #include "misc.h"
+ #include "xf86.h"
+ #include "xf86_OSproc.h"
+@@ -20,6 +21,7 @@
+ #include "xaawrap.h"
+ #include "xf86fbman.h"
+ #include "servermd.h"
++#include "selection.h"
+ 
+ #define MAX_PREALLOC_MEM	65536	/* MUST be >= 1024 */
+ 
+@@ -98,6 +100,29 @@
      xfree(infoRec);
  }
  
@@ -8,19 +24,14 @@
 +SelectionChangedCallback (CallbackListPtr *list,
 +			  pointer xaaData, pointer callData)
 +{
-+    static Atom atom = BAD_RESOURCE;
 +    static char atom_name[] = "_COMPIZ_GL_INCLUDE_INFERIORS";
 +
-+    SelectionInfoPtr info = call_data;
-+    XAAInfoRecPtr infoRec = xaa_data;
++    SelectionInfoRec *info = callData;
++    XAAInfoRecPtr infoRec = xaaData;
++    ScreenPtr pScreen = infoRec->pScrn->pScreen;
++    Atom atom;
 +
-+    if (atom == BAD_RESOURCE)
-+    {
-+	atom = MakeAtom(atom_name, strlen(atom_name), True);
-+	if (atom == BAD_RESOURCE)
-+	    return;
-+    }
-+
++    atom = MakeAtom(atom_name, strlen(atom_name), 0);
 +    if (info->selection->selection == atom &&
 +	info->kind == SelectionSetOwner &&
 +	info->selection->window != None)
@@ -35,7 +46,7 @@
  
  Bool 
  XAAInit(ScreenPtr pScreen, XAAInfoRecPtr infoRec)
-@@ -228,11 +256,11 @@
+@@ -228,11 +253,11 @@
      if(infoRec->Flags & MICROSOFT_ZERO_LINE_BIAS)
  	miSetZeroLineBias(pScreen, OCTANT1 | OCTANT2 | OCTANT3 | OCTANT4);
  
@@ -49,11 +60,12 @@
  static Bool
  XAACloseScreen (int i, ScreenPtr pScreen)
  {
-@@ -264,6 +292,8 @@
+@@ -264,6 +289,9 @@
  
      xfree ((pointer) pScreenPriv);
  
-+    DeleteCallback(&SelectionCallback, SelectionChangedCallback, infoRec);
++    DeleteCallback(&SelectionCallback, SelectionChangedCallback,
++		   pScreenPriv->AccelInfoRec);
 +
      return (*pScreen->CloseScreen) (i, pScreen);
  }
