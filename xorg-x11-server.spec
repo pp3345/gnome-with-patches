@@ -7,8 +7,8 @@ Version:   1.1.1
 # For rawhide builds, bump the number /before/ the dist tag.  For package
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
-# the dist tag.  ie:  25%{dist}.0 -> 25%{dist}.1 ...
-Release:   17.fc5.aiglx
+# the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
+Release:   18%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -32,7 +32,6 @@ Patch103:  xorg-x11-server-1.1.0-tfp-damage.patch
 Patch104:  xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch
 Patch105:  xorg-x11-server-1.1.1-enable-composite.patch
 Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
-# Work-in-progress; for now just defaults XaaNoOffscreenPixmaps to false.
 Patch107:  xorg-x11-server-1.1.1-offscreen-pixmaps.patch
 
 # Red Hat specific tweaking, not intended for upstream
@@ -331,7 +330,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch104 -p0 -b .mesa-copy-sub-buffer
 %patch105 -p0 -b .enable-composite
 %patch106 -p1 -b .no-xnest-composite
-%patch107 -p0 -b .offscreen-pixmaps
+%patch107 -p1 -b .offscreen-pixmaps
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -681,6 +680,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Aug  8 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-18.fc6
+- Update offscreen-pixmaps patch to migrate pixmaps when the compiz
+  selection is taken.
+
 * Mon Aug  7 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-17.fc5.aiglx
 - Build for fc5 aiglx repo.
 
