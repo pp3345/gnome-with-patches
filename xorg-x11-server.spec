@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   18%{?dist}
+Release:   19%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -23,6 +23,7 @@ Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
 Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch5:    xorg-x11-server-libxf86config-dont-write-empty-sections.patch
+Patch6:    xorg-x11-server-1.1.1-builderstring.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -58,6 +59,8 @@ Patch3006:  xorg-x11-server-1.1.1-dpms-on-by-default.patch
 Patch3007:  xorg-x11-server-1.1.1-edid-root-window-properties.patch
 Patch3008:  xorg-x11-server-1.1.1-sanedefaultmode.patch
 Patch3009:  xorg-x11-server-1.1.1-module-list.patch
+Patch3010:  xorg-x11-server-1.1.1-edid-quirks-list.patch
+Patch3011:  xorg-x11-server-1.1.1-defaultdepth-24.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -322,6 +325,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch0 -p0 -b .init-origins-fix
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
 %patch5 -p0 -b .libxf86config-dont-write-empty-sections
+%patch6 -p1 -b .builderstring
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -352,6 +356,8 @@ drivers, input drivers, or other X modules should install this package.
 %patch3007 -p1 -b .edid-on-root-window
 %patch3008 -p1 -b .sanedefaultmode
 %patch3009 -p1 -b .module-list
+%patch3010 -p1 -b .edid-quirks
+%patch3011 -p1 -b .defaultdepth
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -373,6 +379,7 @@ aclocal ; automake ; autoconf
 	--with-module-dir=%{moduledir} \
 	--with-os-name="Fedora Core 5" \
 	--with-os-vendor="Red Hat, Inc." \
+	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
 	--with-rgb-path=%{_datadir}/X11/rgb \
 	--disable-xorgcfg \
@@ -680,6 +687,14 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Aug  9 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-19.fc6
+- xorg-x11-server-1.1.1-builderstring.patch: Enable the builder info
+  string at configure time;
+- ... and use it to print the package name and version.
+- xorg-x11-server-1.1.1-defaultdepth-24.patch: Set default depth to 24.
+- xorg-x11-server-1.1.1-edid-quirks-list.patch: Add EDID quirks list as
+  an experiment; needs a better solution though. 
+
 * Tue Aug  8 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-18.fc6
 - Update offscreen-pixmaps patch to migrate pixmaps when the compiz
   selection is taken.
