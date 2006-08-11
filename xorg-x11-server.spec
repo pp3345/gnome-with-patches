@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   19%{?dist}
+Release:   20%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -61,6 +61,7 @@ Patch3008:  xorg-x11-server-1.1.1-sanedefaultmode.patch
 Patch3009:  xorg-x11-server-1.1.1-module-list.patch
 Patch3010:  xorg-x11-server-1.1.1-edid-quirks-list.patch
 Patch3011:  xorg-x11-server-1.1.1-defaultdepth-24.patch
+Patch3012:  xorg-x11-server-1.1.1-always-mouse-thyself.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -358,6 +359,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3009 -p1 -b .module-list
 %patch3010 -p1 -b .edid-quirks
 %patch3011 -p1 -b .defaultdepth
+%patch3012 -p1 -b .mouse-thyself
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -687,6 +689,12 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Aug 10 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-20.fc6
+- xorg-x11-server-1.1.1-always-mouse-thyself.patch: If we lack a mouse
+  device in the config, and the user hasn't asked for any void devices,
+  synthesize a mouse section.  (#200347)
+- xorg-x11-server-1.1.1-edid-quirks-list.patch: Better formatting.
+
 * Wed Aug  9 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-19.fc6
 - xorg-x11-server-1.1.1-builderstring.patch: Enable the builder info
   string at configure time;
