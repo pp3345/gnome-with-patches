@@ -62,6 +62,8 @@ Patch3009:  xorg-x11-server-1.1.1-module-list.patch
 Patch3010:  xorg-x11-server-1.1.1-edid-quirks-list.patch
 Patch3011:  xorg-x11-server-1.1.1-defaultdepth-24.patch
 Patch3012:  xorg-x11-server-1.1.1-always-mouse-thyself.patch
+Patch3013:  xorg-x11-server-1.1.1-fix-default-mouse-device-yet-again.patch
+#Patch3013:  xorg-x11-server-1.1.1-infer-virtual.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -360,6 +362,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3010 -p1 -b .edid-quirks
 %patch3011 -p1 -b .defaultdepth
 %patch3012 -p1 -b .mouse-thyself
+%patch3013 -p1 -b .mouse-device
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -689,6 +692,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Aug 15 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-21.fc6
+- xorg-x11-server-1.1.1-fix-default-mouse-device-yet-again.patch: Added.
+
 * Thu Aug 10 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-20.fc6
 - xorg-x11-server-1.1.1-always-mouse-thyself.patch: If we lack a mouse
   device in the config, and the user hasn't asked for any void devices,
