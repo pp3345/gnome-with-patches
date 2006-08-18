@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   22%{?dist}
+Release:   23%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -24,6 +24,7 @@ Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch5:    xorg-x11-server-libxf86config-dont-write-empty-sections.patch
 Patch6:    xorg-x11-server-1.1.1-builderstring.patch
+Patch7:    xorg-x11-server-1.1.1-xkb-in-xnest.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -329,6 +330,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3 -p0 -b .parser-add-missing-headers-to-sdk
 %patch5 -p0 -b .libxf86config-dont-write-empty-sections
 %patch6 -p1 -b .builderstring
+%patch7 -p1 -b .xkb-in-xnest
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -693,6 +695,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Aug 18 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-23.fc6
+- xorg-x11-server-1.1.1-xkb-in-xnest.patch: Added. (#193431)
+
 * Thu Aug 17 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-22.fc6
 - xorg-x11-server-1.1.1-infer-virtual.patch: When no modes or virtual size
   are given in the config file, attempt to pick a sensible one by examining
