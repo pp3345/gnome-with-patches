@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   23%{?dist}
+Release:   24%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -695,6 +695,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Aug 18 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-24.fc6
+- xorg-x11-server-1.1.1-edid-quirks-list.patch: Unbreak.
+
 * Fri Aug 18 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-23.fc6
 - xorg-x11-server-1.1.1-xkb-in-xnest.patch: Added. (#193431)
 
