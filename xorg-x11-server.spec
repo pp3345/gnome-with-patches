@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   21%{?dist}
+Release:   22%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -63,7 +63,7 @@ Patch3010:  xorg-x11-server-1.1.1-edid-quirks-list.patch
 Patch3011:  xorg-x11-server-1.1.1-defaultdepth-24.patch
 Patch3012:  xorg-x11-server-1.1.1-always-mouse-thyself.patch
 Patch3013:  xorg-x11-server-1.1.1-fix-default-mouse-device-yet-again.patch
-#Patch3013:  xorg-x11-server-1.1.1-infer-virtual.patch
+Patch3014:  xorg-x11-server-1.1.1-infer-virtual.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -363,6 +363,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3011 -p1 -b .defaultdepth
 %patch3012 -p1 -b .mouse-thyself
 %patch3013 -p1 -b .mouse-device
+%patch3014 -p1 -b .infer-virtual
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -692,6 +693,14 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Aug 17 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-22.fc6
+- xorg-x11-server-1.1.1-infer-virtual.patch: When no modes or virtual size
+  are given in the config file, attempt to pick a sensible one by examining
+  the EDID modes and physical geometry.  Also generally make the server
+  aware of driver-provided modes.
+- xorg-x11-server-1.1.1-edid-quirks-list.patch: Redo, since the property I was
+  checking for is both fairly common and fairly predictable.  
+
 * Tue Aug 15 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-21.fc6
 - xorg-x11-server-1.1.1-fix-default-mouse-device-yet-again.patch: Added.
 
