@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   24%{?dist}
+Release:   25%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -25,6 +25,7 @@ Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch5:    xorg-x11-server-libxf86config-dont-write-empty-sections.patch
 Patch6:    xorg-x11-server-1.1.1-builderstring.patch
 Patch7:    xorg-x11-server-1.1.1-xkb-in-xnest.patch
+Patch8:    xorg-x11-server-1.1.1-xvfb-composite-crash.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -35,6 +36,7 @@ Patch104:  xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch
 Patch105:  xorg-x11-server-1.1.1-enable-composite.patch
 Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
 Patch107:  xorg-x11-server-1.1.1-offscreen-pixmaps.patch
+Patch108:  xorg-x11-server-1.1.1-mesa-6.5.1.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -154,7 +156,7 @@ BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 # Needed at least for DRI enabled builds
 %if %{with_dri}
 BuildRequires: mesa-libGL-devel >= 6.5-1
-BuildRequires: mesa-source >= 6.5-19
+BuildRequires: mesa-source >= 6.5-22
 BuildRequires: libdrm-devel >= 2.0-1
 %endif
 
@@ -331,6 +333,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch5 -p0 -b .libxf86config-dont-write-empty-sections
 %patch6 -p1 -b .builderstring
 %patch7 -p1 -b .xkb-in-xnest
+%patch8 -p1 -b .xvfb-render-fix
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -340,6 +343,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch105 -p0 -b .enable-composite
 %patch106 -p1 -b .no-xnest-composite
 %patch107 -p1 -b .offscreen-pixmaps
+%patch108 -p1 -b .mesa-651
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -695,6 +699,14 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Aug 18 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-25.fc6
+- xorg-x11-server-1.1.1-xvfb-composite-crash.patch: Fix Xvfb's -render flag
+  to also disable the Composite extension.
+- xorg-x11-server-1.1.1-mesa-6.5.1.patch: Update build system to account for
+  Mesa 6.5.1 snapshots.
+- xorg-x11-server-1.1.0-edid-mode-injection-2.patch: Add all available
+  standard timings from EDID rather than just the first five.
+
 * Fri Aug 18 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-24.fc6
 - xorg-x11-server-1.1.1-edid-quirks-list.patch: Unbreak.
 
