@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   26%{?dist}
+Release:   27%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -701,6 +701,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Aug 22 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-27.fc6
+- xorg-x11-server-1.1.1-edid-quirks-list.patch: Don't set an arbitrary
+  pixclock limit if the monitor didn't claim to have one.
+
 * Mon Aug 21 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-26.fc6
 - Add Tilman Sauerbecks patch to fix AIGLX DRI locking.
 
