@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   29%{?dist}
+Release:   30%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -70,6 +70,7 @@ Patch3012:  xorg-x11-server-1.1.1-always-mouse-thyself.patch
 Patch3013:  xorg-x11-server-1.1.1-fix-default-mouse-device-yet-again.patch
 Patch3014:  xorg-x11-server-1.1.1-infer-virtual.patch
 Patch3015:  xorg-x11-server-1.1.1-mode-sort-kung-fu.patch
+Patch3016:  xorg-x11-server-1.1.1-pci-paranoia.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -376,6 +377,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3013 -p1 -b .mouse-device
 %patch3014 -p1 -b .infer-virtual
 %patch3015 -p1 -b .sort-modes
+%patch3016 -p1 -b .pci-paranoia
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -705,6 +707,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Aug 25 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-30.fc6
+- xorg-x11-server-1.1.1-pci-paranoia.patch: In xf86MatchPciInstances, fail
+  gracefully if xf86PciVideoInfo is NULL (like, on Xen).
+
 * Fri Aug 25 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-29.fc6
 - Add xorg-x11-server-1.1.1-aiglx-happy-vt-switch.patch to fix VT
   switching (and suspend/resume) when using AIGLX. (#199692, fdo #7916).
