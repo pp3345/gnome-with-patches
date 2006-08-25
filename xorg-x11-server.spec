@@ -158,8 +158,8 @@ BuildRequires: libXaw-devel
 BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 # Needed at least for DRI enabled builds
 %if %{with_dri}
-BuildRequires: mesa-libGL-devel >= 6.5-1
-BuildRequires: mesa-source >= 6.5-22
+BuildRequires: mesa-libGL-devel >= 6.5.1
+BuildRequires: mesa-source >= 6.5.1
 BuildRequires: libdrm-devel >= 2.0-1
 %endif
 
@@ -708,6 +708,7 @@ rm -rf $RPM_BUILD_ROOT
 * Fri Aug 25 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-29.fc6
 - Add xorg-x11-server-1.1.1-aiglx-happy-vt-switch.patch to fix VT
   switching (and suspend/resume) when using AIGLX. (#199692, fdo #7916).
+- Bump mesa source and libGL BuildRequires.
 
 * Thu Aug 24 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-28.fc6
 - xorg-x11-server-1.1.1-infer-virtual.patch: Only flag modes as preferred
