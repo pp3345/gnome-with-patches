@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   28%{?dist}
+Release:   29%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -37,6 +37,7 @@ Patch105:  xorg-x11-server-1.1.1-enable-composite.patch
 Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
 Patch107:  xorg-x11-server-1.1.1-offscreen-pixmaps.patch
 Patch108:  xorg-x11-server-1.1.1-mesa-6.5.1.patch
+Patch109:  xorg-x11-server-1.1.1-aiglx-happy-vt-switch.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -346,6 +347,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch106 -p1 -b .no-xnest-composite
 %patch107 -p1 -b .offscreen-pixmaps
 %patch108 -p1 -b .mesa-651
+%patch109 -p1 -b .aiglx-happy-vt-switch
 
 %patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -703,6 +705,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Aug 25 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-29.fc6
+- Add xorg-x11-server-1.1.1-aiglx-happy-vt-switch.patch to fix VT
+  switching (and suspend/resume) when using AIGLX. (#199692, fdo #7916).
+
 * Thu Aug 24 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-28.fc6
 - xorg-x11-server-1.1.1-infer-virtual.patch: Only flag modes as preferred
   if the EDID block says to.
