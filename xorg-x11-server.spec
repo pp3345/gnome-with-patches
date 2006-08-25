@@ -68,6 +68,7 @@ Patch3011:  xorg-x11-server-1.1.1-defaultdepth-24.patch
 Patch3012:  xorg-x11-server-1.1.1-always-mouse-thyself.patch
 Patch3013:  xorg-x11-server-1.1.1-fix-default-mouse-device-yet-again.patch
 Patch3014:  xorg-x11-server-1.1.1-infer-virtual.patch
+Patch3015:  xorg-x11-server-1.1.1-mode-sort-kung-fu.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -372,6 +373,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3012 -p1 -b .mouse-thyself
 %patch3013 -p1 -b .mouse-device
 %patch3014 -p1 -b .infer-virtual
+%patch3015 -p1 -b .sort-modes
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -701,6 +703,13 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Aug 24 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-28.fc6
+- xorg-x11-server-1.1.1-infer-virtual.patch: Only flag modes as preferred
+  if the EDID block says to.
+- xorg-x11-server-1.1.1-mode-sort-kung-fu.patch: Enforce a sort order on
+  modes during lookup: builtin before driver before userdef before other,
+  and preferred modes within a class before others in that class.
+
 * Tue Aug 22 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-27.fc6
 - xorg-x11-server-1.1.1-edid-quirks-list.patch: Don't set an arbitrary
   pixclock limit if the monitor didn't claim to have one.
