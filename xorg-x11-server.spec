@@ -709,6 +709,8 @@ rm -rf $RPM_BUILD_ROOT
 - Add xorg-x11-server-1.1.1-aiglx-happy-vt-switch.patch to fix VT
   switching (and suspend/resume) when using AIGLX. (#199692, fdo #7916).
 - Bump mesa source and libGL BuildRequires.
+- Update mesa-6.5.1 patch to work with 6.5.1 rc1 (slang_version_syn.h
+  renamed to slang_pp_version_syn.h).
 
 * Thu Aug 24 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-28.fc6
 - xorg-x11-server-1.1.1-infer-virtual.patch: Only flag modes as preferred
