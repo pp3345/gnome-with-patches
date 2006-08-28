@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   30%{?dist}
+Release:   31%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -707,6 +707,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Aug 28 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-31.fc6
+- Update xorg-x11-server-1.1.1-offscreen-pixmaps.patch to log transitions.
+
 * Fri Aug 25 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-30.fc6
 - xorg-x11-server-1.1.1-pci-paranoia.patch: In xf86MatchPciInstances, fail
   gracefully if xf86PciVideoInfo is NULL (like, on Xen).

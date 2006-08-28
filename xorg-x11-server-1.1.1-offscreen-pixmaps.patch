@@ -1,5 +1,17 @@
---- xorg-server-1.1.1/hw/xfree86/xaa/xaaInit.c.offscreen-pixmaps	2006-07-05 14:31:42.000000000 -0400
-+++ xorg-server-1.1.1/hw/xfree86/xaa/xaaInit.c	2006-08-08 14:02:05.000000000 -0400
+--- ./hw/xfree86/xaa/xaa.h.offscreen-pixmaps	2006-08-28 15:33:34.000000000 -0400
++++ ./hw/xfree86/xaa/xaa.h	2006-08-28 15:33:36.000000000 -0400
+@@ -1373,6 +1373,9 @@
+    );
+    CARD32 *CPUToScreenTextureDstFormats;
+ #endif /* RENDER */
++
++   unsigned int savedOffscreenDepths;
++
+ } XAAInfoRec, *XAAInfoRecPtr;
+ 
+ #define SET_SYNC_FLAG(infoRec)	(infoRec)->NeedToSync = TRUE
+--- ./hw/xfree86/xaa/xaaInit.c.offscreen-pixmaps	2006-07-05 14:31:42.000000000 -0400
++++ ./hw/xfree86/xaa/xaaInit.c	2006-08-28 15:31:03.000000000 -0400
 @@ -4,6 +4,7 @@
  #include <xorg-config.h>
  #endif
@@ -16,7 +28,7 @@
  
  #define MAX_PREALLOC_MEM	65536	/* MUST be >= 1024 */
  
-@@ -98,6 +100,29 @@
+@@ -98,6 +100,49 @@
      xfree(infoRec);
  }
  
@@ -32,21 +44,41 @@
 +    Atom atom;
 +
 +    atom = MakeAtom(atom_name, strlen(atom_name), 0);
-+    if (info->selection->selection == atom &&
-+	info->kind == SelectionSetOwner &&
-+	info->selection->window != None)
++    if (info->selection->selection != atom)
++	return;
++
++    if (info->kind == SelectionSetOwner && info->selection->window != None)
 +    {
++	infoRec->savedOffscreenDepths = infoRec->offscreenDepths;
 +	infoRec->offscreenDepths = 0;
 +	infoRec->Flags &= ~OFFSCREEN_PIXMAPS;
 +       
 +	XAAMoveOutOffscreenPixmaps(pScreen);
 +	XAAInvalidatePixmapCache(pScreen);
++
++	xf86MsgVerb(X_INFO, 3, "'%s' selection grabbed; evicting pixmaps for screen %d\n",
++		    atom_name, pScreen->myNum);
++    }
++    else if (infoRec->savedOffscreenDepths > 0)
++    {
++	infoRec->Flags |= OFFSCREEN_PIXMAPS;
++	infoRec->offscreenDepths = infoRec->savedOffscreenDepths;
++
++	if (!SwitchedOut) {
++	    xf86MsgVerb(X_INFO, 3, "'%s' selection released; pulling in pixmaps for screen %d\n",
++		      atom_name, pScreen->myNum);
++
++	    XAAMoveInOffscreenPixmaps(pScreen);
++	} else {
++	    xf86MsgVerb(X_INFO, 3, "'%s' selection released; will pull in pixmaps for screen %d when switched back in.\n",
++			atom_name, pScreen->myNum);
++	}
 +    }
 +}
  
  Bool 
  XAAInit(ScreenPtr pScreen, XAAInfoRecPtr infoRec)
-@@ -228,11 +253,11 @@
+@@ -228,11 +273,11 @@
      if(infoRec->Flags & MICROSOFT_ZERO_LINE_BIAS)
  	miSetZeroLineBias(pScreen, OCTANT1 | OCTANT2 | OCTANT3 | OCTANT4);
  
@@ -60,7 +92,7 @@
  static Bool
  XAACloseScreen (int i, ScreenPtr pScreen)
  {
-@@ -264,6 +289,9 @@
+@@ -264,6 +309,9 @@
  
      xfree ((pointer) pScreenPriv);
  
