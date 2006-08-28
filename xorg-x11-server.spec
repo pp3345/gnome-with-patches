@@ -709,6 +709,8 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Mon Aug 28 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-31.fc6
 - Update xorg-x11-server-1.1.1-offscreen-pixmaps.patch to log transitions.
+- Update xorg-x11-server-1.1.0-tfp-damage.patch to always bind to
+  GL_TEXTURE_RECTANGLE_ARB target.
 
 * Fri Aug 25 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-30.fc6
 - xorg-x11-server-1.1.1-pci-paranoia.patch: In xf86MatchPciInstances, fail
