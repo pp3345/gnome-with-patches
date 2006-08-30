@@ -8,7 +8,7 @@ Version:   1.1.1
 # upgrades to officially released distribution releases, if the package
 # Version field above is not changing, append and/or bump a digit /after/
 # the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   31%{?dist}
+Release:   32%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -30,7 +30,6 @@ Patch8:    xorg-x11-server-1.1.1-xvfb-composite-crash.patch
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xorg-x11-server-1.1.0-dont-backfill-bg-none.patch
-Patch102:  xorg-x11-server-1.1.0-gl-include-inferiors.patch
 Patch103:  xorg-x11-server-1.1.0-tfp-damage.patch
 Patch104:  xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch
 Patch105:  xorg-x11-server-1.1.1-enable-composite.patch
@@ -169,6 +168,9 @@ BuildRequires: libselinux-devel
 # Make sure we pull ABI compatible drivers.
 Conflicts: xorg-x11-drv-ati < 6.6.1
 Conflicts: xorg-x11-drv-i810 < 1.6.0
+
+# Match up work-arounds between compiz and the xserver
+Conflicts: compiz < 0.0.13-0.20.20060817git.fc6
 
 %description
 X.Org X11 X server
@@ -341,7 +343,6 @@ drivers, input drivers, or other X modules should install this package.
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
-%patch102 -p0 -b .gl-include-inferiors
 %patch103 -p0 -b .tfp-damage
 %patch104 -p0 -b .mesa-copy-sub-buffer
 %patch105 -p0 -b .enable-composite
@@ -707,6 +708,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Aug 30 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-32.fc6
+- Drop xorg-x11-server-1.1.0-gl-include-inferiors.patch now that
+  compiz can uses the composite overlay window.
+
 * Mon Aug 28 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-31.fc6
 - Update xorg-x11-server-1.1.1-offscreen-pixmaps.patch to log transitions.
 - Update xorg-x11-server-1.1.0-tfp-damage.patch to always bind to
