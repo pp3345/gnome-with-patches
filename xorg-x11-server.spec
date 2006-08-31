@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   33%{?dist}
+Release:   34%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -703,6 +703,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Aug 31 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-34.fc6
+- xorg-x11-server-1.1.1-infer-virtual.patch: Be slightly more paranoid about
+  setting line pitch, and rescan the mode list after pruning to re-validate
+  the estimated virtual size.
+
 * Wed Aug 30 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-33.fc6
 - Update xorg-x11-server-1.1.1-offscreen-pixmaps.patch to evict pixmap
   when GLX_EXT_texture_from_pixmap is first used.
