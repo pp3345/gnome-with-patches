@@ -3,12 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-# NOTE: Now using the 'dist' tag as per http://fedoraproject.org/wiki/DistTag
-# For rawhide builds, bump the number /before/ the dist tag.  For package
-# upgrades to officially released distribution releases, if the package
-# Version field above is not changing, append and/or bump a digit /after/
-# the dist tag.  ie:  25%{?dist}.0 -> 25%{?dist}.1 ...
-Release:   32%{?dist}
+Release:   33%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -708,6 +703,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Aug 30 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-33.fc6
+- Update xorg-x11-server-1.1.1-offscreen-pixmaps.patch to evict pixmap
+  when GLX_EXT_texture_from_pixmap is first used.
+
 * Wed Aug 30 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-32.fc6
 - Drop xorg-x11-server-1.1.0-gl-include-inferiors.patch now that
   compiz can uses the composite overlay window.

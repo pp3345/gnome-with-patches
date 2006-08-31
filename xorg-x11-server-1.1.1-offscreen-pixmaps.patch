@@ -1,104 +1,55 @@
---- ./hw/xfree86/xaa/xaa.h.offscreen-pixmaps	2006-08-28 15:33:34.000000000 -0400
-+++ ./hw/xfree86/xaa/xaa.h	2006-08-28 15:33:36.000000000 -0400
-@@ -1373,6 +1373,9 @@
-    );
-    CARD32 *CPUToScreenTextureDstFormats;
- #endif /* RENDER */
-+
-+   unsigned int savedOffscreenDepths;
-+
- } XAAInfoRec, *XAAInfoRecPtr;
- 
- #define SET_SYNC_FLAG(infoRec)	(infoRec)->NeedToSync = TRUE
 --- ./hw/xfree86/xaa/xaaInit.c.offscreen-pixmaps	2006-07-05 14:31:42.000000000 -0400
-+++ ./hw/xfree86/xaa/xaaInit.c	2006-08-28 15:31:03.000000000 -0400
-@@ -4,6 +4,7 @@
- #include <xorg-config.h>
- #endif
- 
-+#include <string.h>
- #include "misc.h"
- #include "xf86.h"
- #include "xf86_OSproc.h"
-@@ -20,6 +21,7 @@
- #include "xaawrap.h"
- #include "xf86fbman.h"
- #include "servermd.h"
-+#include "selection.h"
- 
- #define MAX_PREALLOC_MEM	65536	/* MUST be >= 1024 */
- 
-@@ -98,6 +100,49 @@
++++ ./hw/xfree86/xaa/xaaInit.c	2006-08-30 16:47:29.000000000 -0400
+@@ -98,6 +98,30 @@
      xfree(infoRec);
  }
  
-+static void
-+SelectionChangedCallback (CallbackListPtr *list,
-+			  pointer xaaData, pointer callData)
++void
++XAAEvictPixmaps(void)
 +{
-+    static char atom_name[] = "_COMPIZ_GL_INCLUDE_INFERIORS";
++    XAAScreenPtr pScreenPriv;
++    XAAInfoRecPtr infoRec;
++    ScreenPtr pScreen;
++    int i;
 +
-+    SelectionInfoRec *info = callData;
-+    XAAInfoRecPtr infoRec = xaaData;
-+    ScreenPtr pScreen = infoRec->pScrn->pScreen;
-+    Atom atom;
++    xf86MsgVerb(X_INFO, 3, "XAA: Evicting pixmaps\n");
 +
-+    atom = MakeAtom(atom_name, strlen(atom_name), 0);
-+    if (info->selection->selection != atom)
-+	return;
++    for (i = 0; i < screenInfo.numScreens; i++) {
++	pScreen = screenInfo.screens[i];
++	infoRec = GET_XAAINFORECPTR_FROM_SCREEN(pScreen);
 +
-+    if (info->kind == SelectionSetOwner && info->selection->window != None)
-+    {
-+	infoRec->savedOffscreenDepths = infoRec->offscreenDepths;
++	pScreenPriv = pScreen->devPrivates[XAAScreenIndex].ptr;
++	infoRec = pScreenPriv->AccelInfoRec;
++
 +	infoRec->offscreenDepths = 0;
 +	infoRec->Flags &= ~OFFSCREEN_PIXMAPS;
 +       
 +	XAAMoveOutOffscreenPixmaps(pScreen);
 +	XAAInvalidatePixmapCache(pScreen);
-+
-+	xf86MsgVerb(X_INFO, 3, "'%s' selection grabbed; evicting pixmaps for screen %d\n",
-+		    atom_name, pScreen->myNum);
-+    }
-+    else if (infoRec->savedOffscreenDepths > 0)
-+    {
-+	infoRec->Flags |= OFFSCREEN_PIXMAPS;
-+	infoRec->offscreenDepths = infoRec->savedOffscreenDepths;
-+
-+	if (!SwitchedOut) {
-+	    xf86MsgVerb(X_INFO, 3, "'%s' selection released; pulling in pixmaps for screen %d\n",
-+		      atom_name, pScreen->myNum);
-+
-+	    XAAMoveInOffscreenPixmaps(pScreen);
-+	} else {
-+	    xf86MsgVerb(X_INFO, 3, "'%s' selection released; will pull in pixmaps for screen %d when switched back in.\n",
-+			atom_name, pScreen->myNum);
-+	}
 +    }
 +}
  
  Bool 
  XAAInit(ScreenPtr pScreen, XAAInfoRecPtr infoRec)
-@@ -228,11 +273,11 @@
-     if(infoRec->Flags & MICROSOFT_ZERO_LINE_BIAS)
- 	miSetZeroLineBias(pScreen, OCTANT1 | OCTANT2 | OCTANT3 | OCTANT4);
+--- ./GL/glx/glxdri.c.offscreen-pixmaps	2006-08-30 16:46:45.000000000 -0400
++++ ./GL/glx/glxdri.c	2006-08-30 16:45:52.000000000 -0400
+@@ -367,6 +367,19 @@
+     int		bpp;
+     GLenum	target, format, type;
  
-+    AddCallback(&SelectionCallback, SelectionChangedCallback, infoRec);
++    /* When the GLX_EXT_texture_from_pixmap is used, as it's
++     * implemented here, we want to pull pixmap out of video memory
++     * and into host memory. */
++    {
++      extern void XAAEvictPixmaps(void);
++      static int evictedPixmaps;
 +
-     return TRUE;
- }
- 
--
--
- static Bool
- XAACloseScreen (int i, ScreenPtr pScreen)
- {
-@@ -264,6 +309,9 @@
- 
-     xfree ((pointer) pScreenPriv);
- 
-+    DeleteCallback(&SelectionCallback, SelectionChangedCallback,
-+		   pScreenPriv->AccelInfoRec);
++      if (!evictedPixmaps) {
++	XAAEvictPixmaps();
++	evictedPixmaps = TRUE;
++      }
++    }
 +
-     return (*pScreen->CloseScreen) (i, pScreen);
- }
- 
+     pixmap = (PixmapPtr) glxPixmap->pDraw;
+     if (!glxPixmap->pDamage) {
+         glxPixmap->pDamage = DamageCreate(NULL, NULL, DamageReportNone,
