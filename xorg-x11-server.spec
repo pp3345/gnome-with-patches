@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   34%{?dist}
+Release:   35%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -703,6 +703,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Sep  5 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-35.fc6
+- xorg-x11-server-1.1.1-always-mouse-thyself.patch: Fix the check to look
+  for mouse/void drivers in the running layout, as opposed to the config file,
+  so as not to synthesize two mouse devices.
+
 * Thu Aug 31 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-34.fc6
 - xorg-x11-server-1.1.1-infer-virtual.patch: Be slightly more paranoid about
   setting line pitch, and rescan the mode list after pruning to re-validate
