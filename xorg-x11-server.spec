@@ -352,6 +352,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch1002 -p1 -b .xephyr
 %patch1003 -p1 -b .fpic
 %patch1004 -p1 -b .selinux-awareness
+%patch1005 -p0 -b .builtin-fonts
 
 %patch2001 -p1 -b .pci-scan
 %patch2004 -p1 -b .zlib
