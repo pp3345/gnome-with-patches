@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   35%{?dist}
+Release:   36%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -40,6 +40,7 @@ Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
 Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
 Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
 Patch1004:  xorg-x11-server-1.1.1-selinux-awareness.patch
+Patch1005:  xorg-x11-server-1.1.1-builtin-fonts.patch
 
 # Backports of post-1.1 stuff.
 Patch2001:  xorg-x11-server-1.1.0-pci-scan-fixes.patch
@@ -703,6 +704,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Sep  6 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-36.fc6
+- Enable builtin fallback versions of cursor and fixed fonts.
+
 * Tue Sep  5 2006 Adam Jackson <ajackson@redhat.com> - 1.1.1-35.fc6
 - xorg-x11-server-1.1.1-always-mouse-thyself.patch: Fix the check to look
   for mouse/void drivers in the running layout, as opposed to the config file,
