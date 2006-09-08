@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   37%{?dist}
+Release:   38%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -66,6 +66,7 @@ Patch3013:  xorg-x11-server-1.1.1-fix-default-mouse-device-yet-again.patch
 Patch3014:  xorg-x11-server-1.1.1-infer-virtual.patch
 Patch3015:  xorg-x11-server-1.1.1-mode-sort-kung-fu.patch
 Patch3016:  xorg-x11-server-1.1.1-pci-paranoia.patch
+Patch3017:  xorg-x11-server-1.1.1-believe-monitor-rb-modes.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -376,6 +377,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3014 -p1 -b .infer-virtual
 %patch3015 -p1 -b .sort-modes
 %patch3016 -p1 -b .pci-paranoia
+%patch3017 -p1 -b .reduced-blanking
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -705,6 +707,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Sep  7 2006 Adam Jackson <ajackson@redhat.coM> - 1.1.1-38.fc6
+- xorg-x11-server-1.1.1-believe-monitor-rb-modes.patch: Always believe the
+  monitor when it reports a reduced-blanking mode, even over VGA.
+
 * Thu Sep  7 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-37.fc6
 - Add "built-ins" to default font path.
 
