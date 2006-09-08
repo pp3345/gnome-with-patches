@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   36%{?dist}
+Release:   37%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -393,7 +393,7 @@ aclocal ; automake ; autoconf
 	--enable-xtrap \
 	--enable-xcsecurity \
 	--enable-xevie \
-	--with-default-font-path="unix/:7100" \
+	--with-default-font-path="unix/:7100,built-ins" \
 	--with-module-dir=%{moduledir} \
 	--with-os-name="Fedora Core 5" \
 	--with-os-vendor="Red Hat, Inc." \
@@ -705,6 +705,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Sep  7 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-37.fc6
+- Add "built-ins" to default font path.
+
 * Wed Sep  6 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-36.fc6
 - Enable builtin fallback versions of cursor and fixed fonts.
 
