@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   38%{?dist}
+Release:   39%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -105,7 +105,7 @@ BuildRequires: libtool
 
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 0.99.1
-BuildRequires: xorg-x11-proto-devel >= 7.1-1
+BuildRequires: xorg-x11-proto-devel >= 7.1-8
 BuildRequires: xorg-x11-xtrans-devel
 # FIXME: The version specification can be removed from here in the future,
 # as it is not really mandatory, but forces a bugfix workaround on people who
@@ -168,6 +168,9 @@ Conflicts: xorg-x11-drv-i810 < 1.6.0
 
 # Match up work-arounds between compiz and the xserver
 Conflicts: compiz < 0.0.13-0.20.20060817git.fc6
+
+# Match up GLX_EXT_texture_from_pixmap opcodes
+Conflicts: mesa-libGL < 6.5.1-2.fc6
 
 %description
 X.Org X11 X server
@@ -707,6 +710,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Sep 20 2006 Kristian Høgsberg <krh@redhat.com> 1.1.1-39.fc6
+- Bump xorg-x11-proto-devel BuildRequires version and add Conflict
+  line for older mesa releases, so GLX_EXT_texture_from_pixmap opcodes
+  match.
+
 * Thu Sep  7 2006 Adam Jackson <ajackson@redhat.coM> - 1.1.1-38.fc6
 - xorg-x11-server-1.1.1-believe-monitor-rb-modes.patch: Always believe the
   monitor when it reports a reduced-blanking mode, even over VGA.
