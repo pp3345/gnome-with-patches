@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   39%{?dist}
+Release:   40%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -21,6 +21,7 @@ Patch5:    xorg-x11-server-libxf86config-dont-write-empty-sections.patch
 Patch6:    xorg-x11-server-1.1.1-builderstring.patch
 Patch7:    xorg-x11-server-1.1.1-xkb-in-xnest.patch
 Patch8:    xorg-x11-server-1.1.1-xvfb-composite-crash.patch
+Patch9:	   xorg-x11-server-1.1.1-pclose-confusion.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -48,6 +49,7 @@ Patch2004:  xorg-x11-server-1.1.0-no-zlib.patch
 Patch2005:  xorg-x11-server-1.1.1-Xdmx-render-fix-fdo7482.patch
 Patch2006:  xorg-x11-server-1.1.1-revert-xkb-change.patch
 Patch2007:  xorg-x11-server-1.1.1-aiglx-locking.patch
+Patch2008:  xorg-x11-server-1.1.1-edid-hex-dump.patch
 
 # autoconfiguration feature patches
 Patch3001:  xorg-x11-server-1.1.0-edid-mode-injection-1.patch
@@ -340,6 +342,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch6 -p1 -b .builderstring
 %patch7 -p1 -b .xkb-in-xnest
 %patch8 -p1 -b .xvfb-render-fix
+%patch9 -p1 -b .pclose
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -363,6 +366,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch2005 -p1 -b .Xdmx
 %patch2006 -p1 -b .revert-xkb-change
 %patch2007 -p1 -b .aiglx-locking
+%patch2008 -p1 -b .hexdump
 
 %patch3001 -p1 -b .edid1
 %patch3002 -p1 -b .edid2
@@ -710,6 +714,13 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Sep 20 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-40.fc6
+- xorg-x11-server-1.1.1-pclose-confusion.patch: Be sure to call Pclose()
+  on pipes created with Popen(), since the additional magic done by Popen()
+  relative to popen() is not undone by plain pclose().  (Third base!)
+- xorg-x11-server-1.1.1-edid-hex-dump.patch: Backport EDID hex dump code
+  from git.
+
 * Wed Sep 20 2006 Kristian Høgsberg <krh@redhat.com> 1.1.1-39.fc6
 - Bump xorg-x11-proto-devel BuildRequires version and add Conflict
   line for older mesa releases, so GLX_EXT_texture_from_pixmap opcodes
