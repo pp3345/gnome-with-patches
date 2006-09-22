@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   40%{?dist}
+Release:   41%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -22,6 +22,7 @@ Patch6:    xorg-x11-server-1.1.1-builderstring.patch
 Patch7:    xorg-x11-server-1.1.1-xkb-in-xnest.patch
 Patch8:    xorg-x11-server-1.1.1-xvfb-composite-crash.patch
 Patch9:	   xorg-x11-server-1.1.1-pclose-confusion.patch
+Patch10:   xorg-x11-server-1.1.1-vbe-filter-less.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -343,6 +344,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch7 -p1 -b .xkb-in-xnest
 %patch8 -p1 -b .xvfb-render-fix
 %patch9 -p1 -b .pclose
+%patch10 -p1 -b .vbe-filter
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -385,6 +387,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch3015 -p1 -b .sort-modes
 %patch3016 -p1 -b .pci-paranoia
 %patch3017 -p1 -b .reduced-blanking
+
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -714,6 +717,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Sep 22 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-41.fc6
+- xorg-x11-server-1.1.1-vbe-filter-less.patch: Be gentler about rejecting
+  VESA modes early, since xf86ValidateModes should handle them just fine.
+
 * Wed Sep 20 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-40.fc6
 - xorg-x11-server-1.1.1-pclose-confusion.patch: Be sure to call Pclose()
   on pipes created with Popen(), since the additional magic done by Popen()
