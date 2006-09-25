@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   41%{?dist}
+Release:   42%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -717,6 +717,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Sep 25 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-42.fc6
+- xorg-x11-server-1.1.1-getconfig-pl-die-die-die.patch: Fix XGI cards (#208000)
+
 * Fri Sep 22 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-41.fc6
 - xorg-x11-server-1.1.1-vbe-filter-less.patch: Be gentler about rejecting
   VESA modes early, since xf86ValidateModes should handle them just fine.
