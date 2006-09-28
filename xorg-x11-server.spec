@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   42%{?dist}
+Release:   43%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -12,6 +12,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Source0:   ftp://ftp.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source100: comment-header-modefiles.txt
 
+# general bug fixes
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=5093
 Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
@@ -23,6 +24,7 @@ Patch7:    xorg-x11-server-1.1.1-xkb-in-xnest.patch
 Patch8:    xorg-x11-server-1.1.1-xvfb-composite-crash.patch
 Patch9:	   xorg-x11-server-1.1.1-pclose-confusion.patch
 Patch10:   xorg-x11-server-1.1.1-vbe-filter-less.patch
+Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -345,6 +347,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch8 -p1 -b .xvfb-render-fix
 %patch9 -p1 -b .pclose
 %patch10 -p1 -b .vbe-filter
+%patch11 -p1 -b .vt-activate
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -387,7 +390,6 @@ drivers, input drivers, or other X modules should install this package.
 %patch3015 -p1 -b .sort-modes
 %patch3016 -p1 -b .pci-paranoia
 %patch3017 -p1 -b .reduced-blanking
-
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -717,6 +719,14 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Sep 27 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-43.fc6
+- xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch: Since the
+  VT_ACTIVATE/VT_WAITACTIVE pair are never guaranteed to successfully
+  complete, set a 5 second timeout on the WAITACTIVE, and retry the pair
+  until we win.  (#207746)
+- xorg-x11-server-1.1.0-pci-scan-fixes.patch: Partial revert to unbreak some
+  (but not all) domainful machines, including Pegasos. (#207659)
+
 * Mon Sep 25 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-42.fc6
 - xorg-x11-server-1.1.1-getconfig-pl-die-die-die.patch: Fix XGI cards (#208000)
 

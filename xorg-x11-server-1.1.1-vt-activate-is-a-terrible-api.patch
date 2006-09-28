@@ -1,0 +1,46 @@
+--- xorg-server-1.1.1/hw/xfree86/os-support/linux/lnx_init.c.jx	2006-07-05 14:31:41.000000000 -0400
++++ xorg-server-1.1.1/hw/xfree86/os-support/linux/lnx_init.c	2006-09-26 17:53:04.000000000 -0400
+@@ -248,14 +248,37 @@
+ #endif
+ 	    /*
+ 	     * now get the VT
++	     *
++	     * There's a race here, in that if someone else does a VT_ACTIVATE
++	     * between our ACTIVATE/WAITACTIVE, we might never get the VT.
++	     * So, just spin until we do.  There's really no fixing this,
++	     * it's a racy protocol.
+ 	     */
+-	    if (ioctl(xf86Info.consoleFd, VT_ACTIVATE, xf86Info.vtno) < 0)
+-	        xf86Msg(X_WARNING, "xf86OpenConsole: VT_ACTIVATE failed: %s\n",
+-		        strerror(errno));
++	    while (1) {
++		if (ioctl(xf86Info.consoleFd, VT_ACTIVATE, xf86Info.vtno) < 0)
++		    FatalError(X_WARNING,
++			       "xf86OpenConsole: VT_ACTIVATE failed: %s\n",
++			       strerror(errno));
+ 
+-	    if (ioctl(xf86Info.consoleFd, VT_WAITACTIVE, xf86Info.vtno) < 0)
+-	        xf86Msg(X_WARNING, "xf86OpenConsole: VT_WAITACTIVE failed: %s\n",
+-		    strerror(errno));
++
++		alarm(5);
++		if (ioctl(xf86Info.consoleFd, VT_WAITACTIVE, xf86Info.vtno) < 0)
++		{
++		    if (errno == EINTR) {
++			/* we lost the race and the alarm fired, try again */
++			xf86Msg(X_WARNING,
++				"Lost VT_WAITACTIVE race, retrying\n");
++			continue;
++		    }
++
++		    FatalError("xf86OpenConsole: VT_WAITACTIVE failed: %s\n",
++			       strerror(errno));
++		}
++		/* success, turn off the alarm */
++		alarm(0);
++
++		break;
++	    }
+ 
+ 	    if (ioctl(xf86Info.consoleFd, VT_GETMODE, &VT) < 0)
+ 	        FatalError("xf86OpenConsole: VT_GETMODE failed %s\n",
