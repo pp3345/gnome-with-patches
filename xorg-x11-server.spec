@@ -721,7 +721,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Mon Oct  2 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-44.fc6
 - xorg-x11-server-1.1.1-offscreen-pixmaps.patch: Take the server lock
-  before calling back into XAA to evict pixmaps.
+  before calling back into XAA to evict pixmaps (#204810).
 
 * Wed Sep 27 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-43.fc6
 - xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch: Since the
