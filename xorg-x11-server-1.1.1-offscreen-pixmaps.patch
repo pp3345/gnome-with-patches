@@ -33,7 +33,7 @@
  XAAInit(ScreenPtr pScreen, XAAInfoRecPtr infoRec)
 --- ./GL/glx/glxdri.c.offscreen-pixmaps	2006-08-30 16:46:45.000000000 -0400
 +++ ./GL/glx/glxdri.c	2006-08-30 16:45:52.000000000 -0400
-@@ -367,6 +367,19 @@
+@@ -367,6 +367,21 @@
      int		bpp;
      GLenum	target, format, type;
  
@@ -45,7 +45,9 @@
 +      static int evictedPixmaps;
 +
 +      if (!evictedPixmaps) {
++	__glXDRIenterServer();
 +	XAAEvictPixmaps();
++	__glXDRIleaveServer();
 +	evictedPixmaps = TRUE;
 +      }
 +    }

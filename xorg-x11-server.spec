@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   43%{?dist}
+Release:   44%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -719,6 +719,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Oct  2 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-44.fc6
+- xorg-x11-server-1.1.1-offscreen-pixmaps.patch: Take the server lock
+  before calling back into XAA to evict pixmaps.
+
 * Wed Sep 27 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-43.fc6
 - xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch: Since the
   VT_ACTIVATE/VT_WAITACTIVE pair are never guaranteed to successfully
