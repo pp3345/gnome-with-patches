@@ -1,6 +1,14 @@
 --- xorg-server-1.1.1/miext/cw/cw_ops.c.graphics-expose	2006-07-05 20:23:57.000000000 -0400
-+++ xorg-server-1.1.1/miext/cw/cw_ops.c	2006-10-04 23:23:39.000000000 -0400
-@@ -185,7 +185,7 @@
++++ xorg-server-1.1.1/miext/cw/cw_ops.c	2006-10-04 23:27:25.000000000 -0400
+@@ -30,6 +30,7 @@
+ #include "gcstruct.h"
+ #include "pixmapstr.h"
+ #include "cw.h"
++#include "mi.h"
+ 
+ #define SETUP_BACKING_DST(_pDst, _pGC) \
+     cwGCPtr pGCPrivate = getCwGC (_pGC); \
+@@ -185,7 +186,7 @@
  	   int w, int h, int dstx, int dsty)
  {
      int		odstx, odsty;
@@ -9,7 +17,7 @@
      SETUP_BACKING_DST(pDst, pGC);
      SETUP_BACKING_SRC(pSrc, pGC);
  
-@@ -193,19 +193,20 @@
+@@ -193,19 +194,20 @@
  
      odstx = dstx;
      odsty = dsty;
@@ -38,7 +46,7 @@
  }
  
  static RegionPtr
-@@ -213,7 +214,7 @@
+@@ -213,7 +215,7 @@
  	    int w, int h, int dstx, int dsty, unsigned long plane)
  {
      int		odstx, odsty;
@@ -47,7 +55,7 @@
      SETUP_BACKING_DST(pDst, pGC);
      SETUP_BACKING_SRC(pSrc, pGC);
  
-@@ -221,19 +222,20 @@
+@@ -221,19 +223,20 @@
  
      odstx = dstx;
      odsty = dsty;
