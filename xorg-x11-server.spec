@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   45%{?dist}
+Release:   46%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -721,6 +721,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Oct  4 2006 Soren Sandmann <sandmann@redhat.com> - 1.1.1-46.fc6
+- Fix over-zealous code deletion in graphics-expose.patch. 
+
 * Wed Oct  4 2006 Soren Sandmann <sandmann@redhat.com> - 1.1.1-45.fc6
 - xorg-x11-server-1.1.1-graphics-expose.patch: call
   miHandleExposures() in CopyArea/CopyPlane explicitly in cw to
