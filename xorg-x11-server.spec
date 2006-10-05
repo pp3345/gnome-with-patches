@@ -3,7 +3,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   44%{?dist}
+Release:   45%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -25,6 +25,7 @@ Patch8:    xorg-x11-server-1.1.1-xvfb-composite-crash.patch
 Patch9:	   xorg-x11-server-1.1.1-pclose-confusion.patch
 Patch10:   xorg-x11-server-1.1.1-vbe-filter-less.patch
 Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
+Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -348,6 +349,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch9 -p1 -b .pclose
 %patch10 -p1 -b .vbe-filter
 %patch11 -p1 -b .vt-activate
+%patch12 -p1 -b .graphics-expose
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -719,6 +721,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Oct  4 2006 Soren Sandmann <sandmann@redhat.com> - 1.1.1-45.fc6
+- xorg-x11-server-1.1.1-graphics-expose.patch: call
+  miHandleExposures() in CopyArea/CopyPlane explicitly in cw to
+  generate GraphicsExposes correctly. (#209336).
+
 * Mon Oct  2 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-44.fc6
 - xorg-x11-server-1.1.1-offscreen-pixmaps.patch: Take the server lock
   before calling back into XAA to evict pixmaps (#204810).

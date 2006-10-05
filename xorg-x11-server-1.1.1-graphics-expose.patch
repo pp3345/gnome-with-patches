@@ -1,0 +1,82 @@
+--- xorg-server-1.1.1/miext/cw/cw_ops.c.graphics-expose	2006-10-04 20:46:11.000000000 -0400
++++ xorg-server-1.1.1/miext/cw/cw_ops.c	2006-10-04 20:52:32.000000000 -0400
+@@ -30,6 +30,7 @@
+ #include "gcstruct.h"
+ #include "pixmapstr.h"
+ #include "cw.h"
++#include "mi.h"
+ 
+ #define SETUP_BACKING_DST(_pDst, _pGC) \
+     cwGCPtr pGCPrivate = getCwGC (_pGC); \
+@@ -184,56 +185,40 @@
+ cwCopyArea(DrawablePtr pSrc, DrawablePtr pDst, GCPtr pGC, int srcx, int srcy,
+ 	   int w, int h, int dstx, int dsty)
+ {
+-    int		odstx, odsty;
+-    RegionPtr	exposed = NULL;
+     SETUP_BACKING_DST(pDst, pGC);
+     SETUP_BACKING_SRC(pSrc, pGC);
+ 
+     PROLOGUE(pGC);
+ 
+-    odstx = dstx;
+-    odsty = dsty;
+-    CW_OFFSET_XY_DST(dstx, dsty);
+-    CW_OFFSET_XY_SRC(srcx, srcy);
+-
+-    exposed = (*pBackingGC->ops->CopyArea)(pBackingSrc, pBackingDst,
+-					   pBackingGC, srcx, srcy, w, h,
+-					   dstx, dsty);
+-
+-    if (exposed != NULL)
+-	REGION_TRANSLATE(pDst->pScreen, exposed, odstx - dstx, odsty - dsty);
++    (*pBackingGC->ops->CopyArea)(pBackingSrc, pBackingDst,
++				 pBackingGC, srcx, srcy, w, h,
++				 dstx, dsty);
+ 
+     EPILOGUE(pGC);
+ 
+-    return exposed;
++    return miHandleExposures (pSrc, pDst, pBackingGC,
++			      srcx, srcy, w, h,
++			      dstx, dsty, 0);
+ }
+ 
+ static RegionPtr
+ cwCopyPlane(DrawablePtr pSrc, DrawablePtr pDst, GCPtr pGC, int srcx, int srcy,
+ 	    int w, int h, int dstx, int dsty, unsigned long plane)
+ {
+-    int		odstx, odsty;
+-    RegionPtr	exposed = NULL;
+     SETUP_BACKING_DST(pDst, pGC);
+     SETUP_BACKING_SRC(pSrc, pGC);
+ 
+     PROLOGUE(pGC);
+ 
+-    odstx = dstx;
+-    odsty = dsty;
+-    CW_OFFSET_XY_DST(dstx, dsty);
+-    CW_OFFSET_XY_SRC(srcx, srcy);
+-
+-    exposed = (*pBackingGC->ops->CopyPlane)(pBackingSrc, pBackingDst,
+-					    pBackingGC, srcx, srcy, w, h,
+-					    dstx, dsty, plane);
+-
+-    if (exposed != NULL)
+-	REGION_TRANSLATE(pDst->pScreen, exposed, odstx - dstx, odsty - dsty);
+-
+-    EPILOGUE(pGC);
+-
+-    return exposed;
++    (*pBackingGC->ops->CopyPlane)(pBackingSrc, pBackingDst,
++				  pBackingGC, srcx, srcy, w, h,
++				  dstx, dsty, plane);
++    
++    EPILOGUE(pGC);
++ 
++    return miHandleExposures (pSrc, pDst, pBackingGC,
++			      srcx, srcy, w, h,
++			      dstx, dsty, plane);
+ }
+ 
+ static void
