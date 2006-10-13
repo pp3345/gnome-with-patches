@@ -188,9 +188,6 @@ Summary: Xorg X server
 Group: User Interface/X
 # NOTE: The X server invokes xkbcomp directly, so this is required.
 Requires: xkbcomp
-# NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
-# by xorg-x11-fonts-base
-Requires: xorg-x11-fonts-base
 # NOTE: Require some basic drivers for minimal configuration. (#173060)
 # We _should_ install every driver, but OLPC wants different (#191781),
 # which is quite lame and wants an better solution.
@@ -711,7 +708,6 @@ rm -rf $RPM_BUILD_ROOT
 %files sdk
 %defattr(-,root,root,-)
 %{_libdir}/libxf86config.a
-%dir %{_libdir}/pkgconfig
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
 #%dir %{_includedir}/xorg/sdk
@@ -721,6 +717,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Oct 13 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-48.fc7
+- Do not try own /usr/lib/pkgconfig in sdk package.
+- Drop dependency on xorg-x11-fonts-base now that we compile in
+  'fixed' and 'cursor' fonts.
+
 * Wed Oct  4 2006 Soren Sandmann <sandmann@redhat.com> - 1.1.1-47.fc6
 - graphics-expose.patch: Call miHandleExposures() with non-translated
   coordinates. 
