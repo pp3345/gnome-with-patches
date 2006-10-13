@@ -40,7 +40,6 @@ Patch109:  xorg-x11-server-1.1.1-aiglx-happy-vt-switch.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
-Patch1000:  xorg-redhat-die-ugly-pattern-die-die-die.patch
 Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
 Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
 Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
@@ -358,7 +357,6 @@ drivers, input drivers, or other X modules should install this package.
 %patch108 -p1 -b .mesa-651
 %patch109 -p1 -b .aiglx-happy-vt-switch
 
-%patch1000 -p0 -b .redhat-die-ugly-pattern-die-die-die
 %patch1001 -p1 -b .Red-Hat-extramodes
 %patch1002 -p1 -b .xephyr
 %patch1003 -p1 -b .fpic
@@ -721,6 +719,8 @@ rm -rf $RPM_BUILD_ROOT
 - Do not try own /usr/lib/pkgconfig in sdk package.
 - Drop dependency on xorg-x11-fonts-base now that we compile in
   'fixed' and 'cursor' fonts.
+- Drop xorg-redhat-die-ugly-pattern-die-die-die.patch; use -br options
+  instead.
 
 * Wed Oct  4 2006 Soren Sandmann <sandmann@redhat.com> - 1.1.1-47.fc6
 - graphics-expose.patch: Call miHandleExposures() with non-translated
