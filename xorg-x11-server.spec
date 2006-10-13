@@ -719,7 +719,7 @@ rm -rf $RPM_BUILD_ROOT
 - Do not try own /usr/lib/pkgconfig in sdk package.
 - Drop dependency on xorg-x11-fonts-base now that we compile in
   'fixed' and 'cursor' fonts.
-- Drop xorg-redhat-die-ugly-pattern-die-die-die.patch; use -br options
+- Drop xorg-redhat-die-ugly-pattern-die-die-die.patch; use -br option
   instead.
 
 * Wed Oct  4 2006 Soren Sandmann <sandmann@redhat.com> - 1.1.1-47.fc6
