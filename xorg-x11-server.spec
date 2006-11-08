@@ -1,9 +1,16 @@
+# FC7 cleanups: (TODO)
+#
+# Nuke with_developer_utils
+# --with-int10=x86emu
+# vesamodes/extramodes are junk now, right?
+# RHEL5 bugfix sync
+
 %define pkgname xorg-server
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   47%{?dist}
+Release:   48%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -715,6 +722,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Nov 8 2006 Adam Jackson <ajackson@redhat.com>
+- Add FC7 todo list
+- Bump Release number back to 48, got reduced somehow.
+
 * Fri Oct 13 2006 Kristian Høgsberg <krh@redhat.com> - 1.1.1-48.fc7
 - Do not try own /usr/lib/pkgconfig in sdk package.
 - Drop dependency on xorg-x11-fonts-base now that we compile in
