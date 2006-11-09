@@ -475,8 +475,8 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
 %endif
-    rm -f $RPM_BUILD_ROOT%{_mandir}/man1/getconfig.1x*
-    rm -f $RPM_BUILD_ROOT%{_mandir}/man5/getconfig.5x*
+    rm -f $RPM_BUILD_ROOT%{_mandir}/man1/getconfig.1*
+    rm -f $RPM_BUILD_ROOT%{_mandir}/man5/getconfig.5*
     # Remove all libtool archives (*.la)
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 
@@ -496,7 +496,7 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -rf $RPM_BUILD_ROOT%{_libdir}/xserver
     rm -rf $RPM_BUILD_ROOT%{_datadir}/aclocal
     rm -rf $RPM_BUILD_ROOT/var/lib/xkb
-#    rm -f $RPM_BUILD_ROOT%{_datadir}/man/man1/Xserver.1x*
+#    rm -f $RPM_BUILD_ROOT%{_datadir}/man/man1/Xserver.1*
 %endif
 }
 
@@ -636,18 +636,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xserver/SecurityPolicy
 #%dir %{_mandir}/man1x
 %if %{with_developer_utils}
-%{_mandir}/man1/pcitweak.1x*
+%{_mandir}/man1/pcitweak.1*
 %endif
-%{_mandir}/man1/gtf.1x*
-%{_mandir}/man1/scanpci.1x*
-%{_mandir}/man1/Xorg.1x*
-%{_mandir}/man1/Xserver.1x*
+%{_mandir}/man1/gtf.1*
+%{_mandir}/man1/scanpci.1*
+%{_mandir}/man1/Xorg.1*
+%{_mandir}/man1/Xserver.1*
 %{_mandir}/man1/cvt.1*
 #%dir %{_mandir}/man4x
-#%{_mandir}/man4/fbdevhw.4x*
+#%{_mandir}/man4/fbdevhw.4*
 %{_mandir}/man4/fbdevhw.4*
 #%dir %{_mandir}/man5x
-%{_mandir}/man5/xorg.conf.5x*
+%{_mandir}/man5/xorg.conf.5*
 %dir %{_localstatedir}/lib/xkb
 %{_localstatedir}/lib/xkb/README.compiled
 %endif
@@ -658,9 +658,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %{_bindir}/Xnest
 #%dir %{_mandir}/man1x
-%{_mandir}/man1/Xnest.1x*
+%{_mandir}/man1/Xnest.1*
 # NOTE: Xserver.1x intentionally present in multiple subpackages
-%{_mandir}/man1/Xserver.1x*
+%{_mandir}/man1/Xserver.1*
 
 # ----- Xdmx --------------------------------------------------------
 
@@ -680,12 +680,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/xdmx
 %{_bindir}/xdmxconfig
 #%dir %{_mandir}/man1x
-%{_mandir}/man1/Xdmx.1x*
-%{_mandir}/man1/dmxtodmx.1x*
-%{_mandir}/man1/vdltodmx.1x*
-%{_mandir}/man1/xdmxconfig.1x*
+%{_mandir}/man1/Xdmx.1*
+%{_mandir}/man1/dmxtodmx.1*
+%{_mandir}/man1/vdltodmx.1*
+%{_mandir}/man1/xdmxconfig.1*
 # NOTE: Xserver.1x intentionally present in multiple subpackages
-%{_mandir}/man1/Xserver.1x*
+%{_mandir}/man1/Xserver.1*
 %endif
 
 # ----- Xvfb --------------------------------------------------------
@@ -694,9 +694,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %{_bindir}/Xvfb
 #%dir %{_mandir}/man1x
-%{_mandir}/man1/Xvfb.1x*
+%{_mandir}/man1/Xvfb.1*
 # NOTE: Xserver.1x intentionally present in multiple subpackages
-%{_mandir}/man1/Xserver.1x*
+%{_mandir}/man1/Xserver.1*
 
 # ----- Xephyr -------------------------------------------------------
 
@@ -705,9 +705,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/Xephyr
 # no manpage yet
 #%dir %{_mandir}/man1x
-#%{_mandir}/man1/Xephyr.1x*
+#%{_mandir}/man1/Xephyr.1*
 # NOTE: Xserver.1x intentionally present in multiple subpackages
-%{_mandir}/man1/Xserver.1x*
+%{_mandir}/man1/Xserver.1*
 
 # ----- sdk ---------------------------------------------------------
 %if %{with_hw_servers}
@@ -723,6 +723,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Thu Nov 9 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-50.fc7
+- Fix man page globs to not care whether it's .1.gz or .1x.gz, etc.
+
 * Wed Nov 8 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-49.fc7
 - Switch to using the x86emu version of libint10 even on x86.  Unifies
   behaviour among CPUs and works around Xen vm86 emulation bogosity.
