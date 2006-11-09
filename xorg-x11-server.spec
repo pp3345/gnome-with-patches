@@ -10,7 +10,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   49%{?dist}
+Release:   50%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
