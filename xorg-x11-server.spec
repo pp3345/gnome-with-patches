@@ -10,7 +10,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   48%{?dist}
+Release:   49%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -411,6 +411,7 @@ aclocal ; automake ; autoconf
 	--enable-xtrap \
 	--enable-xcsecurity \
 	--enable-xevie \
+	--with-int10=x86emu \
 	--with-default-font-path="unix/:7100,built-ins" \
 	--with-module-dir=%{moduledir} \
 	--with-os-name="Fedora Core 5" \
@@ -722,6 +723,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Nov 8 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-49.fc7
+- Switch to using the x86emu version of libint10 even on x86.  Unifies
+  behaviour among CPUs and works around Xen vm86 emulation bogosity.
+
 * Wed Nov 8 2006 Adam Jackson <ajackson@redhat.com>
 - Add FC7 todo list
 - Bump Release number back to 48, got reduced somehow.
