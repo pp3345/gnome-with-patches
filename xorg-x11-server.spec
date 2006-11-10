@@ -1,7 +1,6 @@
 # FC7 cleanups: (TODO)
 #
 # Nuke with_developer_utils
-# --with-int10=x86emu
 # vesamodes/extramodes are junk now, right?
 # RHEL5 bugfix sync
 
@@ -52,6 +51,8 @@ Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
 Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
 Patch1004:  xorg-x11-server-1.1.1-selinux-awareness.patch
 Patch1005:  xorg-x11-server-1.1.1-builtin-fonts.patch
+Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
+Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
 
 # Backports of post-1.1 stuff.
 Patch2001:  xorg-x11-server-1.1.0-pci-scan-fixes.patch
@@ -369,6 +370,8 @@ drivers, input drivers, or other X modules should install this package.
 %patch1003 -p1 -b .fpic
 %patch1004 -p1 -b .selinux-awareness
 %patch1005 -p0 -b .builtin-fonts
+%patch1006 -p1 -b .no-scanpci
+%patch1007 -p1 -b .xf1bpp
 
 %patch2001 -p1 -b .pci-scan
 %patch2004 -p1 -b .zlib
@@ -574,7 +577,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/outw
 %{_bindir}/pcitweak
 %endif
-%{_bindir}/scanpci
 %dir %{_datadir}/xorg
 %{_datadir}/xorg/vesamodes
 %{_datadir}/xorg/extramodes
@@ -622,7 +624,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libpcidata.so
 %{_libdir}/xorg/modules/librac.so
 %{_libdir}/xorg/modules/libramdac.so
-%{_libdir}/xorg/modules/libscanpci.so
 %{_libdir}/xorg/modules/libshadow.so
 %{_libdir}/xorg/modules/libshadowfb.so
 %{_libdir}/xorg/modules/libvbe.so
@@ -639,7 +640,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/pcitweak.1*
 %endif
 %{_mandir}/man1/gtf.1*
-%{_mandir}/man1/scanpci.1*
 %{_mandir}/man1/Xorg.1*
 %{_mandir}/man1/Xserver.1*
 %{_mandir}/man1/cvt.1*
@@ -723,6 +723,12 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Nov 10 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-51.fc7
+- xorg-x11-server-1.1.1-no-scanpci.patch: Drop scanpci, it's huge and
+  there's no added value relative to lspci.
+- xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch: Minor linktime
+  fixup.  There's no reason for libxf4bpp to link against libxf1bpp.
+
 * Thu Nov 9 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-50.fc7
 - Fix man page globs to not care whether it's .1.gz or .1x.gz, etc.
 
