@@ -1,7 +1,6 @@
 # FC7 cleanups: (TODO)
 #
-# Nuke with_developer_utils
-# vesamodes/extramodes are junk now, right?
+# Fix rhpxl to no longer need vesamodes/extramodes
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
@@ -9,7 +8,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   51%{?dist}
+Release:   52%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -32,6 +31,8 @@ Patch9:	   xorg-x11-server-1.1.1-pclose-confusion.patch
 Patch10:   xorg-x11-server-1.1.1-vbe-filter-less.patch
 Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
 Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
+Patch13:   xorg-x11-server-1.1.1-ia64-int10.patch
+Patch14:   xorg-x11-server-1.1.1-ia64-pci-chipsets.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -53,6 +54,7 @@ Patch1004:  xorg-x11-server-1.1.1-selinux-awareness.patch
 Patch1005:  xorg-x11-server-1.1.1-builtin-fonts.patch
 Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
 Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
+Patch1008:  xorg-x11-server-1.1.1-xf86config-comment-less.patch
 
 # Backports of post-1.1 stuff.
 Patch2001:  xorg-x11-server-1.1.0-pci-scan-fixes.patch
@@ -62,24 +64,7 @@ Patch2006:  xorg-x11-server-1.1.1-revert-xkb-change.patch
 Patch2007:  xorg-x11-server-1.1.1-aiglx-locking.patch
 Patch2008:  xorg-x11-server-1.1.1-edid-hex-dump.patch
 
-# autoconfiguration feature patches
-Patch3001:  xorg-x11-server-1.1.0-edid-mode-injection-1.patch
-Patch3002:  xorg-x11-server-1.1.0-edid-mode-injection-2.patch
-Patch3003:  xorg-x11-server-1.1.0-cvt-generator-in-core.patch
-Patch3004:  xorg-x11-server-1.1.0-no-autoconfig-targetrefresh.patch
-Patch3005:  xorg-x11-server-1.1.1-getconfig-pl-die-die-die.patch
-Patch3006:  xorg-x11-server-1.1.1-dpms-on-by-default.patch
-Patch3007:  xorg-x11-server-1.1.1-edid-root-window-properties.patch
-Patch3008:  xorg-x11-server-1.1.1-sanedefaultmode.patch
-Patch3009:  xorg-x11-server-1.1.1-module-list.patch
-Patch3010:  xorg-x11-server-1.1.1-edid-quirks-list.patch
-Patch3011:  xorg-x11-server-1.1.1-defaultdepth-24.patch
-Patch3012:  xorg-x11-server-1.1.1-always-mouse-thyself.patch
-Patch3013:  xorg-x11-server-1.1.1-fix-default-mouse-device-yet-again.patch
-Patch3014:  xorg-x11-server-1.1.1-infer-virtual.patch
-Patch3015:  xorg-x11-server-1.1.1-mode-sort-kung-fu.patch
-Patch3016:  xorg-x11-server-1.1.1-pci-paranoia.patch
-Patch3017:  xorg-x11-server-1.1.1-believe-monitor-rb-modes.patch
+Patch3000:  xorg-x11-server-1.1.1-autoconfig.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -95,13 +80,6 @@ Patch3017:  xorg-x11-server-1.1.1-believe-monitor-rb-modes.patch
 %define with_hw_servers 0
 %define with_dmx_server 0
 %endif
-
-# NOTE: The developer utils are intended for low level video driver hackers,
-# doing low level bit twiddling, who really know what they are doing, and are
-# disabled by default, as they are not generally useful to end users.
-# FIXME: Reconfigure the spec file to put them in a separate subpackage, so
-# I can build one build with them enabled, install them, then disable it again.
-%define with_developer_utils	0
 
 %ifarch %{ix86} x86_64 ppc ia64 alpha sparc sparc64
 %define with_dri	1
@@ -354,6 +332,8 @@ drivers, input drivers, or other X modules should install this package.
 %patch10 -p1 -b .vbe-filter
 %patch11 -p1 -b .vt-activate
 %patch12 -p1 -b .graphics-expose
+%patch13 -p1 -b .ia64-int10
+%patch14 -p1 -b .ia64-pci-chipsets
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -372,6 +352,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch1005 -p0 -b .builtin-fonts
 %patch1006 -p1 -b .no-scanpci
 %patch1007 -p1 -b .xf1bpp
+%patch1008 -p1 -b .comment-less
 
 %patch2001 -p1 -b .pci-scan
 %patch2004 -p1 -b .zlib
@@ -380,23 +361,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch2007 -p1 -b .aiglx-locking
 %patch2008 -p1 -b .hexdump
 
-%patch3001 -p1 -b .edid1
-%patch3002 -p1 -b .edid2
-%patch3003 -p1 -b .cvt
-%patch3004 -p1 -b .targetrefresh
-%patch3005 -p1 -b .getconfig-pl-die-die-die
-%patch3006 -p1 -b .dpms-on-by-default
-%patch3007 -p1 -b .edid-on-root-window
-%patch3008 -p1 -b .sanedefaultmode
-%patch3009 -p1 -b .module-list
-%patch3010 -p1 -b .edid-quirks
-%patch3011 -p1 -b .defaultdepth
-%patch3012 -p1 -b .mouse-thyself
-%patch3013 -p1 -b .mouse-device
-%patch3014 -p1 -b .infer-virtual
-%patch3015 -p1 -b .sort-modes
-%patch3016 -p1 -b .pci-paranoia
-%patch3017 -p1 -b .reduced-blanking
+%patch3000 -p1 -b .autoconfig
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -467,7 +432,6 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/xorg.cfg
     rm -f $RPM_BUILD_ROOT%{_bindir}/getconfig
     rm -f $RPM_BUILD_ROOT%{_bindir}/getconfig.pl
-%if ! %{with_developer_utils}
     rm -f $RPM_BUILD_ROOT%{_bindir}/inb
     rm -f $RPM_BUILD_ROOT%{_bindir}/inl
     rm -f $RPM_BUILD_ROOT%{_bindir}/inw
@@ -477,7 +441,6 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -f $RPM_BUILD_ROOT%{_bindir}/outw
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
-%endif
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/getconfig.1*
     rm -f $RPM_BUILD_ROOT%{_mandir}/man5/getconfig.5*
     # Remove all libtool archives (*.la)
@@ -490,7 +453,6 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 #    error: Installed (but unpackaged) file(s) found:
 #	   /randrstr.h
 #	   /usr/lib/pkgconfig/xorg-server.pc
-#	      /usr/lib/xserver/SecurityPolicy
 #	      /usr/share/aclocal/xorg-server.m4
 #	      /usr/share/man/man1/Xserver.1x.gz
 #	      /var/lib/xkb/README.compiled
@@ -567,16 +529,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(4711, root, root) %{_bindir}/Xorg
 %{_bindir}/gtf
 %{_bindir}/cvt
-%if %{with_developer_utils}
-%{_bindir}/inb
-%{_bindir}/inl
-%{_bindir}/inw
-%{_bindir}/ioport
-%{_bindir}/outb
-%{_bindir}/outl
-%{_bindir}/outw
-%{_bindir}/pcitweak
-%endif
 %dir %{_datadir}/xorg
 %{_datadir}/xorg/vesamodes
 %{_datadir}/xorg/extramodes
@@ -636,9 +588,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xserver
 %{_libdir}/xserver/SecurityPolicy
 #%dir %{_mandir}/man1x
-%if %{with_developer_utils}
-%{_mandir}/man1/pcitweak.1*
-%endif
 %{_mandir}/man1/gtf.1*
 %{_mandir}/man1/Xorg.1*
 %{_mandir}/man1/Xserver.1*
@@ -697,6 +646,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/Xvfb.1*
 # NOTE: Xserver.1x intentionally present in multiple subpackages
 %{_mandir}/man1/Xserver.1*
+%if !%{with_hw_servers}
+%dir %{_libdir}/xserver
+%{_libdir}/xserver/SecurityPolicy
+%endif
 
 # ----- Xephyr -------------------------------------------------------
 
@@ -723,6 +676,16 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Nov 27 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-52.fc7
+- RHEL5 sync:
+  - Deliver SecurityPolicy in Xvfb when !with_hw_servers (s390, s390x)
+  - xorg-x11-server-1.1.1-ia64-int10.patch: Fix int10 on ia64.
+  - xorg-x11-server-1.1.1-ia64-pci-chipsets.patch: ia64 PCI chipset support.
+- Unify the autoconfig patches.
+- xorg-x11-server-1.1.1-xf86config-comment-less.patch: Added, makes
+  pyxf86config not grow the config file every time it's run.
+- Remove with_developer_utils macro.
+
 * Fri Nov 10 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-51.fc7
 - xorg-x11-server-1.1.1-no-scanpci.patch: Drop scanpci, it's huge and
   there's no added value relative to lspci.
