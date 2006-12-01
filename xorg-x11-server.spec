@@ -8,7 +8,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   53%{?dist}
+Release:   54%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -33,6 +33,7 @@ Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
 Patch13:   xorg-x11-server-1.1.1-ia64-int10.patch
 Patch14:   xorg-x11-server-1.1.1-ia64-pci-chipsets.patch
 Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
+Patch16:   xorg-x11-server-1.1.1-xkb-vidmode-switch.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -335,6 +336,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch13 -p1 -b .ia64-int10
 %patch14 -p1 -b .ia64-pci-chipsets
 %patch15 -p1 -b .automake-1.10
+%patch16 -p1 -b .xkb-vidmode-switch
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -677,6 +679,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Dec 1 2006 Adam Jackson <ajax@redhat.com> 1.1.1-54.fc7
+- xorg-x11-server-1.1.1-xkb-vidmode-switch.patch: Fix string matching on
+  XKB actions to be case-insensitive again.  (#216656)
+
 * Fri Dec 1 2006 Adam Jackson <ajax@redhat.com> 1.1.1-53.fc7
 - xorg-x11-server-1.1.1-automake-1.10-fixes.patch: Tweak automakefiles to be
   1.10-compliant.
