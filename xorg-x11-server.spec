@@ -460,7 +460,6 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 #	      /var/lib/xkb/README.compiled
     rm -f $RPM_BUILD_ROOT/randrstr.h
     rm -rf $RPM_BUILD_ROOT%{_libdir}/pkgconfig
-    rm -rf $RPM_BUILD_ROOT%{_libdir}/xserver
     rm -rf $RPM_BUILD_ROOT%{_datadir}/aclocal
     rm -rf $RPM_BUILD_ROOT/var/lib/xkb
 #    rm -f $RPM_BUILD_ROOT%{_datadir}/man/man1/Xserver.1*
@@ -681,6 +680,7 @@ rm -rf $RPM_BUILD_ROOT
 * Fri Dec 1 2006 Adam Jackson <ajax@redhat.com> 1.1.1-53.fc7
 - xorg-x11-server-1.1.1-automake-1.10-fixes.patch: Tweak automakefiles to be
   1.10-compliant.
+- Misc spec fixes.
 
 * Mon Nov 27 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-52.fc7
 - RHEL5 sync:
