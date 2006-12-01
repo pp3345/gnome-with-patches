@@ -8,7 +8,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   52%{?dist}
+Release:   53%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -20,7 +20,6 @@ Source100: comment-header-modefiles.txt
 # general bug fixes
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
 # https://bugs.freedesktop.org/show_bug.cgi?id=5093
-Patch1:    xorg-server-0.99.3-fbmmx-fix-for-non-SSE-cpu.patch
 Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
 Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch5:    xorg-x11-server-libxf86config-dont-write-empty-sections.patch
@@ -33,6 +32,7 @@ Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
 Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
 Patch13:   xorg-x11-server-1.1.1-ia64-int10.patch
 Patch14:   xorg-x11-server-1.1.1-ia64-pci-chipsets.patch
+Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -334,6 +334,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch12 -p1 -b .graphics-expose
 %patch13 -p1 -b .ia64-int10
 %patch14 -p1 -b .ia64-pci-chipsets
+%patch15 -p1 -b .automake-1.10
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -370,7 +371,7 @@ drivers, input drivers, or other X modules should install this package.
 #	--disable-dependency-tracking \
 # also, --enable-kdrive just for Xephyr is overkill, should fix that upstream
 
-aclocal ; automake ; autoconf
+aclocal ; automake -a ; autoconf
 %configure %{xservers} \
 	--disable-xprint \
 	--disable-static \
@@ -382,7 +383,7 @@ aclocal ; automake ; autoconf
 	--with-int10=x86emu \
 	--with-default-font-path="unix/:7100,built-ins" \
 	--with-module-dir=%{moduledir} \
-	--with-os-name="Fedora Core 5" \
+	--with-os-name="Fedora Core 7" \
 	--with-os-vendor="Red Hat, Inc." \
 	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
@@ -397,6 +398,7 @@ aclocal ; automake ; autoconf
 %else
 	--disable-dri \
 %endif
+	${CONFIGURE}
 
 make %{?_smp_mflags}
 
@@ -676,6 +678,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Fri Dec 1 2006 Adam Jackson <ajax@redhat.com> 1.1.1-53.fc7
+- xorg-x11-server-1.1.1-automake-1.10-fixes.patch: Tweak automakefiles to be
+  1.10-compliant.
+
 * Mon Nov 27 2006 Adam Jackson <ajackson@redhat.com> 1.1.1-52.fc7
 - RHEL5 sync:
   - Deliver SecurityPolicy in Xvfb when !with_hw_servers (s390, s390x)
