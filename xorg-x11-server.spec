@@ -8,7 +8,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   54%{?dist}
+Release:   54.1%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -45,6 +45,7 @@ Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
 Patch107:  xorg-x11-server-1.1.1-offscreen-pixmaps.patch
 Patch108:  xorg-x11-server-1.1.1-mesa-6.5.1.patch
 Patch109:  xorg-x11-server-1.1.1-aiglx-happy-vt-switch.patch
+Patch110:  xorg-x11-server-1.1.1-mesa-6.5.2.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -347,6 +348,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch107 -p1 -b .offscreen-pixmaps
 %patch108 -p1 -b .mesa-651
 %patch109 -p1 -b .aiglx-happy-vt-switch
+%patch110 -p1 -b .mesa-652
 
 %patch1001 -p1 -b .Red-Hat-extramodes
 %patch1002 -p1 -b .xephyr
@@ -679,6 +681,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Dec 11 2006 Adam Tkac <atkac redhat com> 1.1.1-54.1.fc7
+- fixed building against mesa-6.5.2
+
 * Fri Dec 1 2006 Adam Jackson <ajax@redhat.com> 1.1.1-54.fc7
 - xorg-x11-server-1.1.1-xkb-vidmode-switch.patch: Fix string matching on
   XKB actions to be case-insensitive again.  (#216656)
