@@ -8,7 +8,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   54.1%{?dist}
+Release:   55%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -34,6 +34,7 @@ Patch13:   xorg-x11-server-1.1.1-ia64-int10.patch
 Patch14:   xorg-x11-server-1.1.1-ia64-pci-chipsets.patch
 Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
 Patch16:   xorg-x11-server-1.1.1-xkb-vidmode-switch.patch
+Patch17:   xorg-x11-server-1.1.1-lid-close-crash.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -338,6 +339,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch14 -p1 -b .ia64-pci-chipsets
 %patch15 -p1 -b .automake-1.10
 %patch16 -p1 -b .xkb-vidmode-switch
+%patch17 -p1 -b .lid-close-crash
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -681,6 +683,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Dec 11 2006 Adam Jackson <ajax@redhat.com> 1.1.1-55
+- xorg-x11-server-1.1.1-lid-close-crash.patch: Added, backport from head.
+  (#197921)
+
 * Mon Dec 11 2006 Adam Tkac <atkac redhat com> 1.1.1-54.1.fc7
 - fixed building against mesa-6.5.2
 
