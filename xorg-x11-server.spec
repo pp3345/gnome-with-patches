@@ -8,7 +8,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   55%{?dist}
+Release:   56%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -35,6 +35,7 @@ Patch14:   xorg-x11-server-1.1.1-ia64-pci-chipsets.patch
 Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
 Patch16:   xorg-x11-server-1.1.1-xkb-vidmode-switch.patch
 Patch17:   xorg-x11-server-1.1.1-lid-close-crash.patch
+Patch18:   xorg-x11-server-1.1.1-glcore-visual-matching.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -68,6 +69,7 @@ Patch2007:  xorg-x11-server-1.1.1-aiglx-locking.patch
 Patch2008:  xorg-x11-server-1.1.1-edid-hex-dump.patch
 
 Patch3000:  xorg-x11-server-1.1.1-autoconfig.patch
+Patch3001:  xorg-x11-server-1.1.1-maxpixclock-option.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -340,6 +342,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch15 -p1 -b .automake-1.10
 %patch16 -p1 -b .xkb-vidmode-switch
 %patch17 -p1 -b .lid-close-crash
+%patch18 -p1 -b .glcore-visual
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -369,6 +372,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch2008 -p1 -b .hexdump
 
 %patch3000 -p1 -b .autoconfig
+%patch3001 -p1 -b .maxpixclock
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -683,6 +687,16 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Dec 18 2006 Adam Jackson <ajax@redhat.com> 1.1.1-56
+- RHEL5 sync:
+  - xorg-x11-server-1.1.1-maxpixclock-option.patch: Allow the maximum pixel
+    clock of a monitor to be specified in the config file.
+  - xorg-x11-server-1.1.1-glcore-visual-matching.patch: Fix a client crash
+    when creating software indirect GLX contexts.
+  - xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch: During server
+    init, abort if either VT activation ioctl fails.  During shutdown, be
+    sure to wait for the VT switch to finish before exiting.
+
 * Mon Dec 11 2006 Adam Jackson <ajax@redhat.com> 1.1.1-55
 - xorg-x11-server-1.1.1-lid-close-crash.patch: Added, backport from head.
   (#197921)
