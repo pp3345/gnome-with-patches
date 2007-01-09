@@ -8,7 +8,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.1.1
-Release:   56%{?dist}
+Release:   57%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -36,6 +36,9 @@ Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
 Patch16:   xorg-x11-server-1.1.1-xkb-vidmode-switch.patch
 Patch17:   xorg-x11-server-1.1.1-lid-close-crash.patch
 Patch18:   xorg-x11-server-1.1.1-glcore-visual-matching.patch
+
+# http://xorg.freedesktop.org/releases/X11R7.1/patches/xorg-xserver-1.1.0-dbe-render.diff
+Patch50:   xorg-xserver-1.1.0-dbe-render.diff
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -343,6 +346,8 @@ drivers, input drivers, or other X modules should install this package.
 %patch16 -p1 -b .xkb-vidmode-switch
 %patch17 -p1 -b .lid-close-crash
 %patch18 -p1 -b .glcore-visual
+
+%patch50 -p1 -b .alloca
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -687,6 +692,11 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Jan 09 2007 Adam Jackson <ajax@redhat.com> 1.1.1-57
+- xorg-xserver-1.1.0-dbe-render.diff: CVE #2006-6101
+- xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch: Skip building the
+  non-Xephyr kdrive servers entirely.
+
 * Mon Dec 18 2006 Adam Jackson <ajax@redhat.com> 1.1.1-56
 - RHEL5 sync:
   - xorg-x11-server-1.1.1-maxpixclock-option.patch: Allow the maximum pixel
