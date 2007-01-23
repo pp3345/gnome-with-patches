@@ -1,0 +1,11 @@
+--- xorg-server-1.2.0/os/utils.c.enable-composite	2007-01-22 22:13:16.000000000 -0500
++++ xorg-server-1.2.0/os/utils.c	2007-01-23 12:26:04.000000000 -0500
+@@ -138,7 +138,7 @@
+ #ifdef COMPOSITE
+  /* COMPOSITE is disabled by default for now until the
+   * interface is stable */
+- #define COMPOSITE_DEFAULT FALSE
++ #define COMPOSITE_DEFAULT TRUE
+ _X_EXPORT Bool noCompositeExtension = !COMPOSITE_DEFAULT;
+ #endif
+ 

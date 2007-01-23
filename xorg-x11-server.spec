@@ -7,8 +7,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.1.1
-Release:   57%{?dist}
+Version:   1.2.0
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -19,60 +19,34 @@ Source100: comment-header-modefiles.txt
 
 # general bug fixes
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
-# https://bugs.freedesktop.org/show_bug.cgi?id=5093
-Patch3:    xserver-1.0.0-parser-add-missing-headers-to-sdk.patch
-Patch4:    xorg-x11-server-1.0.1-composite-fastpath-fdo4320.patch
 Patch5:    xorg-x11-server-libxf86config-dont-write-empty-sections.patch
 Patch6:    xorg-x11-server-1.1.1-builderstring.patch
 Patch7:    xorg-x11-server-1.1.1-xkb-in-xnest.patch
-Patch8:    xorg-x11-server-1.1.1-xvfb-composite-crash.patch
-Patch9:	   xorg-x11-server-1.1.1-pclose-confusion.patch
 Patch10:   xorg-x11-server-1.1.1-vbe-filter-less.patch
 Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
 Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
-Patch13:   xorg-x11-server-1.1.1-ia64-int10.patch
-Patch14:   xorg-x11-server-1.1.1-ia64-pci-chipsets.patch
 Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
-Patch16:   xorg-x11-server-1.1.1-xkb-vidmode-switch.patch
-Patch17:   xorg-x11-server-1.1.1-lid-close-crash.patch
 Patch18:   xorg-x11-server-1.1.1-glcore-visual-matching.patch
-
-# http://xorg.freedesktop.org/releases/X11R7.1/patches/xorg-xserver-1.1.0-dbe-render.diff
-Patch50:   xorg-xserver-1.1.0-dbe-render.diff
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xorg-x11-server-1.1.0-dont-backfill-bg-none.patch
-Patch103:  xorg-x11-server-1.1.0-tfp-damage.patch
-Patch104:  xorg-x11-server-1.1.0-mesa-copy-sub-buffer.patch
-Patch105:  xorg-x11-server-1.1.1-enable-composite.patch
+Patch105:  xorg-x11-server-1.2.0-enable-composite.patch
 Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
 Patch107:  xorg-x11-server-1.1.1-offscreen-pixmaps.patch
-Patch108:  xorg-x11-server-1.1.1-mesa-6.5.1.patch
-Patch109:  xorg-x11-server-1.1.1-aiglx-happy-vt-switch.patch
-Patch110:  xorg-x11-server-1.1.1-mesa-6.5.2.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
 Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
-Patch1002:  xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch
+Patch1002:  xorg-x11-server-1.2.0-xephyr-only.patch
 Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
-Patch1004:  xorg-x11-server-1.1.1-selinux-awareness.patch
+Patch1004:  xorg-x11-server-1.2.0-selinux-awareness.patch
 Patch1005:  xorg-x11-server-1.1.1-builtin-fonts.patch
 Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
 Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
-Patch1008:  xorg-x11-server-1.1.1-xf86config-comment-less.patch
+Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
 
-# Backports of post-1.1 stuff.
-Patch2001:  xorg-x11-server-1.1.0-pci-scan-fixes.patch
-Patch2004:  xorg-x11-server-1.1.0-no-zlib.patch
-Patch2005:  xorg-x11-server-1.1.1-Xdmx-render-fix-fdo7482.patch
-Patch2006:  xorg-x11-server-1.1.1-revert-xkb-change.patch
-Patch2007:  xorg-x11-server-1.1.1-aiglx-locking.patch
-Patch2008:  xorg-x11-server-1.1.1-edid-hex-dump.patch
-
-Patch3000:  xorg-x11-server-1.1.1-autoconfig.patch
-Patch3001:  xorg-x11-server-1.1.1-maxpixclock-option.patch
+Patch3001:  xorg-x11-server-1.2.0-maxpixclock-option.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -125,11 +99,8 @@ BuildRequires: libXdmcp-devel
 BuildRequires: libX11-devel
 # libXext-devel needed for Xdmx, Xnest, Xephyr
 BuildRequires: libXext-devel
-#
+# XXX Really?  Why would we need this, Xfont should hide it.
 BuildRequires: freetype-devel >= 2.1.9-1
-# FIXME: Disabling zlib-devel dep as we are applying the xorg-x11-server-1.1.0-no-zlib.patch
-# patch which should remove any dependency on zlib anyway.
-#BuildRequires: zlib-devel
 
 # FIXME: libXt-devel should be wrapped in with_dmx_server - for Xdmxconfig,
 # probably should only be needed for DMX builds, but the build explodes with
@@ -138,16 +109,13 @@ BuildRequires: libXt-devel
 
 
 %if %{with_dmx_server}
-# libdmx-devel needed for Xdmx
 BuildRequires: libdmx-devel
-# libXmu-devel needed for Xdmx
 BuildRequires: libXmu-devel
-# libXrender-devel needed for Xdmx
 BuildRequires: libXrender-devel
-# libXi-devel needed for Xdmx
 BuildRequires: libXi-devel
 BuildRequires: libXpm-devel
 BuildRequires: libXaw-devel
+BuildRequires: libXfixes-devel
 %endif
 
 # To query fontdir from fontutil.pc
@@ -156,7 +124,8 @@ BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 %if %{with_dri}
 BuildRequires: mesa-libGL-devel >= 6.5.1
 BuildRequires: mesa-source >= 6.5.1
-BuildRequires: libdrm-devel >= 2.0-1
+BuildRequires: libdrm-devel >= 2.3.0
+Requires: libdrm >= 2.3.0
 %endif
 
 BuildRequires: libselinux-devel
@@ -331,34 +300,20 @@ drivers, input drivers, or other X modules should install this package.
 %prep
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p0 -b .init-origins-fix
-%patch3 -p0 -b .parser-add-missing-headers-to-sdk
 %patch5 -p0 -b .libxf86config-dont-write-empty-sections
 %patch6 -p1 -b .builderstring
 %patch7 -p1 -b .xkb-in-xnest
-%patch8 -p1 -b .xvfb-render-fix
-%patch9 -p1 -b .pclose
 %patch10 -p1 -b .vbe-filter
 %patch11 -p1 -b .vt-activate
 %patch12 -p1 -b .graphics-expose
-%patch13 -p1 -b .ia64-int10
-%patch14 -p1 -b .ia64-pci-chipsets
 %patch15 -p1 -b .automake-1.10
-%patch16 -p1 -b .xkb-vidmode-switch
-%patch17 -p1 -b .lid-close-crash
 %patch18 -p1 -b .glcore-visual
-
-%patch50 -p1 -b .alloca
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
-%patch103 -p0 -b .tfp-damage
-%patch104 -p0 -b .mesa-copy-sub-buffer
-%patch105 -p0 -b .enable-composite
+%patch105 -p1 -b .enable-composite
 %patch106 -p1 -b .no-xnest-composite
 %patch107 -p1 -b .offscreen-pixmaps
-%patch108 -p1 -b .mesa-651
-%patch109 -p1 -b .aiglx-happy-vt-switch
-%patch110 -p1 -b .mesa-652
 
 %patch1001 -p1 -b .Red-Hat-extramodes
 %patch1002 -p1 -b .xephyr
@@ -368,15 +323,6 @@ drivers, input drivers, or other X modules should install this package.
 %patch1006 -p1 -b .no-scanpci
 %patch1007 -p1 -b .xf1bpp
 %patch1008 -p1 -b .comment-less
-
-%patch2001 -p1 -b .pci-scan
-%patch2004 -p1 -b .zlib
-%patch2005 -p1 -b .Xdmx
-%patch2006 -p1 -b .revert-xkb-change
-%patch2007 -p1 -b .aiglx-locking
-%patch2008 -p1 -b .hexdump
-
-%patch3000 -p1 -b .autoconfig
 %patch3001 -p1 -b .maxpixclock
 
 %build
@@ -563,13 +509,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/extensions/libxtrap.so
 %dir %{_libdir}/xorg/modules/input
 %dir %{_libdir}/xorg/modules/fonts
-%{_libdir}/xorg/modules/fonts/libbitmap.so
 %{_libdir}/xorg/modules/fonts/libfreetype.so
 %{_libdir}/xorg/modules/fonts/libtype1.so
 %dir %{_libdir}/xorg/modules/linux
-%if %{with_dri}
-%{_libdir}/xorg/modules/linux/libdrm.so
-%endif
 %{_libdir}/xorg/modules/linux/libfbdevhw.so
 %dir %{_libdir}/xorg/modules/multimedia
 %{_libdir}/xorg/modules/multimedia/bt829_drv.so
@@ -581,7 +523,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/multimedia/uda1380_drv.so
 %{_libdir}/xorg/modules/libafb.so
 %{_libdir}/xorg/modules/libcfb.so
-%{_libdir}/xorg/modules/libcfb16.so
 %{_libdir}/xorg/modules/libcfb32.so
 %{_libdir}/xorg/modules/libddc.so
 %{_libdir}/xorg/modules/libexa.so
@@ -590,7 +531,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libint10.so
 %{_libdir}/xorg/modules/libmfb.so
 %{_libdir}/xorg/modules/libpcidata.so
-%{_libdir}/xorg/modules/librac.so
 %{_libdir}/xorg/modules/libramdac.so
 %{_libdir}/xorg/modules/libshadow.so
 %{_libdir}/xorg/modules/libshadowfb.so
@@ -611,6 +551,7 @@ rm -rf $RPM_BUILD_ROOT
 #%dir %{_mandir}/man4x
 #%{_mandir}/man4/fbdevhw.4*
 %{_mandir}/man4/fbdevhw.4*
+%{_mandir}/man4/exa.4*
 #%dir %{_mandir}/man5x
 %{_mandir}/man5/xorg.conf.5*
 %dir %{_localstatedir}/lib/xkb
@@ -692,6 +633,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Tue Jan 23 2007 Adam Jackson <ajax@redhat.com> 1.2.0-1
+- Xorg server 1.2.0.
+
 * Tue Jan 09 2007 Adam Jackson <ajax@redhat.com> 1.1.1-57
 - xorg-xserver-1.1.0-dbe-render.diff: CVE #2006-6101
 - xorg-x11-server-1.1.0-redhat-xephyr-only-hack.patch: Skip building the
