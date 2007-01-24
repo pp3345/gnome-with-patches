@@ -8,7 +8,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.0
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -471,9 +471,8 @@ rm -rf $RPM_BUILD_ROOT
       # unnecessary, and break upgrades from monolithic to modular X.
       # Fixes bugs (#173036, 173435, 173453, 173428)
       perl -p -i -e 's#^\s*RgbPath.*$##gi' $configfile
-      # If ModulePath is specified in the config file, check for the old
-      # monolithic module path, and replace it with the new one.
-      perl -p -i -e "m,^\s*ModulePath.*\"${OLD_MODULEPATH}\".*$,; s,${OLD_MODULEPATH},%{moduledir}," $configfile
+      # If ModulePath is specified in the config file, delete it.
+      perl -p -i -e 's#^\s*ModulePath.*$##gi' $configfile
     fi
 #  done
   popd
@@ -633,6 +632,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Jan 24 2007 Adam Jackson <ajax@redhat.com> 1.2.0-2
+- Delete ModulePath lines rather than attempt to munge them.  (#186338)
+
 * Tue Jan 23 2007 Adam Jackson <ajax@redhat.com> 1.2.0-1
 - Xorg server 1.2.0.
 
