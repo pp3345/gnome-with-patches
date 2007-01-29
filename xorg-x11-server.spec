@@ -8,7 +8,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.0
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -45,8 +45,10 @@ Patch1005:  xorg-x11-server-1.1.1-builtin-fonts.patch
 Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
 Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
 Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
+Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
 
-Patch3001:  xorg-x11-server-1.2.0-maxpixclock-option.patch
+Patch2001:  xserver-1.2.0-geode-mmx.patch
+Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -323,7 +325,10 @@ drivers, input drivers, or other X modules should install this package.
 %patch1006 -p1 -b .no-scanpci
 %patch1007 -p1 -b .xf1bpp
 %patch1008 -p1 -b .comment-less
-%patch3001 -p1 -b .maxpixclock
+%patch1009 -p1 -b .maxpixclock
+
+%patch2001 -p1 -b .geode-mmx
+%patch2002 -p1 -b .xephyr-keysym
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -632,6 +637,10 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Mon Jan 29 2007 Adam Jackson <ajax@redhat.com> 1.2.0-3
+- Fix MMX check on AMD CPUs. (#222332)
+- Fix Xephyr keysym init on LP64. (#224311)
+
 * Wed Jan 24 2007 Adam Jackson <ajax@redhat.com> 1.2.0-2
 - Delete ModulePath lines rather than attempt to munge them.  (#186338)
 
