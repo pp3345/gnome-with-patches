@@ -8,7 +8,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.0
-Release:   3%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -49,6 +49,7 @@ Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
 
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
+Patch2003:  xserver-1.2.0-vfprintf.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -329,6 +330,7 @@ drivers, input drivers, or other X modules should install this package.
 
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
+%patch2003 -p1 -b .vfprintf
 
 %build
 #FONTDIR="${datadir}/X11/fonts"
@@ -637,6 +639,9 @@ rm -rf $RPM_BUILD_ROOT
 # -------------------------------------------------------------------
 
 %changelog
+* Wed Jan 31 2007 Adam Jackson <ajax@redhat.com> 1.2.0-4
+- Fix typo in SDK header. (#222487)
+
 * Mon Jan 29 2007 Adam Jackson <ajax@redhat.com> 1.2.0-3
 - Fix MMX check on AMD CPUs. (#222332)
 - Fix Xephyr keysym init on LP64. (#224311)
