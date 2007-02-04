@@ -2,13 +2,14 @@
 #
 # Fix rhpxl to no longer need vesamodes/extramodes
 # RHEL5 bugfix sync
+# --enable-kdrive just for Xephyr is overkill, should fix that upstream
 
 %define pkgname xorg-server
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.0
-Release:   4%{?dist}
+Release:   5%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -55,41 +56,32 @@ Patch2003:  xserver-1.2.0-vfprintf.patch
 %define drimoduledir	%{_libdir}/dri
 %define sdkdir		%{_includedir}/xorg
 
-%ifarch %{ix86} x86_64 ppc ppc64 ia64 alpha sparc sparc64
-%define xservers --enable-xorg --enable-dmx --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr
-%define with_hw_servers 1
-%define with_dmx_server 1
-%endif
 %ifarch s390 s390x
-%define xservers --disable-xorg --disable-dmx --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr
 %define with_hw_servers 0
-%define with_dmx_server 0
+%else
+%define with_hw_servers 1
 %endif
 
-%ifarch %{ix86} x86_64 ppc ia64 alpha sparc sparc64
-%define with_dri	1
+%if %{with_hw_servers}
+%define enable_xorg --enable-xorg
+%else
+%define enable_xorg --disable-xorg
 %endif
-%ifarch ppc64 s390 s390x
-%define with_dri	0
-%endif
+
+%define xservers --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr --enable-dmx
 
 # FIXME: Temporary Build deps on autotools, as needed...
-#BuildRequires: automake17
-BuildRequires: automake
-BuildRequires: autoconf
-BuildRequires: libtool
+BuildRequires: automake autoconf libtool
 
 BuildRequires: pkgconfig
-BuildRequires: xorg-x11-util-macros >= 0.99.1
-BuildRequires: xorg-x11-proto-devel >= 7.1-8
+BuildRequires: xorg-x11-util-macros >= 1.1.5
+BuildRequires: xorg-x11-proto-devel >= 7.1-11
 BuildRequires: xorg-x11-xtrans-devel
-# FIXME: The version specification can be removed from here in the future,
-# as it is not really mandatory, but forces a bugfix workaround on people who
-# are using pre-rawhide modular X.
-BuildRequires: libXfont-devel >= 0.99.2-3
+BuildRequires: libXfont-devel
 BuildRequires: libXau-devel
 BuildRequires: libxkbfile-devel
-# libXres-devel needed for something that links to libXres that I never bothered to figure out yet
+# libXres-devel needed for something that links to libXres that I never
+# bothered to figure out yet
 BuildRequires: libXres-devel
 # libfontenc-devel needed for Xorg, but not specified by
 # upstream deps.  Build fails without it.
@@ -105,13 +97,8 @@ BuildRequires: libXext-devel
 # XXX Really?  Why would we need this, Xfont should hide it.
 BuildRequires: freetype-devel >= 2.1.9-1
 
-# FIXME: libXt-devel should be wrapped in with_dmx_server - for Xdmxconfig,
-# probably should only be needed for DMX builds, but the build explodes with
-# a bogus configure check failure if this is missing.
+# DMX config utils buildreqs.
 BuildRequires: libXt-devel
-
-
-%if %{with_dmx_server}
 BuildRequires: libdmx-devel
 BuildRequires: libXmu-devel
 BuildRequires: libXrender-devel
@@ -119,15 +106,13 @@ BuildRequires: libXi-devel
 BuildRequires: libXpm-devel
 BuildRequires: libXaw-devel
 BuildRequires: libXfixes-devel
-%endif
 
-# To query fontdir from fontutil.pc
 BuildRequires: xorg-x11-font-utils >= 1.0.0-1
-# Needed at least for DRI enabled builds
-%if %{with_dri}
-BuildRequires: mesa-libGL-devel >= 6.5.1
-BuildRequires: mesa-source >= 6.5.1
+BuildRequires: mesa-libGL-devel >= 6.5.2
+BuildRequires: mesa-source >= 6.5.2
+# XXX silly...
 BuildRequires: libdrm-devel >= 2.3.0
+%if %{with_hw_servers}
 Requires: libdrm >= 2.3.0
 %endif
 
@@ -136,49 +121,30 @@ BuildRequires: libselinux-devel
 # Make sure we pull ABI compatible drivers.
 Conflicts: xorg-x11-drv-ati < 6.6.1
 Conflicts: xorg-x11-drv-i810 < 1.6.0
-
 # Match up work-arounds between compiz and the xserver
 Conflicts: compiz < 0.0.13-0.20.20060817git.fc6
-
 # Match up GLX_EXT_texture_from_pixmap opcodes
 Conflicts: mesa-libGL < 6.5.1-2.fc6
+
+# All server subpackages have a virtual provide for the name of the server
+# they deliver.  The Xorg one is versioned, the others are intentionally
+# unversioned.
 
 %description
 X.Org X11 X server
 
-# ----- Xorg --------------------------------------------------------
 %if %{with_hw_servers}
 %package Xorg
 Summary: Xorg X server
 Group: User Interface/X
-# NOTE: The X server invokes xkbcomp directly, so this is required.
-Requires: xkbcomp
-# NOTE: Require some basic drivers for minimal configuration. (#173060)
-# We _should_ install every driver, but OLPC wants different (#191781),
-# which is quite lame and wants an better solution.
-Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
-Requires: xorg-x11-drv-void xorg-x11-drv-evdev
-#Requires: xorg-x11-drivers >= 0.99.2-4
-
-# NOTE: We use implementation non-specific "xkbdata" here, to make it easy
-# to switch to the freedesktop.org 'xkeyboard-config' project replacment
-# in the future.
-Requires: xkbdata
-# FIXME: Investigate these two and see what utils are needed, and use virtuals
-Requires: xorg-x11-server-utils >= 0.99.2-5
-Requires: xorg-x11-utils
-# FIXME: This Requires on libXfont can be removed from here in the future,
-# as it is not really mandatory, but forces a bugfix workaround on people who
-# are using pre-rawhide modular X.
-Requires: libXfont >= 0.99.2-3
-
-Obsoletes: XFree86 xorg-x11
-# NOTE: This virtual provide should be used when one wants to depend on
-# the implementation specific (and optionally version specific) Xorg X
-# server, but in an OS packaging independent manner.  This futureproofs
-# package dependencies against possible future Xorg package renaming.
 Provides: Xorg = %{version}-%{release}
 Provides: Xserver
+# Requires: xorg-x11-drivers >= 0.99.2-4
+Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
+Requires: xorg-x11-drv-void xorg-x11-drv-evdev
+# virtuals.  XXX fix the xkbcomp fork() upstream.
+Requires: xkbdata xkbcomp
+Obsoletes: XFree86 xorg-x11
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -187,19 +153,12 @@ graphical user interfaces (GUIs) such as GNOME and KDE are designed
 upon.
 %endif
 
-# ----- Xnest -------------------------------------------------------
+
 %package Xnest
 Summary: A nested server.
 Group: User Interface/X
 Obsoletes: XFree86-Xnest, xorg-x11-Xnest
-# NOTE: This virtual provide should be used by packages which want to depend
-# on an implementation nonspecific Xnest X server.  It is intentionally not
-# versioned, since it should be agnostic.
 Provides: Xnest
-
-# NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
-# by xorg-x11-fonts-base
-Requires: xorg-x11-fonts-base
 
 %description Xnest
 Xnest is an X server, which has been implemented as an ordinary
@@ -208,20 +167,12 @@ but it is an X server itself in which you can run other software.  It
 is a very useful tool for developers who wish to test their
 applications without running them on their real X server.
 
-# ----- Xdmx --------------------------------------------------------
-%if %{with_dmx_server}
+
 %package Xdmx
 Summary: Distributed Multihead X Server and utilities
 Group: User Interface/X
 Obsoletes: xorg-x11-Xdmx
-# NOTE: This virtual provide should be used by packages which want to depend
-# on an implementation nonspecific Xdmx X server.  It is intentionally not
-# versioned, since it should be agnostic.
 Provides: Xdmx
-
-# NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
-# by xorg-x11-fonts-base
-Requires: xorg-x11-fonts-base
 
 %description Xdmx
 Xdmx is proxy X server that provides multi-head support for multiple displays
@@ -232,21 +183,13 @@ for Xdmx would be to provide multi-head support using two desktop machines,
 each of which has a single display device attached to it.  A complex
 application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 (each attached to one of 16 computers) into a unified 5120x4096 display.
-%endif
-# ----- Xvfb --------------------------------------------------------
+
 
 %package Xvfb
 Summary: A X Windows System virtual framebuffer X server.
 Group: User Interface/X
 Obsoletes: XFree86-Xvfb xorg-x11-Xvfb
-# NOTE: This virtual provide should be used by packages which want to depend
-# on an implementation nonspecific Xvfb X server.  It is intentionally not
-# versioned, since it should be agnostic.
 Provides: Xvfb
-
-# NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
-# by xorg-x11-fonts-base
-Requires: xorg-x11-fonts-base
 
 %description Xvfb
 Xvfb (X Virtual Frame Buffer) is an X server that is able to run on
@@ -255,19 +198,11 @@ Xvfb simulates a dumb framebuffer using virtual memory.  Xvfb does
 not open any devices, but behaves otherwise as an X display.  Xvfb
 is normally used for testing servers.
 
-# ----- Xephyr -------------------------------------------------------
 
 %package Xephyr
 Summary: A nested server.
 Group: User Interface/X
-# NOTE: This virtual provide should be used by packages which want to depend
-# on an implementation nonspecific Xephyr X server.  It is intentionally not
-# versioned, since it should be agnostic.
 Provides: Xephyr
-
-# NOTE: The X server requires 'fixed' and 'cursor' font, which are provided
-# by xorg-x11-fonts-base
-Requires: xorg-x11-fonts-base
 
 %description Xephyr
 Xephyr is an X server, which has been implemented as an ordinary
@@ -279,7 +214,7 @@ Xnest, Xephyr renders to an X image rather than relaying the
 X protocol, and therefore supports the newer X extensions like
 Render and Composite.
 
-# ----- sdk ---------------------------------------------------------
+
 %if %{with_hw_servers}
 %package sdk
 Summary: SDK for X server driver module development
@@ -287,9 +222,7 @@ Group: User Interface/X
 Obsoletes: XFree86-sdk xorg-x11-sdk
 Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
-
 Requires(pre): xorg-x11-filesystem >= 0.99.2-3
-
 Provides: libxf86config-devel = %{version}-%{release}
 
 %description sdk
@@ -298,7 +231,7 @@ developing X server driver modules, and for compiling driver modules
 outside of the standard X11 source code tree.  Developers writing video
 drivers, input drivers, or other X modules should install this package.
 %endif
-# -------------------------------------------------------------------
+
 
 %prep
 %setup -q -n %{pkgname}-%{version}
@@ -333,15 +266,15 @@ drivers, input drivers, or other X modules should install this package.
 %patch2003 -p1 -b .vfprintf
 
 %build
-#FONTDIR="${datadir}/X11/fonts"
-#DEFAULT_FONT_PATH="${FONTDIR}/misc:unscaled,${FONTDIR}/TTF/,${FONTDIR}/OTF,${FONTDIR}/Type1/,${FONTDIR}/CID/,${FONTDIR}/100dpi:unscaled,${FONTDIR}/75dpi:unscaled"
 
-#	--disable-dependency-tracking \
-# also, --enable-kdrive just for Xephyr is overkill, should fix that upstream
-
+# --disable-dependency-tracking ?
+# --with-rgb-path should be superfluous now ?
+# --with-pie ?
 aclocal ; automake -a ; autoconf
-%configure %{xservers} \
-	--disable-xprint \
+%configure \
+	%{enable_xorg} \
+	--disable-xprint --enable-xvfb --enable-xnest --enable-dmx \
+	--enable-kdrive --enable-xephyr \
 	--disable-static \
 	--with-pic \
 	--enable-composite \
@@ -359,12 +292,10 @@ aclocal ; automake -a ; autoconf
 	--disable-xorgcfg \
 	--enable-install-libxf86config \
 	--with-fontdir=%(pkg-config --variable=fontdir fontutil) \
-%if %{with_dri}
-	--enable-dri \
 	--with-mesa-source=%{_datadir}/mesa/source \
+%if %{with_hw_servers}
+	--enable-dri \
 	--with-dri-driver-path=%{drimoduledir} \
-%else
-	--disable-dri \
 %endif
 	${CONFIGURE}
 
@@ -430,7 +361,6 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     rm -rf $RPM_BUILD_ROOT%{_libdir}/pkgconfig
     rm -rf $RPM_BUILD_ROOT%{_datadir}/aclocal
     rm -rf $RPM_BUILD_ROOT/var/lib/xkb
-#    rm -f $RPM_BUILD_ROOT%{_datadir}/man/man1/Xserver.1*
 %endif
 }
 
@@ -486,7 +416,8 @@ rm -rf $RPM_BUILD_ROOT
 } &> /dev/null || :
 %endif
 
-# ----- Xorg --------------------------------------------------------
+# The Xserver.1 manpage is intentionally present in multiple subpackages.
+# It could reasonably form part of a -common subpackage though.
 
 %if %{with_hw_servers}
 %files Xorg
@@ -504,11 +435,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules
 %dir %{_libdir}/xorg/modules/drivers
 %dir %{_libdir}/xorg/modules/extensions
-%if %{with_dri}
 %{_libdir}/xorg/modules/extensions/libGLcore.so
-%{_libdir}/xorg/modules/extensions/libdri.so
 %{_libdir}/xorg/modules/extensions/libglx.so
-%endif
+%{_libdir}/xorg/modules/extensions/libdri.so
 %{_libdir}/xorg/modules/extensions/libdbe.so
 %{_libdir}/xorg/modules/extensions/libextmod.so
 %{_libdir}/xorg/modules/extensions/librecord.so
@@ -564,19 +493,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/xkb/README.compiled
 %endif
 
-# ----- Xnest -------------------------------------------------------
 
 %files Xnest
 %defattr(-,root,root,-)
 %{_bindir}/Xnest
 #%dir %{_mandir}/man1x
 %{_mandir}/man1/Xnest.1*
-# NOTE: Xserver.1x intentionally present in multiple subpackages
 %{_mandir}/man1/Xserver.1*
 
-# ----- Xdmx --------------------------------------------------------
 
-%if %{with_dmx_server}
 %files Xdmx
 %defattr(-,root,root,-)
 %{_bindir}/Xdmx
@@ -596,25 +521,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/dmxtodmx.1*
 %{_mandir}/man1/vdltodmx.1*
 %{_mandir}/man1/xdmxconfig.1*
-# NOTE: Xserver.1x intentionally present in multiple subpackages
 %{_mandir}/man1/Xserver.1*
-%endif
 
-# ----- Xvfb --------------------------------------------------------
 
 %files Xvfb
 %defattr(-,root,root,-)
 %{_bindir}/Xvfb
 #%dir %{_mandir}/man1x
 %{_mandir}/man1/Xvfb.1*
-# NOTE: Xserver.1x intentionally present in multiple subpackages
 %{_mandir}/man1/Xserver.1*
 %if !%{with_hw_servers}
 %dir %{_libdir}/xserver
 %{_libdir}/xserver/SecurityPolicy
 %endif
 
-# ----- Xephyr -------------------------------------------------------
 
 %files Xephyr
 %defattr(-,root,root,-)
@@ -622,10 +542,9 @@ rm -rf $RPM_BUILD_ROOT
 # no manpage yet
 #%dir %{_mandir}/man1x
 #%{_mandir}/man1/Xephyr.1*
-# NOTE: Xserver.1x intentionally present in multiple subpackages
 %{_mandir}/man1/Xserver.1*
 
-# ----- sdk ---------------------------------------------------------
+
 %if %{with_hw_servers}
 %files sdk
 %defattr(-,root,root,-)
@@ -636,9 +555,17 @@ rm -rf $RPM_BUILD_ROOT
 %{sdkdir}/*.h
 %{_datadir}/aclocal/xorg-server.m4
 %endif
-# -------------------------------------------------------------------
+
 
 %changelog
+* Sun Feb 04 2007 Adam Jackson <ajax@redhat.com> 1.2.0-5
+- Massive spec formatting and style cleanup.
+- Build Xdmx on all arches.
+- Enable GL support even on non-DRI machines.
+- Re-add DRI to ppc64.
+- Update BuildRequires to current versions.
+- Remove some bogus Requires.
+
 * Wed Jan 31 2007 Adam Jackson <ajax@redhat.com> 1.2.0-4
 - Fix typo in SDK header. (#222487)
 
