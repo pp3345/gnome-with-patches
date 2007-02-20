@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.0
-Release:   5%{?dist}
+Release:   6%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -558,6 +558,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 05 2007 Adam Jackson <ajax@redhat.com> 1.2.0-6
+- xorg-x11-server-Red-Hat-extramodes.patch:
+  - Add 1360x768 normal and reduced-blanking.
+  - Add reduced-blanking versions of 1680x1050 and 1920x{1200,1080}.
+  - Remove the >60Hz versions of 2560x1600.  Even leaving the 60Hz timing is
+    kind of ridiculous, since every real LCD that size I've seen uses the
+    reduced blanking timings.  But presumably if you have that nice of a
+    monitor, you also have a video card with working DDC.
+
 * Sun Feb 04 2007 Adam Jackson <ajax@redhat.com> 1.2.0-5
 - Massive spec formatting and style cleanup.
 - Build Xdmx on all arches.
