@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.0
-Release:   6%{?dist}
+Release:   7%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -51,6 +51,10 @@ Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
 Patch2003:  xserver-1.2.0-vfprintf.patch
+Patch2004:  xserver-1.2.0-xfixes-clientgone-check.patch
+Patch2005:  xserver-1.2.0-os-memory-leak.patch
+Patch2006:  xserver-1.2.0-int10-rdtsc.patch
+Patch2007:  xserver-1.2.0-glcore-visual-count.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -264,6 +268,10 @@ drivers, input drivers, or other X modules should install this package.
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
 %patch2003 -p1 -b .vfprintf
+%patch2004 -p1 -b .clientgone
+%patch2005 -p1 -b .osclient
+%patch2006 -p1 -b .rdtsc
+%patch2007 -p1 -b .glcore-crash
 
 %build
 
@@ -558,6 +566,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Feb 22 2007 Adam Jackson <ajax@redhat.com> 1.2.0-7
+- Various backports from git master:
+  - xserver-1.2.0-xfixes-clientgone-check.patch: Avoids a crash when sending
+    events to clients that just disconnected.
+  - xserver-1.2.0-os-memory-leak.patch: Plugs a per-connection memory leak.
+  - xserver-1.2.0-int10-rdtsc.patch: Implement rdtsc in the int10 emulator.
+  - xserver-1.2.0-glcore-visual-count.patch: Count glcore visuals properly,
+    fixes crash at exit.
+
 * Mon Feb 05 2007 Adam Jackson <ajax@redhat.com> 1.2.0-6
 - xorg-x11-server-Red-Hat-extramodes.patch:
   - Add 1360x768 normal and reduced-blanking.
