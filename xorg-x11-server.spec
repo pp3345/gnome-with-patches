@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.0
-Release:   7%{?dist}
+Release:   8%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -47,6 +47,7 @@ Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
 Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
 Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
 Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
+Patch1010:  xserver-1.2.0-proper-randr-version.patch
 
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
@@ -264,6 +265,7 @@ drivers, input drivers, or other X modules should install this package.
 %patch1007 -p1 -b .xf1bpp
 %patch1008 -p1 -b .comment-less
 %patch1009 -p1 -b .maxpixclock
+%patch1010 -p1 -b .randr-version
 
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
@@ -566,6 +568,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Feb 23 2007 Adam Jackson <ajax@redhat.com> 1.2.0-8
+- xserver-1.2.0-proper-randr-version.patch: Report the RANDR version we
+  actually implement, instead of the version defined by the protocol headers.
+
 * Thu Feb 22 2007 Adam Jackson <ajax@redhat.com> 1.2.0-7
 - Various backports from git master:
   - xserver-1.2.0-xfixes-clientgone-check.patch: Avoids a crash when sending
