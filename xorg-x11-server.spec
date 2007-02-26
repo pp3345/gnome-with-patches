@@ -339,28 +339,21 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 }
 %endif
 
+# Make the source package
 %define xserver_source_dir %{_datadir}/xorg-x11-server-source
-mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}
-cp cpprules.in $RPM_BUILD_ROOT/%{xserver_source_dir}
-mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/Xext
-cp Xext/SecurityPolicy $RPM_BUILD_ROOT/%{xserver_source_dir}/Xext
-mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/xkb
-cp xkb/README.compiled $RPM_BUILD_ROOT/%{xserver_source_dir}/xkb
-mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/GL
-cp GL/symlink-mesa.sh $RPM_BUILD_ROOT/%{xserver_source_dir}/GL
-mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86
-cp hw/xfree86/xorgconf.cpp $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86
-cp hw/xfree86/Options $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86
-mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/common
-cp hw/xfree86/common/vesamodes  $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/common
-cp hw/xfree86/common/extramodes  $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/common
-mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/utils/xorgconfig/
-cp hw/xfree86/utils/xorgconfig/Cards $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/utils/xorgconfig/
-cp hw/xfree86/utils/xorgconfig/Cards98 $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/utils/xorgconfig/
+%define inst_srcdir %{buildroot}/%{xserver_source_dir}
+mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/xfree86/{common,utils/xorgconfig}}
+cp cpprules.in %{inst_srcdir}
+cp Xext/SecurityPolicy %{inst_srcdir}/Xext
+cp xkb/README.compiled %{inst_srcdir}/xkb
+cp GL/symlink-mesa.sh %{inst_srcdir}/GL
+cp hw/xfree86/{xorgconf.cpp,Options} %{inst_srcdir}/hw/xfree86
+cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
+cp hw/xfree86/utils/xorgconfig/Cards{,98} %{inst_srcdir}/hw/xfree86/utils/xorgconfig/
 
 find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl)$' |
 xargs tar cf - --mode a=r |
-        (cd $RPM_BUILD_ROOT/%{xserver_source_dir} && tar xf -)
+        (cd %{inst_srcdir} && tar xf -)
 
 # FIXME: Remove unwanted files/dirs
 {
@@ -596,13 +589,14 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 
 %files source
-%{xserver_source_dir}
 %defattr(-, root, root, -)
+%{xserver_source_dir}
 
 
 %changelog
 * Mon Feb 26 2007 Adam Tkac <atkac@redhat.com> 1.2.0-9
-- created new package (xorg-x11-server-source) which is needed to build VNC server
+- Created new package (xorg-x11-server-source) which is needed to build VNC
+  server.
 
 * Fri Feb 23 2007 Adam Jackson <ajax@redhat.com> 1.2.0-8
 - xserver-1.2.0-proper-randr-version.patch: Report the RANDR version we
