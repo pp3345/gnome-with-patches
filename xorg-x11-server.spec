@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.0
-Release:   8%{?dist}
+Release:   9%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -237,6 +237,12 @@ outside of the standard X11 source code tree.  Developers writing video
 drivers, input drivers, or other X modules should install this package.
 %endif
 
+%package source
+Summary: Xserver source code required to build VNC server (Xvnc)
+Group: Development/Libraries
+
+%description source
+Xserver source code needed to build VNC server (Xvnc)
 
 %prep
 %setup -q -n %{pkgname}-%{version}
@@ -332,6 +338,29 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
     done
 }
 %endif
+
+%define xserver_source_dir %{_datadir}/xorg-x11-server-source
+mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}
+cp cpprules.in $RPM_BUILD_ROOT/%{xserver_source_dir}
+mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/Xext
+cp Xext/SecurityPolicy $RPM_BUILD_ROOT/%{xserver_source_dir}/Xext
+mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/xkb
+cp xkb/README.compiled $RPM_BUILD_ROOT/%{xserver_source_dir}/xkb
+mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/GL
+cp GL/symlink-mesa.sh $RPM_BUILD_ROOT/%{xserver_source_dir}/GL
+mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86
+cp hw/xfree86/xorgconf.cpp $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86
+cp hw/xfree86/Options $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86
+mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/common
+cp hw/xfree86/common/vesamodes  $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/common
+cp hw/xfree86/common/extramodes  $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/common
+mkdir -p $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/utils/xorgconfig/
+cp hw/xfree86/utils/xorgconfig/Cards $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/utils/xorgconfig/
+cp hw/xfree86/utils/xorgconfig/Cards98 $RPM_BUILD_ROOT/%{xserver_source_dir}/hw/xfree86/utils/xorgconfig/
+
+find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl)$' |
+xargs tar cf - --mode a=r |
+        (cd $RPM_BUILD_ROOT/%{xserver_source_dir} && tar xf -)
 
 # FIXME: Remove unwanted files/dirs
 {
@@ -566,8 +595,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/xorg-server.m4
 %endif
 
+%files source
+%{xserver_source_dir}
+%defattr(-, root, root, -)
+
 
 %changelog
+* Mon Feb 26 2007 Adam Tkac <atkac@redhat.com> 1.2.0-9
+- created new package (xorg-x11-server-source) which is needed to build VNC server
+
 * Fri Feb 23 2007 Adam Jackson <ajax@redhat.com> 1.2.0-8
 - xserver-1.2.0-proper-randr-version.patch: Report the RANDR version we
   actually implement, instead of the version defined by the protocol headers.
