@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.0
-Release:   9%{?dist}
+Release:   10%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -352,8 +352,7 @@ cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
 cp hw/xfree86/utils/xorgconfig/Cards{,98} %{inst_srcdir}/hw/xfree86/utils/xorgconfig/
 
 find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl)$' |
-xargs tar cf - --mode a=r |
-        (cd %{inst_srcdir} && tar xf -)
+xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
 
 # FIXME: Remove unwanted files/dirs
 {
@@ -594,6 +593,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Mar 02 2007 Adam Tkac <atkac@redhat.com> 1.2.0-10
+- change permissions of files in source package to default from read-only
+
 * Mon Feb 26 2007 Adam Tkac <atkac@redhat.com> 1.2.0-9
 - Created new package (xorg-x11-server-source) which is needed to build VNC
   server.
