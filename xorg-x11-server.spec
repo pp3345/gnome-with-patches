@@ -8,8 +8,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.2.0
-Release:   10%{?dist}
+Version:   1.2.99.901
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -47,15 +47,10 @@ Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
 Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
 Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
 Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
-Patch1010:  xserver-1.2.0-proper-randr-version.patch
 
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
 Patch2003:  xserver-1.2.0-vfprintf.patch
-Patch2004:  xserver-1.2.0-xfixes-clientgone-check.patch
-Patch2005:  xserver-1.2.0-os-memory-leak.patch
-Patch2006:  xserver-1.2.0-int10-rdtsc.patch
-Patch2007:  xserver-1.2.0-glcore-visual-count.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -271,15 +266,10 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch1007 -p1 -b .xf1bpp
 %patch1008 -p1 -b .comment-less
 %patch1009 -p1 -b .maxpixclock
-%patch1010 -p1 -b .randr-version
 
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
 %patch2003 -p1 -b .vfprintf
-%patch2004 -p1 -b .clientgone
-%patch2005 -p1 -b .osclient
-%patch2006 -p1 -b .rdtsc
-%patch2007 -p1 -b .glcore-crash
 
 %build
 
@@ -315,7 +305,7 @@ aclocal ; automake -a ; autoconf
 %endif
 	${CONFIGURE}
 
-make %{?_smp_mflags}
+make -s %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -323,8 +313,6 @@ make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
 
 
 %if %{with_hw_servers}
-# FIXME: This should be done upstream, so it's one less thing to hack.
-# Make these directories now so the Xorg package can own them.
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
 # Install the vesamodes and extramodes files to let our install/config tools
@@ -354,27 +342,17 @@ cp hw/xfree86/utils/xorgconfig/Cards{,98} %{inst_srcdir}/hw/xfree86/utils/xorgco
 find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl)$' |
 xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
 
-# FIXME: Remove unwanted files/dirs
+# Remove unwanted files/dirs
 {
     rm -f $RPM_BUILD_ROOT%{_bindir}/xorgconfig
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/xorgconfig.1*
     rm -f $RPM_BUILD_ROOT%{_libdir}/X11/Cards
     rm -f $RPM_BUILD_ROOT%{_libdir}/X11/Options
-    rm -f $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/cfg.sample
-    rm -f $RPM_BUILD_ROOT%{_libdir}/X11/getconfig/xorg.cfg
-    rm -f $RPM_BUILD_ROOT%{_bindir}/getconfig
-    rm -f $RPM_BUILD_ROOT%{_bindir}/getconfig.pl
-    rm -f $RPM_BUILD_ROOT%{_bindir}/inb
-    rm -f $RPM_BUILD_ROOT%{_bindir}/inl
-    rm -f $RPM_BUILD_ROOT%{_bindir}/inw
+    rm -f $RPM_BUILD_ROOT%{_bindir}/in?
     rm -f $RPM_BUILD_ROOT%{_bindir}/ioport
-    rm -f $RPM_BUILD_ROOT%{_bindir}/outb
-    rm -f $RPM_BUILD_ROOT%{_bindir}/outl
-    rm -f $RPM_BUILD_ROOT%{_bindir}/outw
+    rm -f $RPM_BUILD_ROOT%{_bindir}/out?
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
-    rm -f $RPM_BUILD_ROOT%{_mandir}/man1/getconfig.1*
-    rm -f $RPM_BUILD_ROOT%{_mandir}/man5/getconfig.5*
     # Remove all libtool archives (*.la)
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 
@@ -388,6 +366,7 @@ xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
 #	      /usr/share/aclocal/xorg-server.m4
 #	      /usr/share/man/man1/Xserver.1x.gz
 #	      /var/lib/xkb/README.compiled
+
     rm -f $RPM_BUILD_ROOT/randrstr.h
     rm -rf $RPM_BUILD_ROOT%{_libdir}/pkgconfig
     rm -rf $RPM_BUILD_ROOT%{_datadir}/aclocal
@@ -453,8 +432,6 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_hw_servers}
 %files Xorg
 %defattr(-,root,root,-)
-# FIXME: The build fails to find the Changelog for some reason.
-#%doc ChangeLog
 %{_bindir}/X
 %attr(4711, root, root) %{_bindir}/Xorg
 %{_bindir}/gtf
@@ -490,10 +467,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libafb.so
 %{_libdir}/xorg/modules/libcfb.so
 %{_libdir}/xorg/modules/libcfb32.so
-%{_libdir}/xorg/modules/libddc.so
 %{_libdir}/xorg/modules/libexa.so
 %{_libdir}/xorg/modules/libfb.so
-%{_libdir}/xorg/modules/libi2c.so
 %{_libdir}/xorg/modules/libint10.so
 %{_libdir}/xorg/modules/libmfb.so
 %{_libdir}/xorg/modules/libpcidata.so
@@ -509,16 +484,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libxf8_32bpp.so
 %dir %{_libdir}/xserver
 %{_libdir}/xserver/SecurityPolicy
-#%dir %{_mandir}/man1x
 %{_mandir}/man1/gtf.1*
 %{_mandir}/man1/Xorg.1*
 %{_mandir}/man1/Xserver.1*
 %{_mandir}/man1/cvt.1*
-#%dir %{_mandir}/man4x
-#%{_mandir}/man4/fbdevhw.4*
 %{_mandir}/man4/fbdevhw.4*
 %{_mandir}/man4/exa.4*
-#%dir %{_mandir}/man5x
 %{_mandir}/man5/xorg.conf.5*
 %dir %{_localstatedir}/lib/xkb
 %{_localstatedir}/lib/xkb/README.compiled
@@ -528,7 +499,6 @@ rm -rf $RPM_BUILD_ROOT
 %files Xnest
 %defattr(-,root,root,-)
 %{_bindir}/Xnest
-#%dir %{_mandir}/man1x
 %{_mandir}/man1/Xnest.1*
 %{_mandir}/man1/Xserver.1*
 
@@ -547,7 +517,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/vdltodmx
 %{_bindir}/xdmx
 %{_bindir}/xdmxconfig
-#%dir %{_mandir}/man1x
 %{_mandir}/man1/Xdmx.1*
 %{_mandir}/man1/dmxtodmx.1*
 %{_mandir}/man1/vdltodmx.1*
@@ -558,7 +527,6 @@ rm -rf $RPM_BUILD_ROOT
 %files Xvfb
 %defattr(-,root,root,-)
 %{_bindir}/Xvfb
-#%dir %{_mandir}/man1x
 %{_mandir}/man1/Xvfb.1*
 %{_mandir}/man1/Xserver.1*
 %if !%{with_hw_servers}
@@ -570,9 +538,6 @@ rm -rf $RPM_BUILD_ROOT
 %files Xephyr
 %defattr(-,root,root,-)
 %{_bindir}/Xephyr
-# no manpage yet
-#%dir %{_mandir}/man1x
-#%{_mandir}/man1/Xephyr.1*
 %{_mandir}/man1/Xserver.1*
 
 
@@ -582,7 +547,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libxf86config.a
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
-#%dir %{_includedir}/xorg/sdk
 %{sdkdir}/*.h
 %{_datadir}/aclocal/xorg-server.m4
 %endif
@@ -593,6 +557,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 05 2007 Adam Jackson <ajax@redhat.com> 1.2.99.901-1
+- xserver 1.3 RC1.  RANDR 1.2 hotness in the hizzouse.
+- xserver-1.2.0-honor-displaysize.patch: Honor the DisplaySize config
+  directive again (#220248)
+- Clean up the post-install cleanup
+
 * Fri Mar 02 2007 Adam Tkac <atkac@redhat.com> 1.2.0-10
 - change permissions of files in source package to default from read-only
 
