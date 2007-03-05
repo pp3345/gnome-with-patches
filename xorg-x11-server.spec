@@ -51,6 +51,7 @@ Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
 Patch2003:  xserver-1.2.0-vfprintf.patch
+Patch2004:  xserver-1.2.0-honor-displaysize.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -270,6 +271,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
 %patch2003 -p1 -b .vfprintf
+%patch2004 -p1 -b .displaysize
 
 %build
 
