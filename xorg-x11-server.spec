@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.99.901
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -52,6 +52,7 @@ Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
 Patch2003:  xserver-1.2.0-vfprintf.patch
 Patch2004:  xserver-1.2.0-honor-displaysize.patch
+Patch2005:  xserver-1.2.99.901-xephyr-crash-at-exit.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -272,6 +273,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2002 -p1 -b .xephyr-keysym
 %patch2003 -p1 -b .vfprintf
 %patch2004 -p1 -b .displaysize
+%patch2005 -p1 -b .xephyr-crash
 
 %build
 
@@ -559,6 +561,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Mar 13 2007 Adam Jackson <ajax@redhat.com> 1.2.99.901-2
+- xserver-1.2.99.901-xephyr-crash-at-exit.patch: Fix yet another GLX visual
+  mess. (#231425)
+
 * Mon Mar 05 2007 Adam Jackson <ajax@redhat.com> 1.2.99.901-1
 - xserver 1.3 RC1.  RANDR 1.2 hotness in the hizzouse.
 - xserver-1.2.0-honor-displaysize.patch: Honor the DisplaySize config
