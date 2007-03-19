@@ -8,8 +8,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.2.99.901
-Release:   2%{?dist}
+Version:   1.2.99.902
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -561,6 +561,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 19 2007 Adam Jackson <ajax@redhat.com> 1.2.99.902-1
+- xserver 1.3 RC2.
+
 * Tue Mar 13 2007 Adam Jackson <ajax@redhat.com> 1.2.99.901-2
 - xserver-1.2.99.901-xephyr-crash-at-exit.patch: Fix yet another GLX visual
   mess. (#231425)
