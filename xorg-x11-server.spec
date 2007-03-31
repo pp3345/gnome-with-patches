@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.99.903
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -28,6 +28,7 @@ Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
 Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
 Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
 Patch18:   xorg-x11-server-1.1.1-glcore-visual-matching.patch
+Patch19:   xorg-x11-server-1.2.99-unbreak-domain.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -252,6 +253,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch12 -p1 -b .graphics-expose
 %patch15 -p1 -b .automake-1.10
 %patch18 -p1 -b .glcore-visual
+%patch19 -p1 -b .unbreak-domains
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -560,6 +562,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Mar 30 2007 David Woodhouse <dwmw2@redhat.com> 1.2.99.903-2
+- Fix regression with PCI domains, but disjoint bus numbers (#207659)
+
 * Fri Mar 30 2007 Adam Jackson <ajax@redhat.com> 1.2.99.903-1
 - xserver 1.3 RC3.
 
