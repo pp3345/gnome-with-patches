@@ -8,8 +8,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.2.99.903
-Release:   2%{?dist}
+Version:   1.2.99.905
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -562,6 +562,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Apr 06 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-1
+- xserver 1.3 RC5.
+
 * Fri Mar 30 2007 David Woodhouse <dwmw2@redhat.com> 1.2.99.903-2
 - Fix regression with PCI domains, but disjoint bus numbers (#207659)
 
