@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.99.905
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -28,7 +28,7 @@ Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
 Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
 Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
 Patch18:   xorg-x11-server-1.1.1-glcore-visual-matching.patch
-Patch19:   xorg-x11-server-1.2.99-unbreak-domain.patch
+Patch19:   xserver-1.3.0-xnest-exposures.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -36,6 +36,7 @@ Patch101:  xorg-x11-server-1.1.0-dont-backfill-bg-none.patch
 Patch105:  xorg-x11-server-1.2.0-enable-composite.patch
 Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
 Patch107:  xorg-x11-server-1.1.1-offscreen-pixmaps.patch
+Patch108:  xserver-1.3.0-no-pseudocolor-composite.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -54,6 +55,12 @@ Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
 Patch2003:  xserver-1.2.0-vfprintf.patch
 Patch2004:  xserver-1.2.0-honor-displaysize.patch
 Patch2005:  xserver-1.2.99.901-xephyr-crash-at-exit.patch
+
+# assorted PCI layer shenanigans.  oh the pain.
+Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
+Patch2501:  xserver-1.3.0-pci-bus-count.patch
+Patch2502:  xserver-1.3.0-mmap-failure-check.patch
+Patch2503:  xserver-1.3.0-rom-search.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -253,13 +260,14 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch12 -p1 -b .graphics-expose
 %patch15 -p1 -b .automake-1.10
 %patch18 -p1 -b .glcore-visual
-%patch19 -p1 -b .unbreak-domains
+%patch19 -p1 -b .xnest-expose
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
 %patch105 -p1 -b .enable-composite
 %patch106 -p1 -b .no-xnest-composite
 %patch107 -p1 -b .offscreen-pixmaps
+%patch108 -p1 -b .composite-paranoia
 
 %patch1001 -p1 -b .Red-Hat-extramodes
 %patch1002 -p1 -b .xephyr
@@ -277,9 +285,13 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2004 -p1 -b .displaysize
 %patch2005 -p1 -b .xephyr-crash
 
+%patch2500 -p1 -b .unbreak-domains
+%patch2501 -p1 -b .pci-bus-count
+%patch2502 -p1 -b .mmap-check
+%patch2503 -p1 -b .rom-search
+
 %build
 
-# --disable-dependency-tracking ?
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
 aclocal ; automake -a ; autoconf
@@ -323,14 +335,12 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
 # Install the vesamodes and extramodes files to let our install/config tools
 # be able to parse the same modelist as the X server uses (rhpxl).
-{
-    mkdir -p $RPM_BUILD_ROOT%{_datadir}/xorg
-    for each in vesamodes extramodes ; do
-        install -m 0644 %{SOURCE100} $RPM_BUILD_ROOT%{_datadir}/xorg/$each
-        cat hw/xfree86/common/$each >> $RPM_BUILD_ROOT%{_datadir}/xorg/$each
-        chmod 0444 $RPM_BUILD_ROOT%{_datadir}/xorg/$each
-    done
-}
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/xorg
+for each in vesamodes extramodes ; do
+    install -m 0644 %{SOURCE100} $RPM_BUILD_ROOT%{_datadir}/xorg/$each
+    cat hw/xfree86/common/$each >> $RPM_BUILD_ROOT%{_datadir}/xorg/$each
+    chmod 0444 $RPM_BUILD_ROOT%{_datadir}/xorg/$each
+done
 %endif
 
 # Make the source package
@@ -359,19 +369,18 @@ xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
     rm -f $RPM_BUILD_ROOT%{_bindir}/out?
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
-    # Remove all libtool archives (*.la)
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 
 %ifarch s390 s390x
     # FIXME: The following files get installed on s390/s390x and we don't
     # want some of them on s390 at all, and others should be in a -common
     # subpackage, but it's not worth doing that for 3 files right now.
-#    error: Installed (but unpackaged) file(s) found:
-#	   /randrstr.h
-#	   /usr/lib/pkgconfig/xorg-server.pc
-#	      /usr/share/aclocal/xorg-server.m4
-#	      /usr/share/man/man1/Xserver.1x.gz
-#	      /var/lib/xkb/README.compiled
+    # error: Installed (but unpackaged) file(s) found:
+    #	   /randrstr.h
+    #	   /usr/lib/pkgconfig/xorg-server.pc
+    #	      /usr/share/aclocal/xorg-server.m4
+    #	      /usr/share/man/man1/Xserver.1x.gz
+    #	      /var/lib/xkb/README.compiled
 
     rm -f $RPM_BUILD_ROOT/randrstr.h
     rm -rf $RPM_BUILD_ROOT%{_libdir}/pkgconfig
@@ -386,15 +395,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_hw_servers}
 %pre Xorg
 {
-  # Install/Upgrade section
   pushd /etc/X11
-  # Migrate any pre-existing XFree86 4.x config file to xorg.conf if it
-  # doesn't already exist, and rename any remaining XFree86 4.x config files
-  # to have .obsoleted file extensions, to help avoid end user confusion for
-  # people unaware of the config file name change between server
-  # implementations, and avoid bug reports.  If this turns out to confuse
-  # users, I can modify it to add comments to the top of the obsoleted files
-  # to point users to xorg.conf   <mharris@redhat.com>
   for configfile in XF86Config XF86Config-4 ; do
     if [ -r $configfile ]; then
       if [ -r xorg.conf ]; then
@@ -404,30 +405,14 @@ rm -rf $RPM_BUILD_ROOT
       fi
     fi
   done
-  # Massage pre-existing config files to work properly with X.org X11
-  # - Remove xie and pex5 modules from the config files, as they are long
-  #   since obsolete, and not provided since XFree86 4.2.0
-  # - Remove Option "XkbRules" "xfree86" to help work around upgrade problems
-  #   such as https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=120858
-#  for configfile in xorg.conf ; do
-    configfile="xorg.conf"
-    OLD_MODULEPATH="/usr/X11R6/lib/modules"
-    if [ -r $configfile -a -w $configfile ]; then
-      # Remove module load lines from the config file for obsolete modules
-      perl -p -i -e 's/^.*Load.*"(pex5|xie|xtt).*\n$"//gi' $configfile
-      # Change the keyboard configuration from the deprecated "keyboard"
-      # driver, to the newer "kbd" driver.
-      perl -p -i -e 's/^\s*Driver(.*)"keyboard"/Driver\1"kbd"/gi' $configfile
-      # Remove any Options "XkbRules" lines that may be present
-      perl -p -i -e 's/^.*Option.*"XkbRules".*"(xfree86|xorg)".*\n$//gi' $configfile
-      # Remove RgbPath specifications from the config file as they are
-      # unnecessary, and break upgrades from monolithic to modular X.
-      # Fixes bugs (#173036, 173435, 173453, 173428)
-      perl -p -i -e 's#^\s*RgbPath.*$##gi' $configfile
-      # If ModulePath is specified in the config file, delete it.
-      perl -p -i -e 's#^\s*ModulePath.*$##gi' $configfile
-    fi
-#  done
+  configfile="xorg.conf"
+  if [ -r xorg.conf -a -w xorg.conf ]; then
+    perl -p -i -e 's/^.*Load.*"(pex5|xie|xtt).*\n$"//gi' xorg.conf
+    perl -p -i -e 's/^\s*Driver(.*)"keyboard"/Driver\1"kbd"/gi' xorg.conf
+    perl -p -i -e 's/^.*Option.*"XkbRules".*"(xfree86|xorg)".*\n$//gi' xorg.conf
+    perl -p -i -e 's#^\s*RgbPath.*$##gi' xorg.conf
+    perl -p -i -e 's#^\s*ModulePath.*$##gi' xorg.conf
+  fi
   popd
 } &> /dev/null || :
 %endif
@@ -562,6 +547,19 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Apr 09 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-2
+- xserver-1.3.0-pci-bus-count.patch: Allocate the PCI bus array dynamically,
+  so as not to run off the end of it.
+- xserver-1.3.0-mmap-failure-check.patch: Check for failure when mmap'ing
+  bus memory. (#234073)
+- xserver-1.3.0-rom-search.patch: Look for the sysfs ROM file in the (flat)
+  /sys/bus/pci/devices tree, instead of the (bus-topological) /sys/devices,
+  so we don't fail to find ROMs merely because they're behind a bridge.
+- xserver-1.3.0-no-pseudocolor-composite.patch: Refuse to initialize
+  Composite when Render is missing or when the root window is using
+  a pseudocolor visual. (#217388)
+- xserver-1.3.0-xnest-exposures.patch: Fix Motif app redraw in Xnest. (#229350)
+
 * Fri Apr 06 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-1
 - xserver 1.3 RC5.
 
