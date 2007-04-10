@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.99.905
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -29,6 +29,7 @@ Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
 Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
 Patch18:   xorg-x11-server-1.1.1-glcore-visual-matching.patch
 Patch19:   xserver-1.3.0-xnest-exposures.patch
+Patch20:   xserver-1.3.0-x86emu-imul-int64.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -61,6 +62,7 @@ Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
 Patch2501:  xserver-1.3.0-pci-bus-count.patch
 Patch2502:  xserver-1.3.0-mmap-failure-check.patch
 Patch2503:  xserver-1.3.0-rom-search.patch
+Patch2504:  xserver-1.3.0-domain-obiwan.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -261,6 +263,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch15 -p1 -b .automake-1.10
 %patch18 -p1 -b .glcore-visual
 %patch19 -p1 -b .xnest-expose
+%patch20 -p1 -b .x86emu-imul
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -289,6 +292,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2501 -p1 -b .pci-bus-count
 %patch2502 -p1 -b .mmap-check
 %patch2503 -p1 -b .rom-search
+%patch2504 -p1 -b .domain-obiwan
 
 %build
 
@@ -547,6 +551,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Apr 10 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-3
+- xserver-1.3.0-domain-obiwan.patch: Fix a PCI domain off-by-one. (#235861)
+- xserver-1.3.0-x86emu-imul-int64.patch: Fix imul in x86emu. (#235861)
+
 * Mon Apr 09 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-2
 - xserver-1.3.0-pci-bus-count.patch: Allocate the PCI bus array dynamically,
   so as not to run off the end of it.
