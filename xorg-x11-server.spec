@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.99.905
-Release:   3%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -50,6 +50,7 @@ Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
 Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
 Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
 Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
+Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
 
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
@@ -281,6 +282,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch1007 -p1 -b .xf1bpp
 %patch1008 -p1 -b .comment-less
 %patch1009 -p1 -b .maxpixclock
+%patch1010 -p1 -b .prerelease-warning
 
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
@@ -551,6 +553,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Apr 11 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-4
+- xserver-1.3.0-no-prerelease-warning.patch: Hush the useless prerelease
+  warning if we happen to be building one (and even if not).
+
 * Tue Apr 10 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-3
 - xserver-1.3.0-domain-obiwan.patch: Fix a PCI domain off-by-one. (#235861)
 - xserver-1.3.0-x86emu-imul-int64.patch: Fix imul in x86emu. (#235861)
