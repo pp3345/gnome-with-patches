@@ -58,6 +58,8 @@ Patch2003:  xserver-1.2.0-vfprintf.patch
 Patch2004:  xserver-1.2.0-honor-displaysize.patch
 Patch2005:  xserver-1.2.99.901-xephyr-crash-at-exit.patch
 
+Patch9999: fuck-the-kernel.patch
+
 # assorted PCI layer shenanigans.  oh the pain.
 Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
 Patch2501:  xserver-1.3.0-pci-bus-count.patch
@@ -295,6 +297,8 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2502 -p1 -b .mmap-check
 %patch2503 -p1 -b .rom-search
 %patch2504 -p1 -b .domain-obiwan
+
+%patch9999 -p1 -b .jx
 
 %build
 
