@@ -64,6 +64,7 @@ Patch2501:  xserver-1.3.0-pci-bus-count.patch
 Patch2502:  xserver-1.3.0-mmap-failure-check.patch
 Patch2503:  xserver-1.3.0-rom-search.patch
 Patch2504:  xserver-1.3.0-domain-obiwan.patch
+Patch2505:  xserver-1.3.0-pci-device-enable.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -295,6 +296,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2502 -p1 -b .mmap-check
 %patch2503 -p1 -b .rom-search
 %patch2504 -p1 -b .domain-obiwan
+%patch2505 -p1 -b .device-enable
 
 %build
 
@@ -556,6 +558,8 @@ rm -rf $RPM_BUILD_ROOT
 * Wed Apr 11 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-4
 - xserver-1.3.0-no-prerelease-warning.patch: Hush the useless prerelease
   warning if we happen to be building one (and even if not).
+- xserver-1.3.0-pci-device-enable.patch: Make sure the PCI device is enabled
+  in sysfs before we start touching it, otherwise, armageddon.
 
 * Tue Apr 10 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-3
 - xserver-1.3.0-domain-obiwan.patch: Fix a PCI domain off-by-one. (#235861)
