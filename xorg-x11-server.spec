@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.2.99.905
-Release:   4%{?dist}
+Release:   5%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -65,6 +65,9 @@ Patch2502:  xserver-1.3.0-mmap-failure-check.patch
 Patch2503:  xserver-1.3.0-rom-search.patch
 Patch2504:  xserver-1.3.0-domain-obiwan.patch
 Patch2505:  xserver-1.3.0-pci-device-enable.patch
+
+# XXX should be dropped when 1.3 releases
+Patch99999: xserver-rc5-to-now.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -297,6 +300,8 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2503 -p1 -b .rom-search
 %patch2504 -p1 -b .domain-obiwan
 %patch2505 -p1 -b .device-enable
+
+%patch99999 -p1 -b .git
 
 %build
 
@@ -555,6 +560,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Apr 13 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-5
+- xserver-rc5-to-now.patch: Updates from git.
+
 * Wed Apr 11 2007 Adam Jackson <ajax@redhat.com> 1.2.99.905-4
 - xserver-1.3.0-no-prerelease-warning.patch: Hush the useless prerelease
   warning if we happen to be building one (and even if not).
