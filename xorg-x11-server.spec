@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -57,6 +57,7 @@ Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
 Patch2003:  xserver-1.2.0-vfprintf.patch
 Patch2004:  xserver-1.2.0-honor-displaysize.patch
 Patch2005:  xserver-1.2.99.901-xephyr-crash-at-exit.patch
+Patch2006:  xserver-1.3.0-less-randr-fakerama.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
 Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
@@ -290,6 +291,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2003 -p1 -b .vfprintf
 %patch2004 -p1 -b .displaysize
 %patch2005 -p1 -b .xephyr-crash
+%patch2006 -p1 -b .fakerama
 
 %patch2500 -p1 -b .unbreak-domains
 %patch2501 -p1 -b .pci-bus-count
@@ -555,6 +557,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Apr 25 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-2
+- xserver-1.3.0-less-randr-fakerama.patch: Disable RANDR's fake Xinerama
+  geometry when there's more than one protocol screen. (#231257)
+
 * Mon Apr 23 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-1
 - xserver 1.3.0.
 
