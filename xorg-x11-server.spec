@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -30,6 +30,7 @@ Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
 Patch18:   xorg-x11-server-1.1.1-glcore-visual-matching.patch
 Patch19:   xserver-1.3.0-xnest-exposures.patch
 Patch20:   xserver-1.3.0-x86emu-imul-int64.patch
+Patch21:   xserver-1.3.0-xkb-and-loathing.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -90,7 +91,14 @@ BuildRequires: automake autoconf libtool
 
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
+
 BuildRequires: xorg-x11-proto-devel >= 7.1-11
+BuildRequires: randrproto >= 1.2
+BuildRequires: fixesproto >= 4.0
+BuildRequires: damageproto >= 1.1
+BuildRequires: scrnsaverproto >= 1.1
+BuildRequires: kbproto >= 1.0.3
+
 BuildRequires: xorg-x11-xtrans-devel
 BuildRequires: libXfont-devel
 BuildRequires: libXau-devel
@@ -267,6 +275,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch18 -p1 -b .glcore-visual
 %patch19 -p1 -b .xnest-expose
 %patch20 -p1 -b .x86emu-imul
+%patch21 -p1 -b .xkb-signal-loathing
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -557,6 +566,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Apr 30 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-3
+- xserver-1.3.0-xkb-and-loathing.patch: Ignore (not just block) SIGALRM
+  around calls to Popen()/Pclose().  Fixes a hang in openoffice when
+  opening menus.
+- Modify BuildRequires to use the virtual protocol Provides.
+
 * Wed Apr 25 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-2
 - xserver-1.3.0-less-randr-fakerama.patch: Disable RANDR's fake Xinerama
   geometry when there's more than one protocol screen. (#231257)
