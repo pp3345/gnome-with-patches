@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   3%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -59,6 +59,7 @@ Patch2003:  xserver-1.2.0-vfprintf.patch
 Patch2004:  xserver-1.2.0-honor-displaysize.patch
 Patch2005:  xserver-1.2.99.901-xephyr-crash-at-exit.patch
 Patch2006:  xserver-1.3.0-less-randr-fakerama.patch
+Patch2007: xserver-1.3.0-randr12-config-hack.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
 Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
@@ -301,6 +302,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2004 -p1 -b .displaysize
 %patch2005 -p1 -b .xephyr-crash
 %patch2006 -p1 -b .fakerama
+%patch2007 -p1 -b .randrconfig
 
 %patch2500 -p1 -b .unbreak-domains
 %patch2501 -p1 -b .pci-bus-count
@@ -566,6 +568,14 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon May 07 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-4
+- xorg-x11-server-1.1.1-offscreen-pixmaps.patch: Fix a crash when activating
+  GLX_EXT_texture_from_pixmap without XAA.
+- xserver-1.3.0-randr12-config-hack.patch: If a Modes line is given in
+  the Screen section, and no PreferredMode option is given for a RANDR 1.2
+  monitor, use the first mode in the Modes line as the preferred mode.
+  Fixes anaconda ugliness on monitors larger than 800x600. (#238991)
+
 * Mon Apr 30 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-3
 - xserver-1.3.0-xkb-and-loathing.patch: Ignore (not just block) SIGALRM
   around calls to Popen()/Pclose().  Fixes a hang in openoffice when
