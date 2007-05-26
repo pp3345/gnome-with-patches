@@ -1,4 +1,4 @@
-# FC7 cleanups: (TODO)
+# F8 TODO list:
 #
 # Fix rhpxl to no longer need vesamodes/extramodes
 # RHEL5 bugfix sync
@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   5%{?dist}
+Release:   6%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -247,6 +247,7 @@ Group: User Interface/X
 Obsoletes: XFree86-sdk xorg-x11-sdk
 Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
+Requires: pkgconfig
 Requires(pre): xorg-x11-filesystem >= 0.99.2-3
 Provides: libxf86config-devel = %{version}-%{release}
 
@@ -570,6 +571,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat May 26 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-6
+- Make sdk subpackage Require: pkgconfig.  Spotted in review for
+  xorg-x11-drv-apm. (#226577)
+
 * Fri May 11 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-5
 - xserver-1.3.0-fbdevhw-magic-numbers.patch: If the fbdev driver claims to
   have a zero pixel clock, believe it.  Fixes Xen paravirt. (#238451)
