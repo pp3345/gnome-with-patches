@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   6%{?dist}
+Release:   6%{?dist}.jx
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -60,7 +60,9 @@ Patch2003:  xserver-1.2.0-vfprintf.patch
 Patch2004:  xserver-1.2.0-honor-displaysize.patch
 Patch2005:  xserver-1.2.99.901-xephyr-crash-at-exit.patch
 Patch2006:  xserver-1.3.0-less-randr-fakerama.patch
-Patch2007: xserver-1.3.0-randr12-config-hack.patch
+Patch2007:  xserver-1.3.0-randr12-config-hack.patch
+Patch2008:  xserver-1.3.0-randrama-no-zero-screens.patch
+Patch2009:  xserver-1.3.0-arm-iopl.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
 Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
@@ -306,6 +308,8 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2005 -p1 -b .xephyr-crash
 %patch2006 -p1 -b .fakerama
 %patch2007 -p1 -b .randrconfig
+%patch2008 -p1 -b .randrama-zero-screens
+%patch2009 -p1 -b .arm
 
 %patch2500 -p1 -b .unbreak-domains
 %patch2501 -p1 -b .pci-bus-count
@@ -571,6 +575,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jun 04 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-7
+- xserver-1.3.0-randrama-no-zero-screens.patch: For RANDR 1.2's fake
+  Xinerama info, don't report Xinerama as being active if there are no
+  RANDR 1.2 CRTCs active for that screen.  (#234567)
+- xserver-1.3.0-arm-iopl.patch: Add __arm__ conditionals to many #ifdefs.
+
+* Thu May 31 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-7
+- 
+
 * Sat May 26 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-6
 - Make sdk subpackage Require: pkgconfig.  Spotted in review for
   xorg-x11-drv-apm. (#226577)
