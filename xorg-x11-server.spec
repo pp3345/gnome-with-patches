@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   6%{?dist}.jx
+Release:   7%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -580,9 +580,6 @@ rm -rf $RPM_BUILD_ROOT
   Xinerama info, don't report Xinerama as being active if there are no
   RANDR 1.2 CRTCs active for that screen.  (#234567)
 - xserver-1.3.0-arm-iopl.patch: Add __arm__ conditionals to many #ifdefs.
-
-* Thu May 31 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-7
-- 
 
 * Sat May 26 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-6
 - Make sdk subpackage Require: pkgconfig.  Spotted in review for
