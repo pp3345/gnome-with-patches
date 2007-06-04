@@ -1,0 +1,53 @@
+--- xorg-server-1.3.0.0/hw/xfree86/common/xf86Bus.c.arm	2007-02-17 20:37:56.000000000 -0500
++++ xorg-server-1.3.0.0/hw/xfree86/common/xf86Bus.c	2007-06-04 11:33:14.000000000 -0400
+@@ -3006,7 +3006,7 @@
+     
+ }
+ 
+-#if !defined(__sparc) && !defined(__sparc__) && !defined(__powerpc__) && !defined(__mips__)
++#if !defined(__sparc) && !defined(__sparc__) && !defined(__powerpc__) && !defined(__mips__) && !defined(__arm__)
+ #include "vgaHW.h"
+ #include "compiler.h"
+ #endif
+@@ -3018,7 +3018,7 @@
+ CheckGenericGA()
+ {
+ /* This needs to be changed for multiple domains */
+-#if !defined(__sparc__) && !defined(__sparc) && !defined(__powerpc__) && !defined(__mips__) && !defined(__ia64__) && !defined(__arm__) && !defined(__s390__)
++#if !defined(__sparc__) && !defined(__sparc) && !defined(__powerpc__) && !defined(__mips__) && !defined(__ia64__) && !defined(__arm__) && !defined(__s390__) && !defined(__arm__)
+     IOADDRESS GenericIOBase = VGAHW_GET_IOBASE();
+     CARD8 CurrentValue, TestValue;
+ 
+--- xorg-server-1.3.0.0/hw/xfree86/os-support/linux/lnx_video.c.arm	2006-09-18 02:04:18.000000000 -0400
++++ xorg-server-1.3.0.0/hw/xfree86/os-support/linux/lnx_video.c	2007-06-04 11:35:21.000000000 -0400
+@@ -62,7 +62,8 @@
+ #elif !defined(__powerpc__) && \
+       !defined(__mc68000__) && \
+       !defined(__sparc__) && \
+-      !defined(__mips__)
++      !defined(__mips__) && \
++      !defined(__arm__)
+ 
+ /*
+  * Due to conflicts with "compiler.h", don't rely on <sys/io.h> to declare
+@@ -567,7 +568,7 @@
+ #endif
+ 	}
+ 	close(fd);
+-#elif !defined(__mc68000__) && !defined(__sparc__) && !defined(__mips__) && !defined(__sh__) && !defined(__hppa__)
++#elif !defined(__mc68000__) && !defined(__sparc__) && !defined(__mips__) && !defined(__sh__) && !defined(__hppa__) && !defined(__arm__)
+         if (ioperm(0, 1024, 1) || iopl(3)) {
+                 if (errno == ENODEV)
+                         ErrorF("xf86EnableIOPorts: no I/O ports found\n");
+--- xorg-server-1.3.0.0/hw/xfree86/os-support/misc/SlowBcopy.c.arm	2006-09-18 02:04:18.000000000 -0400
++++ xorg-server-1.3.0.0/hw/xfree86/os-support/misc/SlowBcopy.c	2007-06-04 11:31:28.000000000 -0400
+@@ -35,7 +35,8 @@
+ #if !defined(__sparc__) && \
+     !defined(__powerpc__) && \
+     !defined(__mips__) && \
+-    !defined(__ia64__)
++    !defined(__ia64__) && \
++    !defined(__arm__)
+ 	outb(0x80, 0x00);
+ #endif
+     }
