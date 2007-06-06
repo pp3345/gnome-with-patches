@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   7%{?dist}
+Release:   8%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -32,6 +32,7 @@ Patch19:   xserver-1.3.0-xnest-exposures.patch
 Patch20:   xserver-1.3.0-x86emu-imul-int64.patch
 Patch21:   xserver-1.3.0-xkb-and-loathing.patch
 Patch22:   xserver-1.3.0-fbdevhw-magic-numbers.patch
+Patch23:   xserver-1.3.0-ramdac-export.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -282,6 +283,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch20 -p1 -b .x86emu-imul
 %patch21 -p1 -b .xkb-signal-loathing
 %patch22 -p1 -b .magic-numbers
+%patch23 -p1 -b .ramdac
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -575,6 +577,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jun 06 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-8
+- xserver-1.3.0-ramdac-export.patch: Make sure the old ramdac symbols are
+  exported, since they're in-server now. (#242800)
+
 * Mon Jun 04 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-7
 - xserver-1.3.0-randrama-no-zero-screens.patch: For RANDR 1.2's fake
   Xinerama info, don't report Xinerama as being active if there are no
