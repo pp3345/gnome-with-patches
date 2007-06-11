@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   8%{?dist}
+Release:   9%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -33,6 +33,7 @@ Patch20:   xserver-1.3.0-x86emu-imul-int64.patch
 Patch21:   xserver-1.3.0-xkb-and-loathing.patch
 Patch22:   xserver-1.3.0-fbdevhw-magic-numbers.patch
 Patch23:   xserver-1.3.0-ramdac-export.patch
+Patch24:   xserver-1.3.0-reput-video.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -284,6 +285,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch21 -p1 -b .xkb-signal-loathing
 %patch22 -p1 -b .magic-numbers
 %patch23 -p1 -b .ramdac
+%patch24 -p1 -b .reput
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -577,6 +579,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jun 11 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-9
+- xserver-1.3.0-reput-video.patch: Don't crash when minimizing an Xv
+  window. (#241214)
+
 * Wed Jun 06 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-8
 - xserver-1.3.0-ramdac-export.patch: Make sure the old ramdac symbols are
   exported, since they're in-server now. (#242800)
