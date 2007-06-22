@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   9%{?dist}
+Release:   10%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -136,7 +136,6 @@ BuildRequires: libXpm-devel
 BuildRequires: libXaw-devel
 BuildRequires: libXfixes-devel
 
-BuildRequires: xorg-x11-font-utils >= 1.0.0-1
 BuildRequires: mesa-libGL-devel >= 6.5.2
 BuildRequires: mesa-source >= 6.5.2
 # XXX silly...
@@ -146,6 +145,9 @@ Requires: libdrm >= 2.3.0
 %endif
 
 BuildRequires: libselinux-devel
+
+# Make sure libXfont has the catalogue FPE
+Requires: libXfont >= 1.2.9
 
 # Make sure we pull ABI compatible drivers.
 Conflicts: xorg-x11-drv-ati < 6.6.1
@@ -338,7 +340,7 @@ aclocal ; automake -a ; autoconf
 	--enable-xcsecurity \
 	--enable-xevie \
 	--with-int10=x86emu \
-	--with-default-font-path="unix/:7100,built-ins" \
+	--with-default-font-path="catalogue:/etc/X11/fontpath.d,built-ins" \
 	--with-module-dir=%{moduledir} \
 	--with-os-name="Fedora Core 7" \
 	--with-os-vendor="Red Hat, Inc." \
@@ -347,7 +349,6 @@ aclocal ; automake -a ; autoconf
 	--with-rgb-path=%{_datadir}/X11/rgb \
 	--disable-xorgcfg \
 	--enable-install-libxf86config \
-	--with-fontdir=%(pkg-config --variable=fontdir fontutil) \
 	--with-mesa-source=%{_datadir}/mesa/source \
 %if %{with_hw_servers}
 	--enable-dri \
@@ -579,6 +580,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jun 22 2007 Kristian Høgsberg <krh@redhat.com> - 1.3.0.0-10
+- Change the default font path to catalogue:/etc/X11/fontpath.d,built-ins
+- Drop build dependency xorg-x11-font-utils.
+
 * Mon Jun 11 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-9
 - xserver-1.3.0-reput-video.patch: Don't crash when minimizing an Xv
   window. (#241214)
