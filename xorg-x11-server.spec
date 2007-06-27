@@ -177,7 +177,7 @@ Requires: xorg-x11-drv-void xorg-x11-drv-evdev
 Requires: xkbdata xkbcomp
 Obsoletes: XFree86 xorg-x11
 # These drivers were dropped in F7 for being broken, so uninstall them.
-ObsoletesL xorg-x11-drv-elo2300 <= 1.1.0-2.fc7
+Obsoletes: xorg-x11-drv-elo2300 <= 1.1.0-2.fc7
 Obsoletes: xorg-x11-drv-joystick <= 1.1.0-2.fc7
 
 %description Xorg
