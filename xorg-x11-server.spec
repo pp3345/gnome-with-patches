@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   10%{?dist}
+Release:   11%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -176,6 +176,9 @@ Requires: xorg-x11-drv-void xorg-x11-drv-evdev
 # virtuals.  XXX fix the xkbcomp fork() upstream.
 Requires: xkbdata xkbcomp
 Obsoletes: XFree86 xorg-x11
+# These drivers were dropped in F7 for being broken, so uninstall them.
+ObsoletesL xorg-x11-drv-elo2300 <= 1.1.0-2.fc7
+Obsoletes: xorg-x11-drv-joystick <= 1.1.0-2.fc7
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -580,6 +583,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jun 27 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-11
+- Obsolete the joystick and elo2300 drivers, they never worked and shouldn't
+  be installed.
+
 * Fri Jun 22 2007 Kristian Høgsberg <krh@redhat.com> - 1.3.0.0-10
 - Change the default font path to catalogue:/etc/X11/fontpath.d,built-ins
 - Drop build dependency xorg-x11-font-utils.
