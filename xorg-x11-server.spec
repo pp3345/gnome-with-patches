@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   11%{?dist}
+Release:   12%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -431,25 +431,30 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_hw_servers}
 %pre Xorg
 {
-  pushd /etc/X11
-  for configfile in XF86Config XF86Config-4 ; do
-    if [ -r $configfile ]; then
-      if [ -r xorg.conf ]; then
-        mv -f $configfile $configfile.obsoleted
-    else
-        mv -f $configfile xorg.conf
-      fi
-    fi
-  done
-  configfile="xorg.conf"
-  if [ -r xorg.conf -a -w xorg.conf ]; then
+    pushd /etc/X11
+
+    for configfile in XF86Config XF86Config-4 ; do
+	if [ -r $configfile ]; then
+	    if [ -r xorg.conf ]; then
+		mv -f $configfile $configfile.obsoleted
+	    else
+		mv -f $configfile xorg.conf
+	    fi
+	fi
+    done
+
+    [ -e xorg.conf ] || return 0
+
     perl -p -i -e 's/^.*Load.*"(pex5|xie|xtt).*\n$"//gi' xorg.conf
     perl -p -i -e 's/^\s*Driver(.*)"keyboard"/Driver\1"kbd"/gi' xorg.conf
     perl -p -i -e 's/^.*Option.*"XkbRules".*"(xfree86|xorg)".*\n$//gi' xorg.conf
     perl -p -i -e 's#^\s*RgbPath.*$##gi' xorg.conf
-    perl -p -i -e 's#^\s*ModulePath.*$##gi' xorg.conf
-  fi
-  popd
+    # lame, the nvidia driver needs to override this
+    if ! grep -q 'ModulePath.*nvidia' xorg.conf ; then
+      perl -p -i -e 's#^\s*ModulePath.*$##gi' xorg.conf
+    fi
+
+    popd
 } &> /dev/null || :
 %endif
 
@@ -583,6 +588,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jun 27 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-12
+- Tweak %%post Xorg slightly to not demolish ModulePath lines installed by
+  the nvidia driver.  (#244359)
+
 * Wed Jun 27 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-11
 - Obsolete the joystick and elo2300 drivers, they never worked and shouldn't
   be installed.
