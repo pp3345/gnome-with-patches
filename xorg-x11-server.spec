@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   12%{?dist}
+Release:   13%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -65,6 +65,7 @@ Patch2006:  xserver-1.3.0-less-randr-fakerama.patch
 Patch2007:  xserver-1.3.0-randr12-config-hack.patch
 Patch2008:  xserver-1.3.0-randrama-no-zero-screens.patch
 Patch2009:  xserver-1.3.0-arm-iopl.patch
+Patch2010:  xserver-1.3.0-idletime.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
 Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
@@ -319,6 +320,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2007 -p1 -b .randrconfig
 %patch2008 -p1 -b .randrama-zero-screens
 %patch2009 -p1 -b .arm
+%patch2010 -p1 -b .idletime
 
 %patch2500 -p1 -b .unbreak-domains
 %patch2501 -p1 -b .pci-bus-count
@@ -328,6 +330,12 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2505 -p1 -b .device-enable
 
 %build
+
+%if %{fedora} == 7
+%define default_font_path "unix/:7100,catalogue:/etc/X11/fontpath.d,built-ins"
+%else
+%define default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
+%endif
 
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
@@ -343,7 +351,7 @@ aclocal ; automake -a ; autoconf
 	--enable-xcsecurity \
 	--enable-xevie \
 	--with-int10=x86emu \
-	--with-default-font-path="catalogue:/etc/X11/fontpath.d,built-ins" \
+	--with-default-font-path=%{default_font_path} \
 	--with-module-dir=%{moduledir} \
 	--with-os-name="Fedora Core 7" \
 	--with-os-vendor="Red Hat, Inc." \
@@ -588,6 +596,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jul 02 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-13
+- Add IDLETIME sync counter for great powersaving justice.
+- Conditionalise default font path for F7 spec compatibility.
+
 * Wed Jun 27 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-12
 - Tweak %%post Xorg slightly to not demolish ModulePath lines installed by
   the nvidia driver.  (#244359)
