@@ -311,7 +311,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch1008 -p1 -b .comment-less
 %patch1009 -p1 -b .maxpixclock
 %patch1010 -p1 -b .prerelease-warning
-%patch1010 -p1 -b .composite-version
+%patch1011 -p1 -b .composite-version
 
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
