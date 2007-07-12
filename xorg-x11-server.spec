@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   13%{?dist}
+Release:   14%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -55,6 +55,7 @@ Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
 Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
 Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
+Patch1011:  xserver-1.3.0-composite-version.patch
 
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
@@ -310,6 +311,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch1008 -p1 -b .comment-less
 %patch1009 -p1 -b .maxpixclock
 %patch1010 -p1 -b .prerelease-warning
+%patch1010 -p1 -b .composite-version
 
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
@@ -596,6 +598,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jul 12 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-14
+- xserver-1.3.0-composite-version.patch: Force the server to report the
+  Composite extension version it supports, not simply the version defined
+  by the protocol headers it was built against.
+
 * Mon Jul 02 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-13
 - Add IDLETIME sync counter for great powersaving justice.
 - Conditionalise default font path for F7 spec compatibility.
