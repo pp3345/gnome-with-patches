@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   14%{?dist}
+Release:   15%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -67,6 +67,7 @@ Patch2007:  xserver-1.3.0-randr12-config-hack.patch
 Patch2008:  xserver-1.3.0-randrama-no-zero-screens.patch
 Patch2009:  xserver-1.3.0-arm-iopl.patch
 Patch2010:  xserver-1.3.0-idletime.patch
+Patch2011:  xserver-1.3.0-edid-quirk-backports.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
 Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
@@ -323,6 +324,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2008 -p1 -b .randrama-zero-screens
 %patch2009 -p1 -b .arm
 %patch2010 -p1 -b .idletime
+%patch2011 -p1 -b .edid-quirks
 
 %patch2500 -p1 -b .unbreak-domains
 %patch2501 -p1 -b .pci-bus-count
@@ -598,6 +600,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jul 12 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-15
+- xserver-1.3.0-edid-quirk-backports.patch: Backport EDID quirks from
+  master; fixes some Samsung monitors. (#232810)
+
 * Thu Jul 12 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-14
 - xserver-1.3.0-composite-version.patch: Force the server to report the
   Composite extension version it supports, not simply the version defined
