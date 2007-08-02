@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   15%{?dist}
+Release:   16%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -68,6 +68,7 @@ Patch2008:  xserver-1.3.0-randrama-no-zero-screens.patch
 Patch2009:  xserver-1.3.0-arm-iopl.patch
 Patch2010:  xserver-1.3.0-idletime.patch
 Patch2011:  xserver-1.3.0-edid-quirk-backports.patch
+Patch2012:  xserver-1.3.0-add-really-slow-bcopy.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
 Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
@@ -325,6 +326,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2009 -p1 -b .arm
 %patch2010 -p1 -b .idletime
 %patch2011 -p1 -b .edid-quirks
+%patch2012 -p1 -b .slow-bcopy
 
 %patch2500 -p1 -b .unbreak-domains
 %patch2501 -p1 -b .pci-bus-count
@@ -600,6 +602,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Aug 02 2007 Dave Airlie <airlied@redhat.com> 1.3.0.0-16
+- xserver-1.3.0-add-really-slow-bcopy.patch: Speed server start on some cards
+
 * Thu Jul 12 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-15
 - xserver-1.3.0-edid-quirk-backports.patch: Backport EDID quirks from
   master; fixes some Samsung monitors. (#232810)

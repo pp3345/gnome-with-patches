@@ -1,0 +1,73 @@
+diff --git a/hw/xfree86/loader/xf86sym.c b/hw/xfree86/loader/xf86sym.c
+index d925bed..8a2768d 100644
+--- a/hw/xfree86/loader/xf86sym.c
++++ b/hw/xfree86/loader/xf86sym.c
+@@ -259,6 +259,7 @@ _X_HIDDEN void *xfree86LookupTab[] = {
+     SYMFUNC(xf86UDelay)
+     SYMFUNC(xf86IODelay)
+     SYMFUNC(xf86SlowBcopy)
++    SYMFUNC(xf86SetReallySlowBcopy)
+ #ifdef __alpha__
+     SYMFUNC(xf86SlowBCopyToBus)
+     SYMFUNC(xf86SlowBCopyFromBus)
+diff --git a/hw/xfree86/os-support/misc/SlowBcopy.c b/hw/xfree86/os-support/misc/SlowBcopy.c
+index 7694eaa..5cd7168 100644
+--- a/hw/xfree86/os-support/misc/SlowBcopy.c
++++ b/hw/xfree86/os-support/misc/SlowBcopy.c
+@@ -22,21 +22,37 @@
+ #include "xf86_OSlib.h"
+ #include "compiler.h"
+ 
+-/* The outb() isn't needed on my machine, but who knows ... -- ost */
++static int really_slow_bcopy;
++
+ _X_EXPORT void
+-xf86SlowBcopy(unsigned char *src, unsigned char *dst, int len)
++xf86SetReallySlowBcopy(void)
++{
++	really_slow_bcopy = 1;
++}
++
++#if defined(__i386__) || defined(__x86_64__)
++static void xf86_really_slow_bcopy(unsigned char *src, unsigned char *dst, int len)
+ {
+     while(len--)
+     {
+ 	*dst++ = *src++;
+-#if !defined(__sparc__) && \
+-    !defined(__powerpc__) && \
+-    !defined(__mips__) && \
+-    !defined(__ia64__) && \
+-    !defined(__arm__)
+ 	outb(0x80, 0x00);
++    }
++}
+ #endif
++
++/* The outb() isn't needed on my machine, but who knows ... -- ost */
++_X_EXPORT void
++xf86SlowBcopy(unsigned char *src, unsigned char *dst, int len)
++{
++#if defined(__i386__) || defined(__x86_64__)
++    if (really_slow_bcopy) {
++	xf86_really_slow_bcopy(src, dst, len);
++	return;
+     }
++#endif
++    while(len--)
++	*dst++ = *src++;
+ }
+ 
+ #ifdef __alpha__
+diff --git a/hw/xfree86/os-support/xf86_OSproc.h b/hw/xfree86/os-support/xf86_OSproc.h
+index 1bbbf56..6f0391d 100644
+--- a/hw/xfree86/os-support/xf86_OSproc.h
++++ b/hw/xfree86/os-support/xf86_OSproc.h
+@@ -159,6 +159,7 @@ extern void xf86BusToMem(unsigned char *, unsigned char *, int);
+ extern void xf86MemToBus(unsigned char *, unsigned char *, int);
+ extern void xf86IODelay(void);
+ extern void xf86UDelay(long usec);
++extern void xf86SetReallySlowBcopy(void);
+ extern void xf86SlowBcopy(unsigned char *, unsigned char *, int);
+ extern int xf86OpenSerial(pointer options);
+ extern int xf86SetSerial(int fd, pointer options);
