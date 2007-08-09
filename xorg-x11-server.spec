@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   16%{?dist}
+Release:   17%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -56,6 +56,7 @@ Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
 Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
 Patch1011:  xserver-1.3.0-composite-version.patch
+Patch1022:  xserver-1.3.0-default-dpi.patch
 
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
@@ -314,6 +315,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch1009 -p1 -b .maxpixclock
 %patch1010 -p1 -b .prerelease-warning
 %patch1011 -p1 -b .composite-version
+%patch1022 -p1 -b .dpi
 
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
@@ -602,6 +604,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Aug 09 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-17
+- xserver-1.3.0-default-dpi.patch: Switch default DPI to 100, on the
+  principle that 75 is almost never right and 100 is much more likely.
+
 * Thu Aug 02 2007 Dave Airlie <airlied@redhat.com> 1.3.0.0-16
 - xserver-1.3.0-add-really-slow-bcopy.patch: Speed server start on some cards
 
