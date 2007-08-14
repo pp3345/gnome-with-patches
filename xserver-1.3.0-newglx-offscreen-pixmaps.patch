@@ -39,7 +39,7 @@ diff -up xorg-server-1.3.0.0/GL/glx/glxdri.c.offscreen-pixmaps xorg-server-1.3.0
      __GLXDRIscreen * const screen =
  	(__GLXDRIscreen *) __glXgetActiveScreen(pScreen->myNum);
  
-+    if (!screen->driScreen.setTexOffset) {
++    if (1 || !screen->driScreen.setTexOffset) {
 +         /* When the GLX_EXT_texture_from_pixmap is used, as it's
 +          * implemented here, we want to pull pixmap out of video memory
 +          * and into host memory. */
