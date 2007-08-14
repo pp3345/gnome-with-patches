@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   17%{?dist}
+Release:   18%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -27,7 +27,6 @@ Patch10:   xorg-x11-server-1.1.1-vbe-filter-less.patch
 Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
 Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
 Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
-Patch18:   xorg-x11-server-1.1.1-glcore-visual-matching.patch
 Patch19:   xserver-1.3.0-xnest-exposures.patch
 Patch20:   xserver-1.3.0-x86emu-imul-int64.patch
 Patch21:   xserver-1.3.0-xkb-and-loathing.patch
@@ -40,7 +39,6 @@ Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xorg-x11-server-1.1.0-dont-backfill-bg-none.patch
 Patch105:  xorg-x11-server-1.2.0-enable-composite.patch
 Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
-Patch107:  xorg-x11-server-1.1.1-offscreen-pixmaps.patch
 Patch108:  xserver-1.3.0-no-pseudocolor-composite.patch
 
 # Red Hat specific tweaking, not intended for upstream
@@ -56,13 +54,15 @@ Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
 Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
 Patch1011:  xserver-1.3.0-composite-version.patch
+Patch1012:  xserver-1.3.0-mesa7.patch
+Patch1013:  xserver-1.3.0-exaupgrade.patch
+Patch1014:  xserver-1.3.0-newglx-offscreen-pixmaps.patch
 Patch1022:  xserver-1.3.0-default-dpi.patch
 
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
 Patch2003:  xserver-1.2.0-vfprintf.patch
 Patch2004:  xserver-1.2.0-honor-displaysize.patch
-Patch2005:  xserver-1.2.99.901-xephyr-crash-at-exit.patch
 Patch2006:  xserver-1.3.0-less-randr-fakerama.patch
 Patch2007:  xserver-1.3.0-randr12-config-hack.patch
 Patch2008:  xserver-1.3.0-randrama-no-zero-screens.patch
@@ -141,8 +141,8 @@ BuildRequires: libXpm-devel
 BuildRequires: libXaw-devel
 BuildRequires: libXfixes-devel
 
-BuildRequires: mesa-libGL-devel >= 6.5.2
-BuildRequires: mesa-source >= 6.5.2
+BuildRequires: mesa-libGL-devel >= 7.0.1
+BuildRequires: mesa-source >= 7.0.1
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.3.0
 %if %{with_hw_servers}
@@ -289,7 +289,6 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch11 -p1 -b .vt-activate
 %patch12 -p1 -b .graphics-expose
 %patch15 -p1 -b .automake-1.10
-%patch18 -p1 -b .glcore-visual
 %patch19 -p1 -b .xnest-expose
 %patch20 -p1 -b .x86emu-imul
 %patch21 -p1 -b .xkb-signal-loathing
@@ -301,7 +300,6 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch101 -p0 -b .dont-backfill-bg-none
 %patch105 -p1 -b .enable-composite
 %patch106 -p1 -b .no-xnest-composite
-%patch107 -p1 -b .offscreen-pixmaps
 %patch108 -p1 -b .composite-paranoia
 
 %patch1001 -p1 -b .Red-Hat-extramodes
@@ -315,13 +313,15 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch1009 -p1 -b .maxpixclock
 %patch1010 -p1 -b .prerelease-warning
 %patch1011 -p1 -b .composite-version
+%patch1012 -p1 -b .newmesa
+%patch1013 -p1 -b .newexa
+%patch1014 -p1 -b .offscreen-pixmaps
 %patch1022 -p1 -b .dpi
 
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
 %patch2003 -p1 -b .vfprintf
 %patch2004 -p1 -b .displaysize
-%patch2005 -p1 -b .xephyr-crash
 %patch2006 -p1 -b .fakerama
 %patch2007 -p1 -b .randrconfig
 %patch2008 -p1 -b .randrama-zero-screens
@@ -604,6 +604,14 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Aug 13 2007 Dave Airlie <airlied@redhat.com> 1.3.0.0-18
+- xserver-1.3.0-mesa7.patch: Add support for building against mesa 7.0.1
+  along with DRI zero-copy TFP hopefully
+- xserver-1.3.0-exaupgrade.patch: Add updated EXA support
+- dropped xserver-1.2.99.901-xephyr-crash-at-exit.patch - upstream
+- rebase xorg-x11-server-1.1.1-offscreen-pixmaps.patch to xserver-1.3.0-newglx-offscreen-pixmaps.patch
+- dropped xorg-x11-server-1.1.1-glcore-visual-matching.patch - fixed upstream
+
 * Thu Aug 09 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-17
 - xserver-1.3.0-default-dpi.patch: Switch default DPI to 100, on the
   principle that 75 is almost never right and 100 is much more likely.
