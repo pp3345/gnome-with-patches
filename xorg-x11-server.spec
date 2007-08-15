@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   19%{?dist}
+Release:   20%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -604,6 +604,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Aug 15 2007 Dave Airlie <airlied@redhat.com> 1.3.0.0-20
+- xserver-1.3.0-newglx-offscreen-pixmaps.patch: fix zero-copy TFP again
+
 * Tue Aug 14 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-19
 - xserver-1.3.0-newglx-offscreen-pixmaps.patch: Zero-copy TFP is busted
   on at least my laptop, so turn it off again.
