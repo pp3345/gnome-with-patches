@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   20%{?dist}
+Release:   21%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -70,6 +70,7 @@ Patch2009:  xserver-1.3.0-arm-iopl.patch
 Patch2010:  xserver-1.3.0-idletime.patch
 Patch2011:  xserver-1.3.0-edid-quirk-backports.patch
 Patch2012:  xserver-1.3.0-add-really-slow-bcopy.patch
+Patch2013:  xserver-1.3.0-document-fontpath-correctly.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
 Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
@@ -329,6 +330,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2010 -p1 -b .idletime
 %patch2011 -p1 -b .edid-quirks
 %patch2012 -p1 -b .slow-bcopy
+%patch2013 -p1 -b .fontpath-doc
 
 %patch2500 -p1 -b .unbreak-domains
 %patch2501 -p1 -b .pci-bus-count
@@ -604,6 +606,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Aug 23 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-21
+- xserver-1.3.0-document-fontpath-correctly.patch: Fix man page to point to
+  directories that exist. (#251203, Matěj Cepl)
+
 * Wed Aug 15 2007 Dave Airlie <airlied@redhat.com> 1.3.0.0-20
 - xserver-1.3.0-newglx-offscreen-pixmaps.patch: fix zero-copy TFP again
 
