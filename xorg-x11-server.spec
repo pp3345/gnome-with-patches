@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   21%{?dist}
+Release:   22%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -111,7 +111,7 @@ BuildRequires: damageproto >= 1.1
 BuildRequires: scrnsaverproto >= 1.1
 BuildRequires: kbproto >= 1.0.3
 
-BuildRequires: xorg-x11-xtrans-devel
+BuildRequires: xorg-x11-xtrans-devel >= 1.0.3-3
 BuildRequires: libXfont-devel
 BuildRequires: libXau-devel
 BuildRequires: libxkbfile-devel
@@ -606,6 +606,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Aug 24 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-22
+- Bump BuildRequires: xorg-x11-xtrans-devel to pull in abstract socket
+  support.
+
 * Thu Aug 23 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-21
 - xserver-1.3.0-document-fontpath-correctly.patch: Fix man page to point to
   directories that exist. (#251203, Matěj Cepl)
