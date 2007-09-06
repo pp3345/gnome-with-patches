@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   22%{?dist}
+Release:   23%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -33,6 +33,7 @@ Patch21:   xserver-1.3.0-xkb-and-loathing.patch
 Patch22:   xserver-1.3.0-fbdevhw-magic-numbers.patch
 Patch23:   xserver-1.3.0-ramdac-export.patch
 Patch24:   xserver-1.3.0-reput-video.patch
+Patch25:   xserver-1.3.0-xrandr-timestamp-buglet.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -296,6 +297,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch22 -p1 -b .magic-numbers
 %patch23 -p1 -b .ramdac
 %patch24 -p1 -b .reput
+%patch25 -p1 -b .xrandr-timestamp
 
 %patch100 -p0 -b .no-move-damage
 %patch101 -p0 -b .dont-backfill-bg-none
@@ -606,6 +608,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 06 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-23
+- xserver-1.3.0-xrandr-timestamp-buglet.patch: Make sure xrandr doesn't
+  stop working after several hours. (Marius Gedminas, #273801)
+
 * Fri Aug 24 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-22
 - Bump BuildRequires: xorg-x11-xtrans-devel to pull in abstract socket
   support.
