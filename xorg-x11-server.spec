@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   23%{?dist}
+Release:   24%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -608,6 +608,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Sep 17 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-24
+- xserver-1.3.0-edid-quirk-backports.patch: Update the EDID quirks code
+  to match current git.
+
 * Thu Sep 06 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-23
 - xserver-1.3.0-xrandr-timestamp-buglet.patch: Make sure xrandr doesn't
   stop working after several hours. (Marius Gedminas, #273801)
