@@ -1,0 +1,12 @@
+diff -up xorg-server-1.3.0.0/hw/xfree86/common/xf86AutoConfig.c.jx xorg-server-1.3.0.0/hw/xfree86/common/xf86AutoConfig.c
+--- xorg-server-1.3.0.0/hw/xfree86/common/xf86AutoConfig.c.jx	2006-11-16 13:01:24.000000000 -0500
++++ xorg-server-1.3.0.0/hw/xfree86/common/xf86AutoConfig.c	2007-09-26 10:08:20.000000000 -0400
+@@ -175,7 +175,7 @@ videoPtrToDriverName(pciVideoPtr info)
+ 	case 0x8086:
+ 	    if ((info->chipType == 0x00d1) || (info->chipType == 0x7800))
+ 		return "i740";
+-	    else return "i810";
++	    else return "intel";
+ 	case 0x102b:		    return "mga";
+ 	case 0x10c8:		    return "neomagic";
+ 	case 0x105d:		    return "i128";

@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   25%{?dist}
+Release:   26%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -70,6 +70,7 @@ Patch2009:  xserver-1.3.0-arm-iopl.patch
 Patch2010:  xserver-1.3.0-idletime.patch
 Patch2012:  xserver-1.3.0-add-really-slow-bcopy.patch
 Patch2013:  xserver-1.3.0-document-fontpath-correctly.patch
+Patch2014:  xserver-1.3.0-intel-by-default.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
 Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
@@ -329,6 +330,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2010 -p1 -b .idletime
 %patch2012 -p1 -b .slow-bcopy
 %patch2013 -p1 -b .fontpath-doc
+%patch2014 -p1 -b .intel
 
 %patch2500 -p1 -b .unbreak-domains
 %patch2501 -p1 -b .pci-bus-count
@@ -348,7 +350,7 @@ Xserver source code needed to build VNC server (Xvnc)
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
 aclocal ; automake -a ; autoconf
-%configure \
+%configure --enable-maintainer-mode \
 	%{enable_xorg} \
 	--disable-xprint --enable-xvfb --enable-xnest --enable-dmx \
 	--enable-kdrive --enable-xephyr \
@@ -604,6 +606,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Sep 26 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-26
+- xserver-1.3.0-randr-updates.patch: Default ModeDebug to TRUE, better to
+  have too much information than too little.
+- xorg-x11-server-1.0.1-fpic-libxf86config.patch: Build the parser library
+  with hidden symbols to shrink pyf86config a bit.
+- xserver-1.3.0-intel-by-default.patch: Use intel, not i810, when starting
+  without a config file.
+- Enable maintainer mode when building so I swear at autotools less.
+
 * Wed Sep 26 2007 Dave Airlie <airlied@redhat.com> 1.3.0.0-25
 - xserver-1.3.0-randr-updates.patch: Backport randr from server git
   This contains a lot of fixes since 1.3.0 went out, and saves
