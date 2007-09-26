@@ -1,6 +1,7 @@
---- xorg-server-1.3.0.0/hw/xfree86/modes/xf86Crtc.c.jx	2007-04-16 12:53:50.000000000 -0400
-+++ xorg-server-1.3.0.0/hw/xfree86/modes/xf86Crtc.c	2007-05-02 14:03:28.000000000 -0400
-@@ -1202,6 +1202,23 @@
+diff -up xorg-server-1.3.0.0/hw/xfree86/modes/xf86Crtc.c.da xorg-server-1.3.0.0/hw/xfree86/modes/xf86Crtc.c
+--- xorg-server-1.3.0.0/hw/xfree86/modes/xf86Crtc.c.da	2007-09-26 17:12:44.000000000 +1000
++++ xorg-server-1.3.0.0/hw/xfree86/modes/xf86Crtc.c	2007-09-26 17:14:44.000000000 +1000
+@@ -1214,6 +1214,23 @@ xf86SortModes (DisplayModePtr input)
      return output;
  }
  
@@ -21,10 +22,10 @@
 +    return preferred_mode;
 +}
 +
- #define DEBUG_REPROBE 1
- 
- void
-@@ -1377,8 +1394,7 @@
+ _X_EXPORT void
+ xf86ProbeOutputModes (ScrnInfoPtr scrn, int maxX, int maxY)
+ {
+@@ -1395,8 +1412,7 @@ xf86ProbeOutputModes (ScrnInfoPtr scrn, 
  	output->probed_modes = xf86SortModes (output->probed_modes);
  	
  	/* Check for a configured preference for a particular mode */

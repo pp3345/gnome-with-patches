@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   24%{?dist}
+Release:   25%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -52,24 +52,22 @@ Patch1005:  xorg-x11-server-1.1.1-builtin-fonts.patch
 Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
 Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
 Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
-Patch1009:  xorg-x11-server-1.2.0-maxpixclock-option.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
 Patch1011:  xserver-1.3.0-composite-version.patch
 Patch1012:  xserver-1.3.0-mesa7.patch
 Patch1013:  xserver-1.3.0-exaupgrade.patch
 Patch1014:  xserver-1.3.0-newglx-offscreen-pixmaps.patch
+Patch1015:  xserver-1.3.0-randr-updates.patch
 Patch1022:  xserver-1.3.0-default-dpi.patch
 
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
 Patch2003:  xserver-1.2.0-vfprintf.patch
-Patch2004:  xserver-1.2.0-honor-displaysize.patch
-Patch2006:  xserver-1.3.0-less-randr-fakerama.patch
+Patch2004:  xserver-1.3.0-honor-displaysize.patch
 Patch2007:  xserver-1.3.0-randr12-config-hack.patch
 Patch2008:  xserver-1.3.0-randrama-no-zero-screens.patch
 Patch2009:  xserver-1.3.0-arm-iopl.patch
 Patch2010:  xserver-1.3.0-idletime.patch
-Patch2011:  xserver-1.3.0-edid-quirk-backports.patch
 Patch2012:  xserver-1.3.0-add-really-slow-bcopy.patch
 Patch2013:  xserver-1.3.0-document-fontpath-correctly.patch
 
@@ -313,24 +311,22 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch1006 -p1 -b .no-scanpci
 %patch1007 -p1 -b .xf1bpp
 %patch1008 -p1 -b .comment-less
-%patch1009 -p1 -b .maxpixclock
 %patch1010 -p1 -b .prerelease-warning
 %patch1011 -p1 -b .composite-version
 %patch1012 -p1 -b .newmesa
 %patch1013 -p1 -b .newexa
 %patch1014 -p1 -b .offscreen-pixmaps
+%patch1015 -p1 -b .randr-update
 %patch1022 -p1 -b .dpi
 
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
 %patch2003 -p1 -b .vfprintf
 %patch2004 -p1 -b .displaysize
-%patch2006 -p1 -b .fakerama
 %patch2007 -p1 -b .randrconfig
 %patch2008 -p1 -b .randrama-zero-screens
 %patch2009 -p1 -b .arm
 %patch2010 -p1 -b .idletime
-%patch2011 -p1 -b .edid-quirks
 %patch2012 -p1 -b .slow-bcopy
 %patch2013 -p1 -b .fontpath-doc
 
@@ -608,6 +604,17 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Sep 26 2007 Dave Airlie <airlied@redhat.com> 1.3.0.0-25
+- xserver-1.3.0-randr-updates.patch: Backport randr from server git
+  This contains a lot of fixes since 1.3.0 went out, and saves
+  us backporting each fix individually
+- xserver-1.3.0-less-randr-fakerama.patch - dropped
+- xorg-x11-server-1.2.0-maxpixclock-option.patch - dropped
+- xserver-1.3.0-edid-quirk-backports.patch - dropped
+- xserver-1.2.0-honor-displaysize.patch - dropped
+- xserver-1.3.0-honor-displaysize.patch - reapply to new code layout
+- xserver-1.3.0-randr12-config-hack.patch - rebased
+
 * Mon Sep 17 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-24
 - xserver-1.3.0-edid-quirk-backports.patch: Update the EDID quirks code
   to match current git.

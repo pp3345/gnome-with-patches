@@ -1,0 +1,3726 @@
+diff --git a/hw/xfree86/modes/Makefile.am b/hw/xfree86/modes/Makefile.am
+index 0841a6d..1f82068 100644
+--- a/hw/xfree86/modes/Makefile.am
++++ b/hw/xfree86/modes/Makefile.am
+@@ -26,4 +26,4 @@ sdk_HEADERS = \
+ 	xf86RandR12.h \
+ 	xf86Rename.h
+ 
+-AM_CFLAGS = $(XORG_CFLAGS)
++AM_CFLAGS = $(DIX_CFLAGS) $(XORG_CFLAGS)
+diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
+index 2d8a7ad..064ff16 100644
+--- a/hw/xfree86/modes/xf86Crtc.c
++++ b/hw/xfree86/modes/xf86Crtc.c
+@@ -45,13 +45,15 @@
+ #include "picturestr.h"
+ #endif
+ 
++#include "xf86xv.h"
++
+ /*
+  * Initialize xf86CrtcConfig structure
+  */
+ 
+ int xf86CrtcConfigPrivateIndex = -1;
+ 
+-void
++_X_EXPORT void
+ xf86CrtcConfigInit (ScrnInfoPtr scrn,
+ 		    const xf86CrtcConfigFuncsRec *funcs)
+ {
+@@ -66,7 +68,7 @@ xf86CrtcConfigInit (ScrnInfoPtr scrn,
+     scrn->privates[xf86CrtcConfigPrivateIndex].ptr = config;
+ }
+  
+-void
++_X_EXPORT void
+ xf86CrtcSetSizeRange (ScrnInfoPtr scrn,
+ 		      int minWidth, int minHeight,
+ 		      int maxWidth, int maxHeight)
+@@ -82,7 +84,7 @@ xf86CrtcSetSizeRange (ScrnInfoPtr scrn,
+ /*
+  * Crtc functions
+  */
+-xf86CrtcPtr
++_X_EXPORT xf86CrtcPtr
+ xf86CrtcCreate (ScrnInfoPtr		scrn,
+ 		const xf86CrtcFuncsRec	*funcs)
+ {
+@@ -114,7 +116,7 @@ xf86CrtcCreate (ScrnInfoPtr		scrn,
+     return crtc;
+ }
+ 
+-void
++_X_EXPORT void
+ xf86CrtcDestroy (xf86CrtcPtr crtc)
+ {
+     xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(crtc->scrn);
+@@ -126,7 +128,7 @@ xf86CrtcDestroy (xf86CrtcPtr crtc)
+ 	{
+ 	    memmove (&xf86_config->crtc[c],
+ 		     &xf86_config->crtc[c+1],
+-		     xf86_config->num_crtc - (c + 1));
++		     ((xf86_config->num_crtc - (c + 1)) * sizeof(void*)));
+ 	    xf86_config->num_crtc--;
+ 	    break;
+ 	}
+@@ -138,7 +140,7 @@ xf86CrtcDestroy (xf86CrtcPtr crtc)
+  * Return whether any outputs are connected to the specified pipe
+  */
+ 
+-Bool
++_X_EXPORT Bool
+ xf86CrtcInUse (xf86CrtcPtr crtc)
+ {
+     ScrnInfoPtr		pScrn = crtc->scrn;
+@@ -151,7 +153,7 @@ xf86CrtcInUse (xf86CrtcPtr crtc)
+     return FALSE;
+ }
+ 
+-void
++_X_EXPORT void
+ xf86CrtcSetScreenSubpixelOrder (ScreenPtr pScreen)
+ {
+ #ifdef RENDER
+@@ -219,7 +221,7 @@ xf86CrtcSetScreenSubpixelOrder (ScreenPtr pScreen)
+ /**
+  * Sets the given video mode on the given crtc
+  */
+-Bool
++_X_EXPORT Bool
+ xf86CrtcSetMode (xf86CrtcPtr crtc, DisplayModePtr mode, Rotation rotation,
+ 		 int x, int y)
+ {
+@@ -377,6 +379,15 @@ static OptionInfoRec xf86OutputOptions[] = {
+     {-1,		    NULL,		OPTV_NONE,    {0}, FALSE },
+ };
+ 
++enum {
++    OPTION_MODEDEBUG,
++};
++
++static OptionInfoRec xf86DeviceOptions[] = {
++    {OPTION_MODEDEBUG,	    "ModeDebug",	OPTV_STRING,  {0}, FALSE },
++    {-1,		    NULL,		OPTV_NONE,    {0}, FALSE },
++};
++
+ static void
+ xf86OutputSetMonitor (xf86OutputPtr output)
+ {
+@@ -481,7 +492,7 @@ xf86OutputInitialRotation (xf86OutputPtr output)
+     return RR_Rotate_0;
+ }
+ 
+-xf86OutputPtr
++_X_EXPORT xf86OutputPtr
+ xf86OutputCreate (ScrnInfoPtr		    scrn,
+ 		  const xf86OutputFuncsRec  *funcs,
+ 		  const char		    *name)
+@@ -541,7 +552,7 @@ xf86OutputCreate (ScrnInfoPtr		    scrn,
+     return output;
+ }
+ 
+-Bool
++_X_EXPORT Bool
+ xf86OutputRename (xf86OutputPtr output, const char *name)
+ {
+     int	    len = strlen(name) + 1;
+@@ -560,7 +571,7 @@ xf86OutputRename (xf86OutputPtr output, const char *name)
+     return TRUE;
+ }
+ 
+-void
++_X_EXPORT void
+ xf86OutputUseScreenMonitor (xf86OutputPtr output, Bool use_screen_monitor)
+ {
+     if (use_screen_monitor != output->use_screen_monitor)
+@@ -570,7 +581,7 @@ xf86OutputUseScreenMonitor (xf86OutputPtr output, Bool use_screen_monitor)
+     }
+ }
+ 
+-void
++_X_EXPORT void
+ xf86OutputDestroy (xf86OutputPtr output)
+ {
+     ScrnInfoPtr		scrn = output->scrn;
+@@ -585,7 +596,7 @@ xf86OutputDestroy (xf86OutputPtr output)
+ 	{
+ 	    memmove (&xf86_config->output[o],
+ 		     &xf86_config->output[o+1],
+-		     xf86_config->num_output - (o + 1));
++		     ((xf86_config->num_output - (o + 1)) * sizeof(void*)));
+ 	    xf86_config->num_output--;
+ 	    break;
+ 	}
+@@ -646,7 +657,7 @@ xf86CrtcCloseScreen (int index, ScreenPtr screen)
+ /*
+  * Called at ScreenInit time to set up
+  */
+-Bool
++_X_EXPORT Bool
+ xf86CrtcScreenInit (ScreenPtr screen)
+ {
+     ScrnInfoPtr		scrn = xf86Screens[screen->myNum];
+@@ -667,7 +678,8 @@ xf86CrtcScreenInit (ScreenPtr screen)
+     }
+     if (c == config->num_crtc)
+ 	xf86RandR12SetRotations (screen, RR_Rotate_0 | RR_Rotate_90 |
+-				 RR_Rotate_180 | RR_Rotate_270);
++				 RR_Rotate_180 | RR_Rotate_270 |
++				 RR_Reflect_X | RR_Reflect_Y);
+     else
+ 	xf86RandR12SetRotations (screen, RR_Rotate_0);
+     
+@@ -1202,16 +1214,21 @@ xf86SortModes (DisplayModePtr input)
+     return output;
+ }
+ 
+-#define DEBUG_REPROBE 1
+-
+-void
++_X_EXPORT void
+ xf86ProbeOutputModes (ScrnInfoPtr scrn, int maxX, int maxY)
+ {
+     xf86CrtcConfigPtr	config = XF86_CRTC_CONFIG_PTR(scrn);
+     int			o;
+ 
+-    if (maxX == 0 || maxY == 0)
+-	xf86RandR12GetOriginalVirtualSize (scrn, &maxX, &maxY);
++    /* When canGrow was TRUE in the initial configuration we have to
++     * compare against the maximum values so that we don't drop modes.
++     * When canGrow was FALSE, the maximum values would have been clamped
++     * anyway.
++     */
++    if (maxX == 0 || maxY == 0) {
++	maxX = config->maxWidth;
++	maxY = config->maxHeight;
++    }
+ 
+     /* Elide duplicate modes before defaulting code uses them */
+     xf86PruneDuplicateMonitorModes (scrn->monitor);
+@@ -1239,7 +1256,7 @@ xf86ProbeOutputModes (ScrnInfoPtr scrn, int maxX, int maxY)
+ 	 */
+ 	output->status = (*output->funcs->detect)(output);
+ 
+-	if (!xf86OutputEnabled (output))
++	if (output->status == XF86OutputStatusDisconnected)
+ 	{
+ 	    xf86OutputSetEDID (output, NULL);
+ 	    continue;
+@@ -1372,7 +1389,8 @@ xf86ProbeOutputModes (ScrnInfoPtr scrn, int maxX, int maxY)
+ 	    if (mode->status == MODE_OK)
+ 		mode->status = (*output->funcs->mode_valid)(output, mode);
+ 	
+-	xf86PruneInvalidModes(scrn, &output->probed_modes, TRUE);
++	xf86PruneInvalidModes(scrn, &output->probed_modes,
++			      config->debug_modes);
+ 	
+ 	output->probed_modes = xf86SortModes (output->probed_modes);
+ 	
+@@ -1398,24 +1416,25 @@ xf86ProbeOutputModes (ScrnInfoPtr scrn, int maxX, int maxY)
+ 			output->probed_modes = mode;
+ 		    }
+ 		    mode->type |= M_T_PREFERRED;
+-		    break;
+ 		}
++		else
++		    mode->type &= ~M_T_PREFERRED;
+ 	    }
+ 	}
+ 	
+ 	output->initial_rotation = xf86OutputInitialRotation (output);
+ 
+-#ifdef DEBUG_REPROBE
+-	if (output->probed_modes != NULL) {
+-	    xf86DrvMsg(scrn->scrnIndex, X_INFO,
+-		       "Printing probed modes for output %s\n",
+-		       output->name);
+-	} else {
+-	    xf86DrvMsg(scrn->scrnIndex, X_INFO,
+-		       "No remaining probed modes for output %s\n",
+-		       output->name);
++	if (config->debug_modes) {
++	    if (output->probed_modes != NULL) {
++		xf86DrvMsg(scrn->scrnIndex, X_INFO,
++			   "Printing probed modes for output %s\n",
++			   output->name);
++	    } else {
++		xf86DrvMsg(scrn->scrnIndex, X_INFO,
++			   "No remaining probed modes for output %s\n",
++			   output->name);
++	    }
+ 	}
+-#endif
+ 	for (mode = output->probed_modes; mode != NULL; mode = mode->next)
+ 	{
+ 	    /* The code to choose the best mode per pipe later on will require
+@@ -1424,9 +1443,8 @@ xf86ProbeOutputModes (ScrnInfoPtr scrn, int maxX, int maxY)
+ 	    mode->VRefresh = xf86ModeVRefresh(mode);
+ 	    xf86SetModeCrtc(mode, INTERLACE_HALVE_V);
+ 
+-#ifdef DEBUG_REPROBE
+-	    xf86PrintModeline(scrn->scrnIndex, mode);
+-#endif
++	    if (config->debug_modes)
++		xf86PrintModeline(scrn->scrnIndex, mode);
+ 	}
+     }
+ }
+@@ -1437,10 +1455,10 @@ xf86ProbeOutputModes (ScrnInfoPtr scrn, int maxX, int maxY)
+  */
+ 
+ /* XXX where does this function belong? Here? */
+-void
++_X_EXPORT void
+ xf86RandR12GetOriginalVirtualSize(ScrnInfoPtr scrn, int *x, int *y);
+ 
+-void
++_X_EXPORT void
+ xf86SetScrnInfoModes (ScrnInfoPtr scrn)
+ {
+     xf86CrtcConfigPtr	config = XF86_CRTC_CONFIG_PTR(scrn);
+@@ -1508,7 +1526,7 @@ xf86SetScrnInfoModes (ScrnInfoPtr scrn)
+  * accordingly.
+  */
+ 
+-Bool
++_X_EXPORT Bool
+ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
+ {
+     xf86CrtcConfigPtr	config = XF86_CRTC_CONFIG_PTR(scrn);
+@@ -1521,6 +1539,15 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
+     int			width;
+     int			height;
+ 
++    /* Set up the device options */
++    config->options = xnfalloc (sizeof (xf86DeviceOptions));
++    memcpy (config->options, xf86DeviceOptions, sizeof (xf86DeviceOptions));
++    xf86ProcessOptions (scrn->scrnIndex,
++			scrn->options,
++			config->options);
++    config->debug_modes = xf86ReturnOptValBool (config->options,
++						OPTION_MODEDEBUG, FALSE);
++
+     if (scrn->display->virtualX)
+ 	width = scrn->display->virtualX;
+     else
+@@ -1703,12 +1730,30 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
+  * modes (used in EnterVT functions, or at server startup)
+  */
+ 
+-Bool
++_X_EXPORT Bool
+ xf86SetDesiredModes (ScrnInfoPtr scrn)
+ {
+     xf86CrtcConfigPtr   config = XF86_CRTC_CONFIG_PTR(scrn);
+-    int			c;
++    int			c, o;
+ 
++    /*
++     * Turn off everything so mode setting is done
++     * with hardware in a consistent state
++     */
++    for (o = 0; o < config->num_output; o++) 
++    {
++	xf86OutputPtr  output = config->output[o];
++	(*output->funcs->dpms)(output, DPMSModeOff);
++    }
++
++    for (c = 0; c < config->num_crtc; c++) 
++    {
++	xf86CrtcPtr crtc = config->crtc[c];
++
++	crtc->funcs->dpms(crtc, DPMSModeOff);
++	memset(&crtc->mode, 0, sizeof(crtc->mode));
++    }
++    
+     for (c = 0; c < config->num_crtc; c++)
+     {
+ 	xf86CrtcPtr	crtc = config->crtc[c];
+@@ -1765,7 +1810,7 @@ xf86SetDesiredModes (ScrnInfoPtr scrn)
+  * - Closer in refresh rate to the requested mode.
+  */
+ 
+-DisplayModePtr
++_X_EXPORT DisplayModePtr
+ xf86OutputFindClosestMode (xf86OutputPtr output, DisplayModePtr desired)
+ {
+     DisplayModePtr	best = NULL, scan = NULL;
+@@ -1828,7 +1873,7 @@ xf86OutputFindClosestMode (xf86OutputPtr output, DisplayModePtr desired)
+  * mode across all outputs that are currently active.
+  */
+ 
+-Bool
++_X_EXPORT Bool
+ xf86SetSingleMode (ScrnInfoPtr pScrn, DisplayModePtr desired, Rotation rotation)
+ {
+     xf86CrtcConfigPtr	config = XF86_CRTC_CONFIG_PTR(pScrn);
+@@ -1900,7 +1945,7 @@ xf86SetSingleMode (ScrnInfoPtr pScrn, DisplayModePtr desired, Rotation rotation)
+  * If the new mode is off, it will turn off outputs and then CRTCs.
+  * Otherwise, it will affect CRTCs before outputs.
+  */
+-void
++_X_EXPORT void
+ xf86DPMSSet(ScrnInfoPtr scrn, int mode, int flags)
+ {
+     xf86CrtcConfigPtr	config = XF86_CRTC_CONFIG_PTR(scrn);
+@@ -1938,7 +1983,7 @@ xf86DPMSSet(ScrnInfoPtr scrn, int mode, int flags)
+  * Even for monitors with no DPMS support, by the definition of our DPMS hooks,
+  * the outputs will still get disabled (blanked).
+  */
+-Bool
++_X_EXPORT Bool
+ xf86SaveScreen(ScreenPtr pScreen, int mode)
+ {
+     ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+@@ -1954,7 +1999,7 @@ xf86SaveScreen(ScreenPtr pScreen, int mode)
+ /**
+  * Disable all inactive crtcs and outputs
+  */
+-void
++_X_EXPORT void
+ xf86DisableUnusedFunctions(ScrnInfoPtr pScrn)
+ {
+     xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(pScrn);
+@@ -1989,7 +2034,7 @@ xf86DisableUnusedFunctions(ScrnInfoPtr pScrn)
+ static void
+ xf86OutputSetEDIDProperty (xf86OutputPtr output, void *data, int data_len)
+ {
+-    Atom edid_atom = MakeAtom(EDID_ATOM_NAME, sizeof(EDID_ATOM_NAME), TRUE);
++    Atom edid_atom = MakeAtom(EDID_ATOM_NAME, sizeof(EDID_ATOM_NAME) - 1, TRUE);
+ 
+     /* This may get called before the RandR resources have been created */
+     if (output->randr_output == NULL)
+@@ -2008,7 +2053,7 @@ xf86OutputSetEDIDProperty (xf86OutputPtr output, void *data, int data_len)
+ /**
+  * Set the EDID information for the specified output
+  */
+-void
++_X_EXPORT void
+ xf86OutputSetEDID (xf86OutputPtr output, xf86MonPtr edid_mon)
+ {
+     ScrnInfoPtr		scrn = output->scrn;
+@@ -2023,10 +2068,12 @@ xf86OutputSetEDID (xf86OutputPtr output, xf86MonPtr edid_mon)
+     
+     output->MonInfo = edid_mon;
+ 
+-    /* Debug info for now, at least */
+-    xf86DrvMsg(scrn->scrnIndex, X_INFO, "EDID for output %s\n", output->name);
+-    xf86PrintEDID(edid_mon);
+-    
++    if (config->debug_modes) {
++	xf86DrvMsg(scrn->scrnIndex, X_INFO, "EDID for output %s\n",
++		   output->name);
++	xf86PrintEDID(edid_mon);
++    }
++
+     /* Set the DDC properties for the 'compat' output */
+     if (output == config->output[config->compat_output])
+         xf86SetDDCproperties(scrn, edid_mon);
+@@ -2072,7 +2119,7 @@ xf86OutputSetEDID (xf86OutputPtr output, xf86MonPtr edid_mon)
+  * Return the list of modes supported by the EDID information
+  * stored in 'output'
+  */
+-DisplayModePtr
++_X_EXPORT DisplayModePtr
+ xf86OutputGetEDIDModes (xf86OutputPtr output)
+ {
+     ScrnInfoPtr	scrn = output->scrn;
+@@ -2083,7 +2130,7 @@ xf86OutputGetEDIDModes (xf86OutputPtr output)
+     return xf86DDCGetModes(scrn->scrnIndex, edid_mon);
+ }
+ 
+-xf86MonPtr
++_X_EXPORT xf86MonPtr
+ xf86OutputGetEDID (xf86OutputPtr output, I2CBusPtr pDDCBus)
+ {
+     ScrnInfoPtr	scrn = output->scrn;
+@@ -2094,8 +2141,127 @@ xf86OutputGetEDID (xf86OutputPtr output, I2CBusPtr pDDCBus)
+ static char *_xf86ConnectorNames[] = { "None", "VGA", "DVI-I", "DVI-D",
+ 				      "DVI-A", "Composite", "S-Video",
+ 				      "Component", "LFP", "Proprietary" };
+-char *
++_X_EXPORT char *
+ xf86ConnectorGetName(xf86ConnectorType connector)
+ {
+     return _xf86ConnectorNames[connector];
+ }
++
++static void
++x86_crtc_box_intersect(BoxPtr dest, BoxPtr a, BoxPtr b)
++{
++    dest->x1 = a->x1 > b->x1 ? a->x1 : b->x1;
++    dest->x2 = a->x2 < b->x2 ? a->x2 : b->x2;
++    dest->y1 = a->y1 > b->y1 ? a->y1 : b->y1;
++    dest->y2 = a->y2 < b->y2 ? a->y2 : b->y2;
++
++    if (dest->x1 >= dest->x2 || dest->y1 >= dest->y2)
++	dest->x1 = dest->x2 = dest->y1 = dest->y2 = 0;
++}
++
++static void
++x86_crtc_box(xf86CrtcPtr crtc, BoxPtr crtc_box)
++{
++    if (crtc->enabled) {
++	crtc_box->x1 = crtc->x;
++	crtc_box->x2 = crtc->x + xf86ModeWidth(&crtc->mode, crtc->rotation);
++	crtc_box->y1 = crtc->y;
++	crtc_box->y2 = crtc->y + xf86ModeHeight(&crtc->mode, crtc->rotation);
++    } else
++	crtc_box->x1 = crtc_box->x2 = crtc_box->y1 = crtc_box->y2 = 0;
++}
++
++static int
++xf86_crtc_box_area(BoxPtr box)
++{
++    return (int) (box->x2 - box->x1) * (int) (box->y2 - box->y1);
++}
++
++/*
++ * Return the crtc covering 'box'. If two crtcs cover a portion of
++ * 'box', then prefer 'desired'. If 'desired' is NULL, then prefer the crtc
++ * with greater coverage
++ */
++
++static xf86CrtcPtr
++xf86_covering_crtc(ScrnInfoPtr pScrn,
++		   BoxPtr      box,
++		   xf86CrtcPtr desired,
++		   BoxPtr      crtc_box_ret)
++{
++    xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(pScrn);
++    xf86CrtcPtr		crtc, best_crtc;
++    int			coverage, best_coverage;
++    int			c;
++    BoxRec		crtc_box, cover_box;
++
++    best_crtc = NULL;
++    best_coverage = 0;
++    crtc_box_ret->x1 = 0;
++    crtc_box_ret->x2 = 0;
++    crtc_box_ret->y1 = 0;
++    crtc_box_ret->y2 = 0;
++    for (c = 0; c < xf86_config->num_crtc; c++) {
++	crtc = xf86_config->crtc[c];
++	x86_crtc_box(crtc, &crtc_box);
++	x86_crtc_box_intersect(&cover_box, &crtc_box, box);
++	coverage = xf86_crtc_box_area(&cover_box);
++	if (coverage && crtc == desired) {
++	    *crtc_box_ret = crtc_box;
++	    return crtc;
++	} else if (coverage > best_coverage) {
++	    *crtc_box_ret = crtc_box;
++	    best_crtc = crtc;
++	    best_coverage = coverage;
++	}
++    }
++    return best_crtc;
++}
++
++/*
++ * For overlay video, compute the relevant CRTC and
++ * clip video to that.
++ *
++ * returning FALSE means there was a memory failure of some kind,
++ * not that the video shouldn't be displayed
++ */
++
++_X_EXPORT Bool
++xf86_crtc_clip_video_helper(ScrnInfoPtr pScrn,
++			    xf86CrtcPtr *crtc_ret,
++			    xf86CrtcPtr desired_crtc,
++			    BoxPtr      dst,
++			    INT32	*xa,
++			    INT32	*xb,
++			    INT32	*ya,
++			    INT32	*yb,
++			    RegionPtr   reg,
++			    INT32	width,
++			    INT32	height)
++{
++    Bool	ret;
++    RegionRec	crtc_region_local;
++    RegionPtr	crtc_region = reg;
++    
++    if (crtc_ret) {
++	BoxRec		crtc_box;
++	xf86CrtcPtr	crtc = xf86_covering_crtc(pScrn, dst,
++						  desired_crtc,
++						  &crtc_box);
++
++	if (crtc) {
++	    REGION_INIT (pScreen, &crtc_region_local, &crtc_box, 1);
++	    crtc_region = &crtc_region_local;
++	    REGION_INTERSECT (pScreen, crtc_region, crtc_region, reg);
++	}
++	*crtc_ret = crtc;
++    }
++
++    ret = xf86XVClipVideoHelper(dst, xa, xb, ya, yb, 
++				crtc_region, width, height);
++
++    if (crtc_region != reg)
++	REGION_UNINIT (pScreen, &crtc_region_local);
++
++    return ret;
++}
+diff --git a/hw/xfree86/modes/xf86Crtc.h b/hw/xfree86/modes/xf86Crtc.h
+index e64ce1e..9693e12 100644
+--- a/hw/xfree86/modes/xf86Crtc.h
++++ b/hw/xfree86/modes/xf86Crtc.h
+@@ -30,6 +30,7 @@
+ #include "xf86Modes.h"
+ #include "xf86Cursor.h"
+ #include "damage.h"
++#include "picturestr.h"
+ 
+ /* Compat definitions for older X Servers. */
+ #ifndef M_T_PREFERRED
+@@ -279,6 +280,17 @@ struct _xf86Crtc {
+      * Track state of cursor associated with this CRTC
+      */
+     Bool	    cursor_shown;
++
++    /**
++     * Current transformation matrix
++     */
++    PictTransform   crtc_to_framebuffer;
++    PictTransform   framebuffer_to_crtc;
++    Bool	    transform_in_use;
++    /**
++     * Bounding box in screen space
++     */
++    BoxRec	    bounds;
+ };
+ 
+ typedef struct _xf86OutputFuncs {
+@@ -555,6 +567,17 @@ typedef struct _xf86CrtcConfig {
+     CARD8		*cursor_image;
+     Bool		cursor_on;
+     CARD32		cursor_fg, cursor_bg;
++
++    /**
++     * Options parsed from the related device section
++     */
++    OptionInfoPtr	options;
++
++    Bool		debug_modes;
++
++    /* wrap screen BlockHandler for rotation */
++    ScreenBlockHandlerProcPtr	BlockHandler;
++
+ } xf86CrtcConfigRec, *xf86CrtcConfigPtr;
+ 
+ extern int xf86CrtcConfigPrivateIndex;
+@@ -742,5 +765,24 @@ xf86_hide_cursors (ScrnInfoPtr scrn);
+  */
+ void
+ xf86_cursors_fini (ScreenPtr screen);
++
++/*
++ * For overlay video, compute the relevant CRTC and
++ * clip video to that.
++ * wraps xf86XVClipVideoHelper()
++ */
++
++Bool
++xf86_crtc_clip_video_helper(ScrnInfoPtr pScrn,
++			    xf86CrtcPtr *crtc_ret,
++			    xf86CrtcPtr desired_crtc,
++			    BoxPtr      dst,
++			    INT32	*xa,
++			    INT32	*xb,
++			    INT32	*ya,
++			    INT32	*yb,
++			    RegionPtr   reg,
++			    INT32	width,
++			    INT32	height);
+     
+ #endif /* _XF86CRTC_H_ */
+diff --git a/hw/xfree86/modes/xf86Cursors.c b/hw/xfree86/modes/xf86Cursors.c
+index 009cccf..b510164 100644
+--- a/hw/xfree86/modes/xf86Cursors.c
++++ b/hw/xfree86/modes/xf86Cursors.c
+@@ -58,29 +58,73 @@ xf86_crtc_rotate_coord (Rotation    rotation,
+ 			int	    *x_src,
+ 			int	    *y_src)
+ {
++    int t;
++    
++    switch (rotation & 0xf) {
++    case RR_Rotate_0:
++	break;
++    case RR_Rotate_90:
++	t = x_dst;
++	x_dst = height - y_dst - 1;
++	y_dst = t;
++	break;
++    case RR_Rotate_180:
++	x_dst = width - x_dst - 1;
++	y_dst = height - y_dst - 1;
++	break;
++    case RR_Rotate_270:
++	t = x_dst;
++	x_dst = y_dst;
++	y_dst = width - t - 1;
++	break;
++    }
+     if (rotation & RR_Reflect_X)
+ 	x_dst = width - x_dst - 1;
+     if (rotation & RR_Reflect_Y)
+ 	y_dst = height - y_dst - 1;
++    *x_src = x_dst;
++    *y_src = y_dst;
++}
++
++/*
++ * Given a cursor source  coordinate, rotate to a screen coordinate
++ */
++static void
++xf86_crtc_rotate_coord_back (Rotation    rotation,
++			     int	    width,
++			     int	    height,
++			     int	    x_dst,
++			     int	    y_dst,
++			     int	    *x_src,
++			     int	    *y_src)
++{
++    int t;
+     
++    if (rotation & RR_Reflect_X)
++	x_dst = width - x_dst - 1;
++    if (rotation & RR_Reflect_Y)
++	y_dst = height - y_dst - 1;
++
+     switch (rotation & 0xf) {
+     case RR_Rotate_0:
+-	*x_src = x_dst;
+-	*y_src = y_dst;
+ 	break;
+     case RR_Rotate_90:
+-	*x_src = height - y_dst - 1;
+-	*y_src = x_dst;
++	t = x_dst;
++	x_dst = y_dst;
++	y_dst = width - t - 1;
+ 	break;
+     case RR_Rotate_180:
+-	*x_src = width - x_dst - 1;
+-	*y_src = height - y_dst - 1;
++	x_dst = width - x_dst - 1;
++	y_dst = height - y_dst - 1;
+ 	break;
+     case RR_Rotate_270:
+-	*x_src = y_dst;
+-	*y_src = width - x_dst - 1;
++	t = x_dst;
++	x_dst = height - y_dst - 1;
++	y_dst = t;
+ 	break;
+     }
++    *x_src = x_dst;
++    *y_src = y_dst;
+ }
+ 
+ /*
+@@ -212,7 +256,7 @@ xf86_crtc_hide_cursor (xf86CrtcPtr crtc)
+     }
+ }
+ 
+-void
++_X_EXPORT void
+ xf86_hide_cursors (ScrnInfoPtr scrn)
+ {
+     xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(scrn);
+@@ -238,7 +282,7 @@ xf86_crtc_show_cursor (xf86CrtcPtr crtc)
+     }
+ }
+ 
+-void
++_X_EXPORT void
+ xf86_show_cursors (ScrnInfoPtr scrn)
+ {
+     xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(scrn);
+@@ -261,49 +305,33 @@ xf86_crtc_set_cursor_position (xf86CrtcPtr crtc, int x, int y)
+     xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(scrn);
+     xf86CursorInfoPtr	cursor_info = xf86_config->cursor_info;
+     DisplayModePtr	mode = &crtc->mode;
+-    int			x_temp;
+-    int			y_temp;
+     Bool		in_range;
++    int			dx, dy;
+ 
+-    /* 
+-     * Move to crtc coordinate space
+-     */
+-    x -= crtc->x;
+-    y -= crtc->y;
+-    
+     /*
+-     * Rotate
++     * Transform position of cursor on screen
+      */
+-    switch ((crtc->rotation) & 0xf) {
+-    case RR_Rotate_0:
+-	break;
+-    case RR_Rotate_90:
+-	x_temp = y;
+-	y_temp = mode->VDisplay - cursor_info->MaxWidth - x;
+-	x = x_temp;
+-	y = y_temp;
+-	break;
+-    case RR_Rotate_180:
+-	x_temp = mode->HDisplay - cursor_info->MaxWidth - x;
+-	y_temp = mode->VDisplay - cursor_info->MaxHeight - y;
+-	x = x_temp;
+-	y = y_temp;
+-	break;
+-    case RR_Rotate_270:
+-	x_temp = mode->HDisplay - cursor_info->MaxHeight -  y;
+-	y_temp = x;
+-	x = x_temp;
+-	y = y_temp;
+-	break;
++    if (crtc->transform_in_use)
++    {
++	PictVector	v;
++	v.vector[0] = IntToxFixed (x); v.vector[1] = IntToxFixed (y); v.vector[2] = IntToxFixed(1);
++	PictureTransformPoint (&crtc->framebuffer_to_crtc, &v);
++	x = xFixedToInt (v.vector[0]); y = xFixedToInt (v.vector[1]);
++    }
++    else
++    {
++	x -= crtc->x;
++	y -= crtc->y;
+     }
+-    
+     /*
+-     * Reflect
++     * Transform position of cursor upper left corner
+      */
+-    if (crtc->rotation & RR_Reflect_X)
+-	x = mode->HDisplay - cursor_info->MaxWidth - x;
+-    if (crtc->rotation & RR_Reflect_Y)
+-	y = mode->VDisplay - cursor_info->MaxHeight - y;
++    xf86_crtc_rotate_coord_back (crtc->rotation,
++				 cursor_info->MaxWidth,
++				 cursor_info->MaxHeight,
++				 0, 0, &dx, &dy);
++    x -= dx;
++    y -= dy;
+ 
+     /*
+      * Disable the cursor when it is outside the viewport
+@@ -419,7 +447,10 @@ xf86_use_hw_cursor (ScreenPtr screen, CursorPtr cursor)
+     xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(scrn);
+     xf86CursorInfoPtr	cursor_info = xf86_config->cursor_info;
+ 
++    if (xf86_config->cursor)
++	FreeCursor (xf86_config->cursor, None);
+     xf86_config->cursor = cursor;
++    ++cursor->refcnt;
+     
+     if (cursor->bits->width > cursor_info->MaxWidth ||
+ 	cursor->bits->height> cursor_info->MaxHeight)
+@@ -435,7 +466,10 @@ xf86_use_hw_cursor_argb (ScreenPtr screen, CursorPtr cursor)
+     xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(scrn);
+     xf86CursorInfoPtr	cursor_info = xf86_config->cursor_info;
+     
++    if (xf86_config->cursor)
++	FreeCursor (xf86_config->cursor, None);
+     xf86_config->cursor = cursor;
++    ++cursor->refcnt;
+     
+     /* Make sure ARGB support is available */
+     if ((cursor_info->Flags & HARDWARE_CURSOR_ARGB) == 0)
+@@ -494,7 +528,7 @@ xf86_load_cursor_argb (ScrnInfoPtr scrn, CursorPtr cursor)
+     }
+ }
+ 
+-Bool
++_X_EXPORT Bool
+ xf86_cursors_init (ScreenPtr screen, int max_width, int max_height, int flags)
+ {
+     ScrnInfoPtr		scrn = xf86Screens[screen->myNum];
+@@ -545,7 +579,7 @@ xf86_cursors_init (ScreenPtr screen, int max_width, int max_height, int flags)
+  * Reloads cursor images as needed, then adjusts cursor positions
+  */
+ 
+-void
++_X_EXPORT void
+ xf86_reload_cursors (ScreenPtr screen)
+ {
+     ScrnInfoPtr		scrn;
+@@ -588,7 +622,7 @@ xf86_reload_cursors (ScreenPtr screen)
+ /**
+  * Clean up CRTC-based cursor code
+  */
+-void
++_X_EXPORT void
+ xf86_cursors_fini (ScreenPtr screen)
+ {
+     ScrnInfoPtr		scrn = xf86Screens[screen->myNum];
+@@ -604,4 +638,9 @@ xf86_cursors_fini (ScreenPtr screen)
+ 	xfree (xf86_config->cursor_image);
+ 	xf86_config->cursor_image = NULL;
+     }
++    if (xf86_config->cursor)
++    {
++	FreeCursor (xf86_config->cursor, None);
++	xf86_config->cursor = NULL;
++    }
+ }
+diff --git a/hw/xfree86/modes/xf86DiDGA.c b/hw/xfree86/modes/xf86DiDGA.c
+index 0964cef..f40d0ab 100644
+--- a/hw/xfree86/modes/xf86DiDGA.c
++++ b/hw/xfree86/modes/xf86DiDGA.c
+@@ -255,7 +255,7 @@ static DGAFunctionRec xf86_dga_funcs = {
+    NULL
+ };
+ 
+-Bool
++_X_EXPORT Bool
+ xf86DiDGAReInit (ScreenPtr pScreen)
+ {
+     ScrnInfoPtr		scrn = xf86Screens[pScreen->myNum];
+@@ -267,7 +267,7 @@ xf86DiDGAReInit (ScreenPtr pScreen)
+     return DGAReInitModes (pScreen, xf86_config->dga_modes, xf86_config->dga_nmode);
+ }
+ 
+-Bool
++_X_EXPORT Bool
+ xf86DiDGAInit (ScreenPtr pScreen, unsigned long dga_address)
+ {
+     ScrnInfoPtr		scrn = xf86Screens[pScreen->myNum];
+diff --git a/hw/xfree86/modes/xf86EdidModes.c b/hw/xfree86/modes/xf86EdidModes.c
+index edcd636..8b5e69d 100644
+--- a/hw/xfree86/modes/xf86EdidModes.c
++++ b/hw/xfree86/modes/xf86EdidModes.c
+@@ -22,8 +22,9 @@
+  */
+ 
+ /**
+- * @file This is a copy of edid_modes.c from the X Server, for compatibility
+- * with old X Servers.
++ * @file This file covers code to convert a xf86MonPtr containing EDID-probed
++ * information into a list of modes, including applying monitor-specific
++ * quirks to fix broken EDID data.
+  */
+ #ifdef HAVE_XORG_CONFIG_H
+ #include <xorg-config.h>
+@@ -49,32 +50,12 @@
+ 
+ typedef enum {
+     DDC_QUIRK_NONE = 0,
+-    /* Force detailed sync polarity to -h +v */
+-    DDC_QUIRK_DT_SYNC_HM_VP = 1 << 0,
+     /* First detailed mode is bogus, prefer largest mode at 60hz */
+-    DDC_QUIRK_PREFER_LARGE_60 = 1 << 1,
++    DDC_QUIRK_PREFER_LARGE_60 = 1 << 0,
+     /* 135MHz clock is too high, drop a bit */
+-    DDC_QUIRK_135_CLOCK_TOO_HIGH = 1 << 2
++    DDC_QUIRK_135_CLOCK_TOO_HIGH = 1 << 1,
+ } ddc_quirk_t;
+ 
+-static Bool quirk_dt_sync_hm_vp (int scrnIndex, xf86MonPtr DDC)
+-{
+-    /* Belinea 1924S1W */
+-    if (memcmp (DDC->vendor.name, "MAX", 4) == 0 &&
+-	DDC->vendor.prod_id == 1932)
+-	return TRUE;
+-    /* Belinea 10 20 30W */
+-    if (memcmp (DDC->vendor.name, "MAX", 4) == 0 &&
+-	DDC->vendor.prod_id == 2007)
+-	return TRUE;
+-    /* ViewSonic VX2025wm (bug #9941) */
+-    if (memcmp (DDC->vendor.name, "VSC", 4) == 0 &&
+-	DDC->vendor.prod_id == 58653)
+-	return TRUE;
+-
+-    return FALSE;
+-}
+-
+ static Bool quirk_prefer_large_60 (int scrnIndex, xf86MonPtr DDC)
+ {
+     /* Belinea 10 15 55 */
+@@ -87,11 +68,16 @@ static Bool quirk_prefer_large_60 (int scrnIndex, xf86MonPtr DDC)
+ 	DDC->vendor.prod_id == 44358)
+ 	return TRUE;
+ 
+-    /* Samsung SyncMaster 226BW */
++    /* Bug #10814: Samsung SyncMaster 225BW */
++    if (memcmp (DDC->vendor.name, "SAM", 4) == 0 &&
++	DDC->vendor.prod_id == 596)
++	return TRUE;
++
++    /* Bug #10545: Samsung SyncMaster 226BW */
+     if (memcmp (DDC->vendor.name, "SAM", 4) == 0 &&
+ 	DDC->vendor.prod_id == 638)
+ 	return TRUE;
+-    
++
+     return FALSE;
+ }
+ 
+@@ -112,10 +98,6 @@ typedef struct {
+ } ddc_quirk_map_t;
+ 
+ static const ddc_quirk_map_t ddc_quirks[] = {
+-    { 
+-	quirk_dt_sync_hm_vp,	DDC_QUIRK_DT_SYNC_HM_VP,
+-	"Set detailed timing sync polarity to -h +v"
+-    },
+     {
+ 	quirk_prefer_large_60,   DDC_QUIRK_PREFER_LARGE_60,
+ 	"Detailed timing is not preferred, use largest mode at 60Hz"
+@@ -207,6 +189,19 @@ DDCModeFromDetailedTiming(int scrnIndex, struct detailed_timings *timing,
+ {
+     DisplayModePtr Mode;
+ 
++    /*
++     * Refuse to create modes that are insufficiently large.  64 is a random
++     * number, maybe the spec says something about what the minimum is.  In
++     * particular I see this frequently with _old_ EDID, 1.0 or so, so maybe
++     * our parser is just being too aggresive there.
++     */
++    if (timing->h_active < 64 || timing->v_active < 64) {
++	xf86DrvMsg(scrnIndex, X_INFO,
++		   "%s: Ignoring tiny %dx%d mode\n", __func__,
++		   timing->h_active, timing->v_active);
++	return NULL;
++    }
++
+     /* We don't do stereo */
+     if (timing->stereo) {
+         xf86DrvMsg(scrnIndex, X_INFO,
+@@ -251,25 +246,64 @@ DDCModeFromDetailedTiming(int scrnIndex, struct detailed_timings *timing,
+     if (timing->interlaced)
+         Mode->Flags |= V_INTERLACE;
+ 
+-    if (quirks & DDC_QUIRK_DT_SYNC_HM_VP)
+-	Mode->Flags |= V_NHSYNC | V_PVSYNC;
++    if (timing->misc & 0x02)
++	Mode->Flags |= V_PVSYNC;
+     else
+-    {
+-	if (timing->misc & 0x02)
+-	    Mode->Flags |= V_PHSYNC;
+-	else
+-	    Mode->Flags |= V_NHSYNC;
+-    
+-	if (timing->misc & 0x01)
+-	    Mode->Flags |= V_PVSYNC;
+-	else
+-	    Mode->Flags |= V_NVSYNC;
+-    }
++	Mode->Flags |= V_NVSYNC;
++
++    if (timing->misc & 0x01)
++	Mode->Flags |= V_PHSYNC;
++    else
++	Mode->Flags |= V_NHSYNC;
+ 
+     return Mode;
+ }
+ 
+-DisplayModePtr
++/*
++ *
++ */
++static void
++DDCGuessRangesFromModes(int scrnIndex, MonPtr Monitor, DisplayModePtr Modes)
++{
++    DisplayModePtr Mode = Modes;
++
++    if (!Monitor || !Modes)
++        return;
++
++    /* set up the ranges for scanning through the modes */
++    Monitor->nHsync = 1;
++    Monitor->hsync[0].lo = 1024.0;
++    Monitor->hsync[0].hi = 0.0;
++
++    Monitor->nVrefresh = 1;
++    Monitor->vrefresh[0].lo = 1024.0;
++    Monitor->vrefresh[0].hi = 0.0;
++
++    while (Mode) {
++        if (!Mode->HSync)
++            Mode->HSync = ((float) Mode->Clock ) / ((float) Mode->HTotal);
++
++        if (!Mode->VRefresh)
++            Mode->VRefresh = (1000.0 * ((float) Mode->Clock)) / 
++                ((float) (Mode->HTotal * Mode->VTotal));
++
++        if (Mode->HSync < Monitor->hsync[0].lo)
++            Monitor->hsync[0].lo = Mode->HSync;
++
++        if (Mode->HSync > Monitor->hsync[0].hi)
++            Monitor->hsync[0].hi = Mode->HSync;
++
++        if (Mode->VRefresh < Monitor->vrefresh[0].lo)
++            Monitor->vrefresh[0].lo = Mode->VRefresh;
++
++        if (Mode->VRefresh > Monitor->vrefresh[0].hi)
++            Monitor->vrefresh[0].hi = Mode->VRefresh;
++
++        Mode = Mode->next;
++    }
++}
++
++_X_EXPORT DisplayModePtr
+ xf86DDCGetModes(int scrnIndex, xf86MonPtr DDC)
+ {
+     int preferred, i;
+@@ -351,3 +385,107 @@ xf86DDCGetModes(int scrnIndex, xf86MonPtr DDC)
+     }
+     return Modes;
+ }
++
++/*
++ * Fill out MonPtr with xf86MonPtr information.
++ */
++_X_EXPORT void
++xf86DDCMonitorSet(int scrnIndex, MonPtr Monitor, xf86MonPtr DDC)
++{
++    DisplayModePtr Modes = NULL, Mode;
++    int i, clock;
++    Bool have_hsync = FALSE, have_vrefresh = FALSE, have_maxpixclock = FALSE;
++
++    if (!Monitor || !DDC)
++        return;
++
++    Monitor->DDC = DDC;
++
++    Monitor->widthmm = 10 * DDC->features.hsize;
++    Monitor->heightmm = 10 * DDC->features.vsize;
++
++    /* If this is a digital display, then we can use reduced blanking */
++    if (DDC->features.input_type)
++        Monitor->reducedblanking = TRUE;
++    /* Allow the user to also enable this through config */
++
++    Modes = xf86DDCGetModes(scrnIndex, DDC);
++
++    /* Skip EDID ranges if they were specified in the config file */
++    have_hsync = (Monitor->nHsync != 0);
++    have_vrefresh = (Monitor->nVrefresh != 0);
++    have_maxpixclock = (Monitor->maxPixClock != 0);
++
++    /* Go through the detailed monitor sections */
++    for (i = 0; i < DET_TIMINGS; i++) {
++        switch (DDC->det_mon[i].type) {
++        case DS_RANGES:
++	    if (!have_hsync) {
++		if (!Monitor->nHsync)
++		    xf86DrvMsg(scrnIndex, X_INFO,
++			    "Using EDID range info for horizontal sync\n");
++		Monitor->hsync[Monitor->nHsync].lo =
++		    DDC->det_mon[i].section.ranges.min_h;
++		Monitor->hsync[Monitor->nHsync].hi =
++		    DDC->det_mon[i].section.ranges.max_h;
++		Monitor->nHsync++;
++	    } else {
++		xf86DrvMsg(scrnIndex, X_INFO,
++			"Using hsync ranges from config file\n");
++	    }
++
++	    if (!have_vrefresh) {
++		if (!Monitor->nVrefresh)
++		    xf86DrvMsg(scrnIndex, X_INFO,
++			    "Using EDID range info for vertical refresh\n");
++		Monitor->vrefresh[Monitor->nVrefresh].lo =
++		    DDC->det_mon[i].section.ranges.min_v;
++		Monitor->vrefresh[Monitor->nVrefresh].hi =
++		    DDC->det_mon[i].section.ranges.max_v;
++		Monitor->nVrefresh++;
++	    } else {
++		xf86DrvMsg(scrnIndex, X_INFO,
++			"Using vrefresh ranges from config file\n");
++	    }
++
++	    clock = DDC->det_mon[i].section.ranges.max_clock * 1000;
++	    if (!have_maxpixclock && clock > Monitor->maxPixClock)
++		Monitor->maxPixClock = clock;
++
++            break;
++        default:
++            break;
++        }
++    }
++
++    if (Modes) {
++        /* Print Modes */
++        xf86DrvMsg(scrnIndex, X_INFO, "Printing DDC gathered Modelines:\n");
++
++        Mode = Modes;
++        while (Mode) {
++            xf86PrintModeline(scrnIndex, Mode);
++            Mode = Mode->next;
++        }
++
++        /* Do we still need ranges to be filled in? */
++        if (!Monitor->nHsync || !Monitor->nVrefresh)
++            DDCGuessRangesFromModes(scrnIndex, Monitor, Modes);
++
++        /* look for last Mode */
++        Mode = Modes;
++
++        while (Mode->next)
++            Mode = Mode->next;
++
++        /* add to MonPtr */
++        if (Monitor->Modes) {
++            Monitor->Last->next = Modes;
++            Modes->prev = Monitor->Last;
++            Monitor->Last = Mode;
++        } else {
++            Monitor->Modes = Modes;
++            Monitor->Last = Mode;
++        }
++    }
++}
+diff --git a/hw/xfree86/modes/xf86Modes.c b/hw/xfree86/modes/xf86Modes.c
+index 5b52bd7..f49c292 100644
+--- a/hw/xfree86/modes/xf86Modes.c
++++ b/hw/xfree86/modes/xf86Modes.c
+@@ -1,6 +1,3 @@
+-/* -*- c-basic-offset: 4 -*- */
+-/* $XdotOrg: xserver/xorg/hw/xfree86/common/xf86Mode.c,v 1.10 2006/03/07 16:00:57 libv Exp $ */
+-/* $XFree86: xc/programs/Xserver/hw/xfree86/common/xf86Mode.c,v 1.69 2003/10/08 14:58:28 dawes Exp $ */
+ /*
+  * Copyright (c) 1997-2003 by The XFree86 Project, Inc.
+  *
+@@ -52,7 +49,7 @@ extern XF86ConfigPtr xf86configptr;
+  *
+  * Exact copy of xf86Mode.c's.
+  */
+-double
++_X_EXPORT double
+ xf86ModeHSync(DisplayModePtr mode)
+ {
+     double hsync = 0.0;
+@@ -70,7 +67,7 @@ xf86ModeHSync(DisplayModePtr mode)
+  *
+  * Exact copy of xf86Mode.c's.
+  */
+-double
++_X_EXPORT double
+ xf86ModeVRefresh(DisplayModePtr mode)
+ {
+     double refresh = 0.0;
+@@ -89,7 +86,7 @@ xf86ModeVRefresh(DisplayModePtr mode)
+     return refresh;
+ }
+ 
+-int
++_X_EXPORT int
+ xf86ModeWidth (DisplayModePtr mode, Rotation rotation)
+ {
+     switch (rotation & 0xf) {
+@@ -104,7 +101,7 @@ xf86ModeWidth (DisplayModePtr mode, Rotation rotation)
+     }
+ }
+ 
+-int
++_X_EXPORT int
+ xf86ModeHeight (DisplayModePtr mode, Rotation rotation)
+ {
+     switch (rotation & 0xf) {
+@@ -120,7 +117,7 @@ xf86ModeHeight (DisplayModePtr mode, Rotation rotation)
+ }
+ 
+ /** Sets a default mode name of <width>x<height> on a mode. */
+-void
++_X_EXPORT void
+ xf86SetModeDefaultName(DisplayModePtr mode)
+ {
+     if (mode->name != NULL)
+@@ -137,7 +134,7 @@ xf86SetModeDefaultName(DisplayModePtr mode)
+  *
+  * Exact copy of xf86Mode.c's.
+  */
+-void
++_X_EXPORT void
+ xf86SetModeCrtc(DisplayModePtr p, int adjustFlags)
+ {
+     if ((p == NULL) || ((p->type & M_T_CRTC_C) == M_T_BUILTIN))
+@@ -188,7 +185,7 @@ xf86SetModeCrtc(DisplayModePtr p, int adjustFlags)
+ /**
+  * Allocates and returns a copy of pMode, including pointers within pMode.
+  */
+-DisplayModePtr
++_X_EXPORT DisplayModePtr
+ xf86DuplicateMode(DisplayModePtr pMode)
+ {
+     DisplayModePtr pNew;
+@@ -212,7 +209,7 @@ xf86DuplicateMode(DisplayModePtr pMode)
+  *
+  * \param modeList doubly-linked mode list
+  */
+-DisplayModePtr
++_X_EXPORT DisplayModePtr
+ xf86DuplicateModes(ScrnInfoPtr pScrn, DisplayModePtr modeList)
+ {
+     DisplayModePtr first = NULL, last = NULL;
+@@ -246,7 +243,7 @@ xf86DuplicateModes(ScrnInfoPtr pScrn, DisplayModePtr modeList)
+  *
+  * This isn't in xf86Modes.c, but it might deserve to be there.
+  */
+-Bool
++_X_EXPORT Bool
+ xf86ModesEqual(DisplayModePtr pMode1, DisplayModePtr pMode2)
+ {
+      if (pMode1->Clock == pMode2->Clock &&
+@@ -282,7 +279,7 @@ add(char **p, char *new)
+  *
+  * Convenient VRefresh printing was added, though, compared to xf86Mode.c
+  */
+-void
++_X_EXPORT void
+ xf86PrintModeline(int scrnIndex,DisplayModePtr mode)
+ {
+     char tmp[256];
+@@ -330,7 +327,7 @@ xf86PrintModeline(int scrnIndex,DisplayModePtr mode)
+  *
+  * This is not in xf86Modes.c, but would be part of the proposed new API.
+  */
+-void
++_X_EXPORT void
+ xf86ValidateModesFlags(ScrnInfoPtr pScrn, DisplayModePtr modeList,
+ 			    int flags)
+ {
+@@ -351,7 +348,7 @@ xf86ValidateModesFlags(ScrnInfoPtr pScrn, DisplayModePtr modeList,
+  *
+  * This is not in xf86Modes.c, but would be part of the proposed new API.
+  */
+-void
++_X_EXPORT void
+ xf86ValidateModesSize(ScrnInfoPtr pScrn, DisplayModePtr modeList,
+ 			  int maxX, int maxY, int maxPitch)
+ {
+@@ -380,7 +377,7 @@ xf86ValidateModesSize(ScrnInfoPtr pScrn, DisplayModePtr modeList,
+  *
+  * This is not in xf86Modes.c, but would be part of the proposed new API.
+  */
+-void
++_X_EXPORT void
+ xf86ValidateModesSync(ScrnInfoPtr pScrn, DisplayModePtr modeList,
+ 			  MonPtr mon)
+ {
+@@ -427,7 +424,7 @@ xf86ValidateModesSync(ScrnInfoPtr pScrn, DisplayModePtr modeList,
+  *
+  * This is not in xf86Modes.c, but would be part of the proposed new API.
+  */
+-void
++_X_EXPORT void
+ xf86ValidateModesClocks(ScrnInfoPtr pScrn, DisplayModePtr modeList,
+ 			    int *min, int *max, int n_ranges)
+ {
+@@ -461,7 +458,7 @@ xf86ValidateModesClocks(ScrnInfoPtr pScrn, DisplayModePtr modeList,
+  *
+  * This is not in xf86Modes.c, but would be part of the proposed new API.
+  */
+-void
++_X_EXPORT void
+ xf86ValidateModesUserConfig(ScrnInfoPtr pScrn, DisplayModePtr modeList)
+ {
+     DisplayModePtr mode;
+@@ -495,7 +492,7 @@ xf86ValidateModesUserConfig(ScrnInfoPtr pScrn, DisplayModePtr modeList)
+  *
+  * This is not in xf86Modes.c, but would be part of the proposed new API.
+  */
+-void
++_X_EXPORT void
+ xf86PruneInvalidModes(ScrnInfoPtr pScrn, DisplayModePtr *modeList,
+ 			  Bool verbose)
+ {
+@@ -529,7 +526,7 @@ xf86PruneInvalidModes(ScrnInfoPtr pScrn, DisplayModePtr *modeList,
+  *
+  * \param modes doubly-linked mode list.
+  */
+-DisplayModePtr
++_X_EXPORT DisplayModePtr
+ xf86ModesAdd(DisplayModePtr modes, DisplayModePtr new)
+ {
+     if (modes == NULL)
+@@ -595,7 +592,7 @@ xf86GetConfigModes (XF86ConfModeLinePtr conf_mode)
+ /**
+  * Build a mode list from a monitor configuration
+  */
+-DisplayModePtr
++_X_EXPORT DisplayModePtr
+ xf86GetMonitorModes (ScrnInfoPtr pScrn, XF86ConfMonitorPtr conf_monitor)
+ {
+     DisplayModePtr	    modes = NULL;
+@@ -627,7 +624,7 @@ xf86GetMonitorModes (ScrnInfoPtr pScrn, XF86ConfMonitorPtr conf_monitor)
+ /**
+  * Build a mode list containing all of the default modes
+  */
+-DisplayModePtr
++_X_EXPORT DisplayModePtr
+ xf86GetDefaultModes (Bool interlaceAllowed, Bool doubleScanAllowed)
+ {
+     DisplayModePtr  head = NULL, prev = NULL, mode;
+diff --git a/hw/xfree86/modes/xf86RandR12.c b/hw/xfree86/modes/xf86RandR12.c
+index 90de585..38435c9 100644
+--- a/hw/xfree86/modes/xf86RandR12.c
++++ b/hw/xfree86/modes/xf86RandR12.c
+@@ -1,7 +1,4 @@
+-/* $XdotOrg: xc/programs/Xserver/hw/xfree86/common/xf86RandR.c,v 1.3 2004/07/30 21:53:09 eich Exp $ */
+ /*
+- * $XFree86: xc/programs/Xserver/hw/xfree86/common/xf86RandR.c,v 1.7tsi Exp $
+- *
+  * Copyright © 2002 Keith Packard, member of The XFree86 Project, Inc.
+  *
+  * Permission to use, copy, modify, distribute, and sell this software and its
+@@ -96,9 +93,12 @@ xf86RandR12GetInfo (ScreenPtr pScreen, Rotation *rotations)
+     }
+ 
+     /* Re-probe the outputs for new monitors or modes */
+-    xf86ProbeOutputModes (scrp, 0, 0);
+-    xf86SetScrnInfoModes (scrp);
+-    xf86DiDGAReInit (pScreen);
++    if (scrp->vtSema)
++    {
++	xf86ProbeOutputModes (scrp, 0, 0);
++	xf86SetScrnInfoModes (scrp);
++	xf86DiDGAReInit (pScreen);
++    }
+ 
+     for (mode = scrp->modes; ; mode = mode->next)
+     {
+@@ -244,7 +244,7 @@ xf86RandR12SetMode (ScreenPtr	    pScreen,
+     return ret;
+ }
+ 
+-Bool
++_X_EXPORT Bool
+ xf86RandR12SetConfig (ScreenPtr		pScreen,
+ 		    Rotation		rotation,
+ 		    int			rate,
+@@ -337,6 +337,7 @@ xf86RandR12ScreenSetSize (ScreenPtr	pScreen,
+     ScrnInfoPtr		pScrn = XF86SCRNINFO(pScreen);
+     xf86CrtcConfigPtr	config = XF86_CRTC_CONFIG_PTR(pScrn);
+     WindowPtr		pRoot = WindowTable[pScreen->myNum];
++    PixmapPtr		pScrnPix = (*pScreen->GetScreenPixmap)(pScreen);
+     Bool		ret = FALSE;
+ 
+     if (randrp->virtualX == -1 || randrp->virtualY == -1)
+@@ -344,7 +345,7 @@ xf86RandR12ScreenSetSize (ScreenPtr	pScreen,
+ 	randrp->virtualX = pScrn->virtualX;
+ 	randrp->virtualY = pScrn->virtualY;
+     }
+-    if (pRoot)
++    if (pRoot && pScrn->vtSema)
+ 	(*pScrn->EnableDisableFBAccess) (pScreen->myNum, FALSE);
+ 
+     /* Let the driver update virtualX and virtualY */
+@@ -353,8 +354,8 @@ xf86RandR12ScreenSetSize (ScreenPtr	pScreen,
+ 
+     ret = TRUE;
+ 
+-    pScreen->width = width;
+-    pScreen->height = height;
++    pScreen->width = pScrnPix->drawable.width = width;
++    pScreen->height = pScrnPix->drawable.height = height;
+     pScreen->mmWidth = mmWidth;
+     pScreen->mmHeight = mmHeight;
+ 
+@@ -362,7 +363,7 @@ xf86RandR12ScreenSetSize (ScreenPtr	pScreen,
+     xf86SetViewport (pScreen, 0, 0);
+ 
+ finish:
+-    if (pRoot)
++    if (pRoot && pScrn->vtSema)
+ 	(*pScrn->EnableDisableFBAccess) (pScreen->myNum, TRUE);
+ #if RANDR_12_INTERFACE
+     if (WindowTable[pScreen->myNum] && ret)
+@@ -371,7 +372,7 @@ finish:
+     return ret;
+ }
+ 
+-Rotation
++_X_EXPORT Rotation
+ xf86RandR12GetRotation(ScreenPtr pScreen)
+ {
+     XF86RandRInfoPtr	    randrp = XF86RANDRINFO(pScreen);
+@@ -379,7 +380,7 @@ xf86RandR12GetRotation(ScreenPtr pScreen)
+     return randrp->rotation;
+ }
+ 
+-Bool
++_X_EXPORT Bool
+ xf86RandR12CreateScreenResources (ScreenPtr pScreen)
+ {
+     ScrnInfoPtr		pScrn = xf86Screens[pScreen->myNum];
+@@ -469,7 +470,7 @@ xf86RandR12CreateScreenResources (ScreenPtr pScreen)
+ }
+ 
+ 
+-Bool
++_X_EXPORT Bool
+ xf86RandR12Init (ScreenPtr pScreen)
+ {
+     rrScrPrivPtr	rp;
+@@ -519,7 +520,7 @@ xf86RandR12Init (ScreenPtr pScreen)
+     return TRUE;
+ }
+ 
+-void
++_X_EXPORT void
+ xf86RandR12SetRotations (ScreenPtr pScreen, Rotation rotations)
+ {
+     XF86RandRInfoPtr	randrp = XF86RANDRINFO(pScreen);
+@@ -537,7 +538,7 @@ xf86RandR12SetRotations (ScreenPtr pScreen, Rotation rotations)
+     randrp->supported_rotations = rotations;
+ }
+ 
+-void
++_X_EXPORT void
+ xf86RandR12GetOriginalVirtualSize(ScrnInfoPtr pScrn, int *x, int *y)
+ {
+     ScreenPtr pScreen = screenInfo.screens[pScrn->scrnIndex];
+@@ -715,7 +716,7 @@ xf86RandR12CrtcSet (ScreenPtr	pScreen,
+     xf86CrtcPtr		*save_crtcs;
+     Bool		save_enabled = crtc->enabled;
+ 
+-    save_crtcs = ALLOCATE_LOCAL(config->num_crtc * sizeof (xf86CrtcPtr));
++    save_crtcs = ALLOCATE_LOCAL(config->num_output * sizeof (xf86CrtcPtr));
+     if ((randr_mode != NULL) != crtc->enabled)
+ 	changed = TRUE;
+     else if (randr_mode && !xf86RandRModeMatches (randr_mode, &crtc->mode))
+@@ -749,6 +750,10 @@ xf86RandR12CrtcSet (ScreenPtr	pScreen,
+ 	    output->crtc = new_crtc;
+ 	}
+     }
++    for (ro = 0; ro < num_randr_outputs; ro++) 
++        if (randr_outputs[ro]->pendingProperties)
++	    changed = TRUE;
++
+     /* XXX need device-independent mode setting code through an API */
+     if (changed)
+     {
+@@ -793,6 +798,9 @@ xf86RandR12CrtcSetGamma (ScreenPtr    pScreen,
+     if (crtc->funcs->gamma_set == NULL)
+ 	return FALSE;
+ 
++    if (!crtc->scrn->vtSema)
++	return TRUE;
++
+     crtc->funcs->gamma_set(crtc, randr_crtc->gammaRed, randr_crtc->gammaGreen,
+ 			   randr_crtc->gammaBlue, randr_crtc->gammaSize);
+ 
+@@ -813,6 +821,11 @@ xf86RandR12OutputSetProperty (ScreenPtr pScreen,
+     if (output->funcs->set_property == NULL)
+ 	return TRUE;
+ 
++    /*
++     * This function gets called even when vtSema is FALSE, as
++     * drivers will need to remember the correct value to apply
++     * when the VT switch occurs
++     */
+     return output->funcs->set_property(output, property, value);
+ }
+ 
+@@ -826,6 +839,11 @@ xf86RandR12OutputValidateMode (ScreenPtr    pScreen,
+     DisplayModeRec  mode;
+ 
+     xf86RandRModeConvert (pScrn, randr_mode, &mode);
++    /*
++     * This function may be called when vtSema is FALSE, so
++     * the underlying function must either avoid touching the hardware
++     * or return FALSE when vtSema is FALSE
++     */
+     if (output->funcs->mode_valid (output, &mode) != MODE_OK)
+ 	return FALSE;
+     return TRUE;
+@@ -933,7 +951,6 @@ xf86RandR12SetInfo12 (ScreenPtr pScreen)
+ 	    return FALSE;
+ 	}
+ 
+-	RROutputSetCrtc (output->randr_output, randr_crtc);
+ 	RROutputSetPhysicalSize(output->randr_output, 
+ 				output->mm_width,
+ 				output->mm_height);
+@@ -987,6 +1004,8 @@ xf86RandR12GetInfo12 (ScreenPtr pScreen, Rotation *rotations)
+ {
+     ScrnInfoPtr		pScrn = xf86Screens[pScreen->myNum];
+ 
++    if (!pScrn->vtSema)
++	return TRUE;
+     xf86ProbeOutputModes (pScrn, 0, 0);
+     xf86SetScrnInfoModes (pScrn);
+     xf86DiDGAReInit (pScreen);
+@@ -1053,7 +1072,7 @@ xf86RandR12CreateScreenResources12 (ScreenPtr pScreen)
+  * to DGA, VidMode or hot key. Tell RandR
+  */
+ 
+-void
++_X_EXPORT void
+ xf86RandR12TellChanged (ScreenPtr pScreen)
+ {
+     ScrnInfoPtr		pScrn = xf86Screens[pScreen->myNum];
+@@ -1103,7 +1122,7 @@ xf86RandR12Init12 (ScreenPtr pScreen)
+ 
+ #endif
+ 
+-Bool
++_X_EXPORT Bool
+ xf86RandR12PreInit (ScrnInfoPtr pScrn)
+ {
+     return TRUE;
+diff --git a/hw/xfree86/modes/xf86RandR12.h b/hw/xfree86/modes/xf86RandR12.h
+index 0d3346a..4fd855c 100644
+--- a/hw/xfree86/modes/xf86RandR12.h
++++ b/hw/xfree86/modes/xf86RandR12.h
+@@ -24,6 +24,9 @@
+ #define _XF86_RANDR_H_
+ #include <randrstr.h>
+ #include <X11/extensions/render.h>
++#if XF86_MODES_RENAME
++#include "xf86Rename.h"
++#endif
+ 
+ Bool xf86RandR12CreateScreenResources (ScreenPtr pScreen);
+ Bool xf86RandR12Init(ScreenPtr pScreen);
+diff --git a/hw/xfree86/modes/xf86Rename.h b/hw/xfree86/modes/xf86Rename.h
+index 9dcfef5..b8c1d70 100644
+--- a/hw/xfree86/modes/xf86Rename.h
++++ b/hw/xfree86/modes/xf86Rename.h
+@@ -25,6 +25,12 @@
+ 
+ #include "local_xf86Rename.h"
+ 
++#define xf86_cursors_fini XF86NAME(xf86_cursors_fini)
++#define xf86_cursors_init XF86NAME(xf86_cursors_init)
++#define xf86_hide_cursors XF86NAME(xf86_hide_cursors)
++#define xf86_reload_cursors XF86NAME(xf86_reload_cursors)
++#define xf86_show_cursors XF86NAME(xf86_show_cursors)
++#define xf86ConnectorGetName XF86NAME(xf86ConnectorGetName)
+ #define xf86CrtcConfigInit XF86NAME(xf86CrtcConfigInit)
+ #define xf86CrtcConfigPrivateIndex XF86NAME(xf86CrtcConfigPrivateIndex)
+ #define xf86CrtcCreate XF86NAME(xf86CrtcCreate)
+@@ -35,6 +41,7 @@
+ #define xf86CrtcSetMode XF86NAME(xf86CrtcSetMode)
+ #define xf86CrtcSetSizeRange XF86NAME(xf86CrtcSetSizeRange)
+ #define xf86CVTMode XF86NAME(xf86CVTMode)
++#define xf86DDCMonitorSet XF86NAME(xf86DDCMonitorSet)
+ #define xf86DisableUnusedFunctions XF86NAME(xf86DisableUnusedFunctions)
+ #define xf86DPMSSet XF86NAME(xf86DPMSSet)
+ #define xf86DuplicateMode XF86NAME(xf86DuplicateMode)
+@@ -52,9 +59,11 @@
+ #define xf86OutputGetEDIDModes XF86NAME(xf86OutputGetEDIDModes)
+ #define xf86OutputRename XF86NAME(xf86OutputRename)
+ #define xf86OutputSetEDID XF86NAME(xf86OutputSetEDID)
++#define xf86OutputUseScreenMonitor XF86NAME(xf86OutputUseScreenMonitor)
+ #define xf86PrintModeline XF86NAME(xf86PrintModeline)
+ #define xf86ProbeOutputModes XF86NAME(xf86ProbeOutputModes)
+ #define xf86PruneInvalidModes XF86NAME(xf86PruneInvalidModes)
++#define xf86RotateCloseScreen XF86NAME(xf86RotateCloseScreen)
+ #define xf86SetModeCrtc XF86NAME(xf86SetModeCrtc)
+ #define xf86SetModeDefaultName XF86NAME(xf86SetModeDefaultName)
+ #define xf86SetScrnInfoModes XF86NAME(xf86SetScrnInfoModes)
+diff --git a/hw/xfree86/modes/xf86Rotate.c b/hw/xfree86/modes/xf86Rotate.c
+index 359501e..380478f 100644
+--- a/hw/xfree86/modes/xf86Rotate.c
++++ b/hw/xfree86/modes/xf86Rotate.c
+@@ -68,57 +68,204 @@ compWindowFormat (WindowPtr pWin)
+ 			       compGetWindowVisual (pWin));
+ }
+ 
++#define F(x)	IntToxFixed(x)
++
+ static void
+-xf86TranslateBox (BoxPtr b, int dx, int dy)
++PictureTransformIdentity (PictTransformPtr matrix)
++{
++    int	i;
++    memset (matrix, '\0', sizeof (PictTransform));
++    for (i = 0; i < 3; i++)
++	matrix->matrix[i][i] = F(1);
++}
++
++static Bool
++PictureTransformMultiply (PictTransformPtr dst, PictTransformPtr l, PictTransformPtr r)
+ {
+-    b->x1 += dx;
+-    b->y1 += dy;
+-    b->x2 += dx;
+-    b->y2 += dy;
++    PictTransform   d;
++    int		    dx, dy;
++    int		    o;
++
++    for (dy = 0; dy < 3; dy++)
++	for (dx = 0; dx < 3; dx++)
++	{
++	    xFixed_48_16    v;
++	    xFixed_32_32    partial;
++	    v = 0;
++	    for (o = 0; o < 3; o++)
++	    {
++		partial = (xFixed_32_32) l->matrix[dy][o] * (xFixed_32_32) r->matrix[o][dx];
++		v += partial >> 16;
++	    }
++	    if (v > MAX_FIXED_48_16 || v < MIN_FIXED_48_16)
++		return FALSE;
++	    d.matrix[dy][dx] = (xFixed) v;
++	}
++    *dst = d;
++    return TRUE;
+ }
+ 
+ static void
+-xf86TransformBox (BoxPtr dst, BoxPtr src, Rotation rotation,
+-		  int xoff, int yoff,
+-		  int dest_width, int dest_height)
++PictureTransformInitScale (PictTransformPtr t, xFixed sx, xFixed sy)
++{
++    memset (t, '\0', sizeof (PictTransform));
++    t->matrix[0][0] = sx;
++    t->matrix[1][1] = sy;
++    t->matrix[2][2] = F (1);
++}
++
++static xFixed
++fixed_inverse (xFixed x)
++{
++    return (xFixed) ((((xFixed_48_16) F(1)) * F(1)) / x);
++}
++
++static Bool
++PictureTransformScale (PictTransformPtr forward,
++		       PictTransformPtr reverse,
++		       xFixed sx, xFixed sy)
+ {
+-    BoxRec  stmp = *src;
++    PictTransform   t;
+     
+-    xf86TranslateBox (&stmp, -xoff, -yoff);
+-    switch (rotation & 0xf) {
+-    default:
+-    case RR_Rotate_0:
+-	*dst = stmp;
+-	break;
+-    case RR_Rotate_90:
+-	dst->x1 = stmp.y1;
+-	dst->y1 = dest_height - stmp.x2;
+-	dst->x2 = stmp.y2;
+-	dst->y2 = dest_height - stmp.x1;
+-	break;
+-    case RR_Rotate_180:
+-	dst->x1 = dest_width - stmp.x2;
+-	dst->y1 = dest_height - stmp.y2;
+-	dst->x2 = dest_width - stmp.x1;
+-	dst->y2 = dest_height - stmp.y1;
+-	break;
+-    case RR_Rotate_270:
+-	dst->x1 = dest_width - stmp.y2;
+-	dst->y1 = stmp.x1;
+-	dst->y2 = stmp.x2;
+-	dst->x2 = dest_width - stmp.y1;
+-	break;
+-    }
+-    if (rotation & RR_Reflect_X) {
+-	int x1 = dst->x1;
+-	dst->x1 = dest_width - dst->x2;
+-	dst->x2 = dest_width - x1;
++    PictureTransformInitScale (&t, sx, sy);
++    if (!PictureTransformMultiply (forward, &t, forward))
++	return FALSE;
++    PictureTransformInitScale (&t, fixed_inverse (sx), fixed_inverse (sy));
++    if (!PictureTransformMultiply (reverse, reverse, &t))
++	return FALSE;
++    return TRUE;
++}
++
++static void
++PictureTransformInitRotate (PictTransformPtr t, xFixed c, xFixed s)
++{
++    memset (t, '\0', sizeof (PictTransform));
++    t->matrix[0][0] = c;
++    t->matrix[0][1] = -s;
++    t->matrix[1][0] = s;
++    t->matrix[1][1] = c;
++    t->matrix[2][2] = F (1);
++}
++
++static Bool
++PictureTransformRotate (PictTransformPtr forward,
++			PictTransformPtr reverse,
++			xFixed c, xFixed s)
++{
++    PictTransform   t;
++    PictureTransformInitRotate (&t, c, s);
++    if (!PictureTransformMultiply (forward, &t, forward))
++	return FALSE;
++    
++    PictureTransformInitRotate (&t, c, -s);
++    if (!PictureTransformMultiply (reverse, reverse, &t))
++	return FALSE;
++    return TRUE;
++}
++
++static void
++PictureTransformInitTranslate (PictTransformPtr t, xFixed tx, xFixed ty)
++{
++    memset (t, '\0', sizeof (PictTransform));
++    t->matrix[0][0] = F (1);
++    t->matrix[0][2] = tx;
++    t->matrix[1][1] = F (1);
++    t->matrix[1][2] = ty;
++    t->matrix[2][2] = F (1);
++}
++
++static Bool
++PictureTransformTranslate (PictTransformPtr forward,
++			   PictTransformPtr reverse,
++			   xFixed tx, xFixed ty)
++{
++    PictTransform   t;
++    PictureTransformInitTranslate (&t, tx, ty);
++    if (!PictureTransformMultiply (forward, &t, forward))
++	return FALSE;
++    
++    PictureTransformInitTranslate (&t, -tx, -ty);
++    if (!PictureTransformMultiply (reverse, reverse, &t))
++	return FALSE;
++    return TRUE;
++}
++
++static void
++PictureTransformBounds (BoxPtr b, PictTransformPtr matrix)
++{
++    PictVector	v[4];
++    int		i;
++    int		x1, y1, x2, y2;
++
++    v[0].vector[0] = F (b->x1);    v[0].vector[1] = F (b->y1);	v[0].vector[2] = F(1);
++    v[1].vector[0] = F (b->x2);    v[1].vector[1] = F (b->y1);	v[1].vector[2] = F(1);
++    v[2].vector[0] = F (b->x2);    v[2].vector[1] = F (b->y2);	v[2].vector[2] = F(1);
++    v[3].vector[0] = F (b->x1);    v[3].vector[1] = F (b->y2);	v[3].vector[2] = F(1);
++    for (i = 0; i < 4; i++)
++    {
++	PictureTransformPoint (matrix, &v[i]);
++	x1 = xFixedToInt (v[i].vector[0]);
++	y1 = xFixedToInt (v[i].vector[1]);
++	x2 = xFixedToInt (xFixedCeil (v[i].vector[0]));
++	y2 = xFixedToInt (xFixedCeil (v[i].vector[1]));
++	if (i == 0)
++	{
++	    b->x1 = x1; b->y1 = y1;
++	    b->x2 = x2; b->y2 = y2;
++	}
++	else
++	{
++	    if (x1 < b->x1) b->x1 = x1;
++	    if (y1 < b->y1) b->y1 = y1;
++	    if (x2 > b->x2) b->x2 = x2;
++	    if (y2 > b->y2) b->y2 = y2;
++	}
+     }
+-    if (rotation & RR_Reflect_Y) {
+-	int y1 = dst->y1;
+-	dst->y1 = dest_height - dst->y2;
+-	dst->y2 = dest_height - y1;
++}
++
++static Bool
++PictureTransformIsIdentity(PictTransform *t)
++{
++    return ((t->matrix[0][0] == t->matrix[1][1]) &&
++            (t->matrix[0][0] == t->matrix[2][2]) &&
++            (t->matrix[0][0] != 0) &&
++            (t->matrix[0][1] == 0) &&
++            (t->matrix[0][2] == 0) &&
++            (t->matrix[1][0] == 0) &&
++            (t->matrix[1][2] == 0) &&
++            (t->matrix[2][0] == 0) &&
++            (t->matrix[2][1] == 0));
++}
++
++#define toF(x)	((float) (x) / 65536.0f)
++
++static void
++PictureTransformErrorF (PictTransform *t)
++{
++    ErrorF ("{ { %f %f %f } { %f %f %f } { %f %f %f } }",
++	    toF(t->matrix[0][0]), toF(t->matrix[0][1]), toF(t->matrix[0][2]), 
++	    toF(t->matrix[1][0]), toF(t->matrix[1][1]), toF(t->matrix[1][2]), 
++	    toF(t->matrix[2][0]), toF(t->matrix[2][1]), toF(t->matrix[2][2]));
++}
++
++static Bool
++PictureTransformIsInverse (char *where, PictTransform *a, PictTransform *b)
++{
++    PictTransform   t;
++
++    PictureTransformMultiply (&t, a, b);
++    if (!PictureTransformIsIdentity (&t))
++    {
++	ErrorF ("%s: ", where);
++	PictureTransformErrorF (a);
++	ErrorF (" * ");
++	PictureTransformErrorF (b);
++	ErrorF (" = ");
++	PictureTransformErrorF (a);
++	ErrorF ("\n");
++	return FALSE;
+     }
++    return TRUE;
+ }
+ 
+ static void
+@@ -131,7 +278,6 @@ xf86RotateCrtcRedisplay (xf86CrtcPtr crtc, RegionPtr region)
+     PictFormatPtr	format = compWindowFormat (WindowTable[screen->myNum]);
+     int			error;
+     PicturePtr		src, dst;
+-    PictTransform	transform;
+     int			n = REGION_NUM_RECTS(region);
+     BoxPtr		b = REGION_RECTS(region);
+     XID			include_inferiors = IncludeInferiors;
+@@ -156,45 +302,7 @@ xf86RotateCrtcRedisplay (xf86CrtcPtr crtc, RegionPtr region)
+     if (!dst)
+ 	return;
+ 
+-    memset (&transform, '\0', sizeof (transform));
+-    transform.matrix[2][2] = IntToxFixed(1);
+-    transform.matrix[0][2] = IntToxFixed(crtc->x);
+-    transform.matrix[1][2] = IntToxFixed(crtc->y);
+-    switch (crtc->rotation & 0xf) {
+-    default:
+-    case RR_Rotate_0:
+-	transform.matrix[0][0] = IntToxFixed(1);
+-	transform.matrix[1][1] = IntToxFixed(1);
+-	break;
+-    case RR_Rotate_90:
+-	transform.matrix[0][1] = IntToxFixed(-1);
+-	transform.matrix[1][0] = IntToxFixed(1);
+-	transform.matrix[0][2] += IntToxFixed(crtc->mode.VDisplay);
+-	break;
+-    case RR_Rotate_180:
+-	transform.matrix[0][0] = IntToxFixed(-1);
+-	transform.matrix[1][1] = IntToxFixed(-1);
+-	transform.matrix[0][2] += IntToxFixed(crtc->mode.HDisplay);
+-	transform.matrix[1][2] += IntToxFixed(crtc->mode.VDisplay);
+-	break;
+-    case RR_Rotate_270:
+-	transform.matrix[0][1] = IntToxFixed(1);
+-	transform.matrix[1][0] = IntToxFixed(-1);
+-	transform.matrix[1][2] += IntToxFixed(crtc->mode.HDisplay);
+-	break;
+-    }
+-
+-    /* handle reflection */
+-    if (crtc->rotation & RR_Reflect_X)
+-    {
+-	/* XXX figure this out */
+-    }
+-    if (crtc->rotation & RR_Reflect_Y)
+-    {
+-	/* XXX figure this out too */
+-    }
+-
+-    error = SetPictureTransform (src, &transform);
++    error = SetPictureTransform (src, &crtc->crtc_to_framebuffer);
+     if (error)
+ 	return;
+ 
+@@ -202,9 +310,8 @@ xf86RotateCrtcRedisplay (xf86CrtcPtr crtc, RegionPtr region)
+     {
+ 	BoxRec	dst_box;
+ 
+-	xf86TransformBox (&dst_box, b, crtc->rotation,
+-			  crtc->x, crtc->y,
+-			  crtc->mode.HDisplay, crtc->mode.VDisplay);
++	dst_box = *b;
++	PictureTransformBounds (&dst_box, &crtc->framebuffer_to_crtc);
+ 	CompositePicture (PictOpSrc,
+ 			  src, NULL, dst,
+ 			  dst_box.x1, dst_box.y1, 0, 0, dst_box.x1, dst_box.y1,
+@@ -264,7 +371,7 @@ xf86RotatePrepare (ScreenPtr pScreen)
+     }
+ }
+ 
+-static void
++static Bool
+ xf86RotateRedisplay(ScreenPtr pScreen)
+ {
+     ScrnInfoPtr		pScrn = xf86Screens[pScreen->myNum];
+@@ -273,7 +380,7 @@ xf86RotateRedisplay(ScreenPtr pScreen)
+     RegionPtr		region;
+ 
+     if (!damage)
+-	return;
++	return FALSE;
+     xf86RotatePrepare (pScreen);
+     region = DamageRegion(damage);
+     if (REGION_NOTEMPTY(pScreen, region)) 
+@@ -296,15 +403,10 @@ xf86RotateRedisplay(ScreenPtr pScreen)
+ 
+ 	    if (crtc->rotation != RR_Rotate_0 && crtc->enabled)
+ 	    {
+-		BoxRec	    box;
+ 		RegionRec   crtc_damage;
+ 
+ 		/* compute portion of damage that overlaps crtc */
+-		box.x1 = crtc->x;
+-		box.x2 = crtc->x + xf86ModeWidth (&crtc->mode, crtc->rotation);
+-		box.y1 = crtc->y;
+-		box.y2 = crtc->y + xf86ModeHeight (&crtc->mode, crtc->rotation);
+-		REGION_INIT(pScreen, &crtc_damage, &box, 1);
++		REGION_INIT(pScreen, &crtc_damage, &crtc->bounds, 1);
+ 		REGION_INTERSECT (pScreen, &crtc_damage, &crtc_damage, region);
+ 		
+ 		/* update damaged region */
+@@ -317,19 +419,25 @@ xf86RotateRedisplay(ScreenPtr pScreen)
+ 	pScreen->SourceValidate = SourceValidate;
+ 	DamageEmpty(damage);
+     }
++    return TRUE;
+ }
+ 
+ static void
+-xf86RotateBlockHandler(pointer data, OSTimePtr pTimeout, pointer pRead)
++xf86RotateBlockHandler(int screenNum, pointer blockData,
++		       pointer pTimeout, pointer pReadmask)
+ {
+-    ScreenPtr pScreen = (ScreenPtr) data;
+-
+-    xf86RotateRedisplay(pScreen);
+-}
++    ScreenPtr		pScreen = screenInfo.screens[screenNum];
++    ScrnInfoPtr		pScrn = xf86Screens[screenNum];
++    xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(pScrn);
+ 
+-static void
+-xf86RotateWakeupHandler(pointer data, int i, pointer LastSelectMask)
+-{
++    pScreen->BlockHandler = xf86_config->BlockHandler;
++    (*pScreen->BlockHandler) (screenNum, blockData, pTimeout, pReadmask);
++    if (xf86RotateRedisplay(pScreen))
++    {
++	/* Re-wrap if rotation is still happening */
++	xf86_config->BlockHandler = pScreen->BlockHandler;
++	pScreen->BlockHandler = xf86RotateBlockHandler;
++    }
+ }
+ 
+ static void
+@@ -367,14 +475,10 @@ xf86RotateDestroy (xf86CrtcPtr crtc)
+ 	}
+ 	DamageDestroy (xf86_config->rotation_damage);
+ 	xf86_config->rotation_damage = NULL;
+-	/* Free block/wakeup handler */
+-	RemoveBlockAndWakeupHandlers (xf86RotateBlockHandler,
+-				      xf86RotateWakeupHandler,
+-				      (pointer) pScreen);
+     }
+ }
+ 
+-void
++_X_EXPORT void
+ xf86RotateCloseScreen (ScreenPtr screen)
+ {
+     ScrnInfoPtr		scrn = xf86Screens[screen->myNum];
+@@ -385,19 +489,99 @@ xf86RotateCloseScreen (ScreenPtr screen)
+ 	xf86RotateDestroy (xf86_config->crtc[c]);
+ }
+ 
+-Bool
++_X_EXPORT Bool
+ xf86CrtcRotate (xf86CrtcPtr crtc, DisplayModePtr mode, Rotation rotation)
+ {
+     ScrnInfoPtr		pScrn = crtc->scrn;
+     xf86CrtcConfigPtr   xf86_config = XF86_CRTC_CONFIG_PTR(pScrn);
+     ScreenPtr		pScreen = pScrn->pScreen;
++    PictTransform	crtc_to_fb, fb_to_crtc;
++    
++    PictureTransformIdentity (&crtc_to_fb);
++    PictureTransformIdentity (&fb_to_crtc);
++    PictureTransformIsInverse ("identity", &crtc_to_fb, &fb_to_crtc);
++    if (rotation != RR_Rotate_0)
++    {
++	xFixed	rot_cos, rot_sin, rot_dx, rot_dy;
++	xFixed	scale_x, scale_y, scale_dx, scale_dy;
++	int	mode_w = crtc->mode.HDisplay;
++	int	mode_h = crtc->mode.VDisplay;
++	
++	/* rotation */
++	switch (rotation & 0xf) {
++	default:
++	case RR_Rotate_0:
++	    rot_cos = F ( 1);	    rot_sin = F ( 0);
++	    rot_dx  = F ( 0);	    rot_dy  = F ( 0);
++	    break;
++	case RR_Rotate_90:
++	    rot_cos = F ( 0);	    rot_sin = F ( 1);
++	    rot_dx =  F ( mode_h);  rot_dy  = F (0);
++	    break;
++	case RR_Rotate_180:
++	    rot_cos = F (-1);	    rot_sin = F ( 0);
++	    rot_dx  = F (mode_w);   rot_dy  = F ( mode_h);
++	    break;
++	case RR_Rotate_270:
++	    rot_cos = F ( 0);	    rot_sin = F (-1);
++	    rot_dx  = F ( 0);	    rot_dy  = F ( mode_w);
++	    break;
++	}
++	
++	PictureTransformRotate (&crtc_to_fb, &fb_to_crtc, rot_cos, rot_sin);
++	PictureTransformIsInverse ("rotate", &crtc_to_fb, &fb_to_crtc);
++
++	PictureTransformTranslate (&crtc_to_fb, &fb_to_crtc, rot_dx, rot_dy);
++	PictureTransformIsInverse ("rotate translate", &crtc_to_fb, &fb_to_crtc);
++
++	/* reflection */
++	scale_x = F (1);
++	scale_dx = 0;
++	scale_y = F (1);
++	scale_dy = 0;
++	if (rotation & RR_Reflect_X)
++	{
++	    scale_x = F(-1);
++	    if (rotation & (RR_Rotate_0|RR_Rotate_180))
++		scale_dx = F(mode_w);
++	    else
++		scale_dx = F(mode_h);
++	}
++	if (rotation & RR_Reflect_Y)
++	{
++	    scale_y = F(-1);
++	    if (rotation & (RR_Rotate_0|RR_Rotate_180))
++		scale_dy = F(mode_h);
++	    else
++		scale_dy = F(mode_w);
++	}
++	
++	PictureTransformScale (&crtc_to_fb, &fb_to_crtc, scale_x, scale_y);
++	PictureTransformIsInverse ("scale", &crtc_to_fb, &fb_to_crtc);
++
++	PictureTransformTranslate (&crtc_to_fb, &fb_to_crtc, scale_dx, scale_dy);
++	PictureTransformIsInverse ("scale translate", &crtc_to_fb, &fb_to_crtc);
++
++    }
+     
+-    if (rotation == RR_Rotate_0)
++    /*
++     * If the untranslated transformation is the identity,
++     * disable the shadow buffer
++     */
++    if (PictureTransformIsIdentity (&crtc_to_fb))
+     {
++	crtc->transform_in_use = FALSE;
++	PictureTransformInitTranslate (&crtc->crtc_to_framebuffer, 
++				       F (-crtc->x), F (-crtc->y));
++	PictureTransformInitTranslate (&crtc->framebuffer_to_crtc,
++				       F ( crtc->x), F ( crtc->y));
+ 	xf86RotateDestroy (crtc);
+     }
+     else
+     {
++	PictureTransformTranslate (&crtc_to_fb, &fb_to_crtc, crtc->x, crtc->y);
++	PictureTransformIsInverse ("offset", &crtc_to_fb, &fb_to_crtc);
++	
+ 	/* 
+ 	 * these are the size of the shadow pixmap, which
+ 	 * matches the mode, not the pre-rotated copy in the
+@@ -440,28 +624,20 @@ xf86CrtcRotate (xf86CrtcPtr crtc, DisplayModePtr mode, Rotation rotation)
+ 	    if (!xf86_config->rotation_damage)
+ 		goto bail2;
+ 	    
+-	    /* Assign block/wakeup handler */
+-	    if (!RegisterBlockAndWakeupHandlers (xf86RotateBlockHandler,
+-						 xf86RotateWakeupHandler,
+-						 (pointer) pScreen))
+-	    {
+-		goto bail3;
+-	    }
++	    /* Wrap block handler */
++	    xf86_config->BlockHandler = pScreen->BlockHandler;
++	    pScreen->BlockHandler = xf86RotateBlockHandler;
+ 	}
+ 	if (0)
+ 	{
+-bail3:
+-	    DamageDestroy (xf86_config->rotation_damage);
+-	    xf86_config->rotation_damage = NULL;
+-	    
+-bail2:
++    bail2:
+ 	    if (shadow || shadowData)
+ 	    {
+ 		crtc->funcs->shadow_destroy (crtc, shadow, shadowData);
+ 		crtc->rotatedPixmap = NULL;
+ 		crtc->rotatedData = NULL;
+ 	    }
+-bail1:
++    bail1:
+ 	    if (old_width && old_height)
+ 		crtc->rotatedPixmap = crtc->funcs->shadow_create (crtc,
+ 								  NULL,
+@@ -469,6 +645,14 @@ bail1:
+ 								  old_height);
+ 	    return FALSE;
+ 	}
++	crtc->transform_in_use = TRUE;
++	crtc->crtc_to_framebuffer = crtc_to_fb;
++	crtc->framebuffer_to_crtc = fb_to_crtc;
++	crtc->bounds.x1 = 0;
++	crtc->bounds.x2 = crtc->mode.HDisplay;
++	crtc->bounds.y1 = 0;
++	crtc->bounds.y2 = crtc->mode.VDisplay;
++	PictureTransformBounds (&crtc->bounds, &crtc_to_fb);
+     }
+     
+     /* All done */
+diff --git a/hw/xfree86/ddc/Makefile.am b/hw/xfree86/ddc/Makefile.am
+index 3b36f55..cd146c5 100644
+--- a/hw/xfree86/ddc/Makefile.am
++++ b/hw/xfree86/ddc/Makefile.am
+@@ -1,12 +1,12 @@
+-sdk_HEADERS = edid.h vdif.h xf86DDC.h
++sdk_HEADERS = edid.h xf86DDC.h
+ 
+ noinst_LIBRARIES = libddc.a
+ 
+ libddc_a_SOURCES = xf86DDC.c edid.c interpret_edid.c print_edid.c \
+-                   interpret_vdif.c print_vdif.c ddcProperty.c
++                   ddcProperty.c
+ 
+ INCLUDES = $(XORG_INCS) -I$(srcdir)/../i2c
+ 
+-AM_CFLAGS = $(XORG_CFLAGS)
++AM_CFLAGS = $(DIX_CFLAGS) $(XORG_CFLAGS)
+ 
+ EXTRA_DIST = ddcPriv.h DDC.HOWTO
+diff --git a/hw/xfree86/ddc/ddcProperty.c b/hw/xfree86/ddc/ddcProperty.c
+index c68dd08..67351d3 100644
+--- a/hw/xfree86/ddc/ddcProperty.c
++++ b/hw/xfree86/ddc/ddcProperty.c
+@@ -33,395 +33,8 @@
+ #include "xf86DDC.h"
+ #include "xf86_ansic.h"
+ 
+-/*
+- * xf86Mode.c should have a some more DisplayModePtr list handling.
+- */
+-static DisplayModePtr
+-xf86ModesAdd(DisplayModePtr Modes, DisplayModePtr Additions)
+-{
+-    if (!Modes) {
+-        if (Additions)
+-            return Additions;
+-        else
+-            return NULL;
+-    }
+-
+-    if (Additions) {
+-        DisplayModePtr Mode = Modes;
+-
+-        while (Mode->next)
+-            Mode = Mode->next;
+-        
+-        Mode->next = Additions;
+-        Additions->prev = Mode;
+-    }
+-
+-    return Modes;
+-}
+-
+-static DisplayModePtr
+-xf86ModeCopy(DisplayModePtr Mode)
+-{
+-    DisplayModePtr New;
+-
+-    if (!Mode)
+-        return NULL;
+-
+-    New = xnfalloc(sizeof(DisplayModeRec));
+-
+-    memcpy(New, Mode, sizeof(DisplayModeRec));
+-    
+-    New->name = xnfalloc(strlen(Mode->name) + 1);
+-    memcpy(New->name, Mode->name, strlen(Mode->name) + 1);
+-
+-    /* We ignore privates as DDC code doesn't use it currently */
+-    return New;
+-}
+-
+-/*
+- * Temporary.
+- */
+-static void
+-add(char **p, char *new)
+-{
+-    *p = xnfrealloc(*p, strlen(*p) + strlen(new) + 2);
+-    strcat(*p, " ");
+-    strcat(*p, new);
+-}
+-
+-static void
+-PrintModeline(int scrnIndex,DisplayModePtr mode)
+-{
+-    char tmp[256];
+-    char *flags = xnfcalloc(1, 1);
+-
+-    if (mode->HSkew) { 
+-	snprintf(tmp, 256, "hskew %i", mode->HSkew); 
+-	add(&flags, tmp);
+-    }
+-    if (mode->VScan) { 
+-	snprintf(tmp, 256, "vscan %i", mode->VScan); 
+-	add(&flags, tmp);
+-    }
+-    if (mode->Flags & V_INTERLACE) add(&flags, "interlace");
+-    if (mode->Flags & V_CSYNC) add(&flags, "composite");
+-    if (mode->Flags & V_DBLSCAN) add(&flags, "doublescan");
+-    if (mode->Flags & V_BCAST) add(&flags, "bcast");
+-    if (mode->Flags & V_PHSYNC) add(&flags, "+hsync");
+-    if (mode->Flags & V_NHSYNC) add(&flags, "-hsync");
+-    if (mode->Flags & V_PVSYNC) add(&flags, "+vsync");
+-    if (mode->Flags & V_NVSYNC) add(&flags, "-vsync");
+-    if (mode->Flags & V_PCSYNC) add(&flags, "+csync");
+-    if (mode->Flags & V_NCSYNC) add(&flags, "-csync");
+-#if 0
+-    if (mode->Flags & V_CLKDIV2) add(&flags, "vclk/2");
+-#endif
+-    xf86DrvMsgVerb(scrnIndex, X_INFO, 3,
+-		   "Modeline \"%s\"  %6.2f  %i %i %i %i  %i %i %i %i%s\n",
+-		   mode->name, mode->Clock/1000., mode->HDisplay,
+-		   mode->HSyncStart, mode->HSyncEnd, mode->HTotal,
+-		   mode->VDisplay, mode->VSyncStart, mode->VSyncEnd,
+-		   mode->VTotal, flags);
+-    xfree(flags);
+-}
+-
+-/*
+- * TODO:
+- *  - for those with access to the VESA DMT standard; review please.
+- */
+-#define MODEPREFIX(name) NULL, NULL, name, 0,M_T_DRIVER
+-#define MODESUFFIX   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,FALSE,FALSE,0,NULL,0,0.0,0.0
+-
+-DisplayModeRec DDCEstablishedModes[17] = {
+-    { MODEPREFIX("800x600"),    40000,  800,  840,  968, 1056, 0,  600,  601,  605,  628, 0, V_PHSYNC | V_PVSYNC, MODESUFFIX }, /* 800x600@60Hz */
+-    { MODEPREFIX("800x600"),    36000,  800,  824,  896, 1024, 0,  600,  601,  603,  625, 0, V_PHSYNC | V_PVSYNC, MODESUFFIX }, /* 800x600@56Hz */
+-    { MODEPREFIX("640x480"),    31500,  640,  656,  720,  840, 0,  480,  481,  484,  500, 0, V_NHSYNC | V_NVSYNC, MODESUFFIX }, /* 640x480@75Hz */
+-    { MODEPREFIX("640x480"),    31500,  640,  664,  704,  832, 0,  480,  489,  491,  520, 0, V_NHSYNC | V_NVSYNC, MODESUFFIX }, /* 640x480@72Hz */
+-    { MODEPREFIX("640x480"),    30240,  640,  704,  768,  864, 0,  480,  483,  486,  525, 0, V_NHSYNC | V_NVSYNC, MODESUFFIX }, /* 640x480@67Hz */
+-    { MODEPREFIX("640x480"),    25200,  640,  656,  752,  800, 0,  480,  490,  492,  525, 0, V_NHSYNC | V_NVSYNC, MODESUFFIX }, /* 640x480@60Hz */
+-    { MODEPREFIX("720x400"),    35500,  720,  738,  846,  900, 0,  400,  421,  423,  449, 0, V_NHSYNC | V_NVSYNC, MODESUFFIX }, /* 720x400@88Hz */
+-    { MODEPREFIX("720x400"),    28320,  720,  738,  846,  900, 0,  400,  412,  414,  449, 0, V_NHSYNC | V_PVSYNC, MODESUFFIX }, /* 720x400@70Hz */
+-    { MODEPREFIX("1280x1024"), 135000, 1280, 1296, 1440, 1688, 0, 1024, 1025, 1028, 1066, 0, V_PHSYNC | V_PVSYNC, MODESUFFIX }, /* 1280x1024@75Hz */
+-    { MODEPREFIX("1024x768"),   78800, 1024, 1040, 1136, 1312, 0,  768,  769,  772,  800, 0, V_PHSYNC | V_PVSYNC, MODESUFFIX }, /* 1024x768@75Hz */
+-    { MODEPREFIX("1024x768"),   75000, 1024, 1048, 1184, 1328, 0,  768,  771,  777,  806, 0, V_NHSYNC | V_NVSYNC, MODESUFFIX }, /* 1024x768@70Hz */
+-    { MODEPREFIX("1024x768"),   65000, 1024, 1048, 1184, 1344, 0,  768,  771,  777,  806, 0, V_NHSYNC | V_NVSYNC, MODESUFFIX }, /* 1024x768@60Hz */
+-    { MODEPREFIX("1024x768"),   44900, 1024, 1032, 1208, 1264, 0,  768,  768,  776,  817, 0, V_PHSYNC | V_PVSYNC | V_INTERLACE, MODESUFFIX }, /* 1024x768@43Hz */
+-    { MODEPREFIX("832x624"),    57284,  832,  864,  928, 1152, 0,  624,  625,  628,  667, 0, V_NHSYNC | V_NVSYNC, MODESUFFIX }, /* 832x624@75Hz */
+-    { MODEPREFIX("800x600"),    49500,  800,  816,  896, 1056, 0,  600,  601,  604,  625, 0, V_PHSYNC | V_PVSYNC, MODESUFFIX }, /* 800x600@75Hz */
+-    { MODEPREFIX("800x600"),    50000,  800,  856,  976, 1040, 0,  600,  637,  643,  666, 0, V_PHSYNC | V_PVSYNC, MODESUFFIX }, /* 800x600@72Hz */
+-    { MODEPREFIX("1152x864"),  108000, 1152, 1216, 1344, 1600, 0,  864,  865,  868,  900, 0, V_PHSYNC | V_PVSYNC, MODESUFFIX }, /* 1152x864@75Hz */
+-};
+-
+-static DisplayModePtr
+-DDCModesFromEstablished(int scrnIndex, struct established_timings *timing)
+-{
+-    DisplayModePtr Modes = NULL, Mode = NULL;
+-    CARD32 bits = (timing->t1) | (timing->t2 << 8) |
+-        ((timing->t_manu & 0x80) << 9);
+-    int i;
+-
+-    for (i = 0; i < 17; i++)
+-        if (bits & (0x01 << i)) {
+-            Mode = xf86ModeCopy(&(DDCEstablishedModes[i]));
+-            Modes = xf86ModesAdd(Modes, Mode);
+-        }
+-
+-    return Modes;
+-}
+-
+-/*
+- *
+- */
+-static DisplayModePtr
+-DDCModesFromStandardTiming(int scrnIndex, struct std_timings *timing)
+-{
+-    DisplayModePtr Modes = NULL, Mode = NULL;
+-    int i;
+-    
+-    for (i = 0; i < STD_TIMINGS; i++)
+-        if (timing[i].hsize && timing[i].vsize && timing[i].refresh) {
+-            Mode =  xf86CVTMode(timing[i].hsize, timing[i].vsize,
+-                                timing[i].refresh, FALSE, FALSE);
+-	    Mode->type = M_T_DRIVER;
+-            Modes = xf86ModesAdd(Modes, Mode);
+-        }
+-
+-    return Modes;
+-}
+-
+-/*
+- *
+- */
+-static DisplayModePtr
+-DDCModeFromDetailedTiming(int scrnIndex, struct detailed_timings *timing,
+-			  int preferred)
+-{
+-    DisplayModePtr Mode;
+-
+-    /* We don't do stereo */
+-    if (timing->stereo) {
+-        xf86DrvMsg(scrnIndex, X_INFO, "%s: Ignoring: We don't handle stereo.\n",
+-                   __func__);
+-        return NULL;
+-    }
+-    
+-    /* We only do seperate sync currently */
+-    if (timing->sync != 0x03) {
+-         xf86DrvMsg(scrnIndex, X_INFO, "%s: %dx%d Warning: We only handle seperate"
+-                    " sync.\n", __func__, timing->h_active, timing->v_active);
+-    }
+-    
+-    Mode = xnfalloc(sizeof(DisplayModeRec));
+-    memset(Mode, 0, sizeof(DisplayModeRec));
+-    
+-    Mode->name = xnfalloc(10); /* "1234x1234" */
+-    xf86snprintf(Mode->name, 20, "%dx%d", timing->h_active,
+-                 timing->v_active);
+-    
+-    Mode->type = M_T_DRIVER;
+-    if (preferred)
+-	Mode->type |= M_T_PREFERRED;
+-    
+-    Mode->Clock = timing->clock / 1000.0;
+-    
+-    Mode->HDisplay = timing->h_active;
+-    Mode->HSyncStart = timing->h_active + timing->h_sync_off;
+-    Mode->HSyncEnd = Mode->HSyncStart + timing->h_sync_width;
+-    Mode->HTotal = timing->h_active + timing->h_blanking;
+-    
+-    Mode->VDisplay = timing->v_active;
+-    Mode->VSyncStart = timing->v_active + timing->v_sync_off;
+-    Mode->VSyncEnd = Mode->VSyncStart + timing->v_sync_width;
+-    Mode->VTotal = timing->v_active + timing->v_blanking;
+-    
+-    /* We ignore h/v_size and h/v_border for now. */
+-    
+-    if (timing->interlaced)
+-        Mode->Flags |= V_INTERLACE;
+-    
+-    if (timing->misc & 0x02)
+-        Mode->Flags |= V_PHSYNC;
+-    else
+-        Mode->Flags |= V_NHSYNC;
+-    
+-    if (timing->misc & 0x01)
+-        Mode->Flags |= V_PVSYNC;
+-    else
+-        Mode->Flags |= V_NVSYNC;
+- 
+-    return Mode;
+-}
+-
+-/*
+- *
+- */
+-static void
+-DDCGuessRangesFromModes(int scrnIndex, MonPtr Monitor, DisplayModePtr Modes)
+-{
+-    DisplayModePtr Mode = Modes;
+-
+-    if (!Monitor || !Modes)
+-        return;
+-
+-    /* set up the ranges for scanning through the modes */
+-    Monitor->nHsync = 1;
+-    Monitor->hsync[0].lo = 1024.0;
+-    Monitor->hsync[0].hi = 0.0;
+-
+-    Monitor->nVrefresh = 1;
+-    Monitor->vrefresh[0].lo = 1024.0;
+-    Monitor->vrefresh[0].hi = 0.0;
+-
+-    while (Mode) {
+-        if (!Mode->HSync)
+-            Mode->HSync = ((float) Mode->Clock ) / ((float) Mode->HTotal);
+-
+-        if (!Mode->VRefresh)
+-            Mode->VRefresh = (1000.0 * ((float) Mode->Clock)) / 
+-                ((float) (Mode->HTotal * Mode->VTotal));
+-
+-        if (Mode->HSync < Monitor->hsync[0].lo)
+-            Monitor->hsync[0].lo = Mode->HSync;
+-
+-        if (Mode->HSync > Monitor->hsync[0].hi)
+-            Monitor->hsync[0].hi = Mode->HSync;
+-
+-        if (Mode->VRefresh < Monitor->vrefresh[0].lo)
+-            Monitor->vrefresh[0].lo = Mode->VRefresh;
+-
+-        if (Mode->VRefresh > Monitor->vrefresh[0].hi)
+-            Monitor->vrefresh[0].hi = Mode->VRefresh;
+-        
+-        Mode = Mode->next;
+-    }
+-}
+-
+-/*
+- * Fill out MonPtr with xf86MonPtr information.
+- */
+-void
+-xf86DDCMonitorSet(int scrnIndex, MonPtr Monitor, xf86MonPtr DDC)
+-{
+-    DisplayModePtr Modes = NULL, Mode;
+-    int i, clock;
+-    Bool have_hsync = FALSE, have_vrefresh = FALSE;
+-    int preferred;
+-    
+-    if (!Monitor || !DDC)
+-        return;
+-
+-    Monitor->DDC = DDC;
+-
+-    preferred = PREFERRED_TIMING_MODE(DDC->features.msc);
+-
+-    Monitor->widthmm = 10 * DDC->features.hsize;
+-    Monitor->heightmm = 10 * DDC->features.vsize;
+-    
+-    /* If this is a digital display, then we can use reduced blanking */
+-    if (DDC->features.input_type) 
+-        Monitor->reducedblanking = TRUE;
+-    /* Allow the user to also enable this through config */
+-
+-    /* Add established timings */
+-    Mode = DDCModesFromEstablished(scrnIndex, &DDC->timings1);
+-    Modes = xf86ModesAdd(Modes, Mode);
+-
+-    /* Add standard timings */
+-    Mode = DDCModesFromStandardTiming(scrnIndex, DDC->timings2);
+-    Modes = xf86ModesAdd(Modes, Mode);
+-
+-    /* Skip EDID ranges if they were specified in the config file */
+-    have_hsync = (Monitor->nHsync != 0);
+-    have_vrefresh = (Monitor->nVrefresh != 0);
+-
+-    /* Go through the detailed monitor sections */
+-    for (i = 0; i < DET_TIMINGS; i++)
+-        switch (DDC->det_mon[i].type) {
+-        case DS_RANGES:
+-	    if (!have_hsync) {
+-		if (!Monitor->nHsync)
+-		    xf86DrvMsg(scrnIndex, X_INFO,
+-			    "Using EDID range info for horizontal sync\n");
+-		Monitor->hsync[Monitor->nHsync].lo =
+-		    DDC->det_mon[i].section.ranges.min_h;
+-		Monitor->hsync[Monitor->nHsync].hi =
+-		    DDC->det_mon[i].section.ranges.max_h;
+-		Monitor->nHsync++;
+-	    } else {
+-		xf86DrvMsg(scrnIndex, X_INFO,
+-			"Using hsync ranges from config file\n");
+-	    }
+-
+-	    if (!have_vrefresh) {
+-		if (!Monitor->nVrefresh)
+-		    xf86DrvMsg(scrnIndex, X_INFO,
+-			    "Using EDID range info for vertical refresh\n");
+-		Monitor->vrefresh[Monitor->nVrefresh].lo =
+-		    DDC->det_mon[i].section.ranges.min_v;
+-		Monitor->vrefresh[Monitor->nVrefresh].hi =
+-		    DDC->det_mon[i].section.ranges.max_v;
+-		Monitor->nVrefresh++;
+-	    } else {
+-		xf86DrvMsg(scrnIndex, X_INFO,
+-			"Using vrefresh ranges from config file\n");
+-	    }
+-
+-	    clock = DDC->det_mon[i].section.ranges.max_clock * 1000;
+-	    if (clock > Monitor->maxPixClock)
+-		Monitor->maxPixClock = clock;
+-
+-            break;
+-        case DT:
+-            Mode = DDCModeFromDetailedTiming(scrnIndex, 
+-                                             &DDC->det_mon[i].section.d_timings,
+-					     preferred);
+-	    preferred = 0;
+-            Modes = xf86ModesAdd(Modes, Mode);
+-            break;
+-        case DS_STD_TIMINGS:
+-            Mode = DDCModesFromStandardTiming(scrnIndex,
+-                                             DDC->det_mon[i].section.std_t);
+-            Modes = xf86ModesAdd(Modes, Mode);
+-            break;
+-        default:
+-            break;
+-        }
+-
+-    if (Modes) {
+-        /* Print Modes */
+-        xf86DrvMsg(scrnIndex, X_INFO, "Printing DDC gathered Modelines:\n");
+-
+-        Mode = Modes;
+-        while (Mode) {
+-            PrintModeline(scrnIndex, Mode);
+-            Mode = Mode->next;
+-        }
+-
+-        /* Do we still need ranges to be filled in? */
+-        if (!Monitor->nHsync || !Monitor->nVrefresh)
+-            DDCGuessRangesFromModes(scrnIndex, Monitor, Modes);
+-
+-        /* look for last Mode */
+-        Mode = Modes;
+-
+-        while (Mode->next)
+-            Mode = Mode->next;
+-        
+-        /* add to MonPtr */
+-        if (Monitor->Modes) {
+-            Monitor->Last->next = Modes;
+-            Modes->prev = Monitor->Last;
+-            Monitor->Last = Mode;
+-        } else {
+-            Monitor->Modes = Modes;
+-            Monitor->Last = Mode;
+-        }
+-    }
+-}
+-
+ #define EDID1_ATOM_NAME         "XFree86_DDC_EDID1_RAWDATA"
+ #define EDID2_ATOM_NAME         "XFree86_DDC_EDID2_RAWDATA"
+-#define VDIF_ATOM_NAME          "XFree86_DDC_VDIF_RAWDATA"
+ 
+ static void
+ addRootWindowProperties(ScrnInfoPtr pScrn, xf86MonPtr DDC)
+@@ -474,7 +87,7 @@ addRootWindowProperties(ScrnInfoPtr pScrn, xf86MonPtr DDC)
+ 	if ((EDID1rawdata = xalloc(128*sizeof(CARD8)))==NULL)
+ 	    return;
+ 
+-	EDID1Atom = MakeAtom(EDID1_ATOM_NAME, sizeof(EDID1_ATOM_NAME), TRUE);
++	EDID1Atom = MakeAtom(EDID1_ATOM_NAME, sizeof(EDID1_ATOM_NAME) - 1, TRUE);
+ 	memcpy(EDID1rawdata, DDC->rawData, 128);
+ 	xf86RegisterRootWindowProperty(scrnIndex, EDID1Atom, XA_INTEGER, 8,
+ 		128, (unsigned char *)EDID1rawdata);
+@@ -485,20 +98,10 @@ addRootWindowProperties(ScrnInfoPtr pScrn, xf86MonPtr DDC)
+ 	    return;
+ 
+ 	memcpy(EDID2rawdata, DDC->rawData, 256);
+-	EDID2Atom = MakeAtom(EDID2_ATOM_NAME, sizeof(EDID2_ATOM_NAME), TRUE);
++	EDID2Atom = MakeAtom(EDID2_ATOM_NAME, sizeof(EDID2_ATOM_NAME) - 1, TRUE);
+ 	xf86RegisterRootWindowProperty(scrnIndex, EDID2Atom, XA_INTEGER, 8,
+ 		256, (unsigned char *)EDID2rawdata);
+     }
+-
+-#if 0
+-    if (DDC->vdif) {
+-#define VDIF_DUMMY_STRING "setting dummy VDIF property - please insert correct values\n"
+-
+-	VDIFAtom = MakeAtom(VDIF_ATOM_NAME, sizeof(VDIF_ATOM_NAME), TRUE);
+-	xf86RegisterRootWindowProperty(scrnIndex, VDIFAtom, XA_STRING, 8,
+-		strlen(VDIF_DUMMY_STRING), VDIF_DUMMY_STRING);
+-    }
+-#endif
+ }
+ 
+ Bool
+diff --git a/hw/xfree86/ddc/edid.h b/hw/xfree86/ddc/edid.h
+index 30499a6..4487273 100644
+--- a/hw/xfree86/ddc/edid.h
++++ b/hw/xfree86/ddc/edid.h
+@@ -12,8 +12,6 @@
+ #ifndef _EDID_H_
+ #define _EDID_H_ 
+ 
+-#include "vdif.h"
+-
+ /* read complete EDID record */
+ #define EDID1_LEN 128
+ #define BITS_PER_BYTE 9
+@@ -192,7 +190,14 @@
+ 
+ 
+ /* EDID Ver. >= 1.2 */
+-#define _IS_MONITOR_DESC(x) (x[0] == 0 && x[1] == 0 && x[2] == 0 && x[4] == 0)
++/**
++ * Returns true if the pointer is the start of a monitor descriptor block
++ * instead of a detailed timing descriptor.
++ *
++ * Checking the reserved pad fields for zeroes fails on some monitors with
++ * broken empty ASCII strings.  Only the first two bytes are reliable.
++ */
++#define _IS_MONITOR_DESC(x) (x[0] == 0 && x[1] == 0)
+ #define IS_MONITOR_DESC _IS_MONITOR_DESC(c)
+ #define _PIXEL_CLOCK(x) (x[0] + (x[1] << 8)) * 10000
+ #define PIXEL_CLOCK _PIXEL_CLOCK(c)
+@@ -453,7 +458,7 @@ typedef struct {
+   struct established_timings timings1;
+   struct std_timings timings2[8];
+   struct detailed_monitor_section det_mon[4];
+-  xf86vdifPtr vdif;
++  void *vdif; /* unused */
+   int no_sections;
+   Uchar *rawData;
+ } xf86Monitor, *xf86MonPtr;
+diff --git a/hw/xfree86/ddc/interpret_edid.c b/hw/xfree86/ddc/interpret_edid.c
+index c58bb2f..7b4b2b9 100644
+--- a/hw/xfree86/ddc/interpret_edid.c
++++ b/hw/xfree86/ddc/interpret_edid.c
+@@ -304,16 +304,18 @@ get_detailed_timing_section(Uchar *c, struct detailed_timings *r)
+   r->misc = MISC;
+ }
+ 
++#define MAX_EDID_MINOR 3
+ 
+ static Bool
+ validate_version(int scrnIndex, struct edid_version *r)
+ {
+     if (r->version != 1)
+ 	return FALSE;
+-    if (r->revision > 3) {
+-	xf86DrvMsg(scrnIndex, X_ERROR,"EDID Version 1.%i not yet supported\n",
+-		   r->revision);
+-	return FALSE;
+-    }
++
++    if (r->revision > MAX_EDID_MINOR)
++	xf86DrvMsg(scrnIndex, X_WARNING,
++		   "Assuming version 1.%d is compatible with 1.%d\n",
++		   r->revision, MAX_EDID_MINOR);
++
+     return TRUE;
+ }
+diff --git a/hw/xfree86/ddc/interpret_vdif.c b/hw/xfree86/ddc/interpret_vdif.c
+deleted file mode 100644
+index 3a17e2f..0000000
+--- a/hw/xfree86/ddc/interpret_vdif.c
++++ /dev/null
+@@ -1,132 +0,0 @@
+-
+-#ifdef HAVE_XORG_CONFIG_H
+-#include <xorg-config.h>
+-#endif
+-
+-#include <X11/Xarch.h>
+-#include "xf86DDC.h"
+-#include "vdif.h"
+-
+-static xf86VdifLimitsPtr* get_limits(CARD8 *c);
+-static xf86VdifGammaPtr* get_gamma(CARD8 *c);
+-static xf86VdifTimingPtr* get_timings(CARD8 *c);
+-#if X_BYTE_ORDER == X_BIG_ENDIAN
+-static CARD32 swap_byte_order(CARD32 c);
+-#endif
+-
+-xf86vdifPtr
+-xf86InterpretVdif(CARD8 *c)
+-{
+-    xf86VdifPtr p = (xf86VdifPtr)c;
+-    xf86vdifPtr vdif;
+-    int i;
+-#if X_BYTE_ORDER == X_BIG_ENDIAN
+-    int length;
+-#endif
+-    unsigned long l = 0;
+-
+-    if (c == NULL) return NULL;
+-#if X_BYTE_ORDER == X_BIG_ENDIAN
+-    length = swap_byte_order(p->FileLength);
+-    for (i = 0; i < (length >>2); i++) 
+-	((CARD32*)c)[i] = swap_byte_order(((CARD32*)c)[i]) ;
+-#endif  
+-    if (p->VDIFId[0] != 'V' || p->VDIFId[1] != 'D' || p->VDIFId[2] != 'I'
+-	|| p->VDIFId[3] != 'F') return NULL;
+-    for ( i = 12; i < p->FileLength; i++) 
+-	l += c[i];
+-    if ( l != p->Checksum) return NULL;
+-    vdif = xalloc(sizeof(xf86vdif));  
+-    vdif->vdif = p;
+-    vdif->limits = get_limits(c);
+-    vdif->timings = get_timings(c);
+-    vdif->gamma = get_gamma(c);
+-    vdif->strings = VDIF_STRING(((xf86VdifPtr)c),0);
+-    xfree(c);
+-    return vdif;
+-}
+-
+-static xf86VdifLimitsPtr*
+-get_limits(CARD8 *c)
+-{ 
+-    int num, i, j;
+-    xf86VdifLimitsPtr *pp;
+-    xf86VdifLimitsPtr p;
+-
+-    num = ((xf86VdifPtr)c)->NumberOperationalLimits;
+-    pp = xalloc(sizeof(xf86VdifLimitsPtr) * (num+1));
+-    p = VDIF_OPERATIONAL_LIMITS(((xf86VdifPtr)c));
+-    j = 0;
+-    for ( i = 0; i<num; i++) {
+-	if (p->Header.ScnTag == VDIF_OPERATIONAL_LIMITS_TAG)
+-	    pp[j++] = p;
+-	VDIF_NEXT_OPERATIONAL_LIMITS(p);
+-    }
+-    pp[j] = NULL;
+-    return pp;
+-}
+-
+-static xf86VdifGammaPtr*
+-get_gamma(CARD8 *c)
+-{ 
+-    int num, i, j;
+-    xf86VdifGammaPtr *pp;
+-    xf86VdifGammaPtr p;
+-
+-    num = ((xf86VdifPtr)c)->NumberOptions;
+-    pp = xalloc(sizeof(xf86VdifGammaPtr) * (num+1));
+-    p = (xf86VdifGammaPtr)VDIF_OPTIONS(((xf86VdifPtr)c));
+-    j = 0;
+-    for ( i = 0; i<num; i++)
+-    {
+-	if (p->Header.ScnTag == VDIF_GAMMA_TABLE_TAG)
+-	    pp[j++] = p;
+-	VDIF_NEXT_OPTIONS(p);
+-    }
+-    pp[j] = NULL;
+-    return pp;
+-}
+-
+-static xf86VdifTimingPtr*
+-get_timings(CARD8 *c)
+-{
+-    int num, num_limits;
+-    int i,j,k;
+-    xf86VdifLimitsPtr lp;
+-    xf86VdifTimingPtr *pp;
+-    xf86VdifTimingPtr p;
+-  
+-    num = ((xf86VdifPtr)c)->NumberOperationalLimits;
+-    lp = VDIF_OPERATIONAL_LIMITS(((xf86VdifPtr)c));
+-    num_limits = 0;
+-    for (i = 0; i < num; i++) {
+-	if (lp->Header.ScnTag == VDIF_OPERATIONAL_LIMITS_TAG)
+-	    num_limits += lp->NumberPreadjustedTimings;
+-	VDIF_NEXT_OPERATIONAL_LIMITS(lp);
+-    }
+-    pp = xalloc(sizeof(xf86VdifTimingPtr) 
+-				      * (num_limits+1));
+-    j = 0;
+-    lp = VDIF_OPERATIONAL_LIMITS(((xf86VdifPtr) c));
+-    for (i = 0; i < num; i++) {
+-	p = VDIF_PREADJUSTED_TIMING(lp);
+-	for (k = 0; k < lp->NumberPreadjustedTimings; k++) {
+-	    if (p->Header.ScnTag == VDIF_PREADJUSTED_TIMING_TAG)
+-		pp[j++] = p;
+-	    VDIF_NEXT_PREADJUSTED_TIMING(p);
+-	}
+-	VDIF_NEXT_OPERATIONAL_LIMITS(lp);
+-    }
+-    pp[j] = NULL;
+-    return pp;
+-}
+-
+-#if X_BYTE_ORDER == X_BIG_ENDIAN
+-static CARD32
+-swap_byte_order(CARD32 c)
+-{
+-    return ((c & 0xFF000000) >> 24) | ((c & 0xFF0000) >> 8)
+-	| ((c & 0xFF00) << 8) | ((c & 0xFF) << 24);
+-}
+-
+-#endif
+diff --git a/hw/xfree86/ddc/print_vdif.c b/hw/xfree86/ddc/print_vdif.c
+deleted file mode 100644
+index 13cd3ab..0000000
+--- a/hw/xfree86/ddc/print_vdif.c
++++ /dev/null
+@@ -1,225 +0,0 @@
+-
+-#ifdef HAVE_XORG_CONFIG_H
+-#include <xorg-config.h>
+-#endif
+-
+-#include "vdif.h"
+-#include "misc.h"
+-#include "xf86DDC.h"
+-
+-static void print_vdif(xf86VdifPtr l, char *s);
+-static void print_timings(xf86VdifTimingPtr *pt);
+-static void print_limits(xf86VdifLimitsPtr *pl);
+-static void print_gamma(xf86VdifGammaPtr *pg);
+-static void print_type(CARD8 c);
+-static void print_polarity(CARD8 c);
+-
+-void
+-xf86print_vdif(xf86vdifPtr v)
+-{
+-    print_vdif(v->vdif,v->strings);
+-    print_limits(v->limits);
+-    print_timings(v->timings);
+-    print_gamma(v->gamma);
+-}
+-
+-static void
+-print_vdif(xf86VdifPtr l, char *s)
+-{
+-    ErrorF("Version %i.%i",l->VDIFVersion,l->VDIFRevision);
+-    ErrorF(" Date: %i/%i/%i, Manufactured: %i/%i/%i\n",l->Date[0],
+-	   l->Date[1],l->Date[2],l->DateManufactured[0],
+-	   l->DateManufactured[1],l->DateManufactured[2]);
+-    ErrorF("File Revision: %i",l->FileRevision);
+-    ErrorF("Manufacturer: %s\n",s + l->Manufacturer);
+-    ErrorF("ModelNumber: %s\n",s + l->ModelNumber);
+-    ErrorF("VDIFIndex: %s\n",s +l->MinVDIFIndex);
+-    ErrorF("Version: %s\n",s + l->Version);
+-    ErrorF("SerialNumber %s\n",s + l->SerialNumber);
+-    ErrorF("MonitorType: ");
+-    switch (l->MonitorType) {
+-    case VDIF_MONITOR_MONOCHROME:
+-	ErrorF("Mono\n");
+-	break;
+-    case VDIF_MONITOR_COLOR:
+-	ErrorF("Color\n");
+-	break;
+-    }
+-    ErrorF("CRT Size: %i inches\n",l->CRTSize);
+-    switch (l->MonitorType) {
+-    case VDIF_MONITOR_MONOCHROME:
+-	ErrorF("Border:  %i percent\n",
+-	       l->BorderRed);
+-	ErrorF("Phosphor Decay: 1: %i,",l->RedPhosphorDecay);
+-	if (l->GreenPhosphorDecay !=0)
+-	    ErrorF(" 2: %i,",l->GreenPhosphorDecay);
+-	if (l->BluePhosphorDecay !=0)
+-	    ErrorF(" 3: %i",l->BluePhosphorDecay);
+-	ErrorF(" ms\n");
+-	if (l->RedChromaticity_x)
+-	    ErrorF("Chromaticity: 1: x:%f, y:%f;  ",
+-		   l->RedChromaticity_x/1000.0,l->RedChromaticity_y/1000.0);
+-	if (l->GreenChromaticity_x)
+-	    ErrorF("Chromaticity: 2: x:%f, y:%f;  ",
+-		   l->GreenChromaticity_x/1000.0,l->GreenChromaticity_y/1000.0);
+-	if (l->BlueChromaticity_x)
+-	    ErrorF("Chromaticity: 3: x:%f, y:%f  ",
+-		   l->BlueChromaticity_x/1000.0,l->BlueChromaticity_y/1000.0);
+-	ErrorF("\n");
+-	ErrorF("Gamma: %f\n",l->RedGamma/1000.0);
+-	break;
+-    case VDIF_MONITOR_COLOR:
+-	ErrorF("Border: Red: %i Green: %i Blue: %i percent\n",
+-	       l->BorderRed,l->BorderGreen,l->BorderBlue);
+-	ErrorF("Phosphor Decay: Red: %i, Green: %i, Blue: %i ms\n",
+-	       l->RedPhosphorDecay,l->GreenPhosphorDecay,l->BluePhosphorDecay);
+-	ErrorF("Chromaticity: Red: x:%f, y:%f;  Green: x:%f, y:%f;  "
+-	       "Blue: x:%f, y:%f\n",
+-	       l->RedChromaticity_x/1000.0,l->RedChromaticity_y/1000.0,
+-	       l->GreenChromaticity_x/1000.0,l->GreenChromaticity_y/1000.0,
+-	       l->BlueChromaticity_x/1000.0,l->BlueChromaticity_y/1000.0);
+-	ErrorF("Gamma: Red:%f, Green:%f, Blue:%f\n",l->RedGamma/1000.0,
+-	       l->GreenGamma/1000.0,l->BlueGamma/1000.0);
+-	break;
+-    }
+-    ErrorF("White Point: x: %f y: %f Y: %f\n",l->WhitePoint_x/1000.0,
+-	   l->WhitePoint_y/1000.0,l->WhitePoint_Y/1000.0);
+-}
+-
+-static void 
+-print_limits(xf86VdifLimitsPtr *pl)
+-{
+-    int i = 0;
+-    xf86VdifLimitsPtr l;
+-
+-    while((l = pl[i]) != NULL) {
+-	ErrorF("Max display resolution: %i x %i pixel\n",l->MaxHorPixel,
+-	       l->MaxVerPixel);
+-	ErrorF("Size of active area: %i x %i millimeters\n",l->MaxHorActiveLength,
+-	       l->MaxVerActiveHeight);
+-	ErrorF("Video Type: ");
+-	print_type(l->VideoType);
+-	ErrorF("Sync Type: ");
+-	print_type(l->SyncType);
+-	ErrorF("Sync Configuration ");
+-	switch (l->SyncConfiguration) {
+-	case VDIF_SYNC_SEPARATE:
+-	    ErrorF("separate\n");
+-	    break;
+-	case VDIF_SYNC_C:
+-	    ErrorF("composite C\n");
+-	    break;
+-	case VDIF_SYNC_CP:
+-	    ErrorF("composite CP\n");
+-	    break;
+-	case VDIF_SYNC_G:
+-	    ErrorF("composite G\n");
+-	    break;
+-	case VDIF_SYNC_GP:
+-	    ErrorF("composite GP\n");
+-	    break;
+-	case VDIF_SYNC_OTHER:
+-	    ErrorF("other\n");
+-	    break;
+-	}
+-	ErrorF("Termination Resistance: %i\n",l->TerminationResistance);
+-	ErrorF("Levels: white: %i, black: %i, blank: %i, sync: %i mV\n",
+-	       l->WhiteLevel,l->BlackLevel,l->BlankLevel,l->SyncLevel);
+-	ErrorF("Max. Pixel Clock: %f MHz\n",l->MaxPixelClock/1000.0);
+-	ErrorF("Freq. Range: Hor.: %f - %f kHz, Ver.: %f - %f Hz\n",
+-	       l->MaxHorFrequency/1000.0,l->MinHorFrequency/1000.0,
+-	       l->MaxVerFrequency/1000.0,l->MinVerFrequency/1000.0);
+-	ErrorF("Retrace time: Hor: %f us,  Ver: %f ms\n",l->MinHorRetrace/1000.0,
+-	       l->MinVerRetrace/1000.0);
+-    }
+-}
+-
+-static void 
+-print_timings(xf86VdifTimingPtr *pt)
+-{
+-    int i = 0;
+-    xf86VdifTimingPtr t;
+-
+-    while((t = pt[i]) != NULL) {
+-	ErrorF("SVGA / SVPMI mode number: %i\n",t->PreadjustedTimingName);
+-	ErrorF("Mode %i x %i\n",t->HorPixel,t->VerPixel);
+-	ErrorF("Size: %i x %i mm\n",t->HorAddrLength,t->VerAddrHeight);
+-	ErrorF("Ratios: %i/%i\n",t->PixelWidthRatio,t->PixelHeightRatio);
+-	ErrorF("Character width: %i",t->CharacterWidth);
+-	ErrorF("Clock: %f MHz HFreq.: %f kHz, VFreq: %f Hz\n",t->PixelClock/1000.0,
+-	       t->HorFrequency/1000.0,t->VerFrequency/1000.0);
+-	ErrorF("Htotal: %f us, Vtotal %f ms\n", t->HorTotalTime/1000.0,
+-	       t->VerTotalTime/1000.0);
+-	ErrorF("HDisp: %f, HBlankStart: %f, HBlankLength: %f, "
+-	       "HSyncStart: %f HSyncEnd: %f us\n",t->HorAddrTime/1000.0,
+-	       t->HorBlankStart/1000.0,t->HorBlankTime/1000.0,
+-	       t->HorSyncStart/1000.0,t->HorSyncTime/1000.0);
+-	ErrorF("VDisp: %f, VBlankStart: %f, VBlankLength: %f, "
+-	       "VSyncStart: %f VSyncEnd: %f us\n",t->VerAddrTime/1000.0,
+-	       t->VerBlankStart/1000.0,t->VerBlankTime/1000.0,
+-	       t->VerSyncStart/1000.0,t->VerSyncTime/1000.0);
+-	ErrorF("Scan Type: ");
+-	switch (t->ScanType) {
+-	case VDIF_SCAN_INTERLACED:
+-	    ErrorF("interlaced   ");
+-	    break;
+-	case VDIF_SCAN_NONINTERLACED:
+-	    ErrorF("non interlaced   ");
+-	    break;
+-	case VDIF_SCAN_OTHER:
+-	    ErrorF("other   ");
+-	    break;
+-	}
+-	ErrorF("Polarity: H: ");
+-	print_polarity(t->HorSyncPolarity);
+-	ErrorF("V: ");
+-	print_polarity(t->VerSyncPolarity);
+-	ErrorF("\n");
+-    }
+-}
+-
+-static void
+-print_gamma(xf86VdifGammaPtr *pg)
+-{
+-    int i = 0;
+-    xf86VdifGammaPtr g;
+-
+-    while((g = pg[i]) != NULL) {
+-	ErrorF("Gamma Table Entries: %i\n",g->GammaTableEntries);
+-    }
+-}
+-
+-static void
+-print_type(CARD8 c)
+-{
+-    switch (c) {
+-    case VDIF_VIDEO_TTL :
+-	ErrorF("TTL\n");
+-	break;
+-    case VDIF_VIDEO_ANALOG :
+-	ErrorF("Analog\n");
+-	break;
+-    case VDIF_VIDEO_ECL:
+-	ErrorF("ECL\n");
+-	break;
+-    case VDIF_VIDEO_DECL:
+-	ErrorF("DECL\n");
+-	break;
+-    case VDIF_VIDEO_OTHER:
+-	ErrorF("other\n");
+-	break;
+-    }
+-}
+-
+-static void
+-print_polarity(CARD8 c)
+-{
+-    switch (c) {
+-    case VDIF_POLARITY_NEGATIVE:
+-	ErrorF(" Neg.");
+-	break;
+-    case VDIF_POLARITY_POSITIVE:
+-	ErrorF(" Pos.");
+-	break;
+-    }
+-}
+diff --git a/hw/xfree86/ddc/vdif.h b/hw/xfree86/ddc/vdif.h
+deleted file mode 100644
+index 1777b68..0000000
+--- a/hw/xfree86/ddc/vdif.h
++++ /dev/null
+@@ -1,174 +0,0 @@
+-
+-#ifndef _VDIF_H
+-#define _VDIF_H
+-
+-#define VDIF_MONITOR_MONOCHROME 0
+-#define VDIF_MONITOR_COLOR 1
+-#define VDIF_VIDEO_TTL 0
+-#define VDIF_VIDEO_ANALOG 1
+-#define VDIF_VIDEO_ECL 2
+-#define VDIF_VIDEO_DECL 3
+-#define VDIF_VIDEO_OTHER 4
+-#define VDIF_SYNC_SEPARATE 0
+-#define VDIF_SYNC_C 1
+-#define VDIF_SYNC_CP 2
+-#define VDIF_SYNC_G 3
+-#define VDIF_SYNC_GP 4
+-#define VDIF_SYNC_OTHER 5
+-#define VDIF_SCAN_NONINTERLACED 0
+-#define VDIF_SCAN_INTERLACED 1
+-#define VDIF_SCAN_OTHER 2
+-#define VDIF_POLARITY_NEGATIVE 0
+-#define VDIF_POLARITY_POSITIVE 1
+-
+-#include <X11/Xmd.h>
+-
+-#undef  CARD32
+-#define CARD32 unsigned int	/* ... on all supported platforms */
+-
+-typedef struct _VDIF { /* Monitor Description: */
+-    CARD8 VDIFId[4]; /* alway "VDIF" */
+-    CARD32 FileLength; /* lenght of the whole file */
+-    CARD32 Checksum; /* sum of all bytes in the file after*/
+-    /* this field */
+-    CARD16 VDIFVersion; /* structure version number */
+-    CARD16 VDIFRevision; /* structure revision number */
+-    CARD16 Date[3]; /* file date Year/Month/Day */
+-    CARD16 DateManufactured[3]; /* date Year/Month/Day */
+-    CARD32 FileRevision; /* file revision string */
+-    CARD32 Manufacturer; /* ASCII ID of the manufacturer */
+-    CARD32 ModelNumber; /* ASCII ID of the model */
+-    CARD32 MinVDIFIndex; /* ASCII ID of Minimum VDIF index */
+-    CARD32 Version; /* ASCII ID of the model version */
+-    CARD32 SerialNumber; /* ASCII ID of the serial number */
+-    CARD8 MonitorType; /* Monochrome or Color */
+-    CARD8 CRTSize; /* inches */
+-    CARD8 BorderRed; /* percent */
+-    CARD8 BorderGreen; /* percent */
+-    CARD8 BorderBlue; /* percent */
+-    CARD8 Reserved1; /* padding */
+-    CARD16 Reserved2; /* padding */
+-    CARD32 RedPhosphorDecay; /* microseconds */
+-    CARD32 GreenPhosphorDecay; /* microseconds */
+-    CARD32 BluePhosphorDecay; /* microseconds */
+-    CARD16 WhitePoint_x; /* WhitePoint in CIExyY (scale 1000) */
+-    CARD16 WhitePoint_y;
+-    CARD16 WhitePoint_Y;
+-    CARD16 RedChromaticity_x; /* Red chromaticity in x,y */
+-    CARD16 RedChromaticity_y;
+-    CARD16 GreenChromaticity_x; /* Green chromaticity in x,y */
+-    CARD16 GreenChromaticity_y;
+-    CARD16 BlueChromaticity_x; /* Blue chromaticity in x,y */
+-    CARD16 BlueChromaticity_y;
+-    CARD16 RedGamma; /* Gamme curve exponent (scale 1000) */
+-    CARD16 GreenGamma;
+-    CARD16 BlueGamma;
+-    CARD32 NumberOperationalLimits;
+-    CARD32 OffsetOperationalLimits;
+-    CARD32 NumberOptions; /* optinal sections (gamma table) */
+-    CARD32 OffsetOptions;
+-    CARD32 OffsetStringTable;
+-} xf86VdifRec, *xf86VdifPtr;
+-
+-typedef enum { /* Tags for section identification */
+-    VDIF_OPERATIONAL_LIMITS_TAG = 1,
+-    VDIF_PREADJUSTED_TIMING_TAG,
+-    VDIF_GAMMA_TABLE_TAG
+-} VDIFScnTag;
+-
+-typedef struct _VDIFScnHdr { /* Generic Section Header: */
+-    CARD32 ScnLength; /* lenght of section */
+-    CARD32 ScnTag; /* tag for section identification */
+-} VDIFScnHdrRec, *VDIFScnHdrPtr;
+-
+-typedef struct _VDIFLimits { /* Operational Limits: */
+-    VDIFScnHdrRec Header; /* common section info */
+-    CARD16 MaxHorPixel; /* pixels */
+-    CARD16 MaxVerPixel; /* lines */
+-    CARD16 MaxHorActiveLength; /* millimeters */
+-    CARD16 MaxVerActiveHeight; /* millimeters */
+-    CARD8 VideoType; /* TTL / Analog / ECL / DECL */
+-    CARD8 SyncType; /* TTL / Analog / ECL / DECL */
+-    CARD8 SyncConfiguration; /* separate / composite / other */
+-    CARD8 Reserved1; /* padding */
+-    CARD16 Reserved2; /* padding */
+-    CARD16 TerminationResistance; /* */
+-    CARD16 WhiteLevel; /* millivolts */
+-    CARD16 BlackLevel; /* millivolts */
+-    CARD16 BlankLevel; /* millivolts */
+-    CARD16 SyncLevel; /* millivolts */
+-    CARD32 MaxPixelClock; /* kiloHertz */
+-    CARD32 MinHorFrequency; /* Hertz */
+-    CARD32 MaxHorFrequency; /* Hertz */
+-    CARD32 MinVerFrequency; /* milliHertz */
+-    CARD32 MaxVerFrequency; /* milliHertz */
+-    CARD16 MinHorRetrace; /* nanoseconds */
+-    CARD16 MinVerRetrace; /* microseconds */
+-    CARD32 NumberPreadjustedTimings;
+-    CARD32 OffsetNextLimits;
+-} xf86VdifLimitsRec, *xf86VdifLimitsPtr;
+-
+-typedef struct _VDIFTiming { /* Preadjusted Timing: */
+-    VDIFScnHdrRec Header; /* common section info */
+-    CARD32 PreadjustedTimingName; /* SVGA/SVPMI mode number */
+-    CARD16 HorPixel; /* pixels */
+-    CARD16 VerPixel; /* lines */
+-    CARD16 HorAddrLength; /* millimeters */
+-    CARD16 VerAddrHeight; /* millimeters */
+-    CARD8 PixelWidthRatio; /* gives H:V */
+-    CARD8 PixelHeightRatio;
+-    CARD8 Reserved1; /* padding */
+-    CARD8 ScanType; /* noninterlaced / interlaced / other*/
+-    CARD8 HorSyncPolarity; /* negative / positive */
+-    CARD8 VerSyncPolarity; /* negative / positive */
+-    CARD16 CharacterWidth; /* pixels */
+-    CARD32 PixelClock; /* kiloHertz */
+-    CARD32 HorFrequency; /* Hertz */
+-    CARD32 VerFrequency; /* milliHertz */
+-    CARD32 HorTotalTime; /* nanoseconds */
+-    CARD32 VerTotalTime; /* microseconds */
+-    CARD16 HorAddrTime; /* nanoseconds */
+-    CARD16 HorBlankStart; /* nanoseconds */
+-    CARD16 HorBlankTime; /* nanoseconds */
+-    CARD16 HorSyncStart; /* nanoseconds */
+-    CARD16 HorSyncTime; /* nanoseconds */
+-    CARD16 VerAddrTime; /* microseconds */
+-    CARD16 VerBlankStart; /* microseconds */
+-    CARD16 VerBlankTime; /* microseconds */
+-    CARD16 VerSyncStart; /* microseconds */
+-    CARD16 VerSyncTime; /* microseconds */
+-} xf86VdifTimingRec, *xf86VdifTimingPtr; 
+-
+-typedef struct _VDIFGamma { /* Gamma Table: */
+-    VDIFScnHdrRec Header; /* common section info */
+-    CARD16 GammaTableEntries; /* count of grays or RGB 3-tuples */
+-    CARD16 Unused1;
+-} xf86VdifGammaRec, *xf86VdifGammaPtr;
+-
+-/* access macros */
+-#define VDIF_OPERATIONAL_LIMITS(vdif) \
+-((xf86VdifLimitsPtr)((char*)(vdif) + (vdif)->OffsetOperationalLimits))
+-#define VDIF_NEXT_OPERATIONAL_LIMITS(limits) limits = \
+-     ((xf86VdifLimitsPtr)((char*)(limits) + (limits)->OffsetNextLimits))
+-#define VDIF_PREADJUSTED_TIMING(limits) \
+-((xf86VdifTimingPtr)((char*)(limits) + (limits)->Header.ScnLength))
+-#define VDIF_NEXT_PREADJUSTED_TIMING(timing) timing = \
+-     ((xf86VdifTimingPtr)((char*)(timing) + (timing)->Header.ScnLength))
+-#define VDIF_OPTIONS(vdif) \
+-     ((VDIFScnHdrPtr)((char*)(vdif) + (vdif)->OffsetOptions))
+-#define VDIF_NEXT_OPTIONS(options) options = \
+-     ((xf86VdifGammaPtr)((char*)(options) + (options)->Header.ScnLength))
+-#define VDIF_STRING(vdif, string) \
+-     ((char*)((char*)vdif + vdif->OffsetStringTable + (string)))
+-
+-typedef struct  _vdif {
+-    xf86VdifPtr vdif;
+-    xf86VdifLimitsPtr *limits;
+-    xf86VdifTimingPtr *timings;
+-    xf86VdifGammaPtr *gamma;
+-    char * strings;
+-} xf86vdif, *xf86vdifPtr;
+-
+-#undef CARD32
+-
+-#endif
+diff --git a/hw/xfree86/ddc/xf86DDC.c b/hw/xfree86/ddc/xf86DDC.c
+index 8080c8d..e47b8b8 100644
+--- a/hw/xfree86/ddc/xf86DDC.c
++++ b/hw/xfree86/ddc/xf86DDC.c
+@@ -15,52 +15,6 @@
+ 
+ static const OptionInfoRec *DDCAvailableOptions(void *unused);
+ 
+-#if DDC_MODULE
+-
+-static MODULESETUPPROTO(ddcSetup);
+-
+-static XF86ModuleVersionInfo ddcVersRec =
+-{
+-    "ddc",
+-    MODULEVENDORSTRING,
+-    MODINFOSTRING1,
+-    MODINFOSTRING2,
+-    XORG_VERSION_CURRENT,
+-    1, 0, 0,
+-    ABI_CLASS_VIDEODRV,		/* needs the video driver ABI */
+-    ABI_VIDEODRV_VERSION,
+-    MOD_CLASS_NONE,
+-    {0,0,0,0}
+-};
+-
+-_X_EXPORT XF86ModuleData ddcModuleData = { &ddcVersRec, ddcSetup, NULL };
+-
+-ModuleInfoRec DDC = {
+-    1,
+-    "DDC",
+-    NULL,
+-    0,
+-    DDCAvailableOptions,
+-};
+-
+-static pointer
+-ddcSetup(pointer module, pointer opts, int *errmaj, int *errmin)
+-{
+-    static Bool setupDone = FALSE;
+-
+-    if (!setupDone) {
+-	setupDone = TRUE;
+-	xf86AddModuleInfo(&DDC, module);
+-    } 
+-    /*
+-     * The return value must be non-NULL on success even though there
+-     * is no TearDownProc.
+-     */
+-    return (pointer)1;
+-}
+-
+-#endif
+-
+ #define RETRIES 4
+ 
+ static unsigned char *EDIDRead_DDC1(
+@@ -84,12 +38,6 @@ static unsigned char* EDID1Read_DDC2(
+     I2CBusPtr pBus
+ );
+ 
+-static unsigned char * VDIFRead(
+-    int scrnIndex, 
+-    I2CBusPtr pBus, 
+-    int start
+-);
+-
+ static unsigned char * DDCRead_DDC2(
+     int scrnIndex,
+     I2CBusPtr pBus, 
+@@ -184,7 +132,6 @@ xf86DoEDID_DDC2(int scrnIndex, I2CBusPtr pBus)
+ {
+     ScrnInfoPtr pScrn = xf86Screens[scrnIndex];
+     unsigned char *EDID_block = NULL;
+-    unsigned char *VDIF_Block = NULL;
+     xf86MonPtr tmp = NULL;
+     /* Default DDC and DDC2 to enabled. */
+     Bool noddc = FALSE, noddc2 = FALSE;
+@@ -217,11 +164,6 @@ xf86DoEDID_DDC2(int scrnIndex, I2CBusPtr pBus)
+     else
+         ErrorF("Sections to follow: %i\n",tmp->no_sections);
+ #endif
+-    if (tmp) {
+-        VDIF_Block = 
+-            VDIFRead(scrnIndex, pBus, EDID1_LEN * (tmp->no_sections + 1));    
+-        tmp->vdif = xf86InterpretVdif(VDIF_Block);
+-    }
+     
+     return tmp;
+ }
+@@ -299,35 +241,6 @@ EDID1Read_DDC2(int scrnIndex, I2CBusPtr pBus)
+     return  DDCRead_DDC2(scrnIndex, pBus, 0, EDID1_LEN);
+ }
+ 
+-static unsigned char*
+-VDIFRead(int scrnIndex, I2CBusPtr pBus, int start)
+-{
+-    unsigned char * Buffer, *v_buffer = NULL, *v_bufferp = NULL;
+-    int i, num = 0;
+-
+-    /* read VDIF length in 64 byte blocks */
+-    Buffer = DDCRead_DDC2(scrnIndex, pBus,start,64);
+-    if (Buffer == NULL)
+-	return NULL;
+-#ifdef DEBUG
+-    ErrorF("number of 64 bit blocks: %i\n",Buffer[0]);
+-#endif
+-    if ((num = Buffer[0]) > 0)
+-	v_buffer = v_bufferp = xalloc(sizeof(unsigned char) * 64 * num);
+-
+-    for (i = 0; i < num; i++) {
+-	Buffer = DDCRead_DDC2(scrnIndex, pBus,start,64);
+-	if (Buffer == NULL) {
+-	    xfree (v_buffer);
+-	    return NULL;
+-	}
+-	memcpy(v_bufferp,Buffer,63); /* 64th byte is checksum */
+-	xfree(Buffer);
+-	v_bufferp += 63;
+-    }
+-    return v_buffer;
+-}
+-
+ static unsigned char *
+ DDCRead_DDC2(int scrnIndex, I2CBusPtr pBus, int start, int len)
+ {
+diff --git a/hw/xfree86/ddc/xf86DDC.h b/hw/xfree86/ddc/xf86DDC.h
+index 5def97a..3b072dd 100644
+--- a/hw/xfree86/ddc/xf86DDC.h
++++ b/hw/xfree86/ddc/xf86DDC.h
+@@ -43,10 +43,6 @@ extern xf86MonPtr xf86InterpretEDID(
+     int screenIndex, Uchar *block
+ );
+ 
+-extern xf86vdifPtr xf86InterpretVdif(
+-    CARD8 *c
+-);
+-
+ extern void 
+ xf86DDCMonitorSet(int scrnIndex, MonPtr Monitor, xf86MonPtr DDC);
+ 
+@@ -55,9 +51,7 @@ extern Bool xf86SetDDCproperties(
+     xf86MonPtr DDC
+ );
+ 
+-extern void xf86print_vdif(
+-    xf86vdifPtr v
+-);
++DisplayModePtr xf86DDCGetModes(int scrnIndex, xf86MonPtr DDC);
+ 
+ #endif
+ 
+diff --git a/hw/xfree86/loader/xf86sym.c b/hw/xfree86/loader/xf86sym.c
+index 09d6681..185eb80 100644
+--- a/hw/xfree86/loader/xf86sym.c
++++ b/hw/xfree86/loader/xf86sym.c
+@@ -1237,13 +1203,12 @@ _X_HIDDEN void *xfree86LookupTab[] = {
+     SYMFUNC(xf86_show_cursors)
+     SYMFUNC(xf86_hide_cursors)
+     SYMFUNC(xf86_cursors_fini)
++    SYMFUNC(xf86_crtc_clip_video_helper)
+ 
+     SYMFUNC(xf86DoEDID_DDC1)
+     SYMFUNC(xf86DoEDID_DDC2)
+     SYMFUNC(xf86InterpretEDID)
+     SYMFUNC(xf86PrintEDID)
+-    SYMFUNC(xf86InterpretVdif)
+-    SYMFUNC(xf86print_vdif)
+     SYMFUNC(xf86DDCMonitorSet)
+     SYMFUNC(xf86SetDDCproperties)
+ 
+diff --git a/randr/Makefile.am b/randr/Makefile.am
+index 9bf0e65..20b0f72 100644
+--- a/randr/Makefile.am
++++ b/randr/Makefile.am
+@@ -2,6 +2,8 @@ noinst_LTLIBRARIES = librandr.la
+ 
+ AM_CFLAGS = $(DIX_CFLAGS)
+ 
++XINERAMA_SRCS = rrxinerama.c
++
+ if XORG
+ sdk_HEADERS = randrstr.h
+ endif
+@@ -18,5 +20,9 @@ librandr_la_SOURCES =	\
+ 	rrpointer.c	\
+ 	rrproperty.c	\
+ 	rrscreen.c	\
+-	rrsdispatch.c	\
+-	rrxinerama.c
++	rrsdispatch.c
++
++if XINERAMA
++librandr_la_SOURCES += ${XINERAMA_SRCS}
++endif
++
+diff --git a/randr/randr.c b/randr/randr.c
+index 4dd0ee5..958f9c1 100644
+--- a/randr/randr.c
++++ b/randr/randr.c
+@@ -358,8 +358,9 @@ RRExtensionInit (void)
+ 	SRRScreenChangeNotifyEvent;
+     EventSwapVector[RREventBase + RRNotify] = (EventSwapPtr)
+ 	SRRNotifyEvent;
+-
++#ifdef PANORAMIX
+     RRXineramaExtensionInit();
++#endif
+ }
+ 
+ static int
+diff --git a/randr/randrstr.h b/randr/randrstr.h
+index 6deaf47..bd19fe9 100644
+--- a/randr/randrstr.h
++++ b/randr/randrstr.h
+@@ -564,6 +564,7 @@ RRCrtcGammaSetSize (RRCrtcPtr	crtc,
+  * Return the area of the frame buffer scanned out by the crtc,
+  * taking into account the current mode and rotation
+  */
++
+ void
+ RRCrtcGetScanoutSize(RRCrtcPtr crtc, int *width, int *height);
+ 
+@@ -693,9 +694,6 @@ RROutputSetCrtcs (RROutputPtr	output,
+ 		  RRCrtcPtr	*crtcs,
+ 		  int		numCrtcs);
+ 
+-void
+-RROutputSetCrtc (RROutputPtr output, RRCrtcPtr crtc);
+-    
+ Bool
+ RROutputSetConnection (RROutputPtr  output,
+ 		       CARD8	    connection);
+@@ -801,7 +799,6 @@ Query state:
+ 	    1.2:
+ 		RRScreenSetSizeRange
+ 		RROutputSetCrtcs
+-		RROutputSetCrtc
+ 		RRModeGet
+ 		RROutputSetModes
+ 		RROutputSetConnection
+@@ -821,7 +818,6 @@ Query state:
+ 		RRCrtcCreate
+ 		RROutputCreate
+ 		RROutputSetCrtcs
+-		RROutputSetCrtc
+ 		RROutputSetConnection
+ 		RROutputSetSubpixelOrder
+ 		RROldModeAdd	â€¢ This adds modes one-at-a-time
+diff --git a/randr/rrcrtc.c b/randr/rrcrtc.c
+index 63da829..db5007e 100644
+--- a/randr/rrcrtc.c
++++ b/randr/rrcrtc.c
+@@ -134,6 +134,7 @@ RRCrtcNotify (RRCrtcPtr	    crtc,
+ 		break;
+ 	if (j == crtc->numOutputs)
+ 	{
++	    outputs[i]->crtc = crtc;
+ 	    RROutputChanged (outputs[i], FALSE);
+ 	    RRCrtcChanged (crtc, FALSE);
+ 	}
+@@ -149,6 +150,7 @@ RRCrtcNotify (RRCrtcPtr	    crtc,
+ 		break;
+ 	if (i == numOutputs)
+ 	{
++	    crtc->outputs[j]->crtc = NULL;
+ 	    RROutputChanged (crtc->outputs[j], FALSE);
+ 	    RRCrtcChanged (crtc, FALSE);
+ 	}
+@@ -507,7 +509,7 @@ RRCrtcInit (void)
+ int
+ ProcRRGetCrtcInfo (ClientPtr client)
+ {
+-    REQUEST(xRRGetCrtcInfoReq);;
++    REQUEST(xRRGetCrtcInfoReq);
+     xRRGetCrtcInfoReply	rep;
+     RRCrtcPtr			crtc;
+     CARD8			*extra;
+@@ -794,7 +796,7 @@ ProcRRSetCrtcConfig (ClientPtr client)
+ 	    int source_width = mode->mode.width;
+ 	    int	source_height = mode->mode.height;
+ 
+-	    if (rotation == RR_Rotate_90 || rotation == RR_Rotate_270)
++	    if ((rotation & 0xf) == RR_Rotate_90 || (rotation & 0xf) == RR_Rotate_270)
+ 	    {
+ 		source_width = mode->mode.height;
+ 		source_height = mode->mode.width;
+diff --git a/randr/rrdispatch.c b/randr/rrdispatch.c
+index 6b61b9c..5525427 100644
+--- a/randr/rrdispatch.c
++++ b/randr/rrdispatch.c
+@@ -22,6 +22,9 @@
+ 
+ #include "randrstr.h"
+ 
++#define SERVER_RANDR_MAJOR	1
++#define SERVER_RANDR_MINOR	2
++
+ Bool
+ RRClientKnowsRates (ClientPtr	pClient)
+ {
+@@ -49,8 +52,8 @@ ProcRRQueryVersion (ClientPtr client)
+      * Report the current version; the current
+      * spec says they're all compatible after 1.0
+      */
+-    rep.majorVersion = RANDR_MAJOR;
+-    rep.minorVersion = RANDR_MINOR;
++    rep.majorVersion = SERVER_RANDR_MAJOR;
++    rep.minorVersion = SERVER_RANDR_MINOR;
+     if (client->swapped) {
+     	swaps(&rep.sequenceNumber, n);
+     	swapl(&rep.length, n);
+diff --git a/randr/rrinfo.c b/randr/rrinfo.c
+index 5ef1a6b..7e77d39 100644
+--- a/randr/rrinfo.c
++++ b/randr/rrinfo.c
+@@ -98,17 +98,18 @@ RRScanOldConfig (ScreenPtr pScreen, Rotation rotations)
+ 	if (!output)
+ 	    return;
+ 	RROutputSetCrtcs (output, &crtc, 1);
+-	RROutputSetCrtc (output, crtc);
+ 	RROutputSetConnection (output, RR_Connected);
+ #ifdef RENDER
+ 	RROutputSetSubpixelOrder (output, PictureGetSubpixelOrder (pScreen));
+ #endif
+     }
+ 
+-    output = RRFirstOutput (pScreen);
++    output = pScrPriv->outputs[0];
+     if (!output)
+ 	return;
+-    crtc = output->crtc;
++    crtc = pScrPriv->crtcs[0];
++    if (!crtc)
++	return;
+ 
+     /* check rotations */
+     if (rotations != crtc->rotations)
+@@ -168,7 +169,7 @@ RRScanOldConfig (ScreenPtr pScreen, Rotation rotations)
+ 
+     /* notice current mode */
+     if (newMode)
+-	RRCrtcNotify (output->crtc, newMode, 0, 0, pScrPriv->rotation,
++	RRCrtcNotify (crtc, newMode, 0, 0, pScrPriv->rotation,
+ 		      1, &output);
+ }
+ #endif
+diff --git a/randr/rroutput.c b/randr/rroutput.c
+index c773279..a67e493 100644
+--- a/randr/rroutput.c
++++ b/randr/rroutput.c
+@@ -249,6 +249,7 @@ RROutputDeleteUserMode (RROutputPtr output,
+ 
+     memmove (output->userModes + m, output->userModes + m + 1,
+ 	     (output->numUserModes - m - 1) * sizeof (RRModePtr));
++    output->numUserModes--;
+     RRModeDestroy (mode);
+     return Success;
+ }
+@@ -286,15 +287,6 @@ RROutputSetCrtcs (RROutputPtr	output,
+     return TRUE;
+ }
+ 
+-void
+-RROutputSetCrtc (RROutputPtr output, RRCrtcPtr crtc)
+-{
+-    if (output->crtc == crtc)
+-	return;
+-    output->crtc = crtc;
+-    RROutputChanged (output, FALSE);
+-}
+-
+ Bool
+ RROutputSetConnection (RROutputPtr  output,
+ 		       CARD8	    connection)
+@@ -438,7 +430,7 @@ RROutputInit (void)
+ int
+ ProcRRGetOutputInfo (ClientPtr client)
+ {
+-    REQUEST(xRRGetOutputInfoReq);;
++    REQUEST(xRRGetOutputInfoReq);
+     xRRGetOutputInfoReply	rep;
+     RROutputPtr			output;
+     CARD8			*extra;
+diff --git a/randr/rrpointer.c b/randr/rrpointer.c
+index 802dcb2..c88a0f8 100644
+--- a/randr/rrpointer.c
++++ b/randr/rrpointer.c
+@@ -103,7 +103,7 @@ void
+ RRPointerMoved (ScreenPtr pScreen, int x, int y)
+ {
+     rrScrPriv (pScreen);
+-    RRCrtcPtr	pointerCrtc = pScrPriv->pointerCrtc;;
++    RRCrtcPtr	pointerCrtc = pScrPriv->pointerCrtc;
+     int	c;
+ 
+     /* Check last known CRTC */
+diff --git a/randr/rrscreen.c b/randr/rrscreen.c
+index f2981b0..8798b42 100644
+--- a/randr/rrscreen.c
++++ b/randr/rrscreen.c
+@@ -116,11 +116,19 @@ RRDeliverScreenEvent (ClientPtr client, WindowPtr pWin, ScreenPtr pScreen)
+ 
+     se.sequenceNumber = client->sequence;
+     se.sizeID = RR10CurrentSizeID (pScreen);
+-    
+-    se.widthInPixels = pScreen->width;
+-    se.heightInPixels = pScreen->height;
+-    se.widthInMillimeters = pScreen->mmWidth;
+-    se.heightInMillimeters = pScreen->mmHeight;
++
++    if (se.rotation & (RR_Rotate_90 | RR_Rotate_270)) {
++	se.widthInPixels = pScreen->height;
++	se.heightInPixels = pScreen->width;
++	se.widthInMillimeters = pScreen->mmHeight;
++	se.heightInMillimeters = pScreen->mmWidth;
++    } else {
++	se.widthInPixels = pScreen->width;
++	se.heightInPixels = pScreen->height;
++	se.widthInMillimeters = pScreen->mmWidth;
++	se.heightInMillimeters = pScreen->mmHeight;
++    }
++
+     WriteEventsToClient (client, 1, (xEvent *) &se);
+ }
+ 
+@@ -738,6 +738,7 @@ ProcRRSetScreenConfig (ClientPtr client)
+     int			    rate;
+     Bool		    has_rate;
+     RROutputPtr		    output;
++    RRCrtcPtr		    crtc;
+     RRModePtr		    mode;
+     RR10DataPtr		    pData = NULL;
+     RRScreenSizePtr    	    pSize;
+@@ -782,7 +784,9 @@ ProcRRSetScreenConfig (ClientPtr client)
+ 	rep.status = RRSetConfigFailed;
+ 	goto sendReply;
+     }
+-    
++
++    crtc = output->crtc;
++
+     /*
+      * if the client's config timestamp is not the same as the last config
+      * timestamp, then the config information isn't up-to-date and
+@@ -830,7 +834,7 @@ ProcRRSetScreenConfig (ClientPtr client)
+ 	return BadValue;
+     }
+ 
+-    if ((~output->crtc->rotations) & rotation)
++    if ((~crtc->rotations) & rotation)
+     {
+ 	/*
+ 	 * requested rotation or reflection not supported by screen
+@@ -913,7 +917,7 @@ ProcRRSetScreenConfig (ClientPtr client)
+ 	}
+     }
+ 
+-    if (!RRCrtcSet (output->crtc, mode, 0, 0, stuff->rotation, 1, &output))
++    if (!RRCrtcSet (crtc, mode, 0, 0, stuff->rotation, 1, &output))
+ 	rep.status = RRSetConfigFailed;
+     else
+ 	rep.status = RRSetConfigSuccess;
+diff --git a/randr/rrxinerama.c b/randr/rrxinerama.c
+index 63a34b5..2a57e4e 100644
+--- a/randr/rrxinerama.c
++++ b/randr/rrxinerama.c
+@@ -425,6 +428,14 @@ RRXineramaExtensionInit(void)
+ 	return;
+ #endif
+ 
++    /*
++     * Xinerama isn't capable enough to have multiple protocol screens each
++     * with their own output geometry.  So if there's more than one protocol
++     * screen, just don't even try.
++     */
++    if (screenInfo.numScreens > 1)
++	return;
++
+     (void) AddExtension(PANORAMIX_PROTOCOL_NAME, 0,0,
+ 			ProcRRXineramaDispatch,
+ 			SProcRRXineramaDispatch,
