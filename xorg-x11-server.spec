@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   26%{?dist}
+Release:   27%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -143,7 +143,7 @@ BuildRequires: libXaw-devel
 BuildRequires: libXfixes-devel
 
 BuildRequires: mesa-libGL-devel >= 7.0.1
-BuildRequires: mesa-source >= 7.0.1
+BuildRequires: mesa-source >= 7.0.1-5
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.3.0
 %if %{with_hw_servers}
@@ -606,6 +606,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 01 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-27
+- BuildReq: mesa-source >= 7.0.1-5.
+
 * Wed Sep 26 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-26
 - xserver-1.3.0-randr-updates.patch: Default ModeDebug to TRUE, better to
   have too much information than too little.
