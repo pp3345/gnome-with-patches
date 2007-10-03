@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   27%{?dist}
+Release:   28%{?dist}
 URL:       http://www.x.org
 License:   MIT/X11
 Group:     User Interface/X
@@ -71,6 +71,7 @@ Patch2010:  xserver-1.3.0-idletime.patch
 Patch2012:  xserver-1.3.0-add-really-slow-bcopy.patch
 Patch2013:  xserver-1.3.0-document-fontpath-correctly.patch
 Patch2014:  xserver-1.3.0-intel-by-default.patch
+Patch2015:  xserver-1.3.0-accidental-abi.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
 Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
@@ -331,6 +332,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2012 -p1 -b .slow-bcopy
 %patch2013 -p1 -b .fontpath-doc
 %patch2014 -p1 -b .intel
+%patch2015 -p1 -b .accidental-abi
 
 %patch2500 -p1 -b .unbreak-domains
 %patch2501 -p1 -b .pci-bus-count
@@ -606,6 +608,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Oct 03 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-28
+- xserver-1.3.0-accidental-abi.patch: Make sure some symbols from parser/
+  get exported, since apparently the intel driver uses them despite their
+  not being in the documented ABI list.  Thanks guys.
+
 * Mon Oct 01 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-27
 - BuildReq: mesa-source >= 7.0.1-5.
 
