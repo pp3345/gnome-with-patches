@@ -6,7 +6,7 @@ diff -up xorg-server-1.3.0.0/hw/xfree86/parser/Flags.c.jx xorg-server-1.3.0.0/hw
   */
  
 -char *
-+_X_EXPORT char *
++__attribute__((visibility("default"))) char *
  xf86findOptionValue (XF86OptionPtr list, const char *name)
  {
  	XF86OptionPtr p = xf86findOption (list, name);
@@ -18,7 +18,7 @@ diff -up xorg-server-1.3.0.0/hw/xfree86/parser/scan.c.jx xorg-server-1.3.0.0/hw/
   * in the comparison.
   */
 -int
-+_X_EXPORT int
++__attribute__((visibility("default"))) int
  xf86nameCompare (const char *s1, const char *s2)
  {
  	char c1, c2;
