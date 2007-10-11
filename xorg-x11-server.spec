@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   29%{?dist}
+Release:   30%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -60,6 +60,7 @@ Patch1014:  xserver-1.3.0-newglx-offscreen-pixmaps.patch
 Patch1015:  xserver-1.3.0-randr-updates.patch
 Patch1022:  xserver-1.3.0-default-dpi.patch
 Patch1023:  xserver-1.3.0-randr-preferred-mode-fix.patch
+Patch1024:  xserver-1.3.0-avoid-ps2-probe.patch
 
 Patch2001:  xserver-1.2.0-geode-mmx.patch
 Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
@@ -322,6 +323,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch1015 -p1 -b .randr-update
 %patch1022 -p1 -b .dpi
 %patch1023 -p1 -b .randr-preferred
+%patch1024 -p1 -b .ps2-probe
 
 %patch2001 -p1 -b .geode-mmx
 %patch2002 -p1 -b .xephyr-keysym
@@ -610,6 +612,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Oct 11 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-30
+- xserver-1.3.0-avoid-ps2-probe.patch: /dev/input/mice is always ExplorerPS/2,
+  so don't waste time on startup probing for it.
+
 * Fri Oct 05 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-29
 - xserver-1.3.0-randr-preferred-mode-fix.patch: Fix infinite loop on X
   startup when a mode is requested in the config file. (#318731)
