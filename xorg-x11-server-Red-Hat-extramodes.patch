@@ -165,9 +165,3 @@
  
  # 1920x1440 @ 85Hz (VESA GTF) hsync: 128.5kHz
  Modeline "1920x1440" 341.35  1920 2072 2288 2656  1440 1441 1444 1512 -hsync +vsync
-@@ -31,3 +172,5 @@
- # 2048x1536 @ 85Hz (VESA GTF) hsync: 137.0kHz
- Modeline "2048x1536" 388.04  2048 2216 2440 2832  1536 1537 1540 1612 -hsync +vsync
- 
-+# 2560x1600 @ 60.00 Hz (GTF) hsync: 99.36 kHz; pclk: 348.16 MHz
-+Modeline "2560x1600"  348.16  2560 2752 3032 3504  1600 1601 1604 1656  -HSync +Vsync

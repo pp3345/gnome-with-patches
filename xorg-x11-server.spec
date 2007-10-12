@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   30%{?dist}
+Release:   31%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -612,6 +612,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Oct 12 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-31
+- xorg-x11-server-Red-Hat-extramodes.patch: Remove 2560x1600 GTF timing.
+
 * Thu Oct 11 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-30
 - xserver-1.3.0-avoid-ps2-probe.patch: /dev/input/mice is always ExplorerPS/2,
   so don't waste time on startup probing for it.
