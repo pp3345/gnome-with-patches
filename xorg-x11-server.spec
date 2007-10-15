@@ -9,7 +9,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.3.0.0
-Release:   31%{?dist}
+Release:   32%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -82,6 +82,8 @@ Patch2502:  xserver-1.3.0-mmap-failure-check.patch
 Patch2503:  xserver-1.3.0-rom-search.patch
 Patch2504:  xserver-1.3.0-domain-obiwan.patch
 Patch2505:  xserver-1.3.0-pci-device-enable.patch
+
+Patch9999:  xserver-1.3.0-late-sigusr1.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -344,6 +346,8 @@ Xserver source code needed to build VNC server (Xvnc)
 %patch2503 -p1 -b .rom-search
 %patch2504 -p1 -b .domain-obiwan
 %patch2505 -p1 -b .device-enable
+
+%patch9999 -p1 -b .jx
 
 %build
 
@@ -612,6 +616,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 15 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-31.jx
+- xserver-1.3.0-late-sigusr1.patch: Test, move kill(getppid(), SIGUSR1)
+  as late as possible.
+
 * Fri Oct 12 2007 Adam Jackson <ajax@redhat.com> 1.3.0.0-31
 - xorg-x11-server-Red-Hat-extramodes.patch: Remove 2560x1600 GTF timing.
 
