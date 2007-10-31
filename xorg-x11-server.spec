@@ -5,17 +5,25 @@
 # --enable-kdrive just for Xephyr is overkill, should fix that upstream
 
 %define pkgname xorg-server
+%define gitdate 20071030
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.3.0.0
-Release:   33%{?dist}
+Version:   1.4.99.1
+Release:   0.1%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+%if 0%{gitdate}
+# git snapshot.  to recreate, run:
+# ./make-git-snapshot.sh 2338d5c9914e2a43c3a4f7ee0f4355ad0a1ad9e7
+Source0:   xorg-server-%{gitdate}.tar.bz2
+Source1:   make-git-snapshot.sh
+%else
 Source0:   ftp://ftp.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
+%endif
 Source100: comment-header-modefiles.txt
 
 # general bug fixes
@@ -112,11 +120,12 @@ BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
 BuildRequires: xorg-x11-proto-devel >= 7.1-11
-BuildRequires: randrproto >= 1.2
-BuildRequires: fixesproto >= 4.0
 BuildRequires: damageproto >= 1.1
-BuildRequires: scrnsaverproto >= 1.1
+BuildRequires: fixesproto >= 4.0
+BuildRequires: glproto >= 1.4.9
 BuildRequires: kbproto >= 1.0.3
+BuildRequires: randrproto >= 1.2
+BuildRequires: scrnsaverproto >= 1.1
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.0.3-3
 BuildRequires: libXfont-devel
@@ -160,7 +169,7 @@ Requires: libdrm >= 2.3.0
 BuildRequires: libselinux-devel
 
 # Make sure libXfont has the catalogue FPE
-Requires: libXfont >= 1.2.9
+Conflicts: libXfont < 1.2.9
 
 # Make sure we pull ABI compatible drivers.
 Conflicts: xorg-x11-drv-ati < 6.6.1
@@ -288,72 +297,87 @@ Group: Development/Libraries
 Xserver source code needed to build VNC server (Xvnc)
 
 %prep
-%setup -q -n %{pkgname}-%{version}
+%setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
+
+%if 0%{gitdate}
+git-checkout master
+# make it something you can push to.
+sed -i 's/git/&+ssh/' .git/config
+%endif
+
+# one # means can be dropped.  two means needs rebase.
+
 %patch0 -p0 -b .init-origins-fix
-%patch5 -p0 -b .libxf86config-dont-write-empty-sections
-%patch6 -p1 -b .builderstring
-%patch7 -p1 -b .xkb-in-xnest
+#patch5 -p0 -b .libxf86config-dont-write-empty-sections
+#patch6 -p1 -b .builderstring
+#patch8 -p1 -b .xkb-in-xnest
 %patch10 -p1 -b .vbe-filter
-%patch11 -p1 -b .vt-activate
-%patch12 -p1 -b .graphics-expose
-%patch15 -p1 -b .automake-1.10
+#patch11 -p1 -b .vt-activate
+#patch12 -p1 -b .graphics-expose
+#patch15 -p1 -b .automake-1.10
 %patch19 -p1 -b .xnest-expose
-%patch20 -p1 -b .x86emu-imul
-%patch21 -p1 -b .xkb-signal-loathing
+#patch20 -p1 -b .x86emu-imul
+#patch21 -p1 -b .xkb-signal-loathing
 %patch22 -p1 -b .magic-numbers
-%patch23 -p1 -b .ramdac
-%patch24 -p1 -b .reput
-%patch25 -p1 -b .xrandr-timestamp
+#patch23 -p1 -b .ramdac
+#patch24 -p1 -b .reput
+#patch25 -p1 -b .xrandr-timestamp
 
 %patch100 -p0 -b .no-move-damage
-%patch101 -p0 -b .dont-backfill-bg-none
-%patch105 -p1 -b .enable-composite
-%patch106 -p1 -b .no-xnest-composite
+##patch101 -p0 -b .dont-backfill-bg-none
+##patch105 -p1 -b .enable-composite
+##patch106 -p1 -b .no-xnest-composite
 %patch108 -p1 -b .composite-paranoia
 
 %patch1001 -p1 -b .Red-Hat-extramodes
-%patch1002 -p1 -b .xephyr
-%patch1003 -p1 -b .fpic
-%patch1004 -p1 -b .selinux-awareness
-%patch1005 -p0 -b .builtin-fonts
-%patch1006 -p1 -b .no-scanpci
-%patch1007 -p1 -b .xf1bpp
+##patch1002 -p1 -b .xephyr
+##patch1003 -p1 -b .fpic
+##patch1004 -p1 -b .selinux-awareness
+##patch1005 -p0 -b .builtin-fonts
+##patch1006 -p1 -b .no-scanpci
+#patch1007 -p1 -b .xf1bpp
 %patch1008 -p1 -b .comment-less
 %patch1010 -p1 -b .prerelease-warning
-%patch1011 -p1 -b .composite-version
-%patch1012 -p1 -b .newmesa
-%patch1013 -p1 -b .newexa
+##patch1011 -p1 -b .composite-version
+#patch1012 -p1 -b .newmesa
+#patch1013 -p1 -b .newexa
 %patch1014 -p1 -b .offscreen-pixmaps
-%patch1015 -p1 -b .randr-update
+#patch1015 -p1 -b .randr-update
 %patch1022 -p1 -b .dpi
-%patch1023 -p1 -b .randr-preferred
+##patch1023 -p1 -b .randr-preferred
 %patch1024 -p1 -b .ps2-probe
 
-%patch2001 -p1 -b .geode-mmx
-%patch2002 -p1 -b .xephyr-keysym
-%patch2003 -p1 -b .vfprintf
+##patch2001 -p1 -b .geode-mmx
+##patch2002 -p1 -b .xephyr-keysym
+#patch2003 -p1 -b .vfprintf
 %patch2004 -p1 -b .displaysize
 %patch2007 -p1 -b .randrconfig
-%patch2008 -p1 -b .randrama-zero-screens
-%patch2009 -p1 -b .arm
-%patch2010 -p1 -b .idletime
-%patch2012 -p1 -b .slow-bcopy
+#patch2008 -p1 -b .randrama-zero-screens
+#patch2009 -p1 -b .arm
+#patch2010 -p1 -b .idletime
+#patch2012 -p1 -b .slow-bcopy
 %patch2013 -p1 -b .fontpath-doc
-%patch2014 -p1 -b .intel
+#patch2014 -p1 -b .intel
 %patch2015 -p1 -b .accidental-abi
-%patch2016 -p1 -b .document-randr
-%patch2017 -p1 -b .update-quirk
+#patch2016 -p1 -b .document-randr
+#patch2017 -p1 -b .update-quirk
 
-%patch2500 -p1 -b .unbreak-domains
-%patch2501 -p1 -b .pci-bus-count
-%patch2502 -p1 -b .mmap-check
-%patch2503 -p1 -b .rom-search
-%patch2504 -p1 -b .domain-obiwan
-%patch2505 -p1 -b .device-enable
+##patch2500 -p1 -b .unbreak-domains
+##patch2501 -p1 -b .pci-bus-count
+##patch2503 -p1 -b .mmap-check
+##patch2503 -p1 -b .rom-search
+##patch2504 -p1 -b .domain-obiwan
+##patch2505 -p1 -b .device-enable
 
-%patch9999 -p1 -b .jx
+##patch9999 -p1 -b .jx
 
 %build
+
+if [ -z "${SRSLY}" ]; then
+    # This is a work in progress.  You probably do not want to build
+    # it locally.  You definitely should not build it into Koji.
+    false
+fi
 
 %if %{fedora} == 7
 %define default_font_path "unix/:7100,catalogue:/etc/X11/fontpath.d,built-ins"
@@ -363,11 +387,12 @@ Xserver source code needed to build VNC server (Xvnc)
 
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
-aclocal ; automake -a ; autoconf
+# XXX reenable dmx and kdrive
+autoreconf -v --install || exit 1
 %configure --enable-maintainer-mode \
 	%{enable_xorg} \
-	--disable-xprint --enable-xvfb --enable-xnest --enable-dmx \
-	--enable-kdrive --enable-xephyr \
+	--disable-xprint --enable-xvfb --enable-xnest --disable-dmx \
+	--disable-kdrive --disable-xephyr \
 	--disable-static \
 	--with-pic \
 	--enable-composite \
@@ -377,8 +402,6 @@ aclocal ; automake -a ; autoconf
 	--with-int10=x86emu \
 	--with-default-font-path=%{default_font_path} \
 	--with-module-dir=%{moduledir} \
-	--with-os-name="Fedora Core 7" \
-	--with-os-vendor="Red Hat, Inc." \
 	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
 	--with-rgb-path=%{_datadir}/X11/rgb \
@@ -620,6 +643,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Oct 31 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.1
+- Begin rebasing to git master.  It almost builds, assuming you disable
+  glx, kdrive, and dmx, and remove like half the patches.
+
 * Thu Oct 18 2007 Dave Airlie <airlied@redhat.com> 1.3.0.0-33
 - xserver-1.3.0-xorg-conf-man-randr-update.patch - update man page for randr setup
 - xserver-1.3.0-update-quirks.patch - update quirks for more monitor issues
