@@ -1,16 +1,27 @@
-# F8 TODO list:
+# This package is an experiment in active integration of upstream SCM with
+# Fedora packaging.  It works something like this:
+#
+# The "pristine" source is actually a git repo (with no working checkout).
+# The first step of %%prep is to check it out and switch to a "fedora" branch.
+# If you need to add a patch to the server, just do it like a normal git
+# operation, dump it with git-format-patch to a file in the standard naming
+# format, and add a PatchN: line.  If you want to push something upstream,
+# check out the master branch, pull, cherry-pick, and push.  FIXME describe
+# rebasing, add convenience 'make' targets maybe.
+
+# F9 TODO list:
 #
 # Fix rhpxl to no longer need vesamodes/extramodes
 # RHEL5 bugfix sync
 # --enable-kdrive just for Xephyr is overkill, should fix that upstream
 
 %define pkgname xorg-server
-%define gitdate 20071030
+%define gitdate 20071031
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.1%{?dist}
+Release:   0.2%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -18,9 +29,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %if 0%{gitdate}
 # git snapshot.  to recreate, run:
-# ./make-git-snapshot.sh 2338d5c9914e2a43c3a4f7ee0f4355ad0a1ad9e7
+# ./make-git-snapshot.sh `cat commitid`
 Source0:   xorg-server-%{gitdate}.tar.bz2
 Source1:   make-git-snapshot.sh
+Source2:   commitid
 %else
 Source0:   ftp://ftp.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 %endif
@@ -28,72 +40,72 @@ Source100: comment-header-modefiles.txt
 
 # general bug fixes
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
-Patch5:    xorg-x11-server-libxf86config-dont-write-empty-sections.patch
-Patch6:    xorg-x11-server-1.1.1-builderstring.patch
-Patch7:    xorg-x11-server-1.1.1-xkb-in-xnest.patch
+#Patch5:    xorg-x11-server-libxf86config-dont-write-empty-sections.patch
+#Patch6:    xorg-x11-server-1.1.1-builderstring.patch
+#Patch7:    xorg-x11-server-1.1.1-xkb-in-xnest.patch
 Patch10:   xorg-x11-server-1.1.1-vbe-filter-less.patch
-Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
-Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
-Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
+#Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
+#Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
+#Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
 Patch19:   xserver-1.3.0-xnest-exposures.patch
-Patch20:   xserver-1.3.0-x86emu-imul-int64.patch
-Patch21:   xserver-1.3.0-xkb-and-loathing.patch
+#Patch20:   xserver-1.3.0-x86emu-imul-int64.patch
+#Patch21:   xserver-1.3.0-xkb-and-loathing.patch
 Patch22:   xserver-1.3.0-fbdevhw-magic-numbers.patch
-Patch23:   xserver-1.3.0-ramdac-export.patch
-Patch24:   xserver-1.3.0-reput-video.patch
-Patch25:   xserver-1.3.0-xrandr-timestamp-buglet.patch
+#Patch23:   xserver-1.3.0-ramdac-export.patch
+#Patch24:   xserver-1.3.0-reput-video.patch
+#Patch25:   xserver-1.3.0-xrandr-timestamp-buglet.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
-Patch101:  xorg-x11-server-1.1.0-dont-backfill-bg-none.patch
-Patch105:  xorg-x11-server-1.2.0-enable-composite.patch
-Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
-Patch108:  xserver-1.3.0-no-pseudocolor-composite.patch
+##Patch101:  xorg-x11-server-1.1.0-dont-backfill-bg-none.patch
+##Patch105:  xorg-x11-server-1.2.0-enable-composite.patch
+##Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
+#Patch108:  xserver-1.3.0-no-pseudocolor-composite.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
 Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
-Patch1002:  xorg-x11-server-1.2.0-xephyr-only.patch
-Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
-Patch1004:  xorg-x11-server-1.2.0-selinux-awareness.patch
-Patch1005:  xorg-x11-server-1.1.1-builtin-fonts.patch
-Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
-Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
+##Patch1002:  xorg-x11-server-1.2.0-xephyr-only.patch
+##Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
+##Patch1004:  xorg-x11-server-1.2.0-selinux-awareness.patch
+##Patch1005:  xorg-x11-server-1.1.1-builtin-fonts.patch
+##Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
+#Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
 Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
-Patch1011:  xserver-1.3.0-composite-version.patch
-Patch1012:  xserver-1.3.0-mesa7.patch
-Patch1013:  xserver-1.3.0-exaupgrade.patch
-Patch1014:  xserver-1.3.0-newglx-offscreen-pixmaps.patch
-Patch1015:  xserver-1.3.0-randr-updates.patch
+##Patch1011:  xserver-1.3.0-composite-version.patch
+#Patch1012:  xserver-1.3.0-mesa7.patch
+#Patch1013:  xserver-1.3.0-exaupgrade.patch
+##Patch1014:  xserver-1.3.0-newglx-offscreen-pixmaps.patch
+#Patch1015:  xserver-1.3.0-randr-updates.patch
 Patch1022:  xserver-1.3.0-default-dpi.patch
-Patch1023:  xserver-1.3.0-randr-preferred-mode-fix.patch
+#Patch1023:  xserver-1.3.0-randr-preferred-mode-fix.patch
 Patch1024:  xserver-1.3.0-avoid-ps2-probe.patch
 
-Patch2001:  xserver-1.2.0-geode-mmx.patch
-Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
-Patch2003:  xserver-1.2.0-vfprintf.patch
+##Patch2001:  xserver-1.2.0-geode-mmx.patch
+##Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
+#Patch2003:  xserver-1.2.0-vfprintf.patch
 Patch2004:  xserver-1.3.0-honor-displaysize.patch
 Patch2007:  xserver-1.3.0-randr12-config-hack.patch
-Patch2008:  xserver-1.3.0-randrama-no-zero-screens.patch
-Patch2009:  xserver-1.3.0-arm-iopl.patch
-Patch2010:  xserver-1.3.0-idletime.patch
-Patch2012:  xserver-1.3.0-add-really-slow-bcopy.patch
+#Patch2008:  xserver-1.3.0-randrama-no-zero-screens.patch
+#Patch2009:  xserver-1.3.0-arm-iopl.patch
+#Patch2010:  xserver-1.3.0-idletime.patch
+#Patch2012:  xserver-1.3.0-add-really-slow-bcopy.patch
 Patch2013:  xserver-1.3.0-document-fontpath-correctly.patch
-Patch2014:  xserver-1.3.0-intel-by-default.patch
+#Patch2014:  xserver-1.3.0-intel-by-default.patch
 Patch2015:  xserver-1.3.0-accidental-abi.patch
-Patch2016:  xserver-1.3.0-xorg-conf-man-randr-update.patch
-Patch2017:  xserver-1.3.0-update-quirks.patch
+#Patch2016:  xserver-1.3.0-xorg-conf-man-randr-update.patch
+#Patch2017:  xserver-1.3.0-update-quirks.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
-Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
-Patch2501:  xserver-1.3.0-pci-bus-count.patch
-Patch2502:  xserver-1.3.0-mmap-failure-check.patch
-Patch2503:  xserver-1.3.0-rom-search.patch
-Patch2504:  xserver-1.3.0-domain-obiwan.patch
-Patch2505:  xserver-1.3.0-pci-device-enable.patch
+##Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
+##Patch2501:  xserver-1.3.0-pci-bus-count.patch
+##Patch2502:  xserver-1.3.0-mmap-failure-check.patch
+##Patch2503:  xserver-1.3.0-rom-search.patch
+##Patch2504:  xserver-1.3.0-domain-obiwan.patch
+##Patch2505:  xserver-1.3.0-pci-device-enable.patch
 
-Patch9999:  xserver-1.3.0-late-sigusr1.patch
+#Patch9999:  xserver-1.3.0-late-sigusr1.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -116,6 +128,7 @@ Patch9999:  xserver-1.3.0-late-sigusr1.patch
 # FIXME: Temporary Build deps on autotools, as needed...
 BuildRequires: automake autoconf libtool
 
+BuildRequires: git
 BuildRequires: pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
@@ -300,76 +313,16 @@ Xserver source code needed to build VNC server (Xvnc)
 %setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
 
 %if 0%{gitdate}
-git-checkout master
+git checkout -b fedora-%{version}-%{release}
 # make it something you can push to.
 sed -i 's/git/&+ssh/' .git/config
+%else
+git-init-db
 %endif
 
-# one # means can be dropped.  two means needs rebase.
-
-%patch0 -p0 -b .init-origins-fix
-#patch5 -p0 -b .libxf86config-dont-write-empty-sections
-#patch6 -p1 -b .builderstring
-#patch8 -p1 -b .xkb-in-xnest
-%patch10 -p1 -b .vbe-filter
-#patch11 -p1 -b .vt-activate
-#patch12 -p1 -b .graphics-expose
-#patch15 -p1 -b .automake-1.10
-%patch19 -p1 -b .xnest-expose
-#patch20 -p1 -b .x86emu-imul
-#patch21 -p1 -b .xkb-signal-loathing
-%patch22 -p1 -b .magic-numbers
-#patch23 -p1 -b .ramdac
-#patch24 -p1 -b .reput
-#patch25 -p1 -b .xrandr-timestamp
-
-%patch100 -p0 -b .no-move-damage
-##patch101 -p0 -b .dont-backfill-bg-none
-##patch105 -p1 -b .enable-composite
-##patch106 -p1 -b .no-xnest-composite
-%patch108 -p1 -b .composite-paranoia
-
-%patch1001 -p1 -b .Red-Hat-extramodes
-##patch1002 -p1 -b .xephyr
-##patch1003 -p1 -b .fpic
-##patch1004 -p1 -b .selinux-awareness
-##patch1005 -p0 -b .builtin-fonts
-##patch1006 -p1 -b .no-scanpci
-#patch1007 -p1 -b .xf1bpp
-%patch1008 -p1 -b .comment-less
-%patch1010 -p1 -b .prerelease-warning
-##patch1011 -p1 -b .composite-version
-#patch1012 -p1 -b .newmesa
-#patch1013 -p1 -b .newexa
-%patch1014 -p1 -b .offscreen-pixmaps
-#patch1015 -p1 -b .randr-update
-%patch1022 -p1 -b .dpi
-##patch1023 -p1 -b .randr-preferred
-%patch1024 -p1 -b .ps2-probe
-
-##patch2001 -p1 -b .geode-mmx
-##patch2002 -p1 -b .xephyr-keysym
-#patch2003 -p1 -b .vfprintf
-%patch2004 -p1 -b .displaysize
-%patch2007 -p1 -b .randrconfig
-#patch2008 -p1 -b .randrama-zero-screens
-#patch2009 -p1 -b .arm
-#patch2010 -p1 -b .idletime
-#patch2012 -p1 -b .slow-bcopy
-%patch2013 -p1 -b .fontpath-doc
-#patch2014 -p1 -b .intel
-%patch2015 -p1 -b .accidental-abi
-#patch2016 -p1 -b .document-randr
-#patch2017 -p1 -b .update-quirk
-
-##patch2500 -p1 -b .unbreak-domains
-##patch2501 -p1 -b .pci-bus-count
-##patch2503 -p1 -b .mmap-check
-##patch2503 -p1 -b .rom-search
-##patch2504 -p1 -b .domain-obiwan
-##patch2505 -p1 -b .device-enable
-
-##patch9999 -p1 -b .jx
+for i in $(awk '/^Patch.*:/ { print $2 }' ../xorg-x11-server.spec) ; do
+    git-am -p1 ../$i
+done
 
 %build
 
@@ -395,6 +348,7 @@ autoreconf -v --install || exit 1
 	--disable-kdrive --disable-xephyr \
 	--disable-static \
 	--with-pic \
+	--disable-afb \
 	--enable-composite \
 	--enable-xtrap \
 	--enable-xcsecurity \
@@ -460,6 +414,7 @@ xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
     rm -f $RPM_BUILD_ROOT%{_bindir}/out?
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
+    rm -f $RPM_BUILD_ROOT%{_mandir}/man5/SecurityPolicy.5*
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 
 %ifarch s390 s390x
@@ -551,7 +506,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/multimedia/tda9850_drv.so
 %{_libdir}/xorg/modules/multimedia/tda9885_drv.so
 %{_libdir}/xorg/modules/multimedia/uda1380_drv.so
-%{_libdir}/xorg/modules/libafb.so
 %{_libdir}/xorg/modules/libcfb.so
 %{_libdir}/xorg/modules/libcfb32.so
 %{_libdir}/xorg/modules/libexa.so
@@ -563,6 +517,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libshadowfb.so
 %{_libdir}/xorg/modules/libvbe.so
 %{_libdir}/xorg/modules/libvgahw.so
+%{_libdir}/xorg/modules/libwfb.so
 %{_libdir}/xorg/modules/libxaa.so
 %{_libdir}/xorg/modules/libxf1bpp.so
 %{_libdir}/xorg/modules/libxf4bpp.so
@@ -643,6 +598,17 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Oct 31 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.2
+- BuildRequires: git.
+- Manage the source directory as a git repo.
+- Use git-am(1) to apply patches instead of %patch.
+- Reformat a bunch of patches to conform to git-am's rules.
+- Add wfb to file manifest.
+- Drop afb, sorry Amiga users.
+- Delete the SecurityPolicy man page from the buildroot, until we have a
+  xorg-x11-server-common.
+- Update to today's snapshot.
+
 * Wed Oct 31 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.1
 - Begin rebasing to git master.  It almost builds, assuming you disable
   glx, kdrive, and dmx, and remove like half the patches.
