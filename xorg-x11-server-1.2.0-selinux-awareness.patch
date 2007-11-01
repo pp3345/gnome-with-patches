@@ -1,3 +1,11 @@
+From: Adam Jackson <ajax@redhat.com>
+Date: Sun, 28 Oct 2007 09:37:52 +0100
+Subject: [PATCH] Add selinux awareness.
+
+Mesa contains some codegen paths that check for selinux, so we need to
+link against libselinux to make that work.
+
+---
 --- xserver-20070223/hw/xfree86/dixmods/Makefile.am.selinux-awareness	2007-02-23 11:20:30.000000000 -0500
 +++ xserver-20070223/hw/xfree86/dixmods/Makefile.am	2007-02-23 11:24:32.000000000 -0500
 @@ -42,7 +42,7 @@

@@ -13,7 +13,6 @@
 #
 # Fix rhpxl to no longer need vesamodes/extramodes
 # RHEL5 bugfix sync
-# --enable-kdrive just for Xephyr is overkill, should fix that upstream
 
 %define pkgname xorg-server
 %define gitdate 20071031
@@ -21,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.2%{?dist}
+Release:   0.4%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -40,20 +39,9 @@ Source100: comment-header-modefiles.txt
 
 # general bug fixes
 Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
-#Patch5:    xorg-x11-server-libxf86config-dont-write-empty-sections.patch
-#Patch6:    xorg-x11-server-1.1.1-builderstring.patch
-#Patch7:    xorg-x11-server-1.1.1-xkb-in-xnest.patch
 Patch10:   xorg-x11-server-1.1.1-vbe-filter-less.patch
-#Patch11:   xorg-x11-server-1.1.1-vt-activate-is-a-terrible-api.patch
-#Patch12:   xorg-x11-server-1.1.1-graphics-expose.patch
-#Patch15:   xorg-x11-server-1.1.1-automake-1.10-fixes.patch
 Patch19:   xserver-1.3.0-xnest-exposures.patch
-#Patch20:   xserver-1.3.0-x86emu-imul-int64.patch
-#Patch21:   xserver-1.3.0-xkb-and-loathing.patch
 Patch22:   xserver-1.3.0-fbdevhw-magic-numbers.patch
-#Patch23:   xserver-1.3.0-ramdac-export.patch
-#Patch24:   xserver-1.3.0-reput-video.patch
-#Patch25:   xserver-1.3.0-xrandr-timestamp-buglet.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -65,9 +53,8 @@ Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
 Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
-##Patch1002:  xorg-x11-server-1.2.0-xephyr-only.patch
 ##Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
-##Patch1004:  xorg-x11-server-1.2.0-selinux-awareness.patch
+Patch1004:  xserver-1.4.99-selinux-awareness.patch
 ##Patch1005:  xorg-x11-server-1.1.1-builtin-fonts.patch
 ##Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
 #Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
@@ -123,13 +110,14 @@ Patch2015:  xserver-1.3.0-accidental-abi.patch
 %define enable_xorg --disable-xorg
 %endif
 
-%define xservers --enable-xvfb --enable-xnest --enable-kdrive --enable-xephyr --enable-dmx
+# XXX reenable dmx
+%define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev --disable-kdrive-vesa
+%define xservers --enable-xvfb --enable-xnest %{kdrive} --enable-xephyr --disable-dmx
 
 # FIXME: Temporary Build deps on autotools, as needed...
 BuildRequires: automake autoconf libtool
 
-BuildRequires: git
-BuildRequires: pkgconfig
+BuildRequires: git pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
 BuildRequires: xorg-x11-proto-devel >= 7.1-11
@@ -141,42 +129,22 @@ BuildRequires: randrproto >= 1.2
 BuildRequires: scrnsaverproto >= 1.1
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.0.3-3
-BuildRequires: libXfont-devel
-BuildRequires: libXau-devel
-BuildRequires: libxkbfile-devel
-# libXres-devel needed for something that links to libXres that I never
-# bothered to figure out yet
-BuildRequires: libXres-devel
-# libfontenc-devel needed for Xorg, but not specified by
-# upstream deps.  Build fails without it.
-BuildRequires: libfontenc-devel
-# Required for Xtst examples
-BuildRequires: libXtst-devel
-# libXdmcp-devel needed for Xdmx, Xnest, Xephyr
-BuildRequires: libXdmcp-devel
-# libX11-devel needed for Xdmx, Xnest, Xephyr
-BuildRequires: libX11-devel
-# libXext-devel needed for Xdmx, Xnest, Xephyr
-BuildRequires: libXext-devel
+BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
+BuildRequires: libfontenc-devel libXtst-devel libXdmcp-devel
+BuildRequires: libX11-devel libXext-devel
 # XXX Really?  Why would we need this, Xfont should hide it.
 BuildRequires: freetype-devel >= 2.1.9-1
 
 # DMX config utils buildreqs.
-BuildRequires: libXt-devel
-BuildRequires: libdmx-devel
-BuildRequires: libXmu-devel
-BuildRequires: libXrender-devel
-BuildRequires: libXi-devel
-BuildRequires: libXpm-devel
-BuildRequires: libXaw-devel
-BuildRequires: libXfixes-devel
+BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
+BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
-BuildRequires: mesa-libGL-devel >= 7.0.1
-BuildRequires: mesa-source >= 7.0.1-6
+BuildRequires: mesa-libGL-devel >= 7.1
+BuildRequires: mesa-source >= 7.1
 # XXX silly...
-BuildRequires: libdrm-devel >= 2.3.0
+BuildRequires: libdrm-devel >= 2.4.0
 %if %{with_hw_servers}
-Requires: libdrm >= 2.3.0
+Requires: libdrm >= 2.4.0
 %endif
 
 BuildRequires: libselinux-devel
@@ -320,9 +288,8 @@ sed -i 's/git/&+ssh/' .git/config
 git-init-db
 %endif
 
-for i in $(awk '/^Patch.*:/ { print $2 }' ../xorg-x11-server.spec) ; do
-    git-am -p1 ../$i
-done
+# Apply all the patches.
+git-am -p1 $(awk '/^Patch.*:/ { print "../"$2 }' ../%{name}.spec)
 
 %build
 
@@ -340,15 +307,12 @@ fi
 
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
-# XXX reenable dmx and kdrive
 autoreconf -v --install || exit 1
 %configure --enable-maintainer-mode \
-	%{enable_xorg} \
-	--disable-xprint --enable-xvfb --enable-xnest --disable-dmx \
-	--disable-kdrive --disable-xephyr \
+	%{enable_xorg} %{xservers} \
 	--disable-static \
 	--with-pic \
-	--disable-afb \
+	--disable-{a,c,m}fb \
 	--enable-composite \
 	--enable-xtrap \
 	--enable-xcsecurity \
@@ -471,6 +435,7 @@ rm -rf $RPM_BUILD_ROOT
 # The Xserver.1 manpage is intentionally present in multiple subpackages.
 # It could reasonably form part of a -common subpackage though.
 
+# XXX xf8_16bpp disappears with --disable-cfb, for no reason.
 %if %{with_hw_servers}
 %files Xorg
 %defattr(-,root,root,-)
@@ -495,7 +460,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules/input
 %dir %{_libdir}/xorg/modules/fonts
 %{_libdir}/xorg/modules/fonts/libfreetype.so
-%{_libdir}/xorg/modules/fonts/libtype1.so
 %dir %{_libdir}/xorg/modules/linux
 %{_libdir}/xorg/modules/linux/libfbdevhw.so
 %dir %{_libdir}/xorg/modules/multimedia
@@ -506,23 +470,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/multimedia/tda9850_drv.so
 %{_libdir}/xorg/modules/multimedia/tda9885_drv.so
 %{_libdir}/xorg/modules/multimedia/uda1380_drv.so
-%{_libdir}/xorg/modules/libcfb.so
-%{_libdir}/xorg/modules/libcfb32.so
 %{_libdir}/xorg/modules/libexa.so
 %{_libdir}/xorg/modules/libfb.so
 %{_libdir}/xorg/modules/libint10.so
-%{_libdir}/xorg/modules/libmfb.so
-%{_libdir}/xorg/modules/libpcidata.so
 %{_libdir}/xorg/modules/libshadow.so
 %{_libdir}/xorg/modules/libshadowfb.so
 %{_libdir}/xorg/modules/libvbe.so
 %{_libdir}/xorg/modules/libvgahw.so
 %{_libdir}/xorg/modules/libwfb.so
 %{_libdir}/xorg/modules/libxaa.so
-%{_libdir}/xorg/modules/libxf1bpp.so
-%{_libdir}/xorg/modules/libxf4bpp.so
-%{_libdir}/xorg/modules/libxf8_16bpp.so
-%{_libdir}/xorg/modules/libxf8_32bpp.so
 %dir %{_libdir}/xserver
 %{_libdir}/xserver/SecurityPolicy
 %{_mandir}/man1/gtf.1*
@@ -598,6 +554,14 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Nov 01 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.4
+- Update mesa and libdrm buildreqs.
+- Reenable Xephyr build.
+
+* Wed Oct 31 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.3
+- Only invoke git-am once.
+- Disable building mfb and cfb as well.
+
 * Wed Oct 31 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.2
 - BuildRequires: git.
 - Manage the source directory as a git repo.
