@@ -1,0 +1,48 @@
+From 823a13f90b5619823325ea162ae30d652e448492 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Thu, 1 Nov 2007 10:39:57 -0400
+Subject: [PATCH] Link GL subsystem against libselinux.
+
+---
+ configure.ac                   |    4 +++-
+ hw/xfree86/dixmods/Makefile.am |    2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 57132b0..a16b46a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -339,6 +339,8 @@ case $host_cpu in
+ 	;;
+ esac
+ 
++SYS_LIBS="${SYS_LIBS} -lselinux"
++
+ dnl BSD *_video.c selection
+ AM_CONDITIONAL(ALPHA_VIDEO, [test "x$ALPHA_VIDEO" = xyes])
+ AM_CONDITIONAL(ARM_VIDEO, [test "x$ARM_VIDEO" = xyes])
+@@ -1229,7 +1231,7 @@ AC_MSG_RESULT([$XNEST])
+ AM_CONDITIONAL(XNEST, [test "x$XNEST" = xyes])
+ 
+ if test "x$XNEST" = xyes; then
+-	XNEST_LIBS="$CONFIG_LIB $FB_LIB $FIXES_LIB $XEXT_LIB $DBE_LIB $XTRAP_LIB $RECORD_LIB $GLX_LIBS $RENDER_LIB $RANDR_LIB $DAMAGE_LIB $MIEXT_DAMAGE_LIB $MIEXT_SHADOW_LIB $XI_LIB $XKB_LIB $XKB_STUB_LIB $COMPOSITE_LIB $XPSTUBS_LIB $CWRAP_LIB"
++	XNEST_LIBS="$CONFIG_LIB $FB_LIB $FIXES_LIB $XEXT_LIB $DBE_LIB $XTRAP_LIB $RECORD_LIB $GLX_LIBS $RENDER_LIB $RANDR_LIB $DAMAGE_LIB $MIEXT_DAMAGE_LIB $MIEXT_SHADOW_LIB $XI_LIB $XKB_LIB $XKB_STUB_LIB $COMPOSITE_LIB $XPSTUBS_LIB $CWRAP_LIB $XSERVER_LIBS"
+ 	XNEST_SYS_LIBS="$XNESTMODULES_LIBS"
+ 	AC_SUBST([XNEST_LIBS])
+ 	AC_SUBST([XNEST_SYS_LIBS])
+diff --git a/hw/xfree86/dixmods/Makefile.am b/hw/xfree86/dixmods/Makefile.am
+index efc5f4a..1b9ecfd 100644
+--- a/hw/xfree86/dixmods/Makefile.am
++++ b/hw/xfree86/dixmods/Makefile.am
+@@ -50,7 +50,7 @@ INCLUDES = @XORG_INCS@ \
+            -I$(top_srcdir)/GL/glx
+ 
+ libGLcore_la_LDFLAGS = -avoid-version
+-libGLcore_la_LIBADD = $(top_builddir)/GL/mesa/libGLcore.la
++libGLcore_la_LIBADD = $(top_builddir)/GL/mesa/libGLcore.la -lselinux
+ libGLcore_la_SOURCES = GLcoremodule.c
+ 
+ libafb_la_LDFLAGS = -avoid-version
+-- 
+1.5.3.4
+

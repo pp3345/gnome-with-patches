@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20071101
+%define gitdate 20071102
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.5%{?dist}
+Release:   0.6%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -38,10 +38,7 @@ Source0:   ftp://ftp.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source100: comment-header-modefiles.txt
 
 # general bug fixes
-Patch0:    xorg-x11-server-0.99.3-init-origins-fix.patch
-Patch10:   xorg-x11-server-1.1.1-vbe-filter-less.patch
 Patch19:   xserver-1.3.0-xnest-exposures.patch
-Patch22:   xserver-1.3.0-fbdevhw-magic-numbers.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -53,25 +50,13 @@ Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
 Patch1003:  xserver-1.4.99-pic-libxf86config.patch
 Patch1004:  xserver-1.4.99-selinux-awareness.patch
 Patch1005:  xserver-1.4.99-builtin-fonts.patch
-Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
 Patch1014:  xserver-1.4.99-xaa-evict-pixmaps.patch
 Patch1022:  xserver-1.3.0-default-dpi.patch
-Patch1024:  xserver-1.3.0-avoid-ps2-probe.patch
 
 Patch2004:  xserver-1.3.0-honor-displaysize.patch
 Patch2007:  xserver-1.3.0-randr12-config-hack.patch
 Patch2013:  xserver-1.3.0-document-fontpath-correctly.patch
-Patch2015:  xserver-1.3.0-accidental-abi.patch
-Patch2016:  xserver-1.4.99-late-sigusr1.patch
-
-# assorted PCI layer shenanigans.  oh the pain.
-##Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
-##Patch2501:  xserver-1.3.0-pci-bus-count.patch
-##Patch2502:  xserver-1.3.0-mmap-failure-check.patch
-##Patch2503:  xserver-1.3.0-rom-search.patch
-##Patch2504:  xserver-1.3.0-domain-obiwan.patch
-##Patch2505:  xserver-1.3.0-pci-device-enable.patch
 
 
 %define moduledir	%{_libdir}/xorg/modules
@@ -91,7 +76,7 @@ Patch2016:  xserver-1.4.99-late-sigusr1.patch
 %endif
 
 %define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev --disable-kdrive-vesa
-%define xservers --enable-xvfb --enable-xnest %{kdrive} --enable-dmx
+%define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg} --enable-dmx
 
 # FIXME: Temporary Build deps on autotools, as needed...
 BuildRequires: automake autoconf libtool
@@ -180,7 +165,7 @@ upon.
 %package Xnest
 Summary: A nested server.
 Group: User Interface/X
-Obsoletes: XFree86-Xnest, xorg-x11-Xnest
+Obsoletes: xorg-x11-Xnest
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xnest
 
@@ -213,7 +198,7 @@ application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 %package Xvfb
 Summary: A X Windows System virtual framebuffer X server.
 Group: User Interface/X
-Obsoletes: XFree86-Xvfb xorg-x11-Xvfb
+Obsoletes: xorg-x11-Xvfb
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xvfb
 
@@ -246,7 +231,7 @@ Render and Composite.
 %package devel
 Summary: SDK for X server driver module development
 Group: User Interface/X
-Obsoletes: XFree86-sdk xorg-x11-sdk xorg-x11-server-sdk
+Obsoletes: xorg-x11-sdk xorg-x11-server-sdk
 Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
 Requires: pkgconfig
@@ -300,8 +285,7 @@ fi
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
 autoreconf -v --install || exit 1
-%configure --enable-maintainer-mode \
-	%{enable_xorg} %{xservers} \
+%configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
 	--with-pic \
 	--disable-{a,c,m}fb \
@@ -534,6 +518,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Nov 02 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.6
+- Merge a bunch of the more trivial patches upstream.
+- New git snapshot containing the merged bits.
+- Remove unused patches.
+- Drop the XFree86 obsoletes.
+
 * Fri Nov 02 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.5
 - New git snapshot that fixes Xdmx build.
 - Reenable Xdmx build.
