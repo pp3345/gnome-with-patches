@@ -1,3 +1,8 @@
+From: Adam Jackson <ajax@redhat.com>
+Date: Sun, 28 Oct 2007 09:37:52 +0100
+Subject: [PATCH] Fix MMX detection for AMD Geode processors.
+
+---
 --- a/fb/fbpict.c	
 +++ a/fb/fbpict.c	
 @@ -1516,7 +1516,9 @@ static unsigned int detectCPUFeatures(void) {

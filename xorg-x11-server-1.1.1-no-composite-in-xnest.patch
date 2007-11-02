@@ -1,3 +1,8 @@
+From: Adam Jackson <ajax@redhat.com>
+Date: Sun, 28 Oct 2007 09:37:52 +0100
+Subject: [PATCH] Disable Composite in Xnest.
+
+---
 --- xorg-server-1.1.1/hw/xnest/Args.c.no-xnest-composite	2006-07-05 14:31:42.000000000 -0400
 +++ xorg-server-1.1.1/hw/xnest/Args.c	2006-07-25 14:02:33.000000000 -0400
 @@ -51,9 +51,12 @@

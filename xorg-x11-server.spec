@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20071031
+%define gitdate 20071101
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.4%{?dist}
+Release:   0.5%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -45,44 +45,25 @@ Patch22:   xserver-1.3.0-fbdevhw-magic-numbers.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
-##Patch101:  xorg-x11-server-1.1.0-dont-backfill-bg-none.patch
-##Patch105:  xorg-x11-server-1.2.0-enable-composite.patch
-##Patch106:  xorg-x11-server-1.1.1-no-composite-in-xnest.patch
-#Patch108:  xserver-1.3.0-no-pseudocolor-composite.patch
+Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
 Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
-##Patch1003:  xorg-x11-server-1.0.1-fpic-libxf86config.patch
+Patch1003:  xserver-1.4.99-pic-libxf86config.patch
 Patch1004:  xserver-1.4.99-selinux-awareness.patch
-##Patch1005:  xorg-x11-server-1.1.1-builtin-fonts.patch
-##Patch1006:  xorg-x11-server-1.1.1-no-scanpci.patch
-#Patch1007:  xorg-x11-server-1.1.1-spurious-libxf1bpp-link.patch
+Patch1005:  xserver-1.4.99-builtin-fonts.patch
 Patch1008:  xorg-x11-server-1.2.0-xf86config-comment-less.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
-##Patch1011:  xserver-1.3.0-composite-version.patch
-#Patch1012:  xserver-1.3.0-mesa7.patch
-#Patch1013:  xserver-1.3.0-exaupgrade.patch
-##Patch1014:  xserver-1.3.0-newglx-offscreen-pixmaps.patch
-#Patch1015:  xserver-1.3.0-randr-updates.patch
+Patch1014:  xserver-1.4.99-xaa-evict-pixmaps.patch
 Patch1022:  xserver-1.3.0-default-dpi.patch
-#Patch1023:  xserver-1.3.0-randr-preferred-mode-fix.patch
 Patch1024:  xserver-1.3.0-avoid-ps2-probe.patch
 
-##Patch2001:  xserver-1.2.0-geode-mmx.patch
-##Patch2002:  xserver-1.2.0-xephyr-keysym-madness.patch
-#Patch2003:  xserver-1.2.0-vfprintf.patch
 Patch2004:  xserver-1.3.0-honor-displaysize.patch
 Patch2007:  xserver-1.3.0-randr12-config-hack.patch
-#Patch2008:  xserver-1.3.0-randrama-no-zero-screens.patch
-#Patch2009:  xserver-1.3.0-arm-iopl.patch
-#Patch2010:  xserver-1.3.0-idletime.patch
-#Patch2012:  xserver-1.3.0-add-really-slow-bcopy.patch
 Patch2013:  xserver-1.3.0-document-fontpath-correctly.patch
-#Patch2014:  xserver-1.3.0-intel-by-default.patch
 Patch2015:  xserver-1.3.0-accidental-abi.patch
-#Patch2016:  xserver-1.3.0-xorg-conf-man-randr-update.patch
-#Patch2017:  xserver-1.3.0-update-quirks.patch
+Patch2016:  xserver-1.4.99-late-sigusr1.patch
 
 # assorted PCI layer shenanigans.  oh the pain.
 ##Patch2500:  xorg-x11-server-1.2.99-unbreak-domain.patch
@@ -92,7 +73,6 @@ Patch2015:  xserver-1.3.0-accidental-abi.patch
 ##Patch2504:  xserver-1.3.0-domain-obiwan.patch
 ##Patch2505:  xserver-1.3.0-pci-device-enable.patch
 
-#Patch9999:  xserver-1.3.0-late-sigusr1.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -110,9 +90,8 @@ Patch2015:  xserver-1.3.0-accidental-abi.patch
 %define enable_xorg --disable-xorg
 %endif
 
-# XXX reenable dmx
 %define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev --disable-kdrive-vesa
-%define xservers --enable-xvfb --enable-xnest %{kdrive} --enable-xephyr --disable-dmx
+%define xservers --enable-xvfb --enable-xnest %{kdrive} --enable-dmx
 
 # FIXME: Temporary Build deps on autotools, as needed...
 BuildRequires: automake autoconf libtool
@@ -167,6 +146,13 @@ Conflicts: mesa-libGL < 6.5.1-2.fc6
 %description
 X.Org X11 X server
 
+%package common
+Summary: Xorg server common files
+Group: User Interface/X
+
+%description common
+Common files shared among all X servers.
+
 %if %{with_hw_servers}
 %package Xorg
 Summary: Xorg X server
@@ -178,7 +164,7 @@ Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
 Requires: xorg-x11-drv-void xorg-x11-drv-evdev
 # virtuals.  XXX fix the xkbcomp fork() upstream.
 Requires: xkbdata xkbcomp
-Obsoletes: XFree86 xorg-x11
+Requires: xorg-x11-server-common >= %{version}-%{release}
 # These drivers were dropped in F7 for being broken, so uninstall them.
 Obsoletes: xorg-x11-drv-elo2300 <= 1.1.0-2.fc7
 Obsoletes: xorg-x11-drv-joystick <= 1.1.0-2.fc7
@@ -195,6 +181,7 @@ upon.
 Summary: A nested server.
 Group: User Interface/X
 Obsoletes: XFree86-Xnest, xorg-x11-Xnest
+Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xnest
 
 %description Xnest
@@ -209,6 +196,7 @@ applications without running them on their real X server.
 Summary: Distributed Multihead X Server and utilities
 Group: User Interface/X
 Obsoletes: xorg-x11-Xdmx
+Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xdmx
 
 %description Xdmx
@@ -226,6 +214,7 @@ application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 Summary: A X Windows System virtual framebuffer X server.
 Group: User Interface/X
 Obsoletes: XFree86-Xvfb xorg-x11-Xvfb
+Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xvfb
 
 %description Xvfb
@@ -239,6 +228,7 @@ is normally used for testing servers.
 %package Xephyr
 Summary: A nested server.
 Group: User Interface/X
+Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xephyr
 
 %description Xephyr
@@ -253,17 +243,19 @@ Render and Composite.
 
 
 %if %{with_hw_servers}
-%package sdk
+%package devel
 Summary: SDK for X server driver module development
 Group: User Interface/X
-Obsoletes: XFree86-sdk xorg-x11-sdk
+Obsoletes: XFree86-sdk xorg-x11-sdk xorg-x11-server-sdk
 Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
 Requires: pkgconfig
 Requires(pre): xorg-x11-filesystem >= 0.99.2-3
 Provides: libxf86config-devel = %{version}-%{release}
+# Virtual provide for transition.  Delete me someday.
+Provides: xorg-x11-server-sdk = %{version}-%{release}
 
-%description sdk
+%description devel
 The SDK package provides the developmental files which are necessary for
 developing X server driver modules, and for compiling driver modules
 outside of the standard X11 source code tree.  Developers writing video
@@ -313,10 +305,6 @@ autoreconf -v --install || exit 1
 	--disable-static \
 	--with-pic \
 	--disable-{a,c,m}fb \
-	--enable-composite \
-	--enable-xtrap \
-	--enable-xcsecurity \
-	--enable-xevie \
 	--with-int10=x86emu \
 	--with-default-font-path=%{default_font_path} \
 	--with-module-dir=%{moduledir} \
@@ -378,18 +366,15 @@ xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
     rm -f $RPM_BUILD_ROOT%{_bindir}/out?
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
-    rm -f $RPM_BUILD_ROOT%{_mandir}/man5/SecurityPolicy.5*
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
 
-%ifarch s390 s390x
-    # FIXME: The following files get installed on s390/s390x and we don't
-    # want some of them on s390 at all, and others should be in a -common
-    # subpackage, but it's not worth doing that for 3 files right now.
+%if !%{with_hw_servers}
+    # These get installed regardless of whether you're building Xorg.
+    # XXX Re-check this list.
     # error: Installed (but unpackaged) file(s) found:
     #	   /randrstr.h
     #	   /usr/lib/pkgconfig/xorg-server.pc
     #	      /usr/share/aclocal/xorg-server.m4
-    #	      /usr/share/man/man1/Xserver.1x.gz
     #	      /var/lib/xkb/README.compiled
 
     rm -f $RPM_BUILD_ROOT/randrstr.h
@@ -432,8 +417,15 @@ rm -rf $RPM_BUILD_ROOT
 } &> /dev/null || :
 %endif
 
-# The Xserver.1 manpage is intentionally present in multiple subpackages.
-# It could reasonably form part of a -common subpackage though.
+%files common
+%defattr(-,root,root,-)
+%{_mandir}/man1/Xserver.1*
+%{_mandir}/man5/SecurityPolicy.5*
+%dir %{_libdir}/xserver
+%{_libdir}/xserver/SecurityPolicy
+%dir %{_localstatedir}/lib/xkb
+%{_localstatedir}/lib/xkb/README.compiled
+
 
 # XXX xf8_16bpp disappears with --disable-cfb, for no reason.
 %if %{with_hw_servers}
@@ -479,17 +471,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libvgahw.so
 %{_libdir}/xorg/modules/libwfb.so
 %{_libdir}/xorg/modules/libxaa.so
-%dir %{_libdir}/xserver
-%{_libdir}/xserver/SecurityPolicy
 %{_mandir}/man1/gtf.1*
 %{_mandir}/man1/Xorg.1*
-%{_mandir}/man1/Xserver.1*
 %{_mandir}/man1/cvt.1*
 %{_mandir}/man4/fbdevhw.4*
 %{_mandir}/man4/exa.4*
 %{_mandir}/man5/xorg.conf.5*
-%dir %{_localstatedir}/lib/xkb
-%{_localstatedir}/lib/xkb/README.compiled
 %endif
 
 
@@ -497,7 +484,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %{_bindir}/Xnest
 %{_mandir}/man1/Xnest.1*
-%{_mandir}/man1/Xserver.1*
 
 
 %files Xdmx
@@ -518,28 +504,21 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/dmxtodmx.1*
 %{_mandir}/man1/vdltodmx.1*
 %{_mandir}/man1/xdmxconfig.1*
-%{_mandir}/man1/Xserver.1*
 
 
 %files Xvfb
 %defattr(-,root,root,-)
 %{_bindir}/Xvfb
 %{_mandir}/man1/Xvfb.1*
-%{_mandir}/man1/Xserver.1*
-%if !%{with_hw_servers}
-%dir %{_libdir}/xserver
-%{_libdir}/xserver/SecurityPolicy
-%endif
 
 
 %files Xephyr
 %defattr(-,root,root,-)
 %{_bindir}/Xephyr
-%{_mandir}/man1/Xserver.1*
 
 
 %if %{with_hw_servers}
-%files sdk
+%files devel
 %defattr(-,root,root,-)
 %{_libdir}/libxf86config.a
 %{_libdir}/pkgconfig/xorg-server.pc
@@ -548,12 +527,21 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/xorg-server.m4
 %endif
 
+
 %files source
 %defattr(-, root, root, -)
 %{xserver_source_dir}
 
 
 %changelog
+* Fri Nov 02 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.5
+- New git snapshot that fixes Xdmx build.
+- Reenable Xdmx build.
+- Rebase (or drop) the rest of our patches outside the PCI code.
+- Add -common subpackage for shared files.
+- Rename -sdk to -devel for verisimilitude.
+- Simplify the %%configure line a bit.
+
 * Thu Nov 01 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.4
 - Update mesa and libdrm buildreqs.
 - Reenable Xephyr build.

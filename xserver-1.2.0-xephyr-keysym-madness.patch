@@ -1,3 +1,8 @@
+From: Adam Jackson <ajax@redhat.com>
+Date: Sun, 28 Oct 2007 09:37:52 +0100
+Subject: [PATCH] Fix keysym typedef in Xephyr.
+
+---
 --- xorg-server-1.2.0/hw/kdrive/ephyr/hostx.c.xephyr-keysym	2007-01-22 22:13:14.000000000 -0500
 +++ xorg-server-1.2.0/hw/kdrive/ephyr/hostx.c	2007-01-29 17:58:00.000000000 -0500
 @@ -77,9 +77,10 @@

@@ -1,3 +1,16 @@
+From: Adam Jackson <ajax@redhat.com>
+Date: Sun, 28 Oct 2007 09:37:52 +0100
+Subject: [PATCH] Move SIGUSR1 notification as late as possible.
+
+If we inherited a signal mask from the parent process that ignores SIGUSR1,
+then we will send SIGUSR1 to the parent to indicate when we're ready to
+accept connections.  Unfortunately, we send this notification way too
+early, right after creating the sockets rather than just before entering
+the main loop.
+
+Move it to just before Dispatch() so we're not lying quite so much.
+
+---
 diff -up xorg-server-1.3.0.0/dix/main.c.jx xorg-server-1.3.0.0/dix/main.c
 --- xorg-server-1.3.0.0/dix/main.c.jx	2006-11-16 13:01:23.000000000 -0500
 +++ xorg-server-1.3.0.0/dix/main.c	2007-10-15 14:37:13.000000000 -0400
