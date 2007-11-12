@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.7%{?dist}
+Release:   0.8%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -105,6 +105,9 @@ BuildRequires: freetype-devel >= 2.1.9-1
 # DMX config utils buildreqs.
 BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
 BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
+
+# Broken, this is global, should be Xephyr-only
+BuildRequires: libXv-devel
 
 BuildRequires: mesa-libGL-devel >= 7.1
 BuildRequires: mesa-source >= 7.1
@@ -513,6 +516,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Nov 12 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.8
+- Fix buildrequires and other buildsystem nonsense.
+
 * Fri Nov 02 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.6
 - Merge a bunch of the more trivial patches upstream.
 - New git snapshot containing the merged bits.
