@@ -268,8 +268,12 @@ sed -i 's/git/&+ssh/' .git/config
 git-init-db
 %endif
 
+if [ -z "$GIT_COMMITTER_NAME" ]; then
+    export GIT_COMMITTER_NAME="Fedora X Strike Force"
+fi
+
 # Apply all the patches.  Hold your nose...
-git-am -p1 $(awk '/^Patch.*:/ { print "../"$2 }' ../%{name}.spec)
+git-am -p1 $(awk '/^Patch.*:/ { print "../"$2 }' %{_specdir}/%{name}.spec)
 
 %build
 
