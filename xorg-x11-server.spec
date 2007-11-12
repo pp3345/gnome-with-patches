@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.6%{?dist}
+Release:   0.7%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -58,6 +58,11 @@ Patch2004:  xserver-1.3.0-honor-displaysize.patch
 Patch2007:  xserver-1.3.0-randr12-config-hack.patch
 Patch2013:  xserver-1.3.0-document-fontpath-correctly.patch
 
+# Trivial things to merge upstream at next rebase
+Patch4000: ddc-faster-plz.patch
+Patch4001: no-sleep-at-exit.patch
+Patch4002: pogo-stick.patch
+
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -78,10 +83,8 @@ Patch2013:  xserver-1.3.0-document-fontpath-correctly.patch
 %define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev --disable-kdrive-vesa
 %define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg} --enable-dmx
 
-# FIXME: Temporary Build deps on autotools, as needed...
-BuildRequires: automake autoconf libtool
-
-BuildRequires: git pkgconfig
+BuildRequires: git
+BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
 BuildRequires: xorg-x11-proto-devel >= 7.1-11
@@ -265,22 +268,12 @@ sed -i 's/git/&+ssh/' .git/config
 git-init-db
 %endif
 
-# Apply all the patches.
+# Apply all the patches.  Hold your nose...
 git-am -p1 $(awk '/^Patch.*:/ { print "../"$2 }' ../%{name}.spec)
 
 %build
 
-if [ -z "${SRSLY}" ]; then
-    # This is a work in progress.  You probably do not want to build
-    # it locally.  You definitely should not build it into Koji.
-    false
-fi
-
-%if %{fedora} == 7
-%define default_font_path "unix/:7100,catalogue:/etc/X11/fontpath.d,built-ins"
-%else
 %define default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
-%endif
 
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
@@ -298,10 +291,8 @@ autoreconf -v --install || exit 1
 	--disable-xorgcfg \
 	--enable-install-libxf86config \
 	--with-mesa-source=%{_datadir}/mesa/source \
-%if %{with_hw_servers}
 	--enable-dri \
 	--with-dri-driver-path=%{drimoduledir} \
-%endif
 	${CONFIGURE}
 
 make -s %{?_smp_mflags}
@@ -411,7 +402,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/xkb/README.compiled
 
 
-# XXX xf8_16bpp disappears with --disable-cfb, for no reason.
 %if %{with_hw_servers}
 %files Xorg
 %defattr(-,root,root,-)

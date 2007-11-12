@@ -1,0 +1,27 @@
+From 5c62bc4a182f0e7810f442e418bb84cd964a7e22 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Fri, 9 Nov 2007 13:55:32 -0500
+Subject: [PATCH] Add -pogo option for init/teardown performance testing.
+
+---
+ os/utils.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/os/utils.c b/os/utils.c
+index 6fc1f7d..69803ae 100644
+--- a/os/utils.c
++++ b/os/utils.c
+@@ -941,6 +941,10 @@ ProcessCommandLine(int argc, char *argv[])
+ 	    else
+ 		UseMsg();
+ 	}
++	else if (strcmp(argv[i], "-pogo") == 0)
++	{
++	    dispatchException = DE_TERMINATE;
++	}
+ 	else if ( strcmp( argv[i], "-pn") == 0)
+ 	    PartialNetwork = TRUE;
+ 	else if ( strcmp( argv[i], "-nopn") == 0)
+-- 
+1.5.3.4
+

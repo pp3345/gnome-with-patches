@@ -1,0 +1,25 @@
+From a45daf5bf587c584b0b6f1e1a7e1f0d5c983cf4f Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Thu, 8 Nov 2007 17:25:36 -0500
+Subject: [PATCH] Don't sleep(1) at server exit.
+
+---
+ hw/xfree86/common/xf86Init.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
+index 2f6e4dd..63df108 100644
+--- a/hw/xfree86/common/xf86Init.c
++++ b/hw/xfree86/common/xf86Init.c
+@@ -1307,7 +1307,7 @@ AbortDDX()
+   /*
+    * try to restore the original video state
+    */
+-#ifdef HAS_USL_VTS
++#if defined(HAS_USL_VTS) && !defined(linux)
+   /* Need the sleep when starting X from within another X session */
+   sleep(1);
+ #endif
+-- 
+1.5.3.4
+
