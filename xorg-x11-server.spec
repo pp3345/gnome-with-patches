@@ -93,6 +93,7 @@ BuildRequires: fixesproto >= 4.0
 BuildRequires: glproto >= 1.4.9
 BuildRequires: kbproto >= 1.0.3
 BuildRequires: randrproto >= 1.2
+BuildRequires: renderproto >= 0.9.3
 BuildRequires: scrnsaverproto >= 1.1
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.0.3-3
