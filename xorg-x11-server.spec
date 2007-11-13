@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.9%{?dist}
+Release:   0.10%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -243,7 +243,7 @@ Group: User Interface/X
 Obsoletes: xorg-x11-sdk xorg-x11-server-sdk
 Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
-Requires: pkgconfig pixman-devel
+Requires: pkgconfig pixman-devel libpciaccess-devel
 Requires(pre): xorg-x11-filesystem >= 0.99.2-3
 Provides: libxf86config-devel = %{version}-%{release}
 # Virtual provide for transition.  Delete me someday.
@@ -519,8 +519,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Tue Nov 13 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.9
-- -devel Requires: pixman-devel.
+* Tue Nov 13 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.10
+- -devel Requires: pixman-devel and libpciaccess-devel.
 
 * Mon Nov 12 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.8
 - Fix buildrequires and other buildsystem nonsense.
