@@ -306,7 +306,7 @@ autoreconf -v --install || exit 1
 	--with-dri-driver-path=%{drimoduledir} \
 	${CONFIGURE}
 
-make -s %{?_smp_mflags}
+make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
