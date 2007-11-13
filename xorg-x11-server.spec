@@ -87,7 +87,7 @@ BuildRequires: git
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
-BuildRequires: xorg-x11-proto-devel >= 7.1-11
+BuildRequires: xorg-x11-proto-devel >= 7.3-7
 BuildRequires: damageproto >= 1.1
 BuildRequires: fixesproto >= 4.0
 BuildRequires: glproto >= 1.4.9
