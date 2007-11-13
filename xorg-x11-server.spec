@@ -110,6 +110,7 @@ BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 # Broken, this is global, should be Xephyr-only
 BuildRequires: libXv-devel
 
+BuildRequires: pixman-devel
 BuildRequires: mesa-libGL-devel >= 7.1
 BuildRequires: mesa-source >= 7.1
 # XXX silly...
