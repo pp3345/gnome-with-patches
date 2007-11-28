@@ -1,0 +1,43 @@
+From 694c5c5528b13128cbd0857351d041a6c06e2607 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Tue, 27 Nov 2007 15:14:20 -0500
+Subject: [PATCH] Ugly hack to fix xephyr dri.
+
+---
+ hw/kdrive/ephyr/XF86dri.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/hw/kdrive/ephyr/XF86dri.c b/hw/kdrive/ephyr/XF86dri.c
+index c11da06..506d7be 100644
+--- a/hw/kdrive/ephyr/XF86dri.c
++++ b/hw/kdrive/ephyr/XF86dri.c
+@@ -385,7 +385,7 @@ Bool XF86DRICreateContext(dpy, screen, visual, context, hHWContext)
+ 					   context, hHWContext );
+ }
+ 
+-Bool XF86DRIDestroyContext( __DRInativeDisplay * ndpy, int screen, __DRIid context)
++GLboolean XF86DRIDestroyContext( __DRInativeDisplay * ndpy, int screen, __DRIid context)
+ {
+     Display * const dpy = (Display *) ndpy;
+     XExtDisplayInfo *info = find_display (dpy);
+@@ -406,7 +406,7 @@ Bool XF86DRIDestroyContext( __DRInativeDisplay * ndpy, int screen, __DRIid conte
+     return True;
+ }
+ 
+-Bool
++GLboolean
+ XF86DRICreateDrawable (__DRInativeDisplay * ndpy, int screen,
+                        __DRIid drawable, drm_drawable_t * hHWDrawable)
+ {
+@@ -437,7 +437,7 @@ XF86DRICreateDrawable (__DRInativeDisplay * ndpy, int screen,
+     return True;
+ }
+ 
+-Bool XF86DRIDestroyDrawable( __DRInativeDisplay * ndpy, int screen,
++GLboolean XF86DRIDestroyDrawable( __DRInativeDisplay * ndpy, int screen,
+     __DRIid drawable )
+ {
+     Display * const dpy = (Display *) ndpy;
+-- 
+1.5.3.4
+

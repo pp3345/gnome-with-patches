@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20071102
+%define gitdate 20071127
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.10%{?dist}
+Release:   0.11%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -52,17 +52,18 @@ Patch1004:  xserver-1.4.99-selinux-awareness.patch
 Patch1005:  xserver-1.4.99-builtin-fonts.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
 Patch1014:  xserver-1.4.99-xaa-evict-pixmaps.patch
-Patch1022:  xserver-1.3.0-default-dpi.patch
 
 Patch2004:  xserver-1.3.0-honor-displaysize.patch
 Patch2007:  xserver-1.3.0-randr12-config-hack.patch
-Patch2013:  xserver-1.3.0-document-fontpath-correctly.patch
+Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 
-# Trivial things to merge upstream at next rebase
-Patch4000: ddc-faster-plz.patch
-Patch4001: no-sleep-at-exit.patch
-Patch4002: pogo-stick.patch
+# Trivial things, already merged
+#Patch3000:
 
+# Trivial things to maybe merge upstream at next rebase
+Patch4003: argh-pixman.patch
+Patch4004: xserver-1.4.99-xephyr-dri.patch
+Patch4005: xserver-1.4.99-openchrome.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -83,7 +84,7 @@ Patch4002: pogo-stick.patch
 %define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev --disable-kdrive-vesa
 %define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg} --enable-dmx
 
-BuildRequires: git
+BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
@@ -113,7 +114,7 @@ BuildRequires: libXv-devel
 # openssl? really?
 BuildRequires: pixman-devel libpciaccess-devel openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 7.1
-BuildRequires: mesa-source >= 7.1
+BuildRequires: mesa-source >= 7.1-0.5
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0
 %if %{with_hw_servers}
@@ -456,6 +457,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libvgahw.so
 %{_libdir}/xorg/modules/libwfb.so
 %{_libdir}/xorg/modules/libxaa.so
+%{_libdir}/xorg/modules/libxf8_16bpp.so
 %{_mandir}/man1/gtf.1*
 %{_mandir}/man1/Xorg.1*
 %{_mandir}/man1/cvt.1*
@@ -519,6 +521,13 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Nov 28 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.11
+- Today's rebase.
+- BR on git-core instead of git.
+- Bump mesa-source BR to cope with extended CreatePixmap signature.
+- xserver-1.4.99-openchrome.patch: Use openchrome not via when running
+  without a config file.
+
 * Tue Nov 13 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.10
 - -devel Requires: pixman-devel and libpciaccess-devel.
 

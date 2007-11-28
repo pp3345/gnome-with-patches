@@ -1,0 +1,38 @@
+From 28e1a9e912b70a2f3a0ad988e6ffc37a351bc90e Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Wed, 14 Nov 2007 13:04:17 -0500
+Subject: [PATCH] Add pixman cflags to xorg-server.pc
+
+---
+ configure.ac      |    3 +++
+ xorg-server.pc.in |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index a16b46a..8b786d3 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1073,6 +1073,9 @@ CORE_INCS='-I$(top_srcdir)/include -I$(top_builddir)/include'
+ PKG_CHECK_MODULES([XSERVERCFLAGS], [$REQUIRED_MODULES $REQUIRED_LIBS])
+ PKG_CHECK_MODULES([XSERVERLIBS], [$REQUIRED_LIBS])
+ 
++PKG_CHECK_MODULES([PIXMAN], [pixman-1])
++AC_SUBST([PIXMAN_CFLAGS])
++
+ # Autotools has some unfortunate issues with library handling.  In order to
+ # get a server to rebuild when a dependency in the tree is changed, it must
+ # be listed in SERVERNAME_DEPENDENCIES.  However, no system libraries may be
+diff --git a/xorg-server.pc.in b/xorg-server.pc.in
+index c1cdb7d..32c64f4 100644
+--- a/xorg-server.pc.in
++++ b/xorg-server.pc.in
+@@ -9,5 +9,5 @@ Name: xorg-server
+ Description: Modular X.Org X Server
+ Version: @PACKAGE_VERSION@
+ Requires: pixman-1
+-Cflags: -I${sdkdir}
++Cflags: -I${sdkdir} @PIXMAN_CFLAGS@
+ Libs: -L${libdir}
+-- 
+1.5.3.4
+
