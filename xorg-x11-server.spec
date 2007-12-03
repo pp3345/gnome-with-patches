@@ -65,6 +65,9 @@ Patch4003: argh-pixman.patch
 Patch4004: xserver-1.4.99-xephyr-dri.patch
 Patch4005: xserver-1.4.99-openchrome.patch
 
+# Trivial things to never merge upstream ever
+Patch5000: xserver-1.4.99-apm-typedefs.patch
+
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
 %define sdkdir		%{_includedir}/xorg
