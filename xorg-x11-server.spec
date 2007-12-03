@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.11%{?dist}
+Release:   0.12%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -521,6 +521,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 03 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.12
+- xserver-1.4.99-apm-typedefs.patch: Temporary hack for broken kernels that
+  don't publish the /dev/apm_bios types.
+
 * Wed Nov 28 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.11
 - Today's rebase.
 - BR on git-core instead of git.

@@ -1,0 +1,26 @@
+From b9119f9e0b0166c46114f9715a8064582131ab1d Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Mon, 3 Dec 2007 14:00:25 -0500
+Subject: [PATCH] apm_event_t workaround
+
+---
+ hw/xfree86/os-support/linux/lnx_apm.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/hw/xfree86/os-support/linux/lnx_apm.c b/hw/xfree86/os-support/linux/lnx_apm.c
+index 16ac80d..6bcae47 100644
+--- a/hw/xfree86/os-support/linux/lnx_apm.c
++++ b/hw/xfree86/os-support/linux/lnx_apm.c
+@@ -39,6 +39,9 @@ static PMClose lnxAPMOpen(void);
+ static void lnxCloseAPM(void);
+ static pointer APMihPtr = NULL;
+ 
++/* XXX this is wrong, do not ever commit me upstream */
++#define apm_event_t unsigned short
++
+ static struct {
+     apm_event_t apmLinux;
+     pmEvent xf86;
+-- 
+1.5.2.4
+
