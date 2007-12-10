@@ -11,7 +11,7 @@ diff --git a/Xext/shm.c b/Xext/shm.c
 index 5937a03..5376c19 100644
 --- a/Xext/shm.c
 +++ b/Xext/shm.c
-@@ -381,8 +381,20 @@ shm_access(ClientPtr client, SHMPERM_TYPE *perm, int readonly)
+@@ -381,8 +381,21 @@
      mode_t mask;
      int uidset = 0, gidset = 0;
      LocalClientCredRec *lcc;
@@ -23,8 +23,9 @@ index 5937a03..5376c19 100644
 +	    /* ssh isn't actually a local client */
 +	    char exe[64], buf[64];
 +
++	    memset(buf, 0, 64);
 +	    snprintf(exe, 64, "/proc/%d/exe", lcc->pid);
-+	    readlink(exe, buf, 64);
++	    readlink(exe, buf, 63);
 +	    if (strstr(buf, "/ssh"))
 +		is_ssh = TRUE;
 +	}
@@ -32,7 +33,7 @@ index 5937a03..5376c19 100644
  
  	if (lcc->fieldsSet & LCC_UID_SET) {
  	    uid = lcc->euid;
-@@ -401,6 +413,9 @@ shm_access(ClientPtr client, SHMPERM_TYPE *perm, int readonly)
+@@ -401,6 +414,9 @@
  	}
  #endif
  	FreeLocalClientCreds(lcc);
