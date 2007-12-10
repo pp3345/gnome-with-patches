@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.12%{?dist}
+Release:   0.13%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -66,7 +66,12 @@ Patch4004: xserver-1.4.99-xephyr-dri.patch
 Patch4005: xserver-1.4.99-openchrome.patch
 
 # Trivial things to never merge upstream ever
+# This should be fixed in the kernel.
 Patch5000: xserver-1.4.99-apm-typedefs.patch
+# Don't merge this without protecting the gccisms.
+Patch5001: xserver-1.4.99-alloca-poison.patch
+# This really could be done prettier.
+Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -524,6 +529,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 10 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.13
+- xserver-1.4.99-alloca-poison.patch: Fatal error on {DE,}ALLOCATE_LOCAL
+  so we don't build broken drivers.
+- xserver-1.4.99-ssh-isnt-local.patch: Try harder to disable MIT-SHM for
+  ssh-forwarded connections.
+
 * Mon Dec 03 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.12
 - xserver-1.4.99-apm-typedefs.patch: Temporary hack for broken kernels that
   don't publish the /dev/apm_bios types.
