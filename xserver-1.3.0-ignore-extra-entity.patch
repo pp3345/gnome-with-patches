@@ -1,0 +1,21 @@
+From: Adam Jackson <ajax@redhat.com>
+Date: Sun, 28 Oct 2007 09:37:52 +0100
+Subject: [PATCH] Ignore non-sharable entities instead of crashing.
+
+---
+diff -up xorg-server-1.3.0.0/hw/xfree86/common/xf86Bus.c.da xorg-server-1.3.0.0/hw/xfree86/common/xf86Bus.c
+--- xorg-server-1.3.0.0/hw/xfree86/common/xf86Bus.c.da	2007-11-29 15:42:04.000000000 +1000
++++ xorg-server-1.3.0.0/hw/xfree86/common/xf86Bus.c	2007-11-29 15:42:11.000000000 +1000
+@@ -341,8 +341,10 @@ xf86AddEntityToScreen(ScrnInfoPtr pScrn,
+     if (entityIndex == -1)
+ 	return;
+     if (xf86Entities[entityIndex]->inUse &&
+-	!(xf86Entities[entityIndex]->entityProp & IS_SHARED_ACCEL))
+-	FatalError("Requested Entity already in use!\n");
++	!(xf86Entities[entityIndex]->entityProp & IS_SHARED_ACCEL)) {
++	ErrorF("Requested Entity already in use!\n");
++	return;
++    }
+ 
+     pScrn->numEntities++;
+     pScrn->entityList = xnfrealloc(pScrn->entityList,

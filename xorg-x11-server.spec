@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.13%{?dist}
+Release:   0.14%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -64,6 +64,8 @@ Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 Patch4003: argh-pixman.patch
 Patch4004: xserver-1.4.99-xephyr-dri.patch
 Patch4005: xserver-1.4.99-openchrome.patch
+Patch4006: xserver-1.3.0-randr-fix-set-rotations-xinerama.patch
+Patch4007: xserver-1.3.0-ignore-extra-entity.patch
 
 # Trivial things to never merge upstream ever
 # This should be fixed in the kernel.
@@ -529,6 +531,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jan 07 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.14
+- Sync with F8 bugfixes:
+  - xorg-x11-server-Red-Hat-extramodes.patch: Don't supply non-CVT-R timings
+    for 1920x{1080,1200}.
+  - xserver-1.3.0-ignore-extra-entity.patch: If a driver doesn't support
+    secondary entities, don't fatal error just ignore and keep going.
+  - xserver-1.3.0-randr-fix-set-rotations-xinerama.patch: Attempt to stop
+    xinerama segfaulting randr12.
+
 * Mon Dec 10 2007 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.13
 - xserver-1.4.99-alloca-poison.patch: Fatal error on {DE,}ALLOCATE_LOCAL
   so we don't build broken drivers.
