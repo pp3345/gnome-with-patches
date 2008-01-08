@@ -16,7 +16,7 @@ diff --git a/GL/glx/glxdri.c b/GL/glx/glxdri.c
 index c0da07b..6c4faed 100644
 --- a/GL/glx/glxdri.c
 +++ b/GL/glx/glxdri.c
-@@ -360,6 +360,22 @@ __glXDRIbindTexImage(__GLXcontext *baseContext,
+@@ -360,6 +360,22 @@
  
      pixmap = (PixmapPtr) glxPixmap->pDraw;
  
@@ -40,10 +40,9 @@ index c0da07b..6c4faed 100644
  	__GLXDRIdrawable **texOffsetOverride = screen->texOffsetOverride;
  	int i, firstEmpty = 16;
 diff --git a/hw/xfree86/xaa/xaaInit.c b/hw/xfree86/xaa/xaaInit.c
-index 4222425..602b525 100644
 --- a/hw/xfree86/xaa/xaaInit.c
 +++ b/hw/xfree86/xaa/xaaInit.c
-@@ -88,6 +88,30 @@ XAADestroyInfoRec(XAAInfoRecPtr infoRec)
+@@ -88,6 +88,30 @@
      xfree(infoRec);
  }
  
@@ -61,7 +60,7 @@ index 4222425..602b525 100644
 +	pScreen = screenInfo.screens[i];
 +	infoRec = GET_XAAINFORECPTR_FROM_SCREEN(pScreen);
 +
-+	pScreenPriv = pScreen->devPrivates[XAAScreenIndex].ptr;
++	pScreenPriv = dixLookupPrivate(&pScreen->devPrivates, XAAScreenKey);
 +	infoRec = pScreenPriv->AccelInfoRec;
 +
 +	infoRec->offscreenDepths = 0;

@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20071127
+%define gitdate 20080107
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.14%{?dist}
+Release:   0.15.%{?gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -35,7 +35,6 @@ Source2:   commitid
 %else
 Source0:   ftp://ftp.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 %endif
-Source100: comment-header-modefiles.txt
 
 # general bug fixes
 Patch19:   xserver-1.3.0-xnest-exposures.patch
@@ -61,11 +60,9 @@ Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 #Patch3000:
 
 # Trivial things to maybe merge upstream at next rebase
-Patch4003: argh-pixman.patch
+#Patch4003: argh-pixman.patch #fixme
 Patch4004: xserver-1.4.99-xephyr-dri.patch
 Patch4005: xserver-1.4.99-openchrome.patch
-Patch4006: xserver-1.3.0-randr-fix-set-rotations-xinerama.patch
-Patch4007: xserver-1.3.0-ignore-extra-entity.patch
 
 # Trivial things to never merge upstream ever
 # This should be fixed in the kernel.
@@ -131,7 +128,7 @@ BuildRequires: libdrm-devel >= 2.4.0
 Requires: libdrm >= 2.4.0
 %endif
 
-BuildRequires: libselinux-devel
+BuildRequires: libselinux-devel audit-libs-devel
 
 # Make sure libXfont has the catalogue FPE
 Conflicts: libXfont < 1.2.9
@@ -286,7 +283,7 @@ git-init-db
 %endif
 
 if [ -z "$GIT_COMMITTER_NAME" ]; then
-    export GIT_COMMITTER_NAME="Fedora X Strike Force"
+    export GIT_COMMITTER_NAME="Fedora X Ninjas"
 fi
 
 
@@ -313,7 +310,7 @@ autoreconf -v --install || exit 1
 	--disable-xorgcfg \
 	--enable-install-libxf86config \
 	--with-mesa-source=%{_datadir}/mesa/source \
-	--enable-dri \
+	--enable-xselinux \
 	--with-dri-driver-path=%{drimoduledir} \
 	${CONFIGURE}
 
@@ -323,18 +320,13 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
 
-
 %if %{with_hw_servers}
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
 # Install the vesamodes and extramodes files to let our install/config tools
 # be able to parse the same modelist as the X server uses (rhpxl).
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/xorg
-for each in vesamodes extramodes ; do
-    install -m 0644 %{SOURCE100} $RPM_BUILD_ROOT%{_datadir}/xorg/$each
-    cat hw/xfree86/common/$each >> $RPM_BUILD_ROOT%{_datadir}/xorg/$each
-    chmod 0444 $RPM_BUILD_ROOT%{_datadir}/xorg/$each
-done
+install -m 0444 hw/xfree86/common/{vesa,extra}modes $RPM_BUILD_ROOT%{_datadir}/xorg/
 %endif
 
 # Make the source package
@@ -342,7 +334,6 @@ done
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
 mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/xfree86/{common,utils/xorgconfig}}
 cp cpprules.in %{inst_srcdir}
-cp Xext/SecurityPolicy %{inst_srcdir}/Xext
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp GL/symlink-mesa.sh %{inst_srcdir}/GL
 cp hw/xfree86/{xorgconf.cpp,Options} %{inst_srcdir}/hw/xfree86
@@ -389,25 +380,15 @@ rm -rf $RPM_BUILD_ROOT
 {
     pushd /etc/X11
 
-    for configfile in XF86Config XF86Config-4 ; do
-	if [ -r $configfile ]; then
-	    if [ -r xorg.conf ]; then
-		mv -f $configfile $configfile.obsoleted
-	    else
-		mv -f $configfile xorg.conf
-	    fi
-	fi
-    done
-
     [ -e xorg.conf ] || return 0
 
-    perl -p -i -e 's/^.*Load.*"(pex5|xie|xtt).*\n$"//gi' xorg.conf
-    perl -p -i -e 's/^\s*Driver(.*)"keyboard"/Driver\1"kbd"/gi' xorg.conf
-    perl -p -i -e 's/^.*Option.*"XkbRules".*"(xfree86|xorg)".*\n$//gi' xorg.conf
-    perl -p -i -e 's#^\s*RgbPath.*$##gi' xorg.conf
+    sed -i 's/^.*Load.*"(pex5|xie|xtt).*\n$"//gi' xorg.conf
+    sed -i 's/^\s*Driver(.*)"keyboard"/Driver\1"kbd"/gi' xorg.conf
+    sed -i 's/^.*Option.*"XkbRules".*"(xfree86|xorg)".*\n$//gi' xorg.conf
+    sed -i 's#^\s*RgbPath.*$##gi' xorg.conf
     # lame, the nvidia driver needs to override this
     if ! grep -q 'ModulePath.*nvidia' xorg.conf ; then
-      perl -p -i -e 's#^\s*ModulePath.*$##gi' xorg.conf
+      sed -i 's#^\s*ModulePath.*$##gi' xorg.conf
     fi
 
     popd
@@ -417,9 +398,7 @@ rm -rf $RPM_BUILD_ROOT
 %files common
 %defattr(-,root,root,-)
 %{_mandir}/man1/Xserver.1*
-%{_mandir}/man5/SecurityPolicy.5*
-%dir %{_libdir}/xserver
-%{_libdir}/xserver/SecurityPolicy
+%{_libdir}/xorg/protocol.txt
 %dir %{_localstatedir}/lib/xkb
 %{_localstatedir}/lib/xkb/README.compiled
 
@@ -531,6 +510,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jan 07 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.15
+- Today's git snapshot.  X-SELinux!
+- Drop the code to migrate from /etc/X11/XF86Config*.
+- s/perl -p -i -e/sed -i/g
+
 * Mon Jan 07 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.14
 - Sync with F8 bugfixes:
   - xorg-x11-server-Red-Hat-extramodes.patch: Don't supply non-CVT-R timings
