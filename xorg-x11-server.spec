@@ -42,6 +42,7 @@ Patch19:   xserver-1.3.0-xnest-exposures.patch
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
+Patch102:  xserver-1.4.99-engage-composite-crack-mode.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -510,6 +511,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 16 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.1-0.16
+- Add xserver-1.4.99-engage-composite-crack-mode.patch to better hide
+  protocol side effects such as loss of grabs and focus when
+  redirecting/unredirecting windows (#350271).
+
 * Mon Jan 07 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.15
 - Today's git snapshot.  X-SELinux!
 - Drop the code to migrate from /etc/X11/XF86Config*.
