@@ -63,6 +63,7 @@ Patch3001:  cve-2007-5958.patch
 Patch3002:  cve-2007-6427.patch
 Patch3003:  cve-2007-6428.patch
 Patch3004:  cve-2007-6429.patch
+Patch3005:  cve-2008-0006-server-fixup.patch
 
 # Trivial things to maybe merge upstream at next rebase
 #Patch4003: argh-pixman.patch #fixme
@@ -521,6 +522,7 @@ rm -rf $RPM_BUILD_ROOT
 - cve-2007-6427.patch: XInput Extension Memory Corruption Vulnerability
 - cve-2007-6428.patch: TOG-CUP Extension Memory Corruption Vulnerability
 - cve-2007-6429.patch: EVI and MIT-SHM Extension Integer Overflow Vulnerability
+- cve-2008-0006-server-fixup.patch: PCF Font Vulnerability - this patch isn't strictly required with new version of libXfont.
 
 * Wed Jan 16 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.1-0.16
 - Add xserver-1.4.99-engage-composite-crack-mode.patch to better hide
