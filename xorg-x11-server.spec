@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.16.%{?gitdate}%{?dist}
+Release:   0.17.%{?gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -57,8 +57,12 @@ Patch2004:  xserver-1.3.0-honor-displaysize.patch
 Patch2007:  xserver-1.3.0-randr12-config-hack.patch
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 
-# Trivial things, already merged
-#Patch3000:
+# Trivial things, already merged - cves already upstream
+Patch3000:  cve-2007-5760.patch
+Patch3001:  cve-2007-5958.patch
+Patch3002:  cve-2007-6427.patch
+Patch3003:  cve-2007-6428.patch
+Patch3004:  cve-2007-6429.patch
 
 # Trivial things to maybe merge upstream at next rebase
 #Patch4003: argh-pixman.patch #fixme
@@ -511,6 +515,13 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jan 18 2008 Dave Airlie <airlied@redhat.com> 1.4.99.1-0.17
+- cve-2007-5760.patch: XFree86-Misc Extension Invalid Array Index Vulnerability
+- cve-2007-5958.patch: Xorg / XFree86 file existence disclosure vulnerability
+- cve-2007-6427.patch: XInput Extension Memory Corruption Vulnerability
+- cve-2007-6428.patch: TOG-CUP Extension Memory Corruption Vulnerability
+- cve-2007-6429.patch: EVI and MIT-SHM Extension Integer Overflow Vulnerability
+
 * Wed Jan 16 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.1-0.16
 - Add xserver-1.4.99-engage-composite-crack-mode.patch to better hide
   protocol side effects such as loss of grabs and focus when

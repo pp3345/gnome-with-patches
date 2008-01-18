@@ -1,0 +1,13 @@
+diff -up xorg-server-1.1.1/Xext/cup.c.jx xorg-server-1.1.1/Xext/cup.c
+--- xorg-server-1.1.1/Xext/cup.c.jx	2006-07-05 14:31:36.000000000 -0400
++++ xorg-server-1.1.1/Xext/cup.c	2007-12-11 14:28:37.000000000 -0500
+@@ -198,6 +198,9 @@ int ProcGetReservedColormapEntries(
+ 
+     REQUEST_SIZE_MATCH (xXcupGetReservedColormapEntriesReq);
+ 
++    if (stuff->screen >= screenInfo.numScreens)
++	return BadValue;
++
+ #ifndef HAVE_SPECIAL_DESKTOP_COLORS
+     citems[CUP_BLACK_PIXEL].pixel = 
+ 	screenInfo.screens[stuff->screen]->blackPixel;
