@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.18.%{?gitdate}%{?dist}
+Release:   0.19.%{?gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -345,7 +345,7 @@ cp hw/xfree86/{xorgconf.cpp,Options} %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
 cp hw/xfree86/utils/xorgconfig/Cards{,98} %{inst_srcdir}/hw/xfree86/utils/xorgconfig/
 
-find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl)$' |
+find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl|txt)$' |
 xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
 
 # Remove unwanted files/dirs
@@ -515,6 +515,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jan 29 2008 Adam Tkac <atkac redhat com> 1.4.99.1-0.19
+- added dix/protocol.txt to source subpackage
+
 * Fri Jan 18 2008 Dave Airlie <airlied@redhat.com> 1.4.99.1-0.18
 - cve-2007-6429.patch: Fix patch to not break java apps
 
