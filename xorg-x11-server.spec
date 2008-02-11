@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.19.%{?gitdate}%{?dist}
+Release:   0.20.%{?gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -175,6 +175,8 @@ Requires: xorg-x11-server-common >= %{version}-%{release}
 # These drivers were dropped in F7 for being broken, so uninstall them.
 Obsoletes: xorg-x11-drv-elo2300 <= 1.1.0-2.fc7
 Obsoletes: xorg-x11-drv-joystick <= 1.1.0-2.fc7
+# Force sufficiently new libpciaccess
+Conflicts: libpciaccess < 0.9.1-2
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -515,6 +517,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 11 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.20
+- Conflict against insufficiently new libpciaccess. (#390751)
+
 * Tue Jan 29 2008 Adam Tkac <atkac redhat com> 1.4.99.1-0.19
 - added dix/protocol.txt to source subpackage
 
