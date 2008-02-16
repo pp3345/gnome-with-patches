@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080107
+%define gitdate 20080215
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.20.%{?gitdate}%{?dist}
+Release:   0.21.%{?gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -42,7 +42,6 @@ Patch19:   xserver-1.3.0-xnest-exposures.patch
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
-Patch102:  xserver-1.4.99-engage-composite-crack-mode.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -56,13 +55,6 @@ Patch1014:  xserver-1.4.99-xaa-evict-pixmaps.patch
 Patch2004:  xserver-1.3.0-honor-displaysize.patch
 Patch2007:  xserver-1.3.0-randr12-config-hack.patch
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
-
-# Trivial things, already merged - cves already upstream
-Patch3000:  cve-2007-5760.patch
-Patch3001:  cve-2007-6427.patch
-Patch3002:  cve-2007-6428.patch
-Patch3003:  cve-2007-6429.patch
-Patch3004:  cve-2008-0006-server-fixup.patch
 
 # Trivial things to maybe merge upstream at next rebase
 #Patch4003: argh-pixman.patch #fixme
@@ -134,6 +126,7 @@ Requires: libdrm >= 2.4.0
 %endif
 
 BuildRequires: libselinux-devel audit-libs-devel
+BuildRequires: hal-devel dbus-devel
 
 # Make sure libXfont has the catalogue FPE
 Conflicts: libXfont < 1.2.9
@@ -427,6 +420,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/extensions/libGLcore.so
 %{_libdir}/xorg/modules/extensions/libglx.so
 %{_libdir}/xorg/modules/extensions/libdri.so
+%{_libdir}/xorg/modules/extensions/libdri2.so
 %{_libdir}/xorg/modules/extensions/libdbe.so
 %{_libdir}/xorg/modules/extensions/libextmod.so
 %{_libdir}/xorg/modules/extensions/librecord.so
@@ -517,6 +511,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Feb 15 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.21
+- Today's git snapshot.  Features DRI2 and input hotplugging.  Tasty.
+
 * Mon Feb 11 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.20
 - Conflict against insufficiently new libpciaccess. (#390751)
 
