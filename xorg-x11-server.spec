@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.21.%{?gitdate}%{?dist}
+Release:   0.22.%{?gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -511,6 +511,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 20 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 1.4.99.1-0.22.20080215
+- Autorebuild for GCC 4.3
+
 * Fri Feb 15 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.21
 - Today's git snapshot.  Features DRI2 and input hotplugging.  Tasty.
 
