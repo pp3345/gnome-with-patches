@@ -15,7 +15,7 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080215
+%define gitdate 20080221
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
@@ -118,7 +118,7 @@ BuildRequires: libXv-devel
 # openssl? really?
 BuildRequires: pixman-devel libpciaccess-devel openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 7.1
-BuildRequires: mesa-source >= 7.1-0.5
+BuildRequires: mesa-source >= 7.1-0.16
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0
 %if %{with_hw_servers}
@@ -280,6 +280,8 @@ git checkout -b fedora-%{version}-%{release}
 sed -i 's/git/&+ssh/' .git/config
 %else
 git-init-db
+echo "This is incomplete.  FIXME."
+exit 1
 %endif
 
 if [ -z "$GIT_COMMITTER_NAME" ]; then
@@ -511,8 +513,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Wed Feb 20 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 1.4.99.1-0.22.20080215
-- Autorebuild for GCC 4.3
+* Thu Feb 21 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.22
+- Today's git snapshot, misc bugfixes.
 
 * Fri Feb 15 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.21
 - Today's git snapshot.  Features DRI2 and input hotplugging.  Tasty.
