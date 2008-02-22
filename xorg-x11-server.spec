@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080221
+%define gitdate 20080222
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.22.%{?gitdate}%{?dist}
+Release:   0.23.%{?gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -57,13 +57,9 @@ Patch2007:  xserver-1.3.0-randr12-config-hack.patch
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 
 # Trivial things to maybe merge upstream at next rebase
-#Patch4003: argh-pixman.patch #fixme
-Patch4004: xserver-1.4.99-xephyr-dri.patch
-Patch4005: xserver-1.4.99-openchrome.patch
+#Patch4000:
 
 # Trivial things to never merge upstream ever
-# This should be fixed in the kernel.
-Patch5000: xserver-1.4.99-apm-typedefs.patch
 # Don't merge this without protecting the gccisms.
 Patch5001: xserver-1.4.99-alloca-poison.patch
 # This really could be done prettier.
@@ -513,6 +509,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Feb 22 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.23
+- Today's git snapshot.  Xinerama and XKB fixes, patch merging, etc.
+- Remove some dead patches.
+
 * Thu Feb 21 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.22
 - Today's git snapshot, misc bugfixes.
 
