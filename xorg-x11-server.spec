@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080222
+%define gitdate 20080226
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.23.%{?gitdate}%{?dist}
+Release:   0.24.%{?gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -509,6 +509,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 26 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.24
+- Today's git snapshot.  PCI cleanups, AIGLX fix.
+
 * Fri Feb 22 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.23
 - Today's git snapshot.  Xinerama and XKB fixes, patch merging, etc.
 - Remove some dead patches.
