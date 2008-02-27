@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080226
+%define gitdate 20080227
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.24.%{?gitdate}%{?dist}
+Release:   0.25.%{?gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -509,6 +509,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 27 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.25
+- Today's git snapshot.  Selinux fixes, XKB crash fix.
+
 * Tue Feb 26 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.24
 - Today's git snapshot.  PCI cleanups, AIGLX fix.
 
