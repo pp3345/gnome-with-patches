@@ -1,0 +1,21 @@
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Date: Thu, 28 Feb 2008 03:29:15 +0000 (-0500)
+Subject: xselinux: Don't throw BadAccess if DixUnknownAccess is passed in to a hook.
+X-Git-Url: http://gitweb.freedesktop.org/?p=xorg/xserver.git;a=commitdiff;h=e40cc5305bec656108077ab13fcc8e6e82b3707a
+
+xselinux: Don't throw BadAccess if DixUnknownAccess is passed in to a hook.
+
+The avc will still appear, however, so that the callsite can be fixed.
+---
+
+--- a/Xext/xselinux.c
++++ b/Xext/xselinux.c
+@@ -312,6 +312,8 @@ SELinuxDoCheck(SELinuxSubjectRec *subj, 
+ 
+     if (avc_has_perm(subj->sid, obj->sid, class, mode, &subj->aeref,
+ 		     auditdata) < 0) {
++	if (mode == DixUnknownAccess)
++	    return Success; /* DixUnknownAccess requests OK ... for now */
+ 	if (errno == EACCES)
+ 	    return BadAccess;
+ 	ErrorF("ServerPerm: unexpected error %d\n", errno);

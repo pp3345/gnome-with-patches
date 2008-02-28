@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.1
-Release:   0.25.%{?gitdate}%{?dist}
+Release:   0.26.%{?gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -36,6 +36,7 @@ Source2:   commitid
 Source0:   ftp://ftp.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 %endif
 
+Patch10:   xserver-1.4.99-selinux-fix.patch
 # general bug fixes
 Patch19:   xserver-1.3.0-xnest-exposures.patch
 
@@ -509,6 +510,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Feb 28 2008 Jeremy Katz <katzj@redhat.com> - 1.4.99.1-0.26
+- Pull in another SELinux fix from upstream
+
 * Wed Feb 27 2008 Adam Jackson <ajax@redhat.com> 1.4.99.1-0.25
 - Today's git snapshot.  Selinux fixes, XKB crash fix.
 
