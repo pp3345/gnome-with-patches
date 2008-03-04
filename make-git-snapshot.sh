@@ -6,7 +6,7 @@ rm -rf $DIRNAME
 git clone -n git://git.freedesktop.org/git/xorg/xserver $DIRNAME
 cd $DIRNAME
 if [ -z "$1" ]; then
-    git log | head -1
+    git checkout --track -b server-1.5-branch origin/server-1.5-branch
 else
     git checkout $1
 fi

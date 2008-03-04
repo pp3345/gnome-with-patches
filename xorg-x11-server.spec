@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080227
+%define gitdate 20080303
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.4.99.1
-Release:   0.26.%{?gitdate}%{?dist}
+Version:   1.4.99.900
+Release:   0.27.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -36,10 +36,6 @@ Source2:   commitid
 Source0:   ftp://ftp.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 %endif
 
-Patch10:   xserver-1.4.99-selinux-fix.patch
-# general bug fixes
-Patch19:   xserver-1.3.0-xnest-exposures.patch
-
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
@@ -53,8 +49,6 @@ Patch1005:  xserver-1.4.99-builtin-fonts.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
 Patch1014:  xserver-1.4.99-xaa-evict-pixmaps.patch
 
-Patch2004:  xserver-1.3.0-honor-displaysize.patch
-Patch2007:  xserver-1.3.0-randr12-config-hack.patch
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 
 # Trivial things to maybe merge upstream at next rebase
@@ -272,7 +266,7 @@ Xserver source code needed to build VNC server (Xvnc)
 %setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
 
 %if 0%{gitdate}
-git checkout -b fedora-%{version}-%{release}
+git checkout -b fedora
 # make it something you can push to.
 sed -i 's/git/&+ssh/' .git/config
 %else
@@ -510,6 +504,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 03 2008 Adam Jackson <ajax@redhat.com> 1.4.99.900-0.27.20080303
+- Switch to 1.5 branch and rebase.
+
 * Thu Feb 28 2008 Jeremy Katz <katzj@redhat.com> - 1.4.99.1-0.26
 - Pull in another SELinux fix from upstream
 
