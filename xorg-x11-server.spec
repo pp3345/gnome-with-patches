@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080303
+%define gitdate 20080304
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.900
-Release:   0.27.%{gitdate}%{?dist}
+Release:   0.28.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -159,6 +159,8 @@ Requires: xorg-x11-server-common >= %{version}-%{release}
 # These drivers were dropped in F7 for being broken, so uninstall them.
 Obsoletes: xorg-x11-drv-elo2300 <= 1.1.0-2.fc7
 Obsoletes: xorg-x11-drv-joystick <= 1.1.0-2.fc7
+# Dropped from F9 for being broken, uninstall it.
+Obsoletes: xorg-x11-drv-magictouch <= 1.0.0.5-5.fc8
 # Force sufficiently new libpciaccess
 Conflicts: libpciaccess < 0.9.1-2
 
@@ -504,6 +506,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Mar 04 2008 Adam Jackson <ajax@redhat.com> 1.4.99.900-0.28.20080304
+- Today's 1.5 snapshot.
+- Obsolete: xorg-x11-drv-magictouch to get it uninstalled.
+
 * Mon Mar 03 2008 Adam Jackson <ajax@redhat.com> 1.4.99.900-0.27.20080303
 - Switch to 1.5 branch and rebase.
 
