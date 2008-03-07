@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080304
+%define gitdate 20080307
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.4.99.900
-Release:   0.28.%{gitdate}%{?dist}
+Version:   1.4.99.901
+Release:   1.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -108,8 +108,8 @@ BuildRequires: libXv-devel
 
 # openssl? really?
 BuildRequires: pixman-devel libpciaccess-devel openssl-devel byacc flex
-BuildRequires: mesa-libGL-devel >= 7.1
-BuildRequires: mesa-source >= 7.1-0.16
+BuildRequires: mesa-libGL-devel >= 7.1-0.19
+BuildRequires: mesa-source >= 7.1-0.19
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0
 %if %{with_hw_servers}
@@ -506,6 +506,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Mar 07 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-1.20080307
+- Today's 1.5 snapshot.
+
 * Tue Mar 04 2008 Adam Jackson <ajax@redhat.com> 1.4.99.900-0.28.20080304
 - Today's 1.5 snapshot.
 - Obsolete: xorg-x11-drv-magictouch to get it uninstalled.
