@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   2.%{gitdate}%{?dist}
+Release:   3.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -509,7 +509,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Tue Mar 11 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-2.20080310
+* Tue Mar 11 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-3.20080310
 - New 1.5 snapshot.
 - xserver-1.5-x86emy.patch: Fix an x86emu quirk.
 
