@@ -1,17 +1,25 @@
-From 3820624b395ce6073bc86fcc93d4dd44c2cb07e4 Mon Sep 17 00:00:00 2001
+From 332b9c7d0f499360f7750e6e85cc905703b6ad4a Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Mon, 10 Mar 2008 19:39:21 -0400
 Subject: [PATCH] test x86emu fix
 
 ---
- hw/xfree86/int10/helper_exec.c |   55 ++++++++++++++++++++++++++++++++++-----
- 1 files changed, 48 insertions(+), 7 deletions(-)
+ hw/xfree86/int10/helper_exec.c |   57 +++++++++++++++++++++++++++++++++++-----
+ 1 files changed, 50 insertions(+), 7 deletions(-)
 
 diff --git a/hw/xfree86/int10/helper_exec.c b/hw/xfree86/int10/helper_exec.c
-index de6fde5..da7a38a 100644
+index de6fde5..9daff22 100644
 --- a/hw/xfree86/int10/helper_exec.c
 +++ b/hw/xfree86/int10/helper_exec.c
-@@ -459,7 +459,42 @@ Mem_wl(CARD32 addr, CARD32 val)
+@@ -33,6 +33,7 @@
+ #ifdef _X86EMU
+ #include "x86emu/x86emui.h"
+ #endif
++#include <pciaccess.h>
+ 
+ static int pciCfg1in(CARD16 addr, CARD32 *val);
+ static int pciCfg1out(CARD16 addr, CARD32 val);
+@@ -459,7 +460,43 @@ Mem_wl(CARD32 addr, CARD32 val)
  
  static CARD32 PciCfg1Addr = 0;
  
@@ -19,7 +27,7 @@ index de6fde5..da7a38a 100644
 +#define PCI_OFFSET(x) ((x) & 0x000000ff)
 +#define PCI_TAG(x)    ((x) & 0xffffff00)
 +
-+static pci_device*
++static struct pci_device*
 +pci_device_for_cfg_address (CARD32 addr)
 +{
 +	struct pci_device *dev = NULL;
@@ -32,7 +40,8 @@ index de6fde5..da7a38a 100644
 +		.match_data = 0
 +	};
 +
-+	iter = pci_slot_match_iterator_create (&slot_match);
++	struct pci_device_iterator *iter =
++	    pci_slot_match_iterator_create (&slot_match);
 +	if (iter)
 +		dev = pci_device_next(iter);
 +	if (!dev) {
@@ -55,7 +64,7 @@ index de6fde5..da7a38a 100644
  
  static int
  pciCfg1in(CARD16 addr, CARD32 *val)
-@@ -469,7 +504,8 @@ pciCfg1in(CARD16 addr, CARD32 *val)
+@@ -469,7 +506,8 @@ pciCfg1in(CARD16 addr, CARD32 *val)
  	return 1;
      }
      if (addr == 0xCFC) {
@@ -65,7 +74,7 @@ index de6fde5..da7a38a 100644
  	if (PRINT_PORT && DEBUG_IO_TRACE())
  	    ErrorF(" cfg_inl(%#x) = %8.8x\n", PciCfg1Addr, *val);
  	return 1;
-@@ -487,7 +523,8 @@ pciCfg1out(CARD16 addr, CARD32 val)
+@@ -487,7 +525,8 @@ pciCfg1out(CARD16 addr, CARD32 val)
      if (addr == 0xCFC) {
  	if (PRINT_PORT && DEBUG_IO_TRACE())
  	    ErrorF(" cfg_outl(%#x, %8.8x)\n", PciCfg1Addr, val);
@@ -75,7 +84,7 @@ index de6fde5..da7a38a 100644
  	return 1;
      }
      return 0;
-@@ -506,7 +543,8 @@ pciCfg1inw(CARD16 addr, CARD16 *val)
+@@ -506,7 +545,8 @@ pciCfg1inw(CARD16 addr, CARD16 *val)
      if ((addr >= 0xCFC) && (addr <= 0xCFF)) {
  	const unsigned offset = addr - 0xCFC;
  
@@ -85,7 +94,7 @@ index de6fde5..da7a38a 100644
  	if (PRINT_PORT && DEBUG_IO_TRACE())
  	    ErrorF(" cfg_inw(%#x) = %4.4x\n", PciCfg1Addr + offset, *val);
  	return 1;
-@@ -530,7 +568,8 @@ pciCfg1outw(CARD16 addr, CARD16 val)
+@@ -530,7 +570,8 @@ pciCfg1outw(CARD16 addr, CARD16 val)
  
  	if (PRINT_PORT && DEBUG_IO_TRACE())
  	    ErrorF(" cfg_outw(%#x, %4.4x)\n", PciCfg1Addr + offset, val);
@@ -95,7 +104,7 @@ index de6fde5..da7a38a 100644
  	return 1;
      }
      return 0;
-@@ -549,7 +588,8 @@ pciCfg1inb(CARD16 addr, CARD8 *val)
+@@ -549,7 +590,8 @@ pciCfg1inb(CARD16 addr, CARD8 *val)
      if ((addr >= 0xCFC) && (addr <= 0xCFF)) {
  	const unsigned offset = addr - 0xCFC;
  
@@ -105,7 +114,7 @@ index de6fde5..da7a38a 100644
  	if (PRINT_PORT && DEBUG_IO_TRACE())
  	    ErrorF(" cfg_inb(%#x) = %2.2x\n", PciCfg1Addr + offset, *val);
  	return 1;
-@@ -573,7 +613,8 @@ pciCfg1outb(CARD16 addr, CARD8 val)
+@@ -573,7 +615,8 @@ pciCfg1outb(CARD16 addr, CARD8 val)
  
  	if (PRINT_PORT && DEBUG_IO_TRACE())
  	    ErrorF(" cfg_outb(%#x, %2.2x)\n", PciCfg1Addr + offset, val);
@@ -116,5 +125,5 @@ index de6fde5..da7a38a 100644
      }
      return 0;
 -- 
-1.5.3.8
+1.5.4.3
 

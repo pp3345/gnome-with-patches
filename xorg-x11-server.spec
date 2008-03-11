@@ -509,6 +509,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Mar 11 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-2.20080310
+- New 1.5 snapshot.
+- xserver-1.5-x86emy.patch: Fix an x86emu quirk.
+
 * Fri Mar 07 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-1.20080307
 - Today's 1.5 snapshot.
 
