@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080307
+%define gitdate 20080310
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   1.%{gitdate}%{?dist}
+Release:   2.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -59,6 +59,8 @@ Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 Patch5001: xserver-1.4.99-alloca-poison.patch
 # This really could be done prettier.
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
+
+Patch5003: xserver-1.5.0-x86emu.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -268,7 +270,8 @@ Xserver source code needed to build VNC server (Xvnc)
 %setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
 
 %if 0%{gitdate}
-git checkout -b fedora
+# XXX hack
+git checkout -b fedora 921cbc58036491eab491b4c7b07111f04aa58d40
 # make it something you can push to.
 sed -i 's/git/&+ssh/' .git/config
 %else
