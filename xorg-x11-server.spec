@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   3.%{gitdate}%{?dist}
+Release:   4.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -110,8 +110,8 @@ BuildRequires: libXv-devel
 
 # openssl? really?
 BuildRequires: pixman-devel libpciaccess-devel openssl-devel byacc flex
-BuildRequires: mesa-libGL-devel >= 7.1-0.19
-BuildRequires: mesa-source >= 7.1-0.19
+BuildRequires: mesa-libGL-devel >= 7.1-0.20
+BuildRequires: mesa-source >= 7.1-0.20
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0
 %if %{with_hw_servers}
@@ -271,7 +271,7 @@ Xserver source code needed to build VNC server (Xvnc)
 
 %if 0%{gitdate}
 # XXX hack
-git checkout -b fedora 921cbc58036491eab491b4c7b07111f04aa58d40
+git checkout -b fedora
 # make it something you can push to.
 sed -i 's/git/&+ssh/' .git/config
 %else
@@ -509,6 +509,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Mar 11 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.901-4.20080310
+- Checkout the tip of the git snapshot so we get the most recent DRI2
+  texture from pixmap changes in the build.  Bump mesa build requires.
+
 * Tue Mar 11 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-3.20080310
 - New 1.5 snapshot.
 - xserver-1.5-x86emy.patch: Fix an x86emu quirk.
