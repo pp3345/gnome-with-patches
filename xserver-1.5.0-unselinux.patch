@@ -1,0 +1,27 @@
+From 39ac27c473816c66faa43ae00b4fd34b6688ff12 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@benzedrine.nwnk.net>
+Date: Wed, 12 Mar 2008 19:33:37 -0400
+Subject: [PATCH] Disable the selinux extension for now.
+
+We'll still build the infrastructure but not turn on the extension.  This
+wants a better solution, please don't ship me like this.
+---
+ hw/xfree86/dixmods/extmod/modinit.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/hw/xfree86/dixmods/extmod/modinit.c b/hw/xfree86/dixmods/extmod/modinit.c
+index d0d892a..5fa5456 100644
+--- a/hw/xfree86/dixmods/extmod/modinit.c
++++ b/hw/xfree86/dixmods/extmod/modinit.c
+@@ -38,7 +38,7 @@ static MODULESETUPPROTO(extmodSetup);
+  * Array describing extensions to be initialized
+  */
+ static ExtensionModule extensionModules[] = {
+-#ifdef XSELINUX
++#if 0
+     {
+ 	SELinuxExtensionInit,
+ 	SELINUX_EXTENSION_NAME,
+-- 
+1.5.4.3
+

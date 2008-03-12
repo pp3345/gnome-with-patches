@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   4.%{gitdate}%{?dist}
+Release:   5.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -61,6 +61,9 @@ Patch5001: xserver-1.4.99-alloca-poison.patch
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 
 Patch5003: xserver-1.5.0-x86emu.patch
+Patch5004: xserver-1.5.0-wfs.patch
+Patch5005: xserver-1.5.0-unselinux.patch
+Patch5006: xserver-1.5.0-ia64.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -509,6 +512,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar 12 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-5.20080310
+- xserver-1.5.0-unselinux.patch: Disable selinux extension for now.
+- xserver-1.5.0-ia64.patch: Fix ia64 PCI support. (#429878)
+
 * Tue Mar 11 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.901-4.20080310
 - Checkout the tip of the git snapshot so we get the most recent DRI2
   texture from pixmap changes in the build.  Bump mesa build requires.

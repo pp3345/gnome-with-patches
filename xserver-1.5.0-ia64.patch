@@ -1,0 +1,137 @@
+From 9053cba9d766be78d150226aa4adf61e5a6717d2 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@benzedrine.nwnk.net>
+Date: Wed, 12 Mar 2008 19:52:50 -0400
+Subject: [PATCH] Fix ia64 PCI support.
+
+---
+ hw/xfree86/os-support/bus/Makefile.am   |   12 -------
+ hw/xfree86/os-support/bus/Pci.h         |    3 +-
+ hw/xfree86/os-support/linux/Makefile.am |    2 +-
+ hw/xfree86/os-support/shared/ia64Pci.c  |   55 -------------------------------
+ 4 files changed, 2 insertions(+), 70 deletions(-)
+
+diff --git a/hw/xfree86/os-support/bus/Makefile.am b/hw/xfree86/os-support/bus/Makefile.am
+index 381b992..5a15430 100644
+--- a/hw/xfree86/os-support/bus/Makefile.am
++++ b/hw/xfree86/os-support/bus/Makefile.am
+@@ -27,18 +27,6 @@ if LINUX_ALPHA
+ PCI_SOURCES += axpPci.c
+ endif
+ 
+-if LINUX_IA64
+-PLATFORM_PCI_SOURCES = \
+-	460gxPCI.c \
+-	460gxPCI.h \
+-	altixPCI.c \
+-	altixPCI.h \
+-	e8870PCI.c \
+-	e8870PCI.h \
+-	zx1PCI.c \
+-	zx1PCI.h
+-endif
+-
+ if XORG_BUS_SPARC
+ PLATFORM_SOURCES = Sbus.c
+ sdk_HEADERS += xf86Sbus.h
+diff --git a/hw/xfree86/os-support/bus/Pci.h b/hw/xfree86/os-support/bus/Pci.h
+index 0abb34f..ebac090 100644
+--- a/hw/xfree86/os-support/bus/Pci.h
++++ b/hw/xfree86/os-support/bus/Pci.h
+@@ -207,9 +207,8 @@
+ # endif
+ #elif defined(__ia64__)
+ # if defined(linux)
+-#  define ARCH_PCI_INIT ia64linuxPciInit
++#  define ARCH_PCI_INIT linuxPciInit
+ # endif
+-# define XF86SCANPCI_WRAPPER ia64ScanPCIWrapper
+ #elif defined(__i386__) || defined(__i386)
+ # if defined(linux)
+ #  define ARCH_PCI_INIT linuxPciInit
+diff --git a/hw/xfree86/os-support/linux/Makefile.am b/hw/xfree86/os-support/linux/Makefile.am
+index 5a52ffd..beaae3d 100644
+--- a/hw/xfree86/os-support/linux/Makefile.am
++++ b/hw/xfree86/os-support/linux/Makefile.am
+@@ -1,7 +1,7 @@
+ noinst_LTLIBRARIES = liblinux.la
+ 
+ if LINUX_IA64
+-PLATFORM_PCI_SUPPORT = $(srcdir)/lnx_ia64.c $(srcdir)/../shared/ia64Pci.c
++PLATFORM_PCI_SUPPORT = $(srcdir)/../shared/ia64Pci.c
+ PLATFORM_DEFINES = -DOS_PROBE_PCI_CHIPSET=lnxProbePciChipset
+ PLATFORM_INCLUDES = -I$(srcdir)/../shared
+ endif
+diff --git a/hw/xfree86/os-support/shared/ia64Pci.c b/hw/xfree86/os-support/shared/ia64Pci.c
+index 45522e9..6f6924b 100644
+--- a/hw/xfree86/os-support/shared/ia64Pci.c
++++ b/hw/xfree86/os-support/shared/ia64Pci.c
+@@ -42,12 +42,7 @@
+ #include <linux/pci.h>
+ 
+ #include "compiler.h"
+-#include "460gxPCI.h"
+-#include "e8870PCI.h"
+-#include "zx1PCI.h"
+-#include "altixPCI.h"
+ #include "Pci.h"
+-#include "ia64Pci.h"
+ 
+ /*
+  * We use special in/out routines here since Altix platforms require the
+@@ -191,53 +186,3 @@ _X_EXPORT unsigned int inl(unsigned long port)
+     return val;
+ }
+ 
+-void
+-ia64ScanPCIWrapper(scanpciWrapperOpt flags)
+-{
+-    static IA64Chipset chipset = NONE_CHIPSET;
+-    
+-    if (flags == SCANPCI_INIT) {
+-
+-	/* PCI configuration space probes should be done first */
+-	if (xorgProbe460GX(flags)) {
+-	    chipset = I460GX_CHIPSET;
+-	    xf86PreScan460GX();	
+-	    return;
+-	} else if (xorgProbeE8870(flags)) {
+-	    chipset = E8870_CHIPSET;
+-	    xf86PreScanE8870();
+-	    return;
+-	}
+-#ifdef OS_PROBE_PCI_CHIPSET
+-	chipset = OS_PROBE_PCI_CHIPSET(flags);
+-	switch (chipset) {
+-	    case ZX1_CHIPSET:
+-		xf86PreScanZX1();
+-		return;
+-	    case ALTIX_CHIPSET:
+-		xf86PreScanAltix();
+-		return;
+-	    default:
+-		return;
+-	}
+-#endif
+-    } else /* if (flags == SCANPCI_TERM) */ {
+-
+-	switch (chipset) {
+-	    case I460GX_CHIPSET:
+-		xf86PostScan460GX();
+-		return;
+-	    case E8870_CHIPSET:
+-		xf86PostScanE8870();
+-		return;
+-	    case ZX1_CHIPSET:
+-		xf86PostScanZX1();
+-		return;
+-	    case ALTIX_CHIPSET:
+-		xf86PostScanAltix();
+-		return;
+-	    default:
+-		return;
+-	}
+-    }
+-}
+-- 
+1.5.4.3
+
