@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   5.%{gitdate}%{?dist}
+Release:   6.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -64,6 +64,7 @@ Patch5003: xserver-1.5.0-x86emu.patch
 Patch5004: xserver-1.5.0-wfs.patch
 Patch5005: xserver-1.5.0-unselinux.patch
 Patch5006: xserver-1.5.0-ia64.patch
+Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -512,6 +513,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Mar 13 2008 Dave Airlie <airlied@redhat.com> 1.4.99.901-6.20080310
+- fix fbdev probing with no hardware to not load fbdev if pci slot claimed
+
 * Wed Mar 12 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-5.20080310
 - xserver-1.5.0-unselinux.patch: Disable selinux extension for now.
 - xserver-1.5.0-ia64.patch: Fix ia64 PCI support. (#429878)
