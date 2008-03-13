@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   7.%{gitdate}%{?dist}
+Release:   8.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -66,6 +66,7 @@ Patch5005: xserver-1.5.0-unselinux.patch
 Patch5006: xserver-1.5.0-ia64.patch
 Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5008: xserver-1.5.0-xaa-sucks.patch
+Patch5009: xserver-1.5.0-aspect-match.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -514,6 +515,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Mar 13 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-8.20080310
+- xserver-1.5.0-aspect-match.patch: Fix the RANDR 1.2 initial configuration
+  heuristic for the case where the best possible mode is the first one in
+  the first monitor's mode list.
+
 * Thu Mar 13 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-7.20080310
 - xserver-1.5.0-xaa-sucks: Disable XAA offscreen pixmaps by default.  They're
   almost always a performance loss anyway.  Use Option "XaaOffscreenPixmaps"
