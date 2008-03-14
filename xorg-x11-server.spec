@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080310
+%define gitdate 20080314
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   8.%{gitdate}%{?dist}
+Release:   9.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -60,13 +60,10 @@ Patch5001: xserver-1.4.99-alloca-poison.patch
 # This really could be done prettier.
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 
-Patch5003: xserver-1.5.0-x86emu.patch
 Patch5004: xserver-1.5.0-wfs.patch
 Patch5005: xserver-1.5.0-unselinux.patch
-Patch5006: xserver-1.5.0-ia64.patch
 Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5008: xserver-1.5.0-xaa-sucks.patch
-Patch5009: xserver-1.5.0-aspect-match.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -124,7 +121,7 @@ BuildRequires: libdrm-devel >= 2.4.0
 Requires: libdrm >= 2.4.0
 %endif
 
-BuildRequires: libselinux-devel audit-libs-devel
+BuildRequires: audit-libs-devel libselinux-devel >= 2.0.59-1
 BuildRequires: hal-devel dbus-devel
 
 # Make sure libXfont has the catalogue FPE
@@ -515,6 +512,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Mar 14 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-9.20080314
+- Today's snapshot.  Mostly just patch merge with rawhide.
+
 * Thu Mar 13 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-8.20080310
 - xserver-1.5.0-aspect-match.patch: Fix the RANDR 1.2 initial configuration
   heuristic for the case where the best possible mode is the first one in
