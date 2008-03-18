@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   9.%{gitdate}%{?dist}
+Release:   10.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -64,6 +64,7 @@ Patch5004: xserver-1.5.0-wfs.patch
 Patch5005: xserver-1.5.0-unselinux.patch
 Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5008: xserver-1.5.0-xaa-sucks.patch
+Patch5009: xserver-1.5.0-no-evdev-keyboards-kthnx.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -512,6 +513,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Mar 18 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-10.20080314
+- xserver-1.5.0-no-evdev-keyboards-kthnx.patch: Sorry, evdev keyboarding is
+  just too broken.
+
 * Fri Mar 14 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-9.20080314
 - Today's snapshot.  Mostly just patch merge with rawhide.
 

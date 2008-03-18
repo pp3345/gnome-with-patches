@@ -1,0 +1,27 @@
+From 3d914c2c1d24886ea81bf70de224370ebdf73b6d Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Tue, 18 Mar 2008 15:11:13 -0400
+Subject: [PATCH] Disable evdev for keyboards.
+
+Hrngh argh hatred.
+---
+ config/hal.c |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
+
+diff --git a/config/hal.c b/config/hal.c
+index 1575422..dcbf715 100644
+--- a/config/hal.c
++++ b/config/hal.c
+@@ -177,9 +177,6 @@ device_added(LibHalContext *hal_ctx, const char *udi)
+         /* input.keys is the new, of which input.keyboard is a subset, but
+          * input.keyboard is the old 'we have keys', so we have to keep it
+          * around. */
+-        if (strcmp(props[i], "input.keys") == 0 ||
+-            strcmp(props[i], "input.keyboard") == 0)
+-            type |= TYPE_KEYS;
+         if (strcmp(props[i], "input.mouse") == 0 ||
+             strcmp(props[i], "input.touchpad") == 0)
+             type |= TYPE_POINTER;
+-- 
+1.5.4.3
+
