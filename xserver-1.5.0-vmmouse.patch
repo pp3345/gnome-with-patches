@@ -1,0 +1,34 @@
+From 15f5b9b9d1db20cc283098e03f536d4d10a890f8 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Wed, 26 Mar 2008 18:07:37 -0400
+Subject: [PATCH] Use vmmouse, not mouse, for automatic mouse sections.
+
+---
+ hw/xfree86/common/xf86Config.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Config.c b/hw/xfree86/common/xf86Config.c
+index 4a4aabc..93b18bd 100644
+--- a/hw/xfree86/common/xf86Config.c
++++ b/hw/xfree86/common/xf86Config.c
+@@ -1336,7 +1336,7 @@ checkCoreInputDevices(serverLayoutPtr servlayoutp, Bool implicitLayout)
+     if (!foundPointer) {
+ 	bzero(&defPtr, sizeof(defPtr));
+ 	defPtr.inp_identifier = "<default pointer>";
+-	defPtr.inp_driver = "mouse";
++	defPtr.inp_driver = "vmmouse";
+ 	confInput = &defPtr;
+ 	foundPointer = TRUE;
+ 	from = X_DEFAULT;
+@@ -1383,7 +1383,7 @@ checkCoreInputDevices(serverLayoutPtr servlayoutp, Bool implicitLayout)
+ 	xf86Msg(X_INFO, "No default mouse found, adding one\n");
+ 	bzero(&defPtr, sizeof(defPtr));
+ 	defPtr.inp_identifier = "<default pointer>";
+-	defPtr.inp_driver = "mouse";
++	defPtr.inp_driver = "vmmouse";
+ 	confInput = &defPtr;
+ 	foundPointer = configInput(&Pointer, confInput, from);
+         if (foundPointer) {
+-- 
+1.5.4.3
+

@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   10.%{gitdate}%{?dist}
+Release:   11.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -65,6 +65,7 @@ Patch5005: xserver-1.5.0-unselinux.patch
 Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5008: xserver-1.5.0-xaa-sucks.patch
 Patch5009: xserver-1.5.0-no-evdev-keyboards-kthnx.patch
+Patch5010: xserver-1.5.0-vmmouse.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -158,7 +159,7 @@ Provides: Xorg = %{version}-%{release}
 Provides: Xserver
 # Requires: xorg-x11-drivers >= 0.99.2-4
 Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
-Requires: xorg-x11-drv-void xorg-x11-drv-evdev
+Requires: xorg-x11-drv-void xorg-x11-drv-evdev xorg-x11-drv-vmmouse
 # virtuals.  XXX fix the xkbcomp fork() upstream.
 Requires: xkbdata xkbcomp
 Requires: xorg-x11-server-common >= %{version}-%{release}
@@ -513,6 +514,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar 26 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-10.20080314
+- xserver-1.5.0-vmmouse.patch: Use vmmouse(4) for the automagic mouse
+  section.  It'll just fall back to the mouse(4) driver anyway if it's
+  not a vmmouse.
+
 * Tue Mar 18 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-10.20080314
 - xserver-1.5.0-no-evdev-keyboards-kthnx.patch: Sorry, evdev keyboarding is
   just too broken.
