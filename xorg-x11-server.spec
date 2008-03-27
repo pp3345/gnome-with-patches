@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   11.%{gitdate}%{?dist}
+Release:   12.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -66,6 +66,7 @@ Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5008: xserver-1.5.0-xaa-sucks.patch
 Patch5009: xserver-1.5.0-no-evdev-keyboards-kthnx.patch
 Patch5010: xserver-1.5.0-vmmouse.patch
+Patch5011: xserver-1.5.0-fix-lsl-quirk.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -514,7 +515,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Wed Mar 26 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-10.20080314
+* Thu Mar 27 2008 Dave Airlie <airlied@redhat.com> 1.4.99.901-12.20080314
+- xserver-1.5.0-fix-lsl-quirk.patch - fix the LSL quirk (#435216)
+
+* Wed Mar 26 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-11.20080314
 - xserver-1.5.0-vmmouse.patch: Use vmmouse(4) for the automagic mouse
   section.  It'll just fall back to the mouse(4) driver anyway if it's
   not a vmmouse.
