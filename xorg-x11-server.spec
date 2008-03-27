@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   12.%{gitdate}%{?dist}
+Release:   13.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -160,7 +160,10 @@ Provides: Xorg = %{version}-%{release}
 Provides: Xserver
 # Requires: xorg-x11-drivers >= 0.99.2-4
 Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
-Requires: xorg-x11-drv-void xorg-x11-drv-evdev xorg-x11-drv-vmmouse
+Requires: xorg-x11-drv-void xorg-x11-drv-evdev
+%ifarch %{ix86} x86_64
+Requires: xorg-x11-drv-vmmouse
+%endif
 # virtuals.  XXX fix the xkbcomp fork() upstream.
 Requires: xkbdata xkbcomp
 Requires: xorg-x11-server-common >= %{version}-%{release}
@@ -515,6 +518,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Mar 27 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-13.20080314
+- archify the vmmouse logic.
+
 * Thu Mar 27 2008 Dave Airlie <airlied@redhat.com> 1.4.99.901-12.20080314
 - xserver-1.5.0-fix-lsl-quirk.patch - fix the LSL quirk (#435216)
 
