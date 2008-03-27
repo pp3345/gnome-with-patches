@@ -16,7 +16,7 @@ index 4a4aabc..0c579fb 100644
  	bzero(&defPtr, sizeof(defPtr));
  	defPtr.inp_identifier = "<default pointer>";
 +#if defined(__i386__) || defined (__amd64__)
-+	defPtr.inp_driver = "vmmouse"
++	defPtr.inp_driver = "vmmouse";
 +#else
  	defPtr.inp_driver = "mouse";
 +#endif
@@ -28,7 +28,7 @@ index 4a4aabc..0c579fb 100644
  	bzero(&defPtr, sizeof(defPtr));
  	defPtr.inp_identifier = "<default pointer>";
 +#if defined(__i386__) || defined (__amd64__)
-+	defPtr.inp_driver = "vmmouse"
++	defPtr.inp_driver = "vmmouse";
 +#else
  	defPtr.inp_driver = "mouse";
 +#endif
