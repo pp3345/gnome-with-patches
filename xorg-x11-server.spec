@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   13.%{gitdate}%{?dist}
+Release:   14.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -65,7 +65,6 @@ Patch5005: xserver-1.5.0-unselinux.patch
 Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5008: xserver-1.5.0-xaa-sucks.patch
 Patch5009: xserver-1.5.0-no-evdev-keyboards-kthnx.patch
-Patch5010: xserver-1.5.0-vmmouse.patch
 Patch5011: xserver-1.5.0-fix-lsl-quirk.patch
 
 %define moduledir	%{_libdir}/xorg/modules
@@ -161,9 +160,6 @@ Provides: Xserver
 # Requires: xorg-x11-drivers >= 0.99.2-4
 Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
 Requires: xorg-x11-drv-void xorg-x11-drv-evdev
-%ifarch %{ix86} x86_64
-Requires: xorg-x11-drv-vmmouse
-%endif
 # virtuals.  XXX fix the xkbcomp fork() upstream.
 Requires: xkbdata xkbcomp
 Requires: xorg-x11-server-common >= %{version}-%{release}
@@ -518,6 +514,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Apr 01 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-14.20080314
+- Remove vmmouse again, way too broken.  Let this be a lesson to you:
+  never try.
+
 * Thu Mar 27 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-13.20080314
 - archify the vmmouse logic.
 
