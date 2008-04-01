@@ -311,6 +311,7 @@ autoreconf -v --install || exit 1
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
 	--with-rgb-path=%{_datadir}/X11/rgb \
 	--disable-xorgcfg \
+	--disable-record \
 	--enable-install-libxf86config \
 	--with-mesa-source=%{_datadir}/mesa/source \
 	--enable-xselinux \
@@ -426,7 +427,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/extensions/libdri2.so
 %{_libdir}/xorg/modules/extensions/libdbe.so
 %{_libdir}/xorg/modules/extensions/libextmod.so
-%{_libdir}/xorg/modules/extensions/librecord.so
 %{_libdir}/xorg/modules/extensions/libxtrap.so
 %dir %{_libdir}/xorg/modules/input
 %dir %{_libdir}/xorg/modules/fonts
@@ -516,6 +516,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Tue Apr  1 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.901-15.20080401
 - Rebase to new snapshot to pull in DRI2 direct rendering work.
+- Stop shipping librecord.so.
 
 * Tue Apr 01 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-14.20080314
 - Remove vmmouse again, way too broken.  Let this be a lesson to you:
