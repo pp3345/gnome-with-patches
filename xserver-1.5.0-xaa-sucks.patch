@@ -31,11 +31,12 @@ index 1b7c154..f3c8f56 100644
      { -1,				NULL,
  				OPTV_NONE,	{0}, FALSE }
  };
-@@ -518,7 +521,8 @@ XAAInitAccel(ScreenPtr pScreen, XAAInfoRecPtr infoRec)
+@@ -532,8 +532,8 @@ XAAInitAccel(ScreenPtr pScreen, XAAInfoRecPtr infoRec)
  #define XAAMSG(s) do { if (serverGeneration == 1) xf86ErrorF(s); } while (0)
  
      if((infoRec->Flags & OFFSCREEN_PIXMAPS) && HaveScreenToScreenCopy &&
--		!xf86IsOptionSet(options, XAAOPT_OFFSCREEN_PIXMAPS)) {
+-		!xf86ReturnOptValBool(options, XAAOPT_OFFSCREEN_PIXMAPS,
+-		                      FALSE)) {
 +		xf86IsOptionSet(options, XAAOPT_HAS_DUMB_INVERTED_OPTION_SENSE))
 +    {
  	XAAMSG("\tOffscreen Pixmaps\n");
@@ -43,4 +44,3 @@ index 1b7c154..f3c8f56 100644
  	infoRec->Flags &= ~OFFSCREEN_PIXMAPS;
 -- 
 1.5.4.3
-

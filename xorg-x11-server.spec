@@ -15,7 +15,7 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080314
+%define gitdate 20080401
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
@@ -90,7 +90,7 @@ BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
-BuildRequires: xorg-x11-proto-devel >= 7.3-7
+BuildRequires: xorg-x11-proto-devel >= 7.3-10
 BuildRequires: damageproto >= 1.1
 BuildRequires: fixesproto >= 4.0
 BuildRequires: glproto >= 1.4.9
@@ -115,8 +115,8 @@ BuildRequires: libXv-devel
 
 # openssl? really?
 BuildRequires: pixman-devel libpciaccess-devel openssl-devel byacc flex
-BuildRequires: mesa-libGL-devel >= 7.1-0.20
-BuildRequires: mesa-source >= 7.1-0.20
+BuildRequires: mesa-libGL-devel >= 7.1-0.21
+BuildRequires: mesa-source >= 7.1-0.21
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0
 %if %{with_hw_servers}
@@ -514,6 +514,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Apr  1 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.901-15.20080401
+- Rebase to new snapshot to pull in DRI2 direct rendering work.
+
 * Tue Apr 01 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-14.20080314
 - Remove vmmouse again, way too broken.  Let this be a lesson to you:
   never try.
