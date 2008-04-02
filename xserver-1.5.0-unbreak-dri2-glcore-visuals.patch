@@ -1,0 +1,37 @@
+From b13ab156894074fb38cc812738bc7aeeebd9614d Mon Sep 17 00:00:00 2001
+From: =?utf-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
+Date: Wed, 2 Apr 2008 12:38:36 -0400
+Subject: [PATCH] dri2: Unbreak glcore visual setup.
+
+---
+ GL/glx/glxglcore.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/GL/glx/glxglcore.c b/GL/glx/glxglcore.c
+index bbfa02b..972ab88 100644
+--- a/GL/glx/glxglcore.c
++++ b/GL/glx/glxglcore.c
+@@ -308,10 +308,9 @@ static const int glx_visual_types[] = {
+ 
+ static __GLXconfig *
+ createFBConfigsForVisual(__GLXscreen *screen, ScreenPtr pScreen,
+-			 VisualPtr visual, __GLXconfig *tail)
++			 VisualPtr visual, __GLXconfig *config)
+ {
+     int back, depth, stencil;
+-    __GLXconfig *config;
+ 
+     /* FIXME: Ok, I'm making all this up... anybody has a better idea? */
+ 
+@@ -347,7 +346,7 @@ createFBConfigsForVisual(__GLXscreen *screen, ScreenPtr pScreen,
+ 		config->indexBits = config->colorIndexMode ? visual->nplanes : 0;
+ 	    }
+ 
+-    return tail;
++    return config;
+ }
+ 
+ static void
+-- 
+1.5.4.5
+

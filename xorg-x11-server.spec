@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   15.%{gitdate}%{?dist}
+Release:   16.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -66,6 +66,8 @@ Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5008: xserver-1.5.0-xaa-sucks.patch
 Patch5009: xserver-1.5.0-no-evdev-keyboards-kthnx.patch
 Patch5011: xserver-1.5.0-fix-lsl-quirk.patch
+Patch5012: xserver-1.5.0-fix-dri2-crash-on-fail.patch
+Patch5013: xserver-1.5.0-unbreak-dri2-glcore-visuals.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -514,6 +516,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Apr  2 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.901-16.20080401
+- Fix crash when DRI2 fails to initialize and crash when initializing
+  software GL visuals (#440175).
+
 * Tue Apr  1 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.901-15.20080401
 - Rebase to new snapshot to pull in DRI2 direct rendering work.
 - Stop shipping librecord.so.
