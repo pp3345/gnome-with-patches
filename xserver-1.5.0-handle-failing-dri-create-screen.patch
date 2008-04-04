@@ -1,0 +1,32 @@
+From ec17900f52bbd25d07566834756e5c7e832e0463 Mon Sep 17 00:00:00 2001
+From: =?utf-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
+Date: Fri, 4 Apr 2008 10:46:45 -0400
+Subject: [PATCH] Convert __DRIconfigs after we've made sure createNewScreen succeeded.
+
+---
+ GL/glx/glxdri.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/GL/glx/glxdri.c b/GL/glx/glxdri.c
+index ffa9a0b..9cd0738 100644
+--- a/GL/glx/glxdri.c
++++ b/GL/glx/glxdri.c
+@@ -1117,13 +1117,13 @@ __glXDRIscreenProbe(ScreenPtr pScreen)
+ 					   &driConfigs,
+ 					   screen);
+ 
+-    screen->base.fbconfigs = glxConvertConfigs(screen->core, driConfigs);
+-
+     if (screen->driScreen == NULL) {
+ 	LogMessage(X_ERROR, "AIGLX error: Calling driver entry point failed");
+ 	goto handle_error;
+     }
+ 
++    screen->base.fbconfigs = glxConvertConfigs(screen->core, driConfigs);
++
+     initializeExtensions(screen);
+ 
+     DRIGetTexOffsetFuncs(pScreen, &screen->texOffsetStart,
+-- 
+1.5.4.5
+
