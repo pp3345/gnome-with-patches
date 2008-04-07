@@ -5,7 +5,7 @@ Subject: [PATCH] Fedora extra modes list
 ---
 --- xorg-server-1.2.0/hw/xfree86/common/extramodes.Red-Hat-extramodes	2007-01-22 22:13:15.000000000 -0500
 +++ xorg-server-1.2.0/hw/xfree86/common/extramodes	2007-02-05 18:26:19.000000000 -0500
-@@ -3,21 +3,135 @@
+@@ -3,21 +3,75 @@
  //
  // $XFree86: xc/programs/Xserver/hw/xfree86/etc/extramodes,v 1.5 2002/06/05 19:43:05 dawes Exp $
  //
@@ -15,24 +15,8 @@ Subject: [PATCH] Fedora extra modes list
  # 832x624 @ 75Hz (74.55Hz) (fix if the official/Apple spec is different) hsync: 49.725kHz
  ModeLine "832x624" 57.284 832  864  928 1152  624  625  628  667 -Hsync -Vsync
  
-+# Disable the 848x480 modes for now.  They're quite rare, and they screw up
-+# the autosizing logic.  They're panel modes anyway, and EDID injection
-+# should cover that now. - ajax, 2006-07-28
-+
-+# 848x480 @ 60.00 Hz (GTF) hsync: 29.82 kHz; pclk: 31.49 MHz
-+# Modeline "848x480"  31.49  848 864 952 1056  480 481 484 497  -HSync +Vsync
-+
-+# 848x480 @ 70.00 Hz (GTF) hsync: 35.00 kHz; pclk: 37.52 MHz
-+# Modeline "848x480"  37.52  848 872 960 1072  480 481 484 500  -HSync +Vsync
-+
-+# 848x480 @ 75.00 Hz (GTF) hsync: 37.65 kHz; pclk: 40.96 MHz
-+# Modeline "848x480"  40.96  848 880 968 1088  480 481 484 502  -HSync +Vsync
-+
-+# 848x480 @ 85.00 Hz (GTF) hsync: 42.92 kHz; pclk: 47.39 MHz
-+# Modeline "848x480"  47.39  848 888 976 1104  480 481 484 505  -HSync +Vsync
-+
- # 1152x768 @ 54.8Hz (Titanium PowerBook) hsync: 44.2kHz
- ModeLine "1152x768"   64.995 1152 1178 1314 1472  768  771  777  806 +hsync +vsync
+-# 1152x768 @ 54.8Hz (Titanium PowerBook) hsync: 44.2kHz
+-ModeLine "1152x768"   64.995 1152 1178 1314 1472  768  771  777  806 +hsync +vsync
  
 +# 1152x864 @ 60.00 Hz (GTF) hsync: 53.70 kHz; pclk: 81.62 MHz
 +Modeline "1152x864"  81.62  1152 1216 1336 1520  864 865 868 895  -HSync +Vsync
@@ -52,42 +36,6 @@ Subject: [PATCH] Fedora extra modes list
 +# 1152x864 @ 100.00 Hz (GTF) hsync: 91.50 kHz; pclk: 143.47 MHz
 +Modeline "1152x864"  143.47  1152 1232 1360 1568  864 865 868 915  -HSync +Vsync
 +
-+# 1280x720 @ 60.00 Hz (GTF) hsync: 44.76 kHz; pclk: 74.48 MHz
-+Modeline "1280x720"  74.48  1280 1336 1472 1664  720 721 724 746  -HSync +Vsync
-+
-+# 1280x720 @ 70.00 Hz (GTF) hsync: 52.50 kHz; pclk: 89.04 MHz
-+Modeline "1280x720"  89.04  1280 1352 1488 1696  720 721 724 750  -HSync +Vsync
-+
-+# 1280x720 @ 75.00 Hz (GTF) hsync: 56.40 kHz; pclk: 95.65 MHz
-+Modeline "1280x720"  95.65  1280 1352 1488 1696  720 721 724 752  -HSync +Vsync
-+
-+# 1280x720 @ 85.00 Hz (GTF) hsync: 64.26 kHz; pclk: 110.01 MHz
-+Modeline "1280x720"  110.01  1280 1360 1496 1712  720 721 724 756  -HSync +Vsync
-+
-+# 1280x800 @ 60.00 Hz (GTF) hsync: 49.68 kHz; pclk: 83.46 MHz
-+Modeline "1280x800"  83.46  1280 1344 1480 1680  800 801 804 828  -HSync +Vsync
-+
-+# 1280x800 @ 70.00 Hz (GTF) hsync: 58.31 kHz; pclk: 98.89 MHz
-+Modeline "1280x800"  98.89  1280 1352 1488 1696  800 801 804 833  -HSync +Vsync
-+
-+# 1280x800 @ 75.00 Hz (GTF) hsync: 62.62 kHz; pclk: 107.21 MHz
-+Modeline "1280x800"  107.21  1280 1360 1496 1712  800 801 804 835  -HSync +Vsync
-+
-+# 1280x800 @ 85.00 Hz (GTF) hsync: 71.40 kHz; pclk: 123.38 MHz
-+Modeline "1280x800"  123.38  1280 1368 1504 1728  800 801 804 840  -HSync +Vsync
-+
-+# 1280x768 @ 60.00 Hz (GTF) hsync: 47.70 kHz; pclk: 80.14 MHz
-+Modeline "1280x768"  80.14  1280 1344 1480 1680  768 769 772 795  -HSync +Vsync
-+
-+# 1280x768 @ 70.00 Hz (GTF) hsync: 56.00 kHz; pclk: 94.98 MHz
-+Modeline "1280x768"  94.98  1280 1352 1488 1696  768 769 772 800  -HSync +Vsync
-+
-+# 1280x768 @ 75.00 Hz (GTF) hsync: 60.15 kHz; pclk: 102.98 MHz
-+Modeline "1280x768"  102.98  1280 1360 1496 1712  768 769 772 802  -HSync +Vsync
-+
-+# 1280x768 @ 85.00 Hz (GTF) hsync: 68.60 kHz; pclk: 118.53 MHz
-+Modeline "1280x768"  118.53  1280 1368 1504 1728  768 769 772 807  -HSync +Vsync
-+
 +# 1360x768 59.96 Hz (CVT) hsync: 47.37 kHz; pclk: 72.00 MHz
 +Modeline "1360x768"   72.00  1360 1408 1440 1520  768 771 781 790 +hsync -vsync
 +
@@ -100,9 +48,6 @@ Subject: [PATCH] Fedora extra modes list
 +# 1400x1050 @ 70.00 Hz (GTF) hsync: 76.51 kHz; pclk: 145.06 MHz
 +Modeline "1400x1050"  145.06  1400 1496 1648 1896  1050 1051 1054 1093  -HSync +Vsync
 +
-+# 1400x1050 @ 70Hz (Red Hat custom modeline) hsync: 76.8kHz
-+ModeLine "1400x1050" 151.0 1400 1464 1656 1960   1050 1051 1054 1100 +hsync +vsync
-+
  # 1400x1050 @ 75Hz (VESA GTF) hsync: 82.2kHz
  ModeLine "1400x1050" 155.8 1400 1464 1784 1912   1050 1052 1064 1090 +hsync +vsync
  
@@ -110,9 +55,6 @@ Subject: [PATCH] Fedora extra modes list
 -Modeline "1600x1024" 106.910 1600 1620 1640 1670 1024 1027 1030 1067 -hsync -vsync
 +# 1400x1050 @ 85.00 Hz (GTF) hsync: 93.76 kHz; pclk: 179.26 MHz
 +Modeline "1400x1050"  179.26  1400 1504 1656 1912  1050 1051 1054 1103  -HSync +Vsync
-+
-+# 1400x1050 @ 85Hz (Red Hat custom modeline) hsync: 93.2 kHz
-+ModeLine "1400x1050" 184.0 1400 1464 1656 1960   1050 1051 1054 1100 +hsync +vsync
 +
 +# 1440x900 @ 60.00 Hz (CVT) field rate 59.89 Hz; hsync: 55.93 kHz; pclk: 106.50 MHz
 +Modeline "1440x900"  106.50  1440 1520 1672 1904  900 903 909 934  -HSync +Vsync

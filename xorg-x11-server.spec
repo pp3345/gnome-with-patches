@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   17.%{gitdate}%{?dist}
+Release:   18.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -518,7 +518,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Fri Apr  4 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.901-7.20080401
+* Mon Apr 07 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-18.20080401
+- xorg-x11-server-Red-Hat-extramodes.patch: Remove some of the more
+  implausible modes.  Cargo cult programming woo.
+
+* Fri Apr  4 2008 Kristian Høgsberg <krh@redhat.com> 1.4.99.901-17.20080401
 - Add xserver-1.5.0-dont-bitch-about-record.patch (don't try to load
   librecord.so when we don't build it) and
   xserver-1.5.0-handle-failing-dri-create-screen.patch (#440491).
