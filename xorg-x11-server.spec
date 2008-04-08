@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080401
+%define gitdate 20080407
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   18.%{gitdate}%{?dist}
+Release:   19.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -60,16 +60,9 @@ Patch5001: xserver-1.4.99-alloca-poison.patch
 # This really could be done prettier.
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 
-Patch5004: xserver-1.5.0-wfs.patch
-Patch5005: xserver-1.5.0-unselinux.patch
 Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5008: xserver-1.5.0-xaa-sucks.patch
 Patch5009: xserver-1.5.0-no-evdev-keyboards-kthnx.patch
-Patch5011: xserver-1.5.0-fix-lsl-quirk.patch
-Patch5012: xserver-1.5.0-fix-dri2-crash-on-fail.patch
-Patch5013: xserver-1.5.0-unbreak-dri2-glcore-visuals.patch
-Patch5014: xserver-1.5.0-dont-bitch-about-record.patch
-Patch5015: xserver-1.5.0-handle-failing-dri-create-screen.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -96,6 +89,7 @@ BuildRequires: xorg-x11-util-macros >= 1.1.5
 
 BuildRequires: xorg-x11-proto-devel >= 7.3-10
 BuildRequires: damageproto >= 1.1
+BuildRequires: dri2proto >= 1.1
 BuildRequires: fixesproto >= 4.0
 BuildRequires: glproto >= 1.4.9
 BuildRequires: kbproto >= 1.0.3
@@ -304,6 +298,7 @@ git-am -p1 $(awk '/^Patch.*:/ { print "%{_sourcedir}/"$2 }' %{_specdir}/%{name}.
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
 autoreconf -v --install || exit 1
+export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow"
 %configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
 	--with-pic \
@@ -518,6 +513,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Apr 08 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-19.20080407
+- Today's rebase.  Patch merge, some int10 fixes.
+
 * Mon Apr 07 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-18.20080401
 - xorg-x11-server-Red-Hat-extramodes.patch: Remove some of the more
   implausible modes.  Cargo cult programming woo.
