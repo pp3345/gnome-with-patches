@@ -1,0 +1,30 @@
+From b19027fbaea4c3a146926e862983e0e3411fff3d Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@linux.ie>
+Date: Wed, 9 Apr 2008 14:27:58 +1000
+Subject: [PATCH] quirk: add quirk for ACR 640x350 default mode is wrong
+
+RH #440186
+---
+ hw/xfree86/modes/xf86EdidModes.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/hw/xfree86/modes/xf86EdidModes.c b/hw/xfree86/modes/xf86EdidModes.c
+index 8f7d45d..09d0039 100644
+--- a/hw/xfree86/modes/xf86EdidModes.c
++++ b/hw/xfree86/modes/xf86EdidModes.c
+@@ -93,6 +93,12 @@ static Bool quirk_prefer_large_60 (int scrnIndex, xf86MonPtr DDC)
+ 	DDC->vendor.prod_id == 638)
+ 	return TRUE;
+ 
++    /* Acer F51 */
++    if (memcmp (DDC->vendor.name, "API", 4) == 0 &&
++	DDC->vendor.prod_id == 0x7602)
++	return TRUE;
++
++
+     return FALSE;
+ }
+ 
+-- 
+1.5.4.1
+

@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   19.%{gitdate}%{?dist}
+Release:   20.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -52,7 +52,7 @@ Patch1014:  xserver-1.4.99-xaa-evict-pixmaps.patch
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 
 # Trivial things to maybe merge upstream at next rebase
-#Patch4000:
+Patch4000: xserver-1.5.0-quirk-acr.patch
 
 # Trivial things to never merge upstream ever
 # Don't merge this without protecting the gccisms.
@@ -513,6 +513,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Apr 09 2008 Dave Airlie <airlied@redhat.com> 1.4.99.901-20.20080407
+- xserver-1.5.0-quirk-acr.patch - add quirk for another monitor.
+
 * Tue Apr 08 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-19.20080407
 - Today's rebase.  Patch merge, some int10 fixes.
 
