@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   20.%{gitdate}%{?dist}
+Release:   21.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -63,6 +63,7 @@ Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5008: xserver-1.5.0-xaa-sucks.patch
 Patch5009: xserver-1.5.0-no-evdev-keyboards-kthnx.patch
+Patch5010: xserver-1.5.0-selinux-off-by-default.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -513,6 +514,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Apr 10 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-21.20080407
+- xserver-1.5.0-selinux-off-by-default.patch: Re-disable selinux by default,
+  again, in a way that lets you enable it if you really want to.
+
 * Wed Apr 09 2008 Dave Airlie <airlied@redhat.com> 1.4.99.901-20.20080407
 - xserver-1.5.0-quirk-acr.patch - add quirk for another monitor.
 
