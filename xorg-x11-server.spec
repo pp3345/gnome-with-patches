@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080407
+%define gitdate 20080415
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.901
-Release:   21.%{gitdate}%{?dist}
+Release:   22.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -52,7 +52,6 @@ Patch1014:  xserver-1.4.99-xaa-evict-pixmaps.patch
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 
 # Trivial things to maybe merge upstream at next rebase
-Patch4000: xserver-1.5.0-quirk-acr.patch
 
 # Trivial things to never merge upstream ever
 # Don't merge this without protecting the gccisms.
@@ -514,6 +513,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Apr 15 2008 Dave Airlie <airlied@redhat.com> 1.4.99.901-22.20080415
+- rebase to upstream server 1.5 branch from today - drop acr quirk
+
 * Thu Apr 10 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-21.20080407
 - xserver-1.5.0-selinux-off-by-default.patch: Re-disable selinux by default,
   again, in a way that lets you enable it if you really want to.
