@@ -298,7 +298,7 @@ git-am -p1 $(awk '/^Patch.*:/ { print "%{_sourcedir}/"$2 }' %{_specdir}/%{name}.
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
 autoreconf -v --install || exit 1
-export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow"
+export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow $CFLAGS"
 %configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
 	--with-pic \
@@ -513,6 +513,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Apr 28 2008 Soren Sandmann <sandmann@redhat.com>
+- Preserve user's CFLAGS
+
 * Tue Apr 15 2008 Dave Airlie <airlied@redhat.com> 1.4.99.901-22.20080415
 - rebase to upstream server 1.5 branch from today - drop acr quirk
 
