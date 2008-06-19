@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.902
-Release:   1.%{gitdate}%{?dist}
+Release:   2.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -63,6 +63,9 @@ Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5008: xserver-1.5.0-xaa-sucks.patch
 Patch5009: xserver-1.5.0-no-evdev-keyboards-kthnx.patch
 Patch5010: xserver-1.5.0-fix-single-aspect.patch
+
+# Workaround RH bug #449944
+Patch5011: xserver-1.4.99-endian.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -513,7 +516,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Thu Jun 12 2008 Dave Airlie <airlied@redhat.com> 1.4.99.902-2.20080612
+* Thu Jun 19 2008 Adam Tkac <atkac redhat com> 1.4.99.902-2.20080612
+- workaround broken AC_C_BIGENDIAN macro (#449944)
+
+* Thu Jun 12 2008 Dave Airlie <airlied@redhat.com> 1.4.99.902-1.20080612
 - cve-2008-1377: Record and Security Extension Input validation
 - cve-2008-1379: MIT-SHM extension Input Validation flaw
 - cve-2008-2360: Render AllocateGlyph extension Integer overflows

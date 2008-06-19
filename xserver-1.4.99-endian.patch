@@ -1,0 +1,92 @@
+From: Adam Tkac <atkac@redhat.com>
+Subject: Workaround for RH bug #449944
+
+AC_C_BIGENDIAN macro in autoconf 2.62 is badly broken. See
+https://bugzilla.redhat.com/show_bug.cgi?id=449944 for more information.
+
+diff -up xorg-server-20080612/configure.ac.endian xorg-server-20080612/configure.ac
+--- xorg-server-20080612/configure.ac.endian	2008-06-19 13:31:03.000000000 +0200
++++ xorg-server-20080612/configure.ac	2008-06-19 13:42:27.000000000 +0200
+@@ -103,7 +103,6 @@ AC_CHECK_HEADERS([fcntl.h stdlib.h strin
+ 
+ dnl Checks for typedefs, structures, and compiler characteristics.
+ AC_C_CONST
+-AC_C_BIGENDIAN([ENDIAN="X_BIG_ENDIAN"], [ENDIAN="X_LITTLE_ENDIAN"])
+ 
+ AC_CHECK_SIZEOF([unsigned long])
+ if test "$ac_cv_sizeof_unsigned_long" = 8; then
+@@ -1197,18 +1196,14 @@ AC_DEFINE([SVR4],1,[Define to 1 on syste
+ AC_MSG_RESULT([yes])], AC_MSG_RESULT([no]))
+ 
+ XSERVER_CFLAGS="$XSERVER_CFLAGS $CORE_INCS $XEXT_INC $COMPOSITE_INC $DAMAGE_INC $FIXES_INC $XI_INC $MI_INC $MIEXT_SHADOW_INC $MIEXT_LAYER_INC $MIEXT_DAMAGE_INC $RENDER_INC $RANDR_INC $FB_INC"
+-AC_DEFINE_UNQUOTED(_X_BYTE_ORDER,[$ENDIAN],[Endian order])
+ AH_VERBATIM([X_BYTE_ORDER],[
+-/* Deal with multiple architecture compiles on Mac OS X */
+-#ifndef __APPLE_CC__
+-#define X_BYTE_ORDER _X_BYTE_ORDER
+-#else
++/* Define endian order */
+ #ifdef __BIG_ENDIAN__
+-#define X_BYTE_ORDER X_BIG_ENDIAN
++#define _X_BYTE_ORDER X_BIG_ENDIAN
+ #else
+-#define X_BYTE_ORDER X_LITTLE_ENDIAN
+-#endif
++#define _X_BYTE_ORDER X_LITTLE_ENDIAN
+ #endif
++#define X_BYTE_ORDER _X_BYTE_ORDER
+ ])
+ 
+ dnl ---------------------------------------------------------------------------
+diff -up xorg-server-20080612/include/dix-config.h.in.endian xorg-server-20080612/include/dix-config.h.in
+--- xorg-server-20080612/include/dix-config.h.in.endian	2008-06-19 13:44:07.000000000 +0200
++++ xorg-server-20080612/include/dix-config.h.in	2008-06-19 13:44:35.000000000 +0200
+@@ -445,18 +445,13 @@
+ /* Vendor name */
+ #undef XVENDORNAME
+ 
+-/* Endian order */
+-#undef _X_BYTE_ORDER
+-/* Deal with multiple architecture compiles on Mac OS X */
+-#ifndef __APPLE_CC__
+-#define X_BYTE_ORDER _X_BYTE_ORDER
+-#else
++/* Define endian order */
+ #ifdef __BIG_ENDIAN__
+-#define X_BYTE_ORDER X_BIG_ENDIAN
++#define _X_BYTE_ORDER X_BIG_ENDIAN
+ #else
+-#define X_BYTE_ORDER X_LITTLE_ENDIAN
+-#endif
++#define _X_BYTE_ORDER X_LITTLE_ENDIAN
+ #endif
++#define X_BYTE_ORDER _X_BYTE_ORDER
+ 
+ /* Enable GNU and other extensions to the C environment for GLIBC */
+ #undef _GNU_SOURCE
+diff -up xorg-server-20080612/include/xorg-server.h.in.endian xorg-server-20080612/include/xorg-server.h.in
+--- xorg-server-20080612/include/xorg-server.h.in.endian	2008-06-19 13:44:41.000000000 +0200
++++ xorg-server-20080612/include/xorg-server.h.in	2008-06-19 13:44:51.000000000 +0200
+@@ -178,18 +178,13 @@
+ /* Vendor name */
+ #undef XVENDORNAME
+ 
+-/* Endian order */
+-#undef _X_BYTE_ORDER
+-/* Deal with multiple architecture compiles on Mac OS X */
+-#ifndef __APPLE_CC__
+-#define X_BYTE_ORDER _X_BYTE_ORDER
+-#else
++/* Define endian order */
+ #ifdef __BIG_ENDIAN__
+-#define X_BYTE_ORDER X_BIG_ENDIAN
++#define _X_BYTE_ORDER X_BIG_ENDIAN
+ #else
+-#define X_BYTE_ORDER X_LITTLE_ENDIAN
+-#endif
++#define _X_BYTE_ORDER X_LITTLE_ENDIAN
+ #endif
++#define X_BYTE_ORDER _X_BYTE_ORDER
+ 
+ /* BSD-compliant source */
+ #undef _BSD_SOURCE
