@@ -15,12 +15,12 @@
 # RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080612
+%define gitdate 20080701
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.4.99.902
-Release:   2.%{gitdate}%{?dist}
+Version:   1.4.99.905
+Release:   1.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -42,27 +42,28 @@ Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
-Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
+# dropme
+#Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
 Patch1003:  xserver-1.4.99-pic-libxf86config.patch
-Patch1004:  xserver-1.4.99-selinux-awareness.patch
+# maybe?
+#Patch1004:  xserver-1.4.99-selinux-awareness.patch
 Patch1005:  xserver-1.4.99-builtin-fonts.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
-Patch1014:  xserver-1.4.99-xaa-evict-pixmaps.patch
+# rebase for GL/glx -> glx move
+#Patch1014:  xserver-1.4.99-xaa-evict-pixmaps.patch
 
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 
-# Trivial things to maybe merge upstream at next rebase
-
 # Trivial things to never merge upstream ever
 # Don't merge this without protecting the gccisms.
-Patch5001: xserver-1.4.99-alloca-poison.patch
+Patch5001:  xserver-1.4.99-alloca-poison.patch
 # This really could be done prettier.
-Patch5002: xserver-1.4.99-ssh-isnt-local.patch
+Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
 
-Patch5007: xserver-1.5.0-bad-fbdev-thats-mine.patch
-Patch5008: xserver-1.5.0-xaa-sucks.patch
-Patch5009: xserver-1.5.0-no-evdev-keyboards-kthnx.patch
-Patch5010: xserver-1.5.0-fix-single-aspect.patch
+Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
+#Patch5008:  xserver-1.5.0-xaa-sucks.patch
+Patch5009:  xserver-1.5.0-no-evdev-keyboards-kthnx.patch
+#Patch5010:  xserver-1.5.0-fix-single-aspect.patch
 
 # Workaround RH bug #449944
 Patch5011: xserver-1.4.99-endian.patch
@@ -116,8 +117,9 @@ BuildRequires: libXv-devel
 
 # openssl? really?
 BuildRequires: pixman-devel libpciaccess-devel openssl-devel byacc flex
-BuildRequires: mesa-libGL-devel >= 7.1-0.21
-BuildRequires: mesa-source >= 7.1-0.21
+BuildRequires: mesa-libGL-devel >= 7.1-0.36
+# should be useless now...
+# BuildRequires: mesa-source >= 7.1-0.36
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0
 %if %{with_hw_servers}
@@ -315,7 +317,6 @@ export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow $CFLAGS"
 	--disable-xorgcfg \
 	--disable-record \
 	--enable-install-libxf86config \
-	--with-mesa-source=%{_datadir}/mesa/source \
 	--enable-xselinux \
 	--with-dri-driver-path=%{drimoduledir} \
 	${CONFIGURE}
@@ -341,7 +342,6 @@ install -m 0444 hw/xfree86/common/{vesa,extra}modes $RPM_BUILD_ROOT%{_datadir}/x
 mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/xfree86/{common,utils/xorgconfig}}
 cp cpprules.in %{inst_srcdir}
 cp xkb/README.compiled %{inst_srcdir}/xkb
-cp GL/symlink-mesa.sh %{inst_srcdir}/GL
 cp hw/xfree86/{xorgconf.cpp,Options} %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
 cp hw/xfree86/utils/xorgconfig/Cards{,98} %{inst_srcdir}/hw/xfree86/utils/xorgconfig/
@@ -423,7 +423,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules
 %dir %{_libdir}/xorg/modules/drivers
 %dir %{_libdir}/xorg/modules/extensions
-%{_libdir}/xorg/modules/extensions/libGLcore.so
 %{_libdir}/xorg/modules/extensions/libglx.so
 %{_libdir}/xorg/modules/extensions/libdri.so
 %{_libdir}/xorg/modules/extensions/libdri2.so
@@ -516,10 +515,16 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Thu Jun 19 2008 Adam Tkac <atkac redhat com> 1.4.99.902-2.20080612
+* Mon Jun 30 2008 Adam Jackson <ajax@redhat.com> 1.4.99.905-1.20080701
+- 1.5RC5.
+
+* Thu Jun 19 2008 Adam Tkac <atkac redhat com>
 - workaround broken AC_C_BIGENDIAN macro (#449944)
 
-* Thu Jun 12 2008 Dave Airlie <airlied@redhat.com> 1.4.99.902-1.20080612
+* Thu Jun 12 2008 Dave Airlie <airlied@redhat.com> 1.4.99.902-3.20080612
+- xserver-1.5.0-fix-single-aspect.patch - fix 2560x1600 on my monitor.
+
+* Thu Jun 12 2008 Dave Airlie <airlied@redhat.com> 1.4.99.902-2.20080612
 - cve-2008-1377: Record and Security Extension Input validation
 - cve-2008-1379: MIT-SHM extension Input Validation flaw
 - cve-2008-2360: Render AllocateGlyph extension Integer overflows
@@ -527,8 +532,39 @@ rm -rf $RPM_BUILD_ROOT
 - cve-2008-2362: Render Gradient extension Integer overflows
 - Rebase to 1.5 head for security patches for above
 
+* Mon Jun 09 2008 Adam Jackson <ajax@redhat.com> 1.4.99.902-1.20080609
+- Today's git snapshot.
+
+* Tue May 06 2008 Bill Nottingham <notting@redhat.com> 1.4.99.901-29.20080415
+- rebuild against new xorg-x11-xtrans-devel (#445303)
+
+* Mon May 05 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-28.20080415
+- xserver-1.5.0-compiz-clip-fix.patch: Make compiz stop blinking every
+  so often. (#441219)
+
+* Mon May 05 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-27.20080415
+- xserver-1.5.0-hal-closedown.patch: Fix a crash in the hal code when
+  closing a device.
+
 * Mon Apr 28 2008 Soren Sandmann <sandmann@redhat.com>
 - Preserve user's CFLAGS
+
+* Thu Apr 24 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-26.20080415
+- xserver-1.5.0-no-evdev-keyboards-kthnx.patch: Disable evdev for keyboards
+  even on combo devices.  This means combo devices will go through the old
+  mouse driver too.  Oh well.  (#440380)
+
+* Thu Apr 24 2008 Dave Airlie <airlied@redhat.com> 1.4.99.901-25.20080415
+- xserver-1.5.0-f-spot-screws-glx.patch: stop GLX crashing X server when
+  f-spot exists (#443299)
+
+* Wed Apr 23 2008 Dave Airlie <airlied@redhat.com> 1.4.99.901-24.20080415
+- xserver-1.5.0-glcore-swap-no-crashy.patch: Fix issue with googleearth
+  crashing GLcore.
+
+* Tue Apr 22 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-23.20080415
+- xserver-1.5.0-stenciled-visuals.patch: Prefer visuals with a stencil
+  buffer for the default GLX visual.  (Hans de Goede, #442510)
 
 * Tue Apr 15 2008 Dave Airlie <airlied@redhat.com> 1.4.99.901-22.20080415
 - rebase to upstream server 1.5 branch from today - drop acr quirk
