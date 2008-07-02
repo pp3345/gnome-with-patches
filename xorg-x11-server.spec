@@ -20,7 +20,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.905
-Release:   1.%{gitdate}%{?dist}
+Release:   2.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -303,7 +303,7 @@ git-am -p1 $(awk '/^Patch.*:/ { print "%{_sourcedir}/"$2 }' %{_specdir}/%{name}.
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
 autoreconf -v --install || exit 1
-export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow $CFLAGS"
+export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
 %configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
 	--with-pic \
@@ -515,6 +515,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jul 02 2008 Adam Tkac <atkac redhat com> 1.4.99.905-2.20080701
+- build with -rdynamic to make dri_swrast happy
+
 * Mon Jun 30 2008 Adam Jackson <ajax@redhat.com> 1.4.99.905-1.20080701
 - 1.5RC5.
 
