@@ -9,31 +9,30 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-# F9 TODO list:
+# F10 TODO list:
 #
 # Fix rhpxl to no longer need vesamodes/extramodes
-# RHEL5 bugfix sync
 
 %define pkgname xorg-server
-%define gitdate 20080701
+#define gitdate 20080701
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.4.99.905
-Release:   2.%{gitdate}%{?dist}
+Version:   1.4.99.906
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%if 0%{gitdate}
+%if 0%{?gitdate}
 # git snapshot.  to recreate, run:
 # ./make-git-snapshot.sh `cat commitid`
 Source0:   xorg-server-%{gitdate}.tar.bz2
 Source1:   make-git-snapshot.sh
 Source2:   commitid
 %else
-Source0:   ftp://ftp.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
+Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 %endif
 
 # OpenGL compositing manager feature/optimization patches.
@@ -42,15 +41,9 @@ Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
-# dropme
-#Patch1001:  xorg-x11-server-Red-Hat-extramodes.patch
 Patch1003:  xserver-1.4.99-pic-libxf86config.patch
-# maybe?
-#Patch1004:  xserver-1.4.99-selinux-awareness.patch
 Patch1005:  xserver-1.4.99-builtin-fonts.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
-# rebase for GL/glx -> glx move
-#Patch1014:  xserver-1.4.99-xaa-evict-pixmaps.patch
 
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 
@@ -61,9 +54,7 @@ Patch5001:  xserver-1.4.99-alloca-poison.patch
 Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
 
 Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
-#Patch5008:  xserver-1.5.0-xaa-sucks.patch
 Patch5009:  xserver-1.5.0-no-evdev-keyboards-kthnx.patch
-#Patch5010:  xserver-1.5.0-fix-single-aspect.patch
 
 # Workaround RH bug #449944
 Patch5011: xserver-1.4.99-endian.patch
@@ -105,8 +96,6 @@ BuildRequires: xorg-x11-xtrans-devel >= 1.0.3-3
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
 BuildRequires: libfontenc-devel libXtst-devel libXdmcp-devel
 BuildRequires: libX11-devel libXext-devel
-# XXX Really?  Why would we need this, Xfont should hide it.
-BuildRequires: freetype-devel >= 2.1.9-1
 
 # DMX config utils buildreqs.
 BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
@@ -128,17 +117,6 @@ Requires: libdrm >= 2.4.0
 
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.59-1
 BuildRequires: hal-devel dbus-devel
-
-# Make sure libXfont has the catalogue FPE
-Conflicts: libXfont < 1.2.9
-
-# Make sure we pull ABI compatible drivers.
-Conflicts: xorg-x11-drv-ati < 6.6.1
-Conflicts: xorg-x11-drv-i810 < 1.6.0
-# Match up work-arounds between compiz and the xserver
-Conflicts: compiz < 0.0.13-0.20.20060817git.fc6
-# Match up GLX_EXT_texture_from_pixmap opcodes
-Conflicts: mesa-libGL < 6.5.1-2.fc6
 
 # All server subpackages have a virtual provide for the name of the server
 # they deliver.  The Xorg one is versioned, the others are intentionally
@@ -277,24 +255,21 @@ Xserver source code needed to build VNC server (Xvnc)
 %prep
 %setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
 
-%if 0%{gitdate}
-# XXX hack
+%if 0%{?gitdate}
 git checkout -b fedora
-# make it something you can push to.
 sed -i 's/git/&+ssh/' .git/config
 %else
 git-init-db
-echo "This is incomplete.  FIXME."
-exit 1
+if [ -z "$GIT_COMMITTER_NAME" ]; then
+    git-config user.email "x@fedoraproject.org"
+    git-config user.name "Fedora X Ninjas"
+fi
+git-add .
+git-commit -a -q -m "%{version} baseline."
 %endif
 
-if [ -z "$GIT_COMMITTER_NAME" ]; then
-    export GIT_COMMITTER_NAME="Fedora X Ninjas"
-fi
-
-
-# Apply all the patches.  Hold your nose...
-git-am -p1 $(awk '/^Patch.*:/ { print "%{_sourcedir}/"$2 }' %{_specdir}/%{name}.spec)
+# Apply all the patches.
+git-am -p1 %{patches}
 
 %build
 
@@ -315,7 +290,7 @@ export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
 	--with-rgb-path=%{_datadir}/X11/rgb \
 	--disable-xorgcfg \
-	--disable-record \
+	--disable-record --disable-xtrap \
 	--enable-install-libxf86config \
 	--enable-xselinux \
 	--with-dri-driver-path=%{drimoduledir} \
@@ -361,21 +336,6 @@ xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
-
-%if !%{with_hw_servers}
-    # These get installed regardless of whether you're building Xorg.
-    # XXX Re-check this list.
-    # error: Installed (but unpackaged) file(s) found:
-    #	   /randrstr.h
-    #	   /usr/lib/pkgconfig/xorg-server.pc
-    #	      /usr/share/aclocal/xorg-server.m4
-    #	      /var/lib/xkb/README.compiled
-
-    rm -f $RPM_BUILD_ROOT/randrstr.h
-    rm -rf $RPM_BUILD_ROOT%{_libdir}/pkgconfig
-    rm -rf $RPM_BUILD_ROOT%{_datadir}/aclocal
-    rm -rf $RPM_BUILD_ROOT/var/lib/xkb
-%endif
 }
 
 %clean
@@ -428,7 +388,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/extensions/libdri2.so
 %{_libdir}/xorg/modules/extensions/libdbe.so
 %{_libdir}/xorg/modules/extensions/libextmod.so
-%{_libdir}/xorg/modules/extensions/libxtrap.so
 %dir %{_libdir}/xorg/modules/input
 %dir %{_libdir}/xorg/modules/fonts
 %{_libdir}/xorg/modules/fonts/libfreetype.so
@@ -515,6 +474,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jul 24 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-1
+- 1.5RC6.
+
 * Wed Jul 02 2008 Adam Tkac <atkac redhat com> 1.4.99.905-2.20080701
 - build with -rdynamic to make dri_swrast happy
 
