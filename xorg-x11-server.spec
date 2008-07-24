@@ -110,7 +110,7 @@ BuildRequires: mesa-libGL-devel >= 7.1-0.36
 # should be useless now...
 # BuildRequires: mesa-source >= 7.1-0.36
 # XXX silly...
-BuildRequires: libdrm-devel >= 2.4.0
+BuildRequires: libdrm-devel >= 2.4.0 kernel-devel
 %if %{with_hw_servers}
 Requires: libdrm >= 2.4.0
 %endif
