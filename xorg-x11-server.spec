@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.906
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -54,7 +54,6 @@ Patch5001:  xserver-1.4.99-alloca-poison.patch
 Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
 
 Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
-Patch5009:  xserver-1.5.0-no-evdev-keyboards-kthnx.patch
 
 # Workaround RH bug #449944
 Patch5011: xserver-1.4.99-endian.patch
@@ -475,6 +474,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jul 31 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-2
+- Drop the evdev keyboarding patch.
+
 * Thu Jul 24 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-1
 - 1.5RC6.
 
