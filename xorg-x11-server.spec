@@ -35,6 +35,10 @@ Source2:   commitid
 Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 %endif
 
+# keyboard enablement
+Source10:  10-x11-keymap.fdi
+Source11:  fedora-setup-keyboard
+
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
@@ -312,6 +316,11 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 # be able to parse the same modelist as the X server uses (rhpxl).
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/xorg
 install -m 0444 hw/xfree86/common/{vesa,extra}modes $RPM_BUILD_ROOT%{_datadir}/xorg/
+
+# fedora-isms to slurp keyboard settings out of /etc/sysconfig/keyboard
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/hal/fdi/policy/10osvendor
+install -m 0444 %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/hal/fdi/policy/10osvendor
+install -m 0755 %{SOURCE11} $RPM_BUILD_ROOT%{_bindir}
 %endif
 
 # Make the source package
@@ -377,9 +386,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %{_bindir}/X
 %attr(4711, root, root) %{_bindir}/Xorg
-%{_bindir}/gtf
 %{_bindir}/cvt
+%{_bindir}/fedora-setup-keyboard
+%{_bindir}/gtf
 %dir %{_datadir}/xorg
+%{_datadir}/hal/fdi/policy/10osvendor/10-x11-keymap.fdi
 %{_datadir}/xorg/vesamodes
 %{_datadir}/xorg/extramodes
 %dir %{_libdir}/xorg
@@ -477,6 +488,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Aug 04 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-3
+- 10-x11-keymap.fdi, fedora-setup-keyboard: Attempt to read keyboard settings
+  from /etc/sysconfig/keyboard and stuff them into hal.
+
 * Thu Jul 31 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-2
 - Drop the evdev keyboarding patch.
 

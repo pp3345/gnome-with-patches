@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# Trivial egregious hack to load the console keyboard layout into XKB.
+#
+# Yes, this should really just be written in python.  If you can figure
+# out how to make hal callouts written in python _work_, then please
+# let me know.  In the meantime, we'll do this.
+
+[[ -x /usr/bin/python ]] || exit 0
+[[ -x /usr/bin/hal-set-property ]] || exit 0
+
+source /etc/sysconfig/keyboard >& /dev/null || exit 0
+
+[[ -n "$KEYTABLE" ]] || exit 0
+
+rhplquery () {
+    /usr/bin/python -c "import rhpl.keyboard_models; m = rhpl.keyboard_models.KeyboardModels().get_models(); print \"junk='%s' layout='%s' model='%s' variant='%s' options='%s'\" % tuple(m[\"$1\"])" || echo "exit 0"
+}
+
+eval `rhplquery $KEYTABLE`
+
+hal_set () {
+    if [[ -n "${!1}" ]]; then
+	/usr/bin/hal-set-property --direct --udi "$UDI" --key input.xkb.$1 --string "${!1}"
+    else
+	/usr/bin/hal-set-property --direct --udi "$UDI" --key input.xkb.$1 --remove
+    fi
+}
+
+hal_set layout
+hal_set model
+hal_set variant
+hal_set options
