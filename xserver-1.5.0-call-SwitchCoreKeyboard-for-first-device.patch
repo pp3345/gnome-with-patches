@@ -1,0 +1,61 @@
+From b2943b507261d1c68a6266b090ec44495d7796a1 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Mon, 28 Jul 2008 12:17:17 +0930
+Subject: [PATCH] xfree86: call SwitchCoreKeyboard for first physical device.
+
+The VCK's keymap is different to the (evdev) keyboard's keymap. Any changes to
+the VCK are lost when the first key is pressed (see X.Org Bug 16364). By
+calling SwitchCoreKeyboard for the first hotplugged keyboard, the keymap is
+toggled already when the first apps start.
+
+This fixes GNOME, which stores the keycode instead of the keysym.
+Fixes xmodmap, etc. settings in xinitrc or otherwise set before the first key
+press.
+
+This breaks if the first hotplugged keyboard is not the actual keyboard the
+user wants to use.
+---
+ hw/xfree86/common/xf86Xinput.c |   27 +++++++++++++++++++++++++++
+ 1 files changed, 27 insertions(+), 0 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Xinput.c b/hw/xfree86/common/xf86Xinput.c
+index 710e787..fe08626 100644
+--- a/hw/xfree86/common/xf86Xinput.c
++++ b/hw/xfree86/common/xf86Xinput.c
+@@ -423,6 +423,33 @@ NewInputDeviceRequest (InputOption *options, DeviceIntPtr *pdev)
+         (!is_auto || xf86Info.autoEnableDevices))
+         EnableDevice(dev);
+ 
++    /* XXX: The VCK always starts with built-in defaults for keymap. These
++     * defaults are different to the evdev ones. When the first key is hit on
++     * an extension device, the keymap is copied into the VCK's and any
++     * changes made at runtime to the VCK map are lost.
++     *
++     * If this is the first real keyboard to activate, force a
++     * SwitchCoreKeyboard so the VCK has the same keymap as we do.
++     *
++     * Next time we hit a key, we don't change the map over anymore (see
++     * SwitchCoreKeyboard), and live happily ever after.
++     * Until we have 2 physical keyboards. Or the first real keyboard isn't
++     * actually the one we use. Oh well.
++     */
++    if (dev->key)
++    {
++        DeviceIntPtr it;
++
++        for (it = inputInfo.keyboard->next; it; it = it->next)
++        {
++            if (it->key && it != dev)
++                break;
++        }
++
++        if (!it) /* no other keyboard found */
++            SwitchCoreKeyboard(dev);
++    }
++
+     *pdev = dev;
+     return Success;
+ 
+-- 
+1.5.5.1
+

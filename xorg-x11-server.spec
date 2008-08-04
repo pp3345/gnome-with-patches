@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.906
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -57,6 +57,9 @@ Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
 
 # Workaround RH bug #449944
 Patch5011: xserver-1.4.99-endian.patch
+
+# evdev keyboard map fix
+Patch5012: xserver-1.5.0-call-SwitchCoreKeyboard-for-first-device.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
