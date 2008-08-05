@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.906
-Release:   4%{?dist}
+Release:   5%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -63,7 +63,8 @@ Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5011: xserver-1.4.99-endian.patch
 
 # evdev keyboard map fix
-# Patch5012: xserver-1.5.0-call-SwitchCoreKeyboard-for-first-device.patch
+Patch5013: xserver-1.5.0-xkb-fix-ProcXkbSetXYZ-to-work-on-all.patch
+Patch5014: xserver-1.5.0-force-SwitchCoreKeyboard-for-evdev.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -488,9 +489,20 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Aug 05 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.4.99.906-5
+- xserver-1.5.0-xkb-fix-ProcXkbSetXYZ-to-work-on-all.patch: force xkb requests
+  to apply to all extension devices.
+- drop call-SwitchCoreKeyboard.patch
+- xserver-1.5.0-force-SwitchCoreKeyboard-for-evdev.patch: force
+  SwitchCoreKeyboard for evdev devices to push device keymap into core device.
+
 * Mon Aug 04 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-4
 - 10-x11-keymap.fdi, fedora-setup-keyboard: Attempt to read keyboard settings
   from /etc/sysconfig/keyboard and stuff them into hal.
+
+* Mon Aug 04 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.4.99.906-3
+- xserver-1.5.0-call-SwitchCoreKeyboard-for-first-device.patch: force a keymap
+  switch to push the device keymap into the core device.
 
 * Thu Jul 31 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-2
 - Drop the evdev keyboarding patch.
