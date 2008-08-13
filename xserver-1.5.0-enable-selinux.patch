@@ -1,0 +1,25 @@
+From 79fefef30f94f979a8f69ce9253d08be4b28a543 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Wed, 13 Aug 2008 13:42:31 -0400
+Subject: [PATCH] Enable selinux extension again.
+
+---
+ os/utils.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/os/utils.c b/os/utils.c
+index f58c763..d785d46 100644
+--- a/os/utils.c
++++ b/os/utils.c
+@@ -233,7 +233,7 @@ _X_EXPORT Bool noXInputExtension = FALSE;
+ _X_EXPORT Bool noXIdleExtension = FALSE;
+ #endif
+ #ifdef XSELINUX
+-_X_EXPORT Bool noSELinuxExtension = TRUE;
++_X_EXPORT Bool noSELinuxExtension = FALSE;
+ _X_EXPORT int selinuxEnforcingState = SELINUX_MODE_DEFAULT;
+ #endif
+ #ifdef XV
+-- 
+1.5.5.1
+

@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.906
-Release:   5%{?dist}
+Release:   6%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -65,6 +65,8 @@ Patch5011: xserver-1.4.99-endian.patch
 # evdev keyboard map fix
 Patch5013: xserver-1.5.0-xkb-fix-ProcXkbSetXYZ-to-work-on-all.patch
 Patch5014: xserver-1.5.0-force-SwitchCoreKeyboard-for-evdev.patch
+
+Patch5015: xserver-1.5.0-enable-selinux.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -276,7 +278,8 @@ git-commit -a -q -m "%{version} baseline."
 %endif
 
 # Apply all the patches.
-git-am -p1 %{patches}
+#git-am -p1 %{patches}
+git-am -p1 $(awk '/^Patch.*:/ { print "%{_sourcedir}/"$2 }' %{_specdir}/%{name}.spec)
 
 %build
 
@@ -489,6 +492,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Aug 13 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-6
+- xserver-1.5.0-enable-selinux.patch: Enable selinux again.
+
 * Tue Aug 05 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.4.99.906-5
 - xserver-1.5.0-xkb-fix-ProcXkbSetXYZ-to-work-on-all.patch: force xkb requests
   to apply to all extension devices.
