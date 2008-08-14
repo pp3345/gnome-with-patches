@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.906
-Release:   6%{?dist}
+Release:   7%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -42,6 +42,7 @@ Source11:  fedora-setup-keyboard
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
+Patch102:  xserver-1.4.99-exa-master-upgrade.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -492,6 +493,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Aug 14 2008 Dave Airlie <airlied@redhat.com> 1.4.99.906-7
+- EXA backport master EXA code for optimisations
+
 * Wed Aug 13 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-6
 - xserver-1.5.0-enable-selinux.patch: Enable selinux again.
 
