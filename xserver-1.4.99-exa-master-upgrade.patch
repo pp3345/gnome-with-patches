@@ -1,18 +1,20 @@
-From ef69d2ac567f97fcb8c96c7e1dd6c364fcb31c70 Mon Sep 17 00:00:00 2001
+From 82c5e0d932e4cd068396e793e71a3b405dff5c83 Mon Sep 17 00:00:00 2001
 From: Fedora X Ninjas <x@fedoraproject.org>
-Date: Thu, 14 Aug 2008 19:02:50 +1000
-Subject: [PATCH] exa: backport master EXA support for fixes and better font accel
+Date: Thu, 14 Aug 2008 19:05:38 +1000
+Subject: [PATCH] exa: update to latest EXA code from master
 
 ---
- exa/Makefile.am     |    1 +
- exa/exa.c           |   58 +++--
- exa/exa_accel.c     |  185 ++++++++---
- exa/exa_glyphs.c    |  897 +++++++++++++++++++++++++++++++++++++++++++++++++++
- exa/exa_migration.c |    8 +-
- exa/exa_priv.h      |   67 ++++-
- exa/exa_render.c    |  287 +++++++++++++++--
- exa/exa_unaccel.c   |   30 +--
- 8 files changed, 1405 insertions(+), 128 deletions(-)
+ exa/Makefile.am            |    1 +
+ exa/exa.c                  |   58 ++-
+ exa/exa_accel.c            |  185 +++++++---
+ exa/exa_glyphs.c           |  897 ++++++++++++++++++++++++++++++++++++++++++++
+ exa/exa_migration.c        |    8 +-
+ exa/exa_priv.h             |   67 +++-
+ exa/exa_render.c           |  287 +++++++++++++--
+ exa/exa_unaccel.c          |   30 +-
+ hw/xfree86/exa/exa.man.pre |    6 -
+ hw/xfree86/exa/examodule.c |    9 +-
+ 10 files changed, 1406 insertions(+), 142 deletions(-)
  create mode 100644 exa/exa_glyphs.c
 
 diff --git a/exa/Makefile.am b/exa/Makefile.am
@@ -1931,6 +1933,50 @@ index d7bd06c..d5d6a30 100644
  	(offscreen && (!sys_valid || damaged)))
      {
  	box.x1 = 0;
+diff --git a/hw/xfree86/exa/exa.man.pre b/hw/xfree86/exa/exa.man.pre
+index 14859bc..31e1cfe 100644
+--- a/hw/xfree86/exa/exa.man.pre
++++ b/hw/xfree86/exa/exa.man.pre
+@@ -31,12 +31,6 @@ Disables acceleration of downloading of pixmap data from the framebuffer.
+ Not usable with drivers which rely on DownloadFromScreen succeeding.
+ Default: No.
+ .TP
+-.BI "Option \*qEXAOptimizeMigration\*q \*q" boolean \*q
+-Enables an additional optimization for migration of destination pixmaps. This
+-may improve performance in some cases (e.g. when switching virtual desktops with
+-no compositing manager) but causes corruption in others (e.g. when starting
+-compiz). Default: No.
+-.TP
+ .BI "Option \*qMigrationHeuristic\*q \*q" anystr \*q
+ Chooses an alternate pixmap migration heuristic, for debugging purposes.  The
+ default is intended to be the best performing one for general use, though others
+diff --git a/hw/xfree86/exa/examodule.c b/hw/xfree86/exa/examodule.c
+index e18da0a..4a8d8f2 100644
+--- a/hw/xfree86/exa/examodule.c
++++ b/hw/xfree86/exa/examodule.c
+@@ -145,7 +145,7 @@ exaDDXDriverInit(ScreenPtr pScreen)
+ 	pExaScr->optimize_migration =
+ 	    xf86ReturnOptValBool(pScreenPriv->options,
+ 				 EXAOPT_OPTIMIZE_MIGRATION,
+-				 FALSE);
++				 TRUE);
+     }
+ 
+     if (xf86ReturnOptValBool(pScreenPriv->options,
+@@ -179,13 +179,6 @@ exaDDXDriverInit(ScreenPtr pScreen)
+     
+ }
+ 
+-/*ARGSUSED*/
+-static const OptionInfoRec *
+-EXAAvailableOptions(void *unused)
+-{
+-    return (EXAOptions);
+-}
+-
+ static XF86ModuleVersionInfo exaVersRec =
+ {
+ 	"exa",
 -- 
 1.5.5.1
 
