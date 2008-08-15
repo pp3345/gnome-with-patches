@@ -1,65 +1,52 @@
-From 85eb813132510f94bc973b6dd572d98b85fc3611 Mon Sep 17 00:00:00 2001
-From: =?utf-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
-Date: Fri, 13 Jun 2008 17:37:45 -0400
-Subject: [PATCH] Add -nr (bg none root) option.
-
----
- dix/globals.c    |    1 +
- dix/window.c     |   15 +++++++++++----
- include/opaque.h |    1 +
- os/utils.c       |    3 +++
- 4 files changed, 16 insertions(+), 4 deletions(-)
-
 diff --git a/dix/globals.c b/dix/globals.c
-index 210c784..19499af 100644
+index 7f95eab..db34786 100644
 --- a/dix/globals.c
 +++ b/dix/globals.c
-@@ -141,6 +141,7 @@ FontPtr defaultFont;   /* not declared in dix.h to avoid including font.h in
+@@ -143,6 +143,7 @@ Bool loadableFonts = FALSE;
  CursorPtr rootCursor;
  Bool blackRoot=FALSE;
  Bool whiteRoot=FALSE;
 +Bool bgNoneRoot=FALSE;
- 
- _X_EXPORT TimeStamp currentTime;
- _X_EXPORT TimeStamp lastDeviceEventTime;
+ #ifdef XPRINT
+ ClientPtr requestingClient;	/* XXX this should be obsolete now, remove? */
+ #endif
 diff --git a/dix/window.c b/dix/window.c
-index 6b95068..4b35e68 100644
+index 834c26b..0a1d163 100644
 --- a/dix/window.c
 +++ b/dix/window.c
-@@ -504,17 +504,24 @@ InitRootWindow(WindowPtr pWin)
+@@ -472,17 +472,22 @@ InitRootWindow(WindowPtr pWin)
      pWin->optional->cursor = rootCursor;
      rootCursor->refcnt++;
  
--
 -    if (!blackRoot && !whiteRoot) {
 -        MakeRootTile(pWin);
-+    if (bgNoneRoot)
-+    {
-+	pWin->backgroundState = XaceBackgroundNoneState(pWin);
-+	pWin->background.pixel = pScreen->whitePixel;
-         backFlag |= CWBackPixmap;
+-        backFlag |= CWBackPixmap;
++    if (bgNoneRoot) {
++      pWin->backgroundState = XaceBackgroundNoneState(pWin);
++      pWin->background.pixel = pScreen->whitePixel;
++      backFlag |= CWBackPixmap;
      }
 -    else {
-+    else if (blackRoot || whiteRoot) 
-+    {
++    else if (blackRoot || whiteRoot) {
          if (blackRoot)
              pWin->background.pixel = pScreen->blackPixel;
          else
              pWin->background.pixel = pScreen->whitePixel;
          backFlag |= CWBackPixel;
+-    } 
 +    }
-+    else
-+    {
++    else {
 +        MakeRootTile(pWin);
 +        backFlag |= CWBackPixmap;
-     } 
++    }
  
      pWin->backingStore = defaultBackingStore;
+     pWin->forcedBS = (defaultBackingStore != NotUseful);
 diff --git a/include/opaque.h b/include/opaque.h
-index d5abcbd..1b6cc33 100644
+index 3d19d27..cf5d135 100644
 --- a/include/opaque.h
 +++ b/include/opaque.h
-@@ -72,6 +72,7 @@ extern Bool defeatAccessControl;
+@@ -74,6 +74,7 @@ extern Bool defeatAccessControl;
  extern long maxBigRequestSize;
  extern Bool blackRoot;
  extern Bool whiteRoot;
@@ -68,10 +55,10 @@ index d5abcbd..1b6cc33 100644
  extern Bool CoreDump;
  
 diff --git a/os/utils.c b/os/utils.c
-index e885666..ed474c8 100644
+index d785d46..08337d8 100644
 --- a/os/utils.c
 +++ b/os/utils.c
-@@ -599,6 +599,7 @@ void UseMsg(void)
+@@ -615,6 +615,7 @@ void UseMsg(void)
  #endif
      ErrorF("-nolisten string       don't listen on protocol\n");
      ErrorF("-noreset               don't reset after last client exists\n");
@@ -79,7 +66,7 @@ index e885666..ed474c8 100644
      ErrorF("-reset                 reset after last client exists\n");
      ErrorF("-p #                   screen-saver pattern duration (minutes)\n");
      ErrorF("-pn                    accept failure to listen on all ports\n");
-@@ -956,6 +957,8 @@ ProcessCommandLine(int argc, char *argv[])
+@@ -986,6 +987,8 @@ ProcessCommandLine(int argc, char *argv[])
  	    defaultBackingStore = WhenMapped;
          else if ( strcmp( argv[i], "-wr") == 0)
              whiteRoot = TRUE;
@@ -88,6 +75,3 @@ index e885666..ed474c8 100644
          else if ( strcmp( argv[i], "-maxbigreqsize") == 0) {
               if(++i < argc) {
                   long reqSizeArg = atol(argv[i]);
--- 
-1.5.6.GIT
-
