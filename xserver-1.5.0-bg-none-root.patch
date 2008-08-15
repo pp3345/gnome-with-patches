@@ -1,3 +1,15 @@
+From 8a00e31151649ea43f2160f3ea8e72a2ceccf149 Mon Sep 17 00:00:00 2001
+From: Kristian <krh@redhat.com>
+Date: Fri, 15 Aug 2008 15:15:14 +1000
+Subject: [PATCH] Add nr for background=none root
+
+---
+ dix/globals.c    |    1 +
+ dix/window.c     |   15 ++++++++++-----
+ include/opaque.h |    1 +
+ os/utils.c       |    3 +++
+ 4 files changed, 15 insertions(+), 5 deletions(-)
+
 diff --git a/dix/globals.c b/dix/globals.c
 index 7f95eab..db34786 100644
 --- a/dix/globals.c
@@ -75,3 +87,6 @@ index d785d46..08337d8 100644
          else if ( strcmp( argv[i], "-maxbigreqsize") == 0) {
               if(++i < argc) {
                   long reqSizeArg = atol(argv[i]);
+-- 
+1.5.5.1
+
