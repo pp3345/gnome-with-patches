@@ -43,6 +43,7 @@ Source11:  fedora-setup-keyboard
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
 Patch102:  xserver-1.4.99-exa-master-upgrade.patch
+Patch103:  xserver-1.5.0-bg-none-root.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -493,6 +494,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Aug 14 2008 Kristian Høgsberg <krh@redhat.com> - 1.4.99.906-8
+- Add bg-none-root patch for plymouth.
+
 * Thu Aug 14 2008 Dave Airlie <airlied@redhat.com> 1.4.99.906-7
 - EXA backport master EXA code for optimisations
 
