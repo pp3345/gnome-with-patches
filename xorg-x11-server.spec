@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.4.99.906
-Release:   8%{?dist}
+Release:   9%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -67,8 +67,8 @@ Patch5011: xserver-1.4.99-endian.patch
 # evdev keyboard map fix
 Patch5013: xserver-1.5.0-xkb-fix-ProcXkbSetXYZ-to-work-on-all.patch
 Patch5014: xserver-1.5.0-force-SwitchCoreKeyboard-for-evdev.patch
-
 Patch5015: xserver-1.5.0-enable-selinux.patch
+Patch6000: xserver-1.5.0-hide-cursor.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -494,6 +494,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Aug 20 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-9
+- xserver-1.5.0-hide-cursor.patch: Suppress displaying the cursor until
+  an app calls XDefineCursor().
+
 * Thu Aug 14 2008 Kristian Høgsberg <krh@redhat.com> - 1.4.99.906-8
 - Add bg-none-root patch for plymouth.
 

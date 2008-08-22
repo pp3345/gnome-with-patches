@@ -1,0 +1,94 @@
+From e99347a3e82e6db47dd482169b6799968afc3893 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Wed, 20 Aug 2008 10:11:07 -0400
+Subject: [PATCH] Hide the cursor until the first XDefineCursor() call.
+
+---
+ xfixes/cursor.c |   28 ++++++++++++++++++++++++++--
+ 1 files changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/xfixes/cursor.c b/xfixes/cursor.c
+index d51251f..c8c4c9f 100755
+--- a/xfixes/cursor.c
++++ b/xfixes/cursor.c
+@@ -70,7 +70,7 @@
+ 	return BadCursor; \
+     } \
+ }
+-	
++
+ /*
+  * There is a global list of windows selecting for cursor events
+  */
+@@ -109,6 +109,7 @@
+ 
+ typedef struct _CursorScreen {
+     DisplayCursorProcPtr	DisplayCursor;
++    ChangeWindowAttributesProcPtr ChangeWindowAttributes;
+     CloseScreenProcPtr		CloseScreen;
+     CursorHideCountPtr          pCursorHideCounts;
+ } CursorScreenRec, *CursorScreenPtr;
+@@ -119,6 +120,9 @@
+ #define Wrap(as,s,elt,func)	(((as)->elt = (s)->elt), (s)->elt = func)
+ #define Unwrap(as,s,elt)	((s)->elt = (as)->elt)
+ 
++/* The cursor doesn't show up until the first XDefineCursor() */
++static Bool CursorVisible = FALSE;
++
+ static Bool
+ CursorDisplayCursor (ScreenPtr pScreen,
+ 		     CursorPtr pCursor)
+@@ -128,7 +132,7 @@
+ 
+     Unwrap (cs, pScreen, DisplayCursor);
+ 
+-    if (cs->pCursorHideCounts != NULL) {
++    if (cs->pCursorHideCounts != NULL || !CursorVisible) {
+ 	ret = (*pScreen->DisplayCursor) (pScreen, pInvisibleCursor);
+     } else {
+ 	ret = (*pScreen->DisplayCursor) (pScreen, pCursor);
+@@ -161,6 +165,24 @@
+ }
+ 
+ static Bool
++CursorChangeWindowAttributes(WindowPtr pWin, unsigned long mask)
++{
++    ScreenPtr           pScreen = pWin->drawable.pScreen;
++    CursorScreenPtr	cs = GetCursorScreen(pScreen);
++    Bool		ret;
++    extern char *ConnectionInfo;
++
++    if ((mask & CWCursor) && ConnectionInfo)
++	CursorVisible = TRUE;
++
++    Unwrap(cs, pScreen, ChangeWindowAttributes);
++    ret = pScreen->ChangeWindowAttributes(pWin, mask);
++    Wrap(cs, pScreen, ChangeWindowAttributes, CursorChangeWindowAttributes);
++
++    return ret;
++}
++
++static Bool
+ CursorCloseScreen (int index, ScreenPtr pScreen)
+ {
+     CursorScreenPtr	cs = GetCursorScreen (pScreen);
+@@ -168,6 +190,7 @@
+ 
+     Unwrap (cs, pScreen, CloseScreen);
+     Unwrap (cs, pScreen, DisplayCursor);
++    Unwrap (cs, pScreen, ChangeWindowAttributes);
+     deleteCursorHideCountsForScreen(pScreen);
+     ret = (*pScreen->CloseScreen) (index, pScreen);
+     xfree (cs);
+@@ -1042,6 +1065,8 @@
+ 	    return FALSE;
+ 	Wrap (cs, pScreen, CloseScreen, CursorCloseScreen);
+ 	Wrap (cs, pScreen, DisplayCursor, CursorDisplayCursor);
++	Wrap (cs, pScreen, ChangeWindowAttributes,
++	      CursorChangeWindowAttributes);
+ 	cs->pCursorHideCounts = NULL;
+ 	SetCursorScreen (pScreen, cs);
+     }
+-- 
+1.5.6.4
+
