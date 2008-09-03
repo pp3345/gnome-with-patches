@@ -18,8 +18,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.4.99.906
-Release:   10%{?dist}
+Version:   1.5.0
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -33,6 +33,7 @@ Source1:   make-git-snapshot.sh
 Source2:   commitid
 %else
 Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
+Source1:   gitignore
 %endif
 
 # keyboard enablement
@@ -42,7 +43,8 @@ Source11:  fedora-setup-keyboard
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
-Patch102:  xserver-1.4.99-exa-master-upgrade.patch
+# XXX does this need rebasing still?
+#Patch102:  xserver-1.4.99-exa-master-upgrade.patch
 Patch103:  xserver-1.5.0-bg-none-root.patch
 
 # Red Hat specific tweaking, not intended for upstream
@@ -65,9 +67,9 @@ Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5011: xserver-1.4.99-endian.patch
 
 # evdev keyboard map fix
-Patch5013: xserver-1.5.0-xkb-fix-ProcXkbSetXYZ-to-work-on-all.patch
+#Patch5013: xserver-1.5.0-xkb-fix-ProcXkbSetXYZ-to-work-on-all.patch
 Patch5014: xserver-1.5.0-force-SwitchCoreKeyboard-for-evdev.patch
-Patch5015: xserver-1.5.0-enable-selinux.patch
+# Patch5015: xserver-1.5.0-enable-selinux.patch
 Patch6000: xserver-1.5.0-hide-cursor.patch
 Patch6001: xserver-1.5.0-edid-backport.patch
 
@@ -276,6 +278,7 @@ if [ -z "$GIT_COMMITTER_NAME" ]; then
     git-config user.email "x@fedoraproject.org"
     git-config user.name "Fedora X Ninjas"
 fi
+cp %{SOURCE1} .gitignore
 git-add .
 git-commit -a -q -m "%{version} baseline."
 %endif
@@ -495,6 +498,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Sep 03 2008 Adam Jackson <ajax@redhat.com> 1.5.0-1
+- xserver 1.5.0
+- Revert to the EXA from 1.5.0, should be good enough one hopes.
+- Add .gitignore from git, so working with the artificial git tree is less
+  flakey.
+
 * Mon Aug 25 2008 Adam Jackson <ajax@redhat.com> 1.4.99.906-10
 - xserver-1.5.0-edid-backport.patch: Backport EDID updates from master.
 
