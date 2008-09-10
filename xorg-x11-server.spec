@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.0
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -44,7 +44,7 @@ Source11:  fedora-setup-keyboard
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
 # XXX does this need rebasing still?
-#Patch102:  xserver-1.4.99-exa-master-upgrade.patch
+Patch102:  xserver-1.5.0-exa-master-upgrade.patch
 Patch103:  xserver-1.5.0-bg-none-root.patch
 
 # Red Hat specific tweaking, not intended for upstream
@@ -498,6 +498,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Sep 10 2008 Dave Airlie <airlied@redhat.com> 1.5.0-2
+- bring master exa back
+
 * Wed Sep 03 2008 Adam Jackson <ajax@redhat.com> 1.5.0-1
 - xserver 1.5.0
 - Revert to the EXA from 1.5.0, should be good enough one hopes.
