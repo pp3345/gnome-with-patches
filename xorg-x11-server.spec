@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.0
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -54,6 +54,7 @@ Patch1005:  xserver-1.4.99-builtin-fonts.patch
 Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
 
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
+Patch2014:  xserver-1.5.0-projector-fb-size.patch
 
 # Trivial things to never merge upstream ever
 # Don't merge this without protecting the gccisms.
@@ -498,6 +499,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 11 2008 Soren Sandmann <sandmann@redhat.com> 1.5.0-3
+- Change the default screen limits to include room for a 1280 wide
+  projector.
+
 * Wed Sep 10 2008 Dave Airlie <airlied@redhat.com> 1.5.0-2
 - bring master exa back
 

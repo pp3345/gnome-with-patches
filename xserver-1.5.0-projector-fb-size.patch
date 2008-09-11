@@ -1,0 +1,25 @@
+From ef49675e8d7dc829032bf6e586d55f9985d06844 Mon Sep 17 00:00:00 2001
+From: Fedora X Ninjas <x@fedoraproject.org>
+Date: Thu, 11 Sep 2008 09:25:18 -0400
+Subject: [PATCH] Make room for a 1280 wide projector in the default screen limits
+
+---
+ hw/xfree86/modes/xf86Crtc.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
+index 4de7e05..ee7e412 100644
+--- a/hw/xfree86/modes/xf86Crtc.c
++++ b/hw/xfree86/modes/xf86Crtc.c
+@@ -987,6 +987,8 @@ xf86DefaultScreenLimits (ScrnInfoPtr scrn, int *widthp, int *heightp,
+ 	if (crtc_height > height)
+ 	    height = crtc_height;
+     }
++    /* Make room for a projector */
++    width += 1280;
+     if (config->maxWidth && width > config->maxWidth) width = config->maxWidth;
+     if (config->maxHeight && height > config->maxHeight) height = config->maxHeight;
+     if (config->minWidth && width < config->minWidth) width = config->minWidth;
+-- 
+1.6.0.1
+
