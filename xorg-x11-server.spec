@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.0
-Release:   4%{?dist}
+Release:   5%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -121,7 +121,7 @@ BuildRequires: libXv-devel
 
 # openssl? really?
 BuildRequires: pixman-devel libpciaccess-devel openssl-devel byacc flex
-BuildRequires: mesa-libGL-devel >= 7.1-0.36
+BuildRequires: mesa-libGL-devel >= 7.1-0.37
 # should be useless now...
 # BuildRequires: mesa-source >= 7.1-0.36
 # XXX silly...
@@ -499,6 +499,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 11 2008 Soren Sandmann <sandmann@redhat.com> 1.5.0-5
+- Bump BuildRequires on mesa-GL-devel. Maybe that will work.
+
 * Thu Sep 11 2008 Soren Sandmann <sandmann@redhat.com> 1.5.0-4
 - Bump BuildRequires on xorg-x11-proto-devel
 
