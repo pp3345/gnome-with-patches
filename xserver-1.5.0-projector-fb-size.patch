@@ -1,22 +1,29 @@
-From ef49675e8d7dc829032bf6e586d55f9985d06844 Mon Sep 17 00:00:00 2001
-From: Fedora X Ninjas <x@fedoraproject.org>
-Date: Thu, 11 Sep 2008 09:25:18 -0400
-Subject: [PATCH] Make room for a 1280 wide projector in the default screen limits
+From ff21ec16fc05cc5fd0d60e466b7175fb2a33f8d2 Mon Sep 17 00:00:00 2001
+From: Soren Sandmann <sandmann@redhat.com>
+Date: Thu, 11 Sep 2008 10:47:03 -0400
+Subject: [PATCH] Make room for an external monitor if we have enough video ram
 
 ---
- hw/xfree86/modes/xf86Crtc.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ hw/xfree86/modes/xf86Crtc.c |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
 diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
-index 4de7e05..ee7e412 100644
+index 4de7e05..afb70a7 100644
 --- a/hw/xfree86/modes/xf86Crtc.c
 +++ b/hw/xfree86/modes/xf86Crtc.c
-@@ -987,6 +987,8 @@ xf86DefaultScreenLimits (ScrnInfoPtr scrn, int *widthp, int *heightp,
+@@ -987,6 +987,15 @@ xf86DefaultScreenLimits (ScrnInfoPtr scrn, int *widthp, int *heightp,
  	if (crtc_height > height)
  	    height = crtc_height;
      }
-+    /* Make room for a projector */
-+    width += 1280;
++
++    /* Make room for an external monitor if we have enough video ram */
++    if (scrn->VideoRam >= 65536)
++        width += 1920;
++    else if (scrn->VideoRam >= 32768)
++        width += 1280;
++    else if (scrn->VideoRam >= 16384)
++        width += 1024;
++    
      if (config->maxWidth && width > config->maxWidth) width = config->maxWidth;
      if (config->maxHeight && height > config->maxHeight) height = config->maxHeight;
      if (config->minWidth && width < config->minWidth) width = config->minWidth;

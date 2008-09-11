@@ -500,6 +500,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Thu Sep 11 2008 Soren Sandmann <sandmann@redhat.com> 1.5.0-3
+- Change the external monitor patch to base off of amount of video ram.
+
+* Thu Sep 11 2008 Soren Sandmann <sandmann@redhat.com> 1.5.0-3
 - Change the default screen limits to include room for a 1280 wide
   projector.
 
