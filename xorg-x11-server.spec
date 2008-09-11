@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.0
-Release:   5%{?dist}
+Release:   6%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -55,6 +55,7 @@ Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
 
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
+Patch2015:  xserver-1.5.0-comment-out-glxdri2.c
 
 # Trivial things to never merge upstream ever
 # Don't merge this without protecting the gccisms.
@@ -99,7 +100,7 @@ BuildRequires: xorg-x11-util-macros >= 1.1.5
 
 BuildRequires: xorg-x11-proto-devel >= 7.4-3
 BuildRequires: damageproto >= 1.1
-BuildRequires: dri2proto >= 1.1
+BuildRequires: dri2proto >= 1.99.1
 BuildRequires: fixesproto >= 4.0
 BuildRequires: glproto >= 1.4.9
 BuildRequires: kbproto >= 1.0.3
@@ -499,6 +500,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 11 2008 Soren Sandmann <sandmann@redhat.com> 1.5.0-6
+- Comment out glxdri2.c since it doesn't compile. (krh says it
+  won't break at runtime). 
+
 * Thu Sep 11 2008 Soren Sandmann <sandmann@redhat.com> 1.5.0-5
 - Bump BuildRequires on mesa-GL-devel. Maybe that will work.
 
