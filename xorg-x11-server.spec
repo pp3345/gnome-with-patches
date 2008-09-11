@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.0
-Release:   3%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,7 +97,7 @@ BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
-BuildRequires: xorg-x11-proto-devel >= 7.3-10
+BuildRequires: xorg-x11-proto-devel >= 7.4-3
 BuildRequires: damageproto >= 1.1
 BuildRequires: dri2proto >= 1.1
 BuildRequires: fixesproto >= 4.0
@@ -499,6 +499,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 11 2008 Soren Sandmann <sandmann@redhat.com> 1.5.0-4
+- Bump BuildRequires on xorg-x11-proto-devel
+
 * Thu Sep 11 2008 Soren Sandmann <sandmann@redhat.com> 1.5.0-3
 - Change the external monitor patch to base off of amount of video ram.
 
