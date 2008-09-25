@@ -1,0 +1,26 @@
+From 99838fad3c826c95736f93fc4f9492fbb93f9205 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@linux.ie>
+Date: Thu, 25 Sep 2008 15:40:19 +1000
+Subject: [PATCH] exa: make sure pixmap devPrivate.ptr is NULL at create time
+
+---
+ exa/exa.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/exa/exa.c b/exa/exa.c
+index 6e769a7..d240126 100644
+--- a/exa/exa.c
++++ b/exa/exa.c
+@@ -325,6 +325,9 @@ exaCreatePixmap(ScreenPtr pScreen, int w, int h, int depth,
+         pExaPixmap->score = EXA_PIXMAP_SCORE_PINNED;
+         pExaPixmap->fb_ptr = NULL;
+         pExaPixmap->pDamage = NULL;
++        pExaPixmap->sys_ptr = pPixmap->devPrivate.ptr;
++        pPixmap->devPrivate.ptr = NULL;
++
+     } else {
+         pExaPixmap->driverPriv = NULL;
+         /* Scratch pixmaps may have w/h equal to zero, and may not be
+-- 
+1.5.5.1
+

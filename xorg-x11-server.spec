@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.1
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -46,6 +46,7 @@ Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
 # XXX does this need rebasing still?
 Patch102:  xserver-1.5.0-exa-master-upgrade.patch
 Patch103:  xserver-1.5.0-bg-none-root.patch
+Patch104:  xserver-1.5.0-exa-master-fix-x11perf-crash.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -500,6 +501,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 25 2008 Dave Airlie <airlied@redhat.com> 1.5.1-2
+- fix crash with x11perf on r500 modesetting
+
 * Tue Sep 23 2008 Adam Jackson <ajax@redhat.com> 1.5.1-1
 - xserver 1.5.1
 - Trim %%changelog.
