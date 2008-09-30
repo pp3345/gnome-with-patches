@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.1
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -39,6 +39,9 @@ Source1:   gitignore
 # keyboard enablement
 Source10:  10-x11-keymap.fdi
 Source11:  fedora-setup-keyboard
+
+# Useful xvfb-run script
+Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -213,6 +216,8 @@ application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 %package Xvfb
 Summary: A X Windows System virtual framebuffer X server.
 Group: User Interface/X
+# xvfb-run is GPLv2, rest is MIT
+License: MIT and GPLv2
 Obsoletes: xorg-x11-Xvfb
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xvfb
@@ -346,6 +351,8 @@ cp hw/xfree86/{xorgconf.cpp,Options} %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
 cp hw/xfree86/utils/xorgconfig/Cards{,98} %{inst_srcdir}/hw/xfree86/utils/xorgconfig/
 
+install -m 0755 %{SOURCE20} $RPM_BUILD_ROOT%{_bindir}/xfvb-run
+
 find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl|txt)$' |
 xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
 
@@ -476,6 +483,7 @@ rm -rf $RPM_BUILD_ROOT
 %files Xvfb
 %defattr(-,root,root,-)
 %{_bindir}/Xvfb
+%{_bindir}/xvfb-run
 %{_mandir}/man1/Xvfb.1*
 
 
@@ -501,6 +509,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Sep 30 2008 Tom "spot" Callaway <tcallawa@redhat.com> 1.5.1-3
+- add xvfb-run helper script to Xvfb package
+
 * Thu Sep 25 2008 Dave Airlie <airlied@redhat.com> 1.5.1-2
 - fix crash with x11perf on r500 modesetting
 
