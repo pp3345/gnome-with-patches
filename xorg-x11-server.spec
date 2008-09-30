@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.1
-Release:   3%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -351,7 +351,7 @@ cp hw/xfree86/{xorgconf.cpp,Options} %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
 cp hw/xfree86/utils/xorgconfig/Cards{,98} %{inst_srcdir}/hw/xfree86/utils/xorgconfig/
 
-install -m 0755 %{SOURCE20} $RPM_BUILD_ROOT%{_bindir}/xfvb-run
+install -m 0755 %{SOURCE20} $RPM_BUILD_ROOT%{_bindir}/xvfb-run
 
 find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl|txt)$' |
 xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
@@ -509,6 +509,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Sep 30 2008 Tom "spot" Callaway <tcallawa@redhat.com> 1.5.1-4
+- fix typo. :P
+
 * Tue Sep 30 2008 Tom "spot" Callaway <tcallawa@redhat.com> 1.5.1-3
 - add xvfb-run helper script to Xvfb package
 
