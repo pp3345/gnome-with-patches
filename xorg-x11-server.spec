@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.1
-Release:   4%{?dist}
+Release:   5%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -509,6 +509,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 06 2008 Dave Airlie <airlied@redhat.com> 1.5.1-5
+- xserver-1.5.1-exa-fix-glyph-segfault.patch - fix EXA rects crash (462447)
+
 * Tue Sep 30 2008 Tom "spot" Callaway <tcallawa@redhat.com> 1.5.1-4
 - fix typo. :P
 

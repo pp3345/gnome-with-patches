@@ -1,0 +1,37 @@
+From 5ab230373909541945d373252a3f244b68a6f7af Mon Sep 17 00:00:00 2001
+From: Fedora X Ninjas <x@fedoraproject.org>
+Date: Mon, 6 Oct 2008 11:43:05 +1000
+Subject: [PATCH] exa: fix case where glyphs get flushed on last loop of previous cycle.
+
+we segfault here in exaCompositeRects as we have no source as already
+flushed just before the loop finished.
+---
+ exa/exa_glyphs.c |   12 +++++++-----
+ 1 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/exa/exa_glyphs.c b/exa/exa_glyphs.c
+index b23e7f6..2efc42d 100644
+--- a/exa/exa_glyphs.c
++++ b/exa/exa_glyphs.c
+@@ -872,11 +872,13 @@ exaGlyphs (CARD8 	 op,
+ 	list++;
+     }
+     
+-    if (maskFormat)
+-	exaGlyphsToMask(pMask, &buffer);
+-    else
+-	exaGlyphsToDst(op, pSrc, pDst, &buffer,
+-		       xSrc, ySrc, xDst, yDst);
++    if (buffer.count && buffer.source) {
++        if (maskFormat)
++	    exaGlyphsToMask(pMask, &buffer);
++        else
++	    exaGlyphsToDst(op, pSrc, pDst, &buffer,
++		           xSrc, ySrc, xDst, yDst);
++    }
+     
+     if (maskFormat)
+     {
+-- 
+1.5.5.1
+
