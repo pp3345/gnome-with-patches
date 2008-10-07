@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.1
-Release:   7%{?dist}
+Release:   8%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -84,6 +84,9 @@ Patch6002: xserver-1.5.0-xkb-core-kbd-map-fix.patch
 
 # force mode debugging on for randr 1.2 drivers
 Patch6003: xserver-1.5.1-mode-debug.patch
+
+# backport int10 silence and memory leaks
+Patch6004: xserver-1.5.1-int10-leaks.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -515,6 +518,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct 07 2008 Adam Jackson <ajax@redhat.com> 1.5.1-8
+- xserver-1.5.1-int10-leaks.patch: Shut up some useless int10 debugging and
+  plug a memory leak.
+
 * Tue Oct 7 2008 Adam Jackson <ajax@redhat.com> 1.5.1-7
 - xserver-1.5.1-mode-debug.patch: Force mode debugging on.
 
