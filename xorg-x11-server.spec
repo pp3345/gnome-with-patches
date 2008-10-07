@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.1
-Release:   8%{?dist}
+Release:   9%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -66,6 +66,7 @@ Patch2015:  xserver-1.5.0-comment-out-glxdri2.c
 Patch5001:  xserver-1.4.99-alloca-poison.patch
 # This really could be done prettier.
 Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
+Patch5003:  xserver-1.5.1-xgi.patch
 
 Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
 
@@ -518,6 +519,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct 07 2008 Adam Jackson <ajax@redhat.com> 1.5.1-9
+- xserver-1.5.1-xgi.patch: Move XGI cards onto the sis driver. (#453812)
+
 * Tue Oct 07 2008 Adam Jackson <ajax@redhat.com> 1.5.1-8
 - xserver-1.5.1-int10-leaks.patch: Shut up some useless int10 debugging and
   plug a memory leak.

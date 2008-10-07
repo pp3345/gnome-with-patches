@@ -1,0 +1,26 @@
+From 3be280e47bf259e5ac43350df52ae0829ca0243f Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Tue, 7 Oct 2008 14:06:21 -0400
+Subject: [PATCH] Shove XGI cards onto the sis driver.
+
+This is wrong for xgixp but whatever like anyone has one of those.
+---
+ hw/xfree86/common/xf86AutoConfig.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86AutoConfig.c b/hw/xfree86/common/xf86AutoConfig.c
+index 7e5fab4..f110fcd 100644
+--- a/hw/xfree86/common/xf86AutoConfig.c
++++ b/hw/xfree86/common/xf86AutoConfig.c
+@@ -178,7 +178,7 @@ videoPtrToDriverName(struct pci_device *dev)
+ 		default:
+ 		    return "savage";
+ 	    }
+-	case 0x1039:		    return "sis";
++	case 0x1039: case 0x18ca:   return "sis";
+ 	case 0x126f:		    return "siliconmotion";
+ 	case 0x121a:
+ 	    if (dev->device_id < 0x0003)
+-- 
+1.6.0.1
+
