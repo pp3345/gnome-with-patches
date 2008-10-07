@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.1
-Release:   9%{?dist}
+Release:   10%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -50,6 +50,7 @@ Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
 Patch102:  xserver-1.5.0-exa-master-upgrade.patch
 Patch103:  xserver-1.5.0-bg-none-root.patch
 Patch104:  xserver-1.5.0-exa-master-fix-x11perf-crash.patch
+Patch105:  xserver-1.5.1-exa-fix-glyph-segfault.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
@@ -519,6 +520,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct 07 2008 Dave Airlie <airlied@redhat.com> 1.5.1-10
+- actually apply exa fix patch
+
 * Tue Oct 07 2008 Adam Jackson <ajax@redhat.com> 1.5.1-9
 - xserver-1.5.1-xgi.patch: Move XGI cards onto the sis driver. (#453812)
 
