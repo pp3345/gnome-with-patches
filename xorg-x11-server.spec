@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.1
-Release:   5%{?dist}
+Release:   6%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -78,6 +78,9 @@ Patch5014: xserver-1.5.0-force-SwitchCoreKeyboard-for-evdev.patch
 # Patch5015: xserver-1.5.0-enable-selinux.patch
 Patch6000: xserver-1.5.0-hide-cursor.patch
 Patch6001: xserver-1.5.0-edid-backport.patch
+
+# FDO bug 14373 (FIXED), RH bug #460545
+Patch6002: xserver-1.5.0-xkb-core-kbd-map-fix.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -509,6 +512,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct 7 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.1-6
+- xserver-1.5.0-xkb-core-kbd-map-fix.patch: don't invent groups when mapping
+  from xkb to core and back, and squash canonical types into explicit ones on
+  core reconstruction (2 patches). #460545
+
 * Mon Oct 06 2008 Dave Airlie <airlied@redhat.com> 1.5.1-5
 - xserver-1.5.1-exa-fix-glyph-segfault.patch - fix EXA rects crash (462447)
 

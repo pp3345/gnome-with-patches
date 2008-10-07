@@ -1,0 +1,131 @@
+From 707503f8455da9cbbb97a030f242a7edf75526b6 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@redhat.com>
+Date: Fri, 19 Sep 2008 18:27:24 +0930
+Subject: [PATCH] xkb: fix core keyboard map generation. #14373
+
+According to Section 12.4 of the XKB Protocol Spec, if a key only has a single
+group but the keyboard has multiple groups defined, the core description of
+the key is a duplication of the single group across all symbols. i.e.
+G1L1 G1L2 G1L1 G1L2 G1L3 G1L4 G1L3 G1L4
+
+The previous code generated G1L1 G1L2 G1L3 G1L4 G1L3 G1L4, leading to
+"invented" groups when the process is reversed.
+
+Note that this creates wrong key types on reconstruction from core to xkb,
+i.e. any single-group key with a key type that is not one of the canonical
+four (Sec 12.2.3), will get the assigned type on group 1, and a canonical type
+for the other gruops.
+
+X.Org Bug 14373 <http://bugs.freedesktop.org/show_bug.cgi?id=14373>
+---
+ xkb/xkbUtils.c |   39 ++++++++++++++++++++++++++++++++++-----
+ 1 files changed, 34 insertions(+), 5 deletions(-)
+
+diff --git a/xkb/xkbUtils.c b/xkb/xkbUtils.c
+index 8339cef..b5c0ac2 100644
+--- a/xkb/xkbUtils.c
++++ b/xkb/xkbUtils.c
+@@ -486,6 +486,40 @@ CARD8			keysPerMod[XkbNumModifiers];
+ 		if (groupWidth>2)
+ 		    nOut= groupWidth;
+ 	    }
++
++	    /* See XKB Protocol Sec, Section 12.4.
++	       A 1-group key with ABCDE on a 2 group keyboard must be
++	       duplicated across all groups as ABABCDECDE.
++	     */
++	    if (nGroups == 1)
++	    {
++		int idx;
++
++		groupWidth = XkbKeyGroupWidth(xkb, key, XkbGroup1Index);
++
++		/* AB..CDE... -> ABABCDE... */
++		if (groupWidth > 0 && maxSymsPerKey >= 3)
++		    pCore[2] = pCore[0];
++		if (groupWidth > 1 && maxSymsPerKey >= 4)
++		    pCore[3] = pCore[1];
++
++		/* ABABCDE... -> ABABCDECDE */
++		idx = 2 + groupWidth;
++		while (groupWidth > 2 &&
++			idx < maxSymsPerKey &&
++			idx < groupWidth * 2)
++		{
++		    pCore[idx] = pCore[idx - groupWidth + 2];
++		    idx++;
++		}
++		idx = 2 * groupWidth;
++		if (idx < 4)
++		    idx = 4;
++		/* 3 or more groups: ABABCDECDEABCDEABCDE */
++		for (n = 0; n < groupWidth && idx < maxSymsPerKey; n++)
++		    pCore[idx++] = pXKB[n];
++	    }
++
+ 	    pXKB+= XkbKeyGroupsWidth(xkb,key);
+ 	    nOut+= 2;
+ 	    if (nGroups>1) {
+@@ -507,11 +541,6 @@ CARD8			keysPerMod[XkbNumModifiers];
+ 		}
+ 		pXKB+= XkbKeyGroupsWidth(xkb,key);
+ 	    }
+-	    if (!pCore[2] && !pCore[3] && maxSymsPerKey >= 6 &&
+-                (pCore[4] || pCore[5])) {
+-                pCore[2] = pCore[4];
+-                pCore[3] = pCore[5];
+-	    }
+ 	}
+ 	if (keyc->modifierMap[key]!=0) {
+ 	    register unsigned bit,i,mask;
+-- 
+1.5.5.2
+
+From cd6b5a8da00219a1f14a3ab498af416296398483 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@redhat.com>
+Date: Mon, 22 Sep 2008 11:10:46 +0930
+Subject: [PATCH] xkb: squash canonical types into explicit ones on core reconstruction.
+
+If we update key types from core, and groups 2 - n have a canonical type but
+the same symbols as the explicit type of group 1, assume that it was a core
+sym duplication according to Section 12.4 of the XKB Protocol Spec.
+Ignore the canonical types and pretend there's only one group for the key -
+with the explicit key type.
+---
+ xkb/XKBMisc.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/xkb/XKBMisc.c b/xkb/XKBMisc.c
+index 85415a4..ac81395 100644
+--- a/xkb/XKBMisc.c
++++ b/xkb/XKBMisc.c
+@@ -178,16 +178,23 @@ int		nGroups,tmp,groupsWidth;
+ 	}
+     }
+ 
+-    /* step 7: check for all groups identical or all width 1 */
++    /* step 7: check for all groups identical or all width 1
++     *
++     * Special feature: if group 1 has an explicit type and all other groups
++     * have canonical types with same symbols, we assume it's info lost from
++     * the core replication.
++     */
+     if (nGroups>1) {
+-	Bool sameType,allOneLevel;
++	Bool sameType,allOneLevel, canonical = True;
+ 	allOneLevel= (xkb->map->types[types_inout[0]].num_levels==1);
+ 	for (i=1,sameType=True;(allOneLevel||sameType)&&(i<nGroups);i++) {
+ 	    sameType=(sameType&&(types_inout[i]==types_inout[XkbGroup1Index]));
+ 	    if (allOneLevel)
+ 		allOneLevel= (xkb->map->types[types_inout[i]].num_levels==1);
++	    if (types_inout[i] > XkbLastRequiredType)
++		canonical = False;
+ 	}
+-	if ((sameType)&&
++	if (((sameType) || canonical)&&
+ 	    (!(protected&(XkbExplicitKeyTypesMask&~XkbExplicitKeyType1Mask)))){
+ 	    register int s;
+ 	    Bool	identical;
+-- 
+1.5.5.2
+
