@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.1
-Release:   6%{?dist}
+Release:   7%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -81,6 +81,9 @@ Patch6001: xserver-1.5.0-edid-backport.patch
 
 # FDO bug 14373 (FIXED), RH bug #460545
 Patch6002: xserver-1.5.0-xkb-core-kbd-map-fix.patch
+
+# force mode debugging on for randr 1.2 drivers
+Patch6003: xserver-1.5.1-mode-debug.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -512,6 +515,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct 7 2008 Adam Jackson <ajax@redhat.com> 1.5.1-7
+- xserver-1.5.1-mode-debug.patch: Force mode debugging on.
+
 * Tue Oct 7 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.1-6
 - xserver-1.5.0-xkb-core-kbd-map-fix.patch: don't invent groups when mapping
   from xkb to core and back, and squash canonical types into explicit ones on
