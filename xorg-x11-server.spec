@@ -56,7 +56,6 @@ Patch105:  xserver-1.5.1-exa-fix-glyph-segfault.patch
 # XXX move these to the end of the list
 Patch1003:  xserver-1.4.99-pic-libxf86config.patch
 Patch1005:  xserver-1.4.99-builtin-fonts.patch
-Patch1010:  xserver-1.3.0-no-prerelease-warning.patch
 
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
@@ -520,6 +519,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Oct 10 2008 Adam Jackson <ajax@redhat.com> 1.5.1-11
+- xserver-1.3.0-no-prerelease-warning.patch: Drop.
+
 * Tue Oct 07 2008 Dave Airlie <airlied@redhat.com> 1.5.1-10
 - actually apply exa fix patch
 
