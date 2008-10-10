@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.2
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -81,6 +81,9 @@ Patch6001: xserver-1.5.0-edid-backport.patch
 
 # force mode debugging on for randr 1.2 drivers
 Patch6003: xserver-1.5.1-mode-debug.patch
+
+Patch6004: xserver-1.5.1-global-backtrace.patch
+Patch6005: xserver-1.5.2-mieq-backtrace.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -512,6 +515,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Oct 10 2008 Adam Jackson <ajax@redhat.com> 1.5.2-2
+- xserver-1.5.1-global-backtrace.patch: Make backtraces possible from
+  outside the xfree86 DDX.
+- xserver-1.5.2-mieq-backtrace.patch: bt when we fill the input queue.
+
 * Fri Oct 10 2008 Adam Jackson <ajax@redhat.com> 1.5.2-1
 - xserver 1.5.2
 - xserver-1.5.0-comment-out-glxdri2.c: Drop, no longer relevant.

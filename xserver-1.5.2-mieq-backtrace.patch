@@ -1,0 +1,41 @@
+From b736f477f5324f79af30fc0f941ba0714a34ccda Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Fri, 10 Oct 2008 16:33:24 -0400
+Subject: [PATCH] mieq: Backtrace when the queue overflows.
+
+Since we're probably stuck down in a driver somewhere, let's at least
+try to point out where.  This will need to be rethought when the input
+thread work lands though.
+---
+ mi/mieq.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/mi/mieq.c b/mi/mieq.c
+index 0a1b740..062dede 100644
+--- a/mi/mieq.c
++++ b/mi/mieq.c
+@@ -169,6 +169,7 @@ mieqEnqueue(DeviceIntPtr pDev, xEvent *e)
+ 	oldtail = (oldtail - 1) % QUEUE_SIZE;
+     }
+     else {
++	static int stuck = 0;
+ 	newtail = (oldtail + 1) % QUEUE_SIZE;
+ 	/* Toss events which come in late.  Usually this means your server's
+          * stuck in an infinite loop somewhere, but SIGIO is still getting
+@@ -176,8 +177,13 @@ mieqEnqueue(DeviceIntPtr pDev, xEvent *e)
+ 	if (newtail == miEventQueue.head) {
+             ErrorF("[mi] EQ overflowing. The server is probably stuck "
+                    "in an infinite loop.\n");
++	    if (!stuck) {
++		xorg_backtrace();
++		stuck = 1;
++	    }
+ 	    return;
+         }
++	stuck = 0;
+ 	miEventQueue.tail = newtail;
+     }
+ 
+-- 
+1.6.0.1
+
