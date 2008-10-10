@@ -18,8 +18,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.5.1
-Release:   11%{?dist}
+Version:   1.5.2
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -59,7 +59,6 @@ Patch1005:  xserver-1.4.99-builtin-fonts.patch
 
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
-Patch2015:  xserver-1.5.0-comment-out-glxdri2.c
 
 # Trivial things to never merge upstream ever
 # Don't merge this without protecting the gccisms.
@@ -75,19 +74,13 @@ Patch5011: xserver-1.4.99-endian.patch
 
 # evdev keyboard map fix
 #Patch5013: xserver-1.5.0-xkb-fix-ProcXkbSetXYZ-to-work-on-all.patch
-Patch5014: xserver-1.5.0-force-SwitchCoreKeyboard-for-evdev.patch
+Patch5013: xserver-1.5.0-force-SwitchCoreKeyboard-for-evdev.patch
 # Patch5015: xserver-1.5.0-enable-selinux.patch
 Patch6000: xserver-1.5.0-hide-cursor.patch
 Patch6001: xserver-1.5.0-edid-backport.patch
 
-# FDO bug 14373 (FIXED), RH bug #460545
-Patch6002: xserver-1.5.0-xkb-core-kbd-map-fix.patch
-
 # force mode debugging on for randr 1.2 drivers
 Patch6003: xserver-1.5.1-mode-debug.patch
-
-# backport int10 silence and memory leaks
-Patch6004: xserver-1.5.1-int10-leaks.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -519,6 +512,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Oct 10 2008 Adam Jackson <ajax@redhat.com> 1.5.2-1
+- xserver 1.5.2
+- xserver-1.5.0-comment-out-glxdri2.c: Drop, no longer relevant.
+- xserver-1.5.0-xkb-core-kbd-map-fix.patch: Drop, merged.
+- xserver-1.5.1-int10-leaks.patch: Drop, merged.
+
 * Fri Oct 10 2008 Adam Jackson <ajax@redhat.com> 1.5.1-11
 - xserver-1.3.0-no-prerelease-warning.patch: Drop.
 
