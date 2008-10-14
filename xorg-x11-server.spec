@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.2
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -84,6 +84,7 @@ Patch6003: xserver-1.5.1-mode-debug.patch
 
 Patch6004: xserver-1.5.1-global-backtrace.patch
 Patch6005: xserver-1.5.2-mieq-backtrace.patch
+Patch6006: xserver-1.5.2-backtrace-defines.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -515,6 +516,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct 14 2008 Adam Jackson <ajax@redhat.com> 1.5.2-3
+- xserver-1.5.2-backtrace-defines.patch: Get HAVE_BACKTRACE defined even at
+  the DIX level.
+
 * Fri Oct 10 2008 Adam Jackson <ajax@redhat.com> 1.5.2-2
 - xserver-1.5.1-global-backtrace.patch: Make backtraces possible from
   outside the xfree86 DDX.
