@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.2
-Release:   3%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -85,6 +85,7 @@ Patch6003: xserver-1.5.1-mode-debug.patch
 Patch6004: xserver-1.5.1-global-backtrace.patch
 Patch6005: xserver-1.5.2-mieq-backtrace.patch
 Patch6006: xserver-1.5.2-backtrace-defines.patch
+Patch6007: xserver-1.5.2-lies-damn-lies-and-aspect-ratios.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -516,6 +517,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct 14 2008 Adam Jackson <ajax@redhat.com> 1.5.2-4
+- xserver-1.5.2-lies-damn-lies-and-aspect-ratios.patch: Catch even more
+  cases of the monitor encoding aspect ratio for size. (#458747)
+
 * Tue Oct 14 2008 Adam Jackson <ajax@redhat.com> 1.5.2-3
 - xserver-1.5.2-backtrace-defines.patch: Get HAVE_BACKTRACE defined even at
   the DIX level.
