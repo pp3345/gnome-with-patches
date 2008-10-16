@@ -1,0 +1,84 @@
+From 64db18dbc3a28e5b81140df0c76d1e1c38e9b225 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@redhat.com>
+Date: Thu, 16 Oct 2008 11:22:29 +1030
+Subject: [PATCH] xfree86: If AEI is on, disable "kbd" and "mouse" devices.
+
+This consists of two parts:
+In the implicit server layout, ignore those drivers when looking for a core
+device.
+
+And after finishing the server layout, run through the list of devices and
+remove any that use mouse or kbd.
+
+AEI is mutually exclusive with the kbd and mouse drivers, so pick either - or.
+---
+ hw/xfree86/common/xf86Config.c |   39 +++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 37 insertions(+), 2 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Config.c b/hw/xfree86/common/xf86Config.c
+index a1c2e34..ac80add 100644
+--- a/hw/xfree86/common/xf86Config.c
++++ b/hw/xfree86/common/xf86Config.c
+@@ -1340,7 +1340,7 @@ checkCoreInputDevices(serverLayoutPtr servlayoutp, Bool implicitLayout)
+     }
+ 
+     /* 4. First pointer with 'mouse' as the driver. */
+-    if (!foundPointer && (!xf86Info.allowEmptyInput || implicitLayout)) {
++    if (!foundPointer && !xf86Info.allowEmptyInput) {
+ 	confInput = xf86findInput(CONF_IMPLICIT_POINTER,
+ 				  xf86configptr->conf_input_lst);
+ 	if (!confInput) {
+@@ -1480,7 +1480,7 @@ checkCoreInputDevices(serverLayoutPtr servlayoutp, Bool implicitLayout)
+     }
+ 
+     /* 4. First keyboard with 'keyboard' or 'kbd' as the driver. */
+-    if (!foundKeyboard && (!xf86Info.allowEmptyInput || implicitLayout)) {
++    if (!foundKeyboard && !xf86Info.allowEmptyInput) {
+ 	confInput = xf86findInput(CONF_IMPLICIT_KEYBOARD,
+ 				  xf86configptr->conf_input_lst);
+ 	if (!confInput) {
+@@ -2481,6 +2481,41 @@ addDefaultModes(MonPtr monitorp)
+ static void
+ checkInput(serverLayoutPtr layout, Bool implicit_layout) {
+     checkCoreInputDevices(layout, implicit_layout);
++
++    /* AllowEmptyInput and the "kbd" and "mouse" drivers are mutually
++     * exclusive. Trawl the list for mouse/kbd devices and disable them.
++     */
++    if (xf86Info.allowEmptyInput && layout->inputs)
++    {
++        IDevPtr *dev = layout->inputs;
++        BOOL warned = FALSE;
++
++        while(*dev)
++        {
++            if (strcmp((*dev)->driver, "kbd") == 0 ||
++                strcmp((*dev)->driver, "mouse") == 0)
++            {
++                IDevPtr *current;
++                if (!warned)
++                {
++                    xf86Msg(X_WARNING, "AllowEmtpyInput is on, devices using "
++                            "drivers 'kbd' or 'mouse' will be disabled.\n");
++                    warned = TRUE;
++                }
++
++                xf86Msg(X_WARNING, "Disabling %s\n", (*dev)->identifier);
++
++                current = dev;
++                xfree(*dev);
++
++                do {
++                    *current = *(current + 1);
++                    current++;
++                } while(*current);
++            } else
++                dev++;
++        }
++    }
+ }
+ 
+ /*
+-- 
+1.6.0.1
+

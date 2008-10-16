@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.2
-Release:   4%{?dist}
+Release:   5%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -86,6 +86,10 @@ Patch6004: xserver-1.5.1-global-backtrace.patch
 Patch6005: xserver-1.5.2-mieq-backtrace.patch
 Patch6006: xserver-1.5.2-backtrace-defines.patch
 Patch6007: xserver-1.5.2-lies-damn-lies-and-aspect-ratios.patch
+
+# No evdev grab, disable kbd/mouse
+Patch6008: xserver-1.5.2-enable-RAW-console.patch
+Patch6009: xserver-1.5.2-disable-kbd-mouse.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -517,6 +521,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Oct 16 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.2-5
+- xserver-1.5.2-enable-RAW-console.patch: enable RAW mode for console, no need
+  for grabbing the evdev device anymore.
+- xserver-1.5.2-disable-kbd-mouse.patch: if AllowEmptyInput is on, don't allow
+  mouse or keyboard drivers.
+
 * Tue Oct 14 2008 Adam Jackson <ajax@redhat.com> 1.5.2-4
 - xserver-1.5.2-lies-damn-lies-and-aspect-ratios.patch: Catch even more
   cases of the monitor encoding aspect ratio for size. (#458747)
