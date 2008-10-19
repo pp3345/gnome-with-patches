@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.2
-Release:   5%{?dist}
+Release:   6%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -521,6 +521,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Oct 19 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.2-6
+- Update xserver-1.5.2-disable-kbd-mouse.patch: if no config file is present,
+  we need to force AllowEmptyInput on.
+
 * Thu Oct 16 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.2-5
 - xserver-1.5.2-enable-RAW-console.patch: enable RAW mode for console, no need
   for grabbing the evdev device anymore.
