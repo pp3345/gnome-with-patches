@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.2
-Release:   7%{?dist}
+Release:   8%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -91,6 +91,9 @@ Patch6007: xserver-1.5.2-lies-damn-lies-and-aspect-ratios.patch
 Patch6008: xserver-1.5.2-enable-RAW-console.patch
 Patch6009: xserver-1.5.2-disable-kbd-mouse.patch
 Patch6010: xserver-1.5.2-no-duplicate-devices.patch
+
+# exa performance fix
+Patch6011: xserver-1.5.2-exa-sync-less.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -522,6 +525,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 20 2008 Adam Jackson <ajax@redhat.com> 1.5.2-8
+- xserver-1.5.2-exa-sync-less.patch: Avoid migrating pixmaps out on
+  PutImage.
+
 * Mon Oct 20 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.2-7
 - xserver-1.5.2-no-duplicate-devices.patch: don't re-add devices through HAL
   if they are already added (#467462).
