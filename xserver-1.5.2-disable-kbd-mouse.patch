@@ -60,7 +60,7 @@ index a1c2e34..ac80add 100644
 +                IDevPtr *current;
 +                if (!warned)
 +                {
-+                    xf86Msg(X_WARNING, "AllowEmtpyInput is on, devices using "
++                    xf86Msg(X_WARNING, "AllowEmptyInput is on, devices using "
 +                            "drivers 'kbd' or 'mouse' will be disabled.\n");
 +                    warned = TRUE;
 +                }
