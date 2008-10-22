@@ -94,6 +94,18 @@ index 68dc387..eb4ebfa 100644
  	autoconfig = TRUE;
  	break;
        }
+diff --git a/hw/xfree86/doc/man/xorg.conf.man.pre b/hw/xfree86/doc/man/xorg.conf.man.pre
+index 0774563..99fcdb3 100644
+--- a/hw/xfree86/doc/man/xorg.conf.man.pre
++++ b/hw/xfree86/doc/man/xorg.conf.man.pre
+@@ -698,6 +698,7 @@ the X server to load. Disabled by default.
+ If enabled, don't add the standard keyboard and mouse drivers, if there are no
+ input devices in the config file.  Enabled by default if AutoAddDevices and
+ AutoEnableDevices is enabled, otherwise disabled.
++If AllowEmptyInput is on, devices using the kbd or mouse driver are ignored.
+ .TP 7
+ .BI "Option \*qAutoAddDevices\*q \*q" boolean \*q
+ If this option is disabled, then no devices will be added from HAL events.
 -- 
 1.6.0.1
 

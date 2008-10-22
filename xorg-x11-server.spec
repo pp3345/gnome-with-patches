@@ -526,6 +526,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Wed Oct 22 2008 Peter Hutterer <peter.hutterer@redhat.com>
+- Update xserver-1.5.2-disable-kbd-mouse.patch: add line to xorg.conf man-page
+  stating that devices are disabled if AEI is on.
+
+* Wed Oct 22 2008 Peter Hutterer <peter.hutterer@redhat.com>
 - fix typo in xserver-1.5.2-no-duplicate-devices.patch
 
 * Mon Oct 20 2008 Adam Jackson <ajax@redhat.com> 1.5.2-8
