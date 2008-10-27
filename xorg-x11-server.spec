@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.2
-Release:   9%{?dist}
+Release:   10%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -528,6 +528,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 27 2008 Adam Jackson <ajax@redhat.com> 1.5.2-10
+- xserver-1.5.0-bg-none-root.patch: Make it something the driver has to
+  explicitly claim support for, so we don't get garbage when you do -nr
+  on vesa for example.
+
 * Mon Oct 27 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.2-9
 - xserver-1.5.2-more-sanity-checks.patch: more sanity checks to stop vmmouse
   from segfaulting the server. #434807
