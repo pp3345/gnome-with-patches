@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.2
-Release:   8%{?dist}
+Release:   9%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -94,6 +94,9 @@ Patch6010: xserver-1.5.2-no-duplicate-devices.patch
 
 # exa performance fix
 Patch6011: xserver-1.5.2-exa-sync-less.patch
+
+# Bug 434807
+Patch6012: xserver-1.5.2-more-sanity-checks.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -525,6 +528,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 27 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.2-9
+- xserver-1.5.2-more-sanity-checks.patch: more sanity checks to stop vmmouse
+  from segfaulting the server. #434807
+
 * Wed Oct 22 2008 Peter Hutterer <peter.hutterer@redhat.com>
 - Update xserver-1.5.2-disable-kbd-mouse.patch: add line to xorg.conf man-page
   stating that devices are disabled if AEI is on.
