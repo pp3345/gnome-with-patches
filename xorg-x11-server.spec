@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.2
-Release:   10%{?dist}
+Release:   11%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -177,15 +177,15 @@ Summary: Xorg X server
 Group: User Interface/X
 Provides: Xorg = %{version}-%{release}
 Provides: Xserver
-# Requires: xorg-x11-drivers >= 0.99.2-4
-Requires: xorg-x11-drv-mouse xorg-x11-drv-keyboard xorg-x11-drv-vesa
+%ifarch %{ix86} x86_64
+Requires: xorg-x11-drv-vesa
+%else
+Requires: xorg-x11-drv-fbdev
+%endif
 Requires: xorg-x11-drv-void xorg-x11-drv-evdev
 # virtuals.  XXX fix the xkbcomp fork() upstream.
 Requires: xkbdata xkbcomp
 Requires: xorg-x11-server-common >= %{version}-%{release}
-# These drivers were dropped in F7 for being broken, so uninstall them.
-Obsoletes: xorg-x11-drv-elo2300 <= 1.1.0-2.fc7
-Obsoletes: xorg-x11-drv-joystick <= 1.1.0-2.fc7
 # Dropped from F9 for being broken, uninstall it.
 Obsoletes: xorg-x11-drv-magictouch <= 1.0.0.5-5.fc8
 # Force sufficiently new libpciaccess
@@ -528,6 +528,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Oct 28 2008 Adam Jackson <ajax@redhat.com> 1.5.2-11
+- Un-require mouse and keyboard, we're an evdev shop now
+- Drop some obsoletes from the F7 timeframe
+- Require vesa on i386 and amd64, fbdev elsewhere
+
 * Mon Oct 27 2008 Adam Jackson <ajax@redhat.com> 1.5.2-10
 - xserver-1.5.0-bg-none-root.patch: Make it something the driver has to
   explicitly claim support for, so we don't get garbage when you do -nr
