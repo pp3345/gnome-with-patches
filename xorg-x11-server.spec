@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.2
-Release:   11%{?dist}
+Release:   12%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,6 +97,7 @@ Patch6011: xserver-1.5.2-exa-sync-less.patch
 
 # Bug 434807
 Patch6012: xserver-1.5.2-more-sanity-checks.patch
+Patch6013: xserver-1.5.2-drain-console.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -528,6 +529,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Oct 31 2008 Adam Jackson <ajax@redhat.com> 1.5.2-12
+- xserver-1.5.2-drain-console.patch: Silently eat any input we get from the
+  tty fd, lest terrible wakeup storms ensue.
+
 * Tue Oct 28 2008 Adam Jackson <ajax@redhat.com> 1.5.2-11
 - Un-require mouse and keyboard, we're an evdev shop now
 - Drop some obsoletes from the F7 timeframe
