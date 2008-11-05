@@ -18,8 +18,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.5.2
-Release:   12%{?dist}
+Version:   1.5.3
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -40,14 +40,13 @@ Source1:   gitignore
 Source10:  10-x11-keymap.fdi
 Source11:  fedora-setup-keyboard
 
-# Useful xvfb-run script
+# "useful" xvfb-run script
 Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
-# XXX does this need rebasing still?
-Patch102:  xserver-1.5.0-exa-master-upgrade.patch
+Patch102:  xserver-1.5.2-exa-master-upgrade.patch
 Patch103:  xserver-1.5.0-bg-none-root.patch
 Patch104:  xserver-1.5.0-exa-master-fix-x11perf-crash.patch
 Patch105:  xserver-1.5.1-exa-fix-glyph-segfault.patch
@@ -80,24 +79,10 @@ Patch6000: xserver-1.5.0-hide-cursor.patch
 Patch6001: xserver-1.5.0-edid-backport.patch
 
 # force mode debugging on for randr 1.2 drivers
-Patch6003: xserver-1.5.1-mode-debug.patch
-
-Patch6004: xserver-1.5.1-global-backtrace.patch
-Patch6005: xserver-1.5.2-mieq-backtrace.patch
-Patch6006: xserver-1.5.2-backtrace-defines.patch
-Patch6007: xserver-1.5.2-lies-damn-lies-and-aspect-ratios.patch
-
-# No evdev grab, disable kbd/mouse
-Patch6008: xserver-1.5.2-enable-RAW-console.patch
-Patch6009: xserver-1.5.2-disable-kbd-mouse.patch
-Patch6010: xserver-1.5.2-no-duplicate-devices.patch
-
-# exa performance fix
-Patch6011: xserver-1.5.2-exa-sync-less.patch
+Patch6002: xserver-1.5.1-mode-debug.patch
 
 # Bug 434807
-Patch6012: xserver-1.5.2-more-sanity-checks.patch
-Patch6013: xserver-1.5.2-drain-console.patch
+Patch6003: xserver-1.5.2-more-sanity-checks.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -529,6 +514,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Nov 05 2008 Adam Jackson <ajax@redhat.com> 1.5.3-1
+- xserver 1.5.3
+
 * Fri Oct 31 2008 Adam Jackson <ajax@redhat.com> 1.5.2-12
 - xserver-1.5.2-drain-console.patch: Silently eat any input we get from the
   tty fd, lest terrible wakeup storms ensue.
