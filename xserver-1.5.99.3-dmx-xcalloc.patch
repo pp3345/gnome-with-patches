@@ -1,0 +1,73 @@
+From 8ea9f03ea3c4d2f80f487c2474699beaf71e010c Mon Sep 17 00:00:00 2001
+From: Fedora X Ninjas <x@fedoraproject.org>
+Date: Fri, 19 Dec 2008 14:36:31 +1000
+Subject: [PATCH] dmx: Death to xcalloc
+
+dmx' hilarious circular inclusion of server-side and client-side headers means
+xcalloc resolves to Xcalloc. Stop this. We've grown up now and can use calloc
+directly.
+---
+ hw/dmx/dmx.h              |    4 ++--
+ hw/dmx/dmxextension.c     |    2 +-
+ hw/dmx/glxProxy/glxutil.c |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/hw/dmx/dmx.h b/hw/dmx/dmx.h
+index 05e5fab..1a71417 100644
+--- a/hw/dmx/dmx.h
++++ b/hw/dmx/dmx.h
+@@ -341,14 +341,14 @@ do {									\
+ #define _MAXSCREENSALLOCF(o,size,fatal)                                 \
+     do {                                                                \
+         if (!o) {                                                       \
+-            o = xcalloc((size), sizeof(*(o)));                          \
++            o = calloc((size), sizeof(*(o)));                          \
+             if (!o && fatal) FatalError(MAXSCREEN_FAILED_TXT #o);       \
+         }                                                               \
+     } while (0)
+ #define _MAXSCREENSALLOCR(o,size,retval)                                \
+     do {                                                                \
+         if (!o) {                                                       \
+-            o = xcalloc((size), sizeof(*(o)));                          \
++            o = calloc((size), sizeof(*(o)));                          \
+             if (!o) return retval;                                      \
+         }                                                               \
+     } while (0)
+diff --git a/hw/dmx/dmxextension.c b/hw/dmx/dmxextension.c
+index d20c844..6fd02dc 100644
+--- a/hw/dmx/dmxextension.c
++++ b/hw/dmx/dmxextension.c
+@@ -1121,7 +1121,7 @@ static void dmxBERestoreRenderGlyph(pointer value, XID id, pointer n)
+     }
+ 
+     /* Now allocate the memory we need */
+-    images = xcalloc(len_images, sizeof(char));
++    images = calloc(len_images, sizeof(char));
+     gids   = xalloc(glyphSet->hash.tableEntries*sizeof(Glyph));
+     glyphs = xalloc(glyphSet->hash.tableEntries*sizeof(XGlyphInfo));
+ 
+diff --git a/hw/dmx/glxProxy/glxutil.c b/hw/dmx/glxProxy/glxutil.c
+index 080992e..53b02a6 100644
+--- a/hw/dmx/glxProxy/glxutil.c
++++ b/hw/dmx/glxProxy/glxutil.c
+@@ -69,7 +69,7 @@ __glXCalloc(size_t numElements, size_t elementSize)
+     if ((numElements == 0) || (elementSize == 0)) {
+ 	return NULL;
+     }
+-    addr = xcalloc(numElements, elementSize);
++    addr = calloc(numElements, elementSize);
+     if (addr == NULL) {
+ 	/* XXX: handle out of memory error */
+ 	return NULL;
+@@ -87,7 +87,7 @@ __glXRealloc(void *addr, size_t newSize)
+ 	    xfree(addr);
+ 	    return NULL;
+ 	} else {
+-	    newAddr = xrealloc(addr, newSize);
++	    newAddr = realloc(addr, newSize);
+ 	}
+     } else {
+ 	if (newSize == 0) {
+-- 
+1.6.0.4
+

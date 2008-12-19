@@ -13,62 +13,57 @@ Subject: [PATCH] Add nr for background=none root
  6 files changed, 32 insertions(+), 11 deletions(-)
 
 diff --git a/dix/globals.c b/dix/globals.c
-index 7f95eab..db34786 100644
+index 973dc43..dbd76bb 100644
 --- a/dix/globals.c
 +++ b/dix/globals.c
-@@ -143,6 +143,7 @@ Bool loadableFonts = FALSE;
+@@ -141,6 +141,7 @@ FontPtr defaultFont;   /* not declared in dix.h to avoid including font.h in
  CursorPtr rootCursor;
- Bool blackRoot=FALSE;
- Bool whiteRoot=FALSE;
-+Bool bgNoneRoot=FALSE;
- #ifdef XPRINT
- ClientPtr requestingClient;	/* XXX this should be obsolete now, remove? */
- #endif
+ Bool party_like_its_1989 = FALSE;
+ Bool whiteRoot = FALSE;
++Bool bgNoneRoot = FALSE;
+ 
+ int cursorScreenDevPriv[MAXSCREENS];
+ 
 diff --git a/dix/window.c b/dix/window.c
-index 834c26b..6663a1e 100644
+index c31fa87..8bb178d 100644
 --- a/dix/window.c
 +++ b/dix/window.c
-@@ -471,23 +471,25 @@ InitRootWindow(WindowPtr pWin)
+@@ -482,23 +482,24 @@ InitRootWindow(WindowPtr pWin)
      pWin->cursorIsNone = FALSE;
      pWin->optional->cursor = rootCursor;
      rootCursor->refcnt++;
+-
 +    pWin->backingStore = defaultBackingStore;
 +    pWin->forcedBS = (defaultBackingStore != NotUseful);
  
--    if (!blackRoot && !whiteRoot) {
--        MakeRootTile(pWin);
--        backFlag |= CWBackPixmap;
-+    if (bgNoneRoot) {
+     if (party_like_its_1989) {
+         MakeRootTile(pWin);
+         backFlag |= CWBackPixmap;
++        pScreen->ChangeWindowAttributes(pWin, backFlag);
++    } else if (bgNoneRoot) {
 +	/* nothing, handled in xf86CreateRootWindow */
-     }
--    else {
-+    else if (blackRoot || whiteRoot) {
-         if (blackRoot)
-             pWin->background.pixel = pScreen->blackPixel;
-         else
+     } else {
+ 	if (whiteRoot)
              pWin->background.pixel = pScreen->whitePixel;
+         else
+             pWin->background.pixel = pScreen->blackPixel;
          backFlag |= CWBackPixel;
 -    } 
--
+ 
 -    pWin->backingStore = defaultBackingStore;
 -    pWin->forcedBS = (defaultBackingStore != NotUseful);
 -    /* We SHOULD check for an error value here XXX */
 -    (*pScreen->ChangeWindowAttributes)(pWin, backFlag);
-+	pScreen->ChangeWindowAttributes(pWin, backFlag);
-+    }
-+    else {
-+        MakeRootTile(pWin);
-+        backFlag |= CWBackPixmap;
-+	pScreen->ChangeWindowAttributes(pWin, backFlag);
++        pScreen->ChangeWindowAttributes(pWin, backFlag);
 +    }
  
      MapWindow(pWin, serverClient);
  }
 diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
-index eb4ebfa..2c18da4 100644
+index 236c00b..083a6ac 100644
 --- a/hw/xfree86/common/xf86Init.c
 +++ b/hw/xfree86/common/xf86Init.c
-@@ -83,6 +83,7 @@
+@@ -79,6 +79,7 @@
  #ifdef RENDER
  #include "picturestr.h"
  #endif
@@ -76,7 +71,7 @@ index eb4ebfa..2c18da4 100644
  
  #include "globals.h"
  
-@@ -137,6 +138,7 @@ xf86CreateRootWindow(WindowPtr pWin)
+@@ -328,6 +329,7 @@ xf86CreateRootWindow(WindowPtr pWin)
    int ret = TRUE;
    int err = Success;
    ScreenPtr pScreen = pWin->drawable.pScreen;
@@ -84,7 +79,7 @@ index eb4ebfa..2c18da4 100644
    RootWinPropPtr pProp;
    CreateWindowProcPtr CreateWindow = (CreateWindowProcPtr)
        dixLookupPrivate(&pScreen->devPrivates, xf86CreateRootWindowKey);
-@@ -190,6 +192,15 @@ xf86CreateRootWindow(WindowPtr pWin)
+@@ -381,6 +383,15 @@ xf86CreateRootWindow(WindowPtr pWin)
      }
    }
  
@@ -101,10 +96,10 @@ index eb4ebfa..2c18da4 100644
    ErrorF("xf86CreateRootWindow() returns %d\n", ret);
  #endif
 diff --git a/hw/xfree86/common/xf86str.h b/hw/xfree86/common/xf86str.h
-index fc94284..56c5507 100644
+index 904c369..8c38f69 100644
 --- a/hw/xfree86/common/xf86str.h
 +++ b/hw/xfree86/common/xf86str.h
-@@ -538,7 +538,7 @@ typedef struct _confdrirec {
+@@ -531,7 +531,7 @@ typedef struct _confdrirec {
  } confDRIRec, *confDRIPtr;
  
  /* These values should be adjusted when new fields are added to ScrnInfoRec */
@@ -113,7 +108,7 @@ index fc94284..56c5507 100644
  #define NUM_RESERVED_POINTERS		15
  #define NUM_RESERVED_FUNCS		11
  
-@@ -977,6 +977,9 @@ typedef struct _ScrnInfoRec {
+@@ -959,6 +959,9 @@ typedef struct _ScrnInfoRec {
      ClockRangesPtr	clockRanges;
      int			adjustFlags;
  
@@ -124,22 +119,22 @@ index fc94284..56c5507 100644
       * These can be used when the minor ABI version is incremented.
       * The NUM_* parameters must be reduced appropriately to keep the
 diff --git a/include/opaque.h b/include/opaque.h
-index 3d19d27..cf5d135 100644
+index 07a0715..be1577b 100644
 --- a/include/opaque.h
 +++ b/include/opaque.h
-@@ -74,6 +74,7 @@ extern Bool defeatAccessControl;
+@@ -71,6 +71,7 @@ extern Bool defeatAccessControl;
  extern long maxBigRequestSize;
- extern Bool blackRoot;
+ extern Bool party_like_its_1989;
  extern Bool whiteRoot;
 +extern Bool bgNoneRoot;
  
  extern Bool CoreDump;
  
 diff --git a/os/utils.c b/os/utils.c
-index f58c763..72a03c8 100644
+index b100949..c41b45b 100644
 --- a/os/utils.c
 +++ b/os/utils.c
-@@ -615,6 +615,7 @@ void UseMsg(void)
+@@ -515,6 +515,7 @@ void UseMsg(void)
  #endif
      ErrorF("-nolisten string       don't listen on protocol\n");
      ErrorF("-noreset               don't reset after last client exists\n");
@@ -147,7 +142,7 @@ index f58c763..72a03c8 100644
      ErrorF("-reset                 reset after last client exists\n");
      ErrorF("-p #                   screen-saver pattern duration (minutes)\n");
      ErrorF("-pn                    accept failure to listen on all ports\n");
-@@ -986,6 +987,8 @@ ProcessCommandLine(int argc, char *argv[])
+@@ -859,6 +860,8 @@ ProcessCommandLine(int argc, char *argv[])
  	    defaultBackingStore = WhenMapped;
          else if ( strcmp( argv[i], "-wr") == 0)
              whiteRoot = TRUE;
@@ -156,6 +151,3 @@ index f58c763..72a03c8 100644
          else if ( strcmp( argv[i], "-maxbigreqsize") == 0) {
               if(++i < argc) {
                   long reqSizeArg = atol(argv[i]);
--- 
-1.6.0.1
-

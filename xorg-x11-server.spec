@@ -18,7 +18,7 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.5.3
+Version:   1.5.99.3
 Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT
@@ -46,15 +46,11 @@ Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
 Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
-Patch102:  xserver-1.5.2-exa-master-upgrade.patch
 Patch103:  xserver-1.5.0-bg-none-root.patch
-Patch104:  xserver-1.5.0-exa-master-fix-x11perf-crash.patch
-Patch105:  xserver-1.5.1-exa-fix-glyph-segfault.patch
 
 # Red Hat specific tweaking, not intended for upstream
 # XXX move these to the end of the list
 Patch1003:  xserver-1.4.99-pic-libxf86config.patch
-Patch1005:  xserver-1.4.99-builtin-fonts.patch
 
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
@@ -64,7 +60,6 @@ Patch2014:  xserver-1.5.0-projector-fb-size.patch
 Patch5001:  xserver-1.4.99-alloca-poison.patch
 # This really could be done prettier.
 Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
-Patch5003:  xserver-1.5.1-xgi.patch
 
 Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
 
@@ -72,17 +67,12 @@ Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
 Patch5011: xserver-1.4.99-endian.patch
 
 # evdev keyboard map fix
-#Patch5013: xserver-1.5.0-xkb-fix-ProcXkbSetXYZ-to-work-on-all.patch
-Patch5013: xserver-1.5.0-force-SwitchCoreKeyboard-for-evdev.patch
 # Patch5015: xserver-1.5.0-enable-selinux.patch
-Patch6000: xserver-1.5.0-hide-cursor.patch
-Patch6001: xserver-1.5.0-edid-backport.patch
 
 # force mode debugging on for randr 1.2 drivers
 Patch6002: xserver-1.5.1-mode-debug.patch
 
-# Bug 434807
-Patch6003: xserver-1.5.2-more-sanity-checks.patch
+Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -107,20 +97,14 @@ BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
-BuildRequires: xorg-x11-proto-devel >= 7.4-3
-BuildRequires: damageproto >= 1.1
-BuildRequires: dri2proto >= 1.99.1
-BuildRequires: fixesproto >= 4.0
-BuildRequires: glproto >= 1.4.9
-BuildRequires: kbproto >= 1.0.3
-BuildRequires: randrproto >= 1.2
-BuildRequires: renderproto >= 0.9.3
-BuildRequires: scrnsaverproto >= 1.1
+BuildRequires: xorg-x11-proto-devel >= 7.4-10
 
-BuildRequires: xorg-x11-xtrans-devel >= 1.0.3-3
+BuildRequires: xorg-x11-xtrans-devel >= 1.2.2-1
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
 BuildRequires: libfontenc-devel libXtst-devel libXdmcp-devel
 BuildRequires: libX11-devel libXext-devel
+BuildRequires: libXinerama-devel
+BuildRequires: freetype freetype-devel
 
 # DMX config utils buildreqs.
 BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
@@ -349,12 +333,11 @@ install -m 0755 %{SOURCE11} $RPM_BUILD_ROOT%{_bindir}
 # Make the source package
 %define xserver_source_dir %{_datadir}/xorg-x11-server-source
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
-mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/xfree86/{common,utils/xorgconfig}}
+mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/xfree86/common}
 cp cpprules.in %{inst_srcdir}
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/{xorgconf.cpp,Options} %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
-cp hw/xfree86/utils/xorgconfig/Cards{,98} %{inst_srcdir}/hw/xfree86/utils/xorgconfig/
 
 install -m 0755 %{SOURCE20} $RPM_BUILD_ROOT%{_bindir}/xvfb-run
 
@@ -363,9 +346,6 @@ xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
 
 # Remove unwanted files/dirs
 {
-    rm -f $RPM_BUILD_ROOT%{_bindir}/xorgconfig
-    rm -f $RPM_BUILD_ROOT%{_mandir}/man1/xorgconfig.1*
-    rm -f $RPM_BUILD_ROOT%{_libdir}/X11/Cards
     rm -f $RPM_BUILD_ROOT%{_libdir}/X11/Options
     rm -f $RPM_BUILD_ROOT%{_bindir}/in?
     rm -f $RPM_BUILD_ROOT%{_bindir}/ioport
@@ -428,8 +408,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/extensions/libdbe.so
 %{_libdir}/xorg/modules/extensions/libextmod.so
 %dir %{_libdir}/xorg/modules/input
-%dir %{_libdir}/xorg/modules/fonts
-%{_libdir}/xorg/modules/fonts/libfreetype.so
 %dir %{_libdir}/xorg/modules/linux
 %{_libdir}/xorg/modules/linux/libfbdevhw.so
 %dir %{_libdir}/xorg/modules/multimedia
@@ -495,6 +473,7 @@ rm -rf $RPM_BUILD_ROOT
 %files Xephyr
 %defattr(-,root,root,-)
 %{_bindir}/Xephyr
+%{_mandir}/man1/Xephyr.1*
 
 
 %if %{with_hw_servers}
@@ -514,6 +493,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Dec 19 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.3-1
+- xserver 1.5.99.3
+- drop patches merged into master
+- xserver-1.5.99.3-dmx-xcalloc.patch: avoid dmx Xcalloc build errors
+
 * Wed Nov 05 2008 Adam Jackson <ajax@redhat.com> 1.5.3-1
 - xserver 1.5.3
 
