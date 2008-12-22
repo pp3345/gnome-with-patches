@@ -1,4 +1,4 @@
-From 656ca314bb97341a07d4bbd7fcfe7af9a3689761 Mon Sep 17 00:00:00 2001
+From cb1ac4a749a208eb8f9995042a110134977146d2 Mon Sep 17 00:00:00 2001
 From: Dave Airlie <airlied@panoply-rh.(none)>
 Date: Thu, 13 Mar 2008 16:16:46 +1000
 Subject: [PATCH] fbdev: make entity fail if PCI claimed already.
@@ -6,8 +6,8 @@ Subject: [PATCH] fbdev: make entity fail if PCI claimed already.
 bad kitty fbdev.
 ---
  hw/xfree86/common/xf86Bus.c   |    3 +++
- hw/xfree86/common/xf86fbBus.c |    3 +++
- 2 files changed, 6 insertions(+), 0 deletions(-)
+ hw/xfree86/common/xf86fbBus.c |    7 +++++++
+ 2 files changed, 10 insertions(+), 0 deletions(-)
 
 diff --git a/hw/xfree86/common/xf86Bus.c b/hw/xfree86/common/xf86Bus.c
 index f7ffac8..9f4e0ca 100644
@@ -24,19 +24,23 @@ index f7ffac8..9f4e0ca 100644
  	return NULL;
      
 diff --git a/hw/xfree86/common/xf86fbBus.c b/hw/xfree86/common/xf86fbBus.c
-index 102f6b1..48e101b 100644
+index 102f6b1..cfd8811 100644
 --- a/hw/xfree86/common/xf86fbBus.c
 +++ b/hw/xfree86/common/xf86fbBus.c
-@@ -58,6 +58,9 @@ xf86ClaimFbSlot(DriverPtr drvp, int chipset, GDevPtr dev, Bool active)
+@@ -58,6 +58,13 @@ xf86ClaimFbSlot(DriverPtr drvp, int chipset, GDevPtr dev, Bool active)
  {
      EntityPtr p;
      int num;
 +
 +    if (pciSlotClaimed)
 +	return -1;
++#if defined(__sparc__) || defined (__sparc64__)
++    if (sbusSlotClaimed)
++	return -1;
++#endif
      
      num = xf86AllocateEntity();
      p = xf86Entities[num];
 -- 
-1.5.4.3
+1.6.0.6
 

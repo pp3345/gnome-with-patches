@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.3
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -493,6 +493,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 22 2008 Adam Jackson <ajax@redhat.com> 1.5.99.3-3
+- xserver-1.5.0-bad-fbdev-thats-mine.patch: Do the same for sbus that we do
+  for pci.
+
 * Mon Dec 22 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.3-2
 - Update to today's server-1.6  branch tip.
 
