@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.3
-Release:   3%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -73,6 +73,8 @@ Patch5011: xserver-1.4.99-endian.patch
 Patch6002: xserver-1.5.1-mode-debug.patch
 
 Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
+# 6005 should be in 1.5.99.4
+Patch6005: xserver-1.5.99.3-ddx-rules.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -152,7 +154,7 @@ Requires: xorg-x11-drv-vesa
 %else
 Requires: xorg-x11-drv-fbdev
 %endif
-Requires: xorg-x11-drv-void xorg-x11-drv-evdev
+Requires: xorg-x11-drv-void xorg-x11-drv-evdev >= 2.1.0-3
 # virtuals.  XXX fix the xkbcomp fork() upstream.
 Requires: xkbdata xkbcomp
 Requires: xorg-x11-server-common >= %{version}-%{release}
@@ -493,6 +495,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Dec 24 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.3-4
+- xserver-1.5.99.3-ddx-rules.patch: enable the DDX to set the rules for the
+  core devices (#477712)
+- Require xorg-x11-drv-evdev 2.1.0-3 for ABI.
+
 * Mon Dec 22 2008 Adam Jackson <ajax@redhat.com> 1.5.99.3-3
 - xserver-1.5.0-bad-fbdev-thats-mine.patch: Do the same for sbus that we do
   for pci.
