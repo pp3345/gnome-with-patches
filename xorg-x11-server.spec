@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.3
-Release:   4%{?dist}
+Release:   5%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -92,7 +92,7 @@ Patch6005: xserver-1.5.99.3-ddx-rules.patch
 %define enable_xorg --disable-xorg
 %endif
 
-%define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev --disable-kdrive-vesa
+%define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev
 %define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg} --enable-dmx
 
 BuildRequires: git-core
@@ -297,19 +297,15 @@ export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
 %configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
 	--with-pic \
-	--disable-{a,c,m}fb \
 	--with-int10=x86emu \
 	--with-default-font-path=%{default_font_path} \
 	--with-module-dir=%{moduledir} \
 	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
-	--with-rgb-path=%{_datadir}/X11/rgb \
-	--disable-xorgcfg \
-	--disable-record --disable-xtrap \
+	--disable-record \
 	--enable-install-libxf86config \
 	--enable-xselinux \
 	--with-dri-driver-path=%{drimoduledir} \
-	--disable-dri2 \
 	${CONFIGURE}
 
 make %{?_smp_mflags}
@@ -495,6 +491,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Dec 29 2008 Dave Airlie <airlied@redhat.com> 1.5.99.3-5
+- remove unused build options - enable dri2
+
 * Wed Dec 24 2008 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.3-4
 - xserver-1.5.99.3-ddx-rules.patch: enable the DDX to set the rules for the
   core devices (#477712)
