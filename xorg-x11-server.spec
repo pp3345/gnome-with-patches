@@ -402,7 +402,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules/extensions
 %{_libdir}/xorg/modules/extensions/libglx.so
 %{_libdir}/xorg/modules/extensions/libdri.so
-#{_libdir}/xorg/modules/extensions/libdri2.so
+%{_libdir}/xorg/modules/extensions/libdri2.so
 %{_libdir}/xorg/modules/extensions/libdbe.so
 %{_libdir}/xorg/modules/extensions/libextmod.so
 %dir %{_libdir}/xorg/modules/input
