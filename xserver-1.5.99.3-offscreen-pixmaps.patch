@@ -1,0 +1,46 @@
+From 70e14e1dd95ba965ffd3264af1f2d4b207c67f73 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Wed, 7 Jan 2009 17:14:34 -0500
+Subject: [PATCH] XAA: turn off offscreen pixmaps by default.  again.
+
+---
+ hw/xfree86/xaa/xaaInitAccel.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/hw/xfree86/xaa/xaaInitAccel.c b/hw/xfree86/xaa/xaaInitAccel.c
+index 4087142..3b397dc 100644
+--- a/hw/xfree86/xaa/xaaInitAccel.c
++++ b/hw/xfree86/xaa/xaaInitAccel.c
+@@ -41,7 +41,8 @@ typedef enum {
+     XAAOPT_WRITE_BITMAP,
+     XAAOPT_WRITE_PIXMAP,
+     XAAOPT_PIXMAP_CACHE,
+-    XAAOPT_OFFSCREEN_PIXMAPS
++    XAAOPT_OFFSCREEN_PIXMAPS,
++    XAAOPT_HAS_DUMB_INVERTED_OPTION_SENSE
+ } XAAOpts;
+ 
+ static const OptionInfoRec XAAOptions[] = {
+@@ -87,6 +88,8 @@ static const OptionInfoRec XAAOptions[] = {
+ 				OPTV_BOOLEAN,	{0}, FALSE },
+     {XAAOPT_OFFSCREEN_PIXMAPS,		"XaaNoOffscreenPixmaps",
+ 				OPTV_BOOLEAN,	{0}, FALSE },
++    {XAAOPT_HAS_DUMB_INVERTED_OPTION_SENSE, "XaaOffscreenPixmaps",
++				OPTV_BOOLEAN,   {0}, FALSE },
+     { -1,				NULL,
+ 				OPTV_NONE,	{0}, FALSE }
+ };
+@@ -525,8 +528,8 @@ XAAInitAccel(ScreenPtr pScreen, XAAInfoRecPtr infoRec)
+ #define XAAMSG(s) do { if (serverGeneration == 1) xf86ErrorF(s); } while (0)
+ 
+     if((infoRec->Flags & OFFSCREEN_PIXMAPS) && HaveScreenToScreenCopy &&
+-		!xf86ReturnOptValBool(options, XAAOPT_OFFSCREEN_PIXMAPS,
+-		                      FALSE)) {
++		xf86IsOptionSet(options, XAAOPT_HAS_DUMB_INVERTED_OPTION_SENSE))
++    {
+ 	XAAMSG("\tOffscreen Pixmaps\n");
+     } else {
+ 	infoRec->Flags &= ~OFFSCREEN_PIXMAPS;
+-- 
+1.6.0.3
+

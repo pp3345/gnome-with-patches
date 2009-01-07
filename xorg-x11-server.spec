@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.3
-Release:   6%{?dist}
+Release:   7%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -75,6 +75,7 @@ Patch6002: xserver-1.5.1-mode-debug.patch
 Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
 # 6005 should be in 1.5.99.4
 Patch6005: xserver-1.5.99.3-ddx-rules.patch
+Patch6006: xserver-1.5.99.3-offscreen-pixmaps.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -492,6 +493,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 07 2009 Adam Jackson <ajax@redhat.com> 1.5.99.3-7
+- xserver-1.5.99.3-offscreen-pixmaps.patch: Turn off offscreen pixmaps in XAA.
+  Again.  Sigh.
+
 * Wed Jan 07 2009 Adam Tkac <atkac redhat com> 1.5.99.3-6
 - use "git am" instead of "git-am"
 - added more sources into xorg-x11-server-source to make source compilable
