@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.3
-Release:   5%{?dist}
+Release:   6%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -284,7 +284,7 @@ git-commit -a -q -m "%{version} baseline."
 
 # Apply all the patches.
 #git-am -p1 %{patches}
-git-am -p1 $(awk '/^Patch.*:/ { print "%{_sourcedir}/"$2 }' %{_specdir}/%{name}.spec)
+git am -p1 $(awk '/^Patch.*:/ { print "%{_sourcedir}/"$2 }' %{_specdir}/%{name}.spec)
 
 %build
 
@@ -331,8 +331,9 @@ install -m 0755 %{SOURCE11} $RPM_BUILD_ROOT%{_bindir}
 # Make the source package
 %define xserver_source_dir %{_datadir}/xorg-x11-server-source
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
-mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/xfree86/common}
+mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
 cp cpprules.in %{inst_srcdir}
+cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/{xorgconf.cpp,Options} %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
@@ -491,6 +492,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 07 2009 Adam Tkac <atkac redhat com> 1.5.99.3-6
+- use "git am" instead of "git-am"
+- added more sources into xorg-x11-server-source to make source compilable
+
 * Mon Dec 29 2008 Dave Airlie <airlied@redhat.com> 1.5.99.3-5
 - remove unused build options - enable dri2
 
