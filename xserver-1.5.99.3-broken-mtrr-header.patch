@@ -12,10 +12,11 @@ diff --git a/hw/kdrive/src/kmap.c b/hw/kdrive/src/kmap.c
 index 60e8ae1..537d740 100644
 --- a/hw/kdrive/src/kmap.c
 +++ b/hw/kdrive/src/kmap.c
-@@ -27,6 +27,7 @@
+@@ -27,6 +27,8 @@
  #include <unistd.h>
  #include <sys/mman.h>
  #ifdef HAVE_ASM_MTRR_H
++typedef unsigned char u8;
 +typedef unsigned int u32;
  #include <asm/mtrr.h>
  #endif
@@ -24,10 +25,11 @@ diff --git a/hw/xfree86/os-support/linux/lnx_video.c b/hw/xfree86/os-support/lin
 index 688106a..535c3a0 100644
 --- a/hw/xfree86/os-support/linux/lnx_video.c
 +++ b/hw/xfree86/os-support/linux/lnx_video.c
-@@ -44,6 +44,7 @@
+@@ -44,6 +45,8 @@
  #endif
  
  #ifdef HAS_MTRR_SUPPORT
++typedef unsigned char u8;
 +typedef unsigned int u32;
  #include <asm/mtrr.h>
  #endif
