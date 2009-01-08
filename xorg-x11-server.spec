@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.3
-Release:   7%{?dist}
+Release:   8%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,6 +76,8 @@ Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
 # 6005 should be in 1.5.99.4
 Patch6005: xserver-1.5.99.3-ddx-rules.patch
 Patch6006: xserver-1.5.99.3-offscreen-pixmaps.patch
+# hack around broken mtrr.h.  drop me as soon as possible.
+Patch6007: xserver-1.5.99.3-broken-mtrr-header.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -493,6 +495,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jan 08 2009 Adam Jackson <ajax@redhat.com> 1.5.99.3-8
+- xserver-1.5.99.3-broken-mtrr-header.patch: Unbreak broken mtrr.h.
+
 * Wed Jan 07 2009 Adam Jackson <ajax@redhat.com> 1.5.99.3-7
 - xserver-1.5.99.3-offscreen-pixmaps.patch: Turn off offscreen pixmaps in XAA.
   Again.  Sigh.
