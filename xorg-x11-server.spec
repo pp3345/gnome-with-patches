@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090112
+#define gitdate 20090112
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.5.99.3
-Release:   9%{?dist}
+Version:   1.5.99.901
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -73,8 +73,6 @@ Patch5011: xserver-1.4.99-endian.patch
 Patch6002: xserver-1.5.1-mode-debug.patch
 
 Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
-# 6005 should be in 1.5.99.4
-Patch6005: xserver-1.5.99.3-ddx-rules.patch
 # hack around broken mtrr.h.  drop me as soon as possible.
 Patch6007: xserver-1.5.99.3-broken-mtrr-header.patch
 
@@ -274,18 +272,18 @@ Xserver source code needed to build VNC server (Xvnc)
 git checkout -b fedora
 sed -i 's/git/&+ssh/' .git/config
 %else
-git-init-db
+git init-db
 if [ -z "$GIT_COMMITTER_NAME" ]; then
-    git-config user.email "x@fedoraproject.org"
-    git-config user.name "Fedora X Ninjas"
+    git config user.email "x@fedoraproject.org"
+    git config user.name "Fedora X Ninjas"
 fi
 cp %{SOURCE1} .gitignore
-git-add .
-git-commit -a -q -m "%{version} baseline."
+git add .
+git commit -a -q -m "%{version} baseline."
 %endif
 
 # Apply all the patches.
-#git-am -p1 %{patches}
+#git am -p1 %{patches}
 git am -p1 $(awk '/^Patch.*:/ { print "%{_sourcedir}/"$2 }' %{_specdir}/%{name}.spec)
 
 %build
@@ -494,6 +492,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jan 13 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.901-1
+- xserver 1.6 RC 1
+- fix "git-xyz" to "git xyz"
+- revert yesterdays changes to make-git-snapshot.sh, that was a bad idea.
+
 * Mon Jan 12 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.3-5
 - rebase to today's server-1.6-enterleave branch, current 1.6 plus enterleave
   patches.
