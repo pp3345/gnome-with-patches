@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20081222
+%define gitdate 20090112
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.3
-Release:   8%{?dist}
+Release:   9%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -75,7 +75,6 @@ Patch6002: xserver-1.5.1-mode-debug.patch
 Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
 # 6005 should be in 1.5.99.4
 Patch6005: xserver-1.5.99.3-ddx-rules.patch
-Patch6006: xserver-1.5.99.3-offscreen-pixmaps.patch
 # hack around broken mtrr.h.  drop me as soon as possible.
 Patch6007: xserver-1.5.99.3-broken-mtrr-header.patch
 
@@ -495,6 +494,13 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jan 12 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.3-5
+- rebase to today's server-1.6-enterleave branch, current 1.6 plus enterleave
+  patches.
+- drop xserver-1.5.99.3-offscreen-pixmaps.patch - merged upstream
+- fix up git checkout in make-git-snapshot.sh to allow a remote branch to be
+  specified as $1.
+
 * Thu Jan 08 2009 Adam Jackson <ajax@redhat.com> 1.5.99.3-8
 - xserver-1.5.99.3-broken-mtrr-header.patch: Unbreak broken mtrr.h.
 
