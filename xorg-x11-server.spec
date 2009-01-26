@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.901
-Release:   3%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -75,6 +75,8 @@ Patch6002: xserver-1.5.1-mode-debug.patch
 Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
 # hack around broken mtrr.h.  drop me as soon as possible.
 Patch6007: xserver-1.5.99.3-broken-mtrr-header.patch
+
+Patch6008: xserver-1.5.99.3-fix-core-fonts.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -492,6 +494,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jan 27 2009 Dave Airlie <airlied@redhat.com> 1.5.99.901-4
+- xserver-1.5.99.3-fix-core-fonts.patch (#478999)
+
 * Mon Jan 26 2009 Adam Tkac <atkac redhat com> 1.5.99.901-3
 - improved xserver-1.5.99.3-broken-mtrr-header.patch to unbreak mtrr.h again
 
