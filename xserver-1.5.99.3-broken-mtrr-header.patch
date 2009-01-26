@@ -16,8 +16,8 @@ index 60e8ae1..537d740 100644
  #include <unistd.h>
  #include <sys/mman.h>
  #ifdef HAVE_ASM_MTRR_H
-+typedef unsigned char u8;
-+typedef unsigned int u32;
++typedef unsigned char __u8;
++typedef unsigned int __u32;
  #include <asm/mtrr.h>
  #endif
  
@@ -29,8 +29,8 @@ index 688106a..535c3a0 100644
  #endif
  
  #ifdef HAS_MTRR_SUPPORT
-+typedef unsigned char u8;
-+typedef unsigned int u32;
++typedef unsigned char __u8;
++typedef unsigned int __u32;
  #include <asm/mtrr.h>
  #endif
  

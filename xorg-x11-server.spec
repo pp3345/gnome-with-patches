@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.901
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -492,6 +492,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jan 26 2009 Adam Tkac <atkac redhat com> 1.5.99.901-3
+- improved xserver-1.5.99.3-broken-mtrr-header.patch to unbreak mtrr.h again
+
 * Mon Jan 26 2009 Adam Tkac <atkac redhat com> 1.5.99.901-2
 - rebuild against new openssl
 
