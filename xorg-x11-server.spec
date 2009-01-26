@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.901
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -492,6 +492,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jan 26 2009 Adam Tkac <atkac redhat com> 1.5.99.901-2
+- rebuild against new openssl
+
 * Tue Jan 13 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.901-1
 - xserver 1.6 RC 1
 - fix "git-xyz" to "git xyz"
