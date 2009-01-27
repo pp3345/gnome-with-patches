@@ -1,33 +1,48 @@
-#!/bin/sh
-#
-# Trivial egregious hack to load the console keyboard layout into XKB.
-#
-# Yes, this should really just be written in python.  If you can figure
-# out how to make hal callouts written in python _work_, then please
-# let me know.  In the meantime, we'll do this.
+#!/usr/bin/env python
+# encoding: utf-8
+# vim: tabstop=4 expandtab autoindent shiftwidth=4 fileencoding=utf-8
+"""
+fedora-setup-keyboard.py
 
-[[ -x /usr/bin/python ]] || exit 0
-[[ -x /usr/bin/hal-set-property ]] || exit 0
+Written by Alexander D. Kanevskiy <kad@blackcatlinux.com>
+"""
 
-source /etc/sysconfig/keyboard >& /dev/null || exit 0
+import sys, os, dbus
+import rhpl.keyboard_models
+from rhpl.simpleconfig import SimpleConfigFile
 
-[[ -n "$KEYTABLE" ]] || exit 0
+KBDCONFIG = "/etc/sysconfig/keyboard"
 
-rhplquery () {
-    /usr/bin/python -c "import rhpl.keyboard_models; m = rhpl.keyboard_models.KeyboardModels().get_models(); print \"junk='%s' layout='%s' model='%s' variant='%s' options='%s'\" % tuple(m[\"$1\"])" || echo "exit 0"
-}
+def main():
+    # Sanity checks
+    if 'UDI' not in os.environ:
+        sys.exit(1)
+    if not os.access(KBDCONFIG, os.R_OK):
+        sys.exit(0)
+    # Read config
+    kbd_config = SimpleConfigFile()
+    kbd_config.read(KBDCONFIG)
+    kbd_models = rhpl.keyboard_models.KeyboardModels().get_models()
+    (layout, model, variant, options) = tuple(kbd_models.get(kbd_config.info.get('KEYTABLE',''), ['', '', '', '', ''])[1:])
+    result_dict = { 'layout': layout, 'model': model, 'variant': variant, 'options': options }
+    
+    # Now let's dbus fun begin
+    if 'HALD_DIRECT_ADDR' in os.environ:
+        bus = dbus.connection.Connection(os.environ['HALD_DIRECT_ADDR'])
+    else:
+        bus = dbus.SystemBus()
+    kbd = dbus.Interface(bus.get_object("org.freedesktop.Hal", os.environ['UDI']), 'org.freedesktop.Hal.Device')
+    for key in result_dict:
+        # Respect user settings
+        value = kbd_config.info.get(key.upper(), result_dict[key])
+        if not value:
+            try:
+                kbd.RemoveProperty("input.xkb.%s" % key)
+            except dbus.exceptions.DBusException:
+                pass # key already not exist
+        else:
+            kbd.SetPropertyString("input.xkb.%s" % key, value)
 
-eval `rhplquery $KEYTABLE`
 
-hal_set () {
-    if [[ -n "${!1}" ]]; then
-	/usr/bin/hal-set-property --direct --udi "$UDI" --key input.xkb.$1 --string "${!1}"
-    else
-	/usr/bin/hal-set-property --direct --udi "$UDI" --key input.xkb.$1 --remove
-    fi
-}
-
-hal_set layout
-hal_set model
-hal_set variant
-hal_set options
+if __name__ == '__main__':
+    main()
