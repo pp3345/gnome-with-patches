@@ -18,8 +18,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.5.99.901
-Release:   5%{?dist}
+Version:   1.5.99.902
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -494,6 +494,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 03 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-1
+- xserver 1.6. RC 2
+
 * Tue Jan 27 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.901-5
 - replace fedora-setup-keyboard with pure python one (#478431)
 
