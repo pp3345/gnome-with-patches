@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -77,6 +77,8 @@ Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
 Patch6007: xserver-1.5.99.3-broken-mtrr-header.patch
 
 Patch6008: xserver-1.5.99.3-fix-core-fonts.patch
+# Pushed to master, should be in 1.6
+Patch6009: xserver-1.5.99.902-xinerama.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -494,6 +496,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 04 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-2
+- xserver-1.5.99.902-xinerama.patch: don't update the sprite root window in
+  Xinerama setups (#473825)
+
 * Tue Feb 03 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-1
 - xserver 1.6. RC 2
 
