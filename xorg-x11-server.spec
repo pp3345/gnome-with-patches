@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -496,6 +496,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Feb 06 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-3
+- Update 10-x11-keymap.fdi: only call fedora-setup-keyboard for devices with
+  input.capabilities = keyboard (#484217)
+
 * Wed Feb 04 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-2
 - xserver-1.5.99.902-xinerama.patch: don't update the sprite root window in
   Xinerama setups (#473825)
