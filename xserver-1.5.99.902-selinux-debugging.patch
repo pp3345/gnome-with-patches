@@ -1,0 +1,26 @@
+From 6852b40518a70a884ee1369b6cf5fafe0faedfdb Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Sun, 8 Feb 2009 02:08:46 -0500
+Subject: [PATCH] Additional debugging for selinux failures
+
+Apropos of bug #482924
+---
+ Xext/xselinux.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/Xext/xselinux.c b/Xext/xselinux.c
+index 93ea05b..8e026be 100644
+--- a/Xext/xselinux.c
++++ b/Xext/xselinux.c
+@@ -1977,7 +1977,7 @@ SELinuxExtensionInit(INITARGS)
+ 	    ErrorF("SELinux: Invalid object class mapping, disabling SELinux support.\n");
+ 	    return;
+ 	}
+-	FatalError("SELinux: Failed to set up security class mapping\n");
++	FatalError("SELinux: Failed to set up security class mapping, %s\n", strerror(errno));
+     }
+ 
+     if (avc_open(&avc_option, 1) < 0)
+-- 
+1.6.1.2
+

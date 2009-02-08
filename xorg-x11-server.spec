@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   3%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -73,12 +73,12 @@ Patch5011: xserver-1.4.99-endian.patch
 Patch6002: xserver-1.5.1-mode-debug.patch
 
 Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
-# hack around broken mtrr.h.  drop me as soon as possible.
-Patch6007: xserver-1.5.99.3-broken-mtrr-header.patch
 
 Patch6008: xserver-1.5.99.3-fix-core-fonts.patch
 # Pushed to master, should be in 1.6
 Patch6009: xserver-1.5.99.902-xinerama.patch
+# cf. bug 482924
+Patch6010: xserver-1.5.99.902-selinux-debugging.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -496,6 +496,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Feb 08 2009 Adam Jackson <ajax@redhat.com> 1.5.99.902-4
+- xserver-1.5.99.902-selinux-debugging.patch: Try to figure out why selinux
+  class map setup fails.
+- Remove mtrr header hack.
+
 * Fri Feb 06 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-3
 - Update 10-x11-keymap.fdi: only call fedora-setup-keyboard for devices with
   input.capabilities = keyboard (#484217)
