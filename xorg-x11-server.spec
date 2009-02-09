@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   4%{?dist}
+Release:   5%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -79,6 +79,8 @@ Patch6008: xserver-1.5.99.3-fix-core-fonts.patch
 Patch6009: xserver-1.5.99.902-xinerama.patch
 # cf. bug 482924
 Patch6010: xserver-1.5.99.902-selinux-debugging.patch
+# nominated for 1.6 (FDO #19574)
+Patch6011: xserver-1.5.99.902-mediakeys-crash.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -496,6 +498,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 09 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-5
+- xserver-1.5.99.902-mediakeys-crash.patch: don't crash when multimedia keys
+  are pressed (#483435)
+
 * Sun Feb 08 2009 Adam Jackson <ajax@redhat.com> 1.5.99.902-4
 - xserver-1.5.99.902-selinux-debugging.patch: Try to figure out why selinux
   class map setup fails.
