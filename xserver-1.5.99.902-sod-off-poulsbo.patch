@@ -1,0 +1,26 @@
+From c799dd4390e5ea301c8f4f81784ac590b97f7a07 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Tue, 10 Feb 2009 10:25:19 -0500
+Subject: [PATCH] autoconfig: ignore poulsbo
+
+Thanks, Intel.
+---
+ hw/xfree86/common/xf86AutoConfig.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86AutoConfig.c b/hw/xfree86/common/xf86AutoConfig.c
+index a9a1fd2..19c06c8 100644
+--- a/hw/xfree86/common/xf86AutoConfig.c
++++ b/hw/xfree86/common/xf86AutoConfig.c
+@@ -171,6 +171,8 @@ videoPtrToDriverList(struct pci_device *dev,
+ 	case 0x8086:
+ 	    if ((dev->device_id == 0x00d1) || (dev->device_id == 0x7800)) {
+ 		driverList[0] = "i740";
++	    } else if (dev->device_id == 0x8108) {
++		break; /* you got powervr in my intel! */
+ 	    } else {
+ 		driverList[0] = "intel";
+ 		driverList[1] = "i810";
+-- 
+1.6.1.2
+
