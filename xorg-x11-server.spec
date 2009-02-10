@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   7%{?dist}
+Release:   8%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -314,9 +314,8 @@ export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
 	--with-module-dir=%{moduledir} \
 	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
-	--disable-record \
 	--enable-install-libxf86config \
-	--enable-xselinux \
+	--enable-xselinux --enable-record \
 	--with-dri-driver-path=%{drimoduledir} \
 	${CONFIGURE}
 
@@ -418,6 +417,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/extensions/libdri2.so
 %{_libdir}/xorg/modules/extensions/libdbe.so
 %{_libdir}/xorg/modules/extensions/libextmod.so
+%{_libdir}/xorg/modules/extensions/librecord.so
 %dir %{_libdir}/xorg/modules/input
 %dir %{_libdir}/xorg/modules/linux
 %{_libdir}/xorg/modules/linux/libfbdevhw.so
@@ -504,6 +504,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 10 2009 Adam Jackson <ajax@redhat.com> 1.5.99.902-8
+- Re-enable RECORD. (#472168)
+
 * Tue Feb 10 2009 Adam Jackson <ajax@redhat.com> 1.5.99.902-7
 - xserver-1.5.99.902-sod-off-poulsbo.patch: Don't try the intel driver on
   GMA500. (#472674)
