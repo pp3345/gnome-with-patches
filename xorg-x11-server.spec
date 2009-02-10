@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   5%{?dist}
+Release:   6%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -81,6 +81,9 @@ Patch6009: xserver-1.5.99.902-xinerama.patch
 Patch6010: xserver-1.5.99.902-selinux-debugging.patch
 # nominated for 1.6 (FDO #19574)
 Patch6011: xserver-1.5.99.902-mediakeys-crash.patch
+
+# ensure HAL can start after X, upstream soon, not 1.6 yet.
+Patch6012: xserver-1.5.99.902-listen-for-hal.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -498,6 +501,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 10 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-6
+- xserver-1.5.99.902-listen-for-hal.patch: listen for HAL startup
+  notifications if it isn't running already.
+
 * Mon Feb 09 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-5
 - xserver-1.5.99.902-mediakeys-crash.patch: don't crash when multimedia keys
   are pressed (#483435)
