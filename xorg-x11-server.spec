@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   8%{?dist}
+Release:   9%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -87,6 +87,8 @@ Patch6012: xserver-1.5.99.902-listen-for-hal.patch
 
 # don't try intel on poulsbo
 Patch6013: xserver-1.5.99.902-sod-off-poulsbo.patch
+# In master, nominated for 1.6
+Patch6014: xserver-1.5.99.902-always-RAW.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -504,6 +506,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 11 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-9
+- xserver-1.5.99.902-always-RAW.patch: always init the console to RAW mode.
+
 * Tue Feb 10 2009 Adam Jackson <ajax@redhat.com> 1.5.99.902-8
 - Re-enable RECORD. (#472168)
 
