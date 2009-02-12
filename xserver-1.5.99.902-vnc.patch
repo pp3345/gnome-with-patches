@@ -1,0 +1,29 @@
+From 62cd546931f99504bcf830f20eeefe0dbc81f8a9 Mon Sep 17 00:00:00 2001
+From: Fedora X Ninjas <x@fedoraproject.org>
+Date: Thu, 12 Feb 2009 18:52:57 +0100
+Subject: [PATCH] Don't call drv->UnInit if device doesn't have driver.
+
+This bug probably isn't reproducable with "standard" devices and drivers but it
+is reproducable with VNC devices. They are slave devices which doesn't have
+LocalDevice structure filled. Upstream bug with more details -
+https://bugs.freedesktop.org/show_bug.cgi?id=20087.
+---
+ hw/xfree86/common/xf86Xinput.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Xinput.c b/hw/xfree86/common/xf86Xinput.c
+index 96352a4..3d89e39 100644
+--- a/hw/xfree86/common/xf86Xinput.c
++++ b/hw/xfree86/common/xf86Xinput.c
+@@ -668,7 +668,7 @@ DeleteInputDeviceRequest(DeviceIntPtr pDev)
+     OsBlockSignals();
+     RemoveDevice(pDev);
+ 
+-    if (!isMaster)
++    if (!isMaster && pInfo != NULL)
+     {
+         if(drv->UnInit)
+             drv->UnInit(drv, pInfo, 0);
+-- 
+1.6.1.3
+

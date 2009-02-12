@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   9%{?dist}
+Release:   10%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -89,6 +89,9 @@ Patch6012: xserver-1.5.99.902-listen-for-hal.patch
 Patch6013: xserver-1.5.99.902-sod-off-poulsbo.patch
 # In master, nominated for 1.6
 Patch6014: xserver-1.5.99.902-always-RAW.patch
+
+# https://bugs.freedesktop.org/show_bug.cgi?id=20087
+Patch6015: xserver-1.5.99.902-vnc.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -506,6 +509,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Feb 12 2009 Adam Tkac <atkac redhat com> 1.5.99.902-10
+- don't call drv->UnInit if device doesn't have driver
+
 * Wed Feb 11 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-9
 - xserver-1.5.99.902-always-RAW.patch: always init the console to RAW mode.
 
