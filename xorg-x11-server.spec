@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   10%{?dist}
+Release:   11%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -92,6 +92,8 @@ Patch6014: xserver-1.5.99.902-always-RAW.patch
 
 # https://bugs.freedesktop.org/show_bug.cgi?id=20087
 Patch6015: xserver-1.5.99.902-vnc.patch
+# RH 469572, FDO 20081
+Patch6016: xserver-1.5.99.902-xkb-colors.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -509,6 +511,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 16 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-11
+- xserver-1.5.99.902-xkb-colors.patch: don't confuse src and dst when copying
+  color labels (#469572)
+
 * Thu Feb 12 2009 Adam Tkac <atkac redhat com> 1.5.99.902-10
 - don't call drv->UnInit if device doesn't have driver
 
