@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   11%{?dist}
+Release:   12%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -94,6 +94,9 @@ Patch6014: xserver-1.5.99.902-always-RAW.patch
 Patch6015: xserver-1.5.99.902-vnc.patch
 # RH 469572, FDO 20081
 Patch6016: xserver-1.5.99.902-xkb-colors.patch
+
+# Make autoconfiguration chose nouveau driver for NVIDIA GPUs
+Patch6017: xserver-1.5.99.902-nouveau.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -511,6 +514,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 16 2009 Ben Skeggs <bskeggs@redhat.com> 1.5.99.902-12
+- xserver-1.5.99.902-nouveau.patch: select nouveau as default driver
+  for NVIDIA GPUs
+
 * Mon Feb 16 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.902-11
 - xserver-1.5.99.902-xkb-colors.patch: don't confuse src and dst when copying
   color labels (#469572)
