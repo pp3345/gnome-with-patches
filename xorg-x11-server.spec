@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.902
-Release:   12%{?dist}
+Release:   13%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -42,6 +42,13 @@ Source11:  fedora-setup-keyboard
 
 # "useful" xvfb-run script
 Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
+
+# ABI version provides.
+Source30: find-provides
+%{expand:%%define prev__find_provides %{__find_provides}}
+%define pc_path %{buildroot}/%{_libdir}/pkgconfig/xorg-server.pc
+#define __find_provides %{SOURCE30} %{pc_path} %{prev__find_provides}
+%define __find_provides %{nil}
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -97,6 +104,9 @@ Patch6016: xserver-1.5.99.902-xkb-colors.patch
 
 # Make autoconfiguration chose nouveau driver for NVIDIA GPUs
 Patch6017: xserver-1.5.99.902-nouveau.patch
+
+# hackaround for non-randr drivers, should be in final
+Patch6018: xserver-1.5.99.902-randr-soft-getpanning.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -514,6 +524,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 17 2009 Adam Jackson <ajax@redhat.com> 1.5.99.902-13
+- xserver-1.5.99.902-randr-soft-getpanning.patch: Fail RRGetPanning softly
+  when the driver doesn't support it.
+
 * Mon Feb 16 2009 Ben Skeggs <bskeggs@redhat.com> 1.5.99.902-12
 - xserver-1.5.99.902-nouveau.patch: select nouveau as default driver
   for NVIDIA GPUs
