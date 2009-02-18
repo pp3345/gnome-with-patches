@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.903
-Release:   2%{?dist}
+Release:   3%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -95,6 +95,7 @@ Patch6015: xserver-1.5.99.902-vnc.patch
 Patch6017: xserver-1.5.99.902-nouveau.patch
 
 Patch6018: xserver-1.5.99.903-glx-visual-score.patch
+Patch6019: xserver-1.5.99.903-fontmod.h
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -512,6 +513,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 18 2009 Adam Jackson <ajax@redhat.com> 1.5.99.903-3
+- xserver-1.5.99.903-fontmod.h: Fix build against new libXfont.
+
 * Wed Feb 18 2009 Adam Jackson <ajax@redhat.com> 1.5.99.903-2
 - xserver-1.5.99.903-glx-visual-score.patch: Fix visual scoring.
 
