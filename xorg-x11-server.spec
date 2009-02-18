@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.5.99.903
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -74,9 +74,6 @@ Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
 # Workaround RH bug #449944
 Patch5011: xserver-1.4.99-endian.patch
 
-# evdev keyboard map fix
-# Patch5015: xserver-1.5.0-enable-selinux.patch
-
 # force mode debugging on for randr 1.2 drivers
 Patch6002: xserver-1.5.1-mode-debug.patch
 
@@ -96,6 +93,8 @@ Patch6015: xserver-1.5.99.902-vnc.patch
 
 # Make autoconfiguration chose nouveau driver for NVIDIA GPUs
 Patch6017: xserver-1.5.99.902-nouveau.patch
+
+Patch6018: xserver-1.5.99.903-glx-visual-score.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -513,6 +512,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 18 2009 Adam Jackson <ajax@redhat.com> 1.5.99.903-2
+- xserver-1.5.99.903-glx-visual-score.patch: Fix visual scoring.
+
 * Wed Feb 18 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.5.99.903-1
 - xserver 1.6. RC 3
 - remove patches merged into upstream.

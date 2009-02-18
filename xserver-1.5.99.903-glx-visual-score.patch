@@ -1,0 +1,31 @@
+From 4039603413f9f46d7f725463a70b4a51838e0049 Mon Sep 17 00:00:00 2001
+From: Ian Romanick <ian.d.romanick@intel.com>
+Date: Tue, 17 Feb 2009 08:27:32 -0800
+Subject: [PATCH 01/10] glx: Inialize best_score before calculating visual scores
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+This bug was pointed out by Peter Åstrand.
+
+Signed-off-by: Ian Romanick <ian.d.romanick@intel.com>
+---
+ glx/glxscreens.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/glx/glxscreens.c b/glx/glxscreens.c
+index 87119fb..6f68b06 100644
+--- a/glx/glxscreens.c
++++ b/glx/glxscreens.c
+@@ -354,7 +354,7 @@ static __GLXconfig *
+ pickFBConfig(__GLXscreen *pGlxScreen, VisualPtr visual)
+ {
+     __GLXconfig *best = NULL, *config;
+-    int best_score;
++    int best_score = 0;
+ 
+     for (config = pGlxScreen->fbconfigs; config != NULL; config = config->next) {
+ 	int score = 0;
+-- 
+1.6.1.3
+
