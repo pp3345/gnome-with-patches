@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Extract ABI versions from the .pc file.  Filter out xserver modules.
+#
+# Copyright 2009 Red Hat, Inc.
+# License: MIT
+
+abis=`grep ^abi "$1" | tr '_=.' '-- '`
+echo $abis | while read major minor; do
+    echo "xserver($major) = $minor"
+done
+
+shift
+
+# exec "$@" | grep -v '\.so$'

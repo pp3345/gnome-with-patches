@@ -18,8 +18,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.5.99.903
-Release:   3%{?dist}
+Version:   1.6.0
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -45,11 +45,11 @@ Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 
 # ABI version provides.
 # XXX don't enable any of this yet.  for serious.
-#Source30: find-provides
-#{expand:%%define prev__find_provides %{__find_provides}}
-#define pc_path %{buildroot}/%{_libdir}/pkgconfig/xorg-server.pc
+Source30: find-provides
+%{expand:%%define prev__find_provides %{__find_provides}}
+%define pc_path %{buildroot}/%{_libdir}/pkgconfig/xorg-server.pc
 #define __find_provides %{SOURCE30} %{pc_path} %{prev__find_provides}
-#define __find_provides %{nil}
+%define __find_provides %{nil}
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -82,9 +82,6 @@ Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
 # cf. bug 482924
 Patch6010: xserver-1.5.99.902-selinux-debugging.patch
 
-# ensure HAL can start after X, upstream soon, not 1.6 yet.
-Patch6012: xserver-1.5.99.902-listen-for-hal.patch
-
 # don't try intel on poulsbo
 Patch6013: xserver-1.5.99.902-sod-off-poulsbo.patch
 
@@ -93,9 +90,6 @@ Patch6015: xserver-1.5.99.902-vnc.patch
 
 # Make autoconfiguration chose nouveau driver for NVIDIA GPUs
 Patch6017: xserver-1.5.99.902-nouveau.patch
-
-Patch6018: xserver-1.5.99.903-glx-visual-score.patch
-Patch6019: xserver-1.5.99.903-fontmod.h
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -513,6 +507,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 25 2009 Adam Jackson <ajax@redhat.com> 1.6.0-1
+- xserver 1.6.0
+
 * Wed Feb 18 2009 Adam Jackson <ajax@redhat.com> 1.5.99.903-3
 - xserver-1.5.99.903-fontmod.h: Fix build against new libXfont.
 
