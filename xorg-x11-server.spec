@@ -46,10 +46,10 @@ Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 # ABI version provides.
 # XXX don't enable any of this yet.  for serious.
 Source30: find-provides
-%{expand:%%define prev__find_provides %{__find_provides}}
-%define pc_path %{buildroot}/%{_libdir}/pkgconfig/xorg-server.pc
+#{expand:%%define prev__find_provides %{__find_provides}}
+#define pc_path %{buildroot}/%{_libdir}/pkgconfig/xorg-server.pc
 #define __find_provides %{SOURCE30} %{pc_path} %{prev__find_provides}
-%define __find_provides %{nil}
+#define __find_provides %{nil}
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
