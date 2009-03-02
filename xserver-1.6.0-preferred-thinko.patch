@@ -1,0 +1,28 @@
+From 33c791b421db742e78c74028a5ef5f6604e66c48 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Mon, 2 Mar 2009 13:00:31 -0500
+Subject: [PATCH] Fix output setup when only one head, and it's not the zeroth one.
+
+---
+ hw/xfree86/modes/xf86Crtc.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
+index a8fd099..ad6ca98 100644
+--- a/hw/xfree86/modes/xf86Crtc.c
++++ b/hw/xfree86/modes/xf86Crtc.c
+@@ -2070,9 +2070,9 @@ xf86TargetPreferred(ScrnInfoPtr scrn, xf86CrtcConfigPtr config,
+ 		     (float)config->output[p]->mm_height;
+ 
+ 	if (aspect)
+-	    preferred_match[0] = bestModeForAspect(config, enabled, aspect);
++	    preferred_match[p] = bestModeForAspect(config, enabled, aspect);
+ 
+-	if (preferred_match[0])
++	if (preferred_match[p])
+ 	    ret = TRUE;
+ 
+     } while (0);
+-- 
+1.6.1.3
+
