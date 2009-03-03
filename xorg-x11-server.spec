@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   3%{?dist}
+Release:   4%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -95,6 +95,9 @@ Patch6017: xserver-1.5.99.902-nouveau.patch
 Patch6018: xserver-1.6.0-XIPropToInt.patch
 Patch6019: xserver-1.6.0-XATOM_FLOAT.patch
 Patch6020: xserver-1.6.0-preferred-thinko.patch
+Patch6021: xserver-1.6.0-selinux-raw.patch
+Patch6022: xserver-1.6.0-primary.patch
+Patch6023: xserver-1.6.0-selinux-destroy.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -512,6 +515,14 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Mar 03 2009 Adam Jackson <ajax@redhat.com> 1.6.0-4
+- xserver-1.6.0-selinux-raw.patch: Deal in raw contexts, to avoid paying
+  the price for setrans on every object.
+- xserver-1.6.0-primary.patch: Try harder to figure out what the primary
+  video device is on machines with multiple GPUs.
+- xserver-1.6.0-selinux-destroy.patch: Don't bother relabeling objects that
+  are on the way to destruction.
+
 * Mon Mar 02 2009 Adam Jackson <ajax@redhat.com> 1.6.0-3
 - xserver-1.6.0-preferred-thinko.patch: Fix a thinko in output setup when
   only one head is attached.
