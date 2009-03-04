@@ -1,17 +1,30 @@
-From 9ee22b4f743a2850fed35f179c56f94ce4bb5242 Mon Sep 17 00:00:00 2001
+From 69e53f2493c142ef5569af01ce52565be5b2976e Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Tue, 3 Mar 2009 10:58:33 -0500
 Subject: [PATCH] Primary video device hack
 
 ---
- hw/xfree86/common/xf86pciBus.c |   54 ++++++++++++++++++++++++++++++++++-----
- 1 files changed, 47 insertions(+), 7 deletions(-)
+ hw/xfree86/common/xf86pciBus.c |   60 ++++++++++++++++++++++++++++++++--------
+ 1 files changed, 48 insertions(+), 12 deletions(-)
 
 diff --git a/hw/xfree86/common/xf86pciBus.c b/hw/xfree86/common/xf86pciBus.c
-index 467a0c3..f9999d8 100644
+index 467a0c3..0d2d01c 100644
 --- a/hw/xfree86/common/xf86pciBus.c
 +++ b/hw/xfree86/common/xf86pciBus.c
-@@ -341,6 +341,39 @@ restorePciBusState(BusAccPtr ptr)
+@@ -60,11 +60,7 @@ static struct pci_device ** xf86PciVideoInfo = NULL;	/* PCI probe for video hw *
+ /* PCI classes that get included in xf86PciVideoInfo */
+ #define PCIINFOCLASSES(c) \
+     ( (((c) & 0x00ff0000) == (PCI_CLASS_PREHISTORIC << 16)) \
+-      || (((c) & 0x00ff0000) == (PCI_CLASS_DISPLAY << 16)) \
+-      || ((((c) & 0x00ffff00) \
+-	   == ((PCI_CLASS_MULTIMEDIA << 16) | (PCI_SUBCLASS_MULTIMEDIA_VIDEO << 8)))) \
+-      || ((((c) & 0x00ffff00) \
+-	   == ((PCI_CLASS_PROCESSOR << 16) | (PCI_SUBCLASS_PROCESSOR_COPROC << 8)))) )
++      || (((c) & 0x00ff0000) == (PCI_CLASS_DISPLAY << 16)) )
+ 
+ /*
+  * PCI classes that have messages printed always.  The others are only
+@@ -341,6 +337,39 @@ restorePciBusState(BusAccPtr ptr)
  }
  #undef MASKBITS
  
@@ -51,7 +64,7 @@ index 467a0c3..f9999d8 100644
  
  /*
   * xf86Bus.c interface
-@@ -375,24 +408,31 @@ xf86PciProbe(void)
+@@ -375,24 +404,31 @@ xf86PciProbe(void)
  	}
      }
  

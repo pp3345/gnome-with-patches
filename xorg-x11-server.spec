@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   5%{?dist}
+Release:   6%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -45,10 +45,7 @@ Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 # ABI version provides.
 # XXX don't enable any of this yet.  for serious.
 Source30: find-provides
-#{expand:%%define prev__find_provides %{__find_provides}}
-#define pc_path %{buildroot}/%{_libdir}/pkgconfig/xorg-server.pc
-#define __find_provides %{SOURCE30} %{pc_path} %{prev__find_provides}
-#define __find_provides %{nil}
+#define __find_provides {nil}
 
 # OpenGL compositing manager feature/optimization patches.
 Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
@@ -88,7 +85,7 @@ Patch6013: xserver-1.5.99.902-sod-off-poulsbo.patch
 Patch6015: xserver-1.5.99.902-vnc.patch
 
 # Make autoconfiguration chose nouveau driver for NVIDIA GPUs
-Patch6017: xserver-1.5.99.902-nouveau.patch
+Patch6016: xserver-1.5.99.902-nouveau.patch
 
 # from master, may end up in 1.6.1.
 Patch6018: xserver-1.6.0-XIPropToInt.patch
@@ -128,7 +125,6 @@ BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
 BuildRequires: libfontenc-devel libXtst-devel libXdmcp-devel
 BuildRequires: libX11-devel libXext-devel
 BuildRequires: libXinerama-devel
-BuildRequires: freetype freetype-devel
 
 # DMX config utils buildreqs.
 BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
@@ -144,10 +140,6 @@ BuildRequires: mesa-libGL-devel >= 7.1-0.37
 # BuildRequires: mesa-source >= 7.1-0.36
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0 kernel-devel
-%if %{with_hw_servers}
-Requires: libdrm >= 2.4.0
-Requires: fedora-setup-keyboard
-%endif
 
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.59-1
 BuildRequires: hal-devel dbus-devel
@@ -181,6 +173,8 @@ Requires: xorg-x11-drv-void xorg-x11-drv-evdev >= 2.1.0-3
 # virtuals.  XXX fix the xkbcomp fork() upstream.
 Requires: xkbdata xkbcomp
 Requires: xorg-x11-server-common >= %{version}-%{release}
+Requires: libdrm >= 2.4.0
+Requires: fedora-setup-keyboard
 # Dropped from F9 for being broken, uninstall it.
 Obsoletes: xorg-x11-drv-magictouch <= 1.0.0.5-5.fc8
 # Force sufficiently new libpciaccess
@@ -513,6 +507,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar 04 2009 Adam Jackson <ajax@redhat.com> 1.6.0-6
+- Move fedora-setup-keyboard (and libdrm) Requires to the Xorg subpackage,
+  since they won't do anything at the top level.
+- Remove BR: freetype freetype-devel.
+- xserver-1.6.0-primary.patch: Only consider actual VGA devices.
+
 * Wed Mar 04 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.0-5
 - Drop our own fedora-setup-keyboard script, Require: fedora-setup-keyboard
   package instead.
