@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   4%{?dist}
+Release:   5%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -38,7 +38,6 @@ Source1:   gitignore
 
 # keyboard enablement
 Source10:  10-x11-keymap.fdi
-Source11:  fedora-setup-keyboard
 
 # "useful" xvfb-run script
 Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
@@ -147,6 +146,7 @@ BuildRequires: mesa-libGL-devel >= 7.1-0.37
 BuildRequires: libdrm-devel >= 2.4.0 kernel-devel
 %if %{with_hw_servers}
 Requires: libdrm >= 2.4.0
+Requires: fedora-setup-keyboard
 %endif
 
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.59-1
@@ -347,7 +347,6 @@ install -m 0444 hw/xfree86/common/{vesa,extra}modes $RPM_BUILD_ROOT%{_datadir}/x
 # fedora-isms to slurp keyboard settings out of /etc/sysconfig/keyboard
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/hal/fdi/policy/10osvendor
 install -m 0444 %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/hal/fdi/policy/10osvendor
-install -m 0755 %{SOURCE11} $RPM_BUILD_ROOT%{_bindir}
 %endif
 
 # Make the source package
@@ -413,7 +412,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/X
 %attr(4711, root, root) %{_bindir}/Xorg
 %{_bindir}/cvt
-%{_bindir}/fedora-setup-keyboard
 %{_bindir}/gtf
 %dir %{_datadir}/xorg
 %{_datadir}/hal/fdi/policy/10osvendor/10-x11-keymap.fdi
@@ -515,6 +513,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar 04 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.0-5
+- Drop our own fedora-setup-keyboard script, Require: fedora-setup-keyboard
+  package instead.
+
 * Tue Mar 03 2009 Adam Jackson <ajax@redhat.com> 1.6.0-4
 - xserver-1.6.0-selinux-raw.patch: Deal in raw contexts, to avoid paying
   the price for setrans on every object.
