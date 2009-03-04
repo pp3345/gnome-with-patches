@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   6%{?dist}
+Release:   7%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -35,9 +35,6 @@ Source2:   commitid
 Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source1:   gitignore
 %endif
-
-# keyboard enablement
-Source10:  10-x11-keymap.fdi
 
 # "useful" xvfb-run script
 Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
@@ -338,9 +335,6 @@ mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/xorg
 install -m 0444 hw/xfree86/common/{vesa,extra}modes $RPM_BUILD_ROOT%{_datadir}/xorg/
 
-# fedora-isms to slurp keyboard settings out of /etc/sysconfig/keyboard
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/hal/fdi/policy/10osvendor
-install -m 0444 %{SOURCE10} $RPM_BUILD_ROOT%{_datadir}/hal/fdi/policy/10osvendor
 %endif
 
 # Make the source package
@@ -408,7 +402,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/cvt
 %{_bindir}/gtf
 %dir %{_datadir}/xorg
-%{_datadir}/hal/fdi/policy/10osvendor/10-x11-keymap.fdi
 %{_datadir}/xorg/vesamodes
 %{_datadir}/xorg/extramodes
 %dir %{_libdir}/xorg
@@ -507,6 +500,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Mar 05 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.0-7
+- Remove 10-x11-keymap.fdi, this is provided by fedora-setup-keyboard now.
+
 * Wed Mar 04 2009 Adam Jackson <ajax@redhat.com> 1.6.0-6
 - Move fedora-setup-keyboard (and libdrm) Requires to the Xorg subpackage,
   since they won't do anything at the top level.
