@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   7%{?dist}
+Release:   8%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -500,6 +500,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Mar 06 2009 Adam Jackson <ajax@redhat.com> 1.6.0-8
+- xserver-1.6.0-primary.patch: Really, only look at VGA devices. (#488869)
+
 * Thu Mar 05 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.0-7
 - Remove 10-x11-keymap.fdi, this is provided by fedora-setup-keyboard now.
 

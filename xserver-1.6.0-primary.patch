@@ -20,7 +20,7 @@ index 467a0c3..0d2d01c 100644
 -	   == ((PCI_CLASS_MULTIMEDIA << 16) | (PCI_SUBCLASS_MULTIMEDIA_VIDEO << 8)))) \
 -      || ((((c) & 0x00ffff00) \
 -	   == ((PCI_CLASS_PROCESSOR << 16) | (PCI_SUBCLASS_PROCESSOR_COPROC << 8)))) )
-+      || (((c) & 0x00ff0000) == (PCI_CLASS_DISPLAY << 16)) )
++      || (((c) & 0x00ffff00) == (PCI_CLASS_DISPLAY << 16)) )
  
  /*
   * PCI classes that have messages printed always.  The others are only
