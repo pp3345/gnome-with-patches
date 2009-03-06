@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   8%{?dist}
+Release:   9%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -136,7 +136,7 @@ BuildRequires: mesa-libGL-devel >= 7.1-0.37
 # should be useless now...
 # BuildRequires: mesa-source >= 7.1-0.36
 # XXX silly...
-BuildRequires: libdrm-devel >= 2.4.0 kernel-devel
+BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.59-1
 BuildRequires: hal-devel dbus-devel
@@ -500,6 +500,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Mar 06 2009 Dennis Gilmore <dennis@ausil.us> 1.6.0-9
+- BR kernel-headers not kernel-devel
+
 * Fri Mar 06 2009 Adam Jackson <ajax@redhat.com> 1.6.0-8
 - xserver-1.6.0-primary.patch: Really, only look at VGA devices. (#488869)
 
