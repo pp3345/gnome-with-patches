@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   11%{?dist}
+Release:   12%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -157,6 +157,7 @@ X.Org X11 X server
 %package common
 Summary: Xorg server common files
 Group: User Interface/X
+Requires: pixman >= 0.14.0
 
 %description common
 Common files shared among all X servers.
@@ -506,6 +507,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar 11 2009 Adam Jackson <ajax@redhat.com> 1.6.0-12
+- Requires: pixman >= 0.14.0
+
 * Wed Mar 11 2009 Adam Jackson <ajax@redhat.com> 1.6.0-11
 - xserver-1.6.0-less-acpi-brokenness.patch: Don't build the (broken)
   ACPI code.
