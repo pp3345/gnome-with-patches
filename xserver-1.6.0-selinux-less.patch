@@ -1,0 +1,27 @@
+From 98a389d6fb609cdecbf6422eb6a3a9b6bf503ec2 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Wed, 11 Mar 2009 12:59:36 -0400
+Subject: [PATCH] selinux: Don't enable unless there's something to do.
+
+---
+ Xext/xselinux.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/Xext/xselinux.c b/Xext/xselinux.c
+index f8495ea..042d134 100644
+--- a/Xext/xselinux.c
++++ b/Xext/xselinux.c
+@@ -1952,6 +1952,10 @@ SELinuxExtensionInit(INITARGS)
+ 	return;
+     }
+ 
++    /* Don't init unless there's something to do */
++    if (!security_get_boolean_active("xserver_object_manager"))
++	return;
++
+     /* Check SELinux mode in configuration file */
+     switch(selinuxEnforcingState) {
+     case SELINUX_MODE_DISABLED:
+-- 
+1.6.1.3
+
