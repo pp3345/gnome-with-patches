@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-# F10 TODO list:
+# F11 TODO list:
 #
 # Fix rhpxl to no longer need vesamodes/extramodes
 
@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   9%{?dist}
+Release:   10%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -77,6 +77,9 @@ Patch6010: xserver-1.5.99.902-selinux-debugging.patch
 
 # don't try intel on poulsbo
 Patch6013: xserver-1.5.99.902-sod-off-poulsbo.patch
+
+# don't do selinux if we're not told to
+Patch6014: xserver-1.6.0-selinux-less.patch
 
 # https://bugs.freedesktop.org/show_bug.cgi?id=20087
 Patch6015: xserver-1.5.99.902-vnc.patch
@@ -500,6 +503,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar 11 2009 Adam Jackson <ajax@redhat.com> 1.6.0-10
+- xserver-1.6.0-selinux-less.patch: Don't init selinux unless the policy
+  says to be an object manager.
+
 * Fri Mar 06 2009 Dennis Gilmore <dennis@ausil.us> 1.6.0-9
 - BR kernel-headers not kernel-devel
 
