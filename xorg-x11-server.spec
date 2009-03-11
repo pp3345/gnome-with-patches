@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   10%{?dist}
+Release:   11%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -74,6 +74,9 @@ Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
 
 # cf. bug 482924
 Patch6010: xserver-1.5.99.902-selinux-debugging.patch
+
+# don't build the (broken) acpi code
+Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 
 # don't try intel on poulsbo
 Patch6013: xserver-1.5.99.902-sod-off-poulsbo.patch
@@ -503,6 +506,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar 11 2009 Adam Jackson <ajax@redhat.com> 1.6.0-11
+- xserver-1.6.0-less-acpi-brokenness.patch: Don't build the (broken)
+  ACPI code.
+
 * Wed Mar 11 2009 Adam Jackson <ajax@redhat.com> 1.6.0-10
 - xserver-1.6.0-selinux-less.patch: Don't init selinux unless the policy
   says to be an object manager.
