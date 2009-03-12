@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   12%{?dist}
+Release:   13%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -79,10 +79,13 @@ Patch6010: xserver-1.5.99.902-selinux-debugging.patch
 Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 
 # don't try intel on poulsbo
-Patch6013: xserver-1.5.99.902-sod-off-poulsbo.patch
+Patch6012: xserver-1.5.99.902-sod-off-poulsbo.patch
 
 # don't do selinux if we're not told to
-Patch6014: xserver-1.6.0-selinux-less.patch
+Patch6013: xserver-1.6.0-selinux-less.patch
+
+# selinux performance hack
+Patch6014: xserver-1.6.0-selinux-nlfd.patch
 
 # https://bugs.freedesktop.org/show_bug.cgi?id=20087
 Patch6015: xserver-1.5.99.902-vnc.patch
@@ -144,7 +147,7 @@ BuildRequires: mesa-libGL-devel >= 7.1-0.37
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
-BuildRequires: audit-libs-devel libselinux-devel >= 2.0.59-1
+BuildRequires: audit-libs-devel libselinux-devel >= 2.0.79-1
 BuildRequires: hal-devel dbus-devel
 
 # All server subpackages have a virtual provide for the name of the server
@@ -158,6 +161,7 @@ X.Org X11 X server
 Summary: Xorg server common files
 Group: User Interface/X
 Requires: pixman >= 0.14.0
+Requires: libselinux >= 2.0.79-1
 
 %description common
 Common files shared among all X servers.
@@ -507,6 +511,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Mar 12 2009 Adam Jackson <ajax@redhat.com> 1.6.0-13
+- xselinux-1.6.0-selinux-nlfd.patch: Acquire the netlink socket from selinux,
+  check it ourselves rather than having libselinux bang on it all the time.
+
 * Wed Mar 11 2009 Adam Jackson <ajax@redhat.com> 1.6.0-12
 - Requires: pixman >= 0.14.0
 
@@ -965,7 +973,7 @@ rm -rf $RPM_BUILD_ROOT
 
 * Tue Mar 11 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-3.20080310
 - New 1.5 snapshot.
-- xserver-1.5-x86emy.patch: Fix an x86emu quirk.
+- xserver-1.5-x86emu.patch: Fix an x86emu quirk.
 
 * Fri Mar 07 2008 Adam Jackson <ajax@redhat.com> 1.4.99.901-1.20080307
 - Today's 1.5 snapshot.
