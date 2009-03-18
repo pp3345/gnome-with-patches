@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   13%{?dist}
+Release:   14%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -315,6 +315,12 @@ git am -p1 $(awk '/^Patch.*:/ { print "%{_sourcedir}/"$2 }' %{_specdir}/%{name}.
 
 %define default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
 
+%if %{with_hw_servers}
+%define dri_flags --with-dri-driver-path=%{drimoduledir}
+%else
+%define dri_flags --disable-dri
+%endif
+
 # --with-rgb-path should be superfluous now ?
 # --with-pie ?
 autoreconf -v --install || exit 1
@@ -329,7 +335,7 @@ export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
 	--enable-install-libxf86config \
 	--enable-xselinux --enable-record \
-	--with-dri-driver-path=%{drimoduledir} \
+	%{dri_flags} \
 	${CONFIGURE}
 
 make %{?_smp_mflags}
@@ -372,6 +378,10 @@ xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
+%if !%{with_hw_servers}
+    rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/xorg-server.pc
+    rm -f $RPM_BUILD_ROOT%{_datadir}/aclocal/xorg-server.m4
+%endif
 }
 
 %clean
@@ -511,6 +521,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar 18 2009 Adam Jackson <ajax@redhat.com> 1.6.0-14
+- s390 fixes (Karsten Hopp)
+
 * Thu Mar 12 2009 Adam Jackson <ajax@redhat.com> 1.6.0-13
 - xselinux-1.6.0-selinux-nlfd.patch: Acquire the netlink socket from selinux,
   check it ourselves rather than having libselinux bang on it all the time.
