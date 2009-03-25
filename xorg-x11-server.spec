@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   14%{?dist}
+Release:   15%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -100,6 +100,13 @@ Patch6020: xserver-1.6.0-preferred-thinko.patch
 Patch6021: xserver-1.6.0-selinux-raw.patch
 Patch6022: xserver-1.6.0-primary.patch
 Patch6023: xserver-1.6.0-selinux-destroy.patch
+
+Patch6024: xserver-1.6.0-xinerama-cursors.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=490984
+Patch6025: xserver-1.6.0-xtest-pointerscreen.patch
+# http://bugs.freedesktop.org/show_bug.cgi?id=20557
+Patch6026: xserver-1.6.0-xinerama-crashes.patch
+
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -521,6 +528,14 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar 25 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.0-15
+- xserver-1.6.0-xtest-pointerscreen.patch: set POINTER_SCREEN flag for core
+  XTestFakeInput events (#490984)
+- xserver-1.6.0-xinerama-cursors.patch: don't display SW cursors when
+  switching screens.
+- xserver-1.6.0-xinerama-crashes.patch: don't crash on key repeats in xinerama
+  setups.
+
 * Wed Mar 18 2009 Adam Jackson <ajax@redhat.com> 1.6.0-14
 - s390 fixes (Karsten Hopp)
 
