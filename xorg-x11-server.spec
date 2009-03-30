@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   15%{?dist}
+Release:   16%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -405,10 +405,6 @@ rm -rf $RPM_BUILD_ROOT
     sed -i 's/^\s*Driver(.*)"keyboard"/Driver\1"kbd"/gi' xorg.conf
     sed -i 's/^.*Option.*"XkbRules".*"(xfree86|xorg)".*\n$//gi' xorg.conf
     sed -i 's#^\s*RgbPath.*$##gi' xorg.conf
-    # lame, the nvidia driver needs to override this
-    if ! grep -q 'ModulePath.*nvidia' xorg.conf ; then
-      sed -i 's#^\s*ModulePath.*$##gi' xorg.conf
-    fi
 
     popd
 } &> /dev/null || :
@@ -528,6 +524,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 30 2009 Adam Jackson <ajax@redhat.com> 1.6.0-16
+- Don't nuke ModulePath lines in xorg.conf anymore.  If you're still doing
+  this it's probably because you need to. (#490294)
+
 * Wed Mar 25 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.0-15
 - xserver-1.6.0-xtest-pointerscreen.patch: set POINTER_SCREEN flag for core
   XTestFakeInput events (#490984)
