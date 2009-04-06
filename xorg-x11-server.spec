@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   16%{?dist}
+Release:   17%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -107,6 +107,8 @@ Patch6025: xserver-1.6.0-xtest-pointerscreen.patch
 # http://bugs.freedesktop.org/show_bug.cgi?id=20557
 Patch6026: xserver-1.6.0-xinerama-crashes.patch
 
+# ajax needs to upstream this
+Patch6027: xserver-1.6.0-displayfd.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -524,6 +526,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Apr 06 2009 Adam Jackson <ajax@redhat.com> 1.6.0-17
+- xserver-1.6.0-displayfd.patch: Add -displayfd commandline option.
+
 * Mon Mar 30 2009 Adam Jackson <ajax@redhat.com> 1.6.0-16
 - Don't nuke ModulePath lines in xorg.conf anymore.  If you're still doing
   this it's probably because you need to. (#490294)
