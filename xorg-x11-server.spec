@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   17%{?dist}
+Release:   18%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -109,6 +109,8 @@ Patch6026: xserver-1.6.0-xinerama-crashes.patch
 
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
+
+Patch6028: xserver-1.6.0-restore-zap.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -526,6 +528,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Apr 09 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.0-18
+- xserver-1.6.0-restore-zap.patch: Restore default off for DontZap.
+
 * Mon Apr 06 2009 Adam Jackson <ajax@redhat.com> 1.6.0-17
 - xserver-1.6.0-displayfd.patch: Add -displayfd commandline option.
 
