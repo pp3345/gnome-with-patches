@@ -1,0 +1,24 @@
+From be743d919d85a74133d714d4e5137416de02bfb7 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Thu, 9 Apr 2009 10:38:51 -0400
+Subject: [PATCH] config: Remove i810 from the autoload list, we don't ship it.
+
+---
+ hw/xfree86/common/xf86AutoConfig.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86AutoConfig.c b/hw/xfree86/common/xf86AutoConfig.c
+index 853d661..2e69a31 100644
+--- a/hw/xfree86/common/xf86AutoConfig.c
++++ b/hw/xfree86/common/xf86AutoConfig.c
+@@ -175,7 +175,6 @@ videoPtrToDriverList(struct pci_device *dev,
+ 		break; /* you got powervr in my intel! */
+ 	    } else {
+ 		driverList[0] = "intel";
+-		driverList[1] = "i810";
+ 	    }
+ 	    break;
+ 	case 0x102b:		    driverList[0] = "mga";	break;
+-- 
+1.6.2
+
