@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.0
-Release:   19%{?dist}
+Release:   20%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -154,8 +154,6 @@ BuildRequires: libXv-devel
 # openssl? really?
 BuildRequires: pixman-devel libpciaccess-devel openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 7.1-0.37
-# should be useless now...
-# BuildRequires: mesa-source >= 7.1-0.36
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
@@ -197,8 +195,24 @@ Requires: libdrm >= 2.4.0
 Requires: fedora-setup-keyboard
 # Dropped from F9 for being broken, uninstall it.
 Obsoletes: xorg-x11-drv-magictouch <= 1.0.0.5-5.fc8
+# Dropped from F11, use evdev instead
+Obsoletes: xorg-x11-drv-calcomp <= 1.1.2-1.fc9
+Obsoletes: xorg-x11-drv-citron <= 2.2.1-1.fc9
+Obsoletes: xorg-x11-drv-diamondtouch <= 0.2.0-0.1.fc9
+Obsoletes: xorg-x11-drv-digitaledge <= 1.1.1-1.fc9
+Obsoletes: xorg-x11-drv-dmc <= 1.1.2-1.fc9
+Obsoletes: xorg-x11-drv-dynapro <= 1.1.2-1.fc9
+Obsoletes: xorg-x11-drv-jamstudio <= 1.2.0-1.fc9
+Obsoletes: xorg-x11-drv-magellan <= 1.2.0-1.fc9
+Obsoletes: xorg-x11-drv-microtouch <= 1.2.0-1.fc9
+Obsoletes: xorg-x11-drv-palmax <= 1.2.0-1.fc9
+Obsoletes: xorg-x11-drv-spaceorb <= 1.1.0-6.fc9
+Obsoletes: xorg-x11-drv-summa <= 1.2.0-2.fc10
+Obsoletes: xorg-x11-drv-tek4957 <= 1.2.0-1.fc9
+Obsoletes: xorg-x11-drv-ur98 <= 1.1.0-5.fc9
+Obsoletes: xorg-x11-drv-wiimote <= 0.0.1-1.fc9
 # Force sufficiently new libpciaccess
-Conflicts: libpciaccess < 0.9.1-2
+Conflicts: libpciaccess < 0.10.3-5
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -529,6 +543,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Apr 13 2009 Adam Jackson <ajax@redhat.com> 1.6.0-20
+- Obsolete a bunch of input drivers. (#493221)
+
 * Thu Apr 09 2009 Adam Jackson <ajax@redhat.com> 1.6.0-19
 - xserver-1.6.0-no-i810.patch: Don't try to load i810.
 
