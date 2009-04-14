@@ -18,8 +18,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.6.0
-Release:   20%{?dist}
+Version:   1.6.1
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -56,9 +56,7 @@ Patch1003:  xserver-1.4.99-pic-libxf86config.patch
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
 
-# Trivial things to never merge upstream ever
-# Don't merge this without protecting the gccisms.
-Patch5001:  xserver-1.4.99-alloca-poison.patch
+# Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
 
@@ -85,7 +83,7 @@ Patch6012: xserver-1.5.99.902-sod-off-poulsbo.patch
 Patch6013: xserver-1.6.0-selinux-less.patch
 
 # selinux performance hack
-Patch6014: xserver-1.6.0-selinux-nlfd.patch
+#Patch6014: xserver-1.6.0-selinux-nlfd.patch
 
 # https://bugs.freedesktop.org/show_bug.cgi?id=20087
 Patch6015: xserver-1.5.99.902-vnc.patch
@@ -93,17 +91,9 @@ Patch6015: xserver-1.5.99.902-vnc.patch
 # Make autoconfiguration chose nouveau driver for NVIDIA GPUs
 Patch6016: xserver-1.5.99.902-nouveau.patch
 
-# from master, may end up in 1.6.1.
-Patch6018: xserver-1.6.0-XIPropToInt.patch
-Patch6019: xserver-1.6.0-XATOM_FLOAT.patch
-Patch6020: xserver-1.6.0-preferred-thinko.patch
-Patch6021: xserver-1.6.0-selinux-raw.patch
 Patch6022: xserver-1.6.0-primary.patch
-Patch6023: xserver-1.6.0-selinux-destroy.patch
 
 Patch6024: xserver-1.6.0-xinerama-cursors.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=490984
-Patch6025: xserver-1.6.0-xtest-pointerscreen.patch
 # http://bugs.freedesktop.org/show_bug.cgi?id=20557
 Patch6026: xserver-1.6.0-xinerama-crashes.patch
 
@@ -543,6 +533,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Apr 14 2009 Adam Jackson <ajax@redhat.com> 1.6.1-1
+- xserver 1.6.1
+
 * Mon Apr 13 2009 Adam Jackson <ajax@redhat.com> 1.6.0-20
 - Obsolete a bunch of input drivers. (#493221)
 
