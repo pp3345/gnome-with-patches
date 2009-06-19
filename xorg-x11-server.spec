@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   1.%{gitdate}%{?dist}
+Release:   2.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -527,6 +527,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jun 19 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-2.20090618
+- add missing commitid file.
+
 * Thu Jun 18 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.1.20090618
 - Today's git snapshot.
 - disable Xdmx - it's broken upstream
