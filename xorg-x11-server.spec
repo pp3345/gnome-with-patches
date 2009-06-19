@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-#define gitdate 20090112
+%define gitdate 20090618
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.6.1
-Release:   1%{?dist}
+Version:   1.6.99
+Release:   1.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -59,16 +59,13 @@ Patch2014:  xserver-1.5.0-projector-fb-size.patch
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
-
 Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
-
-# Workaround RH bug #449944
-Patch5011: xserver-1.4.99-endian.patch
 
 # force mode debugging on for randr 1.2 drivers
 Patch6002: xserver-1.5.1-mode-debug.patch
 
-Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
+# FIXME
+#Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
 
 # cf. bug 482924
 Patch6010: xserver-1.5.99.902-selinux-debugging.patch
@@ -76,32 +73,20 @@ Patch6010: xserver-1.5.99.902-selinux-debugging.patch
 # don't build the (broken) acpi code
 Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 
-# don't try intel on poulsbo
-Patch6012: xserver-1.5.99.902-sod-off-poulsbo.patch
-
-# don't do selinux if we're not told to
-Patch6013: xserver-1.6.0-selinux-less.patch
-
 # selinux performance hack
 #Patch6014: xserver-1.6.0-selinux-nlfd.patch
-
-# https://bugs.freedesktop.org/show_bug.cgi?id=20087
-Patch6015: xserver-1.5.99.902-vnc.patch
 
 # Make autoconfiguration chose nouveau driver for NVIDIA GPUs
 Patch6016: xserver-1.5.99.902-nouveau.patch
 
 Patch6022: xserver-1.6.0-primary.patch
 
-Patch6024: xserver-1.6.0-xinerama-cursors.patch
-# http://bugs.freedesktop.org/show_bug.cgi?id=20557
-Patch6026: xserver-1.6.0-xinerama-crashes.patch
-
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
 
-Patch6028: xserver-1.6.0-restore-zap.patch
 Patch6029: xserver-1.6.0-no-i810.patch
+
+Patch6042: xserver-1.6.1-proc-cmdline.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -120,7 +105,8 @@ Patch6029: xserver-1.6.0-no-i810.patch
 %endif
 
 %define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev
-%define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg} --enable-dmx
+%define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
+# FIXME: dmx is broken, no --enable-dmx for you
 
 BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
@@ -132,7 +118,7 @@ BuildRequires: xorg-x11-xtrans-devel >= 1.2.2-1
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
 BuildRequires: libfontenc-devel libXtst-devel libXdmcp-devel
 BuildRequires: libX11-devel libXext-devel
-BuildRequires: libXinerama-devel
+BuildRequires: libXinerama-devel libXi-devel
 
 # DMX config utils buildreqs.
 BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
@@ -312,8 +298,12 @@ Xserver source code needed to build VNC server (Xvnc)
 %if 0%{?gitdate}
 git checkout -b fedora
 sed -i 's/git/&+ssh/' .git/config
+if [ -z "$GIT_COMMITTER_NAME" ]; then
+    git config user.email "x@fedoraproject.org"
+    git config user.name "Fedora X Ninjas"
+fi
 %else
-git init-db
+git init
 if [ -z "$GIT_COMMITTER_NAME" ]; then
     git config user.email "x@fedoraproject.org"
     git config user.name "Fedora X Ninjas"
@@ -353,7 +343,7 @@ export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
 	--enable-xselinux --enable-record \
 	%{dri_flags} \
 	${CONFIGURE}
-
+        
 make %{?_smp_mflags}
 
 %install
@@ -377,7 +367,7 @@ mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
 cp cpprules.in %{inst_srcdir}
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
-cp hw/xfree86/{xorgconf.cpp,Options} %{inst_srcdir}/hw/xfree86
+cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
 
 install -m 0755 %{SOURCE20} $RPM_BUILD_ROOT%{_bindir}/xvfb-run
@@ -483,24 +473,24 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/Xnest.1*
 
 
-%files Xdmx
-%defattr(-,root,root,-)
-%{_bindir}/Xdmx
-%{_bindir}/dmxaddinput
-%{_bindir}/dmxaddscreen
-%{_bindir}/dmxreconfig
-%{_bindir}/dmxresize
-%{_bindir}/dmxrminput
-%{_bindir}/dmxrmscreen
-%{_bindir}/dmxtodmx
-%{_bindir}/dmxwininfo
-%{_bindir}/vdltodmx
-%{_bindir}/xdmx
-%{_bindir}/xdmxconfig
-%{_mandir}/man1/Xdmx.1*
-%{_mandir}/man1/dmxtodmx.1*
-%{_mandir}/man1/vdltodmx.1*
-%{_mandir}/man1/xdmxconfig.1*
+#%files Xdmx
+#%defattr(-,root,root,-)
+#%{_bindir}/Xdmx
+#%{_bindir}/dmxaddinput
+#%{_bindir}/dmxaddscreen
+#%{_bindir}/dmxreconfig
+#%{_bindir}/dmxresize
+#%{_bindir}/dmxrminput
+#%{_bindir}/dmxrmscreen
+#%{_bindir}/dmxtodmx
+#%{_bindir}/dmxwininfo
+#%{_bindir}/vdltodmx
+#%{_bindir}/xdmx
+#%{_bindir}/xdmxconfig
+#%{_mandir}/man1/Xdmx.1*
+#%{_mandir}/man1/dmxtodmx.1*
+#%{_mandir}/man1/vdltodmx.1*
+#%{_mandir}/man1/xdmxconfig.1*
 
 
 %files Xvfb
@@ -519,7 +509,11 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_hw_servers}
 %files devel
 %defattr(-,root,root,-)
-%{_libdir}/libxf86config.a
+# FIXME ajax? please?
+#%{_libdir}/libxf86config.a
+%{_libdir}/libxf86config.so
+%{_libdir}/libxf86config.so.0
+%{_libdir}/libxf86config.so.0.0.0
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
 %{sdkdir}/*.h
@@ -533,6 +527,27 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jun 18 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.1.20090618
+- Today's git snapshot.
+- disable Xdmx - it's broken upstream
+- Removing patches merged upstream or obsolete.
+  xserver-1.4.99-endian.patch - obsolete with autoconf 2.63-1 (#449944)
+  xserver-1.5.99.902-sod-off-poulsbo.patch - upstream
+  xserver-1.6.0-selinux-less.patch - upstream
+  xserver-1.5.99.902-vnc.patch - upstream
+  xserver-1.6.0-restore-zap.patch - upstream
+  xserver-1.6.0-xinerama-cursors.patch - upstream
+  xserver-1.6.0-xinerama-crashes.patch - obsolete, server 1.6 only
+  xserver-1.6.1-xkbsendmap.patch - upstream
+  xserver-1.6.0-randr-xinerama-crash.patch - upstream
+  xserver-1.6.1-avoid-malloc-for-logging.patch - upstream
+  xserver-1.6.1-exa-avoid-swapped-out.patch - upstream
+  xserver-1.6.1-exa-create-pixmap2.patch -  upstream
+  xserver-1.6.1-fix-glx-drawable.patch - upstream
+  xserver-1.6.1-randr-gamma.patch - upstream 
+  xserver-1.6.1-vt-switch.patch - obsolete
+  xserver-1.6.1-pea-quirk.patch - will be upstream
+
 * Tue Apr 14 2009 Adam Jackson <ajax@redhat.com> 1.6.1-1
 - xserver 1.6.1
 

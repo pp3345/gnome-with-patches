@@ -1,0 +1,36 @@
+From 794214c9da2b17c3291ec53b178a035a1f117430 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Thu, 7 May 2009 17:18:31 -0400
+Subject: [PATCH] Dump /proc/cmdline in the log file too.
+
+---
+ hw/xfree86/common/xf86Init.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+), 0 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
+index 2493526..7c0937f 100644
+--- a/hw/xfree86/common/xf86Init.c
++++ b/hw/xfree86/common/xf86Init.c
+@@ -193,6 +193,19 @@ xf86PrintBanner(void)
+     if (uname(&name) >= 0) {
+       ErrorF("Current Operating System: %s %s %s %s %s\n",
+ 	name.sysname, name.nodename, name.release, name.version, name.machine);
++      do {
++	  char buf[80];
++	  int fd = open("/proc/cmdline", O_RDONLY);
++	  if (fd != -1) {
++	    ErrorF("Kernel command line: ");
++	    memset(buf, 0, 80);
++	    while (read(fd, buf, 80) > 0) {
++		ErrorF("%.80s", buf);
++		memset(buf, 0, 80);
++	    }
++	    close(fd);
++	  } 
++      } while (0);
+     }
+   }
+ #endif
+-- 
+1.6.2.2
+
