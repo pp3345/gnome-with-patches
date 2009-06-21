@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   2.%{gitdate}%{?dist}
+Release:   3.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -458,6 +458,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libwfb.so
 %{_libdir}/xorg/modules/libxaa.so
 %{_libdir}/xorg/modules/libxf8_16bpp.so
+%{_libdir}/libxf86config.so
+%{_libdir}/libxf86config.so.0
+%{_libdir}/libxf86config.so.0.0.0
 %{_mandir}/man1/gtf.1*
 %{_mandir}/man1/Xorg.1*
 %{_mandir}/man1/cvt.1*
@@ -509,11 +512,6 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_hw_servers}
 %files devel
 %defattr(-,root,root,-)
-# FIXME ajax? please?
-#%{_libdir}/libxf86config.a
-%{_libdir}/libxf86config.so
-%{_libdir}/libxf86config.so.0
-%{_libdir}/libxf86config.so.0.0.0
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
 %{sdkdir}/*.h
@@ -527,6 +525,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Jun 21 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-3.20090618
+- Move libxf86config files to package xorg-x11-server-Xorg, libxf86config is
+  a shared lib now and required by the Xorg binary.
+
 * Fri Jun 19 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-2.20090618
 - add missing commitid file.
 
