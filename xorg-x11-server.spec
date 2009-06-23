@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   4.%{gitdate}%{?dist}
+Release:   5.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -77,7 +77,7 @@ Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 #Patch6014: xserver-1.6.0-selinux-nlfd.patch
 
 # Make autoconfiguration chose nouveau driver for NVIDIA GPUs
-Patch6016: xserver-1.5.99.902-nouveau.patch
+Patch6016: xserver-1.6.1-nouveau.patch
 
 Patch6022: xserver-1.6.0-primary.patch
 
@@ -525,6 +525,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jun 23 2009 Ben Skeggs <bskeggs@redhat.com> 1.6.99-5.20090618
+- update nouveau autoconfig patch from F11
+
 * Mon Jun 22 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-4.20090618
 - move libxf86config.so to devel package, libxf86config.so.* stays in the
   Xorg package.
