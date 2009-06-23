@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   5.%{gitdate}%{?dist}
+Release:   6.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -288,6 +288,7 @@ drivers, input drivers, or other X modules should install this package.
 %package source
 Summary: Xserver source code required to build VNC server (Xvnc)
 Group: Development/Libraries
+BuildArch: noarch
 
 %description source
 Xserver source code needed to build VNC server (Xvnc)
@@ -525,6 +526,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jun 23 2009 Adam Tkac <atkac redhat com> 1.6.99-6.20090618
+- build xorg-x11-server-source as noarch
+
 * Tue Jun 23 2009 Ben Skeggs <bskeggs@redhat.com> 1.6.99-5.20090618
 - update nouveau autoconfig patch from F11
 
