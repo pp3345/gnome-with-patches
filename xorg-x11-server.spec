@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   6.%{gitdate}%{?dist}
+Release:   7.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -45,8 +45,6 @@ Source30: find-provides
 #define __find_provides {nil}
 
 # OpenGL compositing manager feature/optimization patches.
-Patch100:  xorg-x11-server-1.1.0-no-move-damage.patch
-Patch101:  xserver-1.4.99-dont-backfill-bg-none.patch
 Patch103:  xserver-1.5.0-bg-none-root.patch
 
 # Red Hat specific tweaking, not intended for upstream
@@ -67,14 +65,8 @@ Patch6002: xserver-1.5.1-mode-debug.patch
 # FIXME
 #Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
 
-# cf. bug 482924
-Patch6010: xserver-1.5.99.902-selinux-debugging.patch
-
 # don't build the (broken) acpi code
 Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
-
-# selinux performance hack
-#Patch6014: xserver-1.6.0-selinux-nlfd.patch
 
 # Make autoconfiguration chose nouveau driver for NVIDIA GPUs
 Patch6016: xserver-1.6.1-nouveau.patch
@@ -316,7 +308,7 @@ git commit -a -q -m "%{version} baseline."
 
 # Apply all the patches.
 #git am -p1 %{patches}
-git am -p1 $(awk '/^Patch.*:/ { print "%{_sourcedir}/"$2 }' %{_specdir}/%{name}.spec)
+git am -p1 %{lua: for i, p in ipairs(patches) do print(p.." ") end}
 
 %build
 
@@ -526,6 +518,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jun 29 2009 Adam Jackson <ajax@redhat.com> 1.6.99-7.20090618
+- xserver-1.5.99.902-selinux-debugging.patch: Drop.
+- xorg-x11-server-1.1.0-no-move-damage.patch: Drop.
+- xserver-1.4.99-dont-backfill-bg-none.patch: Drop.
+
 * Tue Jun 23 2009 Adam Tkac <atkac redhat com> 1.6.99-6.20090618
 - build xorg-x11-server-source as noarch
 
