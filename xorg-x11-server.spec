@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   7.%{gitdate}%{?dist}
+Release:   8.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -140,6 +140,7 @@ Summary: Xorg server common files
 Group: User Interface/X
 Requires: pixman >= 0.14.0
 Requires: libselinux >= 2.0.79-1
+Requires: xkeyboard-config
 
 %description common
 Common files shared among all X servers.
@@ -518,6 +519,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jun 29 2009 Adam Jackson <ajax@redhat.com> 1.6.99-8.20090618
+- Requires: xkeyboard-config
+
 * Mon Jun 29 2009 Adam Jackson <ajax@redhat.com> 1.6.99-7.20090618
 - xserver-1.5.99.902-selinux-debugging.patch: Drop.
 - xorg-x11-server-1.1.0-no-move-damage.patch: Drop.
