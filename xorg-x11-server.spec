@@ -140,7 +140,7 @@ Summary: Xorg server common files
 Group: User Interface/X
 Requires: pixman >= 0.14.0
 Requires: libselinux >= 2.0.79-1
-Requires: xkeyboard-config
+Requires: xkbdata xkbcomp
 
 %description common
 Common files shared among all X servers.
@@ -157,8 +157,6 @@ Requires: xorg-x11-drv-vesa
 Requires: xorg-x11-drv-fbdev
 %endif
 Requires: xorg-x11-drv-void xorg-x11-drv-evdev >= 2.1.0-3
-# virtuals.  XXX fix the xkbcomp fork() upstream.
-Requires: xkbdata xkbcomp
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: libdrm >= 2.4.0
 Requires: fedora-setup-keyboard
@@ -520,7 +518,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Mon Jun 29 2009 Adam Jackson <ajax@redhat.com> 1.6.99-8.20090618
-- Requires: xkeyboard-config
+- Move xkb requires to -common subpackage, Xephyr needs them too.
 
 * Mon Jun 29 2009 Adam Jackson <ajax@redhat.com> 1.6.99-7.20090618
 - xserver-1.5.99.902-selinux-debugging.patch: Drop.
