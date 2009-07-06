@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090618
+%define gitdate 20090706
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   8.%{gitdate}%{?dist}
+Release:   9.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -57,7 +57,6 @@ Patch2014:  xserver-1.5.0-projector-fb-size.patch
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
-Patch5007:  xserver-1.5.0-bad-fbdev-thats-mine.patch
 
 # force mode debugging on for randr 1.2 drivers
 Patch6002: xserver-1.5.1-mode-debug.patch
@@ -517,6 +516,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jul 06 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-9.20090706
+- Today's git snapshot.
+- xserver-1.5.0-bad-fbdev-thats-mine.patch: Drop. Merged upstream.
+
 * Mon Jun 29 2009 Adam Jackson <ajax@redhat.com> 1.6.99-8.20090618
 - Move xkb requires to -common subpackage, Xephyr needs them too.
 
