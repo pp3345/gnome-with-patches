@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090706
+%define gitdate 20090707
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   9.%{gitdate}%{?dist}
+Release:   10.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -46,10 +46,6 @@ Source30: find-provides
 
 # OpenGL compositing manager feature/optimization patches.
 Patch103:  xserver-1.5.0-bg-none-root.patch
-
-# Red Hat specific tweaking, not intended for upstream
-# XXX move these to the end of the list
-Patch1003:  xserver-1.4.99-pic-libxf86config.patch
 
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
@@ -283,6 +279,22 @@ BuildArch: noarch
 %description source
 Xserver source code needed to build VNC server (Xvnc)
 
+%package -n libxf86config
+Summary: Xorg configuration parser library
+Group: System Environment/Libraries
+
+%description -n libxf86config
+Xorg configuration parser library
+
+%package -n libxf86config-devel
+Summary: Xorg configuration parser library development files
+Group: Development/Libraries
+Requires: libxf86config = %{version}-%{release}
+Requires: xorg-x11-server-devel = %{version}-%{release}
+
+%description -n libxf86config-devel
+Xorg configuration parser library development files
+
 %prep
 %setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
 
@@ -449,8 +461,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libwfb.so
 %{_libdir}/xorg/modules/libxaa.so
 %{_libdir}/xorg/modules/libxf8_16bpp.so
-%{_libdir}/libxf86config.so.0
-%{_libdir}/libxf86config.so.0.0.0
 %{_mandir}/man1/gtf.1*
 %{_mandir}/man1/Xorg.1*
 %{_mandir}/man1/cvt.1*
@@ -502,7 +512,6 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_hw_servers}
 %files devel
 %defattr(-,root,root,-)
-%{_libdir}/libxf86config.so
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
 %{sdkdir}/*.h
@@ -515,7 +524,24 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 
+%files -n libxf86config
+%defattr(-, root, root, -)
+%{_libdir}/libxf86config.so.0
+%{_libdir}/libxf86config.so.0.0.0
+
+
+%files -n libxf86config-devel
+%defattr(-, root, root, -)
+%{_libdir}/libxf86config.so
+
+
 %changelog
+* Tue Jul 07 2009 Adam Jackson <ajax@redhat.com> 1.6.99-10.20090707
+- Today's git snapshot.
+- xserver-1.4.99-pic-libxf86config.patch: Drop.
+- xserver-1.4.99-document-fontpath-correctly.patch: Typo fixes.
+- libxf86config subpackages.
+
 * Mon Jul 06 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-9.20090706
 - Today's git snapshot.
 - xserver-1.5.0-bad-fbdev-thats-mine.patch: Drop. Merged upstream.

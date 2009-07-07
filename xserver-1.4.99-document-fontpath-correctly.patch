@@ -39,13 +39,13 @@ index 3c657d0..4b562bd 100644
 -.I __projectroot__/lib/X11/fonts/Type1/
 -.I __projectroot__/lib/X11/fonts/75dpi/
 -.I __projectroot__/lib/X11/fonts/100dpi/
-+.I __projectroot__/shared/X11/fonts/local/
-+.I __projectroot__/shared/X11/fonts/misc/
-+.I __projectroot__/shared/X11/fonts/75dpi/:unscaled
-+.I __projectroot__/shared/X11/fonts/100dpi/:unscaled
-+.I __projectroot__/shared/X11/fonts/Type1/
-+.I __projectroot__/shared/X11/fonts/75dpi/
-+.I __projectroot__/shared/X11/fonts/100dpi/
++.I __projectroot__/share/X11/fonts/local/
++.I __projectroot__/share/X11/fonts/misc/
++.I __projectroot__/share/X11/fonts/75dpi/:unscaled
++.I __projectroot__/share/X11/fonts/100dpi/:unscaled
++.I __projectroot__/share/X11/fonts/Type1/
++.I __projectroot__/share/X11/fonts/75dpi/
++.I __projectroot__/share/X11/fonts/100dpi/
  .fi
  .RE
  .PP
