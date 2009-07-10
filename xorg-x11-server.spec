@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090707
+%define gitdate 20090710
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   10.%{gitdate}%{?dist}
+Release:   11.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -70,8 +70,6 @@ Patch6022: xserver-1.6.0-primary.patch
 
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
-
-Patch6029: xserver-1.6.0-no-i810.patch
 
 Patch6042: xserver-1.6.1-proc-cmdline.patch
 
@@ -536,6 +534,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jul 10 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-11.20090710
+- Today's git snapshot.
+- xserver-1.6.0-no-i810.patch: Drop.
+
 * Tue Jul 07 2009 Adam Jackson <ajax@redhat.com> 1.6.99-10.20090707
 - Today's git snapshot.
 - xserver-1.4.99-pic-libxf86config.patch: Drop.
