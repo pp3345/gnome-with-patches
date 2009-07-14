@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090710
+%define gitdate 20090714
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   11.%{gitdate}%{?dist}
+Release:   12.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -90,8 +90,8 @@ Patch6042: xserver-1.6.1-proc-cmdline.patch
 %endif
 
 %define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev
+# XXX dmx
 %define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
-# FIXME: dmx is broken, no --enable-dmx for you
 
 BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
@@ -196,7 +196,7 @@ but it is an X server itself in which you can run other software.  It
 is a very useful tool for developers who wish to test their
 applications without running them on their real X server.
 
-
+%if 0
 %package Xdmx
 Summary: Distributed Multihead X Server and utilities
 Group: User Interface/X
@@ -213,7 +213,7 @@ for Xdmx would be to provide multi-head support using two desktop machines,
 each of which has a single display device attached to it.  A complex
 application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 (each attached to one of 16 computers) into a unified 5120x4096 display.
-
+%endif
 
 %package Xvfb
 Summary: A X Windows System virtual framebuffer X server.
@@ -394,21 +394,6 @@ xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%if %{with_hw_servers}
-%pre Xorg
-{
-    pushd /etc/X11
-
-    [ -e xorg.conf ] || return 0
-
-    sed -i 's/^.*Load.*"(pex5|xie|xtt).*\n$"//gi' xorg.conf
-    sed -i 's/^\s*Driver(.*)"keyboard"/Driver\1"kbd"/gi' xorg.conf
-    sed -i 's/^.*Option.*"XkbRules".*"(xfree86|xorg)".*\n$//gi' xorg.conf
-    sed -i 's#^\s*RgbPath.*$##gi' xorg.conf
-
-    popd
-} &> /dev/null || :
-%endif
 
 %files common
 %defattr(-,root,root,-)
@@ -473,26 +458,26 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/Xnest
 %{_mandir}/man1/Xnest.1*
 
-
-#%files Xdmx
-#%defattr(-,root,root,-)
-#%{_bindir}/Xdmx
-#%{_bindir}/dmxaddinput
-#%{_bindir}/dmxaddscreen
-#%{_bindir}/dmxreconfig
-#%{_bindir}/dmxresize
-#%{_bindir}/dmxrminput
-#%{_bindir}/dmxrmscreen
-#%{_bindir}/dmxtodmx
-#%{_bindir}/dmxwininfo
-#%{_bindir}/vdltodmx
-#%{_bindir}/xdmx
-#%{_bindir}/xdmxconfig
-#%{_mandir}/man1/Xdmx.1*
-#%{_mandir}/man1/dmxtodmx.1*
-#%{_mandir}/man1/vdltodmx.1*
-#%{_mandir}/man1/xdmxconfig.1*
-
+%if 0
+%files Xdmx
+%defattr(-,root,root,-)
+%{_bindir}/Xdmx
+%{_bindir}/dmxaddinput
+%{_bindir}/dmxaddscreen
+%{_bindir}/dmxreconfig
+%{_bindir}/dmxresize
+%{_bindir}/dmxrminput
+%{_bindir}/dmxrmscreen
+%{_bindir}/dmxtodmx
+%{_bindir}/dmxwininfo
+%{_bindir}/vdltodmx
+%{_bindir}/xdmx
+%{_bindir}/xdmxconfig
+%{_mandir}/man1/Xdmx.1*
+%{_mandir}/man1/dmxtodmx.1*
+%{_mandir}/man1/vdltodmx.1*
+%{_mandir}/man1/xdmxconfig.1*
+%endif
 
 %files Xvfb
 %defattr(-,root,root,-)
@@ -524,8 +509,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n libxf86config
 %defattr(-, root, root, -)
-%{_libdir}/libxf86config.so.0
-%{_libdir}/libxf86config.so.0.0.0
+%{_libdir}/libxf86config.so.0*
 
 
 %files -n libxf86config-devel
@@ -534,6 +518,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jul 14 2009 Adam Jackson <ajax@redhat.com> 1.6.99-12.20090714
+- Today's git snapshot.
+- Drop the %%pre script for Xorg, everyone ought to be migrated by now.
+
 * Fri Jul 10 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-11.20090710
 - Today's git snapshot.
 - xserver-1.6.0-no-i810.patch: Drop.
