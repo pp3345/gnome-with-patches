@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090714
+%define gitdate 20090715
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   12.%{gitdate}%{?dist}
+Release:   13.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,7 +97,7 @@ BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
-BuildRequires: xorg-x11-proto-devel >= 7.4-10
+BuildRequires: xorg-x11-proto-devel >= 7.4-19
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.2.2-1
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
@@ -518,6 +518,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jul 15 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-13.20090715
+- Today's git snapshot.
+
 * Tue Jul 14 2009 Adam Jackson <ajax@redhat.com> 1.6.99-12.20090714
 - Today's git snapshot.
 - Drop the %%pre script for Xorg, everyone ought to be migrated by now.
