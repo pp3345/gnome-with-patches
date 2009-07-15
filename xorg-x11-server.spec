@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   13.%{gitdate}%{?dist}
+Release:   14.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -35,6 +35,8 @@ Source2:   commitid
 Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source1:   gitignore
 %endif
+
+Source10:   xserver.pamd
 
 # "useful" xvfb-run script
 Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
@@ -328,7 +330,6 @@ git am -p1 %{lua: for i, p in ipairs(patches) do print(p.." ") end}
 %define dri_flags --disable-dri
 %endif
 
-# --with-rgb-path should be superfluous now ?
 # --with-pie ?
 autoreconf -v --install || exit 1
 export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
@@ -354,10 +355,11 @@ make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
 %if %{with_hw_servers}
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
-# Install the vesamodes and extramodes files to let our install/config tools
-# be able to parse the same modelist as the X server uses (rhpxl).
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/xorg
 install -m 0444 hw/xfree86/common/{vesa,extra}modes $RPM_BUILD_ROOT%{_datadir}/xorg/
+
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
+install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/xserver
 
 %endif
 
@@ -406,6 +408,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_hw_servers}
 %files Xorg
 %defattr(-,root,root,-)
+%config %attr(0644,root,root) %{_sysconfdir}/pam.d/xserver
 %{_bindir}/X
 %attr(4711, root, root) %{_bindir}/Xorg
 %{_bindir}/cvt
@@ -518,6 +521,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jul 15 2009 Adam Jackson <ajax@redhat.com> 1.6.99-14.20090715
+- Move PAM config file here from xdm.
+
 * Wed Jul 15 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-13.20090715
 - Today's git snapshot.
 
