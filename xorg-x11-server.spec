@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090715
+%define gitdate 20090721
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   14.%{gitdate}%{?dist}
+Release:   15.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -521,6 +521,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jul 21 2009 Adam Jackson <ajax@redhat.com> 1.6.99-15.20090721
+- Today's git snapshot.
+
 * Wed Jul 15 2009 Adam Jackson <ajax@redhat.com> 1.6.99-14.20090715
 - Move PAM config file here from xdm.
 
