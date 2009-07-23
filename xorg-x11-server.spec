@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   15.%{gitdate}%{?dist}
+Release:   16.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -45,6 +45,8 @@ Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 # XXX don't enable any of this yet.  for serious.
 Source30: find-provides
 #define __find_provides {nil}
+
+Patch10: xserver-1.6.99-linkmap.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch103:  xserver-1.5.0-bg-none-root.patch
@@ -521,6 +523,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jul 23 2009 Adam Jackson <ajax@redhat.com> 1.6.99-16.20090721
+- xserver-1.6.99-linkmap.patch: Print load offsets of all DSOs on backtrace
+  so we addr2line afterwards.
+
 * Tue Jul 21 2009 Adam Jackson <ajax@redhat.com> 1.6.99-15.20090721
 - Today's git snapshot.
 
