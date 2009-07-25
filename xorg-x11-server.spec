@@ -14,7 +14,7 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090721
+%define gitdate 20090724
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
@@ -101,7 +101,7 @@ BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
-BuildRequires: xorg-x11-proto-devel >= 7.4-19
+BuildRequires: xorg-x11-proto-devel >= 7.4-23
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.2.2-1
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
@@ -523,6 +523,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jul 24 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-16.20090724
+- Today's git snapshot.
+
 * Thu Jul 23 2009 Adam Jackson <ajax@redhat.com> 1.6.99-16.20090721
 - xserver-1.6.99-linkmap.patch: Print load offsets of all DSOs on backtrace
   so we addr2line afterwards.
