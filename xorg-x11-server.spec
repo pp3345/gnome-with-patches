@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   16.%{gitdate}%{?dist}
+Release:   17.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -523,6 +523,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Jul 25 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-17.20090724
+- Bump release number.
+
 * Fri Jul 24 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-16.20090724
 - Today's git snapshot.
 
