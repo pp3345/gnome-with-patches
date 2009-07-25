@@ -1,6 +1,6 @@
 Name:           mutter
 Version:        2.27.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window and compositing manager based on Clutter
 
 Group:          User Interface/Desktops
@@ -147,6 +147,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.27.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
 * Sat Jul 18 2009 Peter Robinson <pbrobinson@gmail.com> 2.27.1-2
 - Updates from review request
 
