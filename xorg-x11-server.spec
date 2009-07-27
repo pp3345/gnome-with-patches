@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   17.%{gitdate}%{?dist}
+Release:   18.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -71,6 +71,7 @@ Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 Patch6016: xserver-1.6.1-nouveau.patch
 
 Patch6022: xserver-1.6.0-primary.patch
+Patch6023: xserver-1.6.99-use-pci-access-boot.patch
 
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
@@ -117,7 +118,7 @@ BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 BuildRequires: libXv-devel
 
 # openssl? really?
-BuildRequires: pixman-devel libpciaccess-devel openssl-devel byacc flex
+BuildRequires: pixman-devel libpciaccess-devel >= 0.10.6-1 openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 7.1-0.37
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
@@ -176,7 +177,7 @@ Obsoletes: xorg-x11-drv-tek4957 <= 1.2.0-1.fc9
 Obsoletes: xorg-x11-drv-ur98 <= 1.1.0-5.fc9
 Obsoletes: xorg-x11-drv-wiimote <= 0.0.1-1.fc9
 # Force sufficiently new libpciaccess
-Conflicts: libpciaccess < 0.10.3-5
+Conflicts: libpciaccess < 0.10.6-1
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -523,6 +524,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Jul 27 2009 Dave Airlie <airlied@redhat.com> 1.6.99-18.20090724
+- xserver-1.6.99-use-pci-access-boot.patch: use pciaccess boot vga
+- not sure what is up with the Conflicts stuff
+
 * Sat Jul 25 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-17.20090724
 - Bump release number.
 
