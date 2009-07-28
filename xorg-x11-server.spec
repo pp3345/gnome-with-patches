@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   20.%{gitdate}%{?dist}
+Release:   21.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,8 +76,8 @@ Patch6023: xserver-1.6.99-use-pci-access-boot.patch
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
 Patch6028: xserver-1.6.99-randr-error-debugging.patch
-
-Patch6042: xserver-1.6.1-proc-cmdline.patch
+Patch6029: xserver-1.6.1-proc-cmdline.patch
+Patch6030: xserver-1.6.99-right-of.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -525,6 +525,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jul 28 2009 Adam Jackson <ajax@redhat.com> 1.6.99-21.20090724
+- xserver-1.6.99-right-of.patch: Default to right-of initial placement
+  for RANDR 1.2 drivers with enough virtual space.
+
 * Tue Jul 28 2009 Adam Jackson <ajax@redhat.com> 1.6.99-20.20090724
 - xserver-1.6.99-use-pci-access-boot.patch: Some chips (thanks Intel) will
   change their PCI class at runtime if you disable their VGA decode, so
