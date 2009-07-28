@@ -1,20 +1,37 @@
+From 30f5e00909399b4503009e32831127d72d34f5df Mon Sep 17 00:00:00 2001
 From: Dave Airlie <airlied@redhat.com>
 Date: Tue, 3 Mar 2009 10:58:33 -0500
 Subject: [PATCH] Primary video device hack - the revenge
 
+---
+ hw/xfree86/common/xf86pciBus.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
+
 diff --git a/hw/xfree86/common/xf86pciBus.c b/hw/xfree86/common/xf86pciBus.c
-index 8ed3567..183b1ba 100644
+index 8ed3567..74aeb44 100644
 --- a/hw/xfree86/common/xf86pciBus.c
 +++ b/hw/xfree86/common/xf86pciBus.c
+@@ -60,7 +60,7 @@ static struct pci_device ** xf86PciVideoInfo = NULL;	/* PCI probe for video hw *
+ /* PCI classes that get included in xf86PciVideoInfo */
+ #define PCIINFOCLASSES(c) \
+     ( (((c) & 0x00ff0000) == (PCI_CLASS_PREHISTORIC << 16)) \
+-      || (((c) & 0x00ffff00) == (PCI_CLASS_DISPLAY << 16)) )
++      || (((c) & 0x00ff0000) == (PCI_CLASS_DISPLAY << 16)) )
+ 
+ /*
+  * PCI classes that have messages printed always.  The others are only
 @@ -400,6 +400,11 @@ xf86PciProbe(void)
  	    xf86PciVideoInfo[num - 1] = info;
  
  	    pci_device_probe(info);
 +
-+		if (pci_device_is_boot_vga(info)) {
-+			primaryBus.type = BUS_PCI;
-+			primaryBus.id.pci = info;
-+		}
++            if (pci_device_is_boot_vga(info)) {
++                primaryBus.type = BUS_PCI;
++                primaryBus.id.pci = info;
++            }
  	    info->user_data = 0;
  	}
      }
+-- 
+1.6.3.3
+

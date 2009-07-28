@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   19.%{gitdate}%{?dist}
+Release:   20.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -525,6 +525,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jul 28 2009 Adam Jackson <ajax@redhat.com> 1.6.99-20.20090724
+- xserver-1.6.99-use-pci-access-boot.patch: Some chips (thanks Intel) will
+  change their PCI class at runtime if you disable their VGA decode, so
+  consider both 0x0300 and 0x0380 classes when looking for the boot VGA.
+
 * Tue Jul 28 2009 Adam Jackson <ajax@redhat.com> 1.6.99-19.20090724
 - xserver-1.6.99-randr-error-debugging.patch: Dump RANDR protocol errors
   to the log.
