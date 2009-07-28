@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   18.%{gitdate}%{?dist}
+Release:   19.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -75,6 +75,7 @@ Patch6023: xserver-1.6.99-use-pci-access-boot.patch
 
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
+Patch6028: xserver-1.6.99-randr-error-debugging.patch
 
 Patch6042: xserver-1.6.1-proc-cmdline.patch
 
@@ -356,6 +357,7 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
 
 %if %{with_hw_servers}
+rm -f $RPM_BUILD_ROOT%{_libdir}/xorg/modules/libxf8_16bpp.so
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/xorg
@@ -449,7 +451,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libvgahw.so
 %{_libdir}/xorg/modules/libwfb.so
 %{_libdir}/xorg/modules/libxaa.so
-%{_libdir}/xorg/modules/libxf8_16bpp.so
 %{_mandir}/man1/gtf.1*
 %{_mandir}/man1/Xorg.1*
 %{_mandir}/man1/cvt.1*
@@ -524,6 +525,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Jul 28 2009 Adam Jackson <ajax@redhat.com> 1.6.99-19.20090724
+- xserver-1.6.99-randr-error-debugging.patch: Dump RANDR protocol errors
+  to the log.
+- Un-package xf8_16bpp, no one cares.
+
 * Mon Jul 27 2009 Dave Airlie <airlied@redhat.com> 1.6.99-18.20090724
 - xserver-1.6.99-use-pci-access-boot.patch: use pciaccess boot vga
 - not sure what is up with the Conflicts stuff
