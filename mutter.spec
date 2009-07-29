@@ -1,12 +1,13 @@
 Name:           mutter
 Version:        2.27.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window and compositing manager based on Clutter
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://git.gnome.org/cgit/mutter
 Source0:        ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.27/%{name}-%{version}.tar.bz2
+Patch0:		mutter-pluginmanager.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: clutter-devel
@@ -61,6 +62,7 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
+%patch0 -p1 -b .pluginmanager
 
 %build
 %configure --with-clutter --disable-static
@@ -147,6 +149,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Wed Jul 29 2009 Peter Robinson <pbrobinson@gmail.com> 2.27.1-4
+- Add patch to fix mutter --replace
+
 * Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.27.1-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
