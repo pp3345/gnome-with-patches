@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   21.%{gitdate}%{?dist}
+Release:   22.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -50,6 +50,7 @@ Patch10: xserver-1.6.99-linkmap.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch103:  xserver-1.5.0-bg-none-root.patch
+Patch104:  dri2-page-flip.patch
 
 Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
@@ -103,7 +104,7 @@ BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
-BuildRequires: xorg-x11-proto-devel >= 7.4-23
+BuildRequires: xorg-x11-proto-devel >= 7.4-27
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.2.2-1
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
@@ -119,8 +120,9 @@ BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 BuildRequires: libXv-devel
 
 # openssl? really?
-BuildRequires: pixman-devel libpciaccess-devel >= 0.10.6-1 openssl-devel byacc flex
-BuildRequires: mesa-libGL-devel >= 7.1-0.37
+BuildRequires: pixman-devel >= 0.15.14
+BuildRequires: libpciaccess-devel >= 0.10.6-1 openssl-devel byacc flex
+BuildRequires: mesa-libGL-devel >= 7.6-0.6
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
@@ -525,6 +527,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jul 29 2009 Kristian Høgsberg <krh@redhat.com> - 1.6.99-22.20090724
+- Add DRI2 page flipping feature.
+
 * Tue Jul 28 2009 Adam Jackson <ajax@redhat.com> 1.6.99-21.20090724
 - xserver-1.6.99-right-of.patch: Default to right-of initial placement
   for RANDR 1.2 drivers with enough virtual space.
