@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   22.%{gitdate}%{?dist}
+Release:   23.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -265,7 +265,6 @@ Obsoletes: xorg-x11-sdk xorg-x11-server-sdk
 Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
 Requires: pkgconfig pixman-devel libpciaccess-devel
-Requires(pre): xorg-x11-filesystem >= 0.99.2-3
 Provides: libxf86config-devel = %{version}-%{release}
 # Virtual provide for transition.  Delete me someday.
 Provides: xorg-x11-server-sdk = %{version}-%{release}
@@ -527,6 +526,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Aug 03 2009 Adam Jackson <ajax@redhat.com> 1.6.99-23.20090724
+- Un-Requires xorg-x11-filesystem
+
 * Wed Jul 29 2009 Kristian Høgsberg <krh@redhat.com> - 1.6.99-22.20090724
 - Add DRI2 page flipping feature.
 
