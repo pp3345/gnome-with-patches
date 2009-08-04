@@ -1,4 +1,4 @@
-From 307264f4bc6c9431aea49be67a6b832ccafc7007 Mon Sep 17 00:00:00 2001
+From 3e94ca1eb90ded7910edbfa42a63bd832cfa405c Mon Sep 17 00:00:00 2001
 From: Dave Airlie <airlied@redhat.com>
 Date: Mon, 3 Aug 2009 14:09:32 +1000
 Subject: [PATCH] X server: VGA arbitration.
@@ -14,7 +14,7 @@ test with lots more sigio mouse movement type stuff - RAC used to disable it
  hw/xfree86/common/xf86DPMS.c           |    4 +-
  hw/xfree86/common/xf86Init.c           |   11 +-
  hw/xfree86/common/xf86PM.c             |    6 +-
- hw/xfree86/common/xf86VGAarbiter.c     | 1137 ++++++++++++++++++++++++++++++++
+ hw/xfree86/common/xf86VGAarbiter.c     | 1150 ++++++++++++++++++++++++++++++++
  hw/xfree86/common/xf86VGAarbiter.h     |   48 ++
  hw/xfree86/common/xf86VGAarbiterPriv.h |  266 ++++++++
  hw/xfree86/common/xf86str.h            |    4 +-
@@ -23,7 +23,7 @@ test with lots more sigio mouse movement type stuff - RAC used to disable it
  hw/xfree86/int10/generic.c             |    2 +
  hw/xfree86/loader/sdksyms.sh           |    1 +
  include/xorg-config.h.in               |    3 +
- 15 files changed, 1508 insertions(+), 10 deletions(-)
+ 15 files changed, 1521 insertions(+), 10 deletions(-)
  create mode 100644 hw/xfree86/common/xf86VGAarbiter.c
  create mode 100644 hw/xfree86/common/xf86VGAarbiter.h
  create mode 100644 hw/xfree86/common/xf86VGAarbiterPriv.h
@@ -225,10 +225,10 @@ index f6138c3..fa24813 100644
  	}
 diff --git a/hw/xfree86/common/xf86VGAarbiter.c b/hw/xfree86/common/xf86VGAarbiter.c
 new file mode 100644
-index 0000000..33357a1
+index 0000000..6a97b7c
 --- /dev/null
 +++ b/hw/xfree86/common/xf86VGAarbiter.c
-@@ -0,0 +1,1137 @@
+@@ -0,0 +1,1150 @@
 +/*
 + * This code was stolen from RAC and adapted to control the legacy vga
 + * interface.
@@ -302,12 +302,14 @@ index 0000000..33357a1
 +static int VGAarbiterGCIndex;
 +static DevPrivateKey VGAarbiterGCKey = &VGAarbiterGCIndex;
 +
++static int vga_no_arb = 0;
 +void
 +xf86VGAarbiterInit(void)
 +{
-+    if (pci_device_vgaarb_init() != 0)
-+        FatalError("VGA Arbiter: cannot open vga arbiter fd. Exiting\n");
-+
++    if (pci_device_vgaarb_init() != 0) {
++	vga_no_arb = 1;
++        Error("VGA Arbiter: cannot open vga arbiter fd. Exiting\n");
++    }
 +}
 +
 +void
@@ -332,8 +334,11 @@ index 0000000..33357a1
 +Bool xf86VGAarbiterAllowDRI(ScreenPtr pScreen)
 +{
 +    int vga_count;
-+    unsigned int rsrc_decodes;
++    int rsrc_decodes;
 +    ScrnInfoPtr         pScrn = xf86Screens[pScreen->myNum];
++
++    if (vga_no_arb)
++	return TRUE;
 +
 +    pci_device_vgaarb_get_info(pScrn->vgaDev, &vga_count, &rsrc_decodes);
 +    if (vga_count > 1) {
@@ -351,6 +356,9 @@ index 0000000..33357a1
 +    GDevPtr dev_tmp;
 +    struct pci_device *dev;
 +
++    if (vga_no_arb)
++	return;
++
 +    dev_tmp = xf86GetDevFromEntity(pScrn->entityList[0],
 +                                   pScrn->entityInstanceList[0]);
 +    sscanf(dev_tmp->busID, "PCI:%d:%d:%d", &bus, &devi, &func);
@@ -363,6 +371,8 @@ index 0000000..33357a1
 +void
 +xf86VGAarbiterDeviceDecodes(ScrnInfoPtr pScrn)
 +{
++    if (vga_no_arb)
++	return;
 +    pci_device_vgaarb_decodes(VGA_ARB_RSRC_LEGACY_MEM | VGA_ARB_RSRC_LEGACY_IO);
 +}
 +
@@ -375,6 +385,9 @@ index 0000000..33357a1
 +#ifdef RENDER
 +    PictureScreenPtr    ps = GetPictureScreenIfSet(pScreen);
 +#endif
++
++    if (vga_no_arb)
++	return FALSE;
 +
 +    pScrn = xf86Screens[pScreen->myNum];
 +    PointPriv = dixLookupPrivate(&pScreen->devPrivates, miPointerScreenKey);

@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   24.%{gitdate}%{?dist}
+Release:   25.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -527,6 +527,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Aug 04 2009 Dave Airlie <airlied@redhat.com> 1.6.99-25.20090804
+- fix VGA arb fatal error
+
 * Tue Aug 04 2009 Dave Airlie <airlied@redhat.com> 1.6.99-24.20090804
 - update server snapshot + add VGA arbitration
 
