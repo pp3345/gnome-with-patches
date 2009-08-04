@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090724
+%define gitdate 20090804
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   23.%{gitdate}%{?dist}
+Release:   24.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -48,6 +48,9 @@ Source30: find-provides
 
 Patch10: xserver-1.6.99-linkmap.patch
 
+# airlied to upstream for 1.7
+Patch100: xserver-1.6.99-vga-arb.patch
+
 # OpenGL compositing manager feature/optimization patches.
 Patch103:  xserver-1.5.0-bg-none-root.patch
 Patch104:  dri2-page-flip.patch
@@ -71,14 +74,12 @@ Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 # Make autoconfiguration chose nouveau driver for NVIDIA GPUs
 Patch6016: xserver-1.6.1-nouveau.patch
 
-Patch6022: xserver-1.6.0-primary.patch
-Patch6023: xserver-1.6.99-use-pci-access-boot.patch
-
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
 Patch6028: xserver-1.6.99-randr-error-debugging.patch
 Patch6029: xserver-1.6.1-proc-cmdline.patch
 Patch6030: xserver-1.6.99-right-of.patch
+
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -526,6 +527,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Aug 04 2009 Dave Airlie <airlied@redhat.com> 1.6.99-24.20090804
+- update server snapshot + add VGA arbitration
+
 * Mon Aug 03 2009 Adam Jackson <ajax@redhat.com> 1.6.99-23.20090724
 - Un-Requires xorg-x11-filesystem
 

@@ -1,6 +1,6 @@
-From 3b9461737f1a0711a2c5a8916628386c359d9203 Mon Sep 17 00:00:00 2001
-From: =?utf-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
-Date: Thu, 18 Jun 2009 13:38:58 +1000
+From b4e4b980663692a3af5787eeaf2d48eb6c0188ed Mon Sep 17 00:00:00 2001
+From: Fedora X Ninjas <airlied@redhat.com>
+Date: Tue, 4 Aug 2009 14:45:58 +1000
 Subject: [PATCH] Add nr for background=none root
 
 ---
@@ -25,7 +25,7 @@ index c24a94f..907a5e8 100644
  int cursorScreenDevPriv[MAXSCREENS];
  
 diff --git a/dix/window.c b/dix/window.c
-index 99b594b..aefc282 100644
+index 32e26d9..0bf1d52 100644
 --- a/dix/window.c
 +++ b/dix/window.c
 @@ -466,22 +466,24 @@ InitRootWindow(WindowPtr pWin)
@@ -59,7 +59,7 @@ index 99b594b..aefc282 100644
      MapWindow(pWin, serverClient);
  }
 diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
-index c4e5898..97bf48a 100644
+index e84da4e..2a0f47a 100644
 --- a/hw/xfree86/common/xf86Init.c
 +++ b/hw/xfree86/common/xf86Init.c
 @@ -77,6 +77,7 @@
@@ -68,9 +68,9 @@ index c4e5898..97bf48a 100644
  #endif
 +#include "xace.h"
  
+ #include "xf86VGAarbiter.h"
  #include "globals.h"
- 
-@@ -312,6 +313,7 @@ xf86CreateRootWindow(WindowPtr pWin)
+@@ -234,6 +235,7 @@ xf86CreateRootWindow(WindowPtr pWin)
    int ret = TRUE;
    int err = Success;
    ScreenPtr pScreen = pWin->drawable.pScreen;
@@ -78,7 +78,7 @@ index c4e5898..97bf48a 100644
    RootWinPropPtr pProp;
    CreateWindowProcPtr CreateWindow = (CreateWindowProcPtr)
        dixLookupPrivate(&pScreen->devPrivates, xf86CreateRootWindowKey);
-@@ -363,6 +365,15 @@ xf86CreateRootWindow(WindowPtr pWin)
+@@ -285,6 +287,15 @@ xf86CreateRootWindow(WindowPtr pWin)
      }
    }
  
@@ -95,7 +95,7 @@ index c4e5898..97bf48a 100644
    return (ret);
  }
 diff --git a/hw/xfree86/common/xf86str.h b/hw/xfree86/common/xf86str.h
-index 3b1346f..b82f168 100644
+index 5c3ee44..e3c7841 100644
 --- a/hw/xfree86/common/xf86str.h
 +++ b/hw/xfree86/common/xf86str.h
 @@ -516,7 +516,7 @@ typedef struct _confdrirec {
@@ -104,10 +104,10 @@ index 3b1346f..b82f168 100644
  /* These values should be adjusted when new fields are added to ScrnInfoRec */
 -#define NUM_RESERVED_INTS		16
 +#define NUM_RESERVED_INTS		15
- #define NUM_RESERVED_POINTERS		15
+ #define NUM_RESERVED_POINTERS		14
  #define NUM_RESERVED_FUNCS		11
  
-@@ -944,6 +944,9 @@ typedef struct _ScrnInfoRec {
+@@ -800,6 +800,9 @@ typedef struct _ScrnInfoRec {
      ClockRangesPtr	clockRanges;
      int			adjustFlags;
  
@@ -151,5 +151,5 @@ index 00abd63..7bfdf8b 100644
               if(++i < argc) {
                   long reqSizeArg = atol(argv[i]);
 -- 
-1.6.3.rc1.2.g0164.dirty
+1.6.0.6
 

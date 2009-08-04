@@ -1,4 +1,4 @@
-From fb33e4a3cb43ff4b2ca4bdd9170d84569d3e9de0 Mon Sep 17 00:00:00 2001
+From 20edb1d61db80f5fedb4d3eea60c67d438502238 Mon Sep 17 00:00:00 2001
 From: =?utf-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
 Date: Wed, 29 Jul 2009 08:26:14 -0400
 Subject: [PATCH] DRI2 Page Flipping
@@ -172,7 +172,7 @@ index 46c9382..3e62782 100644
  extern __GLXclientState *glxGetClient(ClientPtr pClient);
  
 diff --git a/hw/xfree86/dri2/dri2.c b/hw/xfree86/dri2/dri2.c
-index 8795cd1..8f5e0c3 100644
+index d15ced1..7b9fb23 100644
 --- a/hw/xfree86/dri2/dri2.c
 +++ b/hw/xfree86/dri2/dri2.c
 @@ -38,6 +38,7 @@
@@ -181,9 +181,9 @@ index 8795cd1..8f5e0c3 100644
  #include "windowstr.h"
 +#include "dixstruct.h"
  #include "dri2.h"
+ #include "xf86VGAarbiter.h"
  
- #include "xf86.h"
-@@ -55,7 +56,8 @@ typedef struct _DRI2Drawable {
+@@ -56,7 +57,8 @@ typedef struct _DRI2Drawable {
      int			 height;
      DRI2BufferPtr	*buffers;
      int			 bufferCount;
@@ -193,7 +193,7 @@ index 8795cd1..8f5e0c3 100644
  } DRI2DrawableRec, *DRI2DrawablePtr;
  
  typedef struct _DRI2Screen {
-@@ -67,6 +69,7 @@ typedef struct _DRI2Screen {
+@@ -68,6 +70,7 @@ typedef struct _DRI2Screen {
      DRI2CreateBufferProcPtr	 CreateBuffer;
      DRI2DestroyBufferProcPtr	 DestroyBuffer;
      DRI2CopyRegionProcPtr	 CopyRegion;
@@ -201,7 +201,7 @@ index 8795cd1..8f5e0c3 100644
  
      HandleExposuresProcPtr       HandleExposures;
  } DRI2ScreenRec, *DRI2ScreenPtr;
-@@ -118,6 +121,8 @@ DRI2CreateDrawable(DrawablePtr pDraw)
+@@ -119,6 +122,8 @@ DRI2CreateDrawable(DrawablePtr pDraw)
      pPriv->height = pDraw->height;
      pPriv->buffers = NULL;
      pPriv->bufferCount = 0;
@@ -210,7 +210,7 @@ index 8795cd1..8f5e0c3 100644
  
      if (pDraw->type == DRAWABLE_WINDOW)
      {
-@@ -337,6 +342,106 @@ DRI2CopyRegion(DrawablePtr pDraw, RegionPtr pRegion,
+@@ -338,6 +343,106 @@ DRI2CopyRegion(DrawablePtr pDraw, RegionPtr pRegion,
      return Success;
  }
  
@@ -317,7 +317,7 @@ index 8795cd1..8f5e0c3 100644
  void
  DRI2DestroyDrawable(DrawablePtr pDraw)
  {
-@@ -362,7 +467,11 @@ DRI2DestroyDrawable(DrawablePtr pDraw)
+@@ -363,7 +468,11 @@ DRI2DestroyDrawable(DrawablePtr pDraw)
  	xfree(pPriv->buffers);
      }
  
@@ -330,16 +330,16 @@ index 8795cd1..8f5e0c3 100644
  
      if (pDraw->type == DRAWABLE_WINDOW)
      {
-@@ -414,7 +523,7 @@ DRI2ScreenInit(ScreenPtr pScreen, DRI2InfoPtr info)
-     if (info->version < 3)
- 	return FALSE;
+@@ -421,7 +530,7 @@ DRI2ScreenInit(ScreenPtr pScreen, DRI2InfoPtr info)
+         return FALSE;
+     }
  
 -    ds = xalloc(sizeof *ds);
 +    ds = xcalloc(1, sizeof *ds);
      if (!ds)
  	return FALSE;
  
-@@ -426,6 +535,9 @@ DRI2ScreenInit(ScreenPtr pScreen, DRI2InfoPtr info)
+@@ -433,6 +542,9 @@ DRI2ScreenInit(ScreenPtr pScreen, DRI2InfoPtr info)
      ds->DestroyBuffer  = info->DestroyBuffer;
      ds->CopyRegion     = info->CopyRegion;
  
@@ -456,5 +456,5 @@ index 029dce8..9f5f389 100644
  	return BadRequest;
      }
 -- 
-1.6.3.3
+1.6.0.6
 
