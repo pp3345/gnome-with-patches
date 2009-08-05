@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   25.%{gitdate}%{?dist}
+Release:   26.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -527,6 +527,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Aug 05 2009 Dave Airlie <airlied@redhat.com> 1.6.99-26.20090804
+- fix VGA arb device lookup - noticed by mclasen in qemu
+
 * Tue Aug 04 2009 Dave Airlie <airlied@redhat.com> 1.6.99-25.20090804
 - fix VGA arb fatal error
 

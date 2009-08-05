@@ -1,4 +1,4 @@
-From 3e94ca1eb90ded7910edbfa42a63bd832cfa405c Mon Sep 17 00:00:00 2001
+From 5900761f4d2d75674d3d303ef37f60a9dcde4309 Mon Sep 17 00:00:00 2001
 From: Dave Airlie <airlied@redhat.com>
 Date: Mon, 3 Aug 2009 14:09:32 +1000
 Subject: [PATCH] X server: VGA arbitration.
@@ -225,7 +225,7 @@ index f6138c3..fa24813 100644
  	}
 diff --git a/hw/xfree86/common/xf86VGAarbiter.c b/hw/xfree86/common/xf86VGAarbiter.c
 new file mode 100644
-index 0000000..6a97b7c
+index 0000000..bac5183
 --- /dev/null
 +++ b/hw/xfree86/common/xf86VGAarbiter.c
 @@ -0,0 +1,1150 @@
@@ -355,16 +355,16 @@ index 0000000..6a97b7c
 +    int bus, devi, func;
 +    GDevPtr dev_tmp;
 +    struct pci_device *dev;
++    EntityInfoPtr entity;
 +
 +    if (vga_no_arb)
 +	return;
 +
-+    dev_tmp = xf86GetDevFromEntity(pScrn->entityList[0],
-+                                   pScrn->entityInstanceList[0]);
-+    sscanf(dev_tmp->busID, "PCI:%d:%d:%d", &bus, &devi, &func);
-+    ErrorF("registering PCI:%d:%d:%d with the VGA arbitration\n", bus, devi, func);
++    entity = xf86GetEntityInfo(pScrn->entityList[0]);
++    if (entity->type != BUS_PCI)
++	return;
 +
-+    dev = pci_device_find_by_slot(0, bus, devi, func);
++    dev = entity->bus.id.pci;
 +    pScrn->vgaDev = dev;
 +}
 +
