@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   26.%{gitdate}%{?dist}
+Release:   27.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -527,6 +527,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Aug 05 2009 Adam Jackson <ajax@redhat.com> 1.6.99-27.20090804
+- xserver-1.6.99-vga-arb.patch: Fix crashes from miscompilation without
+  xorg-config.h.
+
 * Wed Aug 05 2009 Dave Airlie <airlied@redhat.com> 1.6.99-26.20090804
 - fix VGA arb device lookup - noticed by mclasen in qemu
 
@@ -568,7 +572,7 @@ rm -rf $RPM_BUILD_ROOT
 
 * Thu Jul 23 2009 Adam Jackson <ajax@redhat.com> 1.6.99-16.20090721
 - xserver-1.6.99-linkmap.patch: Print load offsets of all DSOs on backtrace
-  so we addr2line afterwards.
+  so we can addr2line afterwards.
 
 * Tue Jul 21 2009 Adam Jackson <ajax@redhat.com> 1.6.99-15.20090721
 - Today's git snapshot.

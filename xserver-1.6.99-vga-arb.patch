@@ -1,7 +1,7 @@
-From 0fa02caca3108dee3f1ddfb8ba8ce0b6bb61bcd1 Mon Sep 17 00:00:00 2001
+From 1dd898dc07dadbb2f115bbb177bb52d05bea2df3 Mon Sep 17 00:00:00 2001
 From: Dave Airlie <airlied@redhat.com>
 Date: Mon, 3 Aug 2009 14:09:32 +1000
-Subject: [PATCH] X server: VGA arbitration.
+Subject: [PATCH 03/15] X server: VGA arbitration.
 
 This patch adds the VGA arb paths to the X server.
 
@@ -14,7 +14,7 @@ test with lots more sigio mouse movement type stuff - RAC used to disable it
  hw/xfree86/common/xf86DPMS.c           |    4 +-
  hw/xfree86/common/xf86Init.c           |   11 +-
  hw/xfree86/common/xf86PM.c             |    6 +-
- hw/xfree86/common/xf86VGAarbiter.c     | 1149 ++++++++++++++++++++++++++++++++
+ hw/xfree86/common/xf86VGAarbiter.c     | 1151 ++++++++++++++++++++++++++++++++
  hw/xfree86/common/xf86VGAarbiter.h     |   48 ++
  hw/xfree86/common/xf86VGAarbiterPriv.h |  266 ++++++++
  hw/xfree86/common/xf86str.h            |    4 +-
@@ -23,7 +23,7 @@ test with lots more sigio mouse movement type stuff - RAC used to disable it
  hw/xfree86/int10/generic.c             |    2 +
  hw/xfree86/loader/sdksyms.sh           |    1 +
  include/xorg-config.h.in               |    3 +
- 15 files changed, 1520 insertions(+), 10 deletions(-)
+ 15 files changed, 1522 insertions(+), 10 deletions(-)
  create mode 100644 hw/xfree86/common/xf86VGAarbiter.c
  create mode 100644 hw/xfree86/common/xf86VGAarbiter.h
  create mode 100644 hw/xfree86/common/xf86VGAarbiterPriv.h
@@ -225,10 +225,10 @@ index f6138c3..fa24813 100644
  	}
 diff --git a/hw/xfree86/common/xf86VGAarbiter.c b/hw/xfree86/common/xf86VGAarbiter.c
 new file mode 100644
-index 0000000..9f12490
+index 0000000..13802cd
 --- /dev/null
 +++ b/hw/xfree86/common/xf86VGAarbiter.c
-@@ -0,0 +1,1149 @@
+@@ -0,0 +1,1151 @@
 +/*
 + * This code was stolen from RAC and adapted to control the legacy vga
 + * interface.
@@ -259,13 +259,15 @@ index 0000000..9f12490
 + *
 + */
 +
-+#define DEBUG
++#include "xorg-config.h"
++
 +#include "xf86VGAarbiter.h"
 +#include "xf86VGAarbiterPriv.h"
 +#include "xf86Bus.h"
 +#include "pciaccess.h"
 +
 +#ifdef DEBUG
++#error no, really, you don't want to do this
 +#define DPRINT_S(x,y) ErrorF(x ": %i\n",y);
 +#define DPRINT(x) ErrorF(x "\n");
 +#else
@@ -1821,5 +1823,5 @@ index ffb35f8..603ae13 100644
  #undef PCI_TXT_IDS_PATH
  
 -- 
-1.5.4.1
+1.6.4
 
