@@ -1,4 +1,4 @@
-From 5900761f4d2d75674d3d303ef37f60a9dcde4309 Mon Sep 17 00:00:00 2001
+From 0fa02caca3108dee3f1ddfb8ba8ce0b6bb61bcd1 Mon Sep 17 00:00:00 2001
 From: Dave Airlie <airlied@redhat.com>
 Date: Mon, 3 Aug 2009 14:09:32 +1000
 Subject: [PATCH] X server: VGA arbitration.
@@ -14,7 +14,7 @@ test with lots more sigio mouse movement type stuff - RAC used to disable it
  hw/xfree86/common/xf86DPMS.c           |    4 +-
  hw/xfree86/common/xf86Init.c           |   11 +-
  hw/xfree86/common/xf86PM.c             |    6 +-
- hw/xfree86/common/xf86VGAarbiter.c     | 1150 ++++++++++++++++++++++++++++++++
+ hw/xfree86/common/xf86VGAarbiter.c     | 1149 ++++++++++++++++++++++++++++++++
  hw/xfree86/common/xf86VGAarbiter.h     |   48 ++
  hw/xfree86/common/xf86VGAarbiterPriv.h |  266 ++++++++
  hw/xfree86/common/xf86str.h            |    4 +-
@@ -23,7 +23,7 @@ test with lots more sigio mouse movement type stuff - RAC used to disable it
  hw/xfree86/int10/generic.c             |    2 +
  hw/xfree86/loader/sdksyms.sh           |    1 +
  include/xorg-config.h.in               |    3 +
- 15 files changed, 1521 insertions(+), 10 deletions(-)
+ 15 files changed, 1520 insertions(+), 10 deletions(-)
  create mode 100644 hw/xfree86/common/xf86VGAarbiter.c
  create mode 100644 hw/xfree86/common/xf86VGAarbiter.h
  create mode 100644 hw/xfree86/common/xf86VGAarbiterPriv.h
@@ -225,10 +225,10 @@ index f6138c3..fa24813 100644
  	}
 diff --git a/hw/xfree86/common/xf86VGAarbiter.c b/hw/xfree86/common/xf86VGAarbiter.c
 new file mode 100644
-index 0000000..bac5183
+index 0000000..9f12490
 --- /dev/null
 +++ b/hw/xfree86/common/xf86VGAarbiter.c
-@@ -0,0 +1,1150 @@
+@@ -0,0 +1,1149 @@
 +/*
 + * This code was stolen from RAC and adapted to control the legacy vga
 + * interface.
@@ -262,6 +262,7 @@ index 0000000..bac5183
 +#define DEBUG
 +#include "xf86VGAarbiter.h"
 +#include "xf86VGAarbiterPriv.h"
++#include "xf86Bus.h"
 +#include "pciaccess.h"
 +
 +#ifdef DEBUG
@@ -352,19 +353,17 @@ index 0000000..bac5183
 +void
 +xf86VGAarbiterScrnInit(ScrnInfoPtr pScrn)
 +{
-+    int bus, devi, func;
-+    GDevPtr dev_tmp;
 +    struct pci_device *dev;
-+    EntityInfoPtr entity;
++    EntityPtr pEnt;
 +
 +    if (vga_no_arb)
 +	return;
 +
-+    entity = xf86GetEntityInfo(pScrn->entityList[0]);
-+    if (entity->type != BUS_PCI)
++    pEnt = xf86Entities[pScrn->entityList[0]];
++    if (pEnt->bus.type != BUS_PCI)
 +	return;
 +
-+    dev = entity->bus.id.pci;
++    dev = pEnt->bus.id.pci;
 +    pScrn->vgaDev = dev;
 +}
 +
