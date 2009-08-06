@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   27.%{gitdate}%{?dist}
+Release:   28.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -79,6 +79,7 @@ Patch6027: xserver-1.6.0-displayfd.patch
 Patch6028: xserver-1.6.99-randr-error-debugging.patch
 Patch6029: xserver-1.6.1-proc-cmdline.patch
 Patch6030: xserver-1.6.99-right-of.patch
+Patch6031: xserver-1.6.99-dri2-crash-fixes.patch
 
 
 %define moduledir	%{_libdir}/xorg/modules
@@ -527,6 +528,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Aug 06 2009 Adam Jackson <ajax@redhat.com> 1.6.99-28.20090804
+- xserver-1.6.99-dri2-crash-fixes.patch: don't cough and die just because
+  the driver had the gall not to register a SwapBuffers handler.
+
 * Wed Aug 05 2009 Adam Jackson <ajax@redhat.com> 1.6.99-27.20090804
 - xserver-1.6.99-vga-arb.patch: Fix crashes from miscompilation without
   xorg-config.h.
