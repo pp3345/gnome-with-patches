@@ -1,4 +1,4 @@
-9 This package is an experiment in active integration of upstream SCM with
+# This package is an experiment in active integration of upstream SCM with
 # Fedora packaging.  It works something like this:
 #
 # The "pristine" source is actually a git repo (with no working checkout).
