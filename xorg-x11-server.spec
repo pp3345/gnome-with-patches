@@ -1,4 +1,4 @@
-# This package is an experiment in active integration of upstream SCM with
+9 This package is an experiment in active integration of upstream SCM with
 # Fedora packaging.  It works something like this:
 #
 # The "pristine" source is actually a git repo (with no working checkout).
@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090804
+%define gitdate 20090807
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   28.%{gitdate}%{?dist}
+Release:   29.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -267,7 +267,6 @@ Obsoletes: xorg-x11-sdk xorg-x11-server-sdk
 Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
 Requires: pkgconfig pixman-devel libpciaccess-devel
-Provides: libxf86config-devel = %{version}-%{release}
 # Virtual provide for transition.  Delete me someday.
 Provides: xorg-x11-server-sdk = %{version}-%{release}
 
@@ -286,17 +285,9 @@ BuildArch: noarch
 %description source
 Xserver source code needed to build VNC server (Xvnc)
 
-%package -n libxf86config
-Summary: Xorg configuration parser library
-Group: System Environment/Libraries
-
-%description -n libxf86config
-Xorg configuration parser library
-
 %package -n libxf86config-devel
 Summary: Xorg configuration parser library development files
 Group: Development/Libraries
-Requires: libxf86config = %{version}-%{release}
 Requires: xorg-x11-server-devel = %{version}-%{release}
 
 %description -n libxf86config-devel
@@ -516,18 +507,16 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %{xserver_source_dir}
 
-
-%files -n libxf86config
-%defattr(-, root, root, -)
-%{_libdir}/libxf86config.so.0*
-
-
 %files -n libxf86config-devel
 %defattr(-, root, root, -)
-%{_libdir}/libxf86config.so
+%{_libdir}/libxf86config.a
 
 
 %changelog
+* Fri Aug 07 2009 Dave Airlie <airlied@redhat.com> 1.6.99-29.20090807
+- rebase upstream
+- libxf86config.a revenge, brought back .a upstream, doesn't work as .so
+
 * Thu Aug 06 2009 Adam Jackson <ajax@redhat.com> 1.6.99-28.20090804
 - xserver-1.6.99-dri2-crash-fixes.patch: don't cough and die just because
   the driver had the gall not to register a SwapBuffers handler.
