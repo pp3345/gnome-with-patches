@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   29.%{gitdate}%{?dist}
+Release:   30.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -46,6 +46,7 @@ Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 Source30: find-provides
 #define __find_provides {nil}
 
+Patch5: xserver-1.4.99-pic-libxf86config.patch
 Patch10: xserver-1.6.99-linkmap.patch
 
 # airlied to upstream for 1.7
@@ -513,6 +514,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Aug 07 2009 Dave Airlie <airlied@redhat.com> 1.6.99-30.20090807
+- goddamit: reapply picify libxf86config.a hopefully
+
 * Fri Aug 07 2009 Dave Airlie <airlied@redhat.com> 1.6.99-29.20090807
 - rebase upstream
 - libxf86config.a revenge, brought back .a upstream, doesn't work as .so
