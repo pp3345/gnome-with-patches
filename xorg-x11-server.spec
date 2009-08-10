@@ -286,13 +286,20 @@ BuildArch: noarch
 %description source
 Xserver source code needed to build VNC server (Xvnc)
 
-%package -n libxf86config-devel
+%package -n libxf86config-static-devel
 Summary: Xorg configuration parser library development files
 Group: Development/Libraries
 Requires: xorg-x11-server-devel = %{version}-%{release}
+Provides: libxf86config-static
 
-%description -n libxf86config-devel
-Xorg configuration parser library development files
+Requires: xorg-x11-server-Xorg > 1.6.99-29
+Provides: libxf86config = %{version}-%{release}
+Obsoletes: libxf86config < 1.6.99-29
+Provides: libxf86config-devel = %{version}-%{release}
+Obsoletes: libxf86config-devel < 1.6.99-29
+
+%description -n libxf86config-static-devel
+Xorg configuration parser library development files (static library)
 
 %prep
 %setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
@@ -508,10 +515,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %{xserver_source_dir}
 
-%files -n libxf86config-devel
+%files -n libxf86config-static-devel
 %defattr(-, root, root, -)
 %{_libdir}/libxf86config.a
-
 
 %changelog
 * Fri Aug 07 2009 Dave Airlie <airlied@redhat.com> 1.6.99-30.20090807
