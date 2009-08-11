@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   30.%{gitdate}%{?dist}
+Release:   31.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -82,6 +82,8 @@ Patch6029: xserver-1.6.1-proc-cmdline.patch
 Patch6030: xserver-1.6.99-right-of.patch
 Patch6031: xserver-1.6.99-dri2-crash-fixes.patch
 
+# ajax, please fix me
+Patch9000: xserver-1.6.99-show-ugly-cursor.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -270,6 +272,12 @@ Requires: xorg-x11-proto-devel
 Requires: pkgconfig pixman-devel libpciaccess-devel
 # Virtual provide for transition.  Delete me someday.
 Provides: xorg-x11-server-sdk = %{version}-%{release}
+# XXX doublecheck me
+Provides: libxf86config = %{version}-%{release}
+Obsoletes: libxf86config < 1.6.99-29
+Provides: libxf86config-devel = %{version}-%{release}
+Obsoletes: libxf86config-devel < 1.6.99-29
+
 
 %description devel
 The SDK package provides the developmental files which are necessary for
@@ -285,21 +293,6 @@ BuildArch: noarch
 
 %description source
 Xserver source code needed to build VNC server (Xvnc)
-
-%package -n libxf86config-static-devel
-Summary: Xorg configuration parser library development files
-Group: Development/Libraries
-Requires: xorg-x11-server-devel = %{version}-%{release}
-Provides: libxf86config-static
-
-Requires: xorg-x11-server-Xorg > 1.6.99-29
-Provides: libxf86config = %{version}-%{release}
-Obsoletes: libxf86config < 1.6.99-29
-Provides: libxf86config-devel = %{version}-%{release}
-Obsoletes: libxf86config-devel < 1.6.99-29
-
-%description -n libxf86config-static-devel
-Xorg configuration parser library development files (static library)
 
 %prep
 %setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
@@ -508,6 +501,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_includedir}/xorg
 %{sdkdir}/*.h
 %{_datadir}/aclocal/xorg-server.m4
+%{_libdir}/libxf86config.a
 %endif
 
 
@@ -515,11 +509,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root, -)
 %{xserver_source_dir}
 
-%files -n libxf86config-static-devel
-%defattr(-, root, root, -)
-%{_libdir}/libxf86config.a
-
 %changelog
+* Mon Aug 10 2009 Adam Jackson <ajax@redhat.com> 1.6.99-31.20090807
+- Move libxf86config.a back to -server-devel
+- xserver-1.6.99-show-ugly-cursor.patch: Un-suppress the initial root cursor
+  hiding until we figure out what's wrong with gtk in anaconda.
+
 * Fri Aug 07 2009 Dave Airlie <airlied@redhat.com> 1.6.99-30.20090807
 - goddamit: reapply picify libxf86config.a hopefully
 
