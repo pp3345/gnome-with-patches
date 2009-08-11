@@ -1,0 +1,25 @@
+From 33856dc328da576bbb96602df93e7e35ad36bd01 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Mon, 10 Aug 2009 19:59:25 -0400
+Subject: [PATCH] un-suppress the initial root cursor momentarily
+
+---
+ xfixes/cursor.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/xfixes/cursor.c b/xfixes/cursor.c
+index acc703a..f88476a 100644
+--- a/xfixes/cursor.c
++++ b/xfixes/cursor.c
+@@ -134,7 +134,7 @@ typedef struct _CursorScreen {
+ #define Unwrap(as,s,elt,backup)	(((backup) = (s)->elt), (s)->elt = (as)->elt)
+ 
+ /* The cursor doesn't show up until the first XDefineCursor() */
+-static Bool CursorVisible = FALSE;
++static Bool CursorVisible = TRUE;
+ 
+ Bool EnableCursor = TRUE;
+ 
+-- 
+1.6.2.2
+
