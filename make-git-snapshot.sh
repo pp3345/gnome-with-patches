@@ -13,5 +13,5 @@ fi
 git log | head -1 | awk '{ print $2 }' > ../commitid
 git repack -a -d
 cd ..
-tar jcf $DIRNAME.tar.bz2 $DIRNAME
+tar cf - $DIRNAME | xz -c9 > $DIRNAME.tar.xz
 rm -rf $DIRNAME
