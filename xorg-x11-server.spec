@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   31.%{gitdate}%{?dist}
+Release:   32.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -46,6 +46,7 @@ Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 Source30: find-provides
 #define __find_provides {nil}
 
+Patch0: xserver-1.6.99-git-e94c7c42ce.patch
 Patch5: xserver-1.4.99-pic-libxf86config.patch
 Patch10: xserver-1.6.99-linkmap.patch
 
@@ -510,6 +511,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Aug 11 2009 Dave Airlie <airlied@redhat.com> 1.6.99-32.20090807
+- update to latest -git for EXA fixes
+
 * Mon Aug 10 2009 Adam Jackson <ajax@redhat.com> 1.6.99-31.20090807
 - Move libxf86config.a back to -server-devel
 - xserver-1.6.99-show-ugly-cursor.patch: Un-suppress the initial root cursor

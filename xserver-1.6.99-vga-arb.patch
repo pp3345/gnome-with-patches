@@ -267,7 +267,7 @@ index 0000000..13802cd
 +#include "pciaccess.h"
 +
 +#ifdef DEBUG
-+#error no, really, you don't want to do this
++#error "no, really, you dont want to do this"
 +#define DPRINT_S(x,y) ErrorF(x ": %i\n",y);
 +#define DPRINT(x) ErrorF(x "\n");
 +#else

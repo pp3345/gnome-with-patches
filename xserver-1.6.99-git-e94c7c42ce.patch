@@ -1,0 +1,331 @@
+From 1dd898dc07dadbb2f115bbb177bb52d05bea2df3 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@redhat.com>
+Date: Mon, 3 Aug 2009 14:09:32 +1000
+Subject: TO git xserver-1.6.99-git-e94c7c42ce.patch
+
+---
+diff --git a/configure.ac b/configure.ac
+index f19b6fe..69d6abb 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -709,7 +709,7 @@ XEXTXORG_LIB='$(top_builddir)/Xext/libXextbuiltin.la'
+ 
+ dnl Core modules for most extensions, et al.
+ REQUIRED_MODULES="[randrproto >= 1.2.99.3] [renderproto >= 0.11] [fixesproto >= 4.0] [damageproto >= 1.1] xcmiscproto [xextproto >= 7.0.99.3] [xproto >= 7.0.13] [xtrans >= 1.2.2] bigreqsproto resourceproto fontsproto [inputproto >= 1.9.99.15] [kbproto >= 1.0.3]"
+-REQUIRED_LIBS="xfont xau fontenc [pixman-1 >= 0.15.14]"
++REQUIRED_LIBS="xfont xau [pixman-1 >= 0.15.14]"
+ 
+ dnl HAVE_DBUS is true if we actually have the D-Bus library, whereas
+ dnl CONFIG_DBUS_API is true if we want to enable the D-Bus config
+diff --git a/exa/exa.c b/exa/exa.c
+index c8fe12e..483e3b4 100644
+--- a/exa/exa.c
++++ b/exa/exa.c
+@@ -336,7 +336,7 @@ ExaDoPrepareAccess(DrawablePtr pDrawable, int index)
+     if (!offscreen) {
+ 	/* Do we need to allocate our system buffer? */
+ 	if ((pExaScr->info->flags & EXA_HANDLES_PIXMAPS) && (pExaScr->info->flags & EXA_MIXED_PIXMAPS)) {
+-	    if (!pExaPixmap->sys_ptr) {
++	    if (!pExaPixmap->sys_ptr && !exaPixmapIsPinned(pPixmap)) {
+ 		pExaPixmap->sys_ptr = malloc(pExaPixmap->sys_pitch * pDrawable->height);
+ 		if (!pExaPixmap->sys_ptr)
+ 		    FatalError("EXA: malloc failed for size %d bytes\n", pExaPixmap->sys_pitch * pDrawable->height);
+diff --git a/exa/exa_migration_mixed.c b/exa/exa_migration_mixed.c
+index 915bed9..ed0cc14 100644
+--- a/exa/exa_migration_mixed.c
++++ b/exa/exa_migration_mixed.c
+@@ -32,32 +32,37 @@
+ #include "exa.h"
+ 
+ static void
+-exaUploadFallback(PixmapPtr pPixmap, CARD8 *src, int src_pitch,
+-	      CARD8 *dst, int dst_pitch)
+- {
++exaUploadFallback(PixmapPtr pPixmap, CARD8 *src, int src_pitch)
++{
+     ExaPixmapPriv(pPixmap);
+     RegionPtr damage = DamageRegion (pExaPixmap->pDamage);
+-    int i, cpp = pPixmap->drawable.bitsPerPixel / 8;
+-    int bytes, nbox;
++    GCPtr pGC = GetScratchGC (pPixmap->drawable.depth,
++		pPixmap->drawable.pScreen);
++    int nbox, cpp = pPixmap->drawable.bitsPerPixel / 8;
++    DamagePtr backup = pExaPixmap->pDamage;
+     BoxPtr pbox;
++    CARD8 *src2;
++
++    /* We don't want damage optimisations. */
++    pExaPixmap->pDamage = NULL;
++    ValidateGC (&pPixmap->drawable, pGC);
+ 
+     pbox = REGION_RECTS(damage);
+     nbox = REGION_NUM_RECTS(damage);
+ 
+     while (nbox--) {
+-	bytes = (pbox->x2 - pbox->x1) * cpp;
++	src2 = src + pbox->y1 * src_pitch + pbox->x1 * cpp;
+ 
+-	src += pbox->y1 * src_pitch + pbox->x1 * cpp;
+-	dst += pbox->y1 * dst_pitch + pbox->x1 * cpp;
+-
+-	for (i = pbox->y2 - pbox->y1; i; i--) {
+-	    memcpy (dst, src, bytes);
+-	    src += src_pitch;
+-	    dst += dst_pitch;
+-	}
++	ExaCheckPutImage(&pPixmap->drawable, pGC,
++	    pPixmap->drawable.depth, pbox->x1, pbox->y1,
++	    pbox->x2 - pbox->x1, pbox->y2 - pbox->y1, 0,
++	    ZPixmap, (char*) src2);
+ 
+ 	pbox++;
+     }
++
++    FreeScratchGC (pGC);
++    pExaPixmap->pDamage = backup;
+ }
+ 
+ void
+@@ -99,7 +104,8 @@ exaCreateDriverPixmap_mixed(PixmapPtr pPixmap)
+ 	return;
+ 
+     pExaPixmap->offscreen = TRUE;
+-    pExaPixmap->sys_ptr = NULL;
++    pExaPixmap->sys_ptr = pPixmap->devPrivate.ptr = NULL;
++    pExaPixmap->sys_pitch = pPixmap->devKind = 0;
+ 
+     pExaPixmap->score = EXA_PIXMAP_SCORE_PINNED;
+     (*pScreen->ModifyPixmapHeader)(pPixmap, w, h, 0, 0,
+@@ -130,10 +136,7 @@ exaCreateDriverPixmap_mixed(PixmapPtr pPixmap)
+     goto finish;
+ 
+ fallback:
+-    ExaDoPrepareAccess(&pPixmap->drawable, EXA_PREPARE_DEST);
+-    exaUploadFallback(pPixmap, sys_buffer, sys_pitch, pPixmap->devPrivate.ptr,
+-	exaGetPixmapPitch(pPixmap));
+-    exaFinishAccess(&pPixmap->drawable, EXA_PREPARE_DEST);
++    exaUploadFallback(pPixmap, sys_buffer, sys_pitch);
+ 
+ finish:
+     free(sys_buffer);
+diff --git a/exa/exa_mixed.c b/exa/exa_mixed.c
+index 47fa6d4..7ba62ea 100644
+--- a/exa/exa_mixed.c
++++ b/exa/exa_mixed.c
+@@ -82,12 +82,12 @@ exaCreatePixmap_mixed(ScreenPtr pScreen, int w, int h, int depth,
+     datasize = h * paddedWidth;
+ 
+     /* We will allocate the system pixmap later if needed. */
++    pPixmap->devPrivate.ptr = NULL;
+     pExaPixmap->sys_ptr = NULL;
+     pExaPixmap->sys_pitch = paddedWidth;
+ 
+     pExaPixmap->area = NULL;
+     pExaPixmap->offscreen = FALSE;
+-    pExaPixmap->score = EXA_PIXMAP_SCORE_INIT;
+     pExaPixmap->fb_ptr = NULL;
+     pExaPixmap->pDamage = NULL;
+ 
+@@ -95,19 +95,19 @@ exaCreatePixmap_mixed(ScreenPtr pScreen, int w, int h, int depth,
+     exaSetAccelBlock(pExaScr, pExaPixmap,
+ 	w, h, bpp);
+ 
++    /* Avoid freeing sys_ptr. */
++    pExaPixmap->score = EXA_PIXMAP_SCORE_PINNED;
++
++    (*pScreen->ModifyPixmapHeader)(pPixmap, w, h, 0, 0,
++				    paddedWidth, NULL);
++
++    /* We want to be able to transfer the pixmap to driver memory later on. */
++    pExaPixmap->score = EXA_PIXMAP_SCORE_INIT;
++
+     /* A scratch pixmap will become a driver pixmap right away. */
+     if (!w || !h) {
+ 	exaCreateDriverPixmap_mixed(pPixmap);
+     } else {
+-	/* Avoid freeing sys_ptr. */
+-	pExaPixmap->score = EXA_PIXMAP_SCORE_PINNED;
+-
+-	(*pScreen->ModifyPixmapHeader)(pPixmap, w, h, 0, 0,
+-					paddedWidth, NULL);
+-
+-	/* We want to be able to copy the pixmap to driver memory later on. */
+-	pExaPixmap->score = EXA_PIXMAP_SCORE_INIT;
+-
+ 	/* Set up damage tracking */
+ 	pExaPixmap->pDamage = DamageCreate (NULL, NULL,
+ 					    DamageReportNone, TRUE,
+@@ -145,20 +145,22 @@ exaModifyPixmapHeader_mixed(PixmapPtr pPixmap, int width, int height, int depth,
+     pExaPixmap = ExaGetPixmapPriv(pPixmap);
+ 
+     if (pExaPixmap) {
+-        if (pPixData) {
+-	    if (!exaPixmapIsPinned(pPixmap)) {
+-		free(pExaPixmap->sys_ptr);
+-
+-		/* We no longer need this. */
+-		if (pExaPixmap->pDamage) {
+-		    DamageUnregister(&pPixmap->drawable, pExaPixmap->pDamage);
+-		    DamageDestroy(pExaPixmap->pDamage);
+-		    pExaPixmap->pDamage = NULL;
+-		}
++	if (!exaPixmapIsPinned(pPixmap)) {
++	    free(pExaPixmap->sys_ptr);
++	    pExaPixmap->sys_ptr = pPixmap->devPrivate.ptr = NULL;
++	    pExaPixmap->sys_pitch = pPixmap->devKind = 0;
++
++	    /* We no longer need this. */
++	    if (pExaPixmap->pDamage) {
++		DamageUnregister(&pPixmap->drawable, pExaPixmap->pDamage);
++		DamageDestroy(pExaPixmap->pDamage);
++		pExaPixmap->pDamage = NULL;
+ 	    }
+-            pExaPixmap->sys_ptr = pPixData;
+ 	}
+ 
++        if (pPixData)
++            pExaPixmap->sys_ptr = pPixData;
++
+         if (devKind > 0)
+             pExaPixmap->sys_pitch = devKind;
+ 
+diff --git a/mi/mieq.c b/mi/mieq.c
+index 6ec2dba..1b81e4d 100644
+--- a/mi/mieq.c
++++ b/mi/mieq.c
+@@ -159,26 +159,26 @@ mieqEnqueue(DeviceIntPtr pDev, InternalEvent *e)
+ 
+     if (isMotion && isMotion == miEventQueue.lastMotion &&
+         oldtail != miEventQueue.head) {
+-	oldtail = (oldtail - 1) % QUEUE_SIZE;
++        oldtail = (oldtail - 1) % QUEUE_SIZE;
+     }
+     else {
+-	static int stuck = 0;
+-	/* Toss events which come in late.  Usually this means your server's
++        static int stuck = 0;
++        /* Toss events which come in late.  Usually this means your server's
+          * stuck in an infinite loop somewhere, but SIGIO is still getting
+          * handled. */
+-	if (((oldtail + 1) % QUEUE_SIZE) == miEventQueue.head) {
+-	    if (!stuck) {
++        if (((oldtail + 1) % QUEUE_SIZE) == miEventQueue.head) {
++            if (!stuck) {
+                 ErrorF("[mi] EQ overflowing. The server is probably stuck "
+                         "in an infinite loop.\n");
+-		xorg_backtrace();
+-		stuck = 1;
+-	    }
++                xorg_backtrace();
++                stuck = 1;
++            }
+ #ifdef XQUARTZ
+-	    pthread_mutex_unlock(&miEventQueueMutex);
++            pthread_mutex_unlock(&miEventQueueMutex);
+ #endif
+-	    return;
++	        return;
+         }
+-	stuck = 0;
++        stuck = 0;
+     }
+ 
+     evlen = e->any.length;
+@@ -225,7 +225,7 @@ mieqSwitchScreen(DeviceIntPtr pDev, ScreenPtr pScreen, Bool fromDIX)
+ #endif
+     EnqueueScreen(pDev) = pScreen;
+     if (fromDIX)
+-	DequeueScreen(pDev) = pScreen;
++        DequeueScreen(pDev) = pScreen;
+ #ifdef XQUARTZ
+     pthread_mutex_unlock(&miEventQueueMutex);
+ #endif
+@@ -267,8 +267,8 @@ ChangeDeviceID(DeviceIntPtr dev, InternalEvent* event)
+             event->device.deviceid = dev->id;
+             break;
+ #if XFreeXDGA
+-	case ET_DGAEvent:
+-	    break;
++        case ET_DGAEvent:
++            break;
+ #endif
+         case ET_RawKeyPress:
+         case ET_RawKeyRelease:
+@@ -367,39 +367,48 @@ mieqProcessDeviceEvent(DeviceIntPtr dev,
+     /* Custom event handler */
+     handler = miEventQueue.handlers[event->any.type];
+ 
+-    if (dev && screen && screen != DequeueScreen(dev) && !handler) {
+-        /* Assumption - screen switching can only occur on motion events. */
+-        DequeueScreen(dev) = screen;
+-        x = event->device.root_x;
+-        y = event->device.root_y;
+-        NewCurrentScreen (dev, DequeueScreen(dev), x, y);
++    switch (event->any.type) {
++        /* Catch events that include valuator information and check if they
++         * are changing the screen */
++        case ET_Motion:
++        case ET_KeyPress:
++        case ET_KeyRelease:
++        case ET_ButtonPress:
++        case ET_ButtonRelease:
++            if (dev && screen && screen != DequeueScreen(dev) && !handler) {
++                DequeueScreen(dev) = screen;
++                x = event->device.root_x;
++                y = event->device.root_y;
++                NewCurrentScreen (dev, DequeueScreen(dev), x, y);
++            }
++            break;
++        default:
++            break;
+     }
+-    else {
+-        master = CopyGetMasterEvent(dev, event, &mevent);
++    master = CopyGetMasterEvent(dev, event, &mevent);
+ 
+-        if (master)
+-            master->u.lastSlave = dev;
++    if (master)
++        master->u.lastSlave = dev;
+ 
+-        /* If someone's registered a custom event handler, let them
+-         * steal it. */
+-        if (handler)
+-        {
+-            int screenNum = dev && DequeueScreen(dev) ? DequeueScreen(dev)->myNum : (screen ? screen->myNum : 0);
+-            handler(screenNum, event, dev);
+-            /* Check for the SD's master in case the device got detached
+-             * during event processing */
+-            if (master && dev->u.master)
+-                handler(screenNum, &mevent, master);
+-        } else
+-        {
+-            /* process slave first, then master */
+-            dev->public.processInputProc(event, dev);
++    /* If someone's registered a custom event handler, let them
++     * steal it. */
++    if (handler)
++    {
++        int screenNum = dev && DequeueScreen(dev) ? DequeueScreen(dev)->myNum : (screen ? screen->myNum : 0);
++        handler(screenNum, event, dev);
++        /* Check for the SD's master in case the device got detached
++         * during event processing */
++        if (master && dev->u.master)
++            handler(screenNum, &mevent, master);
++    } else
++    {
++        /* process slave first, then master */
++        dev->public.processInputProc(event, dev);
+ 
+-            /* Check for the SD's master in case the device got detached
+-             * during event processing */
+-            if (master && dev->u.master)
+-                master->public.processInputProc(&mevent, master);
+-        }
++        /* Check for the SD's master in case the device got detached
++         * during event processing */
++        if (master && dev->u.master)
++            master->public.processInputProc(&mevent, master);
+     }
+ }
+ 
