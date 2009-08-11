@@ -1,15 +1,12 @@
 Name:           mutter
-Version:        2.27.1
-Release:        5%{?dist}
+Version:        2.27.2
+Release:        1%{?dist}
 Summary:        Window and compositing manager based on Clutter
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://git.gnome.org/cgit/mutter
 Source0:        ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.27/%{name}-%{version}.tar.bz2
-Patch0:		mutter-pluginmanager.patch
-Patch1:		mutter-clutter1.0.patch
-Patch2:		mutter-clutter-1.0-2.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: clutter-devel
@@ -71,9 +68,6 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
-%patch0 -p1 -b .pluginmanager
-%patch1 -p1 -b .clutter1
-%patch2 -p1 -b .clutter2
 
 %build
 autoreconf
@@ -161,6 +155,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Aug 11 2009 Peter Robinson <pbrobinson@gmail.com> 2.27.2-1
+- New upstream 2.27.2 release. Drop upstreamed patches.
+
 * Wed Jul 29 2009 Peter Robinson <pbrobinson@gmail.com> 2.27.1-5
 - Add upstream patches for clutter 1.0
 
