@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090807
+%define gitdate 20090814
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   33.%{gitdate}%{?dist}
+Release:   34.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -28,7 +28,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %if 0%{?gitdate}
 # git snapshot.  to recreate, run:
 # ./make-git-snapshot.sh `cat commitid`
-Source0:   xorg-server-%{gitdate}.tar.bz2
+Source0:   xorg-server-%{gitdate}.tar.xz
 Source1:   make-git-snapshot.sh
 Source2:   commitid
 %else
@@ -46,7 +46,6 @@ Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 Source30: find-provides
 #define __find_provides {nil}
 
-Patch0: xserver-1.6.99-git-e94c7c42ce.patch
 Patch5: xserver-1.4.99-pic-libxf86config.patch
 Patch10: xserver-1.6.99-linkmap.patch
 
@@ -508,6 +507,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Aug 14 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-34.20090814
+- Today's git snapshot.
+
 * Tue Aug 11 2009 Adam Jackson <ajax@redhat.com> 1.6.99-33.20090807
 - xserver-1.6.99-show-ugly-cursor.patch: Drop, gtk bug found.
 
