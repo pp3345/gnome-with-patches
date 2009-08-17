@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   34.%{gitdate}%{?dist}
+Release:   35.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -81,6 +81,9 @@ Patch6028: xserver-1.6.99-randr-error-debugging.patch
 Patch6029: xserver-1.6.1-proc-cmdline.patch
 Patch6030: xserver-1.6.99-right-of.patch
 Patch6031: xserver-1.6.99-dri2-crash-fixes.patch
+
+# dpms/idlecounter race condition. upstream soon
+Patch6032: xserver-1.6.99-dpms.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -507,6 +510,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Aug 17 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-35.20090814
+- xserver-1.6.99-dpms.patch: don't reset last event time on DPMS changes.
+
 * Fri Aug 14 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-34.20090814
 - Today's git snapshot.
 
