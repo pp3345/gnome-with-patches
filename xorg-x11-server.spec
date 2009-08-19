@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   35.%{gitdate}%{?dist}
+Release:   36.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -82,8 +82,10 @@ Patch6029: xserver-1.6.1-proc-cmdline.patch
 Patch6030: xserver-1.6.99-right-of.patch
 Patch6031: xserver-1.6.99-dri2-crash-fixes.patch
 
-# dpms/idlecounter race condition. upstream soon
+# dpms/idlecounter race condition. upstream
 Patch6032: xserver-1.6.99-dpms.patch
+# screen saver/idlecounter race condition. upstream
+Patch6033: xserver-1.6.99-eventtime.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -510,6 +512,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Aug 19 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-36.20090814
+- xserver-1.6.99-eventtime.patch: don't reset the last event time when the
+  screen saver activates.
+
 * Mon Aug 17 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-35.20090814
 - xserver-1.6.99-dpms.patch: don't reset last event time on DPMS changes.
 
