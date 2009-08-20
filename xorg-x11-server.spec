@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090814
+%define gitdate 20090820
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   36.%{gitdate}%{?dist}
+Release:   37.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -47,7 +47,6 @@ Source30: find-provides
 #define __find_provides {nil}
 
 Patch5: xserver-1.4.99-pic-libxf86config.patch
-Patch10: xserver-1.6.99-linkmap.patch
 
 # airlied to upstream for 1.7
 Patch100: xserver-1.6.99-vga-arb.patch
@@ -78,14 +77,9 @@ Patch6016: xserver-1.6.1-nouveau.patch
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
 Patch6028: xserver-1.6.99-randr-error-debugging.patch
-Patch6029: xserver-1.6.1-proc-cmdline.patch
 Patch6030: xserver-1.6.99-right-of.patch
 Patch6031: xserver-1.6.99-dri2-crash-fixes.patch
-
-# dpms/idlecounter race condition. upstream
-Patch6032: xserver-1.6.99-dpms.patch
-# screen saver/idlecounter race condition. upstream
-Patch6033: xserver-1.6.99-eventtime.patch
+Patch6032: xserver-1.6.99-dri2-swapbuffers-fallback.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -512,6 +506,13 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Aug 20 2009 Adam Jackson <ajax@redhat.com> 1.6.99-37.20090820
+- Today's git snapshot.
+- xserver-1.6.99-dri2-swapbuffers-fallback.patch: Fix SwapBuffers crash.
+- xserver-1.6.99-linkmap.patch: Drop, superceded upstream.
+- xserver-1.6.1-proc-cmdline.patch, xserver-1.6.99-dpms.patch, 
+  xserver-1.6.99-eventtime.patch: Drop, merged.
+
 * Wed Aug 19 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-36.20090814
 - xserver-1.6.99-eventtime.patch: don't reset the last event time when the
   screen saver activates.

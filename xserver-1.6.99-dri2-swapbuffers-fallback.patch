@@ -1,0 +1,36 @@
+From 5f566bed4abd8d5efedd36fa41a9aebbba2c93ef Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Thu, 20 Aug 2009 14:17:05 -0400
+Subject: [PATCH] dri2: Don't crash in SwapBuffers for non DRI2_Flush drivers
+
+---
+ glx/glxdri2.c |   13 +++++++++----
+ 1 files changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/glx/glxdri2.c b/glx/glxdri2.c
+index f0df040..b408c2f 100644
+--- a/glx/glxdri2.c
++++ b/glx/glxdri2.c
+@@ -173,10 +173,15 @@ __glXDRIdrawableSwapBuffers(__GLXdrawable *drawable)
+     __GLXDRIdrawable *priv = (__GLXDRIdrawable *) drawable;
+     __GLXDRIscreen *screen = priv->screen;
+ 
+-    (*screen->flush->flushInvalidate)(priv->driDrawable);
+-
+-    if (DRI2SwapBuffers(drawable->pDraw) != Success)
+-	return FALSE;
++    if (screen->flush) {
++	(*screen->flush->flushInvalidate)(priv->driDrawable);
++
++	if (DRI2SwapBuffers(drawable->pDraw) != Success)
++	    return FALSE;
++    } else {
++	__glXDRIdrawableCopySubBuffer(drawable, 0, 0,
++				      priv->width, priv->height);
++    }
+ 
+     return TRUE;
+ }
+-- 
+1.6.4
+
