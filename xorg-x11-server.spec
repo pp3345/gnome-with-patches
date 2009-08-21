@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   37.%{gitdate}%{?dist}
+Release:   38.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -506,6 +506,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.99-38.20090820
+- rebuilt with new openssl
+
 * Thu Aug 20 2009 Adam Jackson <ajax@redhat.com> 1.6.99-37.20090820
 - Today's git snapshot.
 - xserver-1.6.99-dri2-swapbuffers-fallback.patch: Fix SwapBuffers crash.
