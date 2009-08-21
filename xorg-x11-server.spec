@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   38.%{gitdate}%{?dist}
+Release:   39.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -80,6 +80,7 @@ Patch6028: xserver-1.6.99-randr-error-debugging.patch
 Patch6030: xserver-1.6.99-right-of.patch
 Patch6031: xserver-1.6.99-dri2-crash-fixes.patch
 Patch6032: xserver-1.6.99-dri2-swapbuffers-fallback.patch
+Patch6033: xserver-1.6.99-default-modes.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -506,6 +507,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Aug 21 2009 Adam Jackson <ajax@redhat.com> 1.6.99-39.20090820
+- xserver-1.6.99-default-modes.patch: Don't add default modes to the pool if
+  the driver returned real modes (and has no EDID).
+
 * Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.99-38.20090820
 - rebuilt with new openssl
 
