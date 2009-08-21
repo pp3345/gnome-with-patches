@@ -1,0 +1,44 @@
+From f3e6913d579a2409de1eb7933a664f1c2b51380b Mon Sep 17 00:00:00 2001
+From: Tomas Frydrych <tf@linux.intel.com>
+Date: Thu, 06 Aug 2009 17:11:11 +0000
+Subject: Added meta_window_is_modal()
+
+Queries whether the window is in a modal state, as per the _NET_WM_STATE
+protocol.
+---
+diff --git a/src/core/window.c b/src/core/window.c
+index 974c650..d77a553 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -8793,3 +8793,19 @@ meta_window_get_client_machine (MetaWindow *window)
+   return window->wm_client_machine;
+ }
+ 
++/**
++ * meta_window_is_modal:
++ * @window: a #MetaWindow
++ *
++ * Queries whether the window is in a modal state as described by the
++ * _NET_WM_STATE protocol.
++ *
++ * Return value: (transfer none): TRUE if the window is in modal state.
++ */
++gboolean
++meta_window_is_modal (MetaWindow *window)
++{
++  g_return_val_if_fail (META_IS_WINDOW (window), FALSE);
++
++  return window->wm_state_modal;
++}
+diff --git a/src/include/window.h b/src/include/window.h
+index f611da8..5295456 100644
+--- a/src/include/window.h
++++ b/src/include/window.h
+@@ -116,4 +116,5 @@ void        meta_window_delete             (MetaWindow  *window,
+                                             guint32      timestamp);
+ int         meta_window_get_pid (MetaWindow *window);
+ const char *meta_window_get_client_machine (MetaWindow *window);
++gboolean    meta_window_is_modal (MetaWindow *window);
+ #endif
+--
+cgit v0.8.2
