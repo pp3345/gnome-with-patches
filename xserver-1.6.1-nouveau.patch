@@ -78,7 +78,7 @@ diff --git a/hw/xfree86/common/xf86AutoConfig.c b/hw/xfree86/common/xf86AutoConf
 index bc4c80b..d8fa80f 100644
 --- a/hw/xfree86/common/xf86AutoConfig.c
 +++ b/hw/xfree86/common/xf86AutoConfig.c
-@@ -180,7 +180,32 @@ videoPtrToDriverList(struct pci_device *dev,
+@@ -180,7 +180,23 @@ videoPtrToDriverList(struct pci_device *dev,
  	    break;
  	case 0x102b:		    driverList[0] = "mga";	break;
  	case 0x10c8:		    driverList[0] = "neomagic"; break;
@@ -96,16 +96,7 @@ index bc4c80b..d8fa80f 100644
 +		driverList[0] = "nv";
 +		break;
 +	    default:
-+		switch (dev->device_id & 0xfff0) {
-+		/* Non-functional with both nouveau and nv */
-+		case 0x0840:
-+		case 0x0860:
-+		    driverList[0] = "vesa";
-+		    break;
-+		default:
-+		    driverList[0] = "nouveau";
-+		    break;
-+		}
++		driverList[0] = "nouveau";
 +		break;
 +	    }
 +	    break;

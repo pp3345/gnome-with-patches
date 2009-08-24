@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   39.%{gitdate}%{?dist}
+Release:   40.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -507,6 +507,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Aug 24 2009 Ben Skeggs <bskeggs@redhat.com> 1.6.99-40.20090820
+- xserver-1.6.1-nouveau.patch: remove vesa fallback for 0x08xx chips, KMS
+  should work on them now, there's accel issues on some of them but we can
+  fallback to shadowfb in the driver and keep KMS support.
+
 * Fri Aug 21 2009 Adam Jackson <ajax@redhat.com> 1.6.99-39.20090820
 - xserver-1.6.99-default-modes.patch: Don't add default modes to the pool if
   the driver returned real modes (and has no EDID).
