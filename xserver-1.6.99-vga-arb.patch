@@ -39,7 +39,7 @@ index 1e3438e..a1219d6 100644
 +	AC_CHECK_FUNCS([pci_device_vgaarb_init])
  	LIBS=$SAVE_LIBS
  	CFLAGS=$SAVE_CFLAGS
- 	XORG_SYS_LIBS="$XORG_SYS_LIBS $PCIACCESS_LIBS $DLOPEN_LIBS $GLX_SYS_LIBS"
+ 	XORG_SYS_LIBS="$XORG_SYS_LIBS $PCIACCESS_LIBS $DLOPEN_LIBS $GLX_SYS_LIBS $SELINUX_LIB"
 diff --git a/hw/xfree86/common/Makefile.am b/hw/xfree86/common/Makefile.am
 index f3e201b..ad27210 100644
 --- a/hw/xfree86/common/Makefile.am

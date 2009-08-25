@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090820
+%define gitdate 20090825
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   40.%{gitdate}%{?dist}
+Release:   41.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -507,6 +507,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Aug 25 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-41.20090825
+- Today's git snapshot.
+
 * Mon Aug 24 2009 Ben Skeggs <bskeggs@redhat.com> 1.6.99-40.20090820
 - xserver-1.6.1-nouveau.patch: remove vesa fallback for 0x08xx chips, KMS
   should work on them now, there's accel issues on some of them but we can
