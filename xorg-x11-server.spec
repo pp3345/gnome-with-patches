@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   41.%{gitdate}%{?dist}
+Release:   42.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -507,6 +507,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Aug 27 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.99-42.20090825
+- rebuilt with new openssl and audit
+
 * Tue Aug 25 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-41.20090825
 - Today's git snapshot.
 
@@ -518,9 +521,6 @@ rm -rf $RPM_BUILD_ROOT
 * Fri Aug 21 2009 Adam Jackson <ajax@redhat.com> 1.6.99-39.20090820
 - xserver-1.6.99-default-modes.patch: Don't add default modes to the pool if
   the driver returned real modes (and has no EDID).
-
-* Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.6.99-38.20090820
-- rebuilt with new openssl
 
 * Thu Aug 20 2009 Adam Jackson <ajax@redhat.com> 1.6.99-37.20090820
 - Today's git snapshot.
