@@ -1,6 +1,6 @@
 Name:           gjs
-Version:        0.3
-Release:        2%{?dist}
+Version:        0.4
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -10,7 +10,7 @@ Group:          System Environment/Libraries
 # Stack printer (gjs/stack.c)
 License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
-Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/0.2/%{name}-%{version}.tar.bz2
+Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/0.4/%{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: xulrunner-devel
@@ -63,6 +63,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %doc COPYING NEWS README
+%{_bindir}/gjs
 %{_bindir}/gjs-console
 %{_libdir}/*.so.*
 %{_libdir}/gjs-1.0
@@ -78,6 +79,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Thu Aug 27 2009 Peter Robinson <pbrobinson@gmail.com> 0.4-1
+- New upstream 0.4 release
+
 * Fri Aug  7 2009 Peter Robinson <pbrobinson@gmail.com> 0.3-2
 - Updates from the review request
 
