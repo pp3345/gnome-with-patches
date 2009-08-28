@@ -1,13 +1,12 @@
 Name:           mutter
-Version:        2.27.2
-Release:        2%{?dist}
+Version:        2.27.3
+Release:        1%{?dist}
 Summary:        Window and compositing manager based on Clutter
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://git.gnome.org/cgit/mutter
 Source0:        ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.27/%{name}-%{version}.tar.bz2
-Patch0:		mutter-metawindow.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: clutter-devel
@@ -30,13 +29,6 @@ BuildRequires: zenity
 BuildRequires: intltool
 BuildRequires: gnome-doc-utils
 BuildRequires: desktop-file-utils
-
-# Add these due to the autoreconf for the clutter patches
-BuildRequires: intltool
-BuildRequires: gettext
-BuildRequires: libtool
-BuildRequires: automake
-BuildRequires: autoconf
 
 Requires: control-center-filesystem
 Requires: startup-notification
@@ -69,10 +61,8 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
-%patch0 -p1 -b .metawindows
 
 %build
-autoreconf
 %configure --with-clutter --disable-static
 
 SHOULD_HAVE_DEFINED="HAVE_SM HAVE_XINERAMA HAVE_XFREE_XINERAMA HAVE_SHAPE HAVE_RANDR HAVE_STARTUP_NOTIFICATION HAVE_COMPOSITE_EXTENSION"
@@ -157,6 +147,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Fri Aug 28 2009 Owen Taylor <otaylor@redhat.com> - 2.27.3-1
+- Update to 2.27.3, remove mutter-metawindow.patch
+
 * Fri Aug 21 2009 Peter Robinson <pbrobinson@gmail.com> 2.27.2-2
 - Add upstream patch needed by latest mutter-moblin
 
