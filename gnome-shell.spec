@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.27.1
-Release:        2
+Release:        3
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -18,13 +18,12 @@ BuildRequires:  desktop-file-utils
 BuildRequires:  gir-repository-devel
 BuildRequires:  gjs-devel
 BuildRequires:  glib2-devel
+BuildRequires:  gnome-desktop-devel
 BuildRequires:  gnome-menus-devel
 # for screencast recorder functionality
 BuildRequires:  gstreamer-devel
 BuildRequires:  gtk2-devel
 BuildRequires:  intltool
-# temporary until GnomeThumbnailFactory => GnomeDesktopThumbnailFactory
-BuildRequires:  libgnomeui-devel
 # used in unused BigThemeImage
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
@@ -116,6 +115,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Fri Aug 28 2009 Owen Taylor <otaylor@redhat.com> - 2.27.1-3
+- Replace libgnomeui with gnome-desktop in BuildRequires
+
 * Fri Aug 28 2009 Owen Taylor <otaylor@redhat.com> - 2.27.1-2
 - BuildRequire intltool
 - Add find_lang
