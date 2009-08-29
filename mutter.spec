@@ -1,6 +1,6 @@
 Name:           mutter
 Version:        2.27.3
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window and compositing manager based on Clutter
 
 Group:          User Interface/Desktops
@@ -110,7 +110,7 @@ if [ "$1" -gt 1 ]; then
 fi
 
 %preun 
-if [ "$1" -gt 0 ]; then
+if [ "$1" -eq 0 ]; then
   export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
   gconftool-2 --makefile-uninstall-rule \
     %{_sysconfdir}/gconf/schemas/mutter.schemas \
@@ -151,6 +151,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Sat Aug 29 2009 Owen Taylor <otaylor@redhat.com> - 2.27.3-3
+- Fix %%preun GConf script to properly be for package removal
+
 * Fri Aug 28 2009 Owen Taylor <otaylor@redhat.com> - 2.27.3-2
 - Add a workaround for Red Hat bug #520209
 
