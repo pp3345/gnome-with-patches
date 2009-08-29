@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.27.1
-Release:        3
+Release:        4
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -101,7 +101,7 @@ if [ "$1" -gt 1 ]; then
 fi
 
 %preun
-if [ "$1" -gt 0 ]; then
+if [ "$1" -eq 0 ]; then
   export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
   gconftool-2 --makefile-uninstall-rule \
     %{_sysconfdir}/gconf/schemas/gnome-shell.schemas \
@@ -115,6 +115,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Sat Aug 29 2009 Owen Taylor <otaylor@redhat.com> - 2.27.1-4
+- Fix GConf %%preun script to properly be for package removal
+
 * Fri Aug 28 2009 Owen Taylor <otaylor@redhat.com> - 2.27.1-3
 - Replace libgnomeui with gnome-desktop in BuildRequires
 
