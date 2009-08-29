@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.27.0
-Release:        4
+Version:        2.27.1
+Release:        1
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -10,7 +10,7 @@ Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.0.0
-%define mutter_version 2.27.2
+%define mutter_version 2.27.3
 
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
@@ -28,10 +28,14 @@ BuildRequires:  libgnomeui-devel
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
 
-# wrapper script uses to see if gnome-panel is running
-Requires:       dbus-python
+# User interface to switch to GNOME Shell
+Requires:       desktop-effects
 # For %pre/%post usage of gconftool-2
 Requires:       GConf2
+# wrapper script uses to restart old GNOME session if run --replace
+# from the command line
+Requires:       gnome-python2-gconf
+Requires:       pygobject2
 # wrapper script uses to figure out available GLX capabilities
 Requires:       glx-utils
 # needed for loading SVG's via gdk-pixbuf
@@ -109,6 +113,10 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Fri Aug 28 2009 Owen Taylor <otaylor@redhat.com> - 2.27.1-1
+- Update to 2.27.1
+- Update Requires, add desktop-effects
+
 * Wed Aug 12 2009 Owen Taylor <otaylor@redhat.com> - 2.27.0-4
 - Add an explicit dependency on GConf2 for pre/post
 
