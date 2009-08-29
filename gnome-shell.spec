@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.27.1
-Release:        1
+Release:        2
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -22,6 +22,7 @@ BuildRequires:  gnome-menus-devel
 # for screencast recorder functionality
 BuildRequires:  gstreamer-devel
 BuildRequires:  gtk2-devel
+BuildRequires:  intltool
 # temporary until GnomeThumbnailFactory => GnomeDesktopThumbnailFactory
 BuildRequires:  libgnomeui-devel
 # used in unused BigThemeImage
@@ -77,10 +78,12 @@ rm -rf %{buildroot}/%{_libdir}/mutter/plugins/*.la
 
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
 
+%find_lang %{name}
+
 %clean
 rm -rf %{buildroot}
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root,-)
 %doc COPYING README
 %{_bindir}/gnome-shell
@@ -113,6 +116,10 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Fri Aug 28 2009 Owen Taylor <otaylor@redhat.com> - 2.27.1-2
+- BuildRequire intltool
+- Add find_lang
+
 * Fri Aug 28 2009 Owen Taylor <otaylor@redhat.com> - 2.27.1-1
 - Update to 2.27.1
 - Update Requires, add desktop-effects
