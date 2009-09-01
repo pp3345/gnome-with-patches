@@ -1,4 +1,4 @@
-From 20edb1d61db80f5fedb4d3eea60c67d438502238 Mon Sep 17 00:00:00 2001
+From f66b2a8321af2e7779b18e1bcf5f60752b9e3705 Mon Sep 17 00:00:00 2001
 From: =?utf-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
 Date: Wed, 29 Jul 2009 08:26:14 -0400
 Subject: [PATCH] DRI2 Page Flipping
@@ -10,8 +10,8 @@ Subject: [PATCH] DRI2 Page Flipping
  glx/glxserver.h           |   18 +++----
  hw/xfree86/dri2/dri2.c    |  118 +++++++++++++++++++++++++++++++++++++++++++-
  hw/xfree86/dri2/dri2.h    |   12 ++++-
- hw/xfree86/dri2/dri2ext.c |   25 +++++++++-
- 7 files changed, 200 insertions(+), 27 deletions(-)
+ hw/xfree86/dri2/dri2ext.c |   26 ++++++++++-
+ 7 files changed, 201 insertions(+), 27 deletions(-)
 
 diff --git a/glx/glxcontext.h b/glx/glxcontext.h
 index 70a1411..79bc083 100644
@@ -392,7 +392,7 @@ index 175471a..42bdb09 100644
 +
  #endif
 diff --git a/hw/xfree86/dri2/dri2ext.c b/hw/xfree86/dri2/dri2ext.c
-index 029dce8..9f5f389 100644
+index 72f9a44..c859e6e 100644
 --- a/hw/xfree86/dri2/dri2ext.c
 +++ b/hw/xfree86/dri2/dri2ext.c
 @@ -80,7 +80,7 @@ ProcDRI2QueryVersion(ClientPtr client)
@@ -404,8 +404,8 @@ index 029dce8..9f5f389 100644
  
      if (client->swapped) {
      	swaps(&rep.sequenceNumber, n);
-@@ -253,6 +253,9 @@ ProcDRI2GetBuffers(ClientPtr client)
-     if (!validDrawable(client, stuff->drawable, &pDrawable, &status))
+@@ -258,6 +258,9 @@ ProcDRI2GetBuffers(ClientPtr client)
+ 		       &pDrawable, &status))
  	return status;
  
 +    if (DRI2WaitSwap(client, pDrawable))
@@ -414,8 +414,8 @@ index 029dce8..9f5f389 100644
      attachments = (unsigned int *) &stuff[1];
      buffers = DRI2GetBuffers(pDrawable, &width, &height,
  			     attachments, stuff->count, &count);
-@@ -276,6 +279,9 @@ ProcDRI2GetBuffersWithFormat(ClientPtr client)
-     if (!validDrawable(client, stuff->drawable, &pDrawable, &status))
+@@ -282,6 +285,9 @@ ProcDRI2GetBuffersWithFormat(ClientPtr client)
+ 		       &pDrawable, &status))
  	return status;
  
 +    if (DRI2WaitSwap(client, pDrawable))
@@ -424,7 +424,7 @@ index 029dce8..9f5f389 100644
      attachments = (unsigned int *) &stuff[1];
      buffers = DRI2GetBuffersWithFormat(pDrawable, &width, &height,
  				       attachments, stuff->count, &count);
-@@ -322,6 +328,21 @@ ProcDRI2CopyRegion(ClientPtr client)
+@@ -329,6 +335,22 @@ ProcDRI2CopyRegion(ClientPtr client)
  }
  
  static int
@@ -436,7 +436,8 @@ index 029dce8..9f5f389 100644
 +
 +    REQUEST_SIZE_MATCH(xDRI2SwapBuffersReq);
 +
-+    if (!validDrawable(client, stuff->drawable, &pDrawable, &status))
++    if (!validDrawable(client, stuff->drawable, DixReadAccess | DixWriteAccess,
++			&pDrawable, &status))
 +	return status;
 +
 +    return DRI2SwapBuffers(pDrawable);
@@ -446,7 +447,7 @@ index 029dce8..9f5f389 100644
  ProcDRI2Dispatch (ClientPtr client)
  {
      REQUEST(xReq);
-@@ -349,6 +370,8 @@ ProcDRI2Dispatch (ClientPtr client)
+@@ -356,6 +378,8 @@ ProcDRI2Dispatch (ClientPtr client)
  	return ProcDRI2CopyRegion(client);
      case X_DRI2GetBuffersWithFormat:
  	return ProcDRI2GetBuffersWithFormat(client);
@@ -456,5 +457,5 @@ index 029dce8..9f5f389 100644
  	return BadRequest;
      }
 -- 
-1.6.0.6
+1.6.3.rc1.2.g0164.dirty
 

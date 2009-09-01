@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090828
+%define gitdate 20090901
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99
-Release:   43.%{gitdate}%{?dist}
+Release:   44.%{gitdate}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -47,9 +47,6 @@ Source30: find-provides
 #define __find_provides {nil}
 
 Patch5: xserver-1.4.99-pic-libxf86config.patch
-
-# airlied to upstream for 1.7
-Patch100: xserver-1.6.99-vga-arb.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch103:  xserver-1.5.0-bg-none-root.patch
@@ -507,6 +504,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Sep 01 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-44.20090901
+- Today's git snapshot (incl. vga-arbitration).
+- dri2-page-flip.patch: rebase.
+- xserver-1.6.99-vga-arb.patch: Drop.
+
 * Fri Aug 28 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-43.20090828
 - Today's git snapshot.
 
