@@ -1,6 +1,6 @@
 Name:           mutter
-Version:        2.27.3
-Release:        3%{?dist}
+Version:        2.27.4
+Release:        1%{?dist}
 Summary:        Window and compositing manager based on Clutter
 
 Group:          User Interface/Desktops
@@ -8,9 +8,6 @@ License:        GPLv2+
 URL:            http://git.gnome.org/cgit/mutter
 Source0:        ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.27/%{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-
-# Workaround for glibc bug https://bugzilla.redhat.com/show_bug.cgi?id=520209
-Patch0: mutter-math-workaround.patch
 
 BuildRequires: clutter-devel
 BuildRequires: pango-devel
@@ -64,7 +61,6 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
-%patch0 -p1 -b .math-workaround
 
 %build
 %configure --with-clutter --disable-static
@@ -151,6 +147,10 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Fri Sep  4 2009 Owen Taylor <otaylor@redhat.com> - 2.27.4-1
+- Remove workaround for #520209
+- Update to 2.27.4
+
 * Sat Aug 29 2009 Owen Taylor <otaylor@redhat.com> - 2.27.3-3
 - Fix %%preun GConf script to properly be for package removal
 
