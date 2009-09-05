@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.27.1
-Release:        4
+Version:        2.27.2
+Release:        1
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -10,6 +10,7 @@ Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.0.0
+%define gobject_introspection_version 0.6.5
 %define mutter_version 2.27.3
 
 BuildRequires:  clutter-devel >= %{clutter_version}
@@ -20,6 +21,7 @@ BuildRequires:  gjs-devel
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-desktop-devel
 BuildRequires:  gnome-menus-devel
+BuildRequires:  gobject-introspection > %{gobject_introspection_version}
 # for screencast recorder functionality
 BuildRequires:  gstreamer-devel
 BuildRequires:  gtk2-devel
@@ -34,6 +36,7 @@ Requires:       desktop-effects
 Requires:       GConf2
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
+Requires:       gobject-introspection > %{gobject_introspection_version}
 Requires:       gnome-python2-gconf
 Requires:       pygobject2
 # wrapper script uses to figure out available GLX capabilities
@@ -115,6 +118,11 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Fri Sep  4 2009 Owen Taylor <otaylor@redhat.com> - 2.27.2-1
+- Update to 2.27.2
+- Add an explicit dep on gobject-introspection 0.6.5 which is required 
+  for the new version
+
 * Sat Aug 29 2009 Owen Taylor <otaylor@redhat.com> - 2.27.1-4
 - Fix GConf %%preun script to properly be for package removal
 
