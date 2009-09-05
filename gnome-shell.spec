@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.27.2
-Release:        1
+Release:        2
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -21,7 +21,7 @@ BuildRequires:  gjs-devel
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-desktop-devel
 BuildRequires:  gnome-menus-devel
-BuildRequires:  gobject-introspection > %{gobject_introspection_version}
+BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 # for screencast recorder functionality
 BuildRequires:  gstreamer-devel
 BuildRequires:  gtk2-devel
@@ -36,7 +36,7 @@ Requires:       desktop-effects
 Requires:       GConf2
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
-Requires:       gobject-introspection > %{gobject_introspection_version}
+Requires:       gobject-introspection >= %{gobject_introspection_version}
 Requires:       gnome-python2-gconf
 Requires:       pygobject2
 # wrapper script uses to figure out available GLX capabilities
@@ -118,6 +118,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Fri Sep  4 2009 Owen Taylor <otaylor@redhat.com> - 2.27.2-2
+- Test for gobject-introspection version should be >= not >
+
 * Fri Sep  4 2009 Owen Taylor <otaylor@redhat.com> - 2.27.2-1
 - Update to 2.27.2
 - Add an explicit dep on gobject-introspection 0.6.5 which is required 
