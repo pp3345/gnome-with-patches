@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20090903
+#define gitdate 20090903
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.6.99
-Release:   45.%{gitdate}%{?dist}
+Version:   1.6.99.900
+Release:   1%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -504,6 +504,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Sep 07 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.900-1
+- xserver 1.6.99.900 
+
 * Thu Sep 03 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99-45.20090903
 - Today's git snapshot.
 
