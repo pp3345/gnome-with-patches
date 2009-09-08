@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99.900
-Release:   1%{?dist}
+Release:   2%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -371,6 +371,8 @@ install -m 0755 %{SOURCE20} $RPM_BUILD_ROOT%{_bindir}/xvfb-run
 
 find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl|txt)$' |
 xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
+# SLEDGEHAMMER
+find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 # Remove unwanted files/dirs
 {
@@ -504,6 +506,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Sep 08 2009 Adam Jackson <ajax@redhat.com> 1.6.99.900-2
+- Fix -source subtree to not include generated C files from hw/xfree86.
+  Actually, just remove all C files from hw/xfree86 in -source, since we
+  don't need them to build Xvnc.
+
 * Mon Sep 07 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.900-1
 - xserver 1.6.99.900 
 
