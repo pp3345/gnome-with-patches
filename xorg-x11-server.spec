@@ -18,8 +18,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.6.99.900
-Release:   2%{?dist}
+Version:   1.6.99.901
+Release:   1%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -52,7 +52,6 @@ Patch5: xserver-1.4.99-pic-libxf86config.patch
 Patch103:  xserver-1.5.0-bg-none-root.patch
 Patch104:  dri2-page-flip.patch
 
-Patch2013:  xserver-1.4.99-document-fontpath-correctly.patch
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
 
 # Trivial things to never merge upstream ever:
@@ -96,7 +95,6 @@ Patch6033: xserver-1.6.99-default-modes.patch
 %endif
 
 %define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev
-# XXX dmx
 %define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
 
 BuildRequires: git-core
@@ -203,7 +201,6 @@ but it is an X server itself in which you can run other software.  It
 is a very useful tool for developers who wish to test their
 applications without running them on their real X server.
 
-%if 0
 %package Xdmx
 Summary: Distributed Multihead X Server and utilities
 Group: User Interface/X
@@ -220,7 +217,6 @@ for Xdmx would be to provide multi-head support using two desktop machines,
 each of which has a single display device attached to it.  A complex
 application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 (each attached to one of 16 computers) into a unified 5120x4096 display.
-%endif
 
 %package Xvfb
 Summary: A X Windows System virtual framebuffer X server.
@@ -456,7 +452,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/Xnest
 %{_mandir}/man1/Xnest.1*
 
-%if 0
 %files Xdmx
 %defattr(-,root,root,-)
 %{_bindir}/Xdmx
@@ -475,7 +470,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/dmxtodmx.1*
 %{_mandir}/man1/vdltodmx.1*
 %{_mandir}/man1/xdmxconfig.1*
-%endif
 
 %files Xvfb
 %defattr(-,root,root,-)
@@ -506,6 +500,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Sep 14 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.901-1
+- xserver 1.6.99.901 
+- Re-enable Xdmx
+- xserver-1.4.99-document-fontpath-correctly.patch: Drop
+
 * Tue Sep 08 2009 Adam Jackson <ajax@redhat.com> 1.6.99.900-2
 - Fix -source subtree to not include generated C files from hw/xfree86.
   Actually, just remove all C files from hw/xfree86 in -source, since we
