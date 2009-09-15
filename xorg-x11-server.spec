@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99.901
-Release:   1%{dist}
+Release:   2%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -77,6 +77,7 @@ Patch6030: xserver-1.6.99-right-of.patch
 Patch6031: xserver-1.6.99-dri2-crash-fixes.patch
 Patch6032: xserver-1.6.99-dri2-swapbuffers-fallback.patch
 Patch6033: xserver-1.6.99-default-modes.patch
+Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -319,6 +320,10 @@ git am -p1 %{lua: for i, p in ipairs(patches) do print(p.." ") end}
 %define dri_flags --disable-dri
 %endif
 
+%if 0%{?fedora}
+%define bodhi_flags --with-vendor-web="http://bodhi.fedoraproject.org/"
+%endif
+
 # --with-pie ?
 autoreconf -v --install || exit 1
 export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
@@ -329,10 +334,11 @@ export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
 	--with-default-font-path=%{default_font_path} \
 	--with-module-dir=%{moduledir} \
 	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
+	--with-os-name="$(hostname -s) $(uname -r)" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
 	--enable-install-libxf86config \
 	--enable-xselinux --enable-record \
-	%{dri_flags} \
+	%{dri_flags} %{?bodhi_flags} \
 	${CONFIGURE}
         
 make %{?_smp_mflags}
@@ -500,6 +506,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Sep 15 2009 Adam Jackson <ajax@redhat.com> 1.6.99.901-2
+- xserver-1.6.99-hush-prerelease-warning.patch: Quiet, you.
+- Point to bodhi for the "check for latest version" message.
+
 * Mon Sep 14 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.901-1
 - xserver 1.6.99.901 
 - Re-enable Xdmx

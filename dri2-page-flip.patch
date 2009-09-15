@@ -1,7 +1,7 @@
-From f66b2a8321af2e7779b18e1bcf5f60752b9e3705 Mon Sep 17 00:00:00 2001
-From: =?utf-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
+From 4b3dcbc2b7175262cd6ec13778cfd02efacc9ab7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
 Date: Wed, 29 Jul 2009 08:26:14 -0400
-Subject: [PATCH] DRI2 Page Flipping
+Subject: [PATCH 04/16] DRI2 Page Flipping
 
 ---
  glx/glxcontext.h          |    4 ++
@@ -172,7 +172,7 @@ index 46c9382..3e62782 100644
  extern __GLXclientState *glxGetClient(ClientPtr pClient);
  
 diff --git a/hw/xfree86/dri2/dri2.c b/hw/xfree86/dri2/dri2.c
-index d15ced1..7b9fb23 100644
+index d15ced1..2285fd4 100644
 --- a/hw/xfree86/dri2/dri2.c
 +++ b/hw/xfree86/dri2/dri2.c
 @@ -38,6 +38,7 @@
@@ -275,7 +275,7 @@ index d15ced1..7b9fb23 100644
 +    box.x2 = pDraw->width;
 +    box.y2 = pDraw->height;
 +    REGION_INIT(drawable->pDraw->pScreen, &region, &box, 0);
-+    
++
 +    return DRI2CopyRegion(pDraw, &region,
 +			  DRI2BufferFrontLeft, DRI2BufferBackLeft);
 +}
@@ -457,5 +457,5 @@ index 72f9a44..c859e6e 100644
  	return BadRequest;
      }
 -- 
-1.6.3.rc1.2.g0164.dirty
+1.6.4.2
 

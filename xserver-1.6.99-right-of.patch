@@ -1,17 +1,17 @@
-From 9d16f202248b0ca29b832d28441871b96d0b040d Mon Sep 17 00:00:00 2001
+From 96794b48a3dd37bf0e74b566e5bcba00293836c7 Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Tue, 28 Jul 2009 11:07:13 -0400
-Subject: [PATCH] RANDR: right-of placement by default
+Subject: [PATCH 12/16] RANDR: right-of placement by default
 
 ---
  hw/xfree86/modes/xf86Crtc.c |   71 ++++++++++++++++++++++++++++++++++++++----
  1 files changed, 64 insertions(+), 7 deletions(-)
 
 diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
-index 94fc158..4f14a75 100644
+index 2ee109b..8f726fa 100644
 --- a/hw/xfree86/modes/xf86Crtc.c
 +++ b/hw/xfree86/modes/xf86Crtc.c
-@@ -1140,6 +1140,15 @@ xf86InitialOutputPositions (ScrnInfoPtr scrn, DisplayModePtr *modes)
+@@ -1141,6 +1141,15 @@ xf86InitialOutputPositions (ScrnInfoPtr scrn, DisplayModePtr *modes)
      int			o;
      int			min_x, min_y;
      
@@ -23,11 +23,11 @@ index 94fc158..4f14a75 100644
 +	if (output->initial_x || output->initial_y)
 +            return TRUE;
 +    }
-+    
++
      for (o = 0; o < config->num_output; o++)
      {
  	xf86OutputPtr	output = config->output[o];
-@@ -2025,6 +2034,54 @@ bestModeForAspect(xf86CrtcConfigPtr config, Bool *enabled, float aspect)
+@@ -2026,6 +2035,54 @@ bestModeForAspect(xf86CrtcConfigPtr config, Bool *enabled, float aspect)
      return match;
  }
  
@@ -51,7 +51,7 @@ index 94fc158..4f14a75 100644
 +
 +    if (numEnabledOutputs(config, enabled) < 2)
 +	return FALSE;
-+    
++
 +    for (o = -1; nextEnabledOutput(config, enabled, &o); ) {
 +	DisplayModePtr mode =
 +	    xf86OutputHasPreferredMode(config->output[o], width, height);
@@ -82,7 +82,7 @@ index 94fc158..4f14a75 100644
  static Bool
  xf86TargetPreferred(ScrnInfoPtr scrn, xf86CrtcConfigPtr config,
  		    DisplayModePtr *modes, Bool *enabled,
-@@ -2082,13 +2139,9 @@ xf86TargetPreferred(ScrnInfoPtr scrn, xf86CrtcConfigPtr config,
+@@ -2083,13 +2140,9 @@ xf86TargetPreferred(ScrnInfoPtr scrn, xf86CrtcConfigPtr config,
       * biggest mode for its aspect ratio, assuming one exists.
       */
      if (!ret) do {
@@ -97,7 +97,7 @@ index 94fc158..4f14a75 100644
  	    break;
  
  	p = -1;
-@@ -2375,6 +2428,8 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
+@@ -2376,6 +2429,8 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
  
      if (xf86TargetUserpref(scrn, config, modes, enabled, width, height))
  	xf86DrvMsg(i, X_INFO, "Using user preference for initial modes\n");
@@ -106,7 +106,7 @@ index 94fc158..4f14a75 100644
      else if (xf86TargetPreferred(scrn, config, modes, enabled, width, height))
  	xf86DrvMsg(i, X_INFO, "Using exact sizes for initial modes\n");
      else if (xf86TargetAspect(scrn, config, modes, enabled, width, height))
-@@ -2391,8 +2446,10 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
+@@ -2392,8 +2447,10 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
  			config->output[o]->name);
  	else
  	    xf86DrvMsg (scrn->scrnIndex, X_INFO,
@@ -120,5 +120,5 @@ index 94fc158..4f14a75 100644
  
      /*
 -- 
-1.6.3.3
+1.6.4.2
 

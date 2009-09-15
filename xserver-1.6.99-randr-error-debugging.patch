@@ -1,14 +1,14 @@
-From 9e5f2dcdd30c22661760a0a962da44e4acb6a7e3 Mon Sep 17 00:00:00 2001
+From 16be69ef1e2ea9f19cd596b99b5ede7567d374b8 Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Mon, 27 Jul 2009 16:52:42 -0400
-Subject: [PATCH] additional randr debugging
+Subject: [PATCH 11/16] additional randr debugging
 
 ---
- randr/randr.c |   32 ++++++++++++++++++++++++++++----
- 1 files changed, 28 insertions(+), 4 deletions(-)
+ randr/randr.c |   16 +++++++++++++++-
+ 1 files changed, 15 insertions(+), 1 deletions(-)
 
 diff --git a/randr/randr.c b/randr/randr.c
-index 1c1d0c4..e4d7cfc 100644
+index 1c1d0c4..accf614 100644
 --- a/randr/randr.c
 +++ b/randr/randr.c
 @@ -477,10 +477,24 @@ RRVerticalRefresh (xRRModeInfo *mode)
@@ -21,7 +21,7 @@ index 1c1d0c4..e4d7cfc 100644
  	return BadRequest;
 -    return (*ProcRandrVector[stuff->data]) (client);
 +    ret = ProcRandrVector[stuff->data](client);
-+    
++
 +    if (ret) {
 +        int i;
 +        ErrorF("RANDR failure: %d (extension base %d)\n", ret, RRErrorBase);
@@ -30,7 +30,7 @@ index 1c1d0c4..e4d7cfc 100644
 +            if ((i+1) % 4 == 0)
 +               ErrorF("\n");
 +        }
-+        ErrorF("\n"); 
++        ErrorF("\n");
 +    }
 +
 +    return ret;
@@ -38,5 +38,5 @@ index 1c1d0c4..e4d7cfc 100644
  
  static int
 -- 
-1.6.3.3
+1.6.4.2
 
