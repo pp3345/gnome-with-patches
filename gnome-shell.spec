@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.27.2
-Release:        2
+Version:        2.27.3
+Release:        1
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -118,6 +118,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Tue Sep 15 2009 Owen Taylor <otaylor@redhat.com> - 2.27.3-1
+- Update to 2.27.3
+
 * Fri Sep  4 2009 Owen Taylor <otaylor@redhat.com> - 2.27.2-2
 - Test for gobject-introspection version should be >= not >
 
