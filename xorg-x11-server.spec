@@ -61,9 +61,6 @@ Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
 # force mode debugging on for randr 1.2 drivers
 Patch6002: xserver-1.5.1-mode-debug.patch
 
-# FIXME
-#Patch6004: xserver-1.5.99.3-dmx-xcalloc.patch
-
 # don't build the (broken) acpi code
 Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 
@@ -506,6 +503,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Sep 17 2009 Peter Hutterer <peter.hutterer@redhat.com>
+- xserver-1.5.99.3-dmx-xcalloc.patch: Obsolete, drop.
+- cvs rm a few other patches not used anymore. 
+
 * Tue Sep 15 2009 Adam Jackson <ajax@redhat.com> 1.6.99.901-2
 - xserver-1.6.99-hush-prerelease-warning.patch: Quiet, you.
 - Point to bodhi for the "check for latest version" message.
