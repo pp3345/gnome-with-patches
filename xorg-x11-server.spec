@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99.901
-Release:   2%{dist}
+Release:   3%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -50,7 +50,6 @@ Patch5: xserver-1.4.99-pic-libxf86config.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch103:  xserver-1.5.0-bg-none-root.patch
-Patch104:  dri2-page-flip.patch
 
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
 
@@ -71,8 +70,6 @@ Patch6016: xserver-1.6.1-nouveau.patch
 Patch6027: xserver-1.6.0-displayfd.patch
 Patch6028: xserver-1.6.99-randr-error-debugging.patch
 Patch6030: xserver-1.6.99-right-of.patch
-Patch6031: xserver-1.6.99-dri2-crash-fixes.patch
-Patch6032: xserver-1.6.99-dri2-swapbuffers-fallback.patch
 Patch6033: xserver-1.6.99-default-modes.patch
 Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -503,6 +500,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Sep 17 2009 Kristian Høgsberg <krh@redhat.com> - 1.6.99.901-3
+- Back out pageflip patch and follow on patches.
+
 * Thu Sep 17 2009 Peter Hutterer <peter.hutterer@redhat.com>
 - xserver-1.5.99.3-dmx-xcalloc.patch: Obsolete, drop.
 - cvs rm a few other patches not used anymore. 
