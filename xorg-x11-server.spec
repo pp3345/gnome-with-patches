@@ -18,8 +18,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.6.99.901
-Release:   3%{dist}
+Version:   1.6.99.902
+Release:   1%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -500,6 +500,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Sep 22 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.902-1
+- xserver 1.6.99.902 
+- cvs rm the now obsolete autoconf endian patch.
+
 * Thu Sep 17 2009 Kristian Høgsberg <krh@redhat.com> - 1.6.99.901-3
 - Back out pageflip patch and follow on patches.
 
