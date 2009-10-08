@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.28.0
-Release:        2
+Release:        4
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
