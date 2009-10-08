@@ -1,6 +1,6 @@
 Name:           mutter
 Version:        2.28.0
-Release:        1%{?dist}
+Release:        3%{?dist}
 Summary:        Window and compositing manager based on Clutter
 
 Group:          User Interface/Desktops
