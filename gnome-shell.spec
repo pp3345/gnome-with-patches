@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.27.3
-Release:        1
+Version:        2.28.0
+Release:        2
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -11,7 +11,7 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.0.0
 %define gobject_introspection_version 0.6.5
-%define mutter_version 2.27.3
+%define mutter_version 2.28.0
 
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
@@ -118,6 +118,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Wed Oct  7 2009 Owen Taylor <otaylor@redhat.com> - 2.28.0-2
+- Update to 2.28.0
+
 * Tue Sep 15 2009 Owen Taylor <otaylor@redhat.com> - 2.27.3-1
 - Update to 2.27.3
 
