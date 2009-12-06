@@ -1,12 +1,19 @@
+%define         alphatag    20091206git
+
 Name:           gnome-shell
-Version:        2.28.0
-Release:        4
+Version:        2.28.0.%{alphatag}
+Release:        1
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
-Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-%{version}.tar.bz2
+#Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-%{version}.tar.bz2
+# git clone git://git.gnome.org/gnome-shell
+# rm -fr gnome-shell/.git/
+# tar -cvzf gnome-shell.tar.gz gnome-shell
+Source0:        %{name}.tar.gz
+
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.0.0
@@ -118,6 +125,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Sun Dec 06 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-1
+- Update to git snapshot on 20091206
+
 * Wed Oct  7 2009 Owen Taylor <otaylor@redhat.com> - 2.28.0-2
 - Update to 2.28.0
 
