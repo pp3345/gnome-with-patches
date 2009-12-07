@@ -21,7 +21,6 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 %define mutter_version 2.28.0
 
 ## Needed by git tree
-BuildRequires:  autogen
 BuildRequires:  autoconf
 BuildRequires:  automake
 
@@ -75,7 +74,7 @@ easy to use experience.
 
 %build
 ## Needed to build the git tree
-autogen
+/bin/sh $RPM_BUILD_ROOT/autogen.sh
 %configure
 
 # Remove rpath as per https://fedoraproject.org/wiki/Packaging/Guidelines#Beware_of_Rpath
