@@ -2,7 +2,7 @@
 
 Name:           gnome-shell
 Version:        2.28.0.%{alphatag}
-Release:        2
+Release:        4
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -23,6 +23,7 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 ## Needed by git tree
 BuildRequires:  autoconf
 BuildRequires:  automake
+BuildRequires:  gnome-common
 
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
@@ -133,6 +134,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Mon Dec 07 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-4
+- Added gnome-common needed by autogen.sh in git snapshot build
+
 * Sun Dec 06 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-3
 - Added the autotools needed to build the git snapshot to the build requires
 
