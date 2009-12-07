@@ -71,10 +71,10 @@ easy to use experience.
 ## The git repository snapshot has a different directory name:
 #%setup -q
 %setup -q -n gnome-shell
+## Needed to build the git tree
+/bin/sh gnome-shell/autogen.sh
 
 %build
-## Needed to build the git tree
-/bin/sh $RPM_BUILD_ROOT/gnome-shell/autogen.sh
 %configure
 
 # Remove rpath as per https://fedoraproject.org/wiki/Packaging/Guidelines#Beware_of_Rpath
