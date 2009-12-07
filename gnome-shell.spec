@@ -66,7 +66,7 @@ easy to use experience.
 %prep
 ## The git repository snapshot has a different directory name:
 #%setup -q
-setup -q -n gnome-shell
+%setup -q -n gnome-shell
 
 %build
 %configure
