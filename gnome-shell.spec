@@ -72,7 +72,7 @@ easy to use experience.
 #%setup -q
 %setup -q -n gnome-shell
 ## Needed to build the git tree
-/bin/sh gnome-shell/autogen.sh
+/bin/sh autogen.sh
 
 %build
 %configure
