@@ -20,6 +20,11 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 %define gobject_introspection_version 0.6.5
 %define mutter_version 2.28.0
 
+## Needed by git tree
+BuildRequires   autogen
+BuildRequires   autoconf
+BuildRequires   automake
+
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
@@ -69,6 +74,8 @@ easy to use experience.
 %setup -q -n gnome-shell
 
 %build
+## Needed to build the git tree
+autogen
 %configure
 
 # Remove rpath as per https://fedoraproject.org/wiki/Packaging/Guidelines#Beware_of_Rpath
@@ -127,6 +134,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Sun Dec 06 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-3
+- Added the autotools needed to build the git snapshot to the build requires
+
 * Sun Dec 06 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-2
 - Fixed the setup naming issue with the git snapshot directory naming
 
