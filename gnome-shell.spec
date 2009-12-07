@@ -21,9 +21,9 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 %define mutter_version 2.28.0
 
 ## Needed by git tree
-BuildRequires   autogen
-BuildRequires   autoconf
-BuildRequires   automake
+BuildRequires:  autogen
+BuildRequires:  autoconf
+BuildRequires:  automake
 
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
