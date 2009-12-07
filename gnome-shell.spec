@@ -2,7 +2,7 @@
 
 Name:           gnome-shell
 Version:        2.28.0.%{alphatag}
-Release:        1
+Release:        2
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -64,7 +64,9 @@ innovative user interface concepts to provide a visually attractive and
 easy to use experience.
 
 %prep
-%setup -q
+## The git repository snapshot has a different directory name:
+#%setup -q
+setup -q -n gnome-shell
 
 %build
 %configure
@@ -125,6 +127,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Sun Dec 06 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-2
+- Fixed the setup naming issue with the git snapshot directory naming
+
 * Sun Dec 06 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-1
 - Update to git snapshot on 20091206
 
