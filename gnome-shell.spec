@@ -67,6 +67,9 @@ easy to use experience.
 %setup -q
 
 %build
+# This is only because of the git export and should be removed eventually
+cd gnomeshell
+
 %configure
 
 # Remove rpath as per https://fedoraproject.org/wiki/Packaging/Guidelines#Beware_of_Rpath
