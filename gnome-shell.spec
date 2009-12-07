@@ -75,6 +75,10 @@ easy to use experience.
 %build
 ## Needed to build the git tree
 /bin/sh $RPM_BUILD_ROOT/autogen.sh
+
+## Testing some shit
+pwd
+
 %configure
 
 # Remove rpath as per https://fedoraproject.org/wiki/Packaging/Guidelines#Beware_of_Rpath
