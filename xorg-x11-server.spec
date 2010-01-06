@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.6.99.903
-Release:   1%{dist}
+Release:   2%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -133,7 +133,7 @@ Summary: Xorg server common files
 Group: User Interface/X
 Requires: pixman >= 0.14.0
 Requires: libselinux >= 2.0.79-1
-Requires: xkbdata xkbcomp
+Requires: xkeyboard-config xkbcomp
 
 %description common
 Common files shared among all X servers.
@@ -500,6 +500,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jan 06 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.903-2
+- Require xkeyboard-config, not the obsolete xkbdata.
+
 * Mon Sep 28 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.903-1
 - xserver 1.6.99.903 
 
