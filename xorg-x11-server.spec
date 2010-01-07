@@ -18,8 +18,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.6.99.903
-Release:   2%{dist}
+Version:   1.7.3
+Release:   7%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -72,6 +72,17 @@ Patch6028: xserver-1.6.99-randr-error-debugging.patch
 Patch6030: xserver-1.6.99-right-of.patch
 Patch6033: xserver-1.6.99-default-modes.patch
 Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
+Patch6045: xserver-1.7.0-randr-gamma-restore.patch
+
+Patch6047: xserver-1.7.0-glx-versioning.patch
+#Patch6048: xserver-1.7.0-exa-fix-mixed.patch
+Patch6049: xserver-1.7.1-multilib.patch
+Patch6051: xserver-1.7.1-gamma-kdm-fix.patch
+Patch6052: xserver-1.7.1-libcrypto.patch
+Patch6066: xserver-1.7.1-glx14-swrast.patch
+
+Patch6067: xserver-1.7.3-exa-master.patch
+Patch6068: xserver-1.7.3-fb-backport.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -111,7 +122,6 @@ BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 # Broken, this is global, should be Xephyr-only
 BuildRequires: libXv-devel
 
-# openssl? really?
 BuildRequires: pixman-devel >= 0.15.14
 BuildRequires: libpciaccess-devel >= 0.10.6-1 openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 7.6-0.6
@@ -315,7 +325,7 @@ git am -p1 %{lua: for i, p in ipairs(patches) do print(p.." ") end}
 %endif
 
 %if 0%{?fedora}
-%define bodhi_flags --with-vendor-web="http://bodhi.fedoraproject.org/"
+%define bodhi_flags --with-vendor-web="http://bodhi.fedoraproject.org/" --with-vendor-name="Fedora Project"
 %endif
 
 # --with-pie ?
@@ -335,7 +345,7 @@ export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
 	%{dri_flags} %{?bodhi_flags} \
 	${CONFIGURE}
         
-make %{?_smp_mflags}
+make V=1 %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -358,6 +368,7 @@ install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/xserver
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
 mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
 cp cpprules.in %{inst_srcdir}
+cp shave*in %{inst_srcdir}
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
@@ -500,8 +511,96 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
-* Wed Jan 06 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.903-2
-- Require xkeyboard-config, not the obsolete xkbdata.
+* Tue Jan 05 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.3-7
+- Require xkeyboard-config, not xkbdata. xkbdata has been replaced by
+  xkeyboard-config.
+
+* Mon Jan 04 2010 Adam Jackson <ajax@redhat.com> 1.7.3-6
+- Build with V=1 for debugging.
+
+* Mon Dec 21 2009 Adam Tkac <atkac redhat com> 1.7.3-5
+- ship shave.in and shave-libtool.in in the -source subpackage
+
+* Mon Dec 21 2009 Dave Airlie <airlied@redhat.com> 1.7.3-4
+- Backport FB changes from master.
+
+* Wed Dec 17 2009 Dave Airlie <airlied@redhat.com> 1.7.3-3
+- backport EXA fixes from master, should fix xfig crashes X server
+
+* Mon Dec 14 2009 Adam Jackson <ajax@redhat.com> 1.7.3-2
+- xserver-1.7.1-sigaction.patch: Drop, exacerbates a race that leads to weird
+  behaviour like spontaneously repeating keys.
+
+* Tue Dec 08 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.7.3-1
+- xserver 1.7.3
+- xserver-1.7.1-stat-sanity.patch: Drop, merged upstream.
+- xserver-1.7.1-window-pictures.patch: Drop, code it bases on reverted
+  upstream
+- xserver-1.7.1-window-picture-performance-regression.patch: Drop, code it
+  bases on reverted upstream.
+
+* Tue Nov 24 2009 Adam Jackson <ajax@redhat.com> 1.7.1-12
+- xserver-1.7.1-glx14-swrast.patch: Enable GLX 1.4 for software GLX.
+
+* Tue Nov 24 2009 Adam Jackson <ajax@redhat.com> 1.7.1-11
+- xserver-1.7.1-window-picture-performance-regression.patch: Paper over a
+  performance regression caused by the window picture fixes.
+
+* Mon Nov 23 2009 Adam Jackson <ajax@redhat.com> 1.7.1-10
+- Fix crash message output. (#539401)
+
+* Fri Nov 20 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.7.1-9
+- xserver-1.7.1-stat-sanity.patch: stat directories that actually exist
+  (possibly #537737).
+
+* Mon Nov 16 2009 Adam Jackson <ajax@redhat.com> 1.7.1-8
+- xserver-1.7.1-libcrypto.patch: Avoid linking against libssl, which is huge
+  and drags in dependent libs we don't care about.
+- xserver-1.7.1-sigaction.patch: Microoptimization to SIGIO handling.
+
+* Fri Nov 06 2009 Adam Jackson <ajax@redhat.com>
+- Fix the previous changelog entry to name the right patch
+
+* Fri Nov 06 2009 Dave Airlie <airlied@redhat.com> 1.7.1-7
+- xserver-1.7.1-window-pictures.patch: remove the miClearDrawable (fingers crossed) (#533236)
+- xserver-1.7.1-gamma-kdm-fix.patch: fix KDM vt gamma (#533217)
+
+* Wed Nov 04 2009 Adam Jackson <ajax@redhat.com> 1.7.1-6
+- xserver-1.7.1-multilib.patch: Keep defining _XSERVER64, it's needed in
+  some of the shared client/server headers.
+
+* Wed Nov  4 2009 Soren Sandmann <ssp@redhat.com> 1.7.1-5
+- Update xserver-1.7.1-window-pictures.patch. Instead of calling
+  GetImage(), simply call fb* functions rather than the screen
+  hooks. (#524244)
+
+* Tue Nov  3 2009 Adam Jackson <ajax@redhat.com> 1.7.1-3
+- xserver-1.7.1-window-pictures.patch: Fix Render from Pictures backed by
+  Windows to not crash in the presence of KMS. (#524244)
+
+* Thu Oct 29 2009 Adam Jackson <ajax@redhat.com> 1.7.1-2
+- xserver-1.7.1-multilib.patch: Fix silly multilib issue. (#470885)
+
+* Mon Oct 26 2009 Adam Jackson <ajax@redhat.com> 1.7.1-1
+- xserver 1.7.1
+
+* Sat Oct 24 2009 Ben Skeggs <bskegg@redhat.com> 1.7.0-5
+- Fix unbalancing of Prepare/FinishAccess in EXA mixed pixmaps (rh#528005)
+
+* Fri Oct 16 2009 Dave Airlie <airlied@redhat.com> 1.7.0-4
+- update GLX for 1.4 version reporting
+
+* Fri Oct 09 2009 Ben Skeggs <bskeggs@redhat.com> 1.7.0-3
+- xserver-1.7.0-exa-looping-forever-is-evil.patch: Fix rendercheck hang
+
+* Thu Oct 08 2009 Adam Jackson <ajax@redhat.com> 1.7.0-2
+- xserver-1.7.0-randr-gamma-restore.patch: Restore CRTC gamma on EnterVT.
+
+* Mon Oct 05 2009 Dave Airlie <airlied@redhat.com> 1.7.0-1
+- rebase to 1.7.0 upstream release - were 99% this already
+
+* Thu Oct 01 2009 Dave Airlie <airlied@redhat.com> 1.6.99.903-2
+- backport EXA and rotate crash fixes
 
 * Mon Sep 28 2009 Peter Hutterer <peter.hutterer@redhat.com> 1.6.99.903-1
 - xserver 1.6.99.903 
