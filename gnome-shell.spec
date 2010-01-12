@@ -1,4 +1,4 @@
-%define         alphatag    20091206git
+%define         alphatag    20100112git
 
 Name:           gnome-shell
 Version:        2.28.0.%{alphatag}
