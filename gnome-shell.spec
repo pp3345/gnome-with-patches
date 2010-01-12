@@ -2,7 +2,7 @@
 
 Name:           gnome-shell
 Version:        2.28.0.%{alphatag}
-Release:        5
+Release:        1
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -135,6 +135,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Tue Jan 12 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20100112git-1
+- New git snapshot
+
 * Tue Dec 07 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-5
 - Added libtool, glib-gettext for the libtoolize dep of git snapshot
 
