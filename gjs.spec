@@ -1,6 +1,13 @@
+# Tarfile created using git
+# git clone git://git.gnome.org/gjs
+# git archive --format=tar --prefix=%{name}-%{version}/ %{git_version} | bzip2 > ~/%{name}-%{version}-%{gitdate}.tar.bz2
+%define gitdate 20100114
+%define git_version b3b2053
+%define tarfile %{name}-%{version}-%{gitdate}.tar.bz2
+
 Name:           gjs
-Version:        0.4
-Release:        1%{?dist}
+Version:        0.5
+Release:        0.1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -10,13 +17,18 @@ Group:          System Environment/Libraries
 # Stack printer (gjs/stack.c)
 License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
-Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/0.4/%{name}-%{version}.tar.bz2
+# Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/0.4/%{name}-%{version}.tar.bz2
+Source0:        %{tarfile}
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: xulrunner-devel
 BuildRequires: gobject-introspection-devel
 BuildRequires: dbus-glib-devel
 BuildRequires: pkgconfig
+
+# For the git snaphot
+BuildRequires: libtool
+BuildRequires: gnome-common
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
@@ -34,6 +46,11 @@ Files for development with %{name}.
 
 %prep
 %setup -q
+
+# Don't run configure from autogen.sh
+NOCONFIGURE=yes ./autogen.sh
+
+./autogen.sh
 
 %build
 %configure --disable-static
@@ -79,6 +96,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Thu Jan 14 2010 Peter Robinson <pbrobinson@gmail.com> 0.5-0.1
+- Move to git snapshot to fix compile against xulrunner 1.9.2.1
+
 * Thu Aug 27 2009 Peter Robinson <pbrobinson@gmail.com> 0.4-1
 - New upstream 0.4 release
 
