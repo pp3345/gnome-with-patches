@@ -1,4 +1,4 @@
-%define         alphatag    20100112git
+%define         alphatag    20100115git
 
 Name:           gnome-shell
 Version:        2.28.0.%{alphatag}
@@ -17,7 +17,8 @@ Source0:        %{name}.tar.gz
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.0.0
-%define gobject_introspection_version 0.6.5
+#%define gobject_introspection_version 0.6.5
+%define gobject_introspection_version 0.6.5.%{alphatag}
 %define mutter_version 2.28.0
 
 ## Needed by git tree
@@ -135,6 +136,10 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Fri Jan 15 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20101015git-1
+- Added dependency on a git build of gobject-introspect to solve some breakage
+- Also went ahead and made a new git tarball
+
 * Tue Jan 12 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20100112git-1
 - New git snapshot
 
