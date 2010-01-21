@@ -8,35 +8,6 @@ Subject: [PATCH] randr gamma reload hack
  hw/xfree86/modes/xf86RandR12.c |    6 ++++++
  2 files changed, 10 insertions(+), 0 deletions(-)
 
-diff --git a/hw/xfree86/loader/sdksyms.c b/hw/xfree86/loader/sdksyms.c
-index 12af6b7..656d07b 100644
---- a/hw/xfree86/loader/sdksyms.c
-+++ b/hw/xfree86/loader/sdksyms.c
-@@ -1056,6 +1056,8 @@ _X_HIDDEN void *xorg_symbols[] = {
-     (void *) &noXFree86VidModeExtension,
-     (void *) &noXFixesExtension,
-     (void *) &noPanoramiXExtension,
-+    (void *) &noSELinuxExtension,
-+    (void *) &selinuxEnforcingState,
-     (void *) &noXvExtension,
-     (void *) &noDRI2Extension,
-     (void *) &defaultTextFont,
-@@ -1069,6 +1071,7 @@ _X_HIDDEN void *xorg_symbols[] = {
-     (void *) &defaultScreenSaverBlanking,
-     (void *) &defaultScreenSaverAllowExposures,
-     (void *) &display,
-+    (void *) &displayfd,
-     (void *) &defaultBackingStore,
-     (void *) &disableBackingStore,
-     (void *) &enableBackingStore,
-@@ -1078,6 +1081,7 @@ _X_HIDDEN void *xorg_symbols[] = {
-     (void *) &maxBigRequestSize,
-     (void *) &party_like_its_1989,
-     (void *) &whiteRoot,
-+    (void *) &bgNoneRoot,
-     (void *) &CoreDump,
-     (void *) &DontPropagateMasks,
-     (void *) &screenIsSaved,
 diff --git a/hw/xfree86/modes/xf86RandR12.c b/hw/xfree86/modes/xf86RandR12.c
 index 6ea9d26..41bac11 100644
 --- a/hw/xfree86/modes/xf86RandR12.c

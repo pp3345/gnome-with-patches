@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-#define gitdate 20090903
+%define gitdate 20100120
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.7.3
-Release:   7%{dist}
+Version:   1.7.99.3
+Release:   1.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -71,18 +71,11 @@ Patch6027: xserver-1.6.0-displayfd.patch
 Patch6028: xserver-1.6.99-randr-error-debugging.patch
 Patch6030: xserver-1.6.99-right-of.patch
 Patch6033: xserver-1.6.99-default-modes.patch
-Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
+#Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 Patch6045: xserver-1.7.0-randr-gamma-restore.patch
 
-Patch6047: xserver-1.7.0-glx-versioning.patch
-#Patch6048: xserver-1.7.0-exa-fix-mixed.patch
 Patch6049: xserver-1.7.1-multilib.patch
 Patch6051: xserver-1.7.1-gamma-kdm-fix.patch
-Patch6052: xserver-1.7.1-libcrypto.patch
-Patch6066: xserver-1.7.1-glx14-swrast.patch
-
-Patch6067: xserver-1.7.3-exa-master.patch
-Patch6068: xserver-1.7.3-fb-backport.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -108,6 +101,7 @@ BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
 BuildRequires: xorg-x11-proto-devel >= 7.4-27
+BuildRequires: xorg-x11-font-utils
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.2.2-1
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
@@ -368,7 +362,6 @@ install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/xserver
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
 mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
 cp cpprules.in %{inst_srcdir}
-cp shave*in %{inst_srcdir}
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
@@ -511,6 +504,12 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jan 20 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.3-1.20100120
+- Update to today's git master.
+- Disable prelease warning patch - this is a prerelease
+- Remove upstreamed patches.
+- Remove shave files, shave was purged.
+
 * Tue Jan 05 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.3-7
 - Require xkeyboard-config, not xkbdata. xkbdata has been replaced by
   xkeyboard-config.
