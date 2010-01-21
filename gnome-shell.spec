@@ -2,7 +2,7 @@
 
 Name:           gnome-shell
 Version:        2.28.0.%{alphatag}
-Release:        1
+Release:        2
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -136,6 +136,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Fri Jan 22 2010 Rahul Sundaram <sundaram@fedoraproject.org> - 2.28.0.20101015git-2
+- Rebuild for libgnome-desktop soname bump
+
 * Fri Jan 15 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20101015git-1
 - Added dependency on a git build of gobject-introspect to solve some breakage
 - Also went ahead and made a new git tarball
