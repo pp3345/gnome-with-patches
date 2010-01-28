@@ -1,8 +1,8 @@
-%define         alphatag    20100115git
+%define         alphatag    20100128git
 
 Name:           gnome-shell
-Version:        2.28.0.%{alphatag}
-Release:        2
+Version:        2.28.1
+Release:        0.1.%{alphatag}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -18,7 +18,7 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.0.0
 #%define gobject_introspection_version 0.6.5
-%define gobject_introspection_version 0.6.5.%{alphatag}
+%define gobject_introspection_version 0.6.8
 %define mutter_version 2.28.0
 
 ## Needed by git tree
@@ -136,8 +136,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
-* Fri Jan 22 2010 Rahul Sundaram <sundaram@fedoraproject.org> - 2.28.0.20101015git-2
-- Rebuild for libgnome-desktop soname bump
+* Thu Jan 28 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.28.1-0.1.20100128git
+- New git snapshot
+- Fixed Version for alphatag use
 
 * Fri Jan 15 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20101015git-1
 - Added dependency on a git build of gobject-introspect to solve some breakage
