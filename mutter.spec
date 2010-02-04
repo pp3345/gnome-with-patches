@@ -1,13 +1,24 @@
-Name:           mutter
-Version:        2.28.0
-Release:        3%{?dist}
-Summary:        Window and compositing manager based on Clutter
+# Tarfile created using git
+# git clone git://git.gnome.org/anjal
+# git archive --format=tar --prefix=%{name}-%{version}/ %{git_version} | bzip2 > %{name}-%{version}-%{gitdate}.tar.bz2
 
-Group:          User Interface/Desktops
-License:        GPLv2+
-URL:            http://git.gnome.org/cgit/mutter
-Source0:        ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.28/%{name}-%{version}.tar.bz2
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+%define gitdate 20100127
+%define git_version 5764176 
+%define tarfile %{name}-%{version}-%{gitdate}.tar.bz2
+%define snapshot %{gitdate}git%{git_version}
+
+Name:          mutter
+Version:       2.28.1
+Release:       0.1%{?dist}
+Summary:       Window and compositing manager based on Clutter
+
+Group:         User Interface/Desktops
+License:       GPLv2+
+URL:           http://git.gnome.org/cgit/mutter
+# Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.28/%{name}-%{version}.tar.bz2
+Source0:       %{tarfile}
+Patch0:        mutter-fixKeySym.patch
+BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: clutter-devel
 BuildRequires: pango-devel
@@ -29,6 +40,10 @@ BuildRequires: zenity
 BuildRequires: intltool
 BuildRequires: gnome-doc-utils
 BuildRequires: desktop-file-utils
+
+#Temp while we're using git master
+BuildRequires: libtool
+BuildRequires: gnome-common
 
 Requires: control-center-filesystem
 Requires: startup-notification
@@ -61,6 +76,10 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
+%patch0 -p1 -b .fixKeySym
+
+# run autogen.sh until we have a proper release
+NOCONFIGURE=yes ./autogen.sh
 
 %build
 %configure --with-clutter --disable-static
@@ -147,6 +166,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Thu Feb  4 2010 Peter Robinson <pbrobinson@gmail.com> 2.28.1-0.1
+- Move to git snapshot
+
 * Wed Oct  7 2009 Owen Taylor <otaylor@redhat.com> - 2.28.0-1
 - Update to 2.28.0
 
