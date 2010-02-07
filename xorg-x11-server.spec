@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.7.99.3
-Release:   1.%{gitdate}%{dist}
+Release:   2.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,6 +76,7 @@ Patch6045: xserver-1.7.0-randr-gamma-restore.patch
 
 Patch6049: xserver-1.7.1-multilib.patch
 Patch6051: xserver-1.7.1-gamma-kdm-fix.patch
+Patch6052: xserver-1.7.4-reset-sli-pointers.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -504,6 +505,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Feb 08 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.3-2.20100120
+- xserver-1.7.4-reset-sli-pointers.patch: reset the server LED indicator
+  pointers after device class copying (#540584) 
+
 * Wed Jan 20 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.3-1.20100120
 - Update to today's git master.
 - Disable prelease warning patch - this is a prerelease

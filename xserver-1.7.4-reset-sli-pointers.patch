@@ -1,0 +1,59 @@
+From 11eea736f44a236dde884b52ad51cb5d1271b7a5 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 13 Jan 2010 15:03:45 +1000
+Subject: [PATCH] Xi: reset the sli pointers after copying device classes. (#25640)
+
+If the indicator flags have the XkbSLI_IsDefault bit set, the indicator map
+and names aren't their own bit of memory but rather point into the
+device->key->xkbInfo->desc structure. XkbCopySrvLedInfo knows about this and
+leaves the pointers alone.
+
+When copying the classes from the slave to the master, these pointers are
+copied and still point to the dev->key class of the slave device. If the
+slave device is removed, the memory becomes invalid and a call to modify
+this data (e.g. XkbSetIndicators) may cause a deadlock.
+
+The copying of dev->key relies on dev->kbdfeed to be already set up. Hence
+the pointers need to be reset once _both_ kbdfeed and key have been copied
+into the master device.
+
+X.Org Bug 25640 <http://bugs.freedesktop.org/show_bug.cgi?id=25640>
+Fedora Bug 540584 <https://bugzilla.redhat.com/show_bug.cgi?id=540584>
+---
+ Xi/exevents.c |   20 ++++++++++++++++++++
+ 1 files changed, 20 insertions(+), 0 deletions(-)
+
+diff --git a/Xi/exevents.c b/Xi/exevents.c
+index cb2452b..ee32ba8 100644
+--- a/Xi/exevents.c
++++ b/Xi/exevents.c
+@@ -444,6 +444,26 @@ DeepCopyKeyboardClasses(DeviceIntPtr from, DeviceIntPtr to)
+         to->key      = NULL;
+     }
+ 
++    /* If a SrvLedInfoPtr's flags are XkbSLI_IsDefault, the names and maps
++     * pointer point into the xkbInfo->desc struct.  XkbCopySrvLedInfo
++     * didn't update the pointers so we need to do it manually here.
++     */
++    if (to->kbdfeed)
++    {
++        KbdFeedbackPtr k;
++
++        for (k = to->kbdfeed; k; k = k->next)
++        {
++            if (!k->xkb_sli)
++                continue;
++            if (k->xkb_sli->flags & XkbSLI_IsDefault)
++            {
++                k->xkb_sli->names = to->key->xkbInfo->desc->names->indicators;
++                k->xkb_sli->maps = to->key->xkbInfo->desc->indicators->maps;
++            }
++        }
++    }
++
+     /* We can't just copy over the focus class. When an app sets the focus,
+      * it'll do so on the master device. Copying the SDs focus means losing
+      * the focus.
+-- 
+1.6.6
+
