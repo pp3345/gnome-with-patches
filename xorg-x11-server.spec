@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20100120
+%define gitdate 20100208
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.7.99.3
-Release:   2.%{gitdate}%{dist}
+Release:   3.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -505,6 +505,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Feb 08 2010 Ben Skeggs <bskeggs@redhat.com> 1.7.99.3-3.20100208
+- Update to today's git master
+
 * Mon Feb 08 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.3-2.20100120
 - xserver-1.7.4-reset-sli-pointers.patch: reset the server LED indicator
   pointers after device class copying (#540584) 
