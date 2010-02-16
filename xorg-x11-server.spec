@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20100208
+%define gitdate 20100215
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.7.99.3
-Release:   3.%{gitdate}%{dist}
+Version:   1.7.99.901
+Release:   1.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -35,6 +35,7 @@ Source2:   commitid
 Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source1:   gitignore
 %endif
+Source3:   00-evdev.conf
 
 Source10:   xserver.pamd
 
@@ -76,7 +77,6 @@ Patch6045: xserver-1.7.0-randr-gamma-restore.patch
 
 Patch6049: xserver-1.7.1-multilib.patch
 Patch6051: xserver-1.7.1-gamma-kdm-fix.patch
-Patch6052: xserver-1.7.4-reset-sli-pointers.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -124,7 +124,7 @@ BuildRequires: mesa-libGL-devel >= 7.6-0.6
 BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.79-1
-BuildRequires: hal-devel dbus-devel
+BuildRequires: libudev-devel
 
 # All server subpackages have a virtual provide for the name of the server
 # they deliver.  The Xorg one is versioned, the others are intentionally
@@ -157,7 +157,7 @@ Requires: xorg-x11-drv-fbdev
 Requires: xorg-x11-drv-void xorg-x11-drv-evdev >= 2.1.0-3
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: libdrm >= 2.4.0
-Requires: fedora-setup-keyboard
+Requires: system-setup-keyboard
 # Dropped from F9 for being broken, uninstall it.
 Obsoletes: xorg-x11-drv-magictouch <= 1.0.0.5-5.fc8
 # Dropped from F11, use evdev instead
@@ -337,6 +337,7 @@ export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
 	--enable-install-libxf86config \
 	--enable-xselinux --enable-record \
+	--enable-config-udev \
 	%{dri_flags} %{?bodhi_flags} \
 	${CONFIGURE}
         
@@ -355,6 +356,9 @@ install -m 0444 hw/xfree86/common/{vesa,extra}modes $RPM_BUILD_ROOT%{_datadir}/x
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/xserver
+
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xorg.conf.d
+install -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/xorg.conf.d
 
 %endif
 
@@ -449,6 +453,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man4/fbdevhw.4*
 %{_mandir}/man4/exa.4*
 %{_mandir}/man5/xorg.conf.5*
+%dir %{_sysconfdir}/xorg.conf.d
+%{_sysconfdir}/xorg.conf.d/00-evdev.conf
 %endif
 
 
@@ -505,6 +511,12 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Feb 16 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-1.2010208
+- Update to today's git master (1.8RC1)
+- xserver-1.7.4-reset-sli-pointers.patch: drop, upstream
+- Enable udev config, drop hal.
+- Require system-setup-keyboard (renamed fedora-setup-keyboard)
+
 * Mon Feb 08 2010 Ben Skeggs <bskeggs@redhat.com> 1.7.99.3-3.20100208
 - Update to today's git master
 
