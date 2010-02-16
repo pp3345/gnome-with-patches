@@ -9,7 +9,7 @@
 
 Name:          mutter
 Version:       2.28.1
-Release:       0.1%{?dist}
+Release:       0.2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -18,6 +18,7 @@ URL:           http://git.gnome.org/cgit/mutter
 # Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.28/%{name}-%{version}.tar.bz2
 Source0:       %{tarfile}
 Patch0:        mutter-fixKeySym.patch
+Patch1:        mutter-2.28.1-add-needed.patch
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: clutter-devel
@@ -77,6 +78,7 @@ utilities for testing Metacity/Mutter themes.
 %prep
 %setup -q
 %patch0 -p1 -b .fixKeySym
+%patch1 -p1 -b .add-needed
 
 # run autogen.sh until we have a proper release
 NOCONFIGURE=yes ./autogen.sh
@@ -166,6 +168,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Feb 16 2010 Adam Jackson <ajax@redhat.com> 2.28.1-0.2
+- mutter-2.28.1-add-needed.patch: Fix FTBFS from --no-add-needed
+
 * Thu Feb  4 2010 Peter Robinson <pbrobinson@gmail.com> 2.28.1-0.1
 - Move to git snapshot
 
