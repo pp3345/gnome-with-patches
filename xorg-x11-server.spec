@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.7.99.901
-Release:   1.%{gitdate}%{dist}
+Release:   2.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -511,6 +511,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Feb 16 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-2.2010208
+- Add 00-evdev.conf this time.
+
 * Tue Feb 16 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-1.2010208
 - Update to today's git master (1.8RC1)
 - xserver-1.7.4-reset-sli-pointers.patch: drop, upstream
