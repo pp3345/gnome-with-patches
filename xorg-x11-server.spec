@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.7.99.901
-Release:   3.%{gitdate}%{dist}
+Release:   4.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -517,6 +517,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Feb 17 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-4.2010208
+- One day I'll remember to cvs add everything.
+  xserver-1.8-udev-warning.patch added.
+
 * Wed Feb 17 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-3.2010208
 - Add 10-quirks.conf for specific black/whitelisting of devices.
 - xserver-1.8-udev-warning.patch: stick giant warning into log file that fdi
