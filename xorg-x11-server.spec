@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.7.99.901
-Release:   2.%{gitdate}%{dist}
+Release:   3.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -36,6 +36,7 @@ Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source1:   gitignore
 %endif
 Source3:   00-evdev.conf
+Source4:   10-quirks.conf
 
 Source10:   xserver.pamd
 
@@ -77,6 +78,9 @@ Patch6045: xserver-1.7.0-randr-gamma-restore.patch
 
 Patch6049: xserver-1.7.1-multilib.patch
 Patch6051: xserver-1.7.1-gamma-kdm-fix.patch
+
+# Remove this some day. Not today though.
+Patch6052: xserver-1.8-udev-warning.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -359,6 +363,7 @@ install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/xserver
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xorg.conf.d
 install -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/xorg.conf.d
+install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/xorg.conf.d
 
 %endif
 
@@ -455,6 +460,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man5/xorg.conf.5*
 %dir %{_sysconfdir}/xorg.conf.d
 %{_sysconfdir}/xorg.conf.d/00-evdev.conf
+%{_sysconfdir}/xorg.conf.d/10-quirks.conf
 %endif
 
 
@@ -511,6 +517,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Feb 17 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-3.2010208
+- Add 10-quirks.conf for specific black/whitelisting of devices.
+- xserver-1.8-udev-warning.patch: stick giant warning into log file that fdi
+  files need to be ported.
+
 * Tue Feb 16 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-2.2010208
 - Add 00-evdev.conf this time.
 
