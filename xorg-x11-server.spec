@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.7.99.901
-Release:   4.%{gitdate}%{dist}
+Release:   6.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -517,6 +517,14 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Feb 19 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-6.20100215
+- Only match device paths of /dev/input/event* for the evdev classes.
+  Reduces the number of error messages seen in the log when evdev can't
+  ioctl /dev/input/mouse devices.
+
+* Fri Feb 19 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-5.2010208
+- Change 00-evdev.conf to match all devices but joysticks (#566418)
+
 * Wed Feb 17 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-4.2010208
 - One day I'll remember to cvs add everything.
   xserver-1.8-udev-warning.patch added.
