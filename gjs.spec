@@ -10,6 +10,7 @@ Group:          System Environment/Libraries
 # Stack printer (gjs/stack.c)
 License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
+#VCS:           git://git.gnome.org/gjs
 Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/0.5/%{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
