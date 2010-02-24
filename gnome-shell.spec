@@ -8,6 +8,7 @@ Summary:        Window management and application launching for GNOME
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
+#VCS:           git://git.gnome.org/gnome-shell
 #Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-%{version}.tar.bz2
 # git clone git://git.gnome.org/gnome-shell
 # rm -fr gnome-shell/.git/
