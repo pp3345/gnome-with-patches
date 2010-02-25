@@ -1,17 +1,57 @@
-From 96794b48a3dd37bf0e74b566e5bcba00293836c7 Mon Sep 17 00:00:00 2001
+From ba73535b8af8e3540d7fddc0a4b8a85ad2ffa891 Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Tue, 28 Jul 2009 11:07:13 -0400
-Subject: [PATCH 12/16] RANDR: right-of placement by default
+Subject: [PATCH] RANDR: right-of placement by default
 
+[Enhanced to add a new prefer clone option for drivers. This
+allows for servers like RN50 where two heads are disjoint. - airlied]
 ---
- hw/xfree86/modes/xf86Crtc.c |   71 ++++++++++++++++++++++++++++++++++++++----
- 1 files changed, 64 insertions(+), 7 deletions(-)
+ hw/xfree86/common/xf86str.h |    9 ++++-
+ hw/xfree86/modes/xf86Crtc.c |   74 ++++++++++++++++++++++++++++++++++++++----
+ 2 files changed, 74 insertions(+), 9 deletions(-)
 
+diff --git a/hw/xfree86/common/xf86str.h b/hw/xfree86/common/xf86str.h
+index 2b8f998..acc7d07 100644
+--- a/hw/xfree86/common/xf86str.h
++++ b/hw/xfree86/common/xf86str.h
+@@ -516,10 +516,13 @@ typedef struct _confdrirec {
+ } confDRIRec, *confDRIPtr;
+ 
+ /* These values should be adjusted when new fields are added to ScrnInfoRec */
+-#define NUM_RESERVED_INTS		15
++#define NUM_RESERVED_INTS		14
+ #define NUM_RESERVED_POINTERS		14
+ #define NUM_RESERVED_FUNCS		11
+ 
++/* let clients know they can use this */
++#define XF86_SCRN_HAS_PREFER_CLONE 1
++
+ typedef pointer (*funcPointer)(void);
+ 
+ /* flags for depth 24 pixmap options */
+@@ -685,7 +688,6 @@ typedef void xf86SetOverscanProc          (ScrnInfoPtr, int);
+  * are to be dependent on compile-time defines.
+  */
+ 
+-
+ typedef struct _ScrnInfoRec {
+     int			driverVersion;
+     char *		driverName;		/* canonical name used in */
+@@ -790,6 +792,9 @@ typedef struct _ScrnInfoRec {
+ 
+     /* -nr support */
+     int                 canDoBGNoneRoot;
++
++    /* initial rightof support disable */
++    int                 preferClone;
+ 
+     /*
+      * These can be used when the minor ABI version is incremented.
 diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
-index 2ee109b..8f726fa 100644
+index 9370640..a710b23 100644
 --- a/hw/xfree86/modes/xf86Crtc.c
 +++ b/hw/xfree86/modes/xf86Crtc.c
-@@ -1141,6 +1141,15 @@ xf86InitialOutputPositions (ScrnInfoPtr scrn, DisplayModePtr *modes)
+@@ -1137,6 +1137,15 @@ xf86InitialOutputPositions (ScrnInfoPtr scrn, DisplayModePtr *modes)
      int			o;
      int			min_x, min_y;
      
@@ -27,7 +67,7 @@ index 2ee109b..8f726fa 100644
      for (o = 0; o < config->num_output; o++)
      {
  	xf86OutputPtr	output = config->output[o];
-@@ -2026,6 +2035,54 @@ bestModeForAspect(xf86CrtcConfigPtr config, Bool *enabled, float aspect)
+@@ -1995,6 +2004,57 @@ bestModeForAspect(xf86CrtcConfigPtr config, Bool *enabled, float aspect)
      return match;
  }
  
@@ -48,6 +88,9 @@ index 2ee109b..8f726fa 100644
 +{
 +    int o;
 +    int w = 0;
++
++    if (scrn->preferClone)
++	return FALSE;
 +
 +    if (numEnabledOutputs(config, enabled) < 2)
 +	return FALSE;
@@ -82,7 +125,7 @@ index 2ee109b..8f726fa 100644
  static Bool
  xf86TargetPreferred(ScrnInfoPtr scrn, xf86CrtcConfigPtr config,
  		    DisplayModePtr *modes, Bool *enabled,
-@@ -2083,13 +2140,9 @@ xf86TargetPreferred(ScrnInfoPtr scrn, xf86CrtcConfigPtr config,
+@@ -2052,13 +2112,9 @@ xf86TargetPreferred(ScrnInfoPtr scrn, xf86CrtcConfigPtr config,
       * biggest mode for its aspect ratio, assuming one exists.
       */
      if (!ret) do {
@@ -97,7 +140,7 @@ index 2ee109b..8f726fa 100644
  	    break;
  
  	p = -1;
-@@ -2376,6 +2429,8 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
+@@ -2346,6 +2402,8 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
  
      if (xf86TargetUserpref(scrn, config, modes, enabled, width, height))
  	xf86DrvMsg(i, X_INFO, "Using user preference for initial modes\n");
@@ -106,7 +149,7 @@ index 2ee109b..8f726fa 100644
      else if (xf86TargetPreferred(scrn, config, modes, enabled, width, height))
  	xf86DrvMsg(i, X_INFO, "Using exact sizes for initial modes\n");
      else if (xf86TargetAspect(scrn, config, modes, enabled, width, height))
-@@ -2392,8 +2447,10 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
+@@ -2362,8 +2420,10 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
  			config->output[o]->name);
  	else
  	    xf86DrvMsg (scrn->scrnIndex, X_INFO,
@@ -120,5 +163,5 @@ index 2ee109b..8f726fa 100644
  
      /*
 -- 
-1.6.4.2
+1.6.5.2
 

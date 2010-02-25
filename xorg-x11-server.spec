@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20100215
+%define gitdate 20100223
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.7.99.901
-Release:   6.%{gitdate}%{dist}
+Release:   9.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -162,6 +162,7 @@ Requires: xorg-x11-drv-void xorg-x11-drv-evdev >= 2.1.0-3
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: libdrm >= 2.4.0
 Requires: system-setup-keyboard
+Requires: udev >= 148-1
 # Dropped from F9 for being broken, uninstall it.
 Obsoletes: xorg-x11-drv-magictouch <= 1.0.0.5-5.fc8
 # Dropped from F11, use evdev instead
@@ -517,6 +518,20 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Feb 25 2010 Dave Airlie <airlied@redhat.com> 1.7.99.901-9.20100223
+- fix right-of patch to allow driver to override right-of with clone
+
+* Tue Feb 23 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-8.0100215
+- Require udev >= 148-1 for xorg-x11-server-Xorg, otherwise we don't see any
+  input devices (#566396). This requires is just needed now in the
+  transition period, we still have users with an older udev but newer
+  server. Also, 148-1 didn't actually exist in Fedora, but whatever next one
+  will do.
+- Update to today's master, re-enables RECORD.
+
+* Mon Feb 22 2010 Ben Skeggs <bskeggs@redhat.com> 1.7.99.901-7.20100215
+- exa: fix gnome-panel corruption
+
 * Fri Feb 19 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-6.20100215
 - Only match device paths of /dev/input/event* for the evdev classes.
   Reduces the number of error messages seen in the log when evdev can't
