@@ -1,24 +1,12 @@
-# Tarfile created using git
-# git clone git://git.gnome.org/anjal
-# git archive --format=tar --prefix=%{name}-%{version}/ %{git_version} | bzip2 > %{name}-%{version}-%{gitdate}.tar.bz2
-
-%define gitdate 20100127
-%define git_version 5764176 
-%define tarfile %{name}-%{version}-%{gitdate}.tar.bz2
-%define snapshot %{gitdate}git%{git_version}
-
 Name:          mutter
-Version:       2.28.1
-Release:       0.2%{?dist}
+Version:       2.29.0
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
-URL:           http://git.gnome.org/cgit/mutter
-# Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.28/%{name}-%{version}.tar.bz2
-Source0:       %{tarfile}
-Patch0:        mutter-fixKeySym.patch
-Patch1:        mutter-2.28.1-add-needed.patch
+Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.29/%{name}-%{version}.tar.bz2
+Patch0:        mutter-clutter12.patch
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: clutter-devel
@@ -42,7 +30,6 @@ BuildRequires: intltool
 BuildRequires: gnome-doc-utils
 BuildRequires: desktop-file-utils
 
-#Temp while we're using git master
 BuildRequires: libtool
 BuildRequires: gnome-common
 
@@ -77,11 +64,9 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
-%patch0 -p1 -b .fixKeySym
-%patch1 -p1 -b .add-needed
+%patch0 -p1 -b .clutter12
 
-# run autogen.sh until we have a proper release
-NOCONFIGURE=yes ./autogen.sh
+autoreconf
 
 %build
 %configure --with-clutter --disable-static
@@ -168,6 +153,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Wed Mar 17 2010 Peter Robinson <pbrobinson@gmail.com> 2.29.0-1
+- New upstream 2.29.0 release
+
 * Tue Feb 16 2010 Adam Jackson <ajax@redhat.com> 2.28.1-0.2
 - mutter-2.28.1-add-needed.patch: Fix FTBFS from --no-add-needed
 
