@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20100304
+%define gitdate 20100319
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.7.99.901
-Release:   10.%{gitdate}%{dist}
+Version:   1.7.99.902
+Release:   1.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -82,6 +82,10 @@ Patch6051: xserver-1.7.1-gamma-kdm-fix.patch
 # Remove this some day. Not today though.
 Patch6052: xserver-1.8-udev-warning.patch
 
+# Use vesa for VirtualBox, since we don't ship vboxvideo and the
+# fallback to vesa when module is missing seems broken
+Patch6053: xserver-1.8-disable-vboxvideo.patch
+
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
 %define sdkdir		%{_includedir}/xorg
@@ -105,7 +109,7 @@ BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
-BuildRequires: xorg-x11-proto-devel >= 7.4-27
+BuildRequires: xorg-x11-proto-devel >= 7.4-35
 BuildRequires: xorg-x11-font-utils
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.2.2-1
@@ -518,9 +522,18 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
-* Thu Mar 04 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-10.20100304
+* Fri Mar 19 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.902-1.20100319
+- Update to today's git.
+
+* Thu Mar 04 2010 Adam Jackson <ajax@redhat.com> 1.7.99.901-12.20100304
+- xserver-1.6.1-nouveau.patch: Fall back to nv if nouveau won't load. (#519298)
+
+* Thu Mar 04 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.901-11.20100304
 - Update to today's git.
 - BuildRequires libselinux-devel >= 2.0.86 
+
+* Thu Feb 25 2010 Adam Jackson <ajax@redhat.com> 1.7.99.901-10.20100223
+- xserver-1.8-disable-vboxvideo.patch: Disable vboxvideo. (adamw)
 
 * Thu Feb 25 2010 Dave Airlie <airlied@redhat.com> 1.7.99.901-9.20100223
 - fix right-of patch to allow driver to override right-of with clone

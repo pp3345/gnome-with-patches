@@ -1,0 +1,25 @@
+From 1f315578bf759c85261b1f2295efbf0dba852f73 Mon Sep 17 00:00:00 2001
+From: Adam Williamson <adamwill@shaw.ca>
+Date: Thu, 25 Feb 2010 10:34:49 -0800
+Subject: [PATCH] disable vboxvideo driver in autodetect code
+
+---
+ hw/xfree86/common/xf86AutoConfig.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86AutoConfig.c b/hw/xfree86/common/xf86AutoConfig.c
+index 7f4ada8..4e944ea 100644
+--- a/hw/xfree86/common/xf86AutoConfig.c
++++ b/hw/xfree86/common/xf86AutoConfig.c
+@@ -220,7 +220,7 @@ videoPtrToDriverList(struct pci_device *dev,
+ 	case 0x1011:		    driverList[0] = "tga"; break;
+ 	case 0x1023:		    driverList[0] = "trident"; break;
+ 	case 0x100c:		    driverList[0] = "tseng"; break;
+-	case 0x80ee:		    driverList[0] = "vboxvideo"; break;
++	case 0x80ee:		    driverList[0] = "vesa"; break;
+ 	case 0x15ad:		    driverList[0] = "vmware"; break;
+ 	case 0x18ca:
+ 	    if (dev->device_id == 0x47)
+-- 
+1.7.0
+
