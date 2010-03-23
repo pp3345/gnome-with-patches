@@ -1,0 +1,36 @@
+From 4528e6dfb838a0f2d164ae15e637406adba36144 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Tue, 23 Mar 2010 12:13:56 +1000
+Subject: [PATCH] xfree86: merge driver from the input class into the options.
+
+A driver that is assigned by an input class is only present as idev->driver.
+The driver itself has no access to this information once PreInit is called.
+For devices that rely on chain-hotplugging (wacom), this means that for the
+second device the driver information is lost and the second device cannot be
+initialized through NewInputDeviceRequest. Although this could be worked
+around by hardcoding the driver name in the wacom driver, having the
+assigned driver in the options seems like the better solution.
+
+This issue only manifests itself with the udev backend. With HAL, the driver
+is assigned by HAL and the option is duplicated in config/hal.c.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ hw/xfree86/common/xf86Xinput.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Xinput.c b/hw/xfree86/common/xf86Xinput.c
+index e9f7f2f..8229227 100644
+--- a/hw/xfree86/common/xf86Xinput.c
++++ b/hw/xfree86/common/xf86Xinput.c
+@@ -618,6 +618,7 @@ MergeInputClasses(IDevPtr idev, InputAttributes *attrs)
+                     "InputClass configuration");
+             return BadAlloc;
+         }
++        mergedopts = xf86ReplaceStrOption(mergedopts, "driver", idev->driver);
+     }
+     idev->commonOptions = xf86optionListMerge(idev->commonOptions, mergedopts);
+ 
+-- 
+1.6.6.1
+

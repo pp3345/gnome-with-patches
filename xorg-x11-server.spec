@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.7.99.902
-Release:   2.%{gitdate}%{dist}
+Release:   3.%{gitdate}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -88,6 +88,7 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # 543647
 Patch6054: xserver-1.7.4-owner-events.patch
+Patch6055: xserver-1.8-merge-driver.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -525,6 +526,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Mar 23 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.902-3.20100319
+- xserver-1.8-merge-driver.patch: merge driver from input classes into
+  options. Fixes wacom hotplugging issues.
+
 * Fri Mar 19 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.902-2.20100319
 - xserver-1.7.4-owner-events.patch: if owner-events is true for passive
   grabs, add the window mask (#543647)
