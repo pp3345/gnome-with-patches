@@ -1,12 +1,11 @@
 Name:          mutter
-Version:       2.29.0
+Version:       2.29.1
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.29/%{name}-%{version}.tar.bz2
-Patch0:        mutter-clutter12.patch
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: clutter-devel
@@ -64,7 +63,6 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
-%patch0 -p1 -b .clutter12
 
 autoreconf
 
@@ -153,6 +151,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Thu Mar 25 2010 Peter Robinson <pbrobinson@gmail.com> 2.29.1-1
+- New upstream 2.29.1 release
+
 * Wed Mar 17 2010 Peter Robinson <pbrobinson@gmail.com> 2.29.0-1
 - New upstream 2.29.0 release
 
