@@ -1,5 +1,5 @@
 Name:           gjs
-Version:        0.5
+Version:        0.6
 Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
@@ -11,7 +11,7 @@ Group:          System Environment/Libraries
 License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
 #VCS:           git://git.gnome.org/gjs
-Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/0.5/%{name}-%{version}.tar.bz2
+Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/%{version}/%{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: xulrunner-devel
@@ -80,6 +80,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Wed Mar 24 2010 Peter Robinson <pbrobinson@gmail.com> 0.6-1
+- New upstream 0.6 stable release
+
 * Sat Feb 20 2010 Peter Robinson <pbrobinson@gmail.com> 0.5-1
 - New upstream 0.5 release
 
