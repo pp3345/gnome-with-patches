@@ -1,38 +1,24 @@
-%define         alphatag    20100128git
-
 Name:           gnome-shell
-Version:        2.28.1
-Release:        0.1.%{alphatag}
+Version:        2.29.1
+Release:        2
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
-#VCS:           git://git.gnome.org/gnome-shell
-#Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-%{version}.tar.bz2
-# git clone git://git.gnome.org/gnome-shell
-# rm -fr gnome-shell/.git/
-# tar -cvzf gnome-shell.tar.gz gnome-shell
-Source0:        %{name}.tar.gz
-
+Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-%{version}.tar.bz2
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-%define clutter_version 1.0.0
-#%define gobject_introspection_version 0.6.5
-%define gobject_introspection_version 0.6.8
-%define mutter_version 2.28.0
-
-## Needed by git tree
-BuildRequires:  autoconf >= 2.53
-BuildRequires:  automake >= 1.10
-BuildRequires:  gnome-common >= 2.2.0
-BuildRequires:  libtool >= 1.4.3
+%define clutter_version 1.2.2
+%define gobject_introspection_version 0.6.9
+%define mutter_version 2.29.1
+%define gjs_version 0.6
 
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
 BuildRequires:  gir-repository-devel
-BuildRequires:  gjs-devel
+BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-desktop-devel
 BuildRequires:  gnome-menus-devel
@@ -58,6 +44,8 @@ Requires:       pygobject2
 Requires:       glx-utils
 # needed for loading SVG's via gdk-pixbuf
 Requires:       librsvg2
+# needed as it is now split from Clutter
+Requires:       json-glib
 Requires:       mutter >= %{mutter_version}
 # These are needed to run gnome-shell nested Xephyr mode, but that's a
 # developer-only thing and unlikely to be interesting for a normal user
@@ -72,11 +60,7 @@ innovative user interface concepts to provide a visually attractive and
 easy to use experience.
 
 %prep
-## The git repository snapshot has a different directory name:
-#%setup -q
-%setup -q -n gnome-shell
-## Needed to build the git tree
-/bin/sh autogen.sh
+%setup -q
 
 %build
 %configure
@@ -85,9 +69,7 @@ easy to use experience.
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 
-# http://bugzilla.gnome.org/show_bug.cgi?id=591474
-# make %{?_smp_mflags}
-make
+make V=1 %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
@@ -137,6 +119,21 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Fri Mar 26 2010 Colin Walters <walters@verbum.org> - 2.29.1-3
+- Specify V=1 for build, readd smp_mflags since parallel is fixed upstream
+
+* Thu Mar 25 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.29.1-2
+- Bumped for new version of mutter and clutter
+- Added version requirement to gjs-devel because of dependency of build
+
+* Wed Mar 24 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.29.1-1
+- Update to latest version 2.29.1
+
+* Sun Feb 21 2010 Bastien Nocera <bnocera@redhat.com> 2.28.1-0.2.20100128git
+- Require json-glib
+- Rebuild for new clutter with json split out
+- Fix deprecation in COGL
+
 * Thu Jan 28 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.28.1-0.1.20100128git
 - New git snapshot
 - Fixed Version for alphatag use
