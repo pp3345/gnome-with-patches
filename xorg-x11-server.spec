@@ -14,12 +14,12 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define pkgname xorg-server
-%define gitdate 20100319
+#define gitdate 20100319
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.7.99.902
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.8.0
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -86,9 +86,7 @@ Patch6052: xserver-1.8-udev-warning.patch
 # fallback to vesa when module is missing seems broken
 Patch6053: xserver-1.8-disable-vboxvideo.patch
 
-# 543647
-Patch6054: xserver-1.7.4-owner-events.patch
-Patch6055: xserver-1.8-merge-driver.patch
+Patch6054: xserver-1.8-no-hardcoded-etc.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -402,6 +400,8 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
+    # we install our own
+    rm -f $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/10-evdev.conf
 %if !%{with_hw_servers}
     rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/xorg-server.pc
     rm -f $RPM_BUILD_ROOT%{_datadir}/aclocal/xorg-server.m4
@@ -490,7 +490,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/dmxtodmx
 %{_bindir}/dmxwininfo
 %{_bindir}/vdltodmx
-%{_bindir}/xdmx
+%{_bindir}/dmxinfo
 %{_bindir}/xdmxconfig
 %{_mandir}/man1/Xdmx.1*
 %{_mandir}/man1/dmxtodmx.1*
@@ -526,6 +526,13 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Apr 06 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.0-1
+- xserver 1.8.0
+- Drop merged patches.
+- Rename xdmx client to dmxinfo (change upstream).
+- xserver-1.8-no-hardcoded-etc.patch: don't hardcode $prefix/etc for the
+  server-installed 10-evdev.conf.
+
 * Tue Apr 06 2010 Peter Hutterer <peter.hutterer@redhat.com>
 - Auto-append the gitdate to the Release whenever it is set.
 
