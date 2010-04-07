@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.7.99.902
-Release:   3.%{gitdate}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -526,6 +526,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Apr 06 2010 Peter Hutterer <peter.hutterer@redhat.com>
+- Auto-append the gitdate to the Release whenever it is set.
+
 * Tue Mar 23 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.7.99.902-3.20100319
 - xserver-1.8-merge-driver.patch: merge driver from input classes into
   options. Fixes wacom hotplugging issues.
