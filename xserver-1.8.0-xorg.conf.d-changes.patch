@@ -1,0 +1,496 @@
+From ad6c5e450cacee3777e7c541d4841ee580339a5d Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 7 Apr 2010 10:04:38 +1000
+Subject: [PATCH 1/6] config: only match sane devices in 10-evdev.conf
+
+Having a generic catchall also adds devices like accelerometers. These
+devices make X unusable, hence restrict matching to "known sane" devices
+like pointers, touchpads, keyboards, tablets and touchscreens.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Acked-by: Julien Cristau <jcristau@debian.org>
+Acked-by: Dan Nicholson <dbn.lists@gmail.com>
+Acked-by: James Cloos <cloos@jhcloos.com>
+(cherry picked from commit c8a608cb6ce8f9c86258c1ab49084f691fa9cc51)
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ config/10-evdev.conf |   36 ++++++++++++++++++++++++++++++++++--
+ 1 files changed, 34 insertions(+), 2 deletions(-)
+
+diff --git a/config/10-evdev.conf b/config/10-evdev.conf
+index 7406f4e..cc83ab2 100644
+--- a/config/10-evdev.conf
++++ b/config/10-evdev.conf
+@@ -1,8 +1,40 @@
+ #
+ # Catch-all evdev loader for udev-based systems
+-#
++# We don't simply match on any device since that also adds accelerometers
++# and other devices that we don't really want to use. The list below
++# matches everything but joysticks.
++
+ Section "InputClass"
+-        Identifier "evdev-catchall"
++        Identifier "evdev pointer catchall"
++        MatchIsPointer "on"
++        MatchDevicePath "/dev/input/event*"
+         Driver "evdev"
++EndSection
++
++Section "InputClass"
++        Identifier "evdev keyboard catchall"
++        MatchIsKeyboard "on"
+         MatchDevicePath "/dev/input/event*"
++        Driver "evdev"
++EndSection
++
++Section "InputClass"
++        Identifier "evdev touchpad catchall"
++        MatchIsTouchpad "on"
++        MatchDevicePath "/dev/input/event*"
++        Driver "evdev"
++EndSection
++
++Section "InputClass"
++        Identifier "evdev tablet catchall"
++        MatchIsTablet "on"
++        MatchDevicePath "/dev/input/event*"
++        Driver "evdev"
++EndSection
++
++Section "InputClass"
++        Identifier "evdev touchscreen catchall"
++        MatchIsTouchscreen "on"
++        MatchDevicePath "/dev/input/event*"
++        Driver "evdev"
+ EndSection
+-- 
+1.6.6.1
+
+From eb07b8606f9a1349baf8114bb36dc2712e5d3419 Mon Sep 17 00:00:00 2001
+From: Dan Nicholson <dbn.lists@gmail.com>
+Date: Sat, 3 Apr 2010 09:33:47 -0700
+Subject: [PATCH 2/6] xfree86: Allow adding sysconfdir and datadir to config search paths
+
+We could just use $projectroot/etc and $projectroot/share, but the user
+might have other plans for them.
+
+Signed-off-by: Dan Nicholson <dbn.lists@gmail.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 2460e921d18fd264e6f6374be0908f4100442650)
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ hw/xfree86/parser/Makefile.am |    4 +++-
+ hw/xfree86/parser/scan.c      |   14 ++++++++++++++
+ 2 files changed, 17 insertions(+), 1 deletions(-)
+
+diff --git a/hw/xfree86/parser/Makefile.am b/hw/xfree86/parser/Makefile.am
+index 49c191f..caf7079 100644
+--- a/hw/xfree86/parser/Makefile.am
++++ b/hw/xfree86/parser/Makefile.am
+@@ -34,7 +34,9 @@ libxf86config_a_SOURCES = \
+ 	$(INTERNAL_SOURCES)
+ libxf86config_a_CFLAGS = $(AM_CFLAGS) -fPIC -fvisibility=hidden
+ 
+-AM_CFLAGS = $(DIX_CFLAGS) $(XORG_CFLAGS)
++AM_CFLAGS = $(DIX_CFLAGS) $(XORG_CFLAGS) \
++	-DSYSCONFDIR=\"$(sysconfdir)\" \
++	-DDATADIR=\"$(datadir)\"
+ 
+ EXTRA_DIST = \
+ 	Configint.h \
+diff --git a/hw/xfree86/parser/scan.c b/hw/xfree86/parser/scan.c
+index cdca9ca..8aab0cf 100644
+--- a/hw/xfree86/parser/scan.c
++++ b/hw/xfree86/parser/scan.c
+@@ -599,6 +599,8 @@ xf86pathIsSafe(const char *path)
+  *    %F    config file environment ($XORGCONFIG) as a relative path
+  *    %G    config file environment ($XORGCONFIG) as a safe path
+  *    %P    projroot
++ *    %C    sysconfdir
++ *    %D    datadir
+  *    %M    major version number
+  *    %%    %
+  */
+@@ -615,6 +617,12 @@ xf86pathIsSafe(const char *path)
+ #ifndef PROJECTROOT
+ #define PROJECTROOT	"/usr/X11R6"
+ #endif
++#ifndef SYSCONFDIR
++#define SYSCONFDIR	PROJECTROOT "/etc"
++#endif
++#ifndef DATADIR
++#define DATADIR		PROJECTROOT "/share"
++#endif
+ #ifndef XCONFENV
+ #define XCONFENV	"XORGCONFIG"
+ #endif
+@@ -755,6 +763,12 @@ DoSubstitution(const char *template, const char *cmdline, const char *projroot,
+ 				else
+ 					BAIL_OUT;
+ 				break;
++			case 'C':
++				APPEND_STR(SYSCONFDIR);
++				break;
++			case 'D':
++				APPEND_STR(DATADIR);
++				break;
+ 			case 'M':
+ 				if (!majorvers[0]) {
+ 					if (XF86_VERSION_MAJOR < 0 || XF86_VERSION_MAJOR > 99) {
+-- 
+1.6.6.1
+
+From a4516965de447332794ee0afb9503c351fff6fe8 Mon Sep 17 00:00:00 2001
+From: Dan Nicholson <dbn.lists@gmail.com>
+Date: Sat, 3 Apr 2010 09:33:48 -0700
+Subject: [PATCH 3/6] xfree86: Document how -configdir affects the xorg.conf.d search path
+
+Explain the "safe" path dance for -configdir, too.
+
+Signed-off-by: Dan Nicholson <dbn.lists@gmail.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 2ac33888a9a5766aaf88bc92a8bd1d489873524c)
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ hw/xfree86/doc/man/xorg.conf.man.pre |   36 +++++++++++++++++++++++++++++++++-
+ 1 files changed, 35 insertions(+), 1 deletions(-)
+
+diff --git a/hw/xfree86/doc/man/xorg.conf.man.pre b/hw/xfree86/doc/man/xorg.conf.man.pre
+index 93c8ac4..9a40ce3 100644
+--- a/hw/xfree86/doc/man/xorg.conf.man.pre
++++ b/hw/xfree86/doc/man/xorg.conf.man.pre
+@@ -102,10 +102,12 @@ is the machine's hostname as reported by
+ .BR gethostname (__libmansuffix__).
+ .PP
+ Additional configuration files are searched for in the following
+-directories:
++directories when the server is started as a normal user:
+ .PP
+ .RS 4
+ .nf
++.IR /etc/X11/ <cmdline>
++.IR __projectroot__/etc/X11/ <cmdline>
+ .I /etc/X11/__xconfigdir__\-4
+ .I /etc/X11/__xconfigdir__
+ .I /etc/__xconfigdir__
+@@ -118,6 +120,38 @@ directories:
+ .fi
+ .RE
+ .PP
++where
++.I <cmdline>
++is a relative path (with no \(lq..\(rq components) specified with the
++.B \-configdir
++command line option.
++.PP
++When the __xservername__ server is started by the \(lqroot\(rq user, the
++config directory search locations are as follows:
++.PP
++.RS 4
++.nf
++<cmdline>
++.IR /etc/X11/ <cmdline>
++.IR __projectroot__/etc/X11/ <cmdline>
++.I /etc/X11/__xconfigdir__\-4
++.I /etc/X11/__xconfigdir__
++.I /etc/__xconfigdir__
++.IR __projectroot__/etc/X11/__xconfigdir__. <hostname>
++.I __projectroot__/etc/X11/__xconfigdir__\-4
++.I __projectroot__/etc/X11/__xconfigdir__
++.IR __projectroot__/lib/X11/__xconfigdir__. <hostname>
++.I __projectroot__/lib/X11/__xconfigdir__\-4
++.I __projectroot__/lib/X11/__xconfigdir__
++.fi
++.RE
++.PP
++where
++.I <cmdline>
++is the path specified with the
++.B \-configdir
++command line option (which may be absolute or relative).
++.PP
+ The
+ .I __xconfigfile__
+ and
+-- 
+1.6.6.1
+
+From 0c4a358eae0e77f389380bbbf39d4419f2dd6dcd Mon Sep 17 00:00:00 2001
+From: Dan Nicholson <dbn.lists@gmail.com>
+Date: Sat, 3 Apr 2010 09:33:49 -0700
+Subject: [PATCH 4/6] xfree86: Set a saner search path for xorg.conf.d
+
+There's no reason to carry all the oddities from xorg.conf like appended
+hostname to the search path for xorg.conf.d. This changes it to something
+very simple:
+
+	/etc/X11/<cmdline>
+	$sysconfdir/X11/<cmdline>
+	/etc/X11/xorg.conf.d
+	$sysconfdir/X11/xorg.conf.d
+
+Signed-off-by: Dan Nicholson <dbn.lists@gmail.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit a1bae63dc634a5a79861eab128c63506081f7ed9)
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ cpprules.in                          |    1 +
+ hw/xfree86/common/xf86Config.c       |   16 ++++------------
+ hw/xfree86/doc/man/xorg.conf.man.pre |   22 ++++------------------
+ 3 files changed, 9 insertions(+), 30 deletions(-)
+
+diff --git a/cpprules.in b/cpprules.in
+index 301305e..6e43578 100644
+--- a/cpprules.in
++++ b/cpprules.in
+@@ -34,6 +34,7 @@ MANDEFS = \
+ 	-D__adminmansuffix__=$(ADMIN_MAN_SUFFIX) \
+ 	-D__mandir__=$(mandir) \
+ 	-D__projectroot__=$(prefix) \
++	-D__sysconfdir__=$(sysconfdir) \
+ 	-D__datadir__=$(datadir) \
+ 	-D__xconfigfile__=$(__XCONFIGFILE__) \
+ 	-D__xconfigdir__=$(__XCONFIGDIR__) \
+diff --git a/hw/xfree86/common/xf86Config.c b/hw/xfree86/common/xf86Config.c
+index 718a078..d02c22a 100644
+--- a/hw/xfree86/common/xf86Config.c
++++ b/hw/xfree86/common/xf86Config.c
+@@ -97,20 +97,12 @@ extern DeviceAssocRec mouse_assoc;
+ #endif
+ #ifndef ROOT_CONFIGDIRPATH
+ #define ROOT_CONFIGDIRPATH	"%A," "%R," \
+-				"/etc/X11/%R," "%P/etc/X11/%R," \
+-				"/etc/X11/%X-%M," "/etc/X11/%X," "/etc/%X," \
+-				"%P/etc/X11/%X.%H," "%P/etc/X11/%X-%M," \
+-				"%P/etc/X11/%X," \
+-				"%P/lib/X11/%X.%H," "%P/lib/X11/%X-%M," \
+-				"%P/lib/X11/%X"
++				"/etc/X11/%R," "%C/X11/%R," \
++				"/etc/X11/%X," "%C/X11/%X"
+ #endif
+ #ifndef USER_CONFIGDIRPATH
+-#define USER_CONFIGDIRPATH	"/etc/X11/%S," "%P/etc/X11/%S," \
+-				"/etc/X11/%X-%M," "/etc/X11/%X," "/etc/%X," \
+-				"%P/etc/X11/%X.%H," "%P/etc/X11/%X-%M," \
+-				"%P/etc/X11/%X," \
+-				"%P/lib/X11/%X.%H," "%P/lib/X11/%X-%M," \
+-				"%P/lib/X11/%X"
++#define USER_CONFIGDIRPATH	"/etc/X11/%R," "%C/X11/%R," \
++				"/etc/X11/%X," "%C/X11/%X"
+ #endif
+ #ifndef PROJECTROOT
+ #define PROJECTROOT	"/usr/X11R6"
+diff --git a/hw/xfree86/doc/man/xorg.conf.man.pre b/hw/xfree86/doc/man/xorg.conf.man.pre
+index 9a40ce3..acfa1ca 100644
+--- a/hw/xfree86/doc/man/xorg.conf.man.pre
++++ b/hw/xfree86/doc/man/xorg.conf.man.pre
+@@ -107,16 +107,9 @@ directories when the server is started as a normal user:
+ .RS 4
+ .nf
+ .IR /etc/X11/ <cmdline>
+-.IR __projectroot__/etc/X11/ <cmdline>
+-.I /etc/X11/__xconfigdir__\-4
++.IR __sysconfdir__/X11/ <cmdline>
+ .I /etc/X11/__xconfigdir__
+-.I /etc/__xconfigdir__
+-.IR __projectroot__/etc/X11/__xconfigdir__. <hostname>
+-.I __projectroot__/etc/X11/__xconfigdir__\-4
+-.I __projectroot__/etc/X11/__xconfigdir__
+-.IR __projectroot__/lib/X11/__xconfigdir__. <hostname>
+-.I __projectroot__/lib/X11/__xconfigdir__\-4
+-.I __projectroot__/lib/X11/__xconfigdir__
++.I __sysconfdir__/X11/__xconfigdir__
+ .fi
+ .RE
+ .PP
+@@ -133,16 +126,9 @@ config directory search locations are as follows:
+ .nf
+ <cmdline>
+ .IR /etc/X11/ <cmdline>
+-.IR __projectroot__/etc/X11/ <cmdline>
+-.I /etc/X11/__xconfigdir__\-4
++.IR __sysconfdir__/X11/ <cmdline>
+ .I /etc/X11/__xconfigdir__
+-.I /etc/__xconfigdir__
+-.IR __projectroot__/etc/X11/__xconfigdir__. <hostname>
+-.I __projectroot__/etc/X11/__xconfigdir__\-4
+-.I __projectroot__/etc/X11/__xconfigdir__
+-.IR __projectroot__/lib/X11/__xconfigdir__. <hostname>
+-.I __projectroot__/lib/X11/__xconfigdir__\-4
+-.I __projectroot__/lib/X11/__xconfigdir__
++.I __sysconfdir__/X11/__xconfigdir__
+ .fi
+ .RE
+ .PP
+-- 
+1.6.6.1
+
+From 59f96734633fce3c2bee62bce860aed33033ce3e Mon Sep 17 00:00:00 2001
+From: Dan Nicholson <dbn.lists@gmail.com>
+Date: Sat, 3 Apr 2010 10:08:25 -0700
+Subject: [PATCH 5/6] xfree86: Search for a system xorg.conf.d
+
+In addition to the conf files found in /etc/X11 or $sysconfdir/X11 used
+for local administration, we also reserve a system directory for vendor
+and package usage. The simple search path is:
+
+	/usr/share/X11/xorg.conf.d
+	$datadir/X11/xorg.conf.d
+
+Files from these directories will have the lowest config priority. The
+directory $datadir/X11/xorg.conf.d is exported from xorg-server.pc in
+the variable "sysconfigdir". Packages should install their .conf files
+to the directory specified by:
+
+	`pkg-config --variable=sysconfigdir xorg-server`
+
+Signed-off-by: Dan Nicholson <dbn.lists@gmail.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 95f01bdfee8241371675f0089170fa6b2908d815)
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ configure.ac                         |    2 ++
+ hw/xfree86/common/xf86Config.c       |   12 ++++++++++--
+ hw/xfree86/doc/man/xorg.conf.man.pre |   12 ++++++++++++
+ xorg-server.pc.in                    |    2 ++
+ 4 files changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index a76eda3..48cb724 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1792,8 +1792,10 @@ if test "x$XORG" = xyes; then
+ 	AC_SUBST([driverdir])
+ 	sdkdir="$includedir/xorg"
+ 	extdir="$includedir/X11/extensions"
++	sysconfigdir="$datadir/X11/$XF86CONFIGDIR"
+ 	AC_SUBST([sdkdir])
+ 	AC_SUBST([extdir])
++	AC_SUBST([sysconfigdir])
+ 	AC_SUBST([logdir])
+ 
+ 	# stuff the ABI versions into the pc file too
+diff --git a/hw/xfree86/common/xf86Config.c b/hw/xfree86/common/xf86Config.c
+index d02c22a..1e9543f 100644
+--- a/hw/xfree86/common/xf86Config.c
++++ b/hw/xfree86/common/xf86Config.c
+@@ -104,6 +104,9 @@ extern DeviceAssocRec mouse_assoc;
+ #define USER_CONFIGDIRPATH	"/etc/X11/%R," "%C/X11/%R," \
+ 				"/etc/X11/%X," "%C/X11/%X"
+ #endif
++#ifndef SYS_CONFIGDIRPATH
++#define SYS_CONFIGDIRPATH	"/usr/share/X11/%X," "%D/X11/%X"
++#endif
+ #ifndef PROJECTROOT
+ #define PROJECTROOT	"/usr/X11R6"
+ #endif
+@@ -2421,7 +2424,7 @@ checkInput(serverLayoutPtr layout, Bool implicit_layout) {
+ ConfigStatus
+ xf86HandleConfigFile(Bool autoconfig)
+ {
+-    const char *filename, *dirname;
++    const char *filename, *dirname, *sysdirname;
+     char *filesearch, *dirsearch;
+     MessageType filefrom = X_DEFAULT;
+     MessageType dirfrom = X_DEFAULT;
+@@ -2444,6 +2447,8 @@ xf86HandleConfigFile(Bool autoconfig)
+ 	    dirfrom = X_CMDLINE;
+ 
+ 	xf86initConfigFiles();
++	sysdirname = xf86openConfigDirFiles(SYS_CONFIGDIRPATH, NULL,
++					    PROJECTROOT);
+ 	dirname = xf86openConfigDirFiles(dirsearch, xf86ConfigDir, PROJECTROOT);
+ 	filename = xf86openConfigFile(filesearch, xf86ConfigFile, PROJECTROOT);
+ 	if (filename) {
+@@ -2464,7 +2469,10 @@ xf86HandleConfigFile(Bool autoconfig)
+ 			"Unable to locate/open config directory: \"%s\"\n",
+ 			xf86ConfigDir);
+ 	}
+-	if (!filename && !dirname)
++	if (sysdirname)
++	    xf86MsgVerb(X_DEFAULT, 0, "Using system config directory \"%s\"\n",
++			sysdirname);
++	if (!filename && !dirname && !sysdirname)
+ 	    return CONFIG_NOFILE;
+     }
+ 
+diff --git a/hw/xfree86/doc/man/xorg.conf.man.pre b/hw/xfree86/doc/man/xorg.conf.man.pre
+index acfa1ca..4782d61 100644
+--- a/hw/xfree86/doc/man/xorg.conf.man.pre
++++ b/hw/xfree86/doc/man/xorg.conf.man.pre
+@@ -138,6 +138,18 @@ is the path specified with the
+ .B \-configdir
+ command line option (which may be absolute or relative).
+ .PP
++Finally, configuration files will also be searched for in directories
++reserved for system use. These are to separate configuration files from
++the vendor or 3rd party packages from those of local administration.
++These files are found in the following directories:
++.PP
++.RS 4
++.nf
++.I /usr/share/X11/__xconfigdir__
++.I __datadir__/X11/__xconfigdir__
++.fi
++.RE
++.PP
+ The
+ .I __xconfigfile__
+ and
+diff --git a/xorg-server.pc.in b/xorg-server.pc.in
+index 3d58dab..376cb93 100644
+--- a/xorg-server.pc.in
++++ b/xorg-server.pc.in
+@@ -2,8 +2,10 @@ prefix=@prefix@
+ exec_prefix=@exec_prefix@
+ libdir=@libdir@
+ includedir=@includedir@
++datarootdir=@datarootdir@
+ moduledir=@moduledir@
+ sdkdir=@sdkdir@
++sysconfigdir=@sysconfigdir@
+ 
+ abi_ansic=@abi_ansic@
+ abi_videodrv=@abi_videodrv@
+-- 
+1.6.6.1
+
+From 3e2ab9139b12b1239eebcbb6c6a23e7284dd7b44 Mon Sep 17 00:00:00 2001
+From: Dan Nicholson <dbn.lists@gmail.com>
+Date: Sat, 3 Apr 2010 09:33:51 -0700
+Subject: [PATCH 6/6] Move 10-evdev.conf to system config dir $datadir/X11/xorg.conf.d
+
+Since the server searches in a vendor specific path now, we can install
+the evdev catchall there without disturbing local administration files.
+
+Signed-off-by: Dan Nicholson <dbn.lists@gmail.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit d4dd3d0085f8eaca8c989aaeace1a1a24c5ebf49)
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ config/Makefile.am |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/config/Makefile.am b/config/Makefile.am
+index eed7454..675a3b2 100644
+--- a/config/Makefile.am
++++ b/config/Makefile.am
+@@ -9,7 +9,7 @@ AM_CFLAGS += $(UDEV_CFLAGS)
+ libconfig_la_SOURCES += udev.c
+ libconfig_la_LIBADD = $(UDEV_LIBS)
+ 
+-xorgconfddir = $(prefix)/etc/X11/$(XF86CONFIGDIR)
++xorgconfddir = $(datadir)/X11/$(XF86CONFIGDIR)
+ xorgconfd_DATA = 10-evdev.conf
+ 
+ else
+-- 
+1.6.6.1
+

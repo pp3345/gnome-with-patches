@@ -19,7 +19,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.8.0
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -35,7 +35,7 @@ Source2:   commitid
 Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source1:   gitignore
 %endif
-Source3:   00-evdev.conf
+
 Source4:   10-quirks.conf
 
 Source10:   xserver.pamd
@@ -86,7 +86,9 @@ Patch6052: xserver-1.8-udev-warning.patch
 # fallback to vesa when module is missing seems broken
 Patch6053: xserver-1.8-disable-vboxvideo.patch
 
-Patch6054: xserver-1.8-no-hardcoded-etc.patch
+Patch6055: xserver-1.7.6-export-dix-functions.patch
+Patch6056: xserver-1.7.6-export-more-dix-functions.patch
+Patch6057: xserver-1.8.0-xorg.conf.d-changes.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -368,9 +370,12 @@ install -m 0444 hw/xfree86/common/{vesa,extra}modes $RPM_BUILD_ROOT%{_datadir}/x
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/xserver
 
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/xorg.conf.d
-install -m 644 %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/xorg.conf.d
-install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_sysconfdir}/xorg.conf.d
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
+install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
+
+# make sure the (empty) /etc/X11/xorg.conf.d is there, system-setup-keyboard
+# relies on it more or less.
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 
 %endif
 
@@ -400,8 +405,6 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
     rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
     rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
-    # we install our own
-    rm -f $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d/10-evdev.conf
 %if !%{with_hw_servers}
     rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/xorg-server.pc
     rm -f $RPM_BUILD_ROOT%{_datadir}/aclocal/xorg-server.m4
@@ -467,9 +470,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man4/fbdevhw.4*
 %{_mandir}/man4/exa.4*
 %{_mandir}/man5/xorg.conf.5*
-%dir %{_sysconfdir}/xorg.conf.d
-%{_sysconfdir}/xorg.conf.d/00-evdev.conf
-%{_sysconfdir}/xorg.conf.d/10-quirks.conf
+%dir %{_sysconfdir}/X11/xorg.conf.d
+%dir %{_datadir}/X11/xorg.conf.d
+%{_datadir}/X11/xorg.conf.d/10-evdev.conf
+%{_datadir}/X11/xorg.conf.d/10-quirks.conf
 %endif
 
 
@@ -526,6 +530,28 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Apr 15 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.0-6
+- xserver-1.8.0-xorg.conf.d-changes.patch: push in the upcoming 1.8.1
+  xorg.conf.d changes. The X server uses /etc/X11/xorg.conf now for custom
+  config and /usr/share/X11/xorg.conf.d for system-provided config.
+- xserver-1.8-no-hardcoded-etc.patch: drop, obsolete.
+- 00-evdev.conf: drop, use the upstream one.
+
+* Thu Apr 15 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.0-5
+- xserver-1.4.99-pic-libxf86config.patch: update, only merge CFLAGS for
+  libxf86config.a, not AM_CFLAGS. Makes patch mangling for the next set of
+  patches easier.
+
+* Wed Apr 14 2010 Adam Tkac <atkac redhat com> 1.8.0-4
+- xserver-1.7.6-export-more-dix-functions.patch: export XkbCopyDeviceKeymap
+  function, needed by VNC
+
+* Mon Apr 12 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.0-3
+- xserver-1.7.6-export-dix-functions: export some functions in use by VNC.
+
+* Mon Apr 12 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.0-2
+- Add Xen virtual pointer quirk to 10-quirks.conf (#523914)
+
 * Tue Apr 06 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.0-1
 - xserver 1.8.0
 - Drop merged patches.
