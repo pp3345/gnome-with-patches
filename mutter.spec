@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       2.31.2
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -67,7 +67,7 @@ utilities for testing Metacity/Mutter themes.
 autoreconf
 
 %build
-%configure --with-clutter --disable-static
+%configure --disable-static
 
 SHOULD_HAVE_DEFINED="HAVE_SM HAVE_XINERAMA HAVE_XFREE_XINERAMA HAVE_SHAPE HAVE_RANDR HAVE_STARTUP_NOTIFICATION HAVE_COMPOSITE_EXTENSION"
 
@@ -151,6 +151,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Wed May 26 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.31.2-2
+- removed "--with-clutter" as configure is claiming it to be an unknown option
+
 * Wed May 26 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.31.2-1
 - New upstream 2.31.2 release
 
