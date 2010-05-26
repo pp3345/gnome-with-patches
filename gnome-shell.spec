@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.29.1
-Release:        2%{?dist}
+Version:        2.31.2
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -10,7 +10,7 @@ Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.2.2
-%define gobject_introspection_version 0.6.9
+%define gobject_introspection_version 0.6.12
 %define mutter_version 2.29.1
 %define gjs_version 0.6
 
@@ -119,6 +119,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Wed May 26 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.31.2-1
+- New upstream release
+
 * Fri Mar 26 2010 Colin Walters <walters@verbum.org> - 2.29.1-3
 - Specify V=1 for build, readd smp_mflags since parallel is fixed upstream
 
