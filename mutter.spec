@@ -1,11 +1,11 @@
 Name:          mutter
-Version:       2.29.1
+Version:       2.31.2
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
-Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.29/%{name}-%{version}.tar.bz2
+Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.31/%{name}-%{version}.tar.bz2
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: clutter-devel
@@ -151,6 +151,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Wed May 26 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.31.2-1
+- New upstream 2.31.2 release
+
 * Thu Mar 25 2010 Peter Robinson <pbrobinson@gmail.com> 2.29.1-1
 - New upstream 2.29.1 release
 
