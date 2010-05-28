@@ -9,10 +9,10 @@ URL:            http://live.gnome.org/GnomeShell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-%{version}.tar.bz2
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-%define clutter_version 1.2.2
+%define clutter_version 1.2.8
 %define gobject_introspection_version 0.6.12
-%define mutter_version 2.29.1
-%define gjs_version 0.6
+%define mutter_version 2.31.2
+%define gjs_version 0.7
 
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
@@ -90,11 +90,14 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc COPYING README
 %{_bindir}/gnome-shell
+%{_bindir}/gnome-shell-clock-preferences
 %{_datadir}/applications/gnome-shell.desktop
+%{_datadir}/applications/gnome-shell-clock-preferences.desktop
 %{_datadir}/gnome-shell/
 %{_libdir}/gnome-shell/
 %{_libdir}/mutter/plugins/libgnome-shell.so
 %{_sysconfdir}/gconf/schemas/gnome-shell.schemas
+%{_mandir}/man1/%{name}.1.gz
 
 %pre
 if [ "$1" -gt 1 ]; then
@@ -119,6 +122,11 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Fri May 28 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.31.2-2
+- Added new version requirements for dependencies based on upstream releases
+- Added new file listings for gnome-shell-clock-preferences binary and .desktop
+- Added gnome-shell man page file listing
+
 * Wed May 26 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.31.2-1
 - New upstream release
 
