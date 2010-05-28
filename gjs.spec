@@ -1,5 +1,5 @@
 Name:           gjs
-Version:        0.6
+Version:        0.7
 Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
@@ -80,6 +80,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Fri May 28 2010 Matthias Clasen <mclasen@redhat.com> 0.7-1
+- Update to 0.7
+
 * Wed Mar 24 2010 Peter Robinson <pbrobinson@gmail.com> 0.6-1
 - New upstream 0.6 stable release
 
