@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.31.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
