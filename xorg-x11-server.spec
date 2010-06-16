@@ -13,13 +13,24 @@
 #
 # Fix rhpxl to no longer need vesamodes/extramodes
 
+# ABI versions.  Have to keep these manually in sync with the source
+# because rpm is a terrible language.  HTFU.
+%define ansic_major 0
+%define ansic_minor 4
+%define videodrv_major 7
+%define videodrv_minor 0
+%define xinput_major 9
+%define xinput_minor 0
+%define extension_major 3
+%define extension_minor 0
+
 %define pkgname xorg-server
 #define gitdate 20100319
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.8.0
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Release:   7%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -43,10 +54,8 @@ Source10:   xserver.pamd
 # "useful" xvfb-run script
 Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 
-# ABI version provides.
-# XXX don't enable any of this yet.  for serious.
-Source30: find-provides
-#define __find_provides {nil}
+# for requires generation in drivers
+Source30:  xserver-sdk-abi-requires
 
 Patch5: xserver-1.4.99-pic-libxf86config.patch
 
@@ -161,6 +170,11 @@ Summary: Xorg X server
 Group: User Interface/X
 Provides: Xorg = %{version}-%{release}
 Provides: Xserver
+Provides: xserver-abi(ansic-%{ansic_major}) = %{ansic_minor}
+Provides: xserver-abi(videodrv-%{videodrv_major}) = %{videodrv_minor}
+Provides: xserver-abi(xinput-%{xinput_major}) = %{xinput_minor}
+Provides: xserver-abi(extension-%{extension_major}) = %{extension_minor}
+
 %ifarch %{ix86} x86_64
 Requires: xorg-x11-drv-vesa
 %else
@@ -319,8 +333,30 @@ git commit -a -q -m "%{version} baseline."
 %endif
 
 # Apply all the patches.
-#git am -p1 %{patches}
-git am -p1 %{lua: for i, p in ipairs(patches) do print(p.." ") end}
+git am -p1 %{patches}
+
+%if %{with_hw_servers}
+# check the ABI in the source against what we expect.
+getmajor() {
+    grep -i ^#define.ABI.$1_VERSION hw/xfree86/common/xf86Module.h |
+    tr '(),' '   ' | awk '{ print $4 }'
+}
+
+getminor() {
+    grep -i ^#define.ABI.$1_VERSION hw/xfree86/common/xf86Module.h |
+    tr '(),' '   ' | awk '{ print $5 }'
+}
+
+test `getmajor ansic` == %{ansic_major}
+test `getminor ansic` == %{ansic_minor}
+test `getmajor videodrv` == %{videodrv_major}
+test `getminor videodrv` == %{videodrv_minor}
+test `getmajor xinput` == %{xinput_major}
+test `getminor xinput` == %{xinput_minor}
+test `getmajor extension` == %{extension_major}
+test `getminor extension` == %{extension_minor}
+
+%endif
 
 %build
 
@@ -376,6 +412,9 @@ install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
 # make sure the (empty) /etc/X11/xorg.conf.d is there, system-setup-keyboard
 # relies on it more or less.
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
+
+mkdir -p $RPM_BUILD_ROOT%{_bindir}
+install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}
 
 %endif
 
@@ -517,6 +556,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_hw_servers}
 %files devel
 %defattr(-,root,root,-)
+%{_bindir}/xserver-sdk-abi-requires
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
 %{sdkdir}/*.h
@@ -530,6 +570,12 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jun 16 2010 Adam Jackson <ajax@redhat.com> 1.8.0-7
+- Make -Xorg package provide its own ABI versions.  Fail %%prep if they
+  don't match what the specfile claims.
+- Add xserver-sdk-abi-requires to -devel to make it easy for driver packages
+  to require the ABI versions they were built against.
+
 * Thu Apr 15 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.0-6
 - xserver-1.8.0-xorg.conf.d-changes.patch: push in the upcoming 1.8.1
   xorg.conf.d changes. The X server uses /etc/X11/xorg.conf now for custom
