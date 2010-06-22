@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.8.0
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -98,6 +98,9 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 Patch6055: xserver-1.7.6-export-dix-functions.patch
 Patch6056: xserver-1.7.6-export-more-dix-functions.patch
 Patch6057: xserver-1.8.0-xorg.conf.d-changes.patch
+
+# https://bugs.freedesktop.org/show_bug.cgi?id=28672
+Patch7000: xserver-1.8.0-no-xorg.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -570,6 +573,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Jun 22 2010 Dan Horák <dan@danny.cz> 1.8.0-8
+- fix built with --disable-xorg like on s390/s390x
+
 * Wed Jun 16 2010 Adam Jackson <ajax@redhat.com> 1.8.0-7
 - Make -Xorg package provide its own ABI versions.  Fail %%prep if they
   don't match what the specfile claims.
