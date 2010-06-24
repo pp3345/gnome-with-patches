@@ -160,8 +160,7 @@ X.Org X11 X server
 %package common
 Summary: Xorg server common files
 Group: User Interface/X
-Requires: pixman >= 0.14.0
-Requires: libselinux >= 2.0.79-1
+Requires: pixman >= 0.18.0
 Requires: xkeyboard-config xkbcomp
 
 %description common
@@ -178,36 +177,10 @@ Provides: xserver-abi(videodrv-%{videodrv_major}) = %{videodrv_minor}
 Provides: xserver-abi(xinput-%{xinput_major}) = %{xinput_minor}
 Provides: xserver-abi(extension-%{extension_major}) = %{extension_minor}
 
-%ifarch %{ix86} x86_64
-Requires: xorg-x11-drv-vesa
-%else
-Requires: xorg-x11-drv-fbdev
-%endif
-Requires: xorg-x11-drv-void xorg-x11-drv-evdev >= 2.1.0-3
 Requires: xorg-x11-server-common >= %{version}-%{release}
-Requires: libdrm >= 2.4.0
+Requires: libdrm >= 2.4.20
 Requires: system-setup-keyboard
 Requires: udev >= 148-1
-# Dropped from F9 for being broken, uninstall it.
-Obsoletes: xorg-x11-drv-magictouch <= 1.0.0.5-5.fc8
-# Dropped from F11, use evdev instead
-Obsoletes: xorg-x11-drv-calcomp <= 1.1.2-1.fc9
-Obsoletes: xorg-x11-drv-citron <= 2.2.1-1.fc9
-Obsoletes: xorg-x11-drv-diamondtouch <= 0.2.0-0.1.fc9
-Obsoletes: xorg-x11-drv-digitaledge <= 1.1.1-1.fc9
-Obsoletes: xorg-x11-drv-dmc <= 1.1.2-1.fc9
-Obsoletes: xorg-x11-drv-dynapro <= 1.1.2-1.fc9
-Obsoletes: xorg-x11-drv-jamstudio <= 1.2.0-1.fc9
-Obsoletes: xorg-x11-drv-magellan <= 1.2.0-1.fc9
-Obsoletes: xorg-x11-drv-microtouch <= 1.2.0-1.fc9
-Obsoletes: xorg-x11-drv-palmax <= 1.2.0-1.fc9
-Obsoletes: xorg-x11-drv-spaceorb <= 1.1.0-6.fc9
-Obsoletes: xorg-x11-drv-summa <= 1.2.0-2.fc10
-Obsoletes: xorg-x11-drv-tek4957 <= 1.2.0-1.fc9
-Obsoletes: xorg-x11-drv-ur98 <= 1.1.0-5.fc9
-Obsoletes: xorg-x11-drv-wiimote <= 0.0.1-1.fc9
-# Force sufficiently new libpciaccess
-Conflicts: libpciaccess < 0.10.6-1
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -573,6 +546,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jun 24 2010 Adam Jackson <ajax@redhat.com>
+- Drop a bunch of old Obsoletes from F11 and earlier.
+- Drop explicit driver Requires.
+- Update pixman and libdrm Requires to be more like reality.
+
 * Tue Jun 22 2010 Dan Horák <dan@danny.cz> 1.8.0-8
 - fix built with --disable-xorg like on s390/s390x
 
