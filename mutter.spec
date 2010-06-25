@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       2.31.2
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -15,7 +15,6 @@ BuildRequires: gtk2-devel
 BuildRequires: pkgconfig
 BuildRequires: GConf2-devel
 BuildRequires: gobject-introspection-devel
-BuildRequires: gir-repository-devel
 BuildRequires: libSM-devel
 BuildRequires: libX11-devel
 BuildRequires: libXdamage-devel
@@ -151,6 +150,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Fri Jun 25 2010 Colin Walters <walters@megatron> - 2.31.2-3
+- drop gir-repository-devel dep
+
 * Wed May 26 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.31.2-2
 - removed "--with-clutter" as configure is claiming it to be an unknown option
 
