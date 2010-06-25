@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.31.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -18,7 +18,6 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
-BuildRequires:  gir-repository-devel
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-desktop-devel
@@ -123,6 +122,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Fri Jun 25 2010 Colin Walters <walters@megatron> - 2.31.2-3
+- Drop gir-repository-devel build dependency
+
 * Fri May 28 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.31.2-2
 - Added new version requirements for dependencies based on upstream releases
 - Added new file listings for gnome-shell-clock-preferences binary and .desktop
