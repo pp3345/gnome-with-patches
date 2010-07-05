@@ -1,7 +1,7 @@
-From 6d9585ba6a5784328de479c6b648d7b7d6cec64c Mon Sep 17 00:00:00 2001
+From 450e2e95f0f15e983f6a8f01bdd3a7b5ba91f5b8 Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Thu, 29 Oct 2009 19:04:10 -0400
-Subject: [PATCH] multilib fix for -devel subpackage
+Subject: [PATCH 13/17] multilib fix for -devel subpackage
 
 ---
  include/colormapst.h     |    4 ++--
@@ -28,7 +28,7 @@ index f1fc8eb..274cd65 100644
  #endif
      ScreenPtr	pScreen;	/* screen map is associated with */
 diff --git a/include/xorg-server.h.in b/include/xorg-server.h.in
-index 76cab16..081b8f3 100644
+index 76cab16..d12fd23 100644
 --- a/include/xorg-server.h.in
 +++ b/include/xorg-server.h.in
 @@ -157,9 +157,6 @@
@@ -51,5 +51,5 @@ index 76cab16..081b8f3 100644
 +
  #endif /* _XORG_SERVER_H_ */
 -- 
-1.6.5.2
+1.7.1
 

@@ -17,20 +17,20 @@
 # because rpm is a terrible language.  HTFU.
 %define ansic_major 0
 %define ansic_minor 4
-%define videodrv_major 7
+%define videodrv_major 8
 %define videodrv_minor 0
-%define xinput_major 9
+%define xinput_major 11 
 %define xinput_minor 0
-%define extension_major 3
+%define extension_major 4
 %define extension_minor 0
 
 %define pkgname xorg-server
-#define gitdate 20100319
+%define gitdate 20100702
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.8.0
-Release:   8%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.8.99.904
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -94,10 +94,6 @@ Patch6052: xserver-1.8-udev-warning.patch
 # Use vesa for VirtualBox, since we don't ship vboxvideo and the
 # fallback to vesa when module is missing seems broken
 Patch6053: xserver-1.8-disable-vboxvideo.patch
-
-Patch6055: xserver-1.7.6-export-dix-functions.patch
-Patch6056: xserver-1.7.6-export-more-dix-functions.patch
-Patch6057: xserver-1.8.0-xorg.conf.d-changes.patch
 
 # https://bugs.freedesktop.org/show_bug.cgi?id=28672
 Patch7000: xserver-1.8.0-no-xorg.patch
@@ -460,8 +456,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/extensions/libextmod.so
 %{_libdir}/xorg/modules/extensions/librecord.so
 %dir %{_libdir}/xorg/modules/input
-%dir %{_libdir}/xorg/modules/linux
-%{_libdir}/xorg/modules/linux/libfbdevhw.so
+%{_libdir}/xorg/modules/libfbdevhw.so
 %dir %{_libdir}/xorg/modules/multimedia
 %{_libdir}/xorg/modules/multimedia/bt829_drv.so
 %{_libdir}/xorg/modules/multimedia/fi1236_drv.so
@@ -546,6 +541,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Jul 05 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.99.904-1
+- Update to current git master (1.9 snapshot 4).
+- New ABIS: videodrv 8, input 11, extension 4
+- Drop upstreamed patches.
+
 * Thu Jun 24 2010 Adam Jackson <ajax@redhat.com>
 - Drop a bunch of old Obsoletes from F11 and earlier.
 - Drop explicit driver Requires.
