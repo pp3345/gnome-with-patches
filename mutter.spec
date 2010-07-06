@@ -1,10 +1,11 @@
 Name:          mutter
 Version:       2.31.2
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
+#VCS:	       git:git://git.gnome.org/mutter
 Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.31/%{name}-%{version}.tar.bz2
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -24,12 +25,10 @@ BuildRequires: libXrender-devel
 BuildRequires: libXcursor-devel
 BuildRequires: libXcomposite-devel
 BuildRequires: zenity
-BuildRequires: intltool
 BuildRequires: gnome-doc-utils
 BuildRequires: desktop-file-utils
-
-BuildRequires: libtool
-BuildRequires: gnome-common
+# Bootstrap requirements
+BuildRequires: gtk-doc gnome-common intltool
 
 Requires: control-center-filesystem
 Requires: startup-notification
@@ -63,10 +62,9 @@ utilities for testing Metacity/Mutter themes.
 %prep
 %setup -q
 
-autoreconf
-
 %build
-%configure --disable-static
+(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
+ %configure --disable-static)
 
 SHOULD_HAVE_DEFINED="HAVE_SM HAVE_XINERAMA HAVE_XFREE_XINERAMA HAVE_SHAPE HAVE_RANDR HAVE_STARTUP_NOTIFICATION HAVE_COMPOSITE_EXTENSION"
 
@@ -150,6 +148,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Jul  6 2010 Colin Walters <walters@verbum.org> - 2.31.2-4
+- Changes to support snapshot builds
+
 * Fri Jun 25 2010 Colin Walters <walters@megatron> - 2.31.2-3
 - drop gir-repository-devel dep
 
