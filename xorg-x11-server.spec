@@ -36,6 +36,7 @@ License:   MIT
 Group:     User Interface/X
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+#VCS:      git:git://git.freedesktop.org/git/xorg/xserver
 %if 0%{?gitdate}
 # git snapshot.  to recreate, run:
 # ./make-git-snapshot.sh `cat commitid`
