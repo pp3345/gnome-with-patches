@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.8.99.904
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -429,6 +429,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files common
 %defattr(-,root,root,-)
+%doc COPYING
 %{_mandir}/man1/Xserver.1*
 %{_libdir}/xorg/protocol.txt
 %dir %{_localstatedir}/lib/xkb
@@ -528,6 +529,7 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with_hw_servers}
 %files devel
 %defattr(-,root,root,-)
+%doc COPYING
 %{_bindir}/xserver-sdk-abi-requires
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
@@ -542,6 +544,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jul 08 2010 Adam Jackson <ajax@redhat.com> 1.8.99.904-2
+- Install COPYING as necessary.
+
 * Mon Jul 05 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.99.904-1
 - Update to current git master (1.9 snapshot 4).
 - New ABIS: videodrv 8, input 11, extension 4
