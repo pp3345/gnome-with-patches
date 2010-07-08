@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.8.99.904
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -123,7 +123,7 @@ BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
 BuildRequires: xorg-x11-proto-devel >= 7.4-35
-BuildRequires: xorg-x11-font-utils
+BuildRequires: xorg-x11-font-utils >= 7.2-11
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.2.2-1
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
@@ -159,6 +159,7 @@ Summary: Xorg server common files
 Group: User Interface/X
 Requires: pixman >= 0.18.0
 Requires: xkeyboard-config xkbcomp
+Requires: libXfont >= 1.4.2
 
 %description common
 Common files shared among all X servers.
@@ -544,6 +545,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Jul 09 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.99.904-3
+- BuildRequires updated xorg-x11-font-utils for font-utils 1.1
+- Requires libXfont 1.4.2 or newer (#611753)
+
 * Thu Jul 08 2010 Adam Jackson <ajax@redhat.com> 1.8.99.904-2
 - Install COPYING as necessary.
 
