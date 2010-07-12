@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.31.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -12,7 +12,7 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.2.8
 %define gobject_introspection_version 0.9.2
-%define mutter_version 2.31.2
+%define mutter_version 2.31.5
 %define gjs_version 0.7
 
 BuildRequires:  clutter-devel >= %{clutter_version}
@@ -22,10 +22,11 @@ BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-desktop-devel
 BuildRequires:  gnome-menus-devel
+BuildRequires:  gnome-desktop3-devel
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 # for screencast recorder functionality
 BuildRequires:  gstreamer-devel
-BuildRequires:  gtk2-devel
+BuildRequires:  gtk3-devel
 BuildRequires:  intltool
 # used in unused BigThemeImage
 BuildRequires:  librsvg2-devel
@@ -120,6 +121,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Tue Jul 13 2010 Adel Gadllah <adel.gadllah@gmail.com> - 2.31.5-2
+- BuildRequire gnome-desktop3-devel, gtk3
+
 * Mon Jul 12 2010 Colin Walters <walters@verbum.org> - 2.31.5-1
 - New upstream version
 - Drop rpath goop, shouldn't be necessary any more
