@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.31.2
-Release:        3%{?dist}
+Version:        2.31.5
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -11,7 +11,7 @@ Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.2.8
-%define gobject_introspection_version 0.6.12
+%define gobject_introspection_version 0.9.2
 %define mutter_version 2.31.2
 %define gjs_version 0.7
 
@@ -30,6 +30,8 @@ BuildRequires:  intltool
 # used in unused BigThemeImage
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
+# Bootstrap requirements
+BuildRequires: gtk-doc gnome-common
 
 # User interface to switch to GNOME Shell
 Requires:       desktop-effects
@@ -63,12 +65,8 @@ easy to use experience.
 %setup -q
 
 %build
-%configure
-
-# Remove rpath as per https://fedoraproject.org/wiki/Packaging/Guidelines#Beware_of_Rpath
-sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
-
+(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
+ %configure --disable-static)
 make V=1 %{?_smp_mflags}
 
 %install
@@ -122,6 +120,10 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Mon Jul 12 2010 Colin Walters <walters@verbum.org> - 2.31.5-1
+- New upstream version
+- Drop rpath goop, shouldn't be necessary any more
+
 * Fri Jun 25 2010 Colin Walters <walters@megatron> - 2.31.2-3
 - Drop gir-repository-devel build dependency
 
