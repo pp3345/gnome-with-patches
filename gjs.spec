@@ -1,5 +1,5 @@
 Name:           gjs
-Version:        0.7
+Version:        0.7.1
 Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
@@ -11,13 +11,16 @@ Group:          System Environment/Libraries
 License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
 #VCS:           git://git.gnome.org/gjs
-Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/%{version}/%{name}-%{version}.tar.bz2
+Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/%{version}/%{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: xulrunner-devel
 BuildRequires: gobject-introspection-devel
 BuildRequires: dbus-glib-devel
+BuildRequires: intltool
 BuildRequires: pkgconfig
+# Bootstrap requirements
+BuildRequires: gtk-doc gnome-common
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
@@ -37,7 +40,8 @@ Files for development with %{name}.
 %setup -q
 
 %build
-%configure --disable-static
+(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
+ %configure --disable-static)
 # Remove rpath as per https://fedoraproject.org/wiki/Packaging/Guidelines#Beware_of_Rpath
 sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
 sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
@@ -80,6 +84,10 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Mon Jul 12 2010 Colin Walters <walters@verbum.org> - 0.7.1-1
+- New upstream version
+- Changes to allow builds from snapshots
+
 * Fri May 28 2010 Matthias Clasen <mclasen@redhat.com> 0.7-1
 - Update to 0.7
 
