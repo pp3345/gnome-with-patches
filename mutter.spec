@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       2.31.5
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -12,7 +12,7 @@ BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: clutter-devel
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
-BuildRequires: gtk2-devel
+BuildRequires: gtk3-devel
 BuildRequires: pkgconfig
 BuildRequires: GConf2-devel
 BuildRequires: gobject-introspection-devel
@@ -64,7 +64,7 @@ utilities for testing Metacity/Mutter themes.
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static)
+ %configure --disable-static --with-gtk=3.0)
 
 SHOULD_HAVE_DEFINED="HAVE_SM HAVE_XINERAMA HAVE_XFREE_XINERAMA HAVE_SHAPE HAVE_RANDR HAVE_STARTUP_NOTIFICATION HAVE_COMPOSITE_EXTENSION"
 
@@ -148,6 +148,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Jul 13 2010 Adel Gadllah <adel.gadllah@gmail.com> - 2.31.5-2
+- Build against gtk3
+
 * Mon Jul 12 2010 Colin Walters <walters@pocket> - 2.31.5-1
 - New upstream version
 
