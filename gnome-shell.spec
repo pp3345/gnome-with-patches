@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.31.5
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -89,11 +89,13 @@ rm -rf %{buildroot}
 %doc COPYING README
 %{_bindir}/gnome-shell
 %{_bindir}/gnome-shell-clock-preferences
+%{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/applications/gnome-shell.desktop
 %{_datadir}/applications/gnome-shell-clock-preferences.desktop
 %{_datadir}/gnome-shell/
 %{_libdir}/gnome-shell/
 %{_libdir}/mutter/plugins/libgnome-shell.so
+%{_sysconfdir}/xdg/menus/*.menu
 %{_sysconfdir}/gconf/schemas/gnome-shell.schemas
 %{_mandir}/man1/%{name}.1.gz
 
@@ -120,6 +122,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Tue Jul 13 2010 Colin Walters <walters@megatron> - 2.31.5-4
+- Bless stuff in files section
+
 * Tue Jul 13 2010 Colin Walters <walters@verbum.org> - 2.31.5-3
 - Axe gnome-desktop-devel
 
