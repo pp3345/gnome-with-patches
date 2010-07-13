@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.31.5
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -20,7 +20,6 @@ BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel
-BuildRequires:  gnome-desktop-devel
 BuildRequires:  gnome-menus-devel
 BuildRequires:  gnome-desktop3-devel
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
@@ -121,6 +120,9 @@ gconftool-2 --makefile-install-rule \
   > /dev/null || :
 
 %changelog
+* Tue Jul 13 2010 Colin Walters <walters@verbum.org> - 2.31.5-3
+- Axe gnome-desktop-devel
+
 * Tue Jul 13 2010 Adel Gadllah <adel.gadllah@gmail.com> - 2.31.5-2
 - BuildRequire gnome-desktop3-devel, gtk3
 
