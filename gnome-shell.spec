@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.31.5
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -114,6 +114,7 @@ if [ "$1" -eq 0 ]; then
     %{_sysconfdir}/gconf/schemas/gnome-shell.schemas \
     > /dev/null || :
 fi
+glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %post
 export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
@@ -121,7 +122,13 @@ gconftool-2 --makefile-install-rule \
     %{_sysconfdir}/gconf/schemas/gnome-shell.schemas \
   > /dev/null || :
 
+%posttrans
+glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
+
 %changelog
+* Tue Jul 13 2010 Colin Walters <walters@verbum.org> - 2.31.5-5
+- Run glib-compile-schemas
+
 * Tue Jul 13 2010 Colin Walters <walters@megatron> - 2.31.5-4
 - Bless stuff in files section
 
