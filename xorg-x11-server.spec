@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.8.99.904
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -65,7 +65,7 @@ Patch103:  xserver-1.5.0-bg-none-root.patch
 
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
 
-Patch3799: 0001-Unwrap-rewrap-EnterVT-LeaveVT-completely-Fixes-28998.patch
+Patch3799: xserver-1.8-entervt.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -547,7 +547,7 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
-* Wed Jul 14 2010 Colin Walters <walters@verbum.org> - 1.8.99.904-4
+* Wed Jul 14 2010 Colin Walters <walters@verbum.org> - 1.8.99.904-5
 - Add patch from master which blocks gnome-shell development
 
 * Fri Jul 09 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.99.904-3
