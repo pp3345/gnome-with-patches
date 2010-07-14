@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       2.31.5
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -148,6 +148,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Wed Jul 14 2010 Colin Walters <walters@verbum.org> - 2.31.5-3
+- Rebuild for new gobject-introspection
+
 * Tue Jul 13 2010 Adel Gadllah <adel.gadllah@gmail.com> - 2.31.5-2
 - Build against gtk3
 
