@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        0.7.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -84,6 +84,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Wed Jul 14 2010 Colin Walters <walters@verbum.org> - 0.7.1-3
+- Rebuild for new gobject-introspection
+
 * Mon Jul 12 2010 Colin Walters <walters@verbum.org> - 0.7.1-2
 - New upstream version
 - Changes to allow builds from snapshots
