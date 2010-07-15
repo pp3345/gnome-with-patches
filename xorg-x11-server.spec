@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.8.99.904
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -100,6 +100,9 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # https://bugs.freedesktop.org/show_bug.cgi?id=28672
 Patch7000: xserver-1.8.0-no-xorg.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=538482
+# this patch needs some exposure for side-effects before upstreaming
+Patch7001: xserver-1.8-enter-leave-woes.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -547,6 +550,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jul 15 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.99.904-6
+- xserver-1.8-enter-leave-woes.patch: ignore grabs for enter/leave events
+  (#538462)
+
 * Wed Jul 14 2010 Colin Walters <walters@verbum.org> - 1.8.99.904-5
 - Add patch from master which blocks gnome-shell development
 
