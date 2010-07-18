@@ -25,12 +25,12 @@
 %define extension_minor 0
 
 %define pkgname xorg-server
-%define gitdate 20100702
+%define gitdate 20100716
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.8.99.904
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.8.99.905
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -64,8 +64,6 @@ Patch5: xserver-1.4.99-pic-libxf86config.patch
 Patch103:  xserver-1.5.0-bg-none-root.patch
 
 Patch2014:  xserver-1.5.0-projector-fb-size.patch
-
-Patch3799: xserver-1.8-entervt.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -550,6 +548,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Jul 16 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.99.905-1
+- xserver 1.8.99.905
+- xserver-1.8-entervt.patch: drop, upstream.
+
 * Thu Jul 15 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.99.904-6
 - xserver-1.8-enter-leave-woes.patch: ignore grabs for enter/leave events
   (#538462)
