@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.8.99.905
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -398,8 +398,10 @@ install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}
 # Make the source package
 %define xserver_source_dir %{_datadir}/xorg-x11-server-source
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
-mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
+mkdir -p %{inst_srcdir}/{doc/xml,Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
 cp cpprules.in %{inst_srcdir}
+cp {,%{inst_srcdir}/}doc/xml/xmlrules.in
+cp {,%{inst_srcdir}/}doc/xml/xserver.ent.in
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
@@ -548,6 +550,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jul 21 2010 Adam Tkac <atkac redhat com> 1.8.99.905-2
+- include more files in the -source subpkg to make Xvnc compilable
+
 * Fri Jul 16 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.99.905-1
 - xserver 1.8.99.905
 - xserver-1.8-entervt.patch: drop, upstream.
