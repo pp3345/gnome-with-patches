@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.8.99.905
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -80,7 +80,6 @@ Patch6016: xserver-1.6.1-nouveau.patch
 
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
-Patch6028: xserver-1.6.99-randr-error-debugging.patch
 Patch6030: xserver-1.6.99-right-of.patch
 Patch6033: xserver-1.6.99-default-modes.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
@@ -550,6 +549,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Aug 02 2010 Adam Jackson <ajax@redhat.com> 1.8.99.905-3
+- Drop RANDR debugging patch, not useful.
+
 * Wed Jul 21 2010 Adam Tkac <atkac redhat com> 1.8.99.905-2
 - include more files in the -source subpkg to make Xvnc compilable
 
