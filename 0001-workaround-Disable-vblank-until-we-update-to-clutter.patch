@@ -1,24 +1,11 @@
-From 0dc251281ae317e3ef5f5baa121bfeb6eb54829a Mon Sep 17 00:00:00 2001
-From: Colin Walters <walters@verbum.org>
-Date: Thu, 12 Aug 2010 09:12:20 -0400
-Subject: [PATCH] workaround: Disable vblank until we update to clutter 1.4
-
----
- src/gnome-shell.in |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/src/gnome-shell.in b/src/gnome-shell.in
-index 794e811..556f290 100755
---- a/src/gnome-shell.in
-+++ b/src/gnome-shell.in
-@@ -224,6 +224,7 @@ def start_shell(perf_output=None):
+diff -up gnome-shell-2.31.5/src/gnome-shell.in.jx gnome-shell-2.31.5/src/gnome-shell.in
+--- gnome-shell-2.31.5/src/gnome-shell.in.jx	2010-06-25 12:47:26.000000000 -0400
++++ gnome-shell-2.31.5/src/gnome-shell.in	2010-08-12 14:44:39.000000000 -0400
+@@ -213,6 +213,7 @@ def start_shell(perf_output=None):
+     env = dict(os.environ)
+     env.update({'GNOME_SHELL_JS'      : '@GJS_JS_DIR@:@GJS_JS_NATIVE_DIR@:' + js_dir,
                  'PATH'                : '@MUTTER_BIN_DIR@:' + os.environ.get('PATH', ''),
++		'CLUTTER_VBLANK'      : 'none',
                  'XDG_CONFIG_DIRS'     : '@sysconfdir@/xdg:' + (os.environ.get('XDG_CONFIG_DIRS') or '/etc/xdg'),
-                 'XDG_DATA_DIRS'       : '@datadir@:' + (os.environ.get('XDG_DATA_DIRS') or '/usr/local/share:/usr/share'),
-+                'CLUTTER_VBLANK'      : 'none',
                  'GNOME_DISABLE_CRASH_DIALOG' : '1'})
  
-     if running_from_source_tree:
--- 
-1.7.2.1
-
