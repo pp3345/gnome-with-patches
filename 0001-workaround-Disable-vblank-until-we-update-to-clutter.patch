@@ -1,0 +1,24 @@
+From 0dc251281ae317e3ef5f5baa121bfeb6eb54829a Mon Sep 17 00:00:00 2001
+From: Colin Walters <walters@verbum.org>
+Date: Thu, 12 Aug 2010 09:12:20 -0400
+Subject: [PATCH] workaround: Disable vblank until we update to clutter 1.4
+
+---
+ src/gnome-shell.in |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/src/gnome-shell.in b/src/gnome-shell.in
+index 794e811..556f290 100755
+--- a/src/gnome-shell.in
++++ b/src/gnome-shell.in
+@@ -224,6 +224,7 @@ def start_shell(perf_output=None):
+                 'PATH'                : '@MUTTER_BIN_DIR@:' + os.environ.get('PATH', ''),
+                 'XDG_CONFIG_DIRS'     : '@sysconfdir@/xdg:' + (os.environ.get('XDG_CONFIG_DIRS') or '/etc/xdg'),
+                 'XDG_DATA_DIRS'       : '@datadir@:' + (os.environ.get('XDG_DATA_DIRS') or '/usr/local/share:/usr/share'),
++                'CLUTTER_VBLANK'      : 'none',
+                 'GNOME_DISABLE_CRASH_DIALOG' : '1'})
+ 
+     if running_from_source_tree:
+-- 
+1.7.2.1
+

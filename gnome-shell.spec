@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.31.5
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -54,6 +54,8 @@ Requires:       mutter >= %{mutter_version}
 #Requires:       xorg-x11-server-Xephyr
 #Requires:       xorg-x11-xauth
 
+Patch0: 0001-workaround-Disable-vblank-until-we-update-to-clutter.patch
+
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
 like switching to windows and launching applications. GNOME Shell takes
@@ -63,6 +65,7 @@ easy to use experience.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -126,6 +129,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Thu Aug 12 2010 Colin Walters <walters@verbum.org> - 2.31.5-6
+- Add patch to disable vblank syncing
+
 * Tue Jul 13 2010 Colin Walters <walters@verbum.org> - 2.31.5-5
 - Run glib-compile-schemas
 
