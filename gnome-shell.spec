@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.31.5
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -129,7 +129,7 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
-* Thu Aug 12 2010 Colin Walters <walters@verbum.org> - 2.31.5-6
+* Thu Aug 12 2010 Colin Walters <walters@verbum.org> - 2.31.5-7
 - Add patch to disable vblank syncing
 
 * Tue Jul 13 2010 Colin Walters <walters@verbum.org> - 2.31.5-5
