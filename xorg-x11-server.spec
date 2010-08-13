@@ -25,12 +25,12 @@
 %define extension_minor 0
 
 %define pkgname xorg-server
-%define gitdate 20100716
+#define gitdate 20100716
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.8.99.905
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.8.99.906
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,9 +97,6 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # https://bugs.freedesktop.org/show_bug.cgi?id=28672
 Patch7000: xserver-1.8.0-no-xorg.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=538482
-# this patch needs some exposure for side-effects before upstreaming
-Patch7001: xserver-1.8-enter-leave-woes.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -549,6 +546,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Aug 13 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.8.99.906-1
+- xserver 1.8.99.906
+- xserver-1.8-enter-leave-woes.patch: drop, upstream.
+
 * Mon Aug 02 2010 Adam Jackson <ajax@redhat.com> 1.8.99.905-3
 - Drop RANDR debugging patch, not useful.
 
