@@ -1,0 +1,59 @@
+From d25c74c843b83e7c6acbeb52d4807559c83f98cb Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@linux.ie>
+Date: Mon, 16 Aug 2010 12:16:48 +1000
+Subject: [PATCH] dix: reset pScreen->root to NULL when root window is deleted.
+
+We were seeing a crash in the FreeAllResources codepath,
+running valgrind revealed this,
+
+==12536== Invalid read of size 4
+==12536==    at 0x810BCAB: DeliverPropertyEvent (rrproperty.c:33)
+==12536==    by 0x80958A4: TraverseTree (window.c:227)
+==12536==    by 0x809593E: WalkTree (window.c:255)
+==12536==    by 0x810BC66: RRDeliverPropertyEvent (rrproperty.c:53)
+==12536==    by 0x810BD5D: RRDeleteProperty.clone.0 (rrproperty.c:76)
+==12536==    by 0x810BD98: RRDeleteAllOutputProperties (rrproperty.c:88)
+==12536==    by 0x810A36E: RROutputDestroyResource (rroutput.c:407)
+==12536==    by 0x808DF4E: FreeClientResources (resource.c:859)
+==12536==    by 0x808E005: FreeAllResources (resource.c:876)
+==12536==    by 0x8062300: main (main.c:305)
+==12536==  Address 0x46ba8ac is 4 bytes inside a block of size 164 free'd
+==12536==    at 0x40057F6: free (vg_replace_malloc.c:325)
+==12536==    by 0x8087F1F: _dixFreeObjectWithPrivates (privates.c:357)
+==12536==    by 0x809832A: DeleteWindow (window.c:926)
+==12536==    by 0x808DF4E: FreeClientResources (resource.c:859)
+==12536==    by 0x808E005: FreeAllResources (resource.c:876)
+==12536==    by 0x8062300: main (main.c:305)
+
+Its a use after free on the root window, since we have already deleted it
+at this point. This patch checks if the window we are destroying is the root
+window and resets the pointer to NULL if it is.
+
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+---
+ dix/window.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/dix/window.c b/dix/window.c
+index 4a47dd5..33ef943 100644
+--- a/dix/window.c
++++ b/dix/window.c
+@@ -895,10 +895,15 @@ DeleteWindow(pointer value, XID wid)
+     WindowPtr pParent;
+     WindowPtr pWin = (WindowPtr)value;
+     xEvent event;
++    ScreenPtr pScreen;
++
++    pScreen = pWin->drawable.pScreen;
+ 
+     UnmapWindow(pWin, FALSE);
+ 
+     CrushTree(pWin);
++    if (pWin == pScreen->root)
++	pScreen->root = NULL;
+ 
+     pParent = pWin->parent;
+     if (wid && pParent && SubStrSend(pWin, pParent))
+-- 
+1.7.2.1
+
