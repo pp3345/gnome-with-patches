@@ -29,8 +29,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.8.99.906
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.9.0
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,7 +97,6 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # https://bugs.freedesktop.org/show_bug.cgi?id=28672
 Patch7000: xserver-1.8.0-no-xorg.patch
-Patch7001: xserver-1.9-reset-root-null.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -547,6 +546,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Aug 23 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.9.0-1
+- xserver 1.9.0
+- xserver-1.9-reset-root-null.patch: drop, upstream.
+
 * Mon Aug 16 2010 Dave Airlie <airlied@redhat.com> 1.8.99.906-2
 - fix use-after-free for root window - hopefully fix (#596985)
 
