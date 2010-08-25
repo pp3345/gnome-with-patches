@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -264,6 +264,7 @@ Requires: xorg-x11-proto-devel
 Requires: pkgconfig pixman-devel libpciaccess-devel
 # Virtual provide for transition.  Delete me someday.
 Provides: xorg-x11-server-sdk = %{version}-%{release}
+Provides: xorg-x11-server-static
 # XXX doublecheck me
 Provides: libxf86config = %{version}-%{release}
 Obsoletes: libxf86config < 1.6.99-29
@@ -548,6 +549,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Aug 25 2010 Adam Jackson <ajax@redhat.com> 1.9.0-3
+- Fix static lib packaging guideline nonconformance (#609625)
+
 * Wed Aug 25 2010 Adam Jackson <ajax@redhat.com> 1.9.0-2
 - xserver-1.9.0-tcflush-fix.patch: Fix 100% CPU usage bug.
 
