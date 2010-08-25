@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,6 +97,8 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # https://bugs.freedesktop.org/show_bug.cgi?id=28672
 Patch7000: xserver-1.8.0-no-xorg.patch
+
+Patch7001: xserver-1.9.0-tcflush-fix.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -546,6 +548,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Aug 25 2010 Adam Jackson <ajax@redhat.com> 1.9.0-2
+- xserver-1.9.0-tcflush-fix.patch: Fix 100% CPU usage bug.
+
 * Mon Aug 23 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.9.0-1
 - xserver 1.9.0
 - xserver-1.9-reset-root-null.patch: drop, upstream.
