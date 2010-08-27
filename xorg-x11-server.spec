@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -345,7 +345,7 @@ test `getminor extension` == %{extension_minor}
 %endif
 
 %if 0%{?fedora}
-%define bodhi_flags --with-vendor-web="http://bodhi.fedoraproject.org/" --with-vendor-name="Fedora Project"
+%define bodhi_flags --with-vendor-name="Fedora Project"
 %endif
 
 # --with-pie ?
@@ -549,6 +549,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Aug 27 2010 Adam Jackson <ajax@redhat.com> 1.9.0-4
+- Remove link to bodhi, it's used in multiple places in ways that don't
+  make sense (#627755)
+
 * Wed Aug 25 2010 Adam Jackson <ajax@redhat.com> 1.9.0-3
 - Fix static lib packaging guideline nonconformance (#609625)
 
