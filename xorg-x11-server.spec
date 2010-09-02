@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -447,7 +447,7 @@ rm -rf $RPM_BUILD_ROOT
 %config %attr(0644,root,root) %{_sysconfdir}/pam.d/xserver
 %{_bindir}/X
 #attr(4711, root, root) %{_bindir}/Xorg
-%caps(cap_sys_admin,cap_sys_rawio,cap_dac_override=pe) %{_bindir}/Xorg
+%attr(0711,root,root) %caps(cap_sys_admin,cap_sys_rawio,cap_dac_override=pe) %{_bindir}/Xorg
 %{_bindir}/cvt
 %{_bindir}/gtf
 %dir %{_datadir}/xorg
