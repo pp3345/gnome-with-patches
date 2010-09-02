@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -446,7 +446,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %config %attr(0644,root,root) %{_sysconfdir}/pam.d/xserver
 %{_bindir}/X
-%attr(4711, root, root) %{_bindir}/Xorg
+#attr(4711, root, root) %{_bindir}/Xorg
+%caps(cap_sys_admin,cap_sys_rawio,cap_dac_override=pe) %{_bindir}/Xorg
 %{_bindir}/cvt
 %{_bindir}/gtf
 %dir %{_datadir}/xorg
@@ -549,6 +550,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Sep 02 2010 Adam Jackson <ajax@redhat.com> 1.9.0-5
+- Drop the SUID bit from Xorg, use fs caps instead.
+
 * Fri Aug 27 2010 Adam Jackson <ajax@redhat.com> 1.9.0-4
 - Remove link to bodhi, it's used in multiple places in ways that don't
   make sense (#627755)
