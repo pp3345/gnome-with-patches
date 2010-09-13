@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   8%{?gitdate:.%{gitdate}}%{dist}
+Release:   9%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -99,6 +99,8 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 Patch7000: xserver-1.8.0-no-xorg.patch
 
 Patch7001: xserver-1.9.0-tcflush-fix.patch
+# 632805
+Patch7002: xserver-1.9.0-vbe-panelid-sanity.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -554,8 +556,12 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Sep 13 2010 Adam Jackson <ajax@redhat.com> 1.9.0-9
+- xserver-1.9.0-vbe-panelid-sanity.patch: Refuse to believe tiny (or negative)
+  sizes from PanelID. (#632805)
+
 * Mon Sep 13 2010 Matěj Cepl <mcepl@redhat.com> - 1.9.0-8
-- Call mktemp correctly (fixes RHBZ bug 632879
+- Call mktemp correctly (fixes RHBZ bug 632879)
 
 * Thu Sep 02 2010 Adam Jackson <ajax@redhat.com> 1.9.0-7
 - ... but only in F15 and later.
