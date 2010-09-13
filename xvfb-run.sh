@@ -146,19 +146,17 @@ fi
 # If the user did not specify an X authorization file to use, set up a temporary
 # directory to house one.
 if [ -z "$AUTHFILE" ]; then
-    XVFB_RUN_TMPDIR="${TMPDIR:-/tmp}/$PROGNAME.$$"
-    if ! mkdir -p -m 700 "$XVFB_RUN_TMPDIR"; then
-        error "temporary directory $XVFB_RUN_TMPDIR already exists"
-        exit 4
-    fi
-    AUTHFILE=$(mktemp -p "$XVFB_RUN_TMPDIR" Xauthority)
+    XVFB_RUN_TMPDIR="$(mktemp --directory --tmpdir $PROGNAME.XXXXXX)"
+    AUTHFILE=$(mktemp -p "$XVFB_RUN_TMPDIR" Xauthority.XXXXXX)
 fi
 
 # Start Xvfb.
 MCOOKIE=$(mcookie)
-XAUTHORITY=$AUTHFILE xauth add ":$SERVERNUM" "$XAUTHPROTO" "$MCOOKIE" \
-  >"$ERRORFILE" 2>&1
-XAUTHORITY=$AUTHFILE Xvfb ":$SERVERNUM" $XVFBARGS $LISTENTCP >"$ERRORFILE" \
+
+XAUTHORITY=$AUTHFILE xauth source - << EOF >>"$ERRORFILE" 2>&1
+add :$SERVERNUM $XAUTHPROTO $MCOOKIE
+EOF
+XAUTHORITY=$AUTHFILE Xvfb ":$SERVERNUM" $XVFBARGS $LISTENTCP >>"$ERRORFILE" \
   2>&1 &
 XVFBPID=$!
 sleep "$STARTWAIT"
