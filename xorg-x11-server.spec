@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -554,6 +554,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Sep 13 2010 Matěj Cepl <mcepl@redhat.com> - 1.9.0-8
+- Call mktemp correctly (fixes RHBZ bug 632879)
+
 * Thu Sep 02 2010 Adam Jackson <ajax@redhat.com> 1.9.0-7
 - ... but only in F15 and later.
 
