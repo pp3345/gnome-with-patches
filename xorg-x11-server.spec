@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   9%{?gitdate:.%{gitdate}}%{dist}
+Release:   10%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -399,10 +399,12 @@ install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}
 # Make the source package
 %define xserver_source_dir %{_datadir}/xorg-x11-server-source
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
-mkdir -p %{inst_srcdir}/{doc/xml,Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
+mkdir -p %{inst_srcdir}/{doc/xml{,/dtrace},Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
 cp cpprules.in %{inst_srcdir}
 cp {,%{inst_srcdir}/}doc/xml/xmlrules.in
 cp {,%{inst_srcdir}/}doc/xml/xserver.ent.in
+cp {,%{inst_srcdir}/}doc/xml/Xserver-spec.xml
+cp {,%{inst_srcdir}/}doc/xml/dtrace/Xserver-DTrace.xml
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
@@ -556,6 +558,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Sep 16 2010 Adam Tkac <atkac redhat com> 1.9.0-10
+- add more files to -sources subpkg to fix tigervnc builds
+
 * Mon Sep 13 2010 Adam Jackson <ajax@redhat.com> 1.9.0-9
 - xserver-1.9.0-vbe-panelid-sanity.patch: Refuse to believe tiny (or negative)
   sizes from PanelID. (#632805)
