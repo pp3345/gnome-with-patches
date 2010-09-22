@@ -53,7 +53,6 @@ Summary: Development package for %{name}
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 Requires: pkgconfig
-Requires: gtk-doc
 
 %description devel
 Header files and libraries for developing Mutter plugins. Also includes
