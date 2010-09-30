@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   10%{?gitdate:.%{gitdate}}%{dist}
+Release:   11%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -558,6 +558,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Sep 29 2010 jkeating - 1.9.0-11
+- Rebuilt for gcc bug 634757
+
 * Thu Sep 16 2010 Adam Tkac <atkac redhat com> 1.9.0-10
 - add more files to -sources subpkg to fix tigervnc builds
 
