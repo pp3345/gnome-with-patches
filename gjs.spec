@@ -1,6 +1,6 @@
 Name:           gjs
-Version:        0.7.1
-Release:        3%{?dist}
+Version:        0.7.4
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -11,7 +11,7 @@ Group:          System Environment/Libraries
 License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
 #VCS:           git://git.gnome.org/gjs
-Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/%{version}/%{name}-%{version}.tar.gz
+Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/%{version}/%{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: xulrunner-devel
@@ -84,6 +84,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Mon Oct  4 2010 Owen Taylor <otaylor@redhat.com> - 0.7.4-1
+- Update to 0.7.4
+
 * Wed Jul 14 2010 Colin Walters <walters@verbum.org> - 0.7.1-3
 - Rebuild for new gobject-introspection
 
