@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   10%{?gitdate:.%{gitdate}}%{dist}
+Release:   12%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -101,6 +101,8 @@ Patch7000: xserver-1.8.0-no-xorg.patch
 Patch7001: xserver-1.9.0-tcflush-fix.patch
 # 632805
 Patch7002: xserver-1.9.0-vbe-panelid-sanity.patch
+# misc
+Patch7003: xserver-1.9.0-vbe-insanity.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -558,6 +560,12 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Oct 04 2010 Adam Jackson <ajax@redhat.com> 1.9.0-12
+- xserver-1.9.0-vbe-insanity.patch: Fix VBE < 3.0 support.
+
+* Wed Sep 29 2010 jkeating - 1.9.0-11
+- Rebuilt for gcc bug 634757
+
 * Thu Sep 16 2010 Adam Tkac <atkac redhat com> 1.9.0-10
 - add more files to -sources subpkg to fix tigervnc builds
 
