@@ -1,18 +1,18 @@
 Name:           gnome-shell
-Version:        2.31.5
-Release:        7%{?dist}
+Version:        2.91.0
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:		git:git://git.gnome.org/gnome-shell
-Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.27/%{name}-%{version}.tar.bz2
+Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-%{version}.tar.bz2
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
-%define clutter_version 1.2.8
-%define gobject_introspection_version 0.9.2
-%define mutter_version 2.31.5
+%define clutter_version 1.4.0
+%define gobject_introspection_version 0.9.8
+%define mutter_version 2.91.0
 %define gjs_version 0.7
 
 BuildRequires:  clutter-devel >= %{clutter_version}
@@ -54,8 +54,6 @@ Requires:       mutter >= %{mutter_version}
 #Requires:       xorg-x11-server-Xephyr
 #Requires:       xorg-x11-xauth
 
-Patch0: 0001-workaround-Disable-vblank-until-we-update-to-clutter.patch
-
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
 like switching to windows and launching applications. GNOME Shell takes
@@ -65,7 +63,6 @@ easy to use experience.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -129,6 +126,10 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Mon Oct  4 2010 Owen Taylor <otaylor@redhat.com> - 2.91.0-1
+- Update to 2.91.0
+- Remove patch to disable VBlank syncing
+
 * Thu Aug 12 2010 Colin Walters <walters@verbum.org> - 2.31.5-7
 - Add patch to disable vblank syncing
 
