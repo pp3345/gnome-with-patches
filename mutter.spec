@@ -1,18 +1,18 @@
 Name:          mutter
-Version:       2.31.5
-Release:       4%{?dist}
+Version:       2.91.0
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
-Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.31/%{name}-%{version}.tar.bz2
+Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.91/%{name}-%{version}.tar.bz2
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires: clutter-devel
+BuildRequires: clutter-devel >= 1.4.0
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
-BuildRequires: gtk3-devel
+BuildRequires: gtk3-devel >= 2.91.0
 BuildRequires: pkgconfig
 BuildRequires: GConf2-devel
 BuildRequires: gobject-introspection-devel
@@ -147,6 +147,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Mon Oct  4 2010 Owen Taylor <otaylor@redhat.com> - 2.91.0-1
+- Update to 2.91.0
+
 * Wed Sep 22 2010 Matthias Clasen <mclasen@redhat.com> - 2.31.5-4
 - Rebuild against newer gobject-introspection
 
