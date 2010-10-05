@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   12%{?gitdate:.%{gitdate}}%{dist}
+Release:   13%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -354,7 +354,7 @@ test `getminor extension` == %{extension_minor}
 
 # --with-pie ?
 autoreconf -v --install || exit 1
-export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS"
+export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS -Os"
 %configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
 	--with-pic \
@@ -560,6 +560,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Oct 05 2010 Adam Jackson <ajax@redhat.com> 1.9.0-13
+- xserver-1.9.0-vbe-insanity.patch: Fix thinko.
+
 * Mon Oct 04 2010 Adam Jackson <ajax@redhat.com> 1.9.0-12
 - xserver-1.9.0-vbe-insanity.patch: Fix VBE < 3.0 support.
 
