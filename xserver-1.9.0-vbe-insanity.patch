@@ -77,7 +77,7 @@ index 1defd9a..8c738e7 100644
 -    }
 -    else
 -	memcpy(&block->PhysBasePtr, ((char*)pVbe->memory) + 40, 216);
-+    memcpy(block, pVbe->memory, 256);
++    memcpy(block, pVbe->memory, sizeof(*block));
  
      return block;
  }
