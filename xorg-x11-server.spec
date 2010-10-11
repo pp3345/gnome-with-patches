@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.0
-Release:   13%{?gitdate:.%{gitdate}}%{dist}
+Release:   14%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -103,6 +103,7 @@ Patch7001: xserver-1.9.0-tcflush-fix.patch
 Patch7002: xserver-1.9.0-vbe-panelid-sanity.patch
 # misc
 Patch7003: xserver-1.9.0-vbe-insanity.patch
+Patch7004: xserver-1.9.0-classic-default-mode.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -560,6 +561,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Oct 11 2010 Adam Jackson <ajax@redhat.com> 1.9.0-14
+- xserver-1.9.0-classic-default-mode.patch: Bump classic driver default
+  mode size to 1024x768.
+
 * Tue Oct 05 2010 Adam Jackson <ajax@redhat.com> 1.9.0-13
 - xserver-1.9.0-vbe-insanity.patch: Fix thinko.
 
