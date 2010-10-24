@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.1
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -561,6 +561,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Oct 25 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.9.1-2
+- This time with the source tarball.
+
 * Mon Oct 25 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.9.1-1
 - xserver 1.9.1
 - xserver-1.9.0-vbe-insanity.patch: drop, merged.
