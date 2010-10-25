@@ -121,7 +121,7 @@ Patch7005: xserver-1.9.0-qxl-fallback.patch
 %define enable_xorg --disable-xorg
 %endif
 
-%define kdrive --enable-kdrive --enable-xephyr --disable-xsdl --disable-xfake --disable-xfbdev
+%define kdrive --enable-kdrive --enable-xephyr --disable-xfake --disable-xfbdev
 %define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
 
 BuildRequires: git-core
@@ -365,6 +365,7 @@ export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS -Os"
 	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
 	--with-os-name="$(hostname -s) $(uname -r)" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
+        --without-dtrace \
 	--enable-install-libxf86config \
 	--enable-xselinux --enable-record \
 	--enable-config-udev \
@@ -561,6 +562,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Oct 25 2010 Adam Jackson <ajax@redhat.com>
+- Explicitly --without-dtrace so it still builds even if you have
+  systemtap-sdt-devel installed. (#605588)
+
 * Mon Oct 25 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.9.1-2
 - This time with the source tarball.
 
