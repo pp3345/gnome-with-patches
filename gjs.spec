@@ -1,5 +1,5 @@
 Name:           gjs
-Version:        0.7.4
+Version:        0.7.5
 Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
@@ -81,9 +81,13 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/gjs-1.0.pc
 %{_libdir}/pkgconfig/gjs-gi-1.0.pc
 %{_libdir}/pkgconfig/gjs-dbus-1.0.pc
+%{_libdir}/pkgconfig/gjs-internals-1.0.pc
 %{_libdir}/*.so
 
 %changelog
+* Fri Oct 29 2010 Owen Taylor <otaylor@redhat.com> - 0.7.5-1
+- Update to 0.7.5
+
 * Mon Oct  4 2010 Owen Taylor <otaylor@redhat.com> - 0.7.4-1
 - Update to 0.7.4
 
