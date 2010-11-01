@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        2.91.0
+Version:        2.91.1
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -12,8 +12,8 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.9.8
-%define mutter_version 2.91.0
-%define gjs_version 0.7
+%define mutter_version 2.91.1
+%define gjs_version 0.7.5
 
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
@@ -126,6 +126,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Fri Oct 29 2010 Owen Taylor <otaylor@redhat.com> - 2.91.1-1
+- Update to 2.91.1
+
 * Mon Oct  4 2010 Owen Taylor <otaylor@redhat.com> - 2.91.0-1
 - Update to 2.91.0
 - Remove patch to disable VBlank syncing
