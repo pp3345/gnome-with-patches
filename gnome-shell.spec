@@ -27,10 +27,12 @@ BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  gstreamer-devel
 BuildRequires:  gtk3-devel
 BuildRequires:  intltool
+BuildRequires:  libcanberra-devel
 BuildRequires:  libcroco-devel
 # used in unused BigThemeImage
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
+BuildRequires:  pulseaudio-libs-devel
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
 
@@ -127,10 +129,11 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
-* Fri Oct 29 2010 Owen Taylor <otaylor@redhat.com> - 2.91.1-1
+* Mon Nov  1 2010 Owen Taylor <otaylor@redhat.com> - 2.91.1-1
 - Update to 2.91.1
 - Add libcroco-devel to BuildRequires, apparently it was getting
   pulled in indirectly before
+- Add libcanberra-devel and pulseaudio-libs-devel BuildRequires
 
 * Mon Oct  4 2010 Owen Taylor <otaylor@redhat.com> - 2.91.0-1
 - Update to 2.91.0
