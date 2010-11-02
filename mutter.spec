@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       2.91.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -147,6 +147,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Nov  2 2010 Matthias Clasen <mclasen@redhat.com> - 2.91.1-2
+- Rebuild against newer gtk3
+
 * Fri Oct 29 2010 Owen Taylor <otaylor@redhat.com> - 2.91.1-1
 - Update to 2.91.1
 
