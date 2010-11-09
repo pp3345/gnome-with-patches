@@ -1,5 +1,5 @@
 Name:           gjs
-Version:        0.7.5
+Version:        0.7.6
 Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
@@ -85,6 +85,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Tue Nov  9 2010 Owen Taylor <otaylor@redhat.com> - 0.7.6-1
+- Update to 0.7.6
+
 * Fri Oct 29 2010 Owen Taylor <otaylor@redhat.com> - 0.7.5-1
 - Update to 0.7.5
 
