@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.1
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -104,6 +104,7 @@ Patch7002: xserver-1.9.0-vbe-panelid-sanity.patch
 # misc
 Patch7004: xserver-1.9.0-classic-default-mode.patch
 Patch7005: xserver-1.9.0-qxl-fallback.patch
+Patch7006: xserver-1.9.1-pxtc-crash.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -562,6 +563,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Nov 09 2010 Adam Jackson <ajax@redhat.com> 1.9.1-3
+- xserver-1.9.1-pxtc-crash.patch: Fix crash with Xinerama enabled
+
 * Mon Oct 25 2010 Adam Jackson <ajax@redhat.com>
 - Explicitly --without-dtrace so it still builds even if you have
   systemtap-sdt-devel installed. (#605588)
