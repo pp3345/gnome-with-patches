@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        2.91.1
+Version:        2.91.2
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -129,6 +129,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Nov  9 2010 Owen Taylor <otaylor@redhat.com> - 2.91.2-1
+- Update to 2.91.2
+
 * Mon Nov  1 2010 Owen Taylor <otaylor@redhat.com> - 2.91.1-1
 - Update to 2.91.1
 - Add libcroco-devel to BuildRequires, apparently it was getting
