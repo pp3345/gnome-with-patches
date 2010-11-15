@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -8,6 +8,10 @@ License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:		git:git://git.gnome.org/gnome-shell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-%{version}.tar.bz2
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=634781
+Patch1: StFocusManager-don-t-unref-removed-groups.patch
+
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.4.0
@@ -66,6 +70,7 @@ easy to use experience.
 
 %prep
 %setup -q
+%patch1 -p1 -b .unreferenced-groups
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -129,6 +134,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Mon Nov 15 2010 Owen Taylor <otaylor@redhat.com> - 2.91.2-2
+- Add a patch from upstream fixing a memory-management crasher
+
 * Tue Nov  9 2010 Owen Taylor <otaylor@redhat.com> - 2.91.2-1
 - Update to 2.91.2
 

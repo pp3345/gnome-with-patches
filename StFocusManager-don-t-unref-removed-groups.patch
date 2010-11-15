@@ -1,0 +1,31 @@
+From 141b4ffe877948335ddf5e09722cb618935fa192 Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sat, 13 Nov 2010 23:11:42 +0100
+Subject: [PATCH] StFocusManager: don't unref removed groups
+
+It is not referencing them when adding, and also it is connecting
+to the "destroy" signal, emitted on dispose, so there is no risk
+of storing finalized objects.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=634781
+---
+ src/st/st-focus-manager.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/src/st/st-focus-manager.c b/src/st/st-focus-manager.c
+index 542fc5a..8c7bc9d 100644
+--- a/src/st/st-focus-manager.c
++++ b/src/st/st-focus-manager.c
+@@ -70,8 +70,7 @@ static void
+ st_focus_manager_init (StFocusManager *manager)
+ {
+   manager->priv = ST_FOCUS_MANAGER_GET_PRIVATE (manager);
+-  manager->priv->groups = g_hash_table_new_full (NULL, NULL,
+-                                                 g_object_unref, NULL);
++  manager->priv->groups = g_hash_table_new (NULL, NULL);
+ }
+ 
+ static gboolean
+-- 
+1.7.3.2
+
