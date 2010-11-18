@@ -1,0 +1,34 @@
+From 025dda0f280022f2bd8074d2c61e4410604041fa Mon Sep 17 00:00:00 2001
+From: Owen W. Taylor <otaylor@fishsoup.net>
+Date: Wed, 17 Nov 2010 21:30:31 -0500
+Subject: [PATCH] ShellTrayManager: fix icon actor memory management
+
+Becaue ShellTrayManager doesn't know if the ShellTrayIcon actors
+it creates will be added to a stage or not, it needs to adopt the
+initial floating reference count with g_object_ref_sink().
+This avoids crashes when unref'ing the actor when the tray is
+removed.
+
+Thanks for Jon McCann for help in tracking this down.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=635141
+---
+ src/shell-tray-manager.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/src/shell-tray-manager.c b/src/shell-tray-manager.c
+index 37368da..ec6c8ae 100644
+--- a/src/shell-tray-manager.c
++++ b/src/shell-tray-manager.c
+@@ -264,6 +264,8 @@ on_plug_added (GtkSocket        *socket,
+   child = g_hash_table_lookup (manager->priv->icons, socket);
+ 
+   child->actor = shell_tray_icon_new (SHELL_EMBEDDED_WINDOW (child->window));
++  g_object_ref_sink (child->actor);
++
+   g_signal_emit (manager, shell_tray_manager_signals[TRAY_ICON_ADDED], 0,
+                  child->actor);
+ }
+-- 
+1.7.3.2
+
