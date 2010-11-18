@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.1
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -356,7 +356,7 @@ test `getminor extension` == %{extension_minor}
 
 # --with-pie ?
 autoreconf -v --install || exit 1
-export CFLAGS="${RPM_OPT_FLAGS} -Wstrict-overflow -rdynamic $CFLAGS -Os"
+export CFLAGS="${RPM_OPT_FLAGS} -fno-omit-frame-pointer"
 %configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
 	--with-pic \
@@ -563,6 +563,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Nov 18 2010 Adam Jackson <ajax@redhat.com> 1.9.1-4
+- Disable frame pointers for profiling, will revert for F15
+
 * Tue Nov 09 2010 Adam Jackson <ajax@redhat.com> 1.9.1-3
 - xserver-1.9.1-pxtc-crash.patch: Fix crash with Xinerama enabled
 
