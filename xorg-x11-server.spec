@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-# F11 TODO list:
+# TODO list:
 #
 # Fix rhpxl to no longer need vesamodes/extramodes
 
@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.1
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -68,9 +68,6 @@ Patch2014:  xserver-1.5.0-projector-fb-size.patch
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
-
-# force mode debugging on for randr 1.2 drivers
-Patch6002: xserver-1.5.1-mode-debug.patch
 
 # don't build the (broken) acpi code
 Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
@@ -563,6 +560,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Nov 23 2010 Adam Jackson <ajax@redhat.com> 1.9.1-5
+- Drop mode-debug patch
+
 * Thu Nov 18 2010 Adam Jackson <ajax@redhat.com> 1.9.1-4
 - Disable frame pointers for profiling, will revert for F15
 
