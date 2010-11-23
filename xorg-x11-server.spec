@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.1
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -62,8 +62,6 @@ Patch5: xserver-1.4.99-pic-libxf86config.patch
 
 # OpenGL compositing manager feature/optimization patches.
 Patch103:  xserver-1.5.0-bg-none-root.patch
-
-Patch2014:  xserver-1.5.0-projector-fb-size.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -560,6 +558,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Nov 23 2010 Adam Jackson <ajax@redhat.com> 1.9.1-6
+- xserver-1.5.0-projector-fb-size.patch: Drop.
+
 * Tue Nov 23 2010 Adam Jackson <ajax@redhat.com> 1.9.1-5
 - Drop mode-debug patch
 
