@@ -1,14 +1,14 @@
-From d88b91cd4fa9f93b91824b00a61b64ecac752bb1 Mon Sep 17 00:00:00 2001
+From 81b45563f169cb131fe22042c1f4b3b24a49d82f Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Mon, 10 Dec 2007 11:26:57 -0500
-Subject: [PATCH 01/17] Build libxf86config with -fPIC.
+Subject: [PATCH] Build libxf86config with -fPIC.
 
 ---
  hw/xfree86/parser/Makefile.am |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/hw/xfree86/parser/Makefile.am b/hw/xfree86/parser/Makefile.am
-index caf7079..655e73f 100644
+index caf7079..3bda51e 100644
 --- a/hw/xfree86/parser/Makefile.am
 +++ b/hw/xfree86/parser/Makefile.am
 @@ -32,7 +32,7 @@ libxf86config_internal_la_SOURCES = \
@@ -16,10 +16,10 @@ index caf7079..655e73f 100644
  libxf86config_a_SOURCES = \
  	$(INTERNAL_SOURCES)
 -libxf86config_a_CFLAGS = $(AM_CFLAGS)
-+libxf86config_a_CFLAGS = $(AM_CFLAGS) -fPIC -fvisibility=hidden
++libxf86config_a_CFLAGS = $(AM_CFLAGS) -fPIC
  
  AM_CFLAGS = $(DIX_CFLAGS) $(XORG_CFLAGS) \
  	-DSYSCONFDIR=\"$(sysconfdir)\" \
 -- 
-1.7.1
+1.7.3.2
 

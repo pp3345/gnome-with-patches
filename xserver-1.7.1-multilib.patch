@@ -1,7 +1,7 @@
-From 450e2e95f0f15e983f6a8f01bdd3a7b5ba91f5b8 Mon Sep 17 00:00:00 2001
+From d9b6e996135efb8a8e23605665aab5c3c1f0f941 Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Thu, 29 Oct 2009 19:04:10 -0400
-Subject: [PATCH 13/17] multilib fix for -devel subpackage
+Subject: [PATCH] multilib fix for -devel subpackage
 
 ---
  include/colormapst.h     |    4 ++--
@@ -9,7 +9,7 @@ Subject: [PATCH 13/17] multilib fix for -devel subpackage
  2 files changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/include/colormapst.h b/include/colormapst.h
-index f1fc8eb..274cd65 100644
+index 0ba5bd0..d24ea58 100644
 --- a/include/colormapst.h
 +++ b/include/colormapst.h
 @@ -103,12 +103,12 @@ typedef struct _ColormapRec
@@ -51,5 +51,5 @@ index 76cab16..d12fd23 100644
 +
  #endif /* _XORG_SERVER_H_ */
 -- 
-1.7.1
+1.7.3.2
 

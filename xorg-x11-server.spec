@@ -17,20 +17,20 @@
 # because rpm is a terrible language.  HTFU.
 %define ansic_major 0
 %define ansic_minor 4
-%define videodrv_major 8
+%define videodrv_major 9
 %define videodrv_minor 0
-%define xinput_major 11 
+%define xinput_major 12
 %define xinput_minor 0
 %define extension_major 4
 %define extension_minor 0
 
 %define pkgname xorg-server
-#define gitdate 20100716
+%define gitdate 20101201
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.9.1
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.9.99.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -61,7 +61,8 @@ Source30:  xserver-sdk-abi-requires
 Patch5: xserver-1.4.99-pic-libxf86config.patch
 
 # OpenGL compositing manager feature/optimization patches.
-Patch103:  xserver-1.5.0-bg-none-root.patch
+# FIXME: who calls this?
+#Patch103:  xserver-1.5.0-bg-none-root.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -78,28 +79,15 @@ Patch6027: xserver-1.6.0-displayfd.patch
 Patch6030: xserver-1.6.99-right-of.patch
 Patch6033: xserver-1.6.99-default-modes.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
-Patch6045: xserver-1.7.0-randr-gamma-restore.patch
 
 Patch6049: xserver-1.7.1-multilib.patch
-Patch6051: xserver-1.7.1-gamma-kdm-fix.patch
-
-# Remove this some day. Not today though.
-Patch6052: xserver-1.8-udev-warning.patch
 
 # Use vesa for VirtualBox, since we don't ship vboxvideo and the
 # fallback to vesa when module is missing seems broken
 Patch6053: xserver-1.8-disable-vboxvideo.patch
 
-# https://bugs.freedesktop.org/show_bug.cgi?id=28672
-Patch7000: xserver-1.8.0-no-xorg.patch
-
-Patch7001: xserver-1.9.0-tcflush-fix.patch
-# 632805
-Patch7002: xserver-1.9.0-vbe-panelid-sanity.patch
 # misc
-Patch7004: xserver-1.9.0-classic-default-mode.patch
 Patch7005: xserver-1.9.0-qxl-fallback.patch
-Patch7006: xserver-1.9.1-pxtc-crash.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -558,6 +546,17 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Dec 01 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.1-1
+- Today's git snapshot
+- Drop hal→udev migration warning. Two releases later should be enough.
+- xserver-1.8.0-no-xorg.patch: drop, upstream
+- xserver-1.7.0-randr-gamma-restore.patch: drop, upstream
+- xserver-1.7.1-gamma-kdm-fix.patch: drop, upstream
+- xserver-1.9.0-tcflush-fix.patch: drop, upstream
+- xserver-1.9.1-pxtc-crash.patch: drop, upstream
+- xserver-1.9.0-vbe-panelid-sanity.patch: drop, upstream
+- xserver-1.9.0-classic-default-mode.patch: drop, upstream
+
 * Tue Nov 23 2010 Adam Jackson <ajax@redhat.com> 1.9.1-6
 - xserver-1.5.0-projector-fb-size.patch: Drop.
 

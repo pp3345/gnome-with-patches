@@ -1,17 +1,17 @@
-From 8b4ebd77eef247d85091a1f66c61a7bb1d17948d Mon Sep 17 00:00:00 2001
+From b0ca931d1ecd03bce114964a57da5e33f81dc46d Mon Sep 17 00:00:00 2001
 From: Adam Williamson <adamwill@shaw.ca>
 Date: Thu, 25 Feb 2010 10:34:49 -0800
-Subject: [PATCH 16/17] disable vboxvideo driver in autodetect code
+Subject: [PATCH] disable vboxvideo driver in autodetect code
 
 ---
  hw/xfree86/common/xf86pciBus.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/hw/xfree86/common/xf86pciBus.c b/hw/xfree86/common/xf86pciBus.c
-index 9c296f5..001625c 100644
+index e34e6d6..aaacf42 100644
 --- a/hw/xfree86/common/xf86pciBus.c
 +++ b/hw/xfree86/common/xf86pciBus.c
-@@ -1162,7 +1162,7 @@ videoPtrToDriverList(struct pci_device *dev,
+@@ -1167,7 +1167,7 @@ videoPtrToDriverList(struct pci_device *dev,
  	case 0x1011:		    driverList[0] = "tga"; break;
  	case 0x1023:		    driverList[0] = "trident"; break;
  	case 0x100c:		    driverList[0] = "tseng"; break;
@@ -21,5 +21,5 @@ index 9c296f5..001625c 100644
  	case 0x18ca:
  	    if (dev->device_id == 0x47)
 -- 
-1.7.1
+1.7.3.2
 
