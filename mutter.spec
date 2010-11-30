@@ -1,5 +1,5 @@
 Name:          mutter
-Version:       2.91.2
+Version:       2.91.3
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -9,7 +9,7 @@ License:       GPLv2+
 Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.91/%{name}-%{version}.tar.bz2
 BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires: clutter-devel >= 1.4.0
+BuildRequires: clutter-devel >= 1.5.8
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
 BuildRequires: gtk3-devel >= 2.91.0
@@ -147,6 +147,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Mon Nov 29 2010 Owen Taylor <otaylor@redhat.com> - 2.91.3-1
+- Update to 2.91.3
+
 * Tue Nov  9 2010 Owen Taylor <otaylor@redhat.com> - 2.91.2-1
 - Update to 2.91.2
 
