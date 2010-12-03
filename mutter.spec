@@ -1,13 +1,12 @@
 Name:          mutter
 Version:       2.91.3
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
 Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.91/%{name}-%{version}.tar.bz2
-BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: clutter-devel >= 1.5.8
 BuildRequires: pango-devel
@@ -81,7 +80,6 @@ done
 make %{?_smp_mflags} V=1
 
 %install
-rm -rf %{buildroot}
 export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 make install DESTDIR=$RPM_BUILD_ROOT
 unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
@@ -93,9 +91,6 @@ rm -rf %{buildroot}/%{_libdir}/*.la
 
 # Mutter contains a .desktop file so we just need to validate it
 desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
-
-%clean
-rm -rf %{buildroot}
 
 %pre 
 if [ "$1" -gt 1 ]; then
@@ -147,6 +142,10 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Fri Dec  3 2010 Matthias Clasen <mclasen@redhat.com> - 2.91.3-2
+- Rebuild against new gtk
+- Drop no longer needed %%clean etc
+
 * Mon Nov 29 2010 Owen Taylor <otaylor@redhat.com> - 2.91.3-1
 - Update to 2.91.3
 
