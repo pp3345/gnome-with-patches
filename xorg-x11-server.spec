@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.99.1
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -390,6 +390,8 @@ install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}
 mkdir -p %{inst_srcdir}/{doc/xml{,/dtrace},Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
 cp cpprules.in %{inst_srcdir}
 cp {,%{inst_srcdir}/}doc/xml/xmlrules.in
+cp {,%{inst_srcdir}/}doc/xml/xmlrules-noinst.in
+cp {,%{inst_srcdir}/}doc/xml/xmlrules-inst.in
 cp {,%{inst_srcdir}/}doc/xml/xserver.ent.in
 cp {,%{inst_srcdir}/}doc/xml/Xserver-spec.xml
 cp {,%{inst_srcdir}/}doc/xml/dtrace/Xserver-DTrace.xml
@@ -546,6 +548,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Dec 06 2010 Adam Tkac <atkac redhat com> 1.9.99.1-2
+- add more files to -source subpkg to fix TigerVNC build
+
 * Wed Dec 01 2010 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.1-1
 - Today's git snapshot
 - Drop hal→udev migration warning. Two releases later should be enough.
