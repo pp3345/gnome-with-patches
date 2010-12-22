@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        0.7.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -42,9 +42,6 @@ Files for development with %{name}.
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static)
-# Remove rpath as per https://fedoraproject.org/wiki/Packaging/Guidelines#Beware_of_Rpath
-sed -i 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' libtool
-sed -i 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' libtool
 
 make %{?_smp_mflags}
 
@@ -85,6 +82,10 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Wed Dec 22 2010 Colin Walters <walters@verbum.org> - 0.7.7-2
+- Remove rpath removal; we need an rpath on libmozjs, since
+  it's in a nonstandard directory.
+
 * Mon Nov 15 2010 Owen Taylor <otaylor@redhat.com> - 0.7.7-1
 - Update to 0.7.7
 
