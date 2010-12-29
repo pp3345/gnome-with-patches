@@ -1,0 +1,348 @@
+commit 60ae0e25d58feb93f76c39aa84ffb49046a4f91e
+Author: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
+Date:   Tue Nov 30 18:29:02 2010 +0100
+
+    xulrunner2: Get rid of gjs_string_get_ascii
+    
+    In xulrunner2, JS_GetStringBytes has been removed, we will now always need a context.
+    We won't be able to use gjs_string_get_ascii anymore, port each call to it to gjs_string_get_ascii_checked
+    Btw, rename gjs_string_get_ascii_checked to gjs_string_get_ascii
+    
+    https://bugzilla.gnome.org/show_bug.cgi?id=635707
+
+diff --git a/gi/object.c b/gi/object.c
+index ffa4fa6..04c3073 100644
+--- a/gi/object.c
++++ b/gi/object.c
+@@ -889,7 +889,7 @@ real_connect_func(JSContext *context,
+         return JS_FALSE;
+     }
+ 
+-    signal_name = gjs_string_get_ascii_checked(context, argv[0]);
++    signal_name = gjs_string_get_ascii(context, argv[0]);
+     if (signal_name == NULL) {
+         return JS_FALSE;
+     }
+@@ -1017,7 +1017,7 @@ emit_func(JSContext *context,
+         return JS_FALSE;
+     }
+ 
+-    signal_name = gjs_string_get_ascii_checked(context,
++    signal_name = gjs_string_get_ascii(context,
+                                                   argv[0]);
+     if (signal_name == NULL)
+         return JS_FALSE;
+diff --git a/gi/repo.c b/gi/repo.c
+index 7d3bbbc..a103c6d 100644
+--- a/gi/repo.c
++++ b/gi/repo.c
+@@ -78,7 +78,7 @@ resolve_namespace_object(JSContext  *context,
+     version = NULL;
+     if (JS_GetProperty(context, versions, ns_name, &version_val) &&
+         JSVAL_IS_STRING(version_val)) {
+-        version = gjs_string_get_ascii(version_val);
++        version = gjs_string_get_ascii(context, version_val);
+     }
+ 
+     repo = g_irepository_get_default();
+diff --git a/gjs/byteArray.c b/gjs/byteArray.c
+index b00be17..f8b650f 100644
+--- a/gjs/byteArray.c
++++ b/gjs/byteArray.c
+@@ -514,7 +514,7 @@ to_string_func(JSContext *context,
+     encoding_is_utf8 = TRUE;
+     if (argc >= 1 &&
+         JSVAL_IS_STRING(argv[0])) {
+-        encoding = gjs_string_get_ascii_checked(context, argv[0]);
++        encoding = gjs_string_get_ascii(context, argv[0]);
+         if (encoding == NULL)
+             return JS_FALSE;
+ 
+@@ -634,7 +634,7 @@ from_string_func(JSContext *context,
+     encoding_is_utf8 = TRUE;
+     if (argc > 1 &&
+         JSVAL_IS_STRING(argv[1])) {
+-        encoding = gjs_string_get_ascii_checked(context, argv[1]);
++        encoding = gjs_string_get_ascii(context, argv[1]);
+         if (encoding == NULL)
+             goto out;
+ 
+diff --git a/gjs/jsapi-util-string.c b/gjs/jsapi-util-string.c
+index 1934097..32d7166 100644
+--- a/gjs/jsapi-util-string.c
++++ b/gjs/jsapi-util-string.c
+@@ -238,25 +238,6 @@ gjs_string_from_filename(JSContext  *context,
+ 
+ /**
+  * gjs_string_get_ascii:
+- * @value: a jsval
+- *
+- * Get the char array in the JSString contained in @value.
+- * The string is expected to be encoded in ASCII, otherwise
+- * you will get garbage out. See the documentation for
+- * JS_GetStringBytes() for more details.
+- *
+- * Returns: an ASCII C string
+- **/
+-const char*
+-gjs_string_get_ascii(jsval value)
+-{
+-    g_return_val_if_fail(JSVAL_IS_STRING(value), NULL);
+-
+-    return JS_GetStringBytes(JSVAL_TO_STRING(value));
+-}
+-
+-/**
+- * gjs_string_get_ascii_checked:
+  * @context: a JSContext
+  * @value: a jsval
+  *
+@@ -267,7 +248,7 @@ gjs_string_get_ascii(jsval value)
+  * Returns: an ASCII C string or %NULL on error
+  **/
+ const char*
+-gjs_string_get_ascii_checked(JSContext       *context,
++gjs_string_get_ascii(JSContext       *context,
+                              jsval            value)
+ {
+     if (!JSVAL_IS_STRING(value)) {
+@@ -517,9 +498,9 @@ gjstest_test_func_gjs_jsapi_util_string_get_ascii(void)
+     context = fixture.context;
+ 
+     js_string = JS_NewStringCopyZ(context, ascii_string);
+-    g_assert(g_str_equal(gjs_string_get_ascii(STRING_TO_JSVAL(js_string)), ascii_string));
++    g_assert(g_str_equal(gjs_string_get_ascii(context, STRING_TO_JSVAL(js_string)), ascii_string));
+     void_value = JSVAL_VOID;
+-    g_assert(gjs_string_get_ascii_checked(context, void_value) == NULL);
++    g_assert(gjs_string_get_ascii(context, void_value) == NULL);
+     g_assert(JS_IsExceptionPending(context));
+ 
+     _gjs_unit_test_fixture_finish(&fixture);
+diff --git a/gjs/jsapi-util.c b/gjs/jsapi-util.c
+index 4695ec0..11c890a 100644
+--- a/gjs/jsapi-util.c
++++ b/gjs/jsapi-util.c
+@@ -1128,7 +1128,7 @@ log_prop(JSContext  *context,
+     if (JSVAL_IS_STRING(id)) {
+         const char *name;
+ 
+-        name = gjs_string_get_ascii(id);
++        name = gjs_string_get_ascii(context, id);
+         gjs_debug(GJS_DEBUG_PROPS,
+                   "prop %s: %s",
+                   name, what);
+diff --git a/gjs/jsapi-util.h b/gjs/jsapi-util.h
+index b4a07ef..424cded 100644
+--- a/gjs/jsapi-util.h
++++ b/gjs/jsapi-util.h
+@@ -311,8 +311,7 @@ JSBool      gjs_string_from_filename         (JSContext       *context,
+                                               const char      *filename_string,
+                                               gssize           n_bytes,
+                                               jsval           *value_p);
+-const char* gjs_string_get_ascii             (jsval            value);
+-const char* gjs_string_get_ascii_checked     (JSContext       *context,
++const char* gjs_string_get_ascii             (JSContext       *context,
+                                               jsval            value);
+ JSBool      gjs_string_get_binary_data       (JSContext       *context,
+                                               jsval            value,
+diff --git a/gjs/native.c b/gjs/native.c
+index 48175e3..3d97d70 100644
+--- a/gjs/native.c
++++ b/gjs/native.c
+@@ -141,7 +141,7 @@ gjs_import_native_module(JSContext        *context,
+         if (gjs_object_get_property(context, parent, "__moduleName__", &value) &&
+             JSVAL_IS_STRING(value)) {
+             const char *name;
+-            name = gjs_string_get_ascii(value);
++            name = gjs_string_get_ascii(context, value);
+ 
+             if (module_id->len > 0)
+                 g_string_prepend(module_id, ".");
+diff --git a/modules/dbus-exports.c b/modules/dbus-exports.c
+index bd86ac8..0d8d9f3 100644
+--- a/modules/dbus-exports.c
++++ b/modules/dbus-exports.c
+@@ -161,7 +161,7 @@ dbus_reply_from_exception_and_sender(JSContext    *context,
+     if (JSVAL_IS_OBJECT(exc) &&
+         gjs_object_get_property(context, JSVAL_TO_OBJECT(exc),
+                                 "dbusErrorName", &nameval))
+-        name = gjs_string_get_ascii_checked(context, nameval);
++        name = gjs_string_get_ascii(context, nameval);
+ 
+     if (!gjs_log_exception(context, &s))
+         return JS_FALSE;
+@@ -204,7 +204,7 @@ signature_from_method(JSContext   *context,
+     if (gjs_object_get_property(context,
+                                 method_obj, "outSignature",
+                                 &signature_value)) {
+-        *signature = gjs_string_get_ascii_checked(context,
++        *signature = gjs_string_get_ascii(context,
+                                                   signature_value);
+         if (*signature == NULL) {
+             return JS_FALSE;
+@@ -408,7 +408,7 @@ async_call_callback(JSContext *context,
+         gjs_log_and_keep_exception(context, NULL);
+         return JS_FALSE;
+     }
+-    sender = gjs_string_get_ascii_checked(context, prop_value);
++    sender = gjs_string_get_ascii(context, prop_value);
+     if (!sender)
+         return JS_FALSE;
+ 
+@@ -444,7 +444,7 @@ async_call_callback(JSContext *context,
+         thrown = TRUE;
+         goto out;
+     }
+-    signature = gjs_string_get_ascii_checked(context, prop_value);
++    signature = gjs_string_get_ascii(context, prop_value);
+     if (!signature)
+         return JS_FALSE;
+ 
+@@ -834,7 +834,7 @@ unpack_property_details(JSContext       *context,
+         return JS_FALSE;
+     }
+ 
+-    name = gjs_string_get_ascii_checked(context,
++    name = gjs_string_get_ascii(context,
+                                         name_val);
+     if (name == NULL) {
+         return JS_FALSE;
+@@ -850,7 +850,7 @@ unpack_property_details(JSContext       *context,
+         return JS_FALSE;
+     }
+ 
+-    signature = gjs_string_get_ascii_checked(context,
++    signature = gjs_string_get_ascii(context,
+                                              signature_val);
+     if (signature == NULL) {
+         return JS_FALSE;
+@@ -866,7 +866,7 @@ unpack_property_details(JSContext       *context,
+         return JS_FALSE;
+     }
+ 
+-    access = gjs_string_get_ascii_checked(context,
++    access = gjs_string_get_ascii(context,
+                                           access_val);
+     if (access == NULL) {
+         return JS_FALSE;
+diff --git a/modules/dbus-values.c b/modules/dbus-values.c
+index 2b23ca0..2d94c4a 100644
+--- a/modules/dbus-values.c
++++ b/modules/dbus-values.c
+@@ -807,7 +807,7 @@ append_dict(JSContext         *context,
+                                     JSVAL_TO_OBJECT(prop_signatures),
+                                     name, &signature_value);
+             if (signature_value != JSVAL_VOID) {
+-                value_signature = gjs_string_get_ascii_checked(context,
++                value_signature = gjs_string_get_ascii(context,
+                                                                signature_value);
+                 if (value_signature == NULL) {
+                     return JS_FALSE;
+diff --git a/modules/dbus.c b/modules/dbus.c
+index 0ab3c79..f93f7ff 100644
+--- a/modules/dbus.c
++++ b/modules/dbus.c
+@@ -134,31 +134,31 @@ prepare_call(JSContext   *context,
+     if (!bus_check(context, bus_type))
+         return NULL;
+ 
+-    bus_name = gjs_string_get_ascii_checked(context, argv[0]);
++    bus_name = gjs_string_get_ascii(context, argv[0]);
+     if (bus_name == NULL)
+         return NULL;
+ 
+-    path = gjs_string_get_ascii_checked(context, argv[1]);
++    path = gjs_string_get_ascii(context, argv[1]);
+     if (path == NULL)
+         return NULL;
+ 
+     if (JSVAL_IS_NULL(argv[2])) {
+         interface = NULL;
+     } else {
+-        interface = gjs_string_get_ascii_checked(context, argv[2]);
++        interface = gjs_string_get_ascii(context, argv[2]);
+         if (interface == NULL)
+             return NULL; /* exception was set */
+     }
+ 
+-    method = gjs_string_get_ascii_checked(context, argv[3]);
++    method = gjs_string_get_ascii(context, argv[3]);
+     if (method == NULL)
+         return NULL;
+ 
+-    out_signature = gjs_string_get_ascii_checked(context, argv[4]);
++    out_signature = gjs_string_get_ascii(context, argv[4]);
+     if (out_signature == NULL)
+         return NULL;
+ 
+-    in_signature = gjs_string_get_ascii_checked(context, argv[5]);
++    in_signature = gjs_string_get_ascii(context, argv[5]);
+     if (in_signature == NULL)
+         return NULL;
+ 
+@@ -447,7 +447,7 @@ fill_with_null_or_string(JSContext *context, const char **string_p, jsval value)
+     if (JSVAL_IS_NULL(value))
+         *string_p = NULL;
+     else {
+-        *string_p = gjs_string_get_ascii_checked(context, value);
++        *string_p = gjs_string_get_ascii(context, value);
+         if (!*string_p)
+             return JS_FALSE;
+     }
+@@ -878,16 +878,16 @@ gjs_js_dbus_emit_signal(JSContext  *context,
+     if (!get_bus_type_from_object(context, obj, &bus_type))
+         return JS_FALSE;
+ 
+-    object_path = gjs_string_get_ascii_checked(context, argv[0]);
++    object_path = gjs_string_get_ascii(context, argv[0]);
+     if (!object_path)
+         return JS_FALSE;
+-    iface = gjs_string_get_ascii_checked(context, argv[1]);
++    iface = gjs_string_get_ascii(context, argv[1]);
+     if (!iface)
+         return JS_FALSE;
+-    signal = gjs_string_get_ascii_checked(context, argv[2]);
++    signal = gjs_string_get_ascii(context, argv[2]);
+     if (!signal)
+         return JS_FALSE;
+-    in_signature = gjs_string_get_ascii_checked(context, argv[3]);
++    in_signature = gjs_string_get_ascii(context, argv[3]);
+     if (!in_signature)
+         return JS_FALSE;
+ 
+@@ -1134,7 +1134,7 @@ gjs_js_dbus_acquire_name(JSContext  *context,
+     if (!get_bus_type_from_object(context, obj, &bus_type))
+         return JS_FALSE;
+ 
+-    bus_name = gjs_string_get_ascii_checked(context, argv[0]);
++    bus_name = gjs_string_get_ascii(context, argv[0]);
+     if (bus_name == NULL)
+         return JS_FALSE;
+ 
+@@ -1369,7 +1369,7 @@ gjs_js_dbus_watch_name(JSContext  *context,
+     if (!get_bus_type_from_object(context, obj, &bus_type))
+         return JS_FALSE;
+ 
+-    bus_name = gjs_string_get_ascii_checked(context, argv[0]);
++    bus_name = gjs_string_get_ascii(context, argv[0]);
+     if (bus_name == NULL)
+         return JS_FALSE;
+ 
+@@ -1482,7 +1482,7 @@ gjs_js_dbus_signature_length(JSContext  *context,
+         return JS_FALSE;
+     }
+ 
+-    signature = gjs_string_get_ascii_checked(context, argv[0]);
++    signature = gjs_string_get_ascii(context, argv[0]);
+     if (signature == NULL)
+         return JS_FALSE;
+ 
+@@ -1523,7 +1523,7 @@ gjs_js_dbus_start_service(JSContext  *context,
+         return JS_FALSE;
+     }
+ 
+-    name = gjs_string_get_ascii_checked(context, argv[0]);
++    name = gjs_string_get_ascii(context, argv[0]);
+     if (!name)
+         return JS_FALSE;
+ 

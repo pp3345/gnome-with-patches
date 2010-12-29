@@ -1,0 +1,2090 @@
+commit 1f2cfe8773af2d6c643e1d00e9b5629451e5ff83
+Author: Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
+Date:   Tue Nov 30 21:08:56 2010 +0100
+
+    xulrunner2: Conditionally handle availability of JS_GetStringBytes
+    
+    This upstream mozilla commit:
+    http://hg.mozilla.org/mozilla-central/changeset/f7171a41a816
+    removed JS_GetStringBytes in favor of an API which requires
+    the caller to allocate.  We were using this function in
+    a number of places, and most of those now need to malloc()
+    with the new API.  Rather than trying to use JS_GetStringBytes
+    as "const", and malloc() only with the new API, wrap it
+    and always malloc()/free().
+    
+    Based on a patch originally from Sardem FF7 <sardemff7.pub@gmail.com>.
+    
+    https://bugzilla.gnome.org/show_bug.cgi?id=635707
+
+diff --git a/configure.ac b/configure.ac
+index 70efee1..8950b57 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -146,6 +146,8 @@ else
+   AC_MSG_ERROR([$JS_PACKAGE >= 1.9.2 is required])
+ fi
+ 
++AC_CHECK_LIB([mozjs], [JS_GetStringBytes], AC_DEFINE([HAVE_JS_GETSTRINGBYTES], [1], [Define if we still have JS_GetStringBytes]),, [$JS_LIBS])
++
+ AC_MSG_CHECKING([for mozilla-js >= 2 ])
+ if `$PKG_CONFIG --exists $JS_PACKAGE '>=' 2`; then
+   AC_MSG_RESULT([yes])
+diff --git a/gi/boxed.c b/gi/boxed.c
+index 6559ad0..bd554f0 100644
+--- a/gi/boxed.c
++++ b/gi/boxed.c
+@@ -89,7 +89,8 @@ boxed_new_resolve(JSContext *context,
+                   JSObject **objp)
+ {
+     Boxed *priv;
+-    const char *name;
++    char *name;
++    JSBool ret = JS_FALSE;
+ 
+     *objp = NULL;
+ 
+@@ -100,7 +101,8 @@ boxed_new_resolve(JSContext *context,
+     gjs_debug_jsprop(GJS_DEBUG_GBOXED, "Resolve prop '%s' hook obj %p priv %p", name, obj, priv);
+ 
+     if (priv == NULL)
+-        return JS_FALSE; /* wrong class */
++        goto out; /* wrong class */
++
+ 
+     if (priv->gboxed == NULL) {
+         /* We are the prototype, so look for methods and other class properties */
+@@ -127,7 +129,8 @@ boxed_new_resolve(JSContext *context,
+                           g_base_info_get_namespace( (GIBaseInfo*) priv->info),
+                           g_base_info_get_name( (GIBaseInfo*) priv->info));
+                 g_base_info_unref( (GIBaseInfo*) method_info);
+-                return JS_TRUE;
++                ret = JS_TRUE;
++                goto out;
+             }
+ 
+             gjs_debug(GJS_DEBUG_GBOXED,
+@@ -140,7 +143,7 @@ boxed_new_resolve(JSContext *context,
+ 
+             if (gjs_define_function(context, boxed_proto, method_info) == NULL) {
+                 g_base_info_unref( (GIBaseInfo*) method_info);
+-                return JS_FALSE;
++                goto out;
+             }
+ 
+             *objp = boxed_proto; /* we defined the prop in object_proto */
+@@ -156,8 +159,11 @@ boxed_new_resolve(JSContext *context,
+          * hooks, not this resolve hook.
+          */
+     }
++    ret = JS_TRUE;
+ 
+-    return JS_TRUE;
++ out:
++    g_free(name);
++    return ret;
+ }
+ 
+ /* Check to see if jsval passed in is another Boxed object of the same,
+@@ -329,7 +335,7 @@ boxed_init_from_props(JSContext   *context,
+ 
+     while (!JSID_IS_VOID(prop_id)) {
+         GIFieldInfo *field_info;
+-        const char *name;
++        char *name;
+         jsval value;
+ 
+         if (!gjs_get_string_id(context, prop_id, &name))
+@@ -339,15 +345,18 @@ boxed_init_from_props(JSContext   *context,
+         if (field_info == NULL) {
+             gjs_throw(context, "No field %s on boxed type %s",
+                       name, g_base_info_get_name((GIBaseInfo *)priv->info));
++            g_free(name);
+             goto out;
+         }
+ 
+-        if (!gjs_object_require_property(context, props, "property list", name, &value))
++        if (!gjs_object_require_property(context, props, "property list", name, &value)) {
++            g_free(name);
+             goto out;
++        }
++        g_free(name);
+ 
+-        if (!boxed_set_field_from_value(context, priv, field_info, value)) {
++        if (!boxed_set_field_from_value(context, priv, field_info, value))
+             goto out;
+-        }
+ 
+         prop_id = JSID_VOID;
+         if (!JS_NextProperty(context, iter, &prop_id))
+@@ -356,7 +365,7 @@ boxed_init_from_props(JSContext   *context,
+ 
+     success = TRUE;
+ 
+-out:
++ out:
+     g_hash_table_destroy(field_map);
+ 
+     return success;
+diff --git a/gi/function.c b/gi/function.c
+index ebd634c..56fc5f5 100644
+--- a/gi/function.c
++++ b/gi/function.c
+@@ -108,7 +108,7 @@ function_new_resolve(JSContext *context,
+                      JSObject **objp)
+ {
+     Function *priv;
+-    const char *name;
++    char *name;
+ 
+     *objp = NULL;
+ 
+@@ -118,6 +118,7 @@ function_new_resolve(JSContext *context,
+     priv = priv_from_js(context, obj);
+ 
+     gjs_debug_jsprop(GJS_DEBUG_GFUNCTION, "Resolve prop '%s' hook obj %p priv %p", name, obj, priv);
++    g_free(name);
+ 
+     if (priv == NULL)
+         return JS_TRUE; /* we are the prototype, or have the wrong class */
+diff --git a/gi/ns.c b/gi/ns.c
+index 0eb474a..b6591ff 100644
+--- a/gi/ns.c
++++ b/gi/ns.c
+@@ -68,9 +68,10 @@ ns_new_resolve(JSContext *context,
+                JSObject **objp)
+ {
+     Ns *priv;
+-    const char *name;
++    char *name;
+     GIRepository *repo;
+     GIBaseInfo *info;
++    JSBool ret = JS_FALSE;
+ 
+     *objp = NULL;
+ 
+@@ -79,14 +80,18 @@ ns_new_resolve(JSContext *context,
+ 
+     /* let Object.prototype resolve these */
+     if (strcmp(name, "valueOf") == 0 ||
+-        strcmp(name, "toString") == 0)
+-        return JS_TRUE;
++        strcmp(name, "toString") == 0) {
++        ret = JS_TRUE;
++        goto out;
++    }
+ 
+     priv = priv_from_js(context, obj);
+     gjs_debug_jsprop(GJS_DEBUG_GNAMESPACE, "Resolve prop '%s' hook obj %p priv %p", name, obj, priv);
+ 
+-    if (priv == NULL)
+-        return JS_TRUE; /* we are the prototype, or have the wrong class */
++    if (priv == NULL) {
++        ret = JS_TRUE; /* we are the prototype, or have the wrong class */
++        goto out;
++    }
+ 
+     JS_BeginRequest(context);
+ 
+@@ -101,18 +106,19 @@ ns_new_resolve(JSContext *context,
+                                         obj,
+                                         NULL)) {
+                 JS_EndRequest(context);
+-                return JS_FALSE;
++                goto out;
+             } else {
+                 *objp = obj; /* we defined the property in this object */
+                 JS_EndRequest(context);
+-                return JS_TRUE;
++                ret = JS_TRUE;
++                goto out;
+             }
+         } else {
+             gjs_throw(context,
+                       "No symbol '%s' in namespace '%s'",
+                       name, priv->namespace);
+             JS_EndRequest(context);
+-            return JS_FALSE;
++            goto out;
+         }
+     }
+ 
+@@ -125,18 +131,19 @@ ns_new_resolve(JSContext *context,
+     if (gjs_define_info(context, obj, info)) {
+         g_base_info_unref(info);
+         *objp = obj; /* we defined the property in this object */
+-        JS_EndRequest(context);
+-        return JS_TRUE;
++        ret = JS_TRUE;
+     } else {
+         gjs_debug(GJS_DEBUG_GNAMESPACE,
+                   "Failed to define info '%s'",
+                   g_base_info_get_name(info));
+ 
+         g_base_info_unref(info);
+-
+-        JS_EndRequest(context);
+-        return JS_FALSE;
+     }
++    JS_EndRequest(context);
++
++ out:
++    g_free(name);
++    return ret;
+ }
+ 
+ /* If we set JSCLASS_CONSTRUCT_PROTOTYPE flag, then this is called on
+diff --git a/gi/object.c b/gi/object.c
+index 04c3073..559b44c 100644
+--- a/gi/object.c
++++ b/gi/object.c
+@@ -125,10 +125,11 @@ object_instance_get_prop(JSContext *context,
+                          jsval     *value_p)
+ {
+     ObjectInstance *priv;
+-    const char *name;
++    char *name;
+     char *gname;
+     GParamSpec *param;
+     GValue gvalue = { 0, };
++    JSBool ret = JS_TRUE;
+ 
+     if (!gjs_get_string_id(context, id, &name))
+         return JS_TRUE; /* not resolved, but no error */
+@@ -137,10 +138,12 @@ object_instance_get_prop(JSContext *context,
+     gjs_debug_jsprop(GJS_DEBUG_GOBJECT,
+                      "Get prop '%s' hook obj %p priv %p", name, obj, priv);
+ 
+-    if (priv == NULL)
+-        return JS_FALSE; /* wrong class passed in */
+-    if (priv->gobj == NULL)
+-        return JS_TRUE; /* prototype, not an instance. */
++    if (priv == NULL) {
++        ret = JS_FALSE; /* wrong class passed in */
++        goto out;
++    }
++    if (priv->gobj == NULL) /* prototype, not an instance. */
++        goto out;
+ 
+     gname = gjs_hyphen_from_camel(name);
+     param = g_object_class_find_property(G_OBJECT_GET_CLASS(priv->gobj),
+@@ -149,12 +152,11 @@ object_instance_get_prop(JSContext *context,
+ 
+     if (param == NULL) {
+         /* leave value_p as it was */
+-        return JS_TRUE;
++        goto out;
+     }
+ 
+-    if ((param->flags & G_PARAM_READABLE) == 0) {
+-        return JS_TRUE;
+-    }
++    if ((param->flags & G_PARAM_READABLE) == 0)
++        goto out;
+ 
+     gjs_debug_jsprop(GJS_DEBUG_GOBJECT,
+                      "Overriding %s with GObject prop %s",
+@@ -165,11 +167,14 @@ object_instance_get_prop(JSContext *context,
+                           &gvalue);
+     if (!gjs_value_from_g_value(context, value_p, &gvalue)) {
+         g_value_unset(&gvalue);
+-        return JS_FALSE;
++        ret = JS_FALSE;
++        goto out;
+     }
+     g_value_unset(&gvalue);
+ 
+-    return JS_TRUE;
++ out:
++    g_free(name);
++    return ret;
+ }
+ 
+ /* a hook on setting a property; set value_p to override property value to
+@@ -182,8 +187,9 @@ object_instance_set_prop(JSContext *context,
+                          jsval     *value_p)
+ {
+     ObjectInstance *priv;
+-    const char *name;
++    char *name;
+     GParameter param = { NULL, { 0, }};
++    JSBool ret = JS_TRUE;
+ 
+     if (!gjs_get_string_id(context, id, &name))
+         return JS_TRUE; /* not resolved, but no error */
+@@ -192,19 +198,21 @@ object_instance_set_prop(JSContext *context,
+     gjs_debug_jsprop(GJS_DEBUG_GOBJECT,
+                      "Set prop '%s' hook obj %p priv %p", name, obj, priv);
+ 
+-    if (priv == NULL)
+-        return JS_FALSE;  /* wrong class passed in */
+-    if (priv->gobj == NULL)
+-        return JS_TRUE; /* prototype, not an instance. */
++    if (priv == NULL) {
++        ret = JS_FALSE;  /* wrong class passed in */
++        goto out;
++    }
++    if (priv->gobj == NULL) /* prototype, not an instance. */
++        goto out;
+ 
+     switch (init_g_param_from_property(context, name,
+                                        *value_p,
+                                        G_TYPE_FROM_INSTANCE(priv->gobj),
+                                        &param)) {
+     case SOME_ERROR_OCCURRED:
+-        return JS_FALSE;
++        ret = JS_FALSE;
+     case NO_SUCH_G_PROPERTY:
+-        return JS_TRUE;
++        goto out;
+     case VALUE_WAS_SET:
+         break;
+     }
+@@ -220,7 +228,9 @@ object_instance_set_prop(JSContext *context,
+      * getter/setter maybe, don't know if that is better.
+      */
+ 
+-    return JS_TRUE;
++ out:
++    g_free(name);
++    return ret;
+ }
+ 
+ /*
+@@ -244,7 +254,8 @@ object_instance_new_resolve(JSContext *context,
+                             JSObject **objp)
+ {
+     ObjectInstance *priv;
+-    const char *name;
++    char *name;
++    JSBool ret = JS_FALSE;
+ 
+     *objp = NULL;
+ 
+@@ -264,7 +275,7 @@ object_instance_new_resolve(JSContext *context,
+                      g_type_name_from_instance((GTypeInstance*) priv->gobj) : "(type unknown)");
+ 
+     if (priv == NULL)
+-        return JS_FALSE; /* we are the wrong class */
++        goto out; /* we are the wrong class */
+ 
+     if (priv->gobj == NULL) {
+         /* We are the prototype, so look for methods and other class properties */
+@@ -367,7 +378,8 @@ object_instance_new_resolve(JSContext *context,
+                           g_base_info_get_namespace( (GIBaseInfo*) priv->info),
+                           g_base_info_get_name( (GIBaseInfo*) priv->info));
+                 g_base_info_unref( (GIBaseInfo*) method_info);
+-                return JS_TRUE;
++                ret = JS_TRUE;
++                goto out;
+             }
+ 
+             gjs_debug(GJS_DEBUG_GOBJECT,
+@@ -379,7 +391,7 @@ object_instance_new_resolve(JSContext *context,
+ 
+             if (gjs_define_function(context, obj, method_info) == NULL) {
+                 g_base_info_unref( (GIBaseInfo*) method_info);
+-                return JS_FALSE;
++                goto out;
+             }
+ 
+             *objp = obj; /* we defined the prop in obj */
+@@ -415,7 +427,10 @@ object_instance_new_resolve(JSContext *context,
+         }
+     }
+ 
+-    return JS_TRUE;
++    ret = JS_TRUE;
++ out:
++    g_free(name);
++    return ret;
+ }
+ 
+ static void
+@@ -480,30 +495,34 @@ object_instance_props_to_g_parameters(JSContext   *context,
+     }
+ 
+     while (!JSID_IS_VOID(prop_id)) {
+-        const char *name;
++        char *name;
+         jsval value;
+         GParameter gparam = { NULL, { 0, }};
+ 
+         if (!gjs_get_string_id(context, prop_id, &name))
+             goto free_array_and_fail;
+ 
+-        if (!gjs_object_require_property(context, props, "property list", name, &value))
++        if (!gjs_object_require_property(context, props, "property list", name, &value)) {
++            g_free(name);
+             goto free_array_and_fail;
++        }
+ 
+         switch (init_g_param_from_property(context, name,
+                                            value,
+                                            gtype,
+                                            &gparam)) {
+-        case SOME_ERROR_OCCURRED:
+-            goto free_array_and_fail;
+         case NO_SUCH_G_PROPERTY:
+             gjs_throw(context, "No property %s on this GObject %s",
+                          name, g_type_name(gtype));
++        case SOME_ERROR_OCCURRED:
++            g_free(name);
+             goto free_array_and_fail;
+         case VALUE_WAS_SET:
+             break;
+         }
+ 
++        g_free(name);
++
+         g_array_append_val(gparams, gparam);
+ 
+         prop_id = JSID_VOID;
+@@ -860,9 +879,10 @@ real_connect_func(JSContext *context,
+     GClosure *closure;
+     gulong id;
+     guint signal_id;
+-    const char *signal_name;
++    char *signal_name;
+     GQuark signal_detail;
+     jsval retval;
++    JSBool ret = JS_FALSE;
+ 
+     priv = priv_from_js(context, obj);
+     gjs_debug_gsignal("connect obj %p priv %p argc %d", obj, priv, argc);
+@@ -902,12 +922,12 @@ real_connect_func(JSContext *context,
+         gjs_throw(context, "No signal '%s' on object '%s'",
+                      signal_name,
+                      g_type_name(G_OBJECT_TYPE(priv->gobj)));
+-        return JS_FALSE;
++        goto out;
+     }
+ 
+     closure = gjs_closure_new_for_signal(context, JSVAL_TO_OBJECT(argv[1]), "signal callback", signal_id);
+     if (closure == NULL)
+-        return JS_FALSE;
++        goto out;
+ 
+     id = g_signal_connect_closure(priv->gobj,
+                                   signal_name,
+@@ -916,12 +936,15 @@ real_connect_func(JSContext *context,
+ 
+     if (!JS_NewNumberValue(context, id, &retval)) {
+         g_signal_handler_disconnect(priv->gobj, id);
+-        return JS_FALSE;
++        goto out;
+     }
+     
+     JS_SET_RVAL(context, vp, retval);
+ 
+-    return JS_TRUE;
++    ret = JS_TRUE;
++ out:
++    g_free(signal_name);
++    return ret;
+ }
+ 
+ static JSBool
+@@ -990,12 +1013,13 @@ emit_func(JSContext *context,
+     guint signal_id;
+     GQuark signal_detail;
+     GSignalQuery signal_query;
+-    const char *signal_name;
++    char *signal_name;
+     GValue *instance_and_args;
+     GValue rvalue;
+     unsigned int i;
+     gboolean failed;
+     jsval retval;
++    JSBool ret = JS_FALSE;
+ 
+     priv = priv_from_js(context, obj);
+     gjs_debug_gsignal("emit obj %p priv %p argc %d", obj, priv, argc);
+@@ -1030,7 +1054,7 @@ emit_func(JSContext *context,
+         gjs_throw(context, "No signal '%s' on object '%s'",
+                      signal_name,
+                      g_type_name(G_OBJECT_TYPE(priv->gobj)));
+-        return JS_FALSE;
++        goto out;
+     }
+ 
+     g_signal_query(signal_id, &signal_query);
+@@ -1041,7 +1065,7 @@ emit_func(JSContext *context,
+                      g_type_name(G_OBJECT_TYPE(priv->gobj)),
+                      signal_query.n_params,
+                      argc - 1);
+-        return JS_FALSE;
++        goto out;
+     }
+ 
+     if (signal_query.return_type != G_TYPE_NONE) {
+@@ -1090,7 +1114,10 @@ emit_func(JSContext *context,
+     if (!failed)
+         JS_SET_RVAL(context, vp, retval);
+ 
+-    return !failed;
++    ret = !failed;
++ out:
++    g_free(signal_name);
++    return ret;
+ }
+ 
+ /* Default spidermonkey toString is worthless.  Replace it
+diff --git a/gi/param.c b/gi/param.c
+index 5c4c669..1b03ad2 100644
+--- a/gi/param.c
++++ b/gi/param.c
+@@ -54,7 +54,7 @@ param_get_prop(JSContext *context,
+                jsval     *value_p)
+ {
+     Param *priv;
+-    const char *name;
++    char *name;
+     const char *value_str;
+ 
+     if (!gjs_get_string_id(context, id, &name))
+@@ -65,8 +65,10 @@ param_get_prop(JSContext *context,
+     gjs_debug_jsprop(GJS_DEBUG_GPARAM,
+                      "Get prop '%s' hook obj %p priv %p", name, obj, priv);
+ 
+-    if (priv == NULL)
++    if (priv == NULL) {
++        g_free(name);
+         return JS_FALSE; /* wrong class */
++    }
+ 
+     value_str = NULL;
+     if (strcmp(name, "name") == 0)
+@@ -76,6 +78,8 @@ param_get_prop(JSContext *context,
+     else if (strcmp(name, "blurb") == 0)
+         value_str = g_param_spec_get_blurb(priv->gparam);
+ 
++    g_free(name);
++
+     if (value_str != NULL) {
+         *value_p = STRING_TO_JSVAL(JS_NewStringCopyZ(context, value_str));
+     }
+@@ -104,7 +108,7 @@ param_new_resolve(JSContext *context,
+                   JSObject **objp)
+ {
+     Param *priv;
+-    const char *name;
++    char *name;
+ 
+     *objp = NULL;
+ 
+@@ -115,6 +119,8 @@ param_new_resolve(JSContext *context,
+ 
+     gjs_debug_jsprop(GJS_DEBUG_GPARAM, "Resolve prop '%s' hook obj %p priv %p", name, obj, priv);
+ 
++    g_free(name);
++
+     if (priv == NULL)
+         return JS_FALSE; /* wrong class */
+ 
+diff --git a/gi/repo.c b/gi/repo.c
+index a103c6d..3381da1 100644
+--- a/gi/repo.c
++++ b/gi/repo.c
+@@ -60,7 +60,7 @@ resolve_namespace_object(JSContext  *context,
+     jsval versions_val;
+     JSObject *versions;
+     jsval version_val;
+-    const char *version;
++    char *version;
+     JSObject *result;
+ 
+     JS_BeginRequest(context);
+@@ -90,10 +90,13 @@ resolve_namespace_object(JSContext  *context,
+                   "Requiring %s, version %s: %s",
+                   ns_name, version?version:"none", error->message);
+         g_error_free(error);
++        g_free(version);
+         JS_EndRequest(context);
+         return NULL;
+     }
+ 
++    g_free(version);
++
+     /* Defines a property on "obj" (the javascript repo object)
+      * with the given namespace name, pointing to that namespace
+      * in the repo.
+@@ -124,7 +127,8 @@ repo_new_resolve(JSContext *context,
+                  JSObject **objp)
+ {
+     Repo *priv;
+-    const char *name;
++    char *name;
++    JSBool ret = JS_TRUE;
+ 
+     *objp = NULL;
+ 
+@@ -134,23 +138,25 @@ repo_new_resolve(JSContext *context,
+     /* let Object.prototype resolve these */
+     if (strcmp(name, "valueOf") == 0 ||
+         strcmp(name, "toString") == 0)
+-        return JS_TRUE;
++        goto out;
+ 
+     priv = priv_from_js(context, obj);
+     gjs_debug_jsprop(GJS_DEBUG_GREPO, "Resolve prop '%s' hook obj %p priv %p", name, obj, priv);
+ 
+-    if (priv == NULL)
+-        return JS_TRUE; /* we are the prototype, or have the wrong class */
++    if (priv == NULL) /* we are the prototype, or have the wrong class */
++        goto out;
+ 
+     JS_BeginRequest(context);
+     if (resolve_namespace_object(context, obj, name) == NULL) {
+-        JS_EndRequest(context);
+-        return JS_FALSE;
++        ret = JS_FALSE;
+     } else {
+         *objp = obj; /* store the object we defined the prop in */
+-        JS_EndRequest(context);
+-        return JS_TRUE;
+     }
++    JS_EndRequest(context);
++
++ out:
++    g_free(name);
++    return ret;
+ }
+ 
+ /* If we set JSCLASS_CONSTRUCT_PROTOTYPE flag, then this is called on
+diff --git a/gi/union.c b/gi/union.c
+index 118cc88..b2978af 100644
+--- a/gi/union.c
++++ b/gi/union.c
+@@ -73,7 +73,8 @@ union_new_resolve(JSContext *context,
+                   JSObject **objp)
+ {
+     Union *priv;
+-    const char *name;
++    char *name;
++    JSBool ret = JS_TRUE;
+ 
+     *objp = NULL;
+ 
+@@ -83,8 +84,10 @@ union_new_resolve(JSContext *context,
+     priv = priv_from_js(context, obj);
+     gjs_debug_jsprop(GJS_DEBUG_GBOXED, "Resolve prop '%s' hook obj %p priv %p", name, obj, priv);
+ 
+-    if (priv == NULL)
+-        return JS_FALSE; /* wrong class */
++    if (priv == NULL) {
++        ret = JS_FALSE; /* wrong class */
++        goto out;
++    }
+ 
+     if (priv->gboxed == NULL) {
+         /* We are the prototype, so look for methods and other class properties */
+@@ -111,7 +114,7 @@ union_new_resolve(JSContext *context,
+                           g_base_info_get_namespace( (GIBaseInfo*) priv->info),
+                           g_base_info_get_name( (GIBaseInfo*) priv->info));
+                 g_base_info_unref( (GIBaseInfo*) method_info);
+-                return JS_TRUE;
++                goto out;
+             }
+ 
+             gjs_debug(GJS_DEBUG_GBOXED,
+@@ -124,7 +127,8 @@ union_new_resolve(JSContext *context,
+ 
+             if (gjs_define_function(context, union_proto, method_info) == NULL) {
+                 g_base_info_unref( (GIBaseInfo*) method_info);
+-                return JS_FALSE;
++                ret = JS_FALSE;
++                goto out;
+             }
+ 
+             *objp = union_proto; /* we defined the prop in object_proto */
+@@ -141,7 +145,9 @@ union_new_resolve(JSContext *context,
+          */
+     }
+ 
+-    return JS_TRUE;
++ out:
++    g_free(name);
++    return ret;
+ }
+ 
+ static void*
+diff --git a/gjs/byteArray.c b/gjs/byteArray.c
+index f8b650f..ea09cc4 100644
+--- a/gjs/byteArray.c
++++ b/gjs/byteArray.c
+@@ -503,7 +503,7 @@ to_string_func(JSContext *context,
+     jsval *argv = JS_ARGV(context, vp);
+     JSObject *object = JS_THIS_OBJECT(context, vp);
+     ByteArrayInstance *priv;
+-    const char *encoding;
++    char *encoding;
+     gboolean encoding_is_utf8;
+ 
+     priv = priv_from_js(context, object);
+@@ -523,6 +523,7 @@ to_string_func(JSContext *context,
+          * just an optimization anyway.
+          */
+         if (strcmp(encoding, "UTF-8") == 0) {
++            g_free(encoding);
+             encoding_is_utf8 = TRUE;
+         } else {
+             encoding_is_utf8 = FALSE;
+@@ -560,6 +561,7 @@ to_string_func(JSContext *context,
+                            NULL, /* bytes read */
+                            &bytes_written,
+                            &error);
++        g_free(encoding);
+         if (u16_str == NULL) {
+             /* frees the GError */
+             gjs_throw_g_error(context, error);
+@@ -609,7 +611,7 @@ from_string_func(JSContext *context,
+ {
+     jsval *argv = JS_ARGV(context, vp);
+     ByteArrayInstance *priv;
+-    const char *encoding;
++    char *encoding;
+     gboolean encoding_is_utf8;
+     JSObject *obj;
+     JSBool retval = JS_FALSE;
+@@ -643,6 +645,7 @@ from_string_func(JSContext *context,
+          * just an optimization anyway.
+          */
+         if (strcmp(encoding, "UTF-8") == 0) {
++            g_free(encoding);
+             encoding_is_utf8 = TRUE;
+         } else {
+             encoding_is_utf8 = FALSE;
+@@ -686,6 +689,7 @@ from_string_func(JSContext *context,
+                             NULL, /* bytes read */
+                             &bytes_written,
+                             &error);
++        g_free(encoding);
+         if (encoded == NULL) {
+             /* frees the GError */
+             gjs_throw_g_error(context, error);
+diff --git a/gjs/importer.c b/gjs/importer.c
+index 9986b9b..b0a921f 100644
+--- a/gjs/importer.c
++++ b/gjs/importer.c
+@@ -366,13 +366,14 @@ load_module_elements(JSContext *context,
+         }
+ 
+         while (!JSID_IS_VOID(idp)) {
+-            const char *name;
++            char *name;
+ 
+             if (!gjs_get_string_id(context, idp, &name)) {
+                 continue;
+             }
+ 
+-            g_ptr_array_add(iter->elements, g_strdup(name));
++            /* Pass ownership of name */
++            g_ptr_array_add(iter->elements, name);
+ 
+             if (!JS_NextProperty(context, jsiter, &idp)) {
+                 break;
+@@ -918,7 +919,8 @@ importer_new_resolve(JSContext *context,
+                      JSObject **objp)
+ {
+     Importer *priv;
+-    const char *name;
++    char *name;
++    JSBool ret = JS_TRUE;
+ 
+     *objp = NULL;
+ 
+@@ -929,23 +931,25 @@ importer_new_resolve(JSContext *context,
+     if (strcmp(name, "valueOf") == 0 ||
+         strcmp(name, "toString") == 0 ||
+         strcmp(name, "__iterator__") == 0)
+-        return JS_TRUE;
++        goto out;
+ 
+     priv = priv_from_js(context, obj);
+     gjs_debug_jsprop(GJS_DEBUG_IMPORTER, "Resolve prop '%s' hook obj %p priv %p", name, obj, priv);
+ 
+-    if (priv == NULL)
+-        return JS_TRUE; /* we are the prototype, or have the wrong class */
++    if (priv == NULL) /* we are the prototype, or have the wrong class */
++        goto out;
+ 
+     JS_BeginRequest(context);
+     if (do_import(context, obj, priv, name)) {
+         *objp = obj;
+-        JS_EndRequest(context);
+-        return JS_TRUE;
+     } else {
+-        JS_EndRequest(context);
+-        return JS_FALSE;
++        ret = JS_FALSE;
+     }
++    JS_EndRequest(context);
++
++ out:
++    g_free(name);
++    return ret;
+ }
+ 
+ /* If we set JSCLASS_CONSTRUCT_PROTOTYPE flag, then this is called on
+diff --git a/gjs/jsapi-util-array.c b/gjs/jsapi-util-array.c
+index ce72810..dbbd96e 100644
+--- a/gjs/jsapi-util-array.c
++++ b/gjs/jsapi-util-array.c
+@@ -315,15 +315,28 @@ gjstest_test_func_gjs_jsapi_util_array(void)
+     JS_GC(context);
+ 
+     for (i = 0; i < N_ELEMS; i++) {
+-        const char *ascii;
++        char *ascii;
++        JSString *str;
+ 
+         value = gjs_rooted_array_get(context, array, i);
+         g_assert(JSVAL_IS_STRING(value));
+-        ascii = JS_GetStringBytes(JSVAL_TO_STRING(value));
++        str = JSVAL_TO_STRING(value);
++#ifdef HAVE_JS_GETSTRINGBYTES
++        ascii = g_strdup(JS_GetStringBytes(str));
++#else
++        size_t len = JS_GetStringEncodingLength(context, str);
++        if (len == (size_t)(-1))
++            continue;
++
++        ascii = g_malloc((len + 1) * sizeof(char));
++        JS_EncodeStringToBuffer(str, ascii, len);
++        ascii[len] = '\0';
++#endif
+         /* if the string was freed, hopefully this will fail
+          * even if we didn't crash yet
+          */
+         g_assert(strcmp(ascii, "abcdefghijk") == 0);
++        g_free(ascii);
+     }
+ 
+     gjs_rooted_array_free(context, array, TRUE);
+diff --git a/gjs/jsapi-util-error.c b/gjs/jsapi-util-error.c
+index cb0d507..2dcdc73 100644
+--- a/gjs/jsapi-util-error.c
++++ b/gjs/jsapi-util-error.c
+@@ -204,7 +204,9 @@ gjstest_test_func_gjs_jsapi_util_error_throw(void)
+     GjsUnitTestFixture fixture;
+     JSContext *context;
+     jsval exc, value, previous;
+-    const char *s;
++    char *s = NULL;
++    JSString *str;
++    int strcmp_result;
+ 
+     _gjs_unit_test_fixture_begin(&fixture);
+     context = fixture.context;
+@@ -224,14 +226,24 @@ gjstest_test_func_gjs_jsapi_util_error_throw(void)
+                    &value);
+ 
+     g_assert(JSVAL_IS_STRING(value));
++    str = JSVAL_TO_STRING(value);
+ 
++#ifdef HAVE_JS_GETSTRINGBYTES
+     /* JS_GetStringBytes() is broken for non-ASCII but that's OK here */
+-    s = JS_GetStringBytes(JSVAL_TO_STRING(value));
+-    g_assert(s != NULL);
+-    if (strcmp(s, "This is an exception 42") != 0) {
+-        g_error("Exception has wrong message '%s'",
+-                s);
++    s = g_strdup(JS_GetStringBytes(str));
++#else
++    size_t len = JS_GetStringEncodingLength(context, str);
++    if (len != (size_t)(-1)) {
++        s = g_malloc((len + 1) * sizeof(char));
++        JS_EncodeStringToBuffer(str, s, len);
++        s[len] = '\0';
+     }
++#endif
++    g_assert(s != NULL);
++    strcmp_result = strcmp(s, "This is an exception 42");
++    free(s);
++    if (strcmp_result != 0)
++        g_error("Exception has wrong message '%s'", s);
+ 
+     /* keep this around before we clear it */
+     previous = exc;
+diff --git a/gjs/jsapi-util-string.c b/gjs/jsapi-util-string.c
+index 32d7166..c1af3bc 100644
+--- a/gjs/jsapi-util-string.c
++++ b/gjs/jsapi-util-string.c
+@@ -247,16 +247,32 @@ gjs_string_from_filename(JSContext  *context,
+  *
+  * Returns: an ASCII C string or %NULL on error
+  **/
+-const char*
++char*
+ gjs_string_get_ascii(JSContext       *context,
+-                             jsval            value)
++                     jsval            value)
+ {
++    JSString *str;
++
+     if (!JSVAL_IS_STRING(value)) {
+         gjs_throw(context, "A string was expected, but value was not a string");
+         return NULL;
+     }
+ 
+-    return JS_GetStringBytes(JSVAL_TO_STRING(value));
++    str = JSVAL_TO_STRING(value);
++
++#ifdef HAVE_JS_GETSTRINGBYTES
++    return g_strdup(JS_GetStringBytes(str));
++#else
++    char *ascii;
++    size_t len = JS_GetStringEncodingLength(context, str);
++    if (len == (size_t)(-1))
++        return NULL;
++
++    ascii = g_malloc((len + 1) * sizeof(char));
++    JS_EncodeStringToBuffer(str, ascii, len);
++    ascii[len] = '\0';
++    return ascii;
++#endif
+ }
+ 
+ static JSBool
+@@ -291,7 +307,7 @@ gjs_string_get_binary_data(JSContext       *context,
+                            char           **data_p,
+                            gsize           *len_p)
+ {
+-    char *js_data;
++    JSString *str;
+ 
+     JS_BeginRequest(context);
+ 
+@@ -307,12 +323,25 @@ gjs_string_get_binary_data(JSContext       *context,
+         return JS_FALSE;
+     }
+ 
+-    js_data = JS_GetStringBytes(JSVAL_TO_STRING(value));
++    str = JSVAL_TO_STRING(value);
++
++#ifdef HAVE_JS_GETSTRINGBYTES
++    const char *js_data = JS_GetStringBytes(str);
++
+     /* GetStringLength returns number of 16-bit jschar;
+      * we stored binary data as 1 byte per jschar
+      */
+-    *len_p = JS_GetStringLength(JSVAL_TO_STRING(value));
++    *len_p = JS_GetStringLength(str);
+     *data_p = g_memdup(js_data, *len_p);
++#else
++    *len_p = JS_GetStringEncodingLength(context, str);
++    if (*len_p == (gsize)(-1))
++        return JS_FALSE;
++
++    *data_p = g_malloc((*len_p + 1) * sizeof(char));
++    JS_EncodeStringToBuffer(str, *data_p, *len_p);
++    (*data_p)[*len_p] = '\0';
++#endif
+ 
+     JS_EndRequest(context);
+ 
+@@ -414,15 +443,27 @@ gjs_string_get_uint16_data(JSContext       *context,
+ JSBool
+ gjs_get_string_id (JSContext       *context,
+                    jsid             id,
+-                   const char     **name_p)
++                   char           **name_p)
+ {
+     jsval id_val;
++    JSString *str;
+ 
+     if (!JS_IdToValue(context, id, &id_val))
+         return JS_FALSE;
+ 
+     if (JSVAL_IS_STRING(id_val)) {
+-        *name_p = JS_GetStringBytes(JSVAL_TO_STRING(id_val));
++        str = JSVAL_TO_STRING(id_val);
++#ifdef HAVE_JS_GETSTRINGBYTES
++        *name_p = g_strdup(JS_GetStringBytes(str));
++#else
++        size_t len = JS_GetStringEncodingLength(context, str);
++        if (len == (size_t)(-1))
++            return JS_FALSE;
++
++        *name_p = g_malloc((len + 1) * sizeof(char));
++        JS_EncodeStringToBuffer(str, *name_p, len);
++        (*name_p)[len] = '\0';
++#endif
+         return JS_TRUE;
+     } else {
+         *name_p = NULL;
+@@ -493,14 +534,19 @@ gjstest_test_func_gjs_jsapi_util_string_get_ascii(void)
+     const char *ascii_string = "Hello, world";
+     JSString  *js_string;
+     jsval      void_value;
++    char *test;
+ 
+     _gjs_unit_test_fixture_begin(&fixture);
+     context = fixture.context;
+ 
+     js_string = JS_NewStringCopyZ(context, ascii_string);
+-    g_assert(g_str_equal(gjs_string_get_ascii(context, STRING_TO_JSVAL(js_string)), ascii_string));
++    test = gjs_string_get_ascii(context, STRING_TO_JSVAL(js_string));
++    g_assert(g_str_equal(test, ascii_string));
++    g_free(test);
+     void_value = JSVAL_VOID;
+-    g_assert(gjs_string_get_ascii(context, void_value) == NULL);
++    test = gjs_string_get_ascii(context, void_value);
++    g_assert(test == NULL);
++    g_free(test);
+     g_assert(JS_IsExceptionPending(context));
+ 
+     _gjs_unit_test_fixture_finish(&fixture);
+diff --git a/gjs/jsapi-util.c b/gjs/jsapi-util.c
+index 714b91e..56e3a3f 100644
+--- a/gjs/jsapi-util.c
++++ b/gjs/jsapi-util.c
+@@ -767,7 +767,7 @@ gjs_value_debug_string(JSContext      *context,
+                        jsval           value)
+ {
+     JSString *str;
+-    const char *bytes;
++    char *bytes;
+     char *debugstr;
+ 
+     JS_BeginRequest(context);
+@@ -799,11 +799,20 @@ gjs_value_debug_string(JSContext      *context,
+ 
+     g_assert(str != NULL);
+ 
+-    bytes = JS_GetStringBytes(str);
+-
++#ifdef HAVE_JS_GETSTRINGBYTES
++    bytes = g_strdup(JS_GetStringBytes(str));
++#else
++    size_t len = JS_GetStringEncodingLength(context, str);
++    if (len != (size_t)(-1)) {
++        bytes = g_malloc((len + 1) * sizeof(char));
++        JS_EncodeStringToBuffer(str, bytes, len);
++        bytes[len] = '\0';
++    }
++#endif
+     JS_EndRequest(context);
+ 
+     debugstr = _gjs_g_utf8_make_valid(bytes);
++    g_free(bytes);
+ 
+     return debugstr;
+ }
+@@ -838,7 +847,7 @@ gjs_log_object_props(JSContext      *context,
+ 
+     while (!JSID_IS_VOID(prop_id)) {
+         jsval propval;
+-        const char *name;
++        char *name;
+         char *debugstr;
+ 
+         if (!gjs_get_string_id(context, prop_id, &name))
+@@ -855,6 +864,7 @@ gjs_log_object_props(JSContext      *context,
+         g_free(debugstr);
+ 
+     next:
++        g_free(name);
+         prop_id = JSID_VOID;
+         if (!JS_NextProperty(context, props_iter, &prop_id))
+             break;
+@@ -1143,12 +1153,13 @@ log_prop(JSContext  *context,
+          const char *what)
+ {
+     if (JSVAL_IS_STRING(id)) {
+-        const char *name;
++        char *name;
+ 
+         name = gjs_string_get_ascii(context, id);
+         gjs_debug(GJS_DEBUG_PROPS,
+                   "prop %s: %s",
+                   name, what);
++        g_free(name);
+     } else if (JSVAL_IS_INT(id)) {
+         gjs_debug(GJS_DEBUG_PROPS,
+                   "prop %d: %s",
+diff --git a/gjs/jsapi-util.h b/gjs/jsapi-util.h
+index b7c6a8b..e75561e 100644
+--- a/gjs/jsapi-util.h
++++ b/gjs/jsapi-util.h
+@@ -311,7 +311,7 @@ JSBool      gjs_string_from_filename         (JSContext       *context,
+                                               const char      *filename_string,
+                                               gssize           n_bytes,
+                                               jsval           *value_p);
+-const char* gjs_string_get_ascii             (JSContext       *context,
++char*       gjs_string_get_ascii             (JSContext       *context,
+                                               jsval            value);
+ JSBool      gjs_string_get_binary_data       (JSContext       *context,
+                                               jsval            value,
+@@ -327,7 +327,7 @@ JSBool      gjs_string_get_uint16_data       (JSContext       *context,
+                                               gsize           *len_p);
+ JSBool      gjs_get_string_id                (JSContext       *context,
+                                               jsid             id,
+-                                              const char     **name_p);
++                                              char           **name_p);
+ const char* gjs_get_type_name                (jsval            value);
+ 
+ jsval       gjs_date_from_time_t             (JSContext *context, time_t time);
+diff --git a/gjs/native.c b/gjs/native.c
+index 3d97d70..822fd6a 100644
+--- a/gjs/native.c
++++ b/gjs/native.c
+@@ -140,13 +140,14 @@ gjs_import_native_module(JSContext        *context,
+ 
+         if (gjs_object_get_property(context, parent, "__moduleName__", &value) &&
+             JSVAL_IS_STRING(value)) {
+-            const char *name;
++            char *name;
+             name = gjs_string_get_ascii(context, value);
+ 
+             if (module_id->len > 0)
+                 g_string_prepend(module_id, ".");
+ 
+             g_string_prepend(module_id, name);
++            g_free(name);
+         }
+ 
+         /* Move up to parent */
+diff --git a/gjs/stack.c b/gjs/stack.c
+index b542aa9..6e2b987 100644
+--- a/gjs/stack.c
++++ b/gjs/stack.c
+@@ -46,22 +46,25 @@
+ #include <jsdbgapi.h>
+ #include "context.h"
+ #include "compat.h"
++#include "jsapi-util.h"
+ 
+-static const char*
++static char*
+ jsvalue_to_string(JSContext* cx, jsval val, gboolean* is_string)
+ {
+-    const char* value = NULL;
++    char* value = NULL;
+     JSString* value_str;
+ 
+     (void)JS_EnterLocalRootScope(cx);
+ 
+     value_str = JS_ValueToString(cx, val);
+     if (value_str)
+-        value = JS_GetStringBytes(value_str);
++        value = gjs_value_debug_string(cx, val);
+     if (value) {
+         const char* found = strstr(value, "function ");
+-        if(found && (value == found || value+1 == found || value+2 == found))
+-            value = "[function]";
++        if(found && (value == found || value+1 == found || value+2 == found)) {
++            g_free(value);
++            value = g_strdup("[function]");
++        }
+     }
+ 
+     if (is_string)
+@@ -145,13 +148,15 @@ format_frame(JSContext* cx, JSStackFrame* fp,
+         g_string_append_printf(buf, "%d <TOP LEVEL>", num);
+ 
+     for (i = 0; i < call_props.length; i++) {
+-        const char *name;
+-        const char *value;
++        char *name;
++        char *value;
+         JSPropertyDesc* desc = &call_props.array[i];
+         if(desc->flags & JSPD_ARGUMENT) {
+             name = jsvalue_to_string(cx, desc->id, &is_string);
+-            if(!is_string)
++            if(!is_string) {
++                g_free(name);
+                 name = NULL;
++            }
+             value = jsvalue_to_string(cx, desc->value, &is_string);
+ 
+             g_string_append_printf(buf, "%s%s%s%s%s%s",
+@@ -163,6 +168,8 @@ format_frame(JSContext* cx, JSStackFrame* fp,
+                                    is_string ? "\"" : "");
+             named_arg_count++;
+         }
++        g_free(name);
++        g_free(value);
+     }
+ 
+     /* print any unnamed trailing args (found in 'arguments' object) */
+@@ -181,12 +188,13 @@ format_frame(JSContext* cx, JSStackFrame* fp,
+                 g_snprintf(number, 8, "%d", (int) k);
+ 
+                 if (JS_GetProperty(cx, args_obj, number, &val)) {
+-                    const char *value = jsvalue_to_string(cx, val, &is_string);
++                    char *value = jsvalue_to_string(cx, val, &is_string);
+                     g_string_append_printf(buf, "%s%s%s%s",
+                                            k ? ", " : "",
+                                            is_string ? "\"" : "",
+                                            value ? value : "?unknown?",
+                                            is_string ? "\"" : "");
++                    g_free(value);
+                 }
+             }
+         }
+diff --git a/modules/console.c b/modules/console.c
+index bb930a7..4e4f82b 100644
+--- a/modules/console.c
++++ b/modules/console.c
+@@ -212,8 +212,14 @@ gjs_console_interact(JSContext *context,
+             str = JS_ValueToString(context, result);
+         }
+ 
+-        if (str)
+-            g_fprintf(stdout, "%s\n", JS_GetStringBytes(str));
++        if (str) {
++            char *display_str;
++            display_str = gjs_value_debug_string(context, result);
++            if (display_str != NULL) {
++                g_fprintf(stdout, "%s\n", display_str);
++                g_free(display_str);
++            }
++        }
+ 
+         if (script)
+             JS_DestroyScript(context, script);
+diff --git a/modules/dbus-exports.c b/modules/dbus-exports.c
+index 0d8d9f3..8a685d3 100644
+--- a/modules/dbus-exports.c
++++ b/modules/dbus-exports.c
+@@ -150,7 +150,7 @@ dbus_reply_from_exception_and_sender(JSContext    *context,
+ {
+     char *s;
+     jsval exc;
+-    const char *name = NULL;
++    char *name = NULL;
+     jsval nameval;
+ 
+     *reply_p = NULL;
+@@ -163,8 +163,10 @@ dbus_reply_from_exception_and_sender(JSContext    *context,
+                                 "dbusErrorName", &nameval))
+         name = gjs_string_get_ascii(context, nameval);
+ 
+-    if (!gjs_log_exception(context, &s))
++    if (!gjs_log_exception(context, &s)) {
++        g_free(name);
+         return JS_FALSE;
++    }
+ 
+     gjs_debug(GJS_DEBUG_DBUS,
+               "JS exception we will send as dbus reply to %s: %s",
+@@ -176,6 +178,7 @@ dbus_reply_from_exception_and_sender(JSContext    *context,
+     dbus_message_set_reply_serial(*reply_p, serial);
+     dbus_message_set_no_reply(*reply_p, TRUE);
+     dbus_message_set_error_name(*reply_p, name ? name : DBUS_ERROR_FAILED);
++    g_free(name);
+     if (s != NULL) {
+         DBusMessageIter iter;
+ 
+@@ -197,7 +200,7 @@ dbus_reply_from_exception_and_sender(JSContext    *context,
+ static JSBool
+ signature_from_method(JSContext   *context,
+                       JSObject    *method_obj,
+-                      const char **signature)
++                      char       **signature)
+ {
+     jsval signature_value;
+ 
+@@ -211,7 +214,7 @@ signature_from_method(JSContext   *context,
+         }
+     } else {
+         /* We default to a{sv} */
+-        *signature = "a{sv}";
++        *signature = g_strdup("a{sv}");
+     }
+ 
+     return JS_TRUE;
+@@ -292,7 +295,7 @@ invoke_js_from_dbus(JSContext   *context,
+     jsval rval;
+     DBusMessageIter arg_iter;
+     GjsRootedArray *values;
+-    const char *signature;
++    char *signature;
+ 
+     if (JS_IsExceptionPending(context)) {
+         gjs_debug(GJS_DEBUG_DBUS,
+@@ -359,6 +362,8 @@ invoke_js_from_dbus(JSContext   *context,
+                                    dbus_message_get_serial(method_call),
+                                    rval);
+ 
++    g_free(signature);
++
+  out:
+     gjs_rooted_array_free(context, values, TRUE);
+     JS_RemoveValueRoot(context, &rval);
+@@ -388,10 +393,10 @@ async_call_callback(JSContext *context,
+     DBusBusType which_bus;
+     DBusMessage *reply;
+     JSObject *callback_object;
+-    const char *sender;
++    char *sender;
+     dbus_uint32_t serial;
+     jsval prop_value;
+-    const char *signature;
++    char *signature = NULL;
+     gboolean thrown;
+ 
+     callback_object = JSVAL_TO_OBJECT(JS_CALLEE(context, vp));
+@@ -418,10 +423,10 @@ async_call_callback(JSContext *context,
+                                      "_dbusSerial",
+                                      &prop_value)) {
+         gjs_log_and_keep_exception(context, NULL);
+-        return JS_FALSE;
++        goto fail;
+     }
+     if (!JS_ValueToECMAUint32(context, prop_value, &serial))
+-        return JS_FALSE;
++        goto fail;
+ 
+     if (!gjs_object_require_property(context,
+                                      callback_object,
+@@ -429,7 +434,7 @@ async_call_callback(JSContext *context,
+                                      "_dbusBusType",
+                                      &prop_value)) {
+         gjs_log_and_keep_exception(context, NULL);
+-        return JS_FALSE;
++        goto fail;
+     }
+     which_bus = JSVAL_TO_INT(prop_value);
+ 
+@@ -446,7 +451,7 @@ async_call_callback(JSContext *context,
+     }
+     signature = gjs_string_get_ascii(context, prop_value);
+     if (!signature)
+-        return JS_FALSE;
++        goto fail;
+ 
+     if (argc != 1) {
+         gjs_throw(context, "The callback to async DBus calls takes one argument, "
+@@ -468,6 +473,9 @@ async_call_callback(JSContext *context,
+                       "dbus method invocation failed but no exception was set?");
+     }
+ 
++    g_free(sender);
++    g_free(signature);
++
+     if (reply) {
+         gjs_dbus_add_bus_weakref(which_bus, &connection);
+         if (!connection) {
+@@ -485,6 +493,10 @@ async_call_callback(JSContext *context,
+         JS_SET_RVAL(context, vp, JSVAL_VOID);
+ 
+     return (thrown == FALSE);
++
++ fail:
++    g_free(sender);
++    return JS_FALSE;
+ }
+ 
+ /* returns an error message or NULL */
+@@ -506,7 +518,7 @@ invoke_js_async_from_dbus(JSContext   *context,
+     jsval serial_value;
+     gboolean thrown;
+     jsval ignored;
+-    const char *signature;
++    char *signature;
+     JSString *signature_string;
+ 
+     reply = NULL;
+@@ -600,6 +612,7 @@ invoke_js_async_from_dbus(JSContext   *context,
+     }
+ 
+     signature_string = JS_NewStringCopyZ(context, signature);
++    g_free(signature);
+     if (!signature_string) {
+         thrown = TRUE;
+         goto out;
+@@ -821,9 +834,9 @@ unpack_property_details(JSContext       *context,
+     jsval name_val;
+     jsval signature_val;
+     jsval access_val;
+-    const char *name;
+-    const char *signature;
+-    const char *access;
++    char *name = NULL;
++    char *signature = NULL;
++    char *access = NULL;
+ 
+     if (!gjs_object_get_property(context,
+                                  prop_description,
+@@ -847,14 +860,13 @@ unpack_property_details(JSContext       *context,
+         gjs_throw(context,
+                   "Property %s has no signature",
+                   name);
+-        return JS_FALSE;
++        goto fail;
+     }
+ 
+     signature = gjs_string_get_ascii(context,
+                                              signature_val);
+-    if (signature == NULL) {
+-        return JS_FALSE;
+-    }
++    if (signature == NULL)
++        goto fail;
+ 
+     if (!gjs_object_get_property(context,
+                                  prop_description,
+@@ -863,14 +875,13 @@ unpack_property_details(JSContext       *context,
+         gjs_throw(context,
+                   "Property %s has no access",
+                   name);
+-        return JS_FALSE;
++        goto fail;
+     }
+ 
+     access = gjs_string_get_ascii(context,
+                                           access_val);
+-    if (access == NULL) {
+-        return JS_FALSE;
+-    }
++    if (access == NULL)
++        goto fail;
+ 
+     g_assert(name && signature && access);
+ 
+@@ -883,13 +894,20 @@ unpack_property_details(JSContext       *context,
+         details->writable = TRUE;
+     } else {
+         gjs_throw(context, "Unknown access on property, should be readwrite read or write");
+-        return JS_FALSE;
++        goto fail;
+     }
+ 
+-    details->name = g_strdup(name);
+-    details->signature = g_strdup(signature);
++    details->name = name;
++    details->signature = signature;
+ 
++    g_free(access);
+     return JS_TRUE;
++
++ fail:
++    g_free(access);
++    g_free(signature);
++    g_free(name);
++    return JS_FALSE;
+ }
+ 
+ /* FALSE on exception, NULL property name in details if no such
+@@ -1432,13 +1450,15 @@ handle_introspect(JSContext      *context,
+             goto out;
+         }
+ 
+-        key = JS_GetStringBytes(key_str);
++        if (!gjs_string_to_utf8(context, keyval, &key))
++            goto out;
+ 
+         if (!gjs_object_require_property(context, dir_obj,
+                                          "dbus directory",
+                                          key, &valueval)) {
+             gjs_debug(GJS_DEBUG_DBUS,
+                       "Somehow failed to get property of dbus object");
++            g_free(key);
+             goto out;
+         }
+ 
+@@ -1447,6 +1467,7 @@ handle_introspect(JSContext      *context,
+             g_string_append_printf(doc, "  <node name=\"%s\"/>\n",
+                                    key);
+         }
++        g_free(key);
+ 
+         prop_id = JSID_VOID;
+         if (!JS_NextProperty(context, props_iter, &prop_id)) {
+@@ -1661,7 +1682,7 @@ exports_new_resolve(JSContext *context,
+                     JSObject **objp)
+ {
+     Exports *priv;
+-    const char *name;
++    char *name;
+ 
+     *objp = NULL;
+ 
+@@ -1670,6 +1691,7 @@ exports_new_resolve(JSContext *context,
+ 
+     priv = priv_from_js(context, obj);
+     gjs_debug_jsprop(GJS_DEBUG_DBUS, "Resolve prop '%s' hook obj %p priv %p", name, obj, priv);
++    g_free(name);
+ 
+     if (priv == NULL)
+         return JS_TRUE; /* we are the prototype, or have the wrong class */
+diff --git a/modules/dbus-values.c b/modules/dbus-values.c
+index 2d94c4a..f41a03b 100644
+--- a/modules/dbus-values.c
++++ b/modules/dbus-values.c
+@@ -101,7 +101,7 @@ gjs_js_one_value_from_dbus(JSContext       *context,
+                     DBusMessageIter entry_iter;
+                     jsval key_value, entry_value;
+                     JSString *key_str;
+-                    const char *key;
++                    char *key;
+ 
+                     dbus_message_iter_recurse(&array_iter, &entry_iter);
+ 
+@@ -121,7 +121,11 @@ gjs_js_one_value_from_dbus(JSContext       *context,
+ 
+                     key_str = JS_ValueToString(context, key_value);
+                     JS_AddStringRoot(context, &key_str);
+-                    key = JS_GetStringBytes(key_str);
++                    if (!gjs_string_to_utf8(context, key_value, &key)) {
++                        JS_RemoveValueRoot(context, &key_value);
++                        JS_RemoveObjectRoot(context, &obj);
++                        return JS_FALSE;
++                    }
+ 
+                     dbus_message_iter_next(&entry_iter);
+ 
+@@ -130,6 +134,7 @@ gjs_js_one_value_from_dbus(JSContext       *context,
+                     entry_value = JSVAL_VOID;
+                     JS_AddValueRoot(context, &entry_value);
+                     if (!gjs_js_one_value_from_dbus(context, &entry_iter, &entry_value)) {
++                        g_free(key);
+                         JS_RemoveValueRoot(context, &key_value);
+                         JS_RemoveStringRoot(context, &key_str);
+                         JS_RemoveValueRoot(context, &entry_value);
+@@ -140,6 +145,7 @@ gjs_js_one_value_from_dbus(JSContext       *context,
+                     if (!JS_DefineProperty(context, obj,
+                                            key, entry_value,
+                                            NULL, NULL, JSPROP_ENUMERATE)) {
++                        g_free(key);
+                         JS_RemoveValueRoot(context, &key_value);
+                         JS_RemoveStringRoot(context, &key_str);
+                         JS_RemoveValueRoot(context, &entry_value);
+@@ -147,6 +153,7 @@ gjs_js_one_value_from_dbus(JSContext       *context,
+                         return JS_FALSE;
+                     }
+ 
++                    g_free(key);
+                     JS_RemoveValueRoot(context, &key_value);
+                     JS_RemoveStringRoot(context, &key_str);
+                     JS_RemoveValueRoot(context, &entry_value);
+@@ -785,7 +792,7 @@ append_dict(JSContext         *context,
+         char *name;
+         jsval propval;
+         DBusMessageIter entry_iter;
+-        const char *value_signature;
++        char *value_signature;
+ 
+         if (!JS_IdToValue(context, prop_id, &nameval))
+             return JS_FALSE;
+@@ -815,8 +822,10 @@ append_dict(JSContext         *context,
+             }
+         }
+ 
+-        if (!gjs_object_require_property(context, props, "DBus append_dict", name, &propval))
++        if (!gjs_object_require_property(context, props, "DBus append_dict", name, &propval)) {
++            g_free(value_signature);
+             return JS_FALSE;
++        }
+ 
+         gjs_debug_dbus_marshal(" Adding property %s",
+                                name);
+@@ -827,6 +836,7 @@ append_dict(JSContext         *context,
+         if (JSVAL_IS_NULL(propval)) {
+             gjs_throw(context, "Property '%s' has a null value, can't send over dbus",
+                       name);
++            g_free(value_signature);
+             return JS_FALSE;
+         }
+ 
+@@ -855,6 +865,7 @@ append_dict(JSContext         *context,
+                 return JS_FALSE;
+ 
+             dbus_message_iter_close_container(&entry_iter, &variant_iter);
++            g_free(value_signature);
+         } else {
+             if (!gjs_js_one_value_to_dbus(context, propval, &entry_iter,
+                                           &dict_value_sig_iter))
+diff --git a/modules/dbus.c b/modules/dbus.c
+index f93f7ff..94267e8 100644
+--- a/modules/dbus.c
++++ b/modules/dbus.c
+@@ -120,14 +120,14 @@ prepare_call(JSContext   *context,
+              jsval       *argv,
+              DBusBusType  bus_type)
+ {
+-    DBusMessage *message;
+-    const char *bus_name;
+-    const char *path;
+-    const char *interface;
+-    const char *method;
++    DBusMessage *message = NULL;
++    char *bus_name = NULL;
++    char *path = NULL;
++    char *interface = NULL;
++    char *method = NULL;
+     gboolean    auto_start;
+-    const char *out_signature;
+-    const char *in_signature;
++    char *out_signature = NULL;
++    char *in_signature = NULL;
+     DBusMessageIter arg_iter;
+     DBusSignatureIter sig_iter;
+ 
+@@ -140,33 +140,33 @@ prepare_call(JSContext   *context,
+ 
+     path = gjs_string_get_ascii(context, argv[1]);
+     if (path == NULL)
+-        return NULL;
++        goto fail;
+ 
+     if (JSVAL_IS_NULL(argv[2])) {
+         interface = NULL;
+     } else {
+         interface = gjs_string_get_ascii(context, argv[2]);
+         if (interface == NULL)
+-            return NULL; /* exception was set */
++            goto fail; /* exception was set */
+     }
+ 
+     method = gjs_string_get_ascii(context, argv[3]);
+     if (method == NULL)
+-        return NULL;
++        goto fail;
+ 
+     out_signature = gjs_string_get_ascii(context, argv[4]);
+     if (out_signature == NULL)
+-        return NULL;
++        goto fail;
+ 
+     in_signature = gjs_string_get_ascii(context, argv[5]);
+     if (in_signature == NULL)
+-        return NULL;
++        goto fail;
+ 
+     g_assert(bus_name && path && method && in_signature && out_signature);
+ 
+     if (!JSVAL_IS_BOOLEAN(argv[6])) {
+         gjs_throw(context, "arg 7 must be boolean");
+-        return NULL;
++        goto fail;
+     }
+     auto_start = JSVAL_TO_BOOLEAN(argv[6]);
+ 
+@@ -180,7 +180,7 @@ prepare_call(JSContext   *context,
+                                            method);
+     if (message == NULL) {
+         gjs_throw(context, "Out of memory (or invalid args to dbus_message_new_method_call)");
+-        return NULL;
++        goto fail;
+     }
+ 
+     dbus_message_set_auto_start(message, auto_start);
+@@ -195,9 +195,17 @@ prepare_call(JSContext   *context,
+     if (!gjs_js_values_to_dbus(context, 0, argv[8], &arg_iter, &sig_iter)) {
+         gjs_debug(GJS_DEBUG_DBUS, "Failed to marshal call from JS to dbus");
+         dbus_message_unref(message);
+-        return NULL;
++        message = NULL;
+     }
+ 
++ fail:
++    g_free(in_signature);
++    g_free(out_signature);
++    g_free(method);
++    g_free(interface);
++    g_free(path);
++    g_free(bus_name);
++
+     return message;
+ }
+ 
+@@ -442,7 +450,7 @@ gjs_js_dbus_call_async(JSContext  *context,
+ }
+ 
+ static JSBool
+-fill_with_null_or_string(JSContext *context, const char **string_p, jsval value)
++fill_with_null_or_string(JSContext *context, char **string_p, jsval value)
+ {
+     if (JSVAL_IS_NULL(value))
+         *string_p = NULL;
+@@ -696,13 +704,14 @@ gjs_js_dbus_watch_signal(JSContext  *context,
+ {
+     jsval *argv = JS_ARGV(context, vp);
+     JSObject *obj = JS_THIS_OBJECT(context, vp);
+-    const char *bus_name;
+-    const char *object_path;
+-    const char *iface;
+-    const char *signal;
++    char *bus_name = NULL;
++    char *object_path = NULL;
++    char *iface = NULL;
++    char *signal = NULL;
+     SignalHandler *handler;
+     int id;
+     DBusBusType bus_type;
++    JSBool ret = JS_FALSE;
+ 
+     if (argc < 5) {
+         gjs_throw(context, "Not enough args, need bus name, object path, interface, signal and callback");
+@@ -720,18 +729,18 @@ gjs_js_dbus_watch_signal(JSContext  *context,
+     if (!fill_with_null_or_string(context, &bus_name, argv[0]))
+         return JS_FALSE;
+     if (!fill_with_null_or_string(context, &object_path, argv[1]))
+-        return JS_FALSE;
++        goto fail;
+     if (!fill_with_null_or_string(context, &iface, argv[2]))
+-        return JS_FALSE;
++        goto fail;
+     if (!fill_with_null_or_string(context, &signal, argv[3]))
+-        return JS_FALSE;
++        goto fail;
+ 
+     if (!get_bus_type_from_object(context, obj, &bus_type))
+-        return JS_FALSE;
++        goto fail;
+ 
+     handler = signal_handler_new(context, argv[4]);
+     if (handler == NULL)
+-        return JS_FALSE;
++        goto fail;
+ 
+     id = gjs_dbus_watch_signal(bus_type,
+                                bus_name,
+@@ -750,7 +759,15 @@ gjs_js_dbus_watch_signal(JSContext  *context,
+ 
+     JS_SET_RVAL(context, vp, INT_TO_JSVAL(id));
+ 
+-    return JS_TRUE;
++    ret = JS_TRUE;
++
++ fail:
++    g_free(signal);
++    g_free(iface);
++    g_free(object_path);
++    g_free(bus_name);
++
++    return ret;
+ }
+ 
+ /* Args are handler id */
+@@ -787,12 +804,13 @@ gjs_js_dbus_unwatch_signal(JSContext  *context,
+ {
+     jsval *argv = JS_ARGV(context, vp);
+     JSObject *obj = JS_THIS_OBJECT(context, vp);
+-    const char *bus_name;
+-    const char *object_path;
+-    const char *iface;
+-    const char *signal;
++    char *bus_name;
++    char *object_path;
++    char *iface;
++    char *signal;
+     SignalHandler *handler;
+     DBusBusType bus_type;
++    JSBool ret = JS_FALSE;
+ 
+     if (argc < 5) {
+         gjs_throw(context, "Not enough args, need bus name, object path, interface, signal and callback");
+@@ -813,22 +831,26 @@ gjs_js_dbus_unwatch_signal(JSContext  *context,
+     if (!fill_with_null_or_string(context, &bus_name, argv[0]))
+         return JS_FALSE;
+     if (!fill_with_null_or_string(context, &object_path, argv[1]))
+-        return JS_FALSE;
++        goto object_path_fail;
+     if (!fill_with_null_or_string(context, &iface, argv[2]))
+-        return JS_FALSE;
++        goto iface_fail;
+     if (!fill_with_null_or_string(context, &signal, argv[3]))
+-        return JS_FALSE;
++        goto signal_fail;
+ 
+     /* we don't complain if the signal seems to have been already removed
+      * or to never have been watched, to match g_signal_handler_disconnect
+      */
+-    if (!signal_handlers_by_callable)
+-        return JS_TRUE;
++    if (!signal_handlers_by_callable) {
++        ret = JS_TRUE;
++        goto free_and_exit;
++    }
+ 
+     handler = g_hash_table_lookup(signal_handlers_by_callable, JSVAL_TO_OBJECT(argv[4]));
+ 
+-    if (!handler)
+-        return JS_TRUE;
++    if (!handler) {
++        ret = JS_TRUE;
++        goto free_and_exit;
++    }
+ 
+     /* This should dispose the handler which should in turn
+      * remove it from the handler table
+@@ -844,7 +866,18 @@ gjs_js_dbus_unwatch_signal(JSContext  *context,
+     g_assert(g_hash_table_lookup(signal_handlers_by_callable,
+                                  JSVAL_TO_OBJECT(argv[4])) == NULL);
+ 
+-    return JS_TRUE;
++    ret = JS_TRUE;
++
++ free_and_exit:
++    g_free(signal);
++ signal_fail:
++    g_free(iface);
++ iface_fail:
++    g_free(object_path);
++ object_path_fail:
++    g_free(bus_name);
++
++    return ret;
+ }
+ 
+ /* Args are object_path, iface, signal, arguments signature, arguments */
+@@ -859,11 +892,12 @@ gjs_js_dbus_emit_signal(JSContext  *context,
+     DBusMessage *message;
+     DBusMessageIter arg_iter;
+     DBusSignatureIter sig_iter;
+-    const char *object_path;
+-    const char *iface;
+-    const char *signal;
+-    const char *in_signature;
++    char *object_path;
++    char *iface;
++    char *signal;
++    char *in_signature;
+     DBusBusType bus_type;
++    JSBool ret = JS_FALSE;
+ 
+     if (argc < 4) {
+         gjs_throw(context, "Not enough args, need object path, interface and signal and the arguments");
+@@ -883,16 +917,16 @@ gjs_js_dbus_emit_signal(JSContext  *context,
+         return JS_FALSE;
+     iface = gjs_string_get_ascii(context, argv[1]);
+     if (!iface)
+-        return JS_FALSE;
++        goto iface_fail;
+     signal = gjs_string_get_ascii(context, argv[2]);
+     if (!signal)
+-        return JS_FALSE;
++        goto signal_fail;
+     in_signature = gjs_string_get_ascii(context, argv[3]);
+     if (!in_signature)
+-        return JS_FALSE;
++        goto in_signature_fail;
+ 
+     if (!bus_check(context, bus_type))
+-        return JS_FALSE;
++        goto free_and_exit;
+ 
+     gjs_debug(GJS_DEBUG_DBUS,
+               "Emitting signal %s %s %s",
+@@ -912,14 +946,25 @@ gjs_js_dbus_emit_signal(JSContext  *context,
+ 
+     if (!gjs_js_values_to_dbus(context, 0, argv[4], &arg_iter, &sig_iter)) {
+         dbus_message_unref(message);
+-        return JS_FALSE;
++        goto free_and_exit;
+     }
+ 
+     dbus_connection_send(bus_connection, message, NULL);
+ 
+     dbus_message_unref(message);
+ 
+-    return JS_TRUE;
++    ret = JS_TRUE;
++
++ free_and_exit:
++    g_free(in_signature);
++ in_signature_fail:
++    g_free(signal);
++ signal_fail:
++    g_free(iface);
++ iface_fail:
++    g_free(object_path);
++
++    return ret;
+ }
+ 
+ /* Blocks until dbus outgoing message queue is empty.  This is the only way
+@@ -1117,7 +1162,7 @@ gjs_js_dbus_acquire_name(JSContext  *context,
+ {
+     jsval *argv = JS_ARGV(context, vp);
+     JSObject *obj = JS_THIS_OBJECT(context, vp);
+-    const char *bus_name;
++    char *bus_name;
+     JSObject *acquire_func;
+     JSObject *lost_func;
+     GjsJSDBusNameOwner *owner;
+@@ -1141,28 +1186,28 @@ gjs_js_dbus_acquire_name(JSContext  *context,
+     if (!JSVAL_IS_INT(argv[1])) {
+         gjs_throw(context, "Second arg is an integer representing the name type (single or multiple instances)\n"
+                      "Use the constants DBus.SINGLE_INSTANCE and DBus.MANY_INSTANCES, defined in the DBus module");
+-        return JS_FALSE;
++        goto fail;
+     }
+ 
+     name_type = (GjsDBusNameType)JSVAL_TO_INT(argv[1]);
+ 
+     if (!JSVAL_IS_OBJECT(argv[2])) {
+         gjs_throw(context, "Third arg is a callback to invoke on acquiring the name");
+-        return JS_FALSE;
++        goto fail;
+     }
+ 
+     acquire_func = JSVAL_TO_OBJECT(argv[2]);
+ 
+     if (!JSVAL_IS_OBJECT(argv[3])) {
+         gjs_throw(context, "Fourth arg is a callback to invoke on losing the name");
+-        return JS_FALSE;
++        goto fail;
+     }
+ 
+     lost_func = JSVAL_TO_OBJECT(argv[3]);
+ 
+     owner = g_slice_new0(GjsJSDBusNameOwner);
+ 
+-    owner->funcs.name = g_strdup(bus_name);
++    owner->funcs.name = bus_name;
+     owner->funcs.type = name_type;
+     owner->funcs.acquired = on_name_acquired;
+     owner->funcs.lost = on_name_lost;
+@@ -1191,11 +1236,15 @@ gjs_js_dbus_acquire_name(JSContext  *context,
+ 
+     if (!JS_NewNumberValue(context, (jsdouble)id, &retval)) {
+         gjs_throw(context, "Could not convert name owner id to jsval");
+-        return JS_FALSE;
++        goto fail;
+     }
+     JS_SET_RVAL(context, vp, retval);
+ 
+     return JS_TRUE;
++
++ fail:
++    g_free(bus_name);
++    return JS_FALSE;
+ }
+ 
+ /* Args are name owner monitor id */
+@@ -1354,7 +1403,7 @@ gjs_js_dbus_watch_name(JSContext  *context,
+ {
+     jsval *argv = JS_ARGV(context, vp);
+     JSObject *obj = JS_THIS_OBJECT(context, vp);
+-    const char *bus_name;
++    char *bus_name;
+     JSBool start_if_not_found;
+     JSObject *appeared_func;
+     JSObject *vanished_func;
+@@ -1377,19 +1426,19 @@ gjs_js_dbus_watch_name(JSContext  *context,
+     if (!JS_ValueToBoolean(context, argv[1], &start_if_not_found)) {
+         if (!JS_IsExceptionPending(context))
+             gjs_throw(context, "Second arg is a bool for whether to start the name if not found");
+-        return JS_FALSE;
++        goto fail;
+     }
+ 
+     if (!JSVAL_IS_OBJECT(argv[2])) {
+         gjs_throw(context, "Third arg is a callback to invoke on seeing the name");
+-        return JS_FALSE;
++        goto fail;
+     }
+ 
+     appeared_func = JSVAL_TO_OBJECT(argv[2]);
+ 
+     if (!JSVAL_IS_OBJECT(argv[3])) {
+         gjs_throw(context, "Fourth arg is a callback to invoke when the name vanishes");
+-        return JS_FALSE;
++        goto fail;
+     }
+ 
+     vanished_func = JSVAL_TO_OBJECT(argv[3]);
+@@ -1409,7 +1458,7 @@ gjs_js_dbus_watch_name(JSContext  *context,
+     g_closure_sink(watcher->vanished_closure);
+ 
+     watcher->bus_type = bus_type;
+-    watcher->bus_name = g_strdup(bus_name);
++    watcher->bus_name = bus_name;
+ 
+     /* Only add the invalidate notifier to one of the closures, should
+      * be enough */
+@@ -1425,6 +1474,10 @@ gjs_js_dbus_watch_name(JSContext  *context,
+ 
+     JS_SET_RVAL(context, vp, JSVAL_VOID);
+     return JS_TRUE;
++
++ fail:
++    g_free(bus_name);
++    return JS_FALSE;
+ }
+ 
+ /* a hook on getting a property; set value_p to override property's value.
+@@ -1436,7 +1489,7 @@ unique_name_getter(JSContext  *context,
+                    jsid        id,
+                    jsval      *value_p)
+ {
+-    const char *name;
++    char *name;
+     DBusConnection *bus_connection;
+     DBusBusType bus_type;
+ 
+@@ -1447,6 +1500,7 @@ unique_name_getter(JSContext  *context,
+         return JS_FALSE;
+ 
+     gjs_debug_jsprop(GJS_DEBUG_DBUS, "Get prop '%s' on dbus object", name);
++    g_free(name);
+ 
+     bus_check(context, bus_type);
+ 
+@@ -1473,7 +1527,7 @@ gjs_js_dbus_signature_length(JSContext  *context,
+                              jsval      *vp)
+ {
+     jsval *argv = JS_ARGV(context, vp);
+-    const char *signature;
++    char *signature;
+     DBusSignatureIter iter;
+     int length = 0;
+ 
+@@ -1488,6 +1542,7 @@ gjs_js_dbus_signature_length(JSContext  *context,
+ 
+     if (!dbus_signature_validate(signature, NULL)) {
+         gjs_throw(context, "Invalid signature");
++        g_free(signature);
+         return JS_FALSE;
+     }
+ 
+@@ -1502,6 +1557,7 @@ gjs_js_dbus_signature_length(JSContext  *context,
+     } while (dbus_signature_iter_next(&iter));
+ 
+  out:
++    g_free(signature);
+     JS_SET_RVAL(context, vp, INT_TO_JSVAL(length));
+ 
+     return JS_TRUE;
+@@ -1514,9 +1570,10 @@ gjs_js_dbus_start_service(JSContext  *context,
+ {
+     jsval *argv = JS_ARGV(context, vp);
+     JSObject *obj = JS_THIS_OBJECT(context, vp);
+-    const char     *name;
++    char     *name;
+     DBusBusType     bus_type;
+     DBusConnection *bus_connection;
++    JSBool ret = JS_FALSE;
+ 
+     if (argc != 1) {
+         gjs_throw(context, "Wrong number of arguments, expected service name");
+@@ -1528,16 +1585,20 @@ gjs_js_dbus_start_service(JSContext  *context,
+         return JS_FALSE;
+ 
+     if (!get_bus_type_from_object(context, obj, &bus_type))
+-        return JS_FALSE;
++        goto out;
+ 
+     if (!bus_check(context, bus_type))
+-        return JS_FALSE;
++        goto out;
+ 
+     bus_connection = DBUS_CONNECTION_FROM_TYPE(bus_type);
+ 
+     gjs_dbus_start_service(bus_connection, name);
+ 
+-    return JS_TRUE;
++    ret = JS_TRUE;
++
++ out:
++    g_free(name);
++    return ret;
+ }
+ 
+ static JSBool
