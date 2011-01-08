@@ -1,6 +1,6 @@
 Name:          mutter
-Version:       2.91.3
-Release:       2%{?dist}
+Version:       2.91.4
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -11,7 +11,7 @@ Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.91/%{name}-%{vers
 BuildRequires: clutter-devel >= 1.5.8
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
-BuildRequires: gtk3-devel >= 2.91.0
+BuildRequires: gtk3-devel >= 2.99.0
 BuildRequires: pkgconfig
 BuildRequires: GConf2-devel
 BuildRequires: gobject-introspection-devel
@@ -92,7 +92,7 @@ rm -rf %{buildroot}/%{_libdir}/*.la
 # Mutter contains a .desktop file so we just need to validate it
 desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 
-%pre 
+%pre
 if [ "$1" -gt 1 ]; then
   export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
   gconftool-2 --makefile-uninstall-rule \
@@ -100,7 +100,7 @@ if [ "$1" -gt 1 ]; then
     > /dev/null || :
 fi
 
-%preun 
+%preun
 if [ "$1" -eq 0 ]; then
   export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
   gconftool-2 --makefile-uninstall-rule \
@@ -108,7 +108,7 @@ if [ "$1" -eq 0 ]; then
     > /dev/null || :
 fi
 
-%post 
+%post
 /sbin/ldconfig
 export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
 gconftool-2 --makefile-install-rule \
@@ -142,6 +142,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Fri Jan  7 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.4-1
+- Update to 2.91.4
+
 * Fri Dec  3 2010 Matthias Clasen <mclasen@redhat.com> - 2.91.3-2
 - Rebuild against new gtk
 - Drop no longer needed %%clean etc
