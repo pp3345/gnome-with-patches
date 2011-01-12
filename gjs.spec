@@ -1,6 +1,6 @@
 Name:           gjs
-Version:        0.7.7
-Release:        3%{?dist}
+Version:        0.7.8
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -14,16 +14,8 @@ URL:            http://live.gnome.org/Gjs/
 Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/%{version}/%{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-Patch0: js-no-string-get-ascii.patch
-Patch1: js-always-utf8.patch
-Patch2: js-getstringbytes-1.patch
-Patch3: js-getstringbytes-2.patch
-Patch4: js-getfunctionname-1.patch
-Patch5: js-getfunctionname-2.patch
-Patch6: js-getfunctionname-3.patch
-
 BuildRequires: xulrunner-devel
-BuildRequires: gobject-introspection-devel
+BuildRequires: gobject-introspection-devel >= 0.10.1
 BuildRequires: dbus-glib-devel
 BuildRequires: intltool
 BuildRequires: pkgconfig
@@ -46,13 +38,6 @@ Files for development with %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .no-string-get-ascii
-%patch1 -p1 -b .always-utf8
-%patch2 -p1 -b .getstringbytes-1
-%patch3 -p1 -b .getstringbytes-2
-%patch4 -p1 -b .getfunctionname-1
-%patch5 -p1 -b .getfunctionname-2
-%patch6 -p1 -b .getfunctionname-3
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -97,6 +82,11 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Wed Jan 12 2011 Colin Walters <walters@verbum.org> - 0.7.8-1
+- Update to 0.7.8
+- Drop upstreamed patches
+- BR latest g-i for GI_TYPE_TAG_UNICHAR
+
 * Wed Dec 29 2010 Dan Williams <dcbw@redhat.com> - 0.7.7-3
 - Work around Mozilla JS API changes
 
