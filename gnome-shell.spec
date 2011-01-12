@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -12,7 +12,7 @@ Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.4.0
-%define gobject_introspection_version 0.9.8
+%define gobject_introspection_version 0.10.1
 %define mutter_version 2.91.3
 %define gjs_version 0.7.5
 
@@ -128,6 +128,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Jan 12 2011 Colin Walters <walters@verbum.org> - 2.91.5-2
+- BR latest g-i, handles flags as arguments better
+
 * Tue Jan 11 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.5-1
 - Update to 2.91.5
 
