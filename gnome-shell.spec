@@ -92,10 +92,8 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc COPYING README
 %{_bindir}/gnome-shell
-%{_bindir}/gnome-shell-clock-preferences
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/applications/gnome-shell.desktop
-%{_datadir}/applications/gnome-shell-clock-preferences.desktop
 %{_datadir}/gnome-shell/
 %{_libdir}/gnome-shell/
 %{_libdir}/mutter/plugins/libgnome-shell.so
