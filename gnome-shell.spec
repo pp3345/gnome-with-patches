@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        2.91.4
+Version:        2.91.5
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -130,6 +130,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Jan 11 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.5-1
+- Update to 2.91.5
+
 * Sat Jan  8 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.4-1
 - Update to 2.91.4
 - Rebuild against new gtk
