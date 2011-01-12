@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.91.5
-Release:        1%{?dist}
+Version:        2.91.0
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -8,13 +8,12 @@ License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:		git:git://git.gnome.org/gnome-shell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-%{version}.tar.bz2
-
 BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.4.0
-%define gobject_introspection_version 0.9.8
-%define mutter_version 2.91.3
-%define gjs_version 0.7.5
+%define gobject_introspection_version 0.10.1
+%define mutter_version 2.91.0
+%define gjs_version 0.7
 
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
@@ -28,12 +27,9 @@ BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  gstreamer-devel
 BuildRequires:  gtk3-devel
 BuildRequires:  intltool
-BuildRequires:  libcanberra-devel
-BuildRequires:  libcroco-devel
 # used in unused BigThemeImage
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
-BuildRequires:  pulseaudio-libs-devel
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
 
@@ -92,8 +88,10 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc COPYING README
 %{_bindir}/gnome-shell
+%{_bindir}/gnome-shell-clock-preferences
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/applications/gnome-shell.desktop
+%{_datadir}/applications/gnome-shell-clock-preferences.desktop
 %{_datadir}/gnome-shell/
 %{_libdir}/gnome-shell/
 %{_libdir}/mutter/plugins/libgnome-shell.so
@@ -128,33 +126,8 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
-* Tue Jan 11 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.5-1
-- Update to 2.91.5
-
-* Sat Jan  8 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.4-1
-- Update to 2.91.4
-- Rebuild against new gtk
-
-* Fri Dec  3 2010 Matthias Clasen <mclasen@redhat.com> - 2.91.3-2
-- Rebuild aginst new gtk
-
-* Mon Nov 29 2010 Owen Taylor <otaylor@redhat.com> - 2.91.2-1
-- Update to 2.91.3
-
-* Thu Nov 18 2010 Owen Taylor <otaylor@redhat.com> - 2.91.2-3
-- Add another memory-management crasher fix from upstream
-
-* Mon Nov 15 2010 Owen Taylor <otaylor@redhat.com> - 2.91.2-2
-- Add a patch from upstream fixing a memory-management crasher
-
-* Tue Nov  9 2010 Owen Taylor <otaylor@redhat.com> - 2.91.2-1
-- Update to 2.91.2
-
-* Mon Nov  1 2010 Owen Taylor <otaylor@redhat.com> - 2.91.1-1
-- Update to 2.91.1
-- Add libcroco-devel to BuildRequires, apparently it was getting
-  pulled in indirectly before
-- Add libcanberra-devel and pulseaudio-libs-devel BuildRequires
+* Wed Jan 12 2011 Colin Walters <walters@verbum.org> - 2.91.0-2
+- BR latest g-i to support flags for out-caller-allocates
 
 * Mon Oct  4 2010 Owen Taylor <otaylor@redhat.com> - 2.91.0-1
 - Update to 2.91.0
