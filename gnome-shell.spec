@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.5
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -37,8 +37,6 @@ BuildRequires:  pulseaudio-libs-devel
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
 
-# User interface to switch to GNOME Shell
-Requires:       desktop-effects
 # For %pre/%post usage of gconftool-2
 Requires:       GConf2
 # wrapper script uses to restart old GNOME session if run --replace
@@ -128,6 +126,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Thu Jan 13 2011 Mattihas Clasen <mclasen@redhat.com> - 2.91.5-3
+- Drop desktop-effects dependency
+
 * Wed Jan 12 2011 Colin Walters <walters@verbum.org> - 2.91.5-2
 - BR latest g-i, handles flags as arguments better
 
