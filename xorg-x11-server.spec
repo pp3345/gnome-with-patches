@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.99.1
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -88,6 +88,10 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # misc
 Patch7005: xserver-1.9.0-qxl-fallback.patch
+
+# 537708 xmodmap Mode_switch gets stuck on
+# http://patchwork.freedesktop.org/patch/3653/
+Patch7006: xserver-1.9.99.901-xkb-repeat-issues.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -548,6 +552,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jan 13 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.1-3
+- server-1.9-99.901-xkb-repeat-issues.patch: update xkb repeat flags when
+  the compat map updates (#537708)
+
 * Mon Dec 06 2010 Adam Tkac <atkac redhat com> 1.9.99.1-2
 - add more files to -source subpkg to fix TigerVNC build
 
