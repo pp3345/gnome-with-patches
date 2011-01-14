@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        0.7.9
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -82,6 +82,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Fri Jan 14 2011 Christopher Aillon <caillon@redhat.com> - 0.7.9-2
+- Rebuild for new xulrunner
+
 * Fri Jan 14 2011 Colin Walters <walters@verbum.org> - 0.7.9-1
 - 0.7.9
 
