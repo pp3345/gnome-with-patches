@@ -1,5 +1,5 @@
 Name:           gjs
-Version:        0.7.8
+Version:        0.7.9
 Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
@@ -82,6 +82,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Fri Jan 14 2011 Colin Walters <walters@verbum.org> - 0.7.9-1
+- 0.7.9
+
 * Wed Jan 12 2011 Colin Walters <walters@verbum.org> - 0.7.8-1
 - Update to 0.7.8
 - Drop upstreamed patches
