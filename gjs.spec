@@ -1,6 +1,6 @@
 Name:           gjs
-Version:        0.7.9
-Release:        3%{?dist}
+Version:        0.7.10
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -12,7 +12,6 @@ License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
 #VCS:           git://git.gnome.org/gjs
 Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/%{version}/%{name}-%{version}.tar.bz2
-Patch0:         gjs-0.7.9-ffb10.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: xulrunner-devel
@@ -39,7 +38,6 @@ Files for development with %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 -b .ffb10
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -84,6 +82,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Tue Jan 25 2011 Colin Walters <walters@verbum.org> - 0.7.10-1
+- New upstream release
+
 * Tue Jan 25 2011 Christopher Aillon <caillon@redhat.com> - 0.7.9-3
 - Rebuild for new xulrunner
 
