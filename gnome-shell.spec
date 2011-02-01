@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -15,10 +15,12 @@ BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 %define gobject_introspection_version 0.10.1
 %define mutter_version 2.91.3
 %define gjs_version 0.7.5
+%define eds_version 2.91.6
 
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
+BuildRequires:  evolution-data-server-devel >= %{eds_version}
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-menus-devel
@@ -126,6 +128,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Feb  1 2011 Owen Taylor <otaylor@redhat.com> - 2.91.6-2
+- Build-requires evolution-data-server-devel
+
 * Tue Feb  1 2011 Owen Taylor <otaylor@redhat.com> - 2.91.6-1
 - Update to 2.91.6
 
