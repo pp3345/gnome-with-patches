@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.6
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -128,6 +128,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Feb  2 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.6-3
+- Rebuild against newer gtk
+
 * Tue Feb  1 2011 Owen Taylor <otaylor@redhat.com> - 2.91.6-2
 - Build-requires evolution-data-server-devel
 
