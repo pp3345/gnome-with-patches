@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.6
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -36,9 +36,10 @@ BuildRequires:  libcroco-devel
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
 BuildRequires:  pulseaudio-libs-devel
+BuildRequires:  gnome-bluetooth-libs-devel >= 2.91
+BuildRequires:  gnome-bluetooth >= 2.91
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
-
 # For %pre/%post usage of gconftool-2
 Requires:       GConf2
 # wrapper script uses to restart old GNOME session if run --replace
@@ -128,6 +129,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Thu Feb  3 2011 Bill Nottingham <notting@redhat.com> - 2.91.6-4
+- buildrequire gnome-bluetooth to fix bluetooth status icon (#674874)
+
 * Wed Feb  2 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.6-3
 - Rebuild against newer gtk
 
