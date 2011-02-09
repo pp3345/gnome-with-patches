@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        0.7.10
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -82,6 +82,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.7.10-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Tue Jan 25 2011 Colin Walters <walters@verbum.org> - 0.7.10-1
 - New upstream release
 
