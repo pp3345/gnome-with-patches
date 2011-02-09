@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.6
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -129,6 +129,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.91.6-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Thu Feb  3 2011 Bill Nottingham <notting@redhat.com> - 2.91.6-4
 - buildrequire gnome-bluetooth to fix bluetooth status icon (#674874)
 
