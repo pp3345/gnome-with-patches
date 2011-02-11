@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        0.7.10
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -22,13 +22,11 @@ BuildRequires: pkgconfig
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
 
-# XULRunner has a versioned directory path, and we depend on the rpath
-# there for gjs-console to work.
-# This will to be updated every time xulrunner changes version.
+# This will have to be updated every time xulrunner changes version.
 # A better fix would be to get all of Fedora's spidermonkey consumers
 # to not depend on xulrunner.  See 
 # https://bugzilla.mozilla.org/show_bug.cgi?id=618381
-Requires: xulrunner = 2.0-0.19b11%{?dist}
+Requires: gecko-libs%{?_isa} = 2.0-beta11
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
@@ -90,6 +88,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Thu Feb 10 2011 Christopher Aillon <caillon@redhat.com> - 0.7.10-4
+- Require gecko-libs instead of xulrunner
+
 * Wed Feb  9 2011 Colin Walters <walters@verbum.org> - 0.7.10-3
 - Add a hardcoded Requires on xulrunner; see comment
 
