@@ -59,6 +59,9 @@ Requires:       mutter >= %{mutter_version}
 #Requires:       xorg-x11-server-Xephyr
 #Requires:       xorg-x11-xauth
 
+# upstream fix
+Patch0: gnome-shell-gtk3.patch
+
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
 like switching to windows and launching applications. GNOME Shell takes
@@ -68,6 +71,7 @@ easy to use experience.
 
 %prep
 %setup -q
+%patch0 -p1 -b .gtk3
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;

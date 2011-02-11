@@ -1,0 +1,12 @@
+diff -up gnome-shell-2.91.6/src/shell-doc-system.c.gtk3 gnome-shell-2.91.6/src/shell-doc-system.c
+--- gnome-shell-2.91.6/src/shell-doc-system.c.gtk3	2011-02-11 14:28:01.940113427 -0500
++++ gnome-shell-2.91.6/src/shell-doc-system.c	2011-02-11 14:27:38.853402050 -0500
+@@ -254,7 +254,7 @@ shell_doc_system_open (ShellDocSystem *s
+   else
+     {
+       char *app_name;
+-#if GTK_MINOR_VERSION >= 18
++#if GTK_MAJOR_VERSION >= 3 || GTK_MINOR_VERSION >= 18
+       const char *app_exec;
+ #else
+       char *app_exec;
