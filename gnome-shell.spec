@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.90
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -59,6 +59,8 @@ Requires:       mutter >= %{mutter_version}
 # developer-only thing and unlikely to be interesting for a normal user
 #Requires:       xorg-x11-server-Xephyr
 #Requires:       xorg-x11-xauth
+Requires:       upower
+Requires:       polkit >= 0.100
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -130,6 +132,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Feb 22 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.90-2
+- Require upower and polkit at runtime
+
 * Tue Feb 22 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.90-1
 - Update to 2.91.90
 
