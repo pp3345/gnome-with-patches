@@ -1,6 +1,6 @@
 Name:           gjs
-Version:        0.7.10
-Release:        4%{?dist}
+Version:        0.7.11
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -88,6 +88,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Tue Feb 22 2011 Owen Taylor <otaylor@redhat.com> - 0.7.11-1
+- Update to 0.7.11
+
 * Thu Feb 10 2011 Christopher Aillon <caillon@redhat.com> - 0.7.10-4
 - Require gecko-libs instead of xulrunner
 
