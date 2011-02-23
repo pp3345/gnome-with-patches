@@ -26,6 +26,7 @@ BuildRequires:  gnome-desktop3-devel
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  upower-devel
 BuildRequires:  polkit-devel
+BuildRequires:  telepathy-glib-devel
 # for screencast recorder functionality
 BuildRequires:  gstreamer-devel
 BuildRequires:  gtk3-devel
