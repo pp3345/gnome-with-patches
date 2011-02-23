@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.91.6
-Release:        6%{?dist}
+Version:        2.91.90
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -8,8 +8,6 @@ License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:		git:git://git.gnome.org/gnome-shell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-%{version}.tar.bz2
-
-BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -26,6 +24,8 @@ BuildRequires:  glib2-devel
 BuildRequires:  gnome-menus-devel
 BuildRequires:  gnome-desktop3-devel
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
+BuildRequires:  upower-devel
+BuildRequires:  polkit-devel
 # for screencast recorder functionality
 BuildRequires:  gstreamer-devel
 BuildRequires:  gtk3-devel
@@ -59,9 +59,6 @@ Requires:       mutter >= %{mutter_version}
 #Requires:       xorg-x11-server-Xephyr
 #Requires:       xorg-x11-xauth
 
-# upstream fix
-Patch0: gnome-shell-gtk3.patch
-
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
 like switching to windows and launching applications. GNOME Shell takes
@@ -71,7 +68,6 @@ easy to use experience.
 
 %prep
 %setup -q
-%patch0 -p1 -b .gtk3
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -133,6 +129,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Feb 22 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.90-1
+- Update to 2.91.90
+
 * Thu Feb 10 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.6-6
 - Rebuild against newer gtk
 
