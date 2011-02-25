@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        0.7.11
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -26,7 +26,7 @@ BuildRequires: gtk-doc gnome-common
 # A better fix would be to get all of Fedora's spidermonkey consumers
 # to not depend on xulrunner.  See 
 # https://bugzilla.mozilla.org/show_bug.cgi?id=618381
-Requires: gecko-libs%{?_isa} = 2.0-beta11
+Requires: gecko-libs%{?_isa} = 2.0-beta12
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
@@ -88,6 +88,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Fri Feb 25 2011 Christopher Aillon <caillon@redhat.com> - 0.7.11-2
+- Rebuild against newer gecko
+
 * Tue Feb 22 2011 Owen Taylor <otaylor@redhat.com> - 0.7.11-1
 - Update to 0.7.11
 
