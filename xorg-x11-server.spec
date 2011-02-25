@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.9.99.1
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -98,7 +98,10 @@ Patch7006: xserver-1.9.99.901-xkb-repeat-issues.patch
 Patch7007: xserver-1.9.99.1-xkb-split-out-keymap-compilation.patch
 # d3499556d8d83396fa2585bd00371a81e086be36
 Patch7008: xserver-1.9.99.1-xkb-if-the-keymap-failed-to-compile-load-the-default.patch
-
+# beea2378f142556471c62290e275935af848e137
+Patch7009: xserver-1.9.99.1-xfree86-don-t-overwrite-option-list-32115.patch
+# 9db9e964f6ca553dcbd3b7b037745d9581eaa065
+Patch7010: xserver-1.9.99.1-xfree86-swap-the-order-to-be-merged-lists-in-xf86Col.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -559,6 +562,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Feb 25 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.1-6.20101201
+- xserver-1.9.99.1-xfree86-don-t-overwrite-option-list-32115.patch (#676827)
+- xserver-1.9.99.1-xfree86-swap-the-order-to-be-merged-lists-in-xf86Col.patch
+  (#676827)
+
 * Thu Feb 24 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.1-5.20101201
 - xserver-1.9.99.1-xkb-split-out-keymap-compilation.patch (#676827 prep work)
 - xserver-1.9.99.1-xkb-if-the-keymap-failed-to-compile-load-the-default.patch
