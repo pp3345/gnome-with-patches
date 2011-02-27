@@ -1,4 +1,4 @@
-From 2cf7928ed74cbd94e423788a8341bf9a647d0dd9 Mon Sep 17 00:00:00 2001
+From ebc70eaa0f7a60e7fb88f3173b3e86a78ab9be79 Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Tue, 28 Jul 2009 11:07:13 -0400
 Subject: [PATCH] RANDR: right-of placement by default
@@ -11,7 +11,7 @@ allows for servers like RN50 where two heads are disjoint. - airlied]
  2 files changed, 74 insertions(+), 9 deletions(-)
 
 diff --git a/hw/xfree86/common/xf86str.h b/hw/xfree86/common/xf86str.h
-index ce6b07f..dbac7c5 100644
+index 0493dc5..d66e373 100644
 --- a/hw/xfree86/common/xf86str.h
 +++ b/hw/xfree86/common/xf86str.h
 @@ -496,10 +496,13 @@ typedef struct _confdrirec {
@@ -21,7 +21,7 @@ index ce6b07f..dbac7c5 100644
 -#define NUM_RESERVED_INTS		16
 +#define NUM_RESERVED_INTS		15
  #define NUM_RESERVED_POINTERS		14
- #define NUM_RESERVED_FUNCS		11
+ #define NUM_RESERVED_FUNCS		10
  
 +/* let clients know they can use this */
 +#define XF86_SCRN_HAS_PREFER_CLONE 1
@@ -29,7 +29,7 @@ index ce6b07f..dbac7c5 100644
  typedef pointer (*funcPointer)(void);
  
  /* flags for depth 24 pixmap options */
-@@ -665,7 +668,6 @@ typedef void xf86SetOverscanProc          (ScrnInfoPtr, int);
+@@ -659,7 +662,6 @@ typedef void xf86ModeSetProc              (ScrnInfoPtr);
   * are to be dependent on compile-time defines.
   */
  
@@ -37,7 +37,7 @@ index ce6b07f..dbac7c5 100644
  typedef struct _ScrnInfoRec {
      int			driverVersion;
      char *		driverName;		/* canonical name used in */
-@@ -767,6 +769,9 @@ typedef struct _ScrnInfoRec {
+@@ -761,6 +763,9 @@ typedef struct _ScrnInfoRec {
      ClockRangePtr	clockRanges;
      int			adjustFlags;
  
@@ -48,10 +48,10 @@ index ce6b07f..dbac7c5 100644
       * These can be used when the minor ABI version is incremented.
       * The NUM_* parameters must be reduced appropriately to keep the
 diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
-index 7fc2a60..5875731 100644
+index b5e9dc2..38ce9d0 100644
 --- a/hw/xfree86/modes/xf86Crtc.c
 +++ b/hw/xfree86/modes/xf86Crtc.c
-@@ -1139,6 +1139,15 @@ xf86InitialOutputPositions (ScrnInfoPtr scrn, DisplayModePtr *modes)
+@@ -1169,6 +1169,15 @@ xf86InitialOutputPositions (ScrnInfoPtr scrn, DisplayModePtr *modes)
      int			o;
      int			min_x, min_y;
      
@@ -67,7 +67,7 @@ index 7fc2a60..5875731 100644
      for (o = 0; o < config->num_output; o++)
      {
  	xf86OutputPtr	output = config->output[o];
-@@ -2023,6 +2032,57 @@ bestModeForAspect(xf86CrtcConfigPtr config, Bool *enabled, float aspect)
+@@ -2052,6 +2061,57 @@ bestModeForAspect(xf86CrtcConfigPtr config, Bool *enabled, float aspect)
      return match;
  }
  
@@ -125,7 +125,7 @@ index 7fc2a60..5875731 100644
  static Bool
  xf86TargetPreferred(ScrnInfoPtr scrn, xf86CrtcConfigPtr config,
  		    DisplayModePtr *modes, Bool *enabled,
-@@ -2080,13 +2140,9 @@ xf86TargetPreferred(ScrnInfoPtr scrn, xf86CrtcConfigPtr config,
+@@ -2109,13 +2169,9 @@ xf86TargetPreferred(ScrnInfoPtr scrn, xf86CrtcConfigPtr config,
       * biggest mode for its aspect ratio, assuming one exists.
       */
      if (!ret) do {
@@ -140,7 +140,7 @@ index 7fc2a60..5875731 100644
  	    break;
  
  	p = -1;
-@@ -2380,6 +2436,8 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
+@@ -2409,6 +2465,8 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
      } else {
  	if (xf86TargetUserpref(scrn, config, modes, enabled, width, height))
  	    xf86DrvMsg(i, X_INFO, "Using user preference for initial modes\n");
@@ -149,7 +149,7 @@ index 7fc2a60..5875731 100644
  	else if (xf86TargetPreferred(scrn, config, modes, enabled, width, height))
  	    xf86DrvMsg(i, X_INFO, "Using exact sizes for initial modes\n");
  	else if (xf86TargetAspect(scrn, config, modes, enabled, width, height))
-@@ -2397,8 +2455,10 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
+@@ -2426,8 +2484,10 @@ xf86InitialConfiguration (ScrnInfoPtr scrn, Bool canGrow)
  			config->output[o]->name);
  	else
  	    xf86DrvMsg (scrn->scrnIndex, X_INFO,
@@ -163,5 +163,5 @@ index 7fc2a60..5875731 100644
  
      /*
 -- 
-1.7.3.2
+1.7.4
 
