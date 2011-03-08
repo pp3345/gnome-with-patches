@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.91.90
-Release:        2%{?dist}
+Version:        2.91.91
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -11,7 +11,7 @@ Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
-%define mutter_version 2.91.3
+%define mutter_version 2.91.91
 %define gjs_version 0.7.5
 %define eds_version 2.91.6
 
@@ -96,12 +96,13 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %doc COPYING README
 %{_bindir}/gnome-shell
+%{_bindir}/gnome-shell-extension-tool
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/applications/gnome-shell.desktop
 %{_datadir}/gnome-shell/
+%{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
 %{_libdir}/gnome-shell/
-%{_libdir}/mutter/plugins/libgnome-shell.so
-%{_sysconfdir}/xdg/menus/*.menu
+%{_libexecdir}/gnome-shell-calendar-server
 %{_sysconfdir}/gconf/schemas/gnome-shell.schemas
 %{_mandir}/man1/%{name}.1.gz
 
@@ -132,6 +133,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Mar  8 2011 Owen Taylor <otaylor@redhat.com> - 2.91.91-1
+- Update to 2.91.91
+
 * Tue Feb 22 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.90-2
 - Require upower and polkit at runtime
 
