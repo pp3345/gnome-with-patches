@@ -1,6 +1,6 @@
 Name:          mutter
-Version:       2.91.90
-Release:       2%{?dist}
+Version:       2.91.91
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -143,6 +143,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Mon Mar  7 2011 Owen Taylor <otaylor@redhat.com> - 2.91.91-1
+- Update to 2.91.91
+
 * Tue Mar  1 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.90-2
 - Build against libcanberra, to enable AccessX feedback features
 
