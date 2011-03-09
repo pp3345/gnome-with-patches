@@ -17,20 +17,20 @@
 # because rpm is a terrible language.  HTFU.
 %define ansic_major 0
 %define ansic_minor 4
-%define videodrv_major 9
+%define videodrv_major 10
 %define videodrv_minor 0
 %define xinput_major 12
-%define xinput_minor 0
-%define extension_major 4
+%define xinput_minor 2
+%define extension_major 5
 %define extension_minor 0
 
 %define pkgname xorg-server
-%define gitdate 20101201
+#define gitdate 20110225
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.9.99.1
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.10.0
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -58,8 +58,6 @@ Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 # for requires generation in drivers
 Source30:  xserver-sdk-abi-requires
 
-Patch5: xserver-1.4.99-pic-libxf86config.patch
-
 # OpenGL compositing manager feature/optimization patches.
 # FIXME: who calls this?
 #Patch103:  xserver-1.5.0-bg-none-root.patch
@@ -77,10 +75,7 @@ Patch6016: xserver-1.6.1-nouveau.patch
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
 Patch6030: xserver-1.6.99-right-of.patch
-Patch6033: xserver-1.6.99-default-modes.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
-
-Patch6049: xserver-1.7.1-multilib.patch
 
 # Use vesa for VirtualBox, since we don't ship vboxvideo and the
 # fallback to vesa when module is missing seems broken
@@ -88,20 +83,6 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # misc
 Patch7005: xserver-1.9.0-qxl-fallback.patch
-
-# 537708 xmodmap Mode_switch gets stuck on
-# http://patchwork.freedesktop.org/patch/3653/
-Patch7006: xserver-1.9.99.901-xkb-repeat-issues.patch
-
-# 676827 keyboard with german layout doesn't work in gdm
-# 47d1d2fed656c3a3b2600491078da90962c46934
-Patch7007: xserver-1.9.99.1-xkb-split-out-keymap-compilation.patch
-# d3499556d8d83396fa2585bd00371a81e086be36
-Patch7008: xserver-1.9.99.1-xkb-if-the-keymap-failed-to-compile-load-the-default.patch
-# beea2378f142556471c62290e275935af848e137
-Patch7009: xserver-1.9.99.1-xfree86-don-t-overwrite-option-list-32115.patch
-# 9db9e964f6ca553dcbd3b7b037745d9581eaa065
-Patch7010: xserver-1.9.99.1-xfree86-swap-the-order-to-be-merged-lists-in-xf86Col.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -402,7 +383,6 @@ install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}
 %define xserver_source_dir %{_datadir}/xorg-x11-server-source
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
 mkdir -p %{inst_srcdir}/{doc/xml{,/dtrace},Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
-cp cpprules.in %{inst_srcdir}
 cp {,%{inst_srcdir}/}doc/xml/xmlrules.in
 cp {,%{inst_srcdir}/}doc/xml/xmlrules-noinst.in
 cp {,%{inst_srcdir}/}doc/xml/xmlrules-inst.in
@@ -448,9 +428,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_localstatedir}/lib/xkb
 %{_localstatedir}/lib/xkb/README.compiled
 
-%if 0%{?fedora} < 15
+%if 1
 %define Xorgperms %attr(4711, root, root)
 %else
+# disable until module loading is audited
 %define Xorgperms %attr(0711,root,root) %caps(cap_sys_admin,cap_sys_rawio,cap_dac_override=pe)
 %endif
 
@@ -500,6 +481,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man4/fbdevhw.4*
 %{_mandir}/man4/exa.4*
 %{_mandir}/man5/xorg.conf.5*
+%{_mandir}/man5/xorg.conf.d.5*
 %dir %{_sysconfdir}/X11/xorg.conf.d
 %dir %{_datadir}/X11/xorg.conf.d
 %{_datadir}/X11/xorg.conf.d/10-evdev.conf
@@ -562,6 +544,20 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Mar 09 2011 Adam Jackson <ajax@redhat.com> 1.10.0-2
+- Merge from F16:
+
+    * Wed Mar 09 2011 Adam Jackson <ajax@redhat.com> 1.10.0-2
+    - Disable filesystem caps in paranoia until module loading is audited
+
+    * Fri Feb 25 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.902-1
+    - xserver 1.10.0
+    - server-1.9-99.901-xkb-repeat-issues.patch: drop, merged
+    - xserver-1.4.99-pic-libxf86config.patch: drop, see 60801ff8
+    - xserver-1.6.99-default-modes.patch: drop, see dc498b4
+    - xserver-1.7.1-multilib.patch: drop, see a16e282
+    - ABI bumps: xinput to 12.2, extension to 5.0, video to 10.0
+
 * Fri Feb 25 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.1-6.20101201
 - xserver-1.9.99.1-xfree86-don-t-overwrite-option-list-32115.patch (#676827)
 - xserver-1.9.99.1-xfree86-swap-the-order-to-be-merged-lists-in-xf86Col.patch
