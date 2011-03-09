@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.0
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -429,9 +429,10 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_localstatedir}/lib/xkb
 %{_localstatedir}/lib/xkb/README.compiled
 
-%if 0%{?fedora} < 15
+%if 1
 %define Xorgperms %attr(4711, root, root)
 %else
+# disable until module loading is audited
 %define Xorgperms %attr(0711,root,root) %caps(cap_sys_admin,cap_sys_rawio,cap_dac_override=pe)
 %endif
 
@@ -544,6 +545,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Mar 09 2011 Adam Jackson <ajax@redhat.com> 1.10.0-2
+- Disable filesystem caps in paranoia until module loading is audited
+
 * Fri Feb 25 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.902-1
 - xserver 1.10.0
 - server-1.9-99.901-xkb-repeat-issues.patch: drop, merged
