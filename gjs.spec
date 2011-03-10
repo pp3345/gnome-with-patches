@@ -1,3 +1,5 @@
+%global gecko_version 2.0-rc1
+
 Name:           gjs
 Version:        0.7.11
 Release:        3%{?dist}
@@ -14,7 +16,7 @@ URL:            http://live.gnome.org/Gjs/
 Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/%{version}/%{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires: xulrunner-devel
+BuildRequires: gecko-devel-unstable = %{gecko_version}
 BuildRequires: gobject-introspection-devel >= 0.10.1
 BuildRequires: dbus-glib-devel
 BuildRequires: intltool
@@ -26,7 +28,7 @@ BuildRequires: gtk-doc gnome-common
 # A better fix would be to get all of Fedora's spidermonkey consumers
 # to not depend on xulrunner.  See 
 # https://bugzilla.mozilla.org/show_bug.cgi?id=618381
-Requires: gecko-libs%{?_isa} = 2.0-rc1
+Requires: gecko-libs%{?_isa} = %{gecko_version}
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
