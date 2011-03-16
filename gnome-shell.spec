@@ -1,13 +1,15 @@
 Name:           gnome-shell
 Version:        2.91.91
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
-#VCS:		git:git://git.gnome.org/gnome-shell
+#VCS:           git:git://git.gnome.org/gnome-shell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-%{version}.tar.bz2
+# patch from https://bugzilla.gnome.org/show_bug.cgi?id=644206
+Patch0:         gnome-shell-2.91.91-multihead_alt_tab.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -71,6 +73,7 @@ easy to use experience.
 
 %prep
 %setup -q
+%patch0 -p1 -b .multihead_alt_tab
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -133,6 +136,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Mar 16 2011 Michel Salim <salimma@fedoraproject.org> - 2.91.91-2
+- Fix alt-tab behavior on when primary display is not leftmost (# 683932)
+
 * Tue Mar  8 2011 Owen Taylor <otaylor@redhat.com> - 2.91.91-1
 - Update to 2.91.91
 
