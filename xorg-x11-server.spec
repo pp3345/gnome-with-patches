@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.0
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -83,6 +83,9 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # misc
 Patch7005: xserver-1.9.0-qxl-fallback.patch
+
+Patch7006: xserver-1.10-pointer-barriers.patch
+Patch7007: xserver-1.10-vbe-malloc.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -544,6 +547,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Mar 17 2011 Adam Jackson <ajax@redhat.com> 1.10.0-4
+- xserver-1.10-pointer-barriers.patch: Backport CRTC confinement from master
+  and pointer barriers from the development tree for same.
+- xserver-1.10-vbe-malloc.patch: Fix a buffer overrun in the VBE code.
+
 * Fri Mar 11 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.10.0-3
 - Add Xen virtual pointer quirk to 10-quirks.conf (#523914, #679699)
 
