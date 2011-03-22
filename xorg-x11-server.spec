@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.0
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -387,6 +387,7 @@ install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}
 %define xserver_source_dir %{_datadir}/xorg-x11-server-source
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
 mkdir -p %{inst_srcdir}/{doc/xml{,/dtrace},Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
+mkdir -p %{inst_srcdir}/{hw/dmx/doc,doc/man}
 cp {,%{inst_srcdir}/}doc/xml/xmlrules.in
 cp {,%{inst_srcdir}/}doc/xml/xmlrules-noinst.in
 cp {,%{inst_srcdir}/}doc/xml/xmlrules-inst.in
@@ -394,6 +395,9 @@ cp {,%{inst_srcdir}/}doc/xml/xserver.ent.in
 cp {,%{inst_srcdir}/}doc/xml/Xserver-spec.xml
 cp {,%{inst_srcdir}/}doc/xml/dtrace/Xserver-DTrace.xml
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
+cp {,%{inst_srcdir}/}hw/dmx/doc/doxygen.conf.in
+cp {,%{inst_srcdir}/}doc/man/Xserver.man
+cp {,%{inst_srcdir}/}doc/smartsched
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
@@ -548,6 +552,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Mar 22 2011 Adam Tkac <atkac redhat com> 1.10.0-5
+- add more files into -source subpkg
+
 * Thu Mar 17 2011 Adam Jackson <ajax@redhat.com> 1.10.0-4
 - xserver-1.10-pointer-barriers.patch: Backport CRTC confinement from master
   and pointer barriers from the development tree for same.
