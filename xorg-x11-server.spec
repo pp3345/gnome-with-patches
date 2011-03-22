@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.0
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,7 +76,6 @@ Patch6016: xserver-1.6.1-nouveau.patch
 Patch6027: xserver-1.6.0-displayfd.patch
 Patch6030: xserver-1.6.99-right-of.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
-
 
 # Use vesa for VirtualBox, since we don't ship vboxvideo and the
 # fallback to vesa when module is missing seems broken
@@ -552,6 +551,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Mar 22 2011 Adam Jackson <ajax@redhat.com> 1.10.0-6
+- Fix thinko in pointer barrier patch
+
 * Tue Mar 22 2011 Adam Tkac <atkac redhat com> 1.10.0-5
 - add more files into -source subpkg
 
@@ -564,15 +566,28 @@ rm -rf $RPM_BUILD_ROOT
 - Add Xen virtual pointer quirk to 10-quirks.conf (#523914, #679699)
 
 * Wed Mar 09 2011 Adam Jackson <ajax@redhat.com> 1.10.0-2
-- Disable filesystem caps in paranoia until module loading is audited
+- Merge from F16:
 
-* Fri Feb 25 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.902-1
-- xserver 1.10.0
-- server-1.9-99.901-xkb-repeat-issues.patch: drop, merged
-- xserver-1.4.99-pic-libxf86config.patch: drop, see 60801ff8
-- xserver-1.6.99-default-modes.patch: drop, see dc498b4
-- xserver-1.7.1-multilib.patch: drop, see a16e282
-- ABI bumps: xinput to 12.2, extension to 5.0, video to 10.0
+    * Wed Mar 09 2011 Adam Jackson <ajax@redhat.com> 1.10.0-2
+    - Disable filesystem caps in paranoia until module loading is audited
+
+    * Fri Feb 25 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.902-1
+    - xserver 1.10.0
+    - server-1.9-99.901-xkb-repeat-issues.patch: drop, merged
+    - xserver-1.4.99-pic-libxf86config.patch: drop, see 60801ff8
+    - xserver-1.6.99-default-modes.patch: drop, see dc498b4
+    - xserver-1.7.1-multilib.patch: drop, see a16e282
+    - ABI bumps: xinput to 12.2, extension to 5.0, video to 10.0
+
+* Fri Feb 25 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.1-6.20101201
+- xserver-1.9.99.1-xfree86-don-t-overwrite-option-list-32115.patch (#676827)
+- xserver-1.9.99.1-xfree86-swap-the-order-to-be-merged-lists-in-xf86Col.patch
+  (#676827)
+
+* Thu Feb 24 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.9.99.1-5.20101201
+- xserver-1.9.99.1-xkb-split-out-keymap-compilation.patch (#676827 prep work)
+- xserver-1.9.99.1-xkb-if-the-keymap-failed-to-compile-load-the-default.patch
+  (#676827 fix)
 
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.9.99.1-4.20101201
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild

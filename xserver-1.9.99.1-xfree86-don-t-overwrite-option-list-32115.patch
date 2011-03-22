@@ -1,0 +1,41 @@
+From beea2378f142556471c62290e275935af848e137 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Mon, 6 Dec 2010 14:33:43 +1000
+Subject: [PATCH] xfree86: don't overwrite option list (#32115)
+
+Options set in the configuration file were unconditionally overwritten by
+the server. Merge the already existing options and the new options together
+instead of just overwriting ones.
+
+Introduced in commit 2199842ed50b3eb40d54146827fc58cae7e873ec
+Author: Peter Hutterer <peter.hutterer@who-t.net>
+Date:   Thu Sep 2 10:52:54 2010 +1000
+
+    xfree86: remove extraOptions field from IDevRec.
+
+X.Org Bug 32115 <http://bugs.freedesktop.org/show_bug.cgi?id=32115>
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Dan Nicholson <dbn.lists@gmail.com>
+Tested-by: David Ronis <ronis@ronispc.chem.mcgill.ca>
+---
+ hw/xfree86/common/xf86Config.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Config.c b/hw/xfree86/common/xf86Config.c
+index 5800700..c352f3c 100644
+--- a/hw/xfree86/common/xf86Config.c
++++ b/hw/xfree86/common/xf86Config.c
+@@ -1465,7 +1465,8 @@ configInputDevices(XF86ConfLayoutPtr layout, serverLayoutPtr servlayoutp)
+ 	    free(indp);
+ 	    return FALSE;
+ 	}
+-	indp[count]->options = irp->iref_option_lst;
++	indp[count]->options = xf86OptionListMerge(indp[count]->options,
++						   irp->iref_option_lst);
+ 	count++;
+ 	irp = (XF86ConfInputrefPtr)irp->list.next;
+     }
+-- 
+1.7.4
+

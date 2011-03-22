@@ -1,0 +1,69 @@
+From d3499556d8d83396fa2585bd00371a81e086be36 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Thu, 10 Feb 2011 15:12:14 +1000
+Subject: [PATCH] xkb: if the keymap failed to compile, load the default keymap instead.
+
+We really need symbols, compat, keynames, vmods and types for a sensible keymap.
+
+Try this in your xorg.conf.d snippets for all keyboards:
+        Option "XkbLayout" "us"
+        Option "XkbVariant" "nodeadkeys"
+
+us(nodeadkeys) doesn't exist so xkbcomp provides everything but the symbols
+map. We say we want everything but don't _need_ anything, the server happily
+gives us a keymap with every key mapped to NoSymbol. This in turn isn't what
+we want after all.
+
+So instead, require symbols, compat, keynames, vmods and types from the
+keymap and if that fails, load the default keymap instead. If that fails
+too, all bets are off.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Dan Nicholson <dbn.lists@gmail.com>
+---
+ xkb/ddxLoad.c |   23 ++++++++++++++++++++++-
+ 1 files changed, 22 insertions(+), 1 deletions(-)
+
+diff --git a/xkb/ddxLoad.c b/xkb/ddxLoad.c
+index b968c43..ac587fc 100644
+--- a/xkb/ddxLoad.c
++++ b/xkb/ddxLoad.c
+@@ -470,13 +470,34 @@ XkbDescPtr
+ XkbCompileKeymap(DeviceIntPtr dev, XkbRMLVOSet *rmlvo)
+ {
+     XkbDescPtr xkb;
++    unsigned int need;
+ 
+     if (!dev || !rmlvo) {
+         LogMessage(X_ERROR, "XKB: No device or RMLVO specified\n");
+         return NULL;
+     }
+ 
+-    xkb = XkbCompileKeymapForDevice(dev, rmlvo, 0);
++    /* These are the components we really really need */
++    need = XkmSymbolsMask | XkmCompatMapMask | XkmTypesMask |
++           XkmKeyNamesMask | XkmVirtualModsMask;
++
++
++    xkb = XkbCompileKeymapForDevice(dev, rmlvo, need);
++
++    if (!xkb) {
++        XkbRMLVOSet dflts;
++
++        /* we didn't get what we really needed. And that will likely leave
++         * us with a keyboard that doesn't work. Use the defaults instead */
++        LogMessage(X_ERROR, "XKB: Failed to load keymap. Loading default "
++                   "keymap instead.\n");
++
++        XkbGetRulesDflts(&dflts);
++
++        xkb = XkbCompileKeymapForDevice(dev, &dflts, 0);
++
++        XkbFreeRMLVOSet(&dflts, FALSE);
++    }
+ 
+     return xkb;
+ }
+-- 
+1.7.4
+
