@@ -1,8 +1,8 @@
-%global gecko_version 2.0-rc2
+%global gecko_version 2.0
 
 Name:           gjs
 Version:        0.7.13
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -90,6 +90,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Tue Mar 22 2011 Christopher Aillon <caillon@redhat.com> - 0.7.13-3
+- Rebuild against newer gecko
+
 * Fri Mar 18 2011 Christopher Aillon <caillon@redhat.com> - 0.7.13-2
 - Rebuild against newer gecko
 
