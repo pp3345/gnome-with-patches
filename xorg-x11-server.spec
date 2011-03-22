@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.0
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -551,6 +551,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Mar 22 2011 Adam Jackson <ajax@redhat.com> 1.10.0-6
+- Fix thinko in pointer barrier patch
+
 * Tue Mar 22 2011 Adam Tkac <atkac redhat com> 1.10.0-5
 - add more files into -source subpkg
 

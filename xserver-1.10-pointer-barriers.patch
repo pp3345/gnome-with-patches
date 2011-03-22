@@ -949,7 +949,7 @@ index e8c7bf1..a57884b 100644
 +    X_XFixesChangeCursorByName,	    /* Version 2 */
 +    X_XFixesExpandRegion,	    /* Version 3 */
 +    X_XFixesShowCursor,		    /* Version 4 */
-+    X_XFixesCreatePointerBarrier,   /* Version 5 */
++    X_XFixesDestroyPointerBarrier,  /* Version 5 */
  };
  
  #define NUM_VERSION_REQUESTS	(sizeof (version_requests) / sizeof (version_requests[0]))
