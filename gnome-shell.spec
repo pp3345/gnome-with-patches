@@ -11,7 +11,7 @@ Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
-%define mutter_version 2.91.91
+%define mutter_version 2.91.92
 %define gjs_version 0.7.5
 %define eds_version 2.91.6
 
@@ -27,6 +27,7 @@ BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  upower-devel
 BuildRequires:  polkit-devel
 BuildRequires:  telepathy-glib-devel
+BuildRequires:  telepathy-logger-devel
 # for screencast recorder functionality
 BuildRequires:  gstreamer-devel
 BuildRequires:  gtk3-devel
