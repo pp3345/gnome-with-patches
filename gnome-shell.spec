@@ -34,6 +34,8 @@ BuildRequires:  gtk3-devel
 BuildRequires:  intltool
 BuildRequires:  libcanberra-devel
 BuildRequires:  libcroco-devel
+# for barriers
+BuildRequires:  libXfixes-devel >= 5.0
 # used in unused BigThemeImage
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
