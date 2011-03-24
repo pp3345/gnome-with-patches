@@ -27,7 +27,7 @@ BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  upower-devel
 BuildRequires:  polkit-devel
 BuildRequires:  telepathy-glib-devel
-BuildRequires:  telepathy-logger-devel
+BuildRequires:  telepathy-logger-devel >= 0.2.6
 # for screencast recorder functionality
 BuildRequires:  gstreamer-devel
 BuildRequires:  gtk3-devel
