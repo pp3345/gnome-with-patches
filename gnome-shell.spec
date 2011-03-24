@@ -81,7 +81,6 @@ easy to use experience.
 make V=1 %{?_smp_mflags}
 
 %install
-rm -rf %{buildroot}
 export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 make install DESTDIR=$RPM_BUILD_ROOT
 unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
@@ -91,9 +90,6 @@ rm -rf %{buildroot}/%{_libdir}/mutter/plugins/*.la
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
 
 %find_lang %{name}
-
-%clean
-rm -rf %{buildroot}
 
 %files -f %{name}.lang
 %defattr(-,root,root,-)
@@ -106,6 +102,7 @@ rm -rf %{buildroot}
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
 %{_libdir}/gnome-shell/
 %{_libexecdir}/gnome-shell-calendar-server
+%{_libexecdir}/gnome-shell-perf-helper
 %{_sysconfdir}/gconf/schemas/gnome-shell.schemas
 %{_mandir}/man1/%{name}.1.gz
 
