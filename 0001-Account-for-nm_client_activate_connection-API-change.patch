@@ -1,0 +1,29 @@
+From d49e2bf7712002f8fe09597ee153c426e1627460 Mon Sep 17 00:00:00 2001
+From: Christopher Aillon <caillon@redhat.com>
+Date: Thu, 24 Mar 2011 21:04:31 -0700
+Subject: [PATCH] Account for nm_client_activate_connection API change
+
+based on a suggestion by Ray Strode.
+---
+ js/ui/status/network.js |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/js/ui/status/network.js b/js/ui/status/network.js
+index e57349a..a5a25fe 100644
+--- a/js/ui/status/network.js
++++ b/js/ui/status/network.js
+@@ -552,10 +552,9 @@ NMDevice.prototype = {
+     },
+ 
+     _createConnectionItem: function(obj) {
+-        let path = obj.connection.path;
+         let item = new PopupMenu.PopupMenuItem(obj.name);
+         item.connect('activate', Lang.bind(this, function() {
+-            this._client.activate_connection(path, this.device, null, null);
++            this._client.activate_connection(obj.connection, this.device, null, null);
+         }));
+         return item;
+     },
+-- 
+1.7.4.1
+

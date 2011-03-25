@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.92
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -8,6 +8,7 @@ License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-%{version}.tar.bz2
+Patch0:         0001-Account-for-nm_client_activate_connection-API-change.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -74,6 +75,7 @@ easy to use experience.
 
 %prep
 %setup -q
+%patch0 -p1 -b .nm09-api
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -133,6 +135,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Thu Mar 24 2011 Christopher Aillon <caillon@redhat.com> - 2.91.92-2
+- Make activating vpn connections work from the shell indicator
+
 * Wed Mar 23 2011 Matthias Clasen <mclasen@redhat.com> - 2.91.92-1
 - Update to 2.91.92
 
