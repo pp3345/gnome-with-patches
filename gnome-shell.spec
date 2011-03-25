@@ -9,6 +9,7 @@ URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-%{version}.tar.bz2
 Patch0:         0001-Account-for-nm_client_activate_connection-API-change.patch
+Patch1:         fix-vpn-indicator.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -76,6 +77,7 @@ easy to use experience.
 %prep
 %setup -q
 %patch0 -p1 -b .nm09-api
+%patch1 -p1 -b .fix-vpn-indicator
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -137,6 +139,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %changelog
 * Fri Mar 25 2011 Ray Strode <rstrode@redhat.com> 2.91.92-3
 - Adjustments for More nm-client api changes.
+- Fix VPN indicator
 
 * Thu Mar 24 2011 Christopher Aillon <caillon@redhat.com> - 2.91.92-2
 - Make activating vpn connections work from the shell indicator
