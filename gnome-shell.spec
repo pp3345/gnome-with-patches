@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.92
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -135,6 +135,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Fri Mar 25 2011 Ray Strode <rstrode@redhat.com> 2.91.92-3
+- Adjustments for More nm-client api changes.
+
 * Thu Mar 24 2011 Christopher Aillon <caillon@redhat.com> - 2.91.92-2
 - Make activating vpn connections work from the shell indicator
 
