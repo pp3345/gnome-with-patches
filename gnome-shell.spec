@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        2.91.93
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -133,6 +133,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Mar 29 2011 Brian Pepple <bpepple@fedoraproject.org> - 2.91.93-3
+- Bump
+
 * Tue Mar 29 2011 Brian Pepple <bpepple@fedoraproject.org> - 2.91.93-2
 - Rebuild for new tp-logger
 
