@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.91.92
-Release:        3%{?dist}
+Version:        2.91.93
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -8,12 +8,10 @@ License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-%{version}.tar.bz2
-Patch0:         0001-Account-for-nm_client_activate_connection-API-change.patch
-Patch1:         fix-vpn-indicator.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
-%define mutter_version 2.91.92
+%define mutter_version 2.91.93
 %define gjs_version 0.7.5
 %define eds_version 2.91.6
 
@@ -76,8 +74,6 @@ easy to use experience.
 
 %prep
 %setup -q
-%patch0 -p1 -b .nm09-api
-%patch1 -p1 -b .fix-vpn-indicator
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
