@@ -136,6 +136,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 * Tue Mar 29 2011 Brian Pepple <bpepple@fedoraproject.org> - 2.91.93-2
 - Rebuild for new tp-logger
 
+* Mon Mar 28 2011 Owen Taylor <otaylor@redhat.com> - 2.91.93-1
+- Update to 2.91.93.
+
 * Fri Mar 25 2011 Ray Strode <rstrode@redhat.com> 2.91.92-3
 - Adjustments for More nm-client api changes.
 - Fix VPN indicator
