@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        2.91.93
-Release:        3%{?dist}
+Version:        3.0.0
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -11,7 +11,7 @@ Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
-%define mutter_version 2.91.93
+%define mutter_version 3.0.0
 %define gjs_version 0.7.5
 %define eds_version 2.91.6
 
@@ -133,6 +133,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Mon Apr  4 2011 Owen Taylor <otaylor@redhat.com> - 3.0.0-1
+- Update to 3.0.0
+
 * Tue Mar 29 2011 Brian Pepple <bpepple@fedoraproject.org> - 2.91.93-3
 - Bump
 
