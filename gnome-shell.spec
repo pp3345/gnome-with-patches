@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.0.0
+Version:        3.0.0.1
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -133,6 +133,10 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Apr  5 2011 Owen Taylor <otaylor@redhat.com> - 3.0.0.1-1
+- Update to 3.0.0.1 (fixes bug where network menu could leave
+  Clutter event handling stuck.)
+
 * Mon Apr  4 2011 Owen Taylor <otaylor@redhat.com> - 3.0.0-1
 - Update to 3.0.0
 
