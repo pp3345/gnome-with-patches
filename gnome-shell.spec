@@ -7,7 +7,7 @@ Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/2.91/%{name}-%{version}.tar.bz2
+Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/3.0/%{name}-%{version}.tar.bz2
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -133,6 +133,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Fri Apr 08 2011 Nils Philippsen <nils@redhat.com> - 3.0.0.2-1
+- Update source URL
+
 * Tue Apr  5 2011 Owen Taylor <otaylor@redhat.com> - 3.0.0.1-1
 - Update to 3.0.0.1 (fixes bug where network menu could leave
   Clutter event handling stuck.)
