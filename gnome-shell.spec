@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.0.0.1
+Version:        3.0.0.2
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -134,6 +134,8 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
 * Fri Apr 08 2011 Nils Philippsen <nils@redhat.com> - 3.0.0.2-1
+- Update to 3.0.0.2 (fixes missing import that was preventing extensions from
+  loading.)
 - Update source URL
 
 * Tue Apr  5 2011 Owen Taylor <otaylor@redhat.com> - 3.0.0.1-1
