@@ -1,0 +1,12 @@
+--- gnome-shell-3.0.0.2/src/shell-app-system.c~	2011-03-26 08:24:46.000000000 -0400
++++ gnome-shell-3.0.0.2/src/shell-app-system.c	2011-04-11 12:56:52.665853268 -0400
+@@ -199,7 +199,8 @@
+    * handle NODISPLAY semantics at a higher level or investigate them
+    * case by case.
+    */
+-  priv->apps_tree = gmenu_tree_lookup ("applications.menu", GMENU_TREE_FLAGS_INCLUDE_NODISPLAY);
++  /* FEDORA patch: use applications-gnome.menu */
++  priv->apps_tree = gmenu_tree_lookup ("applications-gnome.menu", GMENU_TREE_FLAGS_INCLUDE_NODISPLAY);
+   priv->settings_tree = gmenu_tree_lookup ("gnomecc.menu", GMENU_TREE_FLAGS_INCLUDE_NODISPLAY);
+ 
+   priv->app_change_timeout_id = 0;

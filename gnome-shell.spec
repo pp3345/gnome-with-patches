@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.0.0.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -8,6 +8,8 @@ License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/3.0/%{name}-%{version}.tar.bz2
+
+Patch0: gnome-shell-avoid-redhat-menus.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -74,6 +76,7 @@ easy to use experience.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -133,6 +136,10 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Mon Apr 11 2011 Colin Walters <walters@verbum.org> - 3.0.0.2-2
+- We want to use the GNOME menus which has the designed categories,
+  not the legacy redhat-menus.
+
 * Fri Apr 08 2011 Nils Philippsen <nils@redhat.com> - 3.0.0.2-1
 - Update to 3.0.0.2 (fixes missing import that was preventing extensions from
   loading.)
