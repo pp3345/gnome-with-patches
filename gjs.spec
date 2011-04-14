@@ -2,7 +2,7 @@
 
 Name:           gjs
 Version:        0.7.14
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -18,6 +18,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: gecko-devel-unstable = %{gecko_version}
 BuildRequires: gobject-introspection-devel >= 0.10.1
+BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
 BuildRequires: intltool
 BuildRequires: pkgconfig
@@ -90,6 +91,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Thu Apr 14 2011 Colin Walters <walters@verbum.org> - 0.7.14-2
+- BR readline; closes #696254
+
 * Mon Apr  4 2011 Colin Walters <walters@verbum.org> - 0.7.14-1
 - Update to 0.7.14; fixes notification race condition on login
 
