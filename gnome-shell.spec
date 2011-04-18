@@ -46,6 +46,7 @@ BuildRequires:  gnome-bluetooth-libs-devel >= 2.91
 BuildRequires:  gnome-bluetooth >= 2.91
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
+Requires:       gnome-menus >= 3.0.0-2
 # For %pre/%post usage of gconftool-2
 Requires:       GConf2
 # wrapper script uses to restart old GNOME session if run --replace
