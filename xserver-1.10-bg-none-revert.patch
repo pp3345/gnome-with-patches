@@ -1,7 +1,7 @@
-From 3bc6ed2d8c9028ec28015d05b60af67a194f3694 Mon Sep 17 00:00:00 2001
+From 2223b2b953fc6034d28d85dfe3f97652ca375beb Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Tue, 29 Mar 2011 10:09:46 -0400
-Subject: [PATCH 2/2] Revert "composite: Don't backfill non-bg-None windows"
+Subject: [PATCH 9/9] Revert "composite: Don't backfill non-bg-None windows"
 
 This reverts commit 6dd775f57d2f94f0ddaee324aeec33b9b66ed5bc.
 
@@ -58,5 +58,5 @@ index e4064f6..7164c0d 100644
      {
  	GCPtr	pGC = GetScratchGC (pWin->drawable.depth, pScreen);
 -- 
-1.7.4.1
+1.7.4.4
 

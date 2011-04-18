@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.99.1
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -64,7 +64,7 @@ Source30:  xserver-sdk-abi-requires
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
-Patch5002:  xserver-1.4.99-ssh-isnt-local.patch
+Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 
 # don't build the (broken) acpi code
 Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
@@ -85,7 +85,6 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 Patch7005: xserver-1.9.0-qxl-fallback.patch
 
 Patch7006: xserver-1.10-pointer-barriers.patch
-Patch7007: xserver-1.10-vbe-malloc.patch
 # from ajax/xserver-next
 Patch7008: xserver-1.10-glx-pixmap-crash.patch
 Patch7009: xserver-1.10-bg-none-revert.patch
@@ -553,6 +552,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Apr 19 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.10.99.1-2.20110418
+- rebase all patches
+- xserver-1.10-vbe-malloc.patch: drop, d8caa782009abf4d
+- "git rm" all unused patches
+
 * Mon Apr 18 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.10.99.1-1.20110418
 - Today's server from git
 

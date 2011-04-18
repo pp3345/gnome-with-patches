@@ -1,7 +1,7 @@
-From 2fefa1aff56f6d24dcc0206c60da3d9487832504 Mon Sep 17 00:00:00 2001
+From 070319e6e49f762ccaba06c7241c00e4afcb7c05 Mon Sep 17 00:00:00 2001
 From: Adam Jackson <ajax@redhat.com>
 Date: Wed, 30 Mar 2011 16:03:53 -0400
-Subject: [PATCH] glx: Fix lifetime tracking for pixmaps
+Subject: [PATCH 8/9] glx: Fix lifetime tracking for pixmaps
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -20,10 +20,10 @@ Signed-off-by: Adam Jackson <ajax@redhat.com>
  2 files changed, 20 insertions(+), 13 deletions(-)
 
 diff --git a/glx/glxcmds.c b/glx/glxcmds.c
-index 9b4bc9e..9d60bdb 100644
+index 66d4c7e..d5b764f 100644
 --- a/glx/glxcmds.c
 +++ b/glx/glxcmds.c
-@@ -1177,10 +1177,11 @@ DoCreateGLXDrawable(ClientPtr client, __GLXscreen *pGlxScreen,
+@@ -1127,10 +1127,11 @@ DoCreateGLXDrawable(ClientPtr client, __GLXscreen *pGlxScreen,
  	return BadAlloc;
      }
  
@@ -39,7 +39,7 @@ index 9b4bc9e..9d60bdb 100644
  	!AddResource(pDraw->id, __glXDrawableRes, pGlxDraw)) {
  	pGlxDraw->destroy (pGlxDraw);
  	return BadAlloc;
-@@ -1211,6 +1212,8 @@ DoCreateGLXPixmap(ClientPtr client, __GLXscreen *pGlxScreen, __GLXconfig *config
+@@ -1161,6 +1162,8 @@ DoCreateGLXPixmap(ClientPtr client, __GLXscreen *pGlxScreen, __GLXconfig *config
      err = DoCreateGLXDrawable(client, pGlxScreen, config, pDraw, drawableId,
  			      glxDrawableId, GLX_DRAWABLE_PIXMAP);
  
@@ -49,10 +49,10 @@ index 9b4bc9e..9d60bdb 100644
  }
  
 diff --git a/glx/glxext.c b/glx/glxext.c
-index 4bd5d6b..cec3ee5 100644
+index 3f3dd79..9cfc096 100644
 --- a/glx/glxext.c
 +++ b/glx/glxext.c
-@@ -124,15 +124,15 @@ static Bool DrawableGone(__GLXdrawable *glxPriv, XID xid)
+@@ -118,15 +118,15 @@ static Bool DrawableGone(__GLXdrawable *glxPriv, XID xid)
  {
      __GLXcontext *c, *next;
  
@@ -77,8 +77,8 @@ index 4bd5d6b..cec3ee5 100644
      }
  
      for (c = glxAllContexts; c; c = next) {
-@@ -168,6 +168,10 @@ static Bool DrawableGone(__GLXdrawable *glxPriv, XID xid)
- 	    __glXFreeContext(c);
+@@ -143,6 +143,10 @@ static Bool DrawableGone(__GLXdrawable *glxPriv, XID xid)
+ 	    c->readPriv = NULL;
      }
  
 +    /* drop our reference to any backing pixmap */
@@ -89,5 +89,5 @@ index 4bd5d6b..cec3ee5 100644
  
      return True;
 -- 
-1.7.4.1
+1.7.4.4
 

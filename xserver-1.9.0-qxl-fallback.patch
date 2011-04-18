@@ -1,14 +1,14 @@
-From 18e7738eb03f131598e1613ce8bf0bff4ab1ecdf Mon Sep 17 00:00:00 2001
+From edf5262c75416c2baf199e3d1c95b43f3e0d0cef Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 13 Oct 2010 11:16:31 -0400
-Subject: [PATCH] qxl v1 fallback
+Subject: [PATCH 6/9] qxl v1 fallback
 
 ---
  hw/xfree86/common/xf86pciBus.c |    7 ++++++-
  1 files changed, 6 insertions(+), 1 deletions(-)
 
 diff --git a/hw/xfree86/common/xf86pciBus.c b/hw/xfree86/common/xf86pciBus.c
-index aaacf42..048a410 100644
+index 4640ede..a7f0617 100644
 --- a/hw/xfree86/common/xf86pciBus.c
 +++ b/hw/xfree86/common/xf86pciBus.c
 @@ -1141,7 +1141,12 @@ videoPtrToDriverList(struct pci_device *dev,
@@ -26,5 +26,5 @@ index aaacf42..048a410 100644
  	case 0x5333:
  	    switch (dev->device_id)
 -- 
-1.7.3.2
+1.7.4.4
 
