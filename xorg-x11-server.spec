@@ -25,12 +25,12 @@
 %define extension_minor 0
 
 %define pkgname xorg-server
-#define gitdate 20110225
+%define gitdate 20110418
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.10.0
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.10.99.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -397,7 +397,6 @@ cp {,%{inst_srcdir}/}doc/xml/xserver.ent.in
 cp {,%{inst_srcdir}/}doc/xml/Xserver-spec.xml
 cp {,%{inst_srcdir}/}doc/xml/dtrace/Xserver-DTrace.xml
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
-cp {,%{inst_srcdir}/}hw/dmx/doc/doxygen.conf.in
 cp {,%{inst_srcdir}/}doc/man/Xserver.man
 cp {,%{inst_srcdir}/}doc/smartsched
 cp xkb/README.compiled %{inst_srcdir}/xkb
@@ -554,6 +553,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Apr 18 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.10.99.1-1.20110418
+- Today's server from git
+
 * Wed Mar 30 2011 Adam Jackson <ajax@redhat.com> 1.10.0-7
 - xserver-1.10-glx-pixmap-crash.patch, xserver-1.10-bg-none-revert.patch:
   bugfixes from xserver-next
