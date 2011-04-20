@@ -129,7 +129,7 @@ BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 # Broken, this is global, should be Xephyr-only
 BuildRequires: libXv-devel
 
-BuildRequires: pixman-devel >= 0.15.14
+BuildRequires: pixman-devel >= 0.21.8
 BuildRequires: libpciaccess-devel >= 0.10.6-1 openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 7.6-0.6
 # XXX silly...
@@ -148,7 +148,7 @@ X.Org X11 X server
 %package common
 Summary: Xorg server common files
 Group: User Interface/X
-Requires: pixman >= 0.18.0
+Requires: pixman >= 0.21.8
 Requires: xkeyboard-config xkbcomp
 Requires: libXfont >= 1.4.2
 
