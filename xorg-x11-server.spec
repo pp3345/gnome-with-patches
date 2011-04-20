@@ -85,6 +85,7 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 Patch7005: xserver-1.9.0-qxl-fallback.patch
 
 Patch7006: xserver-1.10-pointer-barriers.patch
+Patch7007: xserver-1.10-fix-trapezoids.patch
 # from ajax/xserver-next
 Patch7008: xserver-1.10-glx-pixmap-crash.patch
 Patch7009: xserver-1.10-bg-none-revert.patch
@@ -552,6 +553,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Apr 20 2011 Soren Sandmann <ssp@redhat.com> 1.10.99.1-3.20110418
+- xserver-1.10-fix-trapezoids.patch: this patch is necessary to prevent
+  trap corruption with pixman 0.21.8.
+
 * Tue Apr 19 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.10.99.1-2.20110418
 - rebase all patches
 - xserver-1.10-vbe-malloc.patch: drop, d8caa782009abf4d
