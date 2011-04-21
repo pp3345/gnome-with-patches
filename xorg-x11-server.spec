@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.99.1
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -82,8 +82,6 @@ Patch6030: xserver-1.6.99-right-of.patch
 Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # misc
-Patch7005: xserver-1.9.0-qxl-fallback.patch
-
 Patch7006: xserver-1.10-pointer-barriers.patch
 Patch7007: xserver-1.10-fix-trapezoids.patch
 # from ajax/xserver-next
@@ -553,6 +551,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Apr 21 2011 Hans de Goede <hdegoede@redhat.com> 1.10.99.1-4.20110418
+- Drop xserver-1.9.0-qxl-fallback.patch, since the latest qxl driver
+  supports both revision 1 and 2 qxl devices (#642153)
+
 * Wed Apr 20 2011 Soren Sandmann <ssp@redhat.com> 1.10.99.1-3.20110418
 - xserver-1.10-fix-trapezoids.patch: this patch is necessary to prevent
   trap corruption with pixman 0.21.8.
