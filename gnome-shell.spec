@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.0.0.2
-Release:        2%{?dist}
+Version:        3.0.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -137,6 +137,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Mon Apr 25 2011 Owen Taylor <otaylor@redhat.com> - 3.0.1-1
+- Update to 3.0.1
+
 * Mon Apr 11 2011 Colin Walters <walters@verbum.org> - 3.0.0.2-2
 - We want to use the GNOME menus which has the designed categories,
   not the legacy redhat-menus.
