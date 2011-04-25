@@ -1,5 +1,5 @@
 Name:          mutter
-Version:       3.0.0
+Version:       3.0.1
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -143,6 +143,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Mon Apr 25 2011 Owen Taylor <otaylor@redhat.com> - 3.0.1-1
+- Update to 3.0.1
+
 * Mon Apr  4 2011 Owen Taylor <otaylor@redhat.com> - 3.0.0-1
 - Update to 3.0.0
 
