@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.0.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -10,6 +10,8 @@ URL:            http://live.gnome.org/GnomeShell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/3.0/%{name}-%{version}.tar.bz2
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
+# https://bugzilla.gnome.org/show_bug.cgi?id=648739
+Patch1: appDisplay-Fix-off-by-one-when-incrementally-adding-.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -77,7 +79,8 @@ easy to use experience.
 
 %prep
 %setup -q
-%patch0 -p1
+%patch0 -p1 -b .avoid-redhat-menus
+%patch1 -p1 -b .duplicate-apps
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -137,6 +140,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Apr 27 2011 Owen Taylor <otaylor@redhat.com> - 3.0.1-2
+- Add a patch from upstream to fix duplicate applications in application display
+
 * Mon Apr 25 2011 Owen Taylor <otaylor@redhat.com> - 3.0.1-1
 - Update to 3.0.1
 
