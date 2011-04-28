@@ -1,12 +1,12 @@
 Name:          mutter
 Version:       3.0.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
-Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/2.91/%{name}-%{version}.tar.bz2
+Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/3.0/%{name}-%{version}.tar.bz2
 
 BuildRequires: clutter-devel >= 1.5.8
 BuildRequires: pango-devel
@@ -143,6 +143,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Thu Apr 28 2011 Matthias Clasen <mclasen@redhat.com> - 3.0.1-2
+- Make session saving of gnome-shell work
+
 * Mon Apr 25 2011 Owen Taylor <otaylor@redhat.com> - 3.0.1-1
 - Update to 3.0.1
 
