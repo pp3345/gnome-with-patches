@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.0.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -44,8 +44,10 @@ BuildRequires:  libXfixes-devel >= 5.0
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
 BuildRequires:  pulseaudio-libs-devel
+%ifnarch s390 s390x
 BuildRequires:  gnome-bluetooth-libs-devel >= 2.91
 BuildRequires:  gnome-bluetooth >= 2.91
+%endif
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
 Requires:       gnome-menus >= 3.0.0-2
@@ -140,6 +142,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Thu Apr 28 2011 Dan Horák <dan[at]danny.cz> - 3.0.1-3
+- no bluetooth on s390(x)
+
 * Wed Apr 27 2011 Owen Taylor <otaylor@redhat.com> - 3.0.1-2
 - Add a patch from upstream to fix duplicate applications in application display
 
