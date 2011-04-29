@@ -1,8 +1,8 @@
-%global gecko_version 2.0
+%global gecko_version 2.0.1
 
 Name:           gjs
 Version:        0.7.14
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -91,6 +91,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Thu Apr 28 2011 Christopher Aillon <caillon@redhat.com> - 0.7.14-3
+- Rebuild against newer gecko
+
 * Thu Apr 14 2011 Colin Walters <walters@verbum.org> - 0.7.14-2
 - BR readline; closes #696254
 
