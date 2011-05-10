@@ -25,12 +25,12 @@
 %define extension_minor 0
 
 %define pkgname xorg-server
-%define gitdate 20110418
+%define gitdate 20110510
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.99.1
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -83,10 +83,6 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # misc
 Patch7006: xserver-1.10-pointer-barriers.patch
-Patch7007: xserver-1.10-fix-trapezoids.patch
-# from ajax/xserver-next
-Patch7008: xserver-1.10-glx-pixmap-crash.patch
-Patch7009: xserver-1.10-bg-none-revert.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -551,6 +547,12 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon May 09 2011  1.10.99.1-5.20110511
+- Today's server from git
+- xserver-1.10-fix-trapezoids.patch: drop, c6cb70be1ed7cf7
+- xserver-1.10-glx-pixmap-crash.patch: drop, 6a433b67ca15fd1
+- xserver-1.10-bg-none-revert.patch: drop, dc0cf7596782087
+
 * Thu Apr 21 2011 Hans de Goede <hdegoede@redhat.com> 1.10.99.1-4.20110418
 - Drop xserver-1.9.0-qxl-fallback.patch, since the latest qxl driver
   supports both revision 1 and 2 qxl devices (#642153)
