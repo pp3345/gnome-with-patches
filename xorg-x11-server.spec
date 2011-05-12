@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.99.1
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -393,6 +393,7 @@ cp {,%{inst_srcdir}/}doc/xml/dtrace/Xserver-DTrace.xml
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
 cp {,%{inst_srcdir}/}doc/man/Xserver.man
 cp {,%{inst_srcdir}/}doc/smartsched
+cp {,%{inst_srcdir}/}hw/dmx/doc/doxygen.conf.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
@@ -547,6 +548,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed May 11 2011 Adam Tkac <atkac redhat com> 1.10.99.1-6.20110511
+- include hw/dmx/doc/doxygen.conf.in in the -source subpkg
+
 * Mon May 09 2011  1.10.99.1-5.20110511
 - Today's server from git
 - xserver-1.10-fix-trapezoids.patch: drop, c6cb70be1ed7cf7
