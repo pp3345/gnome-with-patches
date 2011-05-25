@@ -1,15 +1,12 @@
 Name:          mutter
-Version:       3.0.1
-Release:       3%{?dist}
+Version:       3.0.2.1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
 Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/3.0/%{name}-%{version}.tar.bz2
-
-# upstream fix
-Patch0: libmutter-session-save.patch
 
 BuildRequires: clutter-devel >= 1.5.8
 BuildRequires: pango-devel
@@ -63,7 +60,6 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
-%patch0 -p1 -b .session-save
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -147,6 +143,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Wed May 25 2011 Owen Taylor <otaylor@redhat.com> - 3.0.2.1-1
+- Update to 3.0.2.1
+
 * Fri Apr 29 2011 Matthias Clasen <mclasen@redhat.com> - 3.0.1-3
 - Actually apply the patch for #700276
 
