@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.0.1
-Release:        4%{?dist}
+Version:        3.0.2
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -10,13 +10,6 @@ URL:            http://live.gnome.org/GnomeShell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/3.0/%{name}-%{version}.tar.bz2
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
-# https://bugzilla.gnome.org/show_bug.cgi?id=648739
-Patch1: appDisplay-Fix-off-by-one-when-incrementally-adding-.patch
-
-Patch2: 0001-network-simplify-connection-sorting-by-using-libnm-g.patch
-Patch3: 0001-network-fix-handling-of-AP-flags-and-enhance-for-802.patch
-Patch4: 0002-network-fix-initial-connections-to-WPA-2-Enterprise-.patch
-Patch5: 0003-network-request-that-nm-applet-show-the-mobile-broad.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -87,11 +80,6 @@ easy to use experience.
 %prep
 %setup -q
 %patch0 -p1 -b .avoid-redhat-menus
-%patch1 -p1 -b .duplicate-apps
-%patch2 -p1 -b .connection-sorting
-%patch3 -p1 -b .apflags
-%patch4 -p1 -b .wpa-enterprise
-%patch5 -p1 -b .mobile-broadband
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -151,6 +139,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed May 25 2011 Owen Taylor <otaylor@redhat.com> - 3.0.2-1
+- Update to 3.0.2
+
 * Tue May 10 2011 Dan Williams <dcbw@redhat.com> - 3.0.1-4
 - Fix initial connections to WPA Enterprise access points (#699014)
 - Fix initial connections to mobile broadband networks
