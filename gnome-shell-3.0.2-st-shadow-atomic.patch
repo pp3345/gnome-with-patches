@@ -1,0 +1,30 @@
+From af51e8df7b9ce8a00e533e6b3c61d92580ff6e3e Mon Sep 17 00:00:00 2001
+From: Florian Müllner <fmuellner@gnome.org>
+Date: Thu, 02 Jun 2011 21:05:16 +0000
+Subject: st-shadow: Use non-deprecated GAtomic API
+
+---
+diff --git a/src/st/st-shadow.c b/src/st/st-shadow.c
+index 335e496..9c3784a 100644
+--- a/src/st/st-shadow.c
++++ b/src/st/st-shadow.c
+@@ -82,7 +82,7 @@ st_shadow_ref (StShadow *shadow)
+   g_return_val_if_fail (shadow != NULL, NULL);
+   g_return_val_if_fail (shadow->ref_count > 0, shadow);
+ 
+-  g_atomic_int_add (&shadow->ref_count, 1);
++  g_atomic_int_inc (&shadow->ref_count);
+   return shadow;
+ }
+ 
+@@ -100,7 +100,7 @@ st_shadow_unref (StShadow *shadow)
+   g_return_if_fail (shadow != NULL);
+   g_return_if_fail (shadow->ref_count > 0);
+ 
+-  if (g_atomic_int_exchange_and_add (&shadow->ref_count, -1) - 1 == 0)
++  if (g_atomic_int_dec_and_test (&shadow->ref_count))
+     g_slice_free (StShadow, shadow);
+ }
+ 
+--
+cgit v0.9

@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.0.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -10,6 +10,9 @@ URL:            http://live.gnome.org/GnomeShell
 Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/3.0/%{name}-%{version}.tar.bz2
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
+# from upstream
+Patch1: gnome-shell-3.0.2-st-shadow-atomic.patch
+Patch2: gnome-shell-3.0.2-st-icon-colors-atomic.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -80,6 +83,8 @@ easy to use experience.
 %prep
 %setup -q
 %patch0 -p1 -b .avoid-redhat-menus
+%patch1 -p1 -b .st-shadow-atomic
+%patch2 -p1 -b .st-icon-colors-atomic
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -139,6 +144,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Fri Jun 17 2011 Tomas Bzatek <tbzatek@redhat.com> - 3.0.2-2
+- Rebuilt for new gtk3 and gnome-desktop3
+
 * Wed May 25 2011 Owen Taylor <otaylor@redhat.com> - 3.0.2-1
 - Update to 3.0.2
 
