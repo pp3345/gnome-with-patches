@@ -1,8 +1,8 @@
 %global gecko_version 2.0.1
 
 Name:           gjs
-Version:        0.7.14
-Release:        3%{?dist}
+Version:        1.29.0
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -13,7 +13,7 @@ Group:          System Environment/Libraries
 License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
 #VCS:           git://git.gnome.org/gjs
-Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/%{version}/%{name}-%{version}.tar.bz2
+Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/1.29/%{name}-%{version}.tar.xz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: gecko-devel-unstable = %{gecko_version}
@@ -91,6 +91,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Fri Jun 17 2011 Tomas Bzatek <tbzatek@redhat.com> - 1.29.0-1
+- Update to 1.29.0
+
 * Thu Apr 28 2011 Christopher Aillon <caillon@redhat.com> - 0.7.14-3
 - Rebuild against newer gecko
 
