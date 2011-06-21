@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.99.1
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Release:   7%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -103,6 +103,7 @@ Patch7006: xserver-1.10-pointer-barriers.patch
 %define kdrive --enable-kdrive --enable-xephyr --disable-xfake --disable-xfbdev
 %define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
 
+BuildRequires: systemtap-sdt-devel
 BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
@@ -344,7 +345,7 @@ export CFLAGS="${RPM_OPT_FLAGS} -fno-omit-frame-pointer"
 	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
 	--with-os-name="$(hostname -s) $(uname -r)" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
-        --without-dtrace \
+        --with-dtrace \
 	--enable-install-libxf86config \
 	--enable-xselinux --enable-record \
 	--enable-config-udev \
@@ -534,6 +535,7 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root,-)
 %doc COPYING
+%{_docdir}/xorg-server
 %{_bindir}/xserver-sdk-abi-requires
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
@@ -548,6 +550,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Jun 21 2011 Adam Jackson <ajax@redhat.com> 1.10.99.1-7.20110511
+- BuildRequires: systemtap-sdt-devel, configure --with-dtrace
+
 * Wed May 11 2011 Adam Tkac <atkac redhat com> 1.10.99.1-6.20110511
 - include hw/dmx/doc/doxygen.conf.in in the -source subpkg
 
