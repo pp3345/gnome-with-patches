@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.0.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -13,6 +13,8 @@ Patch0: gnome-shell-avoid-redhat-menus.patch
 # from upstream
 Patch1: gnome-shell-3.0.2-st-shadow-atomic.patch
 Patch2: gnome-shell-3.0.2-st-icon-colors-atomic.patch
+Patch3: Use-Shell.get_file_contents_utf8_sync-over-GLib.file.patch
+Patch4: Import-Shell-as-needed-by-recent-commit.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -85,6 +87,8 @@ easy to use experience.
 %patch0 -p1 -b .avoid-redhat-menus
 %patch1 -p1 -b .st-shadow-atomic
 %patch2 -p1 -b .st-icon-colors-atomic
+%patch3 -p1 -b .use-get-file-contents
+%patch4 -p1 -b .add-shell-import
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -144,6 +148,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Jun 22 2011 Owen Taylor <otaylor@redhat.com> - 3.0.2-3
+- Add a patch from upstream to avoid g_file_get_contents()
+
 * Fri Jun 17 2011 Tomas Bzatek <tbzatek@redhat.com> - 3.0.2-2
 - Rebuilt for new gtk3 and gnome-desktop3
 
