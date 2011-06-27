@@ -1,8 +1,6 @@
-%global gecko_version 2.0.1
-
 Name:           gjs
 Version:        1.29.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -16,7 +14,8 @@ URL:            http://live.gnome.org/Gjs/
 Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/1.29/%{name}-%{version}.tar.xz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires: gecko-devel-unstable = %{gecko_version}
+BuildRequires: js-devel
+BuildRequires: cairo-devel
 BuildRequires: gobject-introspection-devel >= 0.10.1
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
@@ -24,12 +23,6 @@ BuildRequires: intltool
 BuildRequires: pkgconfig
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
-
-# This will have to be updated every time xulrunner changes version.
-# A better fix would be to get all of Fedora's spidermonkey consumers
-# to not depend on xulrunner.  See 
-# https://bugzilla.mozilla.org/show_bug.cgi?id=618381
-Requires: gecko-libs%{?_isa} = %{gecko_version}
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
@@ -91,6 +84,10 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Mon Jun 27 2011 Adam Williamson <awilliam@redhat.com> - 1.29.0-2
+- build against js, not gecko (from f15 branch, but patch not needed)
+- BR cairo-devel (also from f15)
+
 * Fri Jun 17 2011 Tomas Bzatek <tbzatek@redhat.com> - 1.29.0-1
 - Update to 1.29.0
 
