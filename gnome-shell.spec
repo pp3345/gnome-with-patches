@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.0.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -19,14 +19,14 @@ Patch4: Import-Shell-as-needed-by-recent-commit.patch
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
 %define mutter_version 3.0.0
-%define gjs_version 0.7.5
 %define eds_version 2.91.6
 
+BuildRequires:  chrpath
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
 BuildRequires:  evolution-data-server-devel >= %{eds_version}
-BuildRequires:  gjs-devel >= %{gjs_version}
+BuildRequires:  gjs-devel >= 0.7.14-6
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-menus-devel
 BuildRequires:  gnome-desktop3-devel
@@ -106,6 +106,11 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
 
 %find_lang %{name}
 
+# The libdir rpath breaks nvidia binary only folks, so we remove it.  
+# See bug 716572
+chrpath -r %{_libdir}/gnome-shell:%{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_bindir}/gnome-shell
+chrpath -r %{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_libdir}/gnome-shell/libgnome-shell.so
+
 %files -f %{name}.lang
 %defattr(-,root,root,-)
 %doc COPYING README
@@ -148,6 +153,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Mon Jun 27 2011 Adam Williamson <awilliam@redhat.com> - 3.0.2-4
+- add fixes from f15 branch (gjs dep and rpath)
+
 * Wed Jun 22 2011 Owen Taylor <otaylor@redhat.com> - 3.0.2-3
 - Add a patch from upstream to avoid g_file_get_contents()
 
