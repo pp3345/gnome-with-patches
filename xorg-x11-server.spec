@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.99.1
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -83,6 +83,8 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # misc
 Patch7006: xserver-1.10-pointer-barriers.patch
+# tests require Xorg
+Patch7007: xserver-1.10.99.1-test.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -418,6 +420,7 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %if !%{with_hw_servers}
     rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/xorg-server.pc
     rm -f $RPM_BUILD_ROOT%{_datadir}/aclocal/xorg-server.m4
+    rm -rf $RPM_BUILD_ROOT%{_defaultdocdir}/xorg-server
 %endif
 }
 
@@ -550,6 +553,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jun 29 2011 Dan Horák <dan[at]danny.cz> 1.10.99.1-8.20110511
+- don't build tests when --disable-xorg is used like on s390(x)
+
 * Tue Jun 21 2011 Adam Jackson <ajax@redhat.com> 1.10.99.1-7.20110511
 - BuildRequires: systemtap-sdt-devel, configure --with-dtrace
 
