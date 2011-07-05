@@ -1,20 +1,16 @@
 Name:           gnome-shell
-Version:        3.0.2
-Release:        4%{?dist}
+Version:        3.1.3
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/3.0/%{name}-%{version}.tar.bz2
+Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/3.1/%{name}-%{version}.tar.bz2
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
 # from upstream
-Patch1: gnome-shell-3.0.2-st-shadow-atomic.patch
-Patch2: gnome-shell-3.0.2-st-icon-colors-atomic.patch
-Patch3: Use-Shell.get_file_contents_utf8_sync-over-GLib.file.patch
-Patch4: Import-Shell-as-needed-by-recent-commit.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -85,10 +81,6 @@ easy to use experience.
 %prep
 %setup -q
 %patch0 -p1 -b .avoid-redhat-menus
-%patch1 -p1 -b .st-shadow-atomic
-%patch2 -p1 -b .st-icon-colors-atomic
-%patch3 -p1 -b .use-get-file-contents
-%patch4 -p1 -b .add-shell-import
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -153,6 +145,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Jul  5 2011 Peter Robinson <pbrobinson@gmail.com> - 3.1.3-1
+- Upstream 3.1.3 dev release
+
 * Mon Jun 27 2011 Adam Williamson <awilliam@redhat.com> - 3.0.2-4
 - add fixes from f15 branch (gjs dep and rpath)
 
