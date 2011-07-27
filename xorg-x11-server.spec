@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.99.1
-Release:   8%{?gitdate:.%{gitdate}}%{dist}
+Release:   9%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -85,6 +85,11 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 Patch7006: xserver-1.10-pointer-barriers.patch
 # tests require Xorg
 Patch7007: xserver-1.10.99.1-test.patch
+
+# Multi-seat support through config/udev backend.
+# Submitted to upstream but not merged for 1.11
+Patch7009: xserver-1.10.99-config-add-udev-systemd-multi-seat-support.patch
+
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -553,6 +558,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jul 27 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.10.99.1-9.20110511
+- Add support for multi-seat support from the config/udev backend.
+
 * Wed Jun 29 2011 Dan Horák <dan[at]danny.cz> 1.10.99.1-8.20110511
 - don't build tests when --disable-xorg is used like on s390(x)
 
