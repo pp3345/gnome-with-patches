@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.1.3
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -70,6 +70,8 @@ Requires:       mutter >= %{mutter_version}
 #Requires:       xorg-x11-xauth
 Requires:       upower
 Requires:       polkit >= 0.100
+# needed for schemas
+Requires:       at-spi2-atk
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -145,6 +147,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Jul 26 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.3-3
+- Add necessary requires
+
 * Mon Jul 25 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.3-2
 - Rebuild
 
