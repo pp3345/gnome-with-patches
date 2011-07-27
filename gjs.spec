@@ -1,6 +1,6 @@
 Name:           gjs
-Version:        1.29.0
-Release:        2%{?dist}
+Version:        1.29.15
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -11,8 +11,7 @@ Group:          System Environment/Libraries
 License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
 #VCS:           git://git.gnome.org/gjs
-Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/1.29/%{name}-%{version}.tar.xz
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Source0:        http://download.gnome.org/sources/%{name}/1.29/%{name}-%{version}.tar.xz
 
 BuildRequires: js-devel
 BuildRequires: cairo-devel
@@ -48,7 +47,6 @@ Files for development with %{name}.
 make %{?_smp_mflags}
 
 %install
-rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
 #Remove libtool archives.
@@ -65,7 +63,6 @@ rm -rf %{buildroot}
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
 %doc COPYING NEWS README
 %{_bindir}/gjs
 %{_bindir}/gjs-console
@@ -74,7 +71,6 @@ rm -rf %{buildroot}
 %{_datadir}/gjs-1.0
 
 %files devel
-%defattr(-,root,root,-)
 %doc examples/*
 %{_includedir}/gjs-1.0
 %{_libdir}/pkgconfig/gjs-1.0.pc
@@ -84,6 +80,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Wed Jul 27 2011 Matthias Clasen <mclasen@redhat.com> - 1.29.15-1
+- Update to 1.29.15
+
 * Mon Jun 27 2011 Adam Williamson <awilliam@redhat.com> - 1.29.0-2
 - build against js, not gecko (from f15 branch, but patch not needed)
 - BR cairo-devel (also from f15)
