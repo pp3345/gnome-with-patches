@@ -7,7 +7,7 @@ Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://ftp.gnome.org/pub/GNOME/sources/gnome-shell/3.1/%{name}-%{version}.tar.bz2
+Source0:        http://download.gnome.org/sources/gnome-shell/3.1/%{name}-%{version}.tar.xz
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
 # from upstream
@@ -100,13 +100,12 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
 
 %find_lang %{name}
 
-# The libdir rpath breaks nvidia binary only folks, so we remove it.  
+# The libdir rpath breaks nvidia binary only folks, so we remove it.
 # See bug 716572
 chrpath -r %{_libdir}/gnome-shell:%{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_bindir}/gnome-shell
 chrpath -r %{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_libdir}/gnome-shell/libgnome-shell.so
 
 %files -f %{name}.lang
-%defattr(-,root,root,-)
 %doc COPYING README
 %{_bindir}/gnome-shell
 %{_bindir}/gnome-shell-extension-tool
