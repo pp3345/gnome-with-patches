@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.1.3
-Release:        4%{?dist}
+Version:        3.1.4
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -147,6 +147,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Jul 27 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.4-1
+- Update to 3.1.4
+
 * Wed Jul 27 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.3-4
 - Rebuild
 
