@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        1.29.15
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -15,7 +15,7 @@ Source0:        http://download.gnome.org/sources/%{name}/1.29/%{name}-%{version
 
 BuildRequires: js-devel
 BuildRequires: cairo-devel
-BuildRequires: gobject-introspection-devel >= 0.10.1
+BuildRequires: gobject-introspection-devel >= 1.29.16
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
 BuildRequires: intltool
@@ -80,6 +80,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Thu Jul 28 2011 Colin Walters <walters@verbum.org> - 1.29.15-2
+- BR latest g-i to fix build issue
+
 * Wed Jul 27 2011 Matthias Clasen <mclasen@redhat.com> - 1.29.15-1
 - Update to 1.29.15
 
