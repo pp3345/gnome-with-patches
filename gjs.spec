@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        1.29.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -16,7 +16,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires: js-devel
 BuildRequires: cairo-devel
-BuildRequires: gobject-introspection-devel >= 0.10.1
+BuildRequires: gobject-introspection-devel >= 1.29.16
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
 BuildRequires: intltool
@@ -84,6 +84,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Thu Jul 28 2011 Colin Walters <walters@verbum.org> - 1.29.0-3
+- BR latest g-i to fix build issue
+
 * Mon Jun 27 2011 Adam Williamson <awilliam@redhat.com> - 1.29.0-2
 - build against js, not gecko (from f15 branch, but patch not needed)
 - BR cairo-devel (also from f15)
