@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.10.99.1
-Release:   9%{?gitdate:.%{gitdate}}%{dist}
+Release:   10%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -219,6 +219,8 @@ Group: User Interface/X
 License: MIT and GPLv2
 Obsoletes: xorg-x11-Xvfb
 Requires: xorg-x11-server-common >= %{version}-%{release}
+# required for xvfb-run
+Requires: xorg-x11-xauth
 Provides: Xvfb
 
 %description Xvfb
@@ -558,6 +560,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Jul 29 2011 Dave Airlie <airlied@redhat.com> 1.10.99.1-10.2011051
+- xvfb-run requires xauth installed, fix requires (from jlaska on irc)
+
 * Wed Jul 27 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.10.99.1-9.20110511
 - Add support for multi-seat support from the config/udev backend.
 
