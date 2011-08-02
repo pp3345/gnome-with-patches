@@ -113,9 +113,11 @@ chrpath -r %{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_libdir}/gnome-shell/libg
 %{_datadir}/applications/gnome-shell.desktop
 %{_datadir}/gnome-shell/
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
+%{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
 %{_libdir}/gnome-shell/
 %{_libexecdir}/gnome-shell-calendar-server
 %{_libexecdir}/gnome-shell-perf-helper
+%{_libexecdir}/gnome-shell-hotplug-sniffer
 %{_sysconfdir}/gconf/schemas/gnome-shell.schemas
 %{_mandir}/man1/%{name}.1.gz
 
