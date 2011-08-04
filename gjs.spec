@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        1.29.15
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -23,6 +23,9 @@ BuildRequires: pkgconfig
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
 
+# https://bugzilla.gnome.org/show_bug.cgi?id=655482
+Patch0: install-gi-headers.patch
+
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
 Spidermonkey Javascript engine from Mozilla and the GObject introspection
@@ -39,6 +42,9 @@ Files for development with %{name}.
 
 %prep
 %setup -q
+
+%patch0 -p1 -b .headers
+rm -f configure
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -81,6 +87,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Thu Aug 04 2011 Bastien Nocera <bnocera@redhat.com> 1.29.15-3
+- Install missing headers
+
 * Thu Jul 28 2011 Colin Walters <walters@verbum.org> - 1.29.15-2
 - BR latest g-i to fix build issue
 
