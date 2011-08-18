@@ -1,6 +1,6 @@
 Name:           gjs
-Version:        1.29.15
-Release:        3%{?dist}
+Version:        1.29.16
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -61,9 +61,6 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %check
 #make check
 
-%clean
-rm -rf %{buildroot}
-
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
@@ -87,6 +84,9 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 
 %changelog
+* Thus Aug 18 2011 Matthias Clasen <mclasen@redhat.com> 1.29.16-1
+- Update to 1.29.16
+
 * Thu Aug 04 2011 Bastien Nocera <bnocera@redhat.com> 1.29.15-3
 - Install missing headers
 
