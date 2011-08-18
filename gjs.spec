@@ -84,7 +84,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
-* Thus Aug 18 2011 Matthias Clasen <mclasen@redhat.com> 1.29.16-1
+* Thu Aug 18 2011 Matthias Clasen <mclasen@redhat.com> 1.29.16-1
 - Update to 1.29.16
 
 * Thu Aug 04 2011 Bastien Nocera <bnocera@redhat.com> 1.29.15-3
