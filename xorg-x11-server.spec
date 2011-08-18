@@ -17,24 +17,23 @@
 # because rpm is a terrible language.  HTFU.
 %define ansic_major 0
 %define ansic_minor 4
-%define videodrv_major 10
+%define videodrv_major 11
 %define videodrv_minor 0
-%define xinput_major 12
-%define xinput_minor 2
+%define xinput_major 13
+%define xinput_minor 0
 %define extension_major 5
 %define extension_minor 0
 
 %define pkgname xorg-server
-%define gitdate 20110510
+%define gitdate 20110818
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.10.99.1
-Release:   10%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.10.99.902
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 #VCS:      git:git://git.freedesktop.org/git/xorg/xserver
 %if 0%{?gitdate}
@@ -81,8 +80,6 @@ Patch6030: xserver-1.6.99-right-of.patch
 # fallback to vesa when module is missing seems broken
 Patch6053: xserver-1.8-disable-vboxvideo.patch
 
-# misc
-Patch7006: xserver-1.10-pointer-barriers.patch
 # tests require Xorg
 Patch7007: xserver-1.10.99.1-test.patch
 
@@ -392,18 +389,11 @@ install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}
 # Make the source package
 %define xserver_source_dir %{_datadir}/xorg-x11-server-source
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
-mkdir -p %{inst_srcdir}/{doc/xml{,/dtrace},Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
-mkdir -p %{inst_srcdir}/{hw/dmx/doc,doc/man}
-cp {,%{inst_srcdir}/}doc/xml/xmlrules.in
-cp {,%{inst_srcdir}/}doc/xml/xmlrules-noinst.in
-cp {,%{inst_srcdir}/}doc/xml/xmlrules-inst.in
-cp {,%{inst_srcdir}/}doc/xml/xserver.ent.in
-cp {,%{inst_srcdir}/}doc/xml/Xserver-spec.xml
-cp {,%{inst_srcdir}/}doc/xml/dtrace/Xserver-DTrace.xml
+mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
+mkdir -p %{inst_srcdir}/{hw/dmx/doc,man,doc}
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
-cp {,%{inst_srcdir}/}doc/man/Xserver.man
+cp {,%{inst_srcdir}/}man/Xserver.man
 cp {,%{inst_srcdir}/}doc/smartsched
-cp {,%{inst_srcdir}/}hw/dmx/doc/doxygen.conf.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
@@ -560,6 +550,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Aug 18 2011 Adam Jackson <ajax@redhat.com> 1.10.99.902-1.20110818
+- xserver 1.11rc2
+
 * Fri Jul 29 2011 Dave Airlie <airlied@redhat.com> 1.10.99.1-10.2011051
 - xvfb-run requires xauth installed, fix requires (from jlaska on irc)
 
