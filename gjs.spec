@@ -23,9 +23,6 @@ BuildRequires: pkgconfig
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
 
-# https://bugzilla.gnome.org/show_bug.cgi?id=655482
-Patch0: install-gi-headers.patch
-
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
 Spidermonkey Javascript engine from Mozilla and the GObject introspection
@@ -43,7 +40,6 @@ Files for development with %{name}.
 %prep
 %setup -q
 
-%patch0 -p1 -b .headers
 rm -f configure
 
 %build
