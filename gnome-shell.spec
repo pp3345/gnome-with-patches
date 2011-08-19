@@ -1,13 +1,15 @@
+%define alphatag gite7b9933
+
 Name:           gnome-shell
 Version:        3.1.4
-Release:        2%{?dist}
+Release:        2.%{alphatag}%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.1/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.1/%{name}-%{version}-%{alphatag}.tar.bz2
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
 # from upstream
@@ -148,8 +150,8 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
-* Fri Aug 19 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.4-2
-- Rebuild
+* Fri Aug 19 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.4-2.gite7b9933
+- git snapshot that builds against gnome-menus 3.1.5
 
 * Thu Aug 18 2011 Matthew Barnes <mbarnes@redhat.com> - 3.1.5-1
 - Rebuild against newer eds libraries.
