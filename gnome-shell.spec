@@ -148,6 +148,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Fri Aug 19 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.4-2
+- Rebuild
+
 * Thu Aug 18 2011 Matthew Barnes <mbarnes@redhat.com> - 3.1.5-1
 - Rebuild against newer eds libraries.
 
