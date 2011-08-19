@@ -26,7 +26,7 @@ BuildRequires:  desktop-file-utils
 BuildRequires:  evolution-data-server-devel >= %{eds_version}
 BuildRequires:  gjs-devel >= 0.7.14-6
 BuildRequires:  glib2-devel
-BuildRequires:  gnome-menus-devel
+BuildRequires:  gnome-menus-devel >= 3.1.5-2.fc16
 BuildRequires:  gnome-desktop3-devel
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  upower-devel
