@@ -1,8 +1,7 @@
 Name:           gjs
-Version:        1.29.0
-Release:        3%{?dist}
+Version:        1.29.16
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
-
 Group:          System Environment/Libraries
 # The following files contain code from Mozilla which
 # is triple licensed under MPL1.1/LGPLv2+/GPLv2+:
@@ -11,8 +10,7 @@ Group:          System Environment/Libraries
 License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
 #VCS:           git://git.gnome.org/gjs
-Source0:        ftp://ftp.gnome.org/pub/GNOME/sources/%{name}/1.29/%{name}-%{version}.tar.xz
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Source0:        http://download.gnome.org/sources/%{name}/1.29/%{name}-%{version}.tar.xz
 
 BuildRequires: js-devel
 BuildRequires: cairo-devel
@@ -41,6 +39,8 @@ Files for development with %{name}.
 %prep
 %setup -q
 
+rm -f configure
+
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static)
@@ -48,7 +48,6 @@ Files for development with %{name}.
 make %{?_smp_mflags}
 
 %install
-rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
 #Remove libtool archives.
@@ -57,33 +56,32 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %check
 #make check
 
-%clean
-rm -rf %{buildroot}
-
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
 %doc COPYING NEWS README
 %{_bindir}/gjs
 %{_bindir}/gjs-console
 %{_libdir}/*.so.*
 %{_libdir}/gjs-1.0
+%{_libdir}/gjs/*.typelib
 %{_datadir}/gjs-1.0
 
 %files devel
-%defattr(-,root,root,-)
 %doc examples/*
 %{_includedir}/gjs-1.0
+%{_libdir}/gjs/*.gir
 %{_libdir}/pkgconfig/gjs-1.0.pc
-%{_libdir}/pkgconfig/gjs-gi-1.0.pc
 %{_libdir}/pkgconfig/gjs-dbus-1.0.pc
 %{_libdir}/pkgconfig/gjs-internals-1.0.pc
 %{_libdir}/*.so
 
 %changelog
+* Thu Aug 18 2011 Matthias Clasen <mclasen@redhat.com> 1.29.16-1
+- Update to 1.29.16
+
 * Thu Jul 28 2011 Colin Walters <walters@verbum.org> - 1.29.0-3
 - BR latest g-i to fix build issue
 
