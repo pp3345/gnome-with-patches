@@ -1,5 +1,5 @@
 Name:           gjs
-Version:        1.29.16
+Version:        1.29.17
 Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 Group:          System Environment/Libraries
@@ -79,6 +79,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Tue Aug 30 2011 Matthias Clasen <mclasen@redhat.com> 1.29.17-1
+- Update to 1.29.17
+
 * Thu Aug 18 2011 Matthias Clasen <mclasen@redhat.com> 1.29.16-1
 - Update to 1.29.16
 
