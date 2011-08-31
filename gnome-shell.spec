@@ -2,7 +2,7 @@
 
 Name:           gnome-shell
 Version:        3.1.4
-Release:        2.%{alphatag}%{?dist}
+Release:        3.%{alphatag}%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -150,6 +150,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Aug 31 2011 Adam Williamson <awilliam@redhat.com> - 3.1.4-3.gite7b9933
+- rebuild against e-d-s
+
 * Fri Aug 19 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.4-2.gite7b9933
 - git snapshot that builds against gnome-menus 3.1.5
 
