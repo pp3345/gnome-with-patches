@@ -29,6 +29,7 @@ BuildRequires:  gnome-menus-devel >= 3.1.5-2.fc16
 BuildRequires:  gnome-desktop3-devel
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  upower-devel
+BuildRequires:  NetworkManager-devel
 BuildRequires:  polkit-devel
 BuildRequires:  telepathy-glib-devel
 BuildRequires:  telepathy-logger-devel >= 0.2.6
@@ -38,6 +39,8 @@ BuildRequires:  gtk3-devel
 BuildRequires:  intltool
 BuildRequires:  libcanberra-devel
 BuildRequires:  libcroco-devel
+BuildRequires:  folks-devel
+
 # for barriers
 BuildRequires:  libXfixes-devel >= 5.0
 # used in unused BigThemeImage
