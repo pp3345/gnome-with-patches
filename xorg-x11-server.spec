@@ -25,11 +25,11 @@
 %define extension_minor 0
 
 %define pkgname xorg-server
-%define gitdate 20110818
+#define gitdate 20110818
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.10.99.902
+Version:   1.11.0
 Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
@@ -550,6 +550,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Sep 06 2011 Adam Jackson <ajax@redhat.com> 1.11.0-1
+- xserver 1.11.0
+
 * Thu Aug 18 2011 Adam Jackson <ajax@redhat.com> 1.10.99.902-1.20110818
 - xserver 1.11rc2
 
