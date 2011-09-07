@@ -1,6 +1,6 @@
 
 Name:           gnome-shell
-Version:        3.1.90.1
+Version:        3.1.91
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -76,6 +76,8 @@ Requires:       upower
 Requires:       polkit >= 0.100
 # needed for schemas
 Requires:       at-spi2-atk
+# needed for on-screen keyboard
+Requires:       caribou
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -152,6 +154,10 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Sep  7 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.91-1
+- Update to 3.1.91
+- Require caribou
+
 * Wed Aug 31 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.90.1-1
 - Update to 3.1.90.1
 
