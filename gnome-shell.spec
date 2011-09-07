@@ -1,7 +1,7 @@
 
 Name:           gnome-shell
 Version:        3.1.91
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -11,7 +11,8 @@ URL:            http://live.gnome.org/GnomeShell
 Source0:        http://download.gnome.org/sources/gnome-shell/3.1/%{name}-%{version}.tar.xz
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
-# from upstream
+# Replace Epiphany with Firefox in the default favourite apps list
+Patch1: gnome-shell-favourite-apps-firefox.patch
 
 %define clutter_version 1.4.0
 %define gobject_introspection_version 0.10.1
@@ -89,6 +90,7 @@ easy to use experience.
 %prep
 %setup -q
 %patch0 -p1 -b .avoid-redhat-menus
+%patch1 -p1 -b .firefox
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -154,6 +156,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Sep 07 2011 Kalev Lember <kalevlember@gmail.com> - 3.1.91-2
+- Replace Epiphany with Firefox in the default favourite apps
+
 * Wed Sep  7 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.91-1
 - Update to 3.1.91
 - Require caribou
