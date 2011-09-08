@@ -1,7 +1,7 @@
 
 Name:           gnome-shell
 Version:        3.1.91
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -108,10 +108,13 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
 
 %find_lang %{name}
 
+%ifnarch s390 s390x
 # The libdir rpath breaks nvidia binary only folks, so we remove it.
 # See bug 716572
+# skip on s390(x), workarounds a chrpath issue
 chrpath -r %{_libdir}/gnome-shell:%{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_bindir}/gnome-shell
 chrpath -r %{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_libdir}/gnome-shell/libgnome-shell.so
+%endif
 
 %files -f %{name}.lang
 %doc COPYING README
@@ -156,6 +159,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Thu Sep 08 2011 Dan Horák <dan[at]danny.cz> - 3.1.91-3
+- workaround a chrpath issue on s390(x)
+
 * Wed Sep 07 2011 Kalev Lember <kalevlember@gmail.com> - 3.1.91-2
 - Replace Epiphany with Firefox in the default favourite apps
 
