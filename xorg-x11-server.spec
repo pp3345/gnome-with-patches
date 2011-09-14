@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.0
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -390,10 +390,12 @@ install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}
 %define xserver_source_dir %{_datadir}/xorg-x11-server-source
 %define inst_srcdir %{buildroot}/%{xserver_source_dir}
 mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
-mkdir -p %{inst_srcdir}/{hw/dmx/doc,man,doc}
+mkdir -p %{inst_srcdir}/{hw/dmx/doc,man,doc,hw/dmx/doxygen}
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
 cp {,%{inst_srcdir}/}man/Xserver.man
 cp {,%{inst_srcdir}/}doc/smartsched
+cp {,%{inst_srcdir}/}hw/dmx/doxygen/doxygen.conf.in
+cp {,%{inst_srcdir}/}xserver.ent.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
 cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
@@ -550,6 +552,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Sep 12 2011 Adam Tkac <atkac redhat com> 1.11.0-2
+- ship more files in the -source subpkg
+
 * Tue Sep 06 2011 Adam Jackson <ajax@redhat.com> 1.11.0-1
 - xserver 1.11.0
 
