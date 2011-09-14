@@ -1,7 +1,6 @@
-
 Name:           gnome-shell
-Version:        3.1.91
-Release:        3%{?dist}
+Version:        3.1.91.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -18,6 +17,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gobject_introspection_version 0.10.1
 %define mutter_version 3.0.0
 %define eds_version 2.91.6
+%define json_glib_version 0.13.2
 
 BuildRequires:  chrpath
 BuildRequires:  clutter-devel >= %{clutter_version}
@@ -29,6 +29,7 @@ BuildRequires:  glib2-devel
 BuildRequires:  gnome-menus-devel >= 3.1.5-2.fc16
 BuildRequires:  gnome-desktop3-devel
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
+BuildRequires:  json-glib-devel >= %{json_glib_version}
 BuildRequires:  upower-devel
 BuildRequires:  NetworkManager-glib-devel
 BuildRequires:  polkit-devel
@@ -60,19 +61,13 @@ Requires:       GConf2
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
 Requires:       gobject-introspection >= %{gobject_introspection_version}
-Requires:       gnome-python2-gconf
-Requires:       pygobject2
-# wrapper script uses to figure out available GLX capabilities
-Requires:       glx-utils
 # needed for loading SVG's via gdk-pixbuf
 Requires:       librsvg2
 # needed as it is now split from Clutter
-Requires:       json-glib
+Requires:       json-glib >= %{json_glib_version}
+# For $libdir/mozilla/plugins
+Requires:       mozilla-filesystem
 Requires:       mutter >= %{mutter_version}
-# These are needed to run gnome-shell nested Xephyr mode, but that's a
-# developer-only thing and unlikely to be interesting for a normal user
-#Requires:       xorg-x11-server-Xephyr
-#Requires:       xorg-x11-xauth
 Requires:       upower
 Requires:       polkit >= 0.100
 # needed for schemas
@@ -102,7 +97,7 @@ export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 make install DESTDIR=$RPM_BUILD_ROOT
 unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 
-rm -rf %{buildroot}/%{_libdir}/mutter/plugins/*.la
+rm -rf %{buildroot}/%{_libdir}/mozilla/plugins/*.la
 
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
 
@@ -126,6 +121,7 @@ chrpath -r %{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_libdir}/gnome-shell/libg
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
 %{_libdir}/gnome-shell/
+%{_libdir}/mozilla/plugins/*.so
 %{_libexecdir}/gnome-shell-calendar-server
 %{_libexecdir}/gnome-shell-perf-helper
 %{_libexecdir}/gnome-shell-hotplug-sniffer
@@ -159,6 +155,10 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Sep 14 2011 Owen Taylor <otaylor@redhat.com> - 3.1.91.1-1
+- Update to 3.1.91.1 (adds browser plugin)
+  Update Requires
+
 * Thu Sep 08 2011 Dan Horák <dan[at]danny.cz> - 3.1.91-3
 - workaround a chrpath issue on s390(x)
 
