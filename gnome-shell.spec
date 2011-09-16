@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.1.91.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -55,25 +55,25 @@ BuildRequires:  gnome-bluetooth >= 2.91
 %endif
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
-Requires:       gnome-menus >= 3.0.0-2
+Requires:       gnome-menus%{?_isa} >= 3.0.0-2
 # For %pre/%post usage of gconftool-2
-Requires:       GConf2
+Requires:       GConf2%{?_isa}
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
-Requires:       gobject-introspection >= %{gobject_introspection_version}
+Requires:       gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 # needed for loading SVG's via gdk-pixbuf
-Requires:       librsvg2
+Requires:       librsvg2%{?_isa}
 # needed as it is now split from Clutter
-Requires:       json-glib >= %{json_glib_version}
+Requires:       json-glib%{?_isa} >= %{json_glib_version}
 # For $libdir/mozilla/plugins
-Requires:       mozilla-filesystem
-Requires:       mutter >= %{mutter_version}
-Requires:       upower
-Requires:       polkit >= 0.100
+Requires:       mozilla-filesystem%{?_isa}
+Requires:       mutter%{?_isa} >= %{mutter_version}
+Requires:       upower%{?_isa}
+Requires:       polkit%{?_isa} >= 0.100
 # needed for schemas
-Requires:       at-spi2-atk
+Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
-Requires:       caribou
+Requires:       caribou%{?_isa}
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -155,6 +155,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Fri Sep 16 2011 Kalev Lember <kalevlember@gmail.com> - 3.1.91.1-2
+- Tighten dependencies by specifying the required arch (#739130)
+
 * Wed Sep 14 2011 Owen Taylor <otaylor@redhat.com> - 3.1.91.1-1
 - Update to 3.1.91.1 (adds browser plugin)
   Update Requires
