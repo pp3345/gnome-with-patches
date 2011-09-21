@@ -1,7 +1,8 @@
 Name:           gjs
-Version:        1.29.17
-Release:        2%{?dist}
+Version:        1.29.18
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
+
 Group:          System Environment/Libraries
 # The following files contain code from Mozilla which
 # is triple licensed under MPL1.1/LGPLv2+/GPLv2+:
@@ -79,6 +80,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Wed Sep 21 2011 Matthias Clasen <mclasen@redhat.com> 1.29.18-1
+- Update to 1.29.18
+
 * Mon Sep 05 2011 Luis Bazan <bazanluis20@gmail.com> 1.29.17-2
 - mass rebuild
 
