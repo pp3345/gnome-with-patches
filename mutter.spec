@@ -1,12 +1,12 @@
 Name:          mutter
-Version:       3.1.3.1
-Release:       2%{?dist}
+Version:       3.1.92
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
-Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/3.1/%{name}-%{version}.tar.bz2
+Source0:       ftp://ftp.gnome.org/pub/gnome/sources/%{name}/3.1/%{name}-%{version}.tar.xz
 
 BuildRequires: clutter-devel >= 1.5.8
 BuildRequires: pango-devel
@@ -119,7 +119,6 @@ gconftool-2 --makefile-install-rule \
 %postun -p /sbin/ldconfig
 
 %files -f %{name}.lang
-%defattr(-,root,root,-)
 %doc README AUTHORS COPYING NEWS HACKING doc/theme-format.txt
 %doc %{_mandir}/man1/mutter.1.gz
 %doc %{_mandir}/man1/mutter-message.1.gz
@@ -133,7 +132,6 @@ gconftool-2 --makefile-install-rule \
 %{_libdir}/mutter/
 
 %files devel
-%defattr(-,root,root,-)
 %{_bindir}/mutter-theme-viewer
 %{_bindir}/mutter-window-demo
 %{_includedir}/*
@@ -143,6 +141,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Sep 20 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.92-1
+- Update to 3.1.92
+
 * Mon Jul  4 2011 Peter Robinson <pbrobinson@gmail.com> - 3.1.3.1-2
 - rebuild against new clutter/cogl
 
