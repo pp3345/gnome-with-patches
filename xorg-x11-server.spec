@@ -21,7 +21,7 @@
 %define videodrv_minor 0
 %define xinput_major 13
 %define xinput_minor 0
-%define extension_major 5
+%define extension_major 6
 %define extension_minor 0
 
 %define pkgname xorg-server
@@ -29,8 +29,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.11.0
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.11.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -552,6 +552,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Sep 26 2011 Adam Jackson <ajax@redhat.com> 1.11.1-1
+- xserver 1.11.1
+
 * Mon Sep 12 2011 Adam Tkac <atkac redhat com> 1.11.0-2
 - ship more files in the -source subpkg
 
