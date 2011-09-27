@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.1.91.1
-Release:        2%{?dist}
+Version:        3.2.0
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -155,6 +155,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Tue Sep 27 2011 Ray <rstrode@redhat.com> - 3.2.0-1
+- Update to 3.2.0
+
 * Fri Sep 16 2011 Kalev Lember <kalevlember@gmail.com> - 3.1.91.1-2
 - Tighten dependencies by specifying the required arch (#739130)
 
