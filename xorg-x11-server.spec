@@ -149,7 +149,6 @@ Summary: Xorg server common files
 Group: User Interface/X
 Requires: pixman >= 0.21.8
 Requires: xkeyboard-config xkbcomp
-Requires: libXfont >= 1.4.2
 
 %description common
 Common files shared among all X servers.
@@ -166,9 +165,7 @@ Provides: xserver-abi(xinput-%{xinput_major}) = %{xinput_minor}
 Provides: xserver-abi(extension-%{extension_major}) = %{extension_minor}
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
-Requires: libdrm >= 2.4.20
 Requires: system-setup-keyboard
-Requires: udev >= 148-1
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -552,6 +549,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Oct 13 2011 Adam Jackson <ajax@redhat.com>
+- Drop some Requires >= on things where we had newer versions in F14.
+
 * Mon Sep 26 2011 Adam Jackson <ajax@redhat.com> 1.11.1-1
 - xserver 1.11.1
 
