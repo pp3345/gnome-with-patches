@@ -1,13 +1,13 @@
 Name:           gnome-shell
-Version:        3.2.0
-Release:        2%{?dist}
+Version:        3.2.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.1/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.2/%{name}-%{version}.tar.xz
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
 # Replace Epiphany with Firefox in the default favourite apps list
@@ -155,11 +155,17 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
-* Mon Oct 03 2011 Brian Pepple <bpepple@fedoraproject.org> - 3.2.0-2
-- Rebuld against new tp-glib.
+* Wed Oct 19 2011 Matthias Clasen <mclasen@redhat.com> - 3.2.1-1
+- Update to 3.2.1
 
-* Tue Sep 27 2011 Ray <rstrode@redhat.com> - 3.2.0-1
+* Wed Sep 28 2011 Ray Strode <rstrode@redhat.com> 3.2.0-2
+- rebuild
+
+* Mon Sep 26 2011 Owen Taylor <otaylor@redhat.com> - 3.2.0-1
 - Update to 3.2.0
+
+* Tue Sep 20 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.92-1
+- Update to 3.1.92
 
 * Fri Sep 16 2011 Kalev Lember <kalevlember@gmail.com> - 3.1.91.1-2
 - Tighten dependencies by specifying the required arch (#739130)
@@ -176,6 +182,8 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 * Wed Sep  7 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.91-1
 - Update to 3.1.91
+
+* Thu Sep  1 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.90.1-2
 - Require caribou
 
 * Wed Aug 31 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.90.1-1
