@@ -30,7 +30,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.1
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -86,6 +86,9 @@ Patch7007: xserver-1.10.99.1-test.patch
 # Multi-seat support through config/udev backend.
 # Submitted to upstream but not merged for 1.11
 Patch7009: xserver-1.10.99-config-add-udev-systemd-multi-seat-support.patch
+
+# Bug 737031 - [Crestline] Coredump when doing exit
+Patch7010: 0001-dix-block-signals-when-closing-all-devices.patch
 
 
 %define moduledir	%{_libdir}/xorg/modules
@@ -549,6 +552,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Oct 24 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.11.1-2
+- Block signals when removing all input devices #737031
+
 * Thu Oct 13 2011 Adam Jackson <ajax@redhat.com>
 - Drop some Requires >= on things where we had newer versions in F14.
 

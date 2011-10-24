@@ -1,0 +1,46 @@
+From 01e37883438b0bedf511f0b56d31943ad2a192f5 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Mon, 24 Oct 2011 12:00:32 +1000
+Subject: [PATCH] dix: block signals when closing all devices
+
+When closing down all devices, we manually unset master for all attached
+devices, but the device's sprite info still points to the master's sprite
+info. This leaves us a window where the master is freed already but the
+device isn't yet. A signal during that window causes dereference of the
+already freed spriteInfo in mieqEnqueue's EnqueueScreen macro.
+
+Simply block signals when removing all devices. It's not like we're really
+worrying about high-responsive input at this stage.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=737031
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ dix/devices.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/dix/devices.c b/dix/devices.c
+index 63454fe..4a525d5 100644
+--- a/dix/devices.c
++++ b/dix/devices.c
+@@ -971,6 +971,8 @@ CloseDownDevices(void)
+ {
+     DeviceIntPtr dev;
+ 
++    OsBlockSignals();
++
+     /* Float all SDs before closing them. Note that at this point resources
+      * (e.g. cursors) have been freed already, so we can't just call
+      * AttachDevice(NULL, dev, NULL). Instead, we have to forcibly set master
+@@ -993,6 +995,8 @@ CloseDownDevices(void)
+     inputInfo.keyboard = NULL;
+     inputInfo.pointer = NULL;
+     XkbDeleteRulesDflts();
++
++    OsReleaseSignals();
+ }
+ 
+ /**
+-- 
+1.7.7
+
