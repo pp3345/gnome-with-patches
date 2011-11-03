@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.2.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -88,6 +88,7 @@ easy to use experience.
 %patch1 -p1 -b .firefox
 
 %build
+export CFLAGS="$RPM_OPT_FLAGS -Wno-error=deprecated-declarations"
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static)
 make V=1 %{?_smp_mflags}
@@ -155,6 +156,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Thu Nov 03 2011 Adam Jackson <ajax@redhat.com> 3.2.1-5
+- Build with -Wno-error=disabled-declarations for the moment
+
 * Wed Nov 02 2011 Brian Pepple <bpepple@fedoraproject.org> - 3.2.1-4
 - Rebuld against tp-logger.
 
