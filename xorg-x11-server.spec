@@ -13,7 +13,7 @@
 #
 # Fix rhpxl to no longer need vesamodes/extramodes
 
-#define gitdate 20110818
+%define gitdate 20111109
 
 %if !0%{?gitdate}
 
@@ -50,8 +50,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.11.1
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.11.99.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,8 +76,11 @@ Source10:   xserver.pamd
 Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 
 # for requires generation in drivers
-Source30:  xserver-sdk-abi-requires.release
-Source31:  xserver-sdk-abi-requires.git
+Source30: xserver-sdk-abi-requires.release
+Source31: xserver-sdk-abi-requires.git
+
+# maintainer convenience script
+Source40: driver-abi-rebuild.sh
 
 # OpenGL compositing manager feature/optimization patches.
 # FIXME: who calls this?
@@ -89,9 +92,6 @@ Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 
 # don't build the (broken) acpi code
 Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
-
-# Make autoconfiguration chose nouveau driver for NVIDIA GPUs
-Patch6016: xserver-1.6.1-nouveau.patch
 
 # ajax needs to upstream this
 Patch6027: xserver-1.6.0-displayfd.patch
@@ -105,13 +105,8 @@ Patch6053: xserver-1.8-disable-vboxvideo.patch
 # tests require Xorg
 Patch7007: xserver-1.10.99.1-test.patch
 
-# Multi-seat support through config/udev backend.
-# Submitted to upstream but not merged for 1.11
-Patch7009: xserver-1.10.99-config-add-udev-systemd-multi-seat-support.patch
-
-# Bug 737031 - [Crestline] Coredump when doing exit
-Patch7010: 0001-dix-block-signals-when-closing-all-devices.patch
-
+# Fix selinux build error
+Patch7010: 0001-Xext-don-t-swap-CARD8-in-SProcSELinuxQueryVersion.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -154,7 +149,7 @@ BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 BuildRequires: libXv-devel
 
 BuildRequires: pixman-devel >= 0.21.8
-BuildRequires: libpciaccess-devel >= 0.10.6-1 openssl-devel byacc flex
+BuildRequires: libpciaccess-devel >= 0.12.901-1 openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 7.6-0.6
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
@@ -388,6 +383,7 @@ make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
 
 %if %{with_hw_servers}
 rm -f $RPM_BUILD_ROOT%{_libdir}/xorg/modules/libxf8_16bpp.so
+rm -rf $RPM_BUILD_ROOT%{_libdir}/xorg/modules/multimedia/
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/xorg
@@ -493,14 +489,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/extensions/librecord.so
 %dir %{_libdir}/xorg/modules/input
 %{_libdir}/xorg/modules/libfbdevhw.so
-%dir %{_libdir}/xorg/modules/multimedia
-%{_libdir}/xorg/modules/multimedia/bt829_drv.so
-%{_libdir}/xorg/modules/multimedia/fi1236_drv.so
-%{_libdir}/xorg/modules/multimedia/msp3430_drv.so
-%{_libdir}/xorg/modules/multimedia/tda8425_drv.so
-%{_libdir}/xorg/modules/multimedia/tda9850_drv.so
-%{_libdir}/xorg/modules/multimedia/tda9885_drv.so
-%{_libdir}/xorg/modules/multimedia/uda1380_drv.so
 %{_libdir}/xorg/modules/libexa.so
 %{_libdir}/xorg/modules/libfb.so
 %{_libdir}/xorg/modules/libint10.so
@@ -580,6 +568,13 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Nov 09 2011 Peter Hutterer <peter.hutterer@redhat.com>  1.11.99.1-1.20111109
+- Update to today's git snapshot
+- xserver-1.6.1-nouveau.patch: drop, upstream
+- xserver-1.10.99-config-add-udev-systemd-multi-seat-support.patch: drop,
+  upstream
+- 0001-dix-block-signals-when-closing-all-devices.patch: drop, upstream
+
 * Wed Nov 09 2011 Adam Jackson <ajax@redhat.com>
 - Change the ABI magic for snapshots
 
