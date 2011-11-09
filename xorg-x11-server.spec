@@ -13,8 +13,13 @@
 #
 # Fix rhpxl to no longer need vesamodes/extramodes
 
-# ABI versions.  Have to keep these manually in sync with the source
-# because rpm is a terrible language.  HTFU.
+#define gitdate 20110818
+
+%if !0%{?gitdate}
+
+# Released ABI versions.  Have to keep these manually in sync with the
+# source because rpm is a terrible language.
+
 %define ansic_major 0
 %define ansic_minor 4
 %define videodrv_major 11
@@ -24,8 +29,24 @@
 %define extension_major 6
 %define extension_minor 0
 
+%else
+
+# For git snapshots, use date for major and a serial number for minor
+
+%define minor_serial 0
+
+%define ansic_major %{gitdate}
+%define ansic_minor %{minor_serial}
+%define videodrv_major %{gitdate}
+%define videodrv_minor %{minor_serial}
+%define xinput_major %{gitdate}
+%define xinput_minor %{minor_serial}
+%define extension_major %{gitdate}
+%define extension_minor %{minor_serial}
+
+%endif
+
 %define pkgname xorg-server
-#define gitdate 20110818
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
@@ -55,7 +76,8 @@ Source10:   xserver.pamd
 Source20:  http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh
 
 # for requires generation in drivers
-Source30:  xserver-sdk-abi-requires
+Source30:  xserver-sdk-abi-requires.release
+Source31:  xserver-sdk-abi-requires.git
 
 # OpenGL compositing manager feature/optimization patches.
 # FIXME: who calls this?
@@ -302,7 +324,7 @@ git commit -a -q -m "%{version} baseline."
 # Apply all the patches.
 git am -p1 %{patches}
 
-%if %{with_hw_servers}
+%if %{with_hw_servers} && !0%{?gitdate}
 # check the ABI in the source against what we expect.
 getmajor() {
     grep -i ^#define.ABI.$1_VERSION hw/xfree86/common/xf86Module.h |
@@ -382,7 +404,13 @@ install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
-install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}
+
+%if 0%{?gitdate}
+sed -e s/@MAJOR@/%{gitdate}/g -e s/@MINOR/%{minor_serial}/g %{SOURCE31} > \
+    $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
+%else
+install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
+%endif
 
 %endif
 
@@ -552,6 +580,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Nov 09 2011 Adam Jackson <ajax@redhat.com>
+- Change the ABI magic for snapshots
+
 * Mon Oct 24 2011 Peter Hutterer <peter.hutterer@redhat.com> 1.11.1-2
 - Block signals when removing all input devices #737031
 
