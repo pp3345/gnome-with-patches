@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.2.1
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -156,6 +156,9 @@ gconftool-2 --makefile-install-rule \
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Nov 09 2011 Kalev Lember <kalevlember@gmail.com> - 3.2.1-6
+- Adapt to firefox desktop file name change in F17
+
 * Thu Nov 03 2011 Adam Jackson <ajax@redhat.com> 3.2.1-5
 - Build with -Wno-error=disabled-declarations for the moment
 
