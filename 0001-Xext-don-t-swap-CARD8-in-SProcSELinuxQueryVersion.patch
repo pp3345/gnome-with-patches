@@ -1,0 +1,37 @@
+From f8bd07745954d0e164b2f4dfcb667a269c842e71 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 9 Nov 2011 15:31:10 +1000
+Subject: [PATCH] Xext: don't swap CARD8 in SProcSELinuxQueryVersion
+
+xselinux_ext.c: In function 'SELinuxSendItemsToClient':
+xselinux_ext.c:340:16: warning: unused variable 'n' [-Wunused-variable]
+xselinux_ext.c: In function 'SProcSELinuxQueryVersion':
+xselinux_ext.c:532:62: error: call to 'wrong_size' declared with attribute
+error: wrong sized variable passed to swap
+xselinux_ext.c:533:62: error: call to 'wrong_size' declared with attribute
+error: wrong sized variable passed to swap
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ Xext/xselinux_ext.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
+
+diff --git a/Xext/xselinux_ext.c b/Xext/xselinux_ext.c
+index 56f2d1f..641368a 100644
+--- a/Xext/xselinux_ext.c
++++ b/Xext/xselinux_ext.c
+@@ -526,11 +526,6 @@ ProcSELinuxDispatch(ClientPtr client)
+ static int
+ SProcSELinuxQueryVersion(ClientPtr client)
+ {
+-    REQUEST(SELinuxQueryVersionReq);
+-
+-    REQUEST_SIZE_MATCH(SELinuxQueryVersionReq);
+-    swaps(&stuff->client_major);
+-    swaps(&stuff->client_minor);
+     return ProcSELinuxQueryVersion(client);
+ }
+ 
+-- 
+1.7.7
+
