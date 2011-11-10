@@ -14,8 +14,9 @@
 # Fix rhpxl to no longer need vesamodes/extramodes
 
 %define gitdate 20111109
+%define stable_abi 0
 
-%if !0%{?gitdate}
+%if !0%{?gitdate} || %{stable_abi}
 
 # Released ABI versions.  Have to keep these manually in sync with the
 # source because rpm is a terrible language.
