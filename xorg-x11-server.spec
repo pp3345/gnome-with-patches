@@ -52,7 +52,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.1
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -403,7 +403,7 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
 %if 0%{?gitdate}
-sed -e s/@MAJOR@/%{gitdate}/g -e s/@MINOR/%{minor_serial}/g %{SOURCE31} > \
+sed -e s/@MAJOR@/%{gitdate}/g -e s/@MINOR@/%{minor_serial}/g %{SOURCE31} > \
     $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
 chmod 755 $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
 %else
@@ -570,7 +570,7 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
-* Mon Nov 14 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-2
+* Mon Nov 14 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-3
 - Fix permissions on abi script when doing git snapshots
 
 * Wed Nov 09 2011 Peter Hutterer <peter.hutterer@redhat.com>  1.11.99.1-1.20111109
