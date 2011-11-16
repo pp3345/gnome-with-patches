@@ -52,7 +52,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.1
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -187,8 +187,10 @@ Provides: xserver-abi(extension-%{extension_major}) = %{extension_minor}
 # Dropped from F17, use evdev
 Obsoletes: xorg-x11-drv-acecad <= 1.5.0-2.fc16
 Obsoletes: xorg-x11-drv-aiptek <= 1.4.1-2.fc16
+Obsoletes: xorg-x11-drv-elographics <= 1.3.0-2.fc16
 Obsoletes: xorg-x11-drv-fpit <= 1.4.0-2.fc16
 Obsoletes: xorg-x11-drv-hyperpen <= 1.4.1-2.fc16
+Obsoletes: xorg-x11-drv-mutouch <= 1.3.0-2.fc16
 Obsoletes: xorg-x11-drv-penmount <= 1.5.0-3.fc16
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
@@ -576,7 +578,7 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
-* Wed Nov 16 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-4
+* Wed Nov 16 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-5
 - Obsolete some dead input drivers.
 
 * Mon Nov 14 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-3
