@@ -52,7 +52,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.1
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Release:   7%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -356,9 +356,9 @@ test `getminor extension` == %{extension_minor}
 %define default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
 
 %if %{with_hw_servers}
-%define dri_flags --disable-dri --enable-dri2 --with-dri-driver-path=%{drimoduledir}
+%define dri_flags --with-dri-driver-path=%{drimoduledir}
 %else
-%define dri_flags --disable-dri --disable-dri2
+%define dri_flags --disable-dri
 %endif
 
 %if 0%{?fedora}
@@ -492,6 +492,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules/drivers
 %dir %{_libdir}/xorg/modules/extensions
 %{_libdir}/xorg/modules/extensions/libglx.so
+%{_libdir}/xorg/modules/extensions/libdri.so
 %{_libdir}/xorg/modules/extensions/libdri2.so
 %{_libdir}/xorg/modules/extensions/libdbe.so
 %{_libdir}/xorg/modules/extensions/libextmod.so
@@ -577,6 +578,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Nov 21 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-7
+- Restore DRI1 until drivers are properly prepared for it
+
 * Thu Nov 17 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-6
 - Disable DRI1
 
