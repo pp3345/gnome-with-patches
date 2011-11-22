@@ -28,6 +28,7 @@ BuildRequires: desktop-file-utils
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common intltool
 BuildRequires: libcanberra-devel
+BuildRequires: gsettings-desktop-schemas
 
 Requires: control-center-filesystem
 Requires: startup-notification
