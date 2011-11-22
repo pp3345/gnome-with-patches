@@ -92,7 +92,16 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 
 %post -p /sbin/ldconfig
 
-%postun -p /sbin/ldconfig
+%postun
+/sbin/ldconfig
+%postun
+update-desktop-database -q
+if [ $1 -eq 0 ]; then
+  glib-compile-schemas %{_datadir}/glib-2.0/schemas
+fi
+
+%posttrans
+glib-compile-schemas %{_datadir}/glib-2.0/schemas
 
 %files -f %{name}.lang
 %doc README AUTHORS COPYING NEWS HACKING doc/theme-format.txt
@@ -105,6 +114,8 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter
 %{_libdir}/lib*.so.*
 %{_libdir}/mutter/
+%{_datadir}/GConf/gsettings/mutter-schemas.convert
+%{_datadir}/glib-2.0/schemas/org.gnome.mutter.gschema.xml
 
 %files devel
 %{_bindir}/mutter-theme-viewer
