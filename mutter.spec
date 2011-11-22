@@ -1,19 +1,18 @@
 Name:          mutter
-Version:       3.2.1
-Release:       2%{?dist}
+Version:       3.3.2
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
-Source0:       http://download.gnome.org/sources/%{name}/3.2/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.3/%{name}-%{version}.tar.xz
 
 BuildRequires: clutter-devel >= 1.5.8
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
 BuildRequires: gtk3-devel >= 2.99.0
 BuildRequires: pkgconfig
-BuildRequires: GConf2-devel
 BuildRequires: gobject-introspection-devel
 BuildRequires: libSM-devel
 BuildRequires: libX11-devel
@@ -32,7 +31,6 @@ BuildRequires: libcanberra-devel
 
 Requires: control-center-filesystem
 Requires: startup-notification
-Requires: GConf2
 Requires: dbus-x11
 Requires: zenity
 
@@ -81,9 +79,7 @@ done
 make %{?_smp_mflags} V=1
 
 %install
-export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 make install DESTDIR=$RPM_BUILD_ROOT
-unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 
 #Remove libtool archives.
 rm -rf %{buildroot}/%{_libdir}/*.la
@@ -93,28 +89,7 @@ rm -rf %{buildroot}/%{_libdir}/*.la
 # Mutter contains a .desktop file so we just need to validate it
 desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 
-%pre
-if [ "$1" -gt 1 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule \
-    %{_sysconfdir}/gconf/schemas/mutter.schemas \
-    > /dev/null || :
-fi
-
-%preun
-if [ "$1" -eq 0 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule \
-    %{_sysconfdir}/gconf/schemas/mutter.schemas \
-    > /dev/null || :
-fi
-
-%post
-/sbin/ldconfig
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-install-rule \
-    %{_sysconfdir}/gconf/schemas/mutter.schemas \
-  > /dev/null || :
+%post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
@@ -126,7 +101,6 @@ gconftool-2 --makefile-install-rule \
 %{_bindir}/mutter-message
 %{_datadir}/applications/*.desktop
 %{_datadir}/gnome/wm-properties/mutter-wm.desktop
-%{_sysconfdir}/gconf/schemas/mutter.schemas
 %{_datadir}/mutter
 %{_libdir}/lib*.so.*
 %{_libdir}/mutter/
@@ -141,6 +115,9 @@ gconftool-2 --makefile-install-rule \
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Nov 22 2011 Matthias Clasen <mclasen@redhat.com> - 3.3.2-1
+- Update to 3.3.2
+
 * Wed Oct 26 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.2.1-2
 - Rebuilt for glibc bug#747377
 
