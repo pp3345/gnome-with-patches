@@ -94,8 +94,6 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 
 %postun
 /sbin/ldconfig
-%postun
-update-desktop-database -q
 if [ $1 -eq 0 ]; then
   glib-compile-schemas %{_datadir}/glib-2.0/schemas
 fi
