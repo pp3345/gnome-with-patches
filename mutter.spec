@@ -62,7 +62,7 @@ utilities for testing Metacity/Mutter themes.
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static --with-gtk=3.0)
+ %configure --disable-static --with-gtk=3.0 --enable-compile-warnings=maximum)
 
 SHOULD_HAVE_DEFINED="HAVE_SM HAVE_XINERAMA HAVE_XFREE_XINERAMA HAVE_SHAPE HAVE_RANDR HAVE_STARTUP_NOTIFICATION HAVE_COMPOSITE_EXTENSION"
 
