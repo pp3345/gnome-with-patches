@@ -1,13 +1,13 @@
 Name:           gnome-shell
-Version:        3.2.1
-Release:        6%{?dist}
+Version:        3.3.2
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.2/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.3/%{name}-%{version}.tar.xz
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
 # Replace Epiphany with Firefox in the default favourite apps list
@@ -56,8 +56,6 @@ BuildRequires:  gnome-bluetooth >= 2.91
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
 Requires:       gnome-menus%{?_isa} >= 3.0.0-2
-# For %pre/%post usage of gconftool-2
-Requires:       GConf2%{?_isa}
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
 Requires:       gobject-introspection%{?_isa} >= %{gobject_introspection_version}
@@ -94,9 +92,7 @@ export CFLAGS="$RPM_OPT_FLAGS -Wno-error=deprecated-declarations"
 make V=1 %{?_smp_mflags}
 
 %install
-export GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=1
 make install DESTDIR=$RPM_BUILD_ROOT
-unset GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL
 
 rm -rf %{buildroot}/%{_libdir}/mozilla/plugins/*.la
 
@@ -129,33 +125,16 @@ chrpath -r %{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_libdir}/gnome-shell/libg
 %{_sysconfdir}/gconf/schemas/gnome-shell.schemas
 %{_mandir}/man1/%{name}.1.gz
 
-%pre
-if [ "$1" -gt 1 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule \
-    %{_sysconfdir}/gconf/schemas/gnome-shell.schemas \
-    > /dev/null || :
-fi
-
 %preun
-if [ "$1" -eq 0 ]; then
-  export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-  gconftool-2 --makefile-uninstall-rule \
-    %{_sysconfdir}/gconf/schemas/gnome-shell.schemas \
-    > /dev/null || :
-fi
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
-
-%post
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-install-rule \
-    %{_sysconfdir}/gconf/schemas/gnome-shell.schemas \
-  > /dev/null || :
 
 %posttrans
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Wed Nov 23 2011 Matthias Clasen <mclasen@redhat.com> - 3.3.2-1
+- Update to 3.3.2
+
 * Wed Nov 09 2011 Kalev Lember <kalevlember@gmail.com> - 3.2.1-6
 - Adapt to firefox desktop file name change in F17
 
