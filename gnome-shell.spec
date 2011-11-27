@@ -108,6 +108,12 @@ chrpath -r %{_libdir}/gnome-shell:%{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_b
 chrpath -r %{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_libdir}/gnome-shell/libgnome-shell.so
 %endif
 
+%preun
+glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
+
+%posttrans
+glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
+
 %files -f %{name}.lang
 %doc COPYING README
 %{_bindir}/gnome-shell
@@ -122,14 +128,9 @@ chrpath -r %{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_libdir}/gnome-shell/libg
 %{_libexecdir}/gnome-shell-calendar-server
 %{_libexecdir}/gnome-shell-perf-helper
 %{_libexecdir}/gnome-shell-hotplug-sniffer
-%{_sysconfdir}/gconf/schemas/gnome-shell.schemas
 %{_mandir}/man1/%{name}.1.gz
-
-%preun
-glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
-
-%posttrans
-glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
+# exclude as these should be in a devel package for st etc
+%exclude %{_datadir}/gtk-doc
 
 %changelog
 * Sun Nov 27 2011 Peter Robinson <pbrobinson@fedoraproject.org> - 3.3.2-2
