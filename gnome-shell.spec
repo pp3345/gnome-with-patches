@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.3.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -132,6 +132,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 
 %changelog
+* Sun Nov 27 2011 Peter Robinson <pbrobinson@fedoraproject.org> - 3.3.2-2
+- Rebuild for new clutter and e-d-s
+
 * Wed Nov 23 2011 Matthias Clasen <mclasen@redhat.com> - 3.3.2-1
 - Update to 3.3.2
 
@@ -205,7 +208,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 * Mon Jul 25 2011 Matthias Clasen <mclasen@redhat.com> - 3.1.3-2
 - Rebuild
 
-* Tue Jul  5 2011 Peter Robinson <pbrobinson@gmail.com> - 3.1.3-1
+* Tue Jul  5 2011 Peter Robinson <pbrobinson@fedoraproject.org> - 3.1.3-1
 - Upstream 3.1.3 dev release
 
 * Mon Jun 27 2011 Adam Williamson <awilliam@redhat.com> - 3.0.2-4
