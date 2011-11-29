@@ -52,7 +52,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.1
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -108,6 +108,9 @@ Patch7007: xserver-1.10.99.1-test.patch
 
 # Fix selinux build error
 Patch7010: 0001-Xext-don-t-swap-CARD8-in-SProcSELinuxQueryVersion.patch
+
+# missing file needed to build other stuff
+Patch7011: xserver-1.11.99-optionstr.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -578,6 +581,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Nov 29 2011 Dave Airlie <airlied@redhat.com> 1.11.99.1-8
+- put optionstr.h into devel package
+
 * Mon Nov 21 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-7
 - Restore DRI1 until drivers are properly prepared for it
 
