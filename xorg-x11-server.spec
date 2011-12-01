@@ -9,10 +9,6 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-# TODO list:
-#
-# Fix rhpxl to no longer need vesamodes/extramodes
-
 %define gitdate 20111109
 %define stable_abi 0
 
@@ -98,10 +94,6 @@ Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 Patch6027: xserver-1.6.0-displayfd.patch
 Patch6030: xserver-1.6.99-right-of.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
-
-# Use vesa for VirtualBox, since we don't ship vboxvideo and the
-# fallback to vesa when module is missing seems broken
-Patch6053: xserver-1.8-disable-vboxvideo.patch
 
 # tests require Xorg
 Patch7007: xserver-1.10.99.1-test.patch
@@ -285,11 +277,6 @@ Requires: pkgconfig pixman-devel libpciaccess-devel
 # Virtual provide for transition.  Delete me someday.
 Provides: xorg-x11-server-sdk = %{version}-%{release}
 Provides: xorg-x11-server-static
-# XXX doublecheck me
-Provides: libxf86config = %{version}-%{release}
-Obsoletes: libxf86config < 1.6.99-29
-Provides: libxf86config-devel = %{version}-%{release}
-Obsoletes: libxf86config-devel < 1.6.99-29
 
 
 %description devel
@@ -381,7 +368,6 @@ autoreconf -v --install || exit 1
 	--with-os-name="$(hostname -s) $(uname -r)" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
         --with-dtrace \
-	--enable-install-libxf86config \
 	--enable-xselinux --enable-record \
 	--enable-config-udev \
 	%{dri_flags} %{?bodhi_flags} \
@@ -397,9 +383,6 @@ make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
 rm -f $RPM_BUILD_ROOT%{_libdir}/xorg/modules/libxf8_16bpp.so
 rm -rf $RPM_BUILD_ROOT%{_libdir}/xorg/modules/multimedia/
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
-
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/xorg
-install -m 0444 hw/xfree86/common/{vesa,extra}modes $RPM_BUILD_ROOT%{_datadir}/xorg/
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 install -m 644 %{SOURCE10} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/xserver
@@ -435,7 +418,6 @@ cp {,%{inst_srcdir}/}hw/dmx/doxygen/doxygen.conf.in
 cp {,%{inst_srcdir}/}xserver.ent.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
-cp hw/xfree86/common/{vesamodes,extramodes} %{inst_srcdir}/hw/xfree86/common
 
 install -m 0755 %{SOURCE20} $RPM_BUILD_ROOT%{_bindir}/xvfb-run
 
@@ -487,9 +469,6 @@ rm -rf $RPM_BUILD_ROOT
 %{Xorgperms} %{_bindir}/Xorg
 %{_bindir}/cvt
 %{_bindir}/gtf
-%dir %{_datadir}/xorg
-%{_datadir}/xorg/vesamodes
-%{_datadir}/xorg/extramodes
 %dir %{_libdir}/xorg
 %dir %{_libdir}/xorg/modules
 %dir %{_libdir}/xorg/modules/drivers
@@ -572,7 +551,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_includedir}/xorg
 %{sdkdir}/*.h
 %{_datadir}/aclocal/xorg-server.m4
-%{_libdir}/libxf86config.a
 %endif
 
 
@@ -581,6 +559,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Dec 01 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-9
+- xserver-1.8-disable-vboxvideo.patch: Drop, should be fixed now
+- Drop vesamodes and extramodes, rhpxl is no more
+- Stop building libxf86config, pyxf86config will be gone soon
+
 * Tue Nov 29 2011 Dave Airlie <airlied@redhat.com> 1.11.99.1-8
 - put optionstr.h into devel package
 
