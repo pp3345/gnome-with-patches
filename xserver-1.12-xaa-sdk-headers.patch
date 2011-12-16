@@ -1,0 +1,50 @@
+From 2267970ea31d81cd0b9d3ede2eaeec586168b464 Mon Sep 17 00:00:00 2001
+From: Fedora X Ninjas <x@fedoraproject.org>
+Date: Fri, 16 Dec 2011 17:15:04 -0500
+Subject: [PATCH] Always install xaa sdk headers
+
+Signed-off-by: Fedora X Ninjas <x@fedoraproject.org>
+---
+ hw/xfree86/Makefile.am     |    2 --
+ hw/xfree86/xaa/Makefile.am |    4 ++++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/hw/xfree86/Makefile.am b/hw/xfree86/Makefile.am
+index 4f08772..72be889 100644
+--- a/hw/xfree86/Makefile.am
++++ b/hw/xfree86/Makefile.am
+@@ -11,9 +11,7 @@ if XF86UTILS
+ XF86UTILS_SUBDIR = utils
+ endif
+ 
+-if XAA
+ XAA_SUBDIR = xaa
+-endif
+ 
+ if VGAHW
+ VGAHW_SUBDIR = vgahw
+diff --git a/hw/xfree86/xaa/Makefile.am b/hw/xfree86/xaa/Makefile.am
+index 7ebe0b9..78d9348 100644
+--- a/hw/xfree86/xaa/Makefile.am
++++ b/hw/xfree86/xaa/Makefile.am
+@@ -8,6 +8,8 @@ MSB_FIXED = mf-xaaBitmap.c mf-xaaStipple.c mf-xaaTEGlyph.c
+ MSB_3_FIXED = mf3-xaaBitmap.c mf3-xaaStipple.c
+ POLYSEG = s-xaaLine.c s-xaaDashLine.c
+ 
++if XAA
++
+ libxaa_la_LDFLAGS = -module -avoid-version
+ if COMPOSITE
+ libxaa_la_LIBADD = $(top_builddir)/miext/cw/libcw.la
+@@ -60,6 +62,8 @@ ${MSB_3_FIXED}:
+ 	$(AM_V_GEN)echo "#define FIXEDBASE" >> $@
+ 	$(AM_V_GEN)echo '#include "$(srcdir)/${@:mf3-%=%}"' >> $@
+ 
++endif # XAA
++
+ DISTCLEANFILES = $(POLYSEG) \
+ 	$(LSB_FIRST) $(LSB_FIXED) $(MSB_FIRST) $(MSB_FIXED) \
+ 	$(LSB_3_FIRST) $(LSB_3_FIXED) $(MSB_3_FIRST) $(MSB_3_FIXED)
+-- 
+1.7.8
+

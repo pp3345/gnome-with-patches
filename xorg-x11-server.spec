@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.1
-Release:   10%{?gitdate:.%{gitdate}}%{dist}
+Release:   11%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -103,6 +103,9 @@ Patch7010: 0001-Xext-don-t-swap-CARD8-in-SProcSELinuxQueryVersion.patch
 
 # missing file needed to build other stuff
 Patch7011: xserver-1.11.99-optionstr.patch
+
+# always install xaa headers even though we don't build the module
+Patch7012: xserver-1.12-xaa-sdk-headers.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -559,6 +562,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Dec 16 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-11
+- Always install XAA SDK headers so drivers still build
+
 * Thu Dec 15 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-10
 - --disable-xaa
 
