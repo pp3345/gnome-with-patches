@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.1
-Release:   9%{?gitdate:.%{gitdate}}%{dist}
+Release:   10%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -368,6 +368,7 @@ autoreconf -v --install || exit 1
 	--with-os-name="$(hostname -s) $(uname -r)" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
         --with-dtrace \
+	--disable-xaa \
 	--enable-xselinux --enable-record \
 	--enable-config-udev \
 	%{dri_flags} %{?bodhi_flags} \
@@ -489,7 +490,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libvbe.so
 %{_libdir}/xorg/modules/libvgahw.so
 %{_libdir}/xorg/modules/libwfb.so
-%{_libdir}/xorg/modules/libxaa.so
 %{_mandir}/man1/gtf.1*
 %{_mandir}/man1/Xorg.1*
 %{_mandir}/man1/cvt.1*
@@ -559,6 +559,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Dec 15 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-10
+- --disable-xaa
+
 * Thu Dec 01 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-9
 - xserver-1.8-disable-vboxvideo.patch: Drop, should be fixed now
 - Drop vesamodes and extramodes, rhpxl is no more
