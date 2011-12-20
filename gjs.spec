@@ -1,6 +1,6 @@
 Name:           gjs
-Version:        1.31.0
-Release:        2%{?dist}
+Version:        1.31.6
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -82,6 +82,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Tue Dec 20 2011 Matthias Clasen <mclasen@redhat.com> 1.31.6-1
+- 1.31.6
+
 * Fri Dec 02 2011 Karsten Hopp <karsten@redhat.com> 1.31.0-2
 - fix crash on PPC, bugzilla 749604
 
