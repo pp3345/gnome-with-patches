@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-%define gitdate 20111109
+%define gitdate 20120103
 %define stable_abi 0
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -47,8 +47,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.11.99.1
-Release:   11%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.11.99.901
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,12 +97,6 @@ Patch6030: xserver-1.6.99-right-of.patch
 
 # tests require Xorg
 Patch7007: xserver-1.10.99.1-test.patch
-
-# Fix selinux build error
-Patch7010: 0001-Xext-don-t-swap-CARD8-in-SProcSELinuxQueryVersion.patch
-
-# missing file needed to build other stuff
-Patch7011: xserver-1.11.99-optionstr.patch
 
 # always install xaa headers even though we don't build the module
 Patch7012: xserver-1.12-xaa-sdk-headers.patch
@@ -562,6 +556,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Jan 03 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-1.20120103
+- Git snapshot 98cde254acb9b98337ddecf64c138d38c14ec2bf
+- xserver-1.11.99-optionstr.patch: drop
+- 0001-Xext-don-t-swap-CARD8-in-SProcSELinuxQueryVersion.patch: drop
+
 * Fri Dec 16 2011 Adam Jackson <ajax@redhat.com> 1.11.99.1-11
 - Always install XAA SDK headers so drivers still build
 
