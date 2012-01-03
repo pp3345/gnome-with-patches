@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.901
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -100,6 +100,10 @@ Patch7007: xserver-1.10.99.1-test.patch
 
 # always install xaa headers even though we don't build the module
 Patch7012: xserver-1.12-xaa-sdk-headers.patch
+
+# Fix libselinux-triggered build error
+# RedHat/Fedora-specific patch
+Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -556,6 +560,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jan 04 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-2.20120103
+- xserver-1.12-Xext-fix-selinux-build-failure.patch: fix build error
+  triggered by Red Hat-specific patch to libselinux
+
 * Tue Jan 03 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-1.20120103
 - Git snapshot 98cde254acb9b98337ddecf64c138d38c14ec2bf
 - xserver-1.11.99-optionstr.patch: drop
