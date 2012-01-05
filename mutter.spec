@@ -1,6 +1,6 @@
 Name:          mutter
-Version:       3.3.2
-Release:       2%{?dist}
+Version:       3.3.3
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -8,10 +8,10 @@ License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
 Source0:       http://download.gnome.org/sources/%{name}/3.3/%{name}-%{version}.tar.xz
 
-BuildRequires: clutter-devel >= 1.5.8
+BuildRequires: clutter-devel >= 1.7.5
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
-BuildRequires: gtk3-devel >= 2.99.0
+BuildRequires: gtk3-devel >= 3.3.3
 BuildRequires: pkgconfig
 BuildRequires: gobject-introspection-devel
 BuildRequires: libSM-devel
@@ -114,6 +114,8 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %{_libdir}/mutter/
 %{_datadir}/GConf/gsettings/mutter-schemas.convert
 %{_datadir}/glib-2.0/schemas/org.gnome.mutter.gschema.xml
+%{_datadir}/gnome-control-center/keybindings/50-mutter-windows.xml
+
 
 %files devel
 %{_bindir}/mutter-theme-viewer
@@ -125,6 +127,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Thu Jan  5 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.3-1
+- Update to 3.3.3
+
 * Wed Nov 23 2011 Matthias Clasen <mclasen@redhat.com> - 3.3.2-2
 - Rebuild against new clutter
 
