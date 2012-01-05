@@ -15,7 +15,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 
 %define clutter_version 1.7.5
 %define gobject_introspection_version 0.10.1
-%define mutter_version 3.3.2
+%define mutter_version 3.3.3
 %define eds_version 2.91.6
 %define json_glib_version 0.13.2
 
