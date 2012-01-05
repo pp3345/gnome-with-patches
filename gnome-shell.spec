@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.3.2
-Release:        2%{?dist}
+Version:        3.3.3
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -13,9 +13,9 @@ Patch0: gnome-shell-avoid-redhat-menus.patch
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
-%define clutter_version 1.4.0
+%define clutter_version 1.7.5
 %define gobject_introspection_version 0.10.1
-%define mutter_version 3.0.0
+%define mutter_version 3.3.2
 %define eds_version 2.91.6
 %define json_glib_version 0.13.2
 
@@ -133,6 +133,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Jan  5 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.3-1
+- Update to 3.3.3
+
 * Sun Nov 27 2011 Peter Robinson <pbrobinson@fedoraproject.org> - 3.3.2-2
 - Rebuild for new clutter and e-d-s
 
