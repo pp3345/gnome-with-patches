@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.3.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -133,6 +133,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Jan 19 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.3-2
+- Rebuild for new cogl
+
 * Thu Jan  5 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.3-1
 - Update to 3.3.3
 
