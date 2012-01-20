@@ -13,6 +13,9 @@ Patch0: gnome-shell-avoid-redhat-menus.patch
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
+# upstream fix
+Patch2: gnome-shell-gl.patch
+
 %define clutter_version 1.7.5
 %define gobject_introspection_version 0.10.1
 %define mutter_version 3.3.3
@@ -84,6 +87,9 @@ easy to use experience.
 %setup -q
 %patch0 -p1 -b .avoid-redhat-menus
 %patch1 -p1 -b .firefox
+%patch2 -p1 -b .gl
+
+rm configure
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS -Wno-error=deprecated-declarations"
