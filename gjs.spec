@@ -12,7 +12,6 @@ License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:            http://live.gnome.org/Gjs/
 #VCS:           git://git.gnome.org/gjs
 Source0:        http://download.gnome.org/sources/%{name}/1.31/%{name}-%{version}.tar.xz
-Patch0:         gjs-1.30.0-749604.patch
 
 BuildRequires: js-devel
 BuildRequires: cairo-devel
@@ -40,7 +39,6 @@ Files for development with %{name}.
 
 %prep
 %setup -q
-%patch0 -p1 
 
 rm -f configure
 
