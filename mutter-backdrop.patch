@@ -1,0 +1,14 @@
+diff -up mutter-3.3.3/src/ui/theme.c.backdrop mutter-3.3.3/src/ui/theme.c
+--- mutter-3.3.3/src/ui/theme.c.backdrop	2012-01-19 19:45:38.383441711 -0500
++++ mutter-3.3.3/src/ui/theme.c	2012-01-19 19:46:33.558445340 -0500
+@@ -6403,8 +6403,8 @@ meta_gtk_state_from_string (const char *
+     return GTK_STATE_FLAG_INCONSISTENT;
+   else if (g_ascii_strcasecmp ("focused", str) == 0)
+     return GTK_STATE_FLAG_FOCUSED;
+-  else if (g_ascii_strcasecmp ("window-unfocused", str) == 0)
+-    return GTK_STATE_FLAG_WINDOW_UNFOCUSED;
++  else if (g_ascii_strcasecmp ("backdrop", str) == 0)
++    return GTK_STATE_FLAG_BACKDROP;
+   else
+     return -1; /* hack */
+ }

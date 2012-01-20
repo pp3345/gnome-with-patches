@@ -8,6 +8,9 @@ License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
 Source0:       http://download.gnome.org/sources/%{name}/3.3/%{name}-%{version}.tar.xz
 
+# upstream fix
+Patch0: mutter-backdrop.patch
+
 BuildRequires: clutter-devel >= 1.7.5
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -59,6 +62,7 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
