@@ -1,6 +1,6 @@
 Name:           gjs
-Version:        1.31.6
-Release:        2%{?dist}
+Version:        1.31.10
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -82,6 +82,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Thu Jan 19 2012 Matthias Clasen <mclasen@redhat.com> - 1.31.10-1
+- 1.31.10
+
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.31.6-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
