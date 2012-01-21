@@ -130,6 +130,11 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %{_libexecdir}/gnome-shell-calendar-server
 %{_libexecdir}/gnome-shell-perf-helper
 %{_libexecdir}/gnome-shell-hotplug-sniffer
+# Co own these directories instead of pulling in GConf
+# after all, we are trying to get rid of GConf with these files
+%dir %{_datadir}/GConf
+%dir %{_datadir}/GConf/gsettings
+%{_datadir}/GConf/gsettings/gnome-shell-overrides.convert
 %{_mandir}/man1/%{name}.1.gz
 # exclude as these should be in a devel package for st etc
 %exclude %{_datadir}/gtk-doc
