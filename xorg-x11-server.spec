@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-%define gitdate 20120103
+%define gitdate 20120124
 %define stable_abi 0
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.901
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,9 +97,6 @@ Patch6030: xserver-1.6.99-right-of.patch
 
 # tests require Xorg
 Patch7007: xserver-1.10.99.1-test.patch
-
-# always install xaa headers even though we don't build the module
-Patch7012: xserver-1.12-xaa-sdk-headers.patch
 
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
@@ -560,6 +557,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Jan 24 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-3.20120124
+- Today's git snapshot
+- xserver-1.12-xaa-sdk-headers.patch: drop, a55214d11916b
+
 * Wed Jan 04 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-2.20120103
 - xserver-1.12-Xext-fix-selinux-build-failure.patch: fix build error
   triggered by Red Hat-specific patch to libselinux
