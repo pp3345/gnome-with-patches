@@ -67,11 +67,13 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_bindir}/gjs-console
 %{_libdir}/*.so.*
 %{_libdir}/gjs-1.0
+%{_libdir}/girepository-1.0/GjsDBus-1.0.typelib
 %{_datadir}/gjs-1.0
 
 %files devel
 %doc examples/*
 %{_includedir}/gjs-1.0
+%{_datadir}/gir-1.0/GjsDBus-1.0.gir
 %{_libdir}/pkgconfig/gjs-1.0.pc
 %{_libdir}/pkgconfig/gjs-dbus-1.0.pc
 %{_libdir}/pkgconfig/gjs-internals-1.0.pc
