@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        1.31.10
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -67,19 +67,21 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_bindir}/gjs-console
 %{_libdir}/*.so.*
 %{_libdir}/gjs-1.0
-%{_libdir}/gjs/*.typelib
 %{_datadir}/gjs-1.0
 
 %files devel
 %doc examples/*
 %{_includedir}/gjs-1.0
-%{_libdir}/gjs/*.gir
 %{_libdir}/pkgconfig/gjs-1.0.pc
 %{_libdir}/pkgconfig/gjs-dbus-1.0.pc
 %{_libdir}/pkgconfig/gjs-internals-1.0.pc
 %{_libdir}/*.so
 
 %changelog
+* Tue Feb  7 2012 Colin Walters <walters@verbum.org> - 1.31.10-2
+- Drop custom .gir/.typelib directories; see upstream commit
+  ea4d639eab307737870479b6573d5dab9fb2915a
+
 * Thu Jan 19 2012 Matthias Clasen <mclasen@redhat.com> - 1.31.10-1
 - 1.31.10
 
