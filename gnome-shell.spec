@@ -99,6 +99,7 @@ make install DESTDIR=$RPM_BUILD_ROOT
 rm -rf %{buildroot}/%{_libdir}/mozilla/plugins/*.la
 
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-extension-prefs.desktop
 
 %find_lang %{name}
 
@@ -120,8 +121,10 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %doc COPYING README
 %{_bindir}/gnome-shell
 %{_bindir}/gnome-shell-extension-tool
+%{_bindir}/gnome-shell-extension-prefs
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/applications/gnome-shell.desktop
+%{_datadir}/applications/gnome-shell-extension-prefs.desktop
 %{_datadir}/gnome-shell/
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
