@@ -1,0 +1,47 @@
+From 6538a7d96844526516dd76ec5c4159abfb56cefe Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Sat, 11 Feb 2012 01:29:26 +1000
+Subject: [PATCH] dix: reset last.scroll when resetting the valuator (#45611)
+
+last.scroll remained on the last-submitted scrolling value but last.valuator
+was changed whenever the slave device changed. The first scrolling delta
+after a switch was then calculated as (last.scroll - new abs value), causing
+erroneous scrolling events.
+
+Test case:
+- synaptics with a scrolling method enabled, other device with 3+ axes (e.g.
+  wacom)
+- scroll on touchpad
+- use other device
+- scroll on touchpad
+
+The second scroll caused erroneous button press/release events.
+
+X.Org Bug 45611 <http://bugs.freedesktop.org/show_bug.cgi?id=45611>
+---
+ dix/getevents.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/dix/getevents.c b/dix/getevents.c
+index 7678aa1..6ea4ba0 100644
+--- a/dix/getevents.c
++++ b/dix/getevents.c
+@@ -360,6 +360,7 @@ updateSlaveDeviceCoords(DeviceIntPtr master, DeviceIntPtr pDev)
+             if (i >= lastSlave->valuator->numAxes)
+             {
+                 pDev->last.valuators[i] = 0;
++                valuator_mask_set_double(pDev->last.scroll, i, 0);
+             }
+             else
+             {
+@@ -367,6 +368,7 @@ updateSlaveDeviceCoords(DeviceIntPtr master, DeviceIntPtr pDev)
+                 val = rescaleValuatorAxis(val, lastSlave->valuator->axes + i,
+                                           pDev->valuator->axes + i, 0, 0);
+                 pDev->last.valuators[i] = val;
++                valuator_mask_set_double(pDev->last.scroll, i, val);
+             }
+         }
+     }
+-- 
+1.7.7.5
+

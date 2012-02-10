@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.901
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -101,6 +101,9 @@ Patch7007: xserver-1.10.99.1-test.patch
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
 Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
+
+# Bug 788632 - all scrolled windows jump up one page after you middle click a link
+Patch7014: xserver-1.12-dix-reset-last.scroll-when-resetting-the-valuator-45.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -557,6 +560,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Sat Feb 11 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-4.20120124
+- xserver-1.12-dix-reset-last.scroll-when-resetting-the-valuator-45.patch:
+  reset last.scroll on the device whenever the slave device switched to
+  avoid jumps during scrolling (#788632).
+
 * Tue Jan 24 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-3.20120124
 - Today's git snapshot
 - xserver-1.12-xaa-sdk-headers.patch: drop, a55214d11916b
