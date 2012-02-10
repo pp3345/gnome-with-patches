@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.3.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -72,6 +72,8 @@ Requires:       polkit%{?_isa} >= 0.100
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
 Requires:       caribou%{?_isa}
+# needed for the user menu
+Requires:       accountsservice-libs
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -143,6 +145,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Feb  9 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.5-2
+- Depend on accountsservice-libs (#755112)
+
 * Tue Feb  7 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.5-1
 - Update to 3.3.5
 
