@@ -10,7 +10,7 @@
 # rebasing, add convenience 'make' targets maybe.
 
 %define gitdate 20120124
-%define stable_abi 0
+%define stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
 
@@ -19,9 +19,9 @@
 
 %define ansic_major 0
 %define ansic_minor 4
-%define videodrv_major 11
+%define videodrv_major 12
 %define videodrv_minor 0
-%define xinput_major 13
+%define xinput_major 16
 %define xinput_minor 0
 %define extension_major 6
 %define extension_minor 0
@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.901
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -560,6 +560,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Sat Feb 11 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-5.20120124
+- ABI is considered stable now:
+  video 12.0, input 16.0, extension 6.0, font 0.6, ansic 0.4
+
 * Sat Feb 11 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-4.20120124
 - xserver-1.12-dix-reset-last.scroll-when-resetting-the-valuator-45.patch:
   reset last.scroll on the device whenever the slave device switched to
