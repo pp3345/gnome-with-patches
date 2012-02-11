@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.901
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -398,12 +398,12 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
-%if 0%{?gitdate}
+%if !0%{?gitdate} || %{stable_abi}
+install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
+%else
 sed -e s/@MAJOR@/%{gitdate}/g -e s/@MINOR@/%{minor_serial}/g %{SOURCE31} > \
     $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
 chmod 755 $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
-%else
-install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
 %endif
 
 %endif
@@ -560,6 +560,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Sun Feb 12 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-6.20120124
+- Fix installation of xserver-sdk-abi-requires script, if stable_abi is set
+  always install the relese one, not the git one
+
 * Sat Feb 11 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-5.20120124
 - ABI is considered stable now:
   video 12.0, input 16.0, extension 6.0, font 0.6, ansic 0.4
