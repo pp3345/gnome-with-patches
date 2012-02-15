@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-%define gitdate 20120124
+%define gitdate 20120215
 %define stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.901
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Release:   7%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -129,7 +129,7 @@ BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.1.5
 
-BuildRequires: xorg-x11-proto-devel >= 7.4-35
+BuildRequires: xorg-x11-proto-devel >= 7.6-20
 BuildRequires: xorg-x11-font-utils >= 7.2-11
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.2.2-1
@@ -560,6 +560,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Feb 15 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-7.20120215
+- Today's git snapshot
+
 * Sun Feb 12 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.901-6.20120124
 - Fix installation of xserver-sdk-abi-requires script, if stable_abi is set
   always install the relese one, not the git one
