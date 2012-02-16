@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.11.99.903
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -119,6 +119,10 @@ Patch7014: xserver-1.12-dix-reset-last.scroll-when-resetting-the-valuator-45.pat
 %define enable_xorg --enable-xorg
 %else
 %define enable_xorg --disable-xorg
+%endif
+
+%ifnarch %{ix86} x86_64
+%define no_int10 --disable-vbe --disable-int10-module
 %endif
 
 %define kdrive --enable-kdrive --enable-xephyr --disable-xfake --disable-xfbdev
@@ -362,7 +366,7 @@ autoreconf -v --install || exit 1
 %configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
 	--with-pic \
-	--with-int10=x86emu \
+	%{?no_int10} --with-int10=x86emu \
 	--with-default-font-path=%{default_font_path} \
 	--with-module-dir=%{moduledir} \
 	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
@@ -485,12 +489,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libfbdevhw.so
 %{_libdir}/xorg/modules/libexa.so
 %{_libdir}/xorg/modules/libfb.so
-%{_libdir}/xorg/modules/libint10.so
 %{_libdir}/xorg/modules/libshadow.so
 %{_libdir}/xorg/modules/libshadowfb.so
-%{_libdir}/xorg/modules/libvbe.so
 %{_libdir}/xorg/modules/libvgahw.so
 %{_libdir}/xorg/modules/libwfb.so
+%ifarch %{ix86} x86_64
+%{_libdir}/xorg/modules/libint10.so
+%{_libdir}/xorg/modules/libvbe.so
+%endif
 %{_mandir}/man1/gtf.1*
 %{_mandir}/man1/Xorg.1*
 %{_mandir}/man1/cvt.1*
@@ -560,6 +566,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Feb 16 2012 Adam Jackson <ajax@redhat.com> 1.11.99.903-2.20120215
+- Don't pretend int10 is a thing on non-PC arches
+
 * Thu Feb 16 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.11.99.903-1.20120215
 - Server version is 1.11.99.903 now, use that.
 
