@@ -321,7 +321,7 @@ git commit -a -q -m "%{version} baseline."
 %endif
 
 # Apply all the patches.
-git am -p1 %{patches}
+git am -p1 %{patches} < /dev/null
 
 %if %{with_hw_servers} && !0%{?gitdate}
 # check the ABI in the source against what we expect.
