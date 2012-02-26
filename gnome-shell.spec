@@ -130,6 +130,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %{_datadir}/gnome-shell/
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
+%{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider.xml
 %{_libdir}/gnome-shell/
 %{_libdir}/mozilla/plugins/*.so
 %{_libexecdir}/gnome-shell-calendar-server
