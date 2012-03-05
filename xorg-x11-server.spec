@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-%define gitdate 20120215
+#define gitdate 20120215
 %define stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -47,8 +47,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.11.99.903
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.12.0
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -101,9 +101,6 @@ Patch7007: xserver-1.10.99.1-test.patch
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
 Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
-
-# Bug 788632 - all scrolled windows jump up one page after you middle click a link
-Patch7014: xserver-1.12-dix-reset-last.scroll-when-resetting-the-valuator-45.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -566,6 +563,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Mar 05 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.0-1
+- xserver 1.12
+- xserver-1.12-dix-reset-last.scroll-when-resetting-the-valuator-45.patch:
+  drop, 6f2838818
+
 * Thu Feb 16 2012 Adam Jackson <ajax@redhat.com> 1.11.99.903-2.20120215
 - Don't pretend int10 is a thing on non-PC arches
 
