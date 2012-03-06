@@ -1,6 +1,6 @@
 Name:           gjs
-Version:        1.31.10
-Release:        2%{?dist}
+Version:        1.31.20
+Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -80,6 +80,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Mon Mar  5 2012 Matthias Clasen <mclasen@redhat.com> - 1.31.20-1
+- Update to 1.31.20
+
 * Tue Feb  7 2012 Colin Walters <walters@verbum.org> - 1.31.10-2
 - Drop custom .gir/.typelib directories; see upstream commit
   ea4d639eab307737870479b6573d5dab9fb2915a
