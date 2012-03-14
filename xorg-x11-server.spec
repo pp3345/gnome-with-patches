@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.0
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -458,7 +458,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/xkb/README.compiled
 
 %if 1
-%define Xorgperms %attr(4711, root, root)
+%define Xorgperms %attr(4755, root, root)
 %else
 # disable until module loading is audited
 %define Xorgperms %attr(0711,root,root) %caps(cap_sys_admin,cap_sys_rawio,cap_dac_override=pe)
@@ -563,6 +563,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Mar 14 2012 Adam Jackson <ajax@redhat.com> 1.12.0-2
+- Install Xorg mode 4755, there's no security benefit to 4711. (#712432)
+
 * Mon Mar 05 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.0-1
 - xserver 1.12
 - xserver-1.12-dix-reset-last.scroll-when-resetting-the-valuator-45.patch:
