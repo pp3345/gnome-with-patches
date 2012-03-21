@@ -15,7 +15,7 @@ Source0:        http://download.gnome.org/sources/%{name}/1.31/%{name}-%{version
 
 BuildRequires: js-devel
 BuildRequires: cairo-devel
-BuildRequires: gobject-introspection-devel >= 1.29.16
+BuildRequires: gobject-introspection-devel >= 1.31.22
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
 BuildRequires: intltool
