@@ -1,5 +1,5 @@
 Name:           gjs
-Version:        1.31.20
+Version:        1.31.22
 Release:        1%{?dist}
 Summary:        Javascript Bindings for GNOME
 
@@ -80,6 +80,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Wed Mar 21 2012 Matthias Clasen <mclasen@redhat.com> - 1.31.22-1
+- Update to 1.31.22
+
 * Mon Mar  5 2012 Matthias Clasen <mclasen@redhat.com> - 1.31.20-1
 - Update to 1.31.20
 
