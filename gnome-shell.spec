@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.3.4
+Version:        3.3.90
 Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -72,6 +72,8 @@ Requires:       polkit%{?_isa} >= 0.100
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
 Requires:       caribou%{?_isa}
+# needed for the user menu
+Requires:       accountsservice-libs
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -99,6 +101,7 @@ make install DESTDIR=$RPM_BUILD_ROOT
 rm -rf %{buildroot}/%{_libdir}/mozilla/plugins/*.la
 
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-extension-prefs.desktop
 
 %find_lang %{name}
 
@@ -120,11 +123,14 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %doc COPYING README
 %{_bindir}/gnome-shell
 %{_bindir}/gnome-shell-extension-tool
+%{_bindir}/gnome-shell-extension-prefs
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/applications/gnome-shell.desktop
+%{_datadir}/applications/gnome-shell-extension-prefs.desktop
 %{_datadir}/gnome-shell/
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
+%{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider.xml
 %{_libdir}/gnome-shell/
 %{_libdir}/mozilla/plugins/*.so
 %{_libexecdir}/gnome-shell-calendar-server
@@ -140,8 +146,17 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %exclude %{_datadir}/gtk-doc
 
 %changelog
-* Wed Mar 14 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.4-2
+* Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.90-2
 - Rebuild for new cogl
+
+* Sat Feb 26 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.90-1
+- Update to 3.3.90
+
+* Thu Feb  9 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.5-2
+- Depend on accountsservice-libs (#755112)
+
+* Tue Feb  7 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.5-1
+- Update to 3.3.5
 
 * Fri Jan 20 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.4-1
 - Update to 3.3.4
