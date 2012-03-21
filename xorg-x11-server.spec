@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.0
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -106,7 +106,7 @@ Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 %define drimoduledir	%{_libdir}/dri
 %define sdkdir		%{_includedir}/xorg
 
-%ifarch s390 s390x
+%ifarch s390 s390x %{?rhel:ppc ppc64}
 %define with_hw_servers 0
 %else
 %define with_hw_servers 1
@@ -563,6 +563,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Mar 21 2012 Adam Jackson <ajax@redhat.com> 1.12.0-3
+- Tweak arches for RHEL
+
 * Wed Mar 14 2012 Adam Jackson <ajax@redhat.com> 1.12.0-2
 - Install Xorg mode 4755, there's no security benefit to 4711. (#712432)
 
