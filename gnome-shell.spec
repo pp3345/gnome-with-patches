@@ -24,6 +24,7 @@ BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
 BuildRequires:  evolution-data-server-devel >= %{eds_version}
+BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= 0.7.14-6
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-menus-devel >= 3.1.5-2.fc16
