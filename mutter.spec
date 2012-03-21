@@ -1,6 +1,6 @@
 Name:          mutter
-Version:       3.3.90
-Release:       2%{?dist}
+Version:       3.3.92
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -62,7 +62,7 @@ utilities for testing Metacity/Mutter themes.
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static --with-gtk=3.0 --enable-compile-warnings=maximum)
+ %configure --disable-static --enable-compile-warnings=maximum)
 
 SHOULD_HAVE_DEFINED="HAVE_SM HAVE_XINERAMA HAVE_XFREE_XINERAMA HAVE_SHAPE HAVE_RANDR HAVE_STARTUP_NOTIFICATION"
 
@@ -127,6 +127,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Wed Mar 21 2012 Kalev Lember <kalevlember@gmail.com> - 3.3.92-1
+- Update to 3.3.92
+
 * Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.90-2
 - Rebuild against new cogl
 
