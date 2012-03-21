@@ -1,5 +1,5 @@
 Name:          mutter
-Version:       3.3.4
+Version:       3.3.90
 Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -64,7 +64,7 @@ utilities for testing Metacity/Mutter themes.
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static --with-gtk=3.0 --enable-compile-warnings=maximum)
 
-SHOULD_HAVE_DEFINED="HAVE_SM HAVE_XINERAMA HAVE_XFREE_XINERAMA HAVE_SHAPE HAVE_RANDR HAVE_STARTUP_NOTIFICATION HAVE_COMPOSITE_EXTENSION"
+SHOULD_HAVE_DEFINED="HAVE_SM HAVE_XINERAMA HAVE_XFREE_XINERAMA HAVE_SHAPE HAVE_RANDR HAVE_STARTUP_NOTIFICATION"
 
 for I in $SHOULD_HAVE_DEFINED; do
   if ! grep -q "define $I" config.h; then
@@ -127,8 +127,14 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
-* Wed Mar 14 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.3.4-2
-- Rebuild for new cogl
+* Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.90-2
+- Rebuild against new cogl
+
+* Sat Feb 25 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.90-1
+- Update to 3.3.90
+
+* Tue Feb  7 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.5-1
+- Update to 3.3.5
 
 * Fri Jan 20 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.4-1
 - Update to 3.3.4
