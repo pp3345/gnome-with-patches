@@ -24,7 +24,6 @@ BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
 BuildRequires:  evolution-data-server-devel >= %{eds_version}
-BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= 0.7.14-6
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-menus-devel >= 3.1.5-2.fc16
@@ -147,7 +146,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %exclude %{_datadir}/gtk-doc
 
 %changelog
-* Wed Mar 21 2012 Kalev Lember <kalevlember@gmail.com> - 3.3.92-1
+* Wed Mar 21 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.92-1
 - Update to 3.3.92
 
 * Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.90-2
