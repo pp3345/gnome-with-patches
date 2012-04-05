@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.4.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -147,6 +147,11 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Apr  5 2012 Owen Taylor <otaylor@redhat.com> - 3.4.0-2
+- Change gnome-shell-favourite-apps-firefox.patch to also patch the JS code
+  to handle the transition from mozilla-firefox.desktop to firefox.desktop.
+  (#808894, reported by Jonathan Kamens)
+
 * Tue Mar 27 2012 Richard Hughes <hughsient@gmail.com> - 3.4.0-1
 - Update to 3.4.0
 
