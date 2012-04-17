@@ -1,21 +1,21 @@
 Name:           gnome-shell
-Version:        3.4.0
-Release:        2%{?dist}
+Version:        3.4.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.3/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.4/%{name}-%{version}.tar.xz
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
-%define clutter_version 1.7.5
+%define clutter_version 1.9.16
 %define gobject_introspection_version 0.10.1
-%define mutter_version 3.3.3
+%define mutter_version 3.4.1
 %define eds_version 2.91.6
 %define json_glib_version 0.13.2
 
@@ -147,6 +147,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Apr 18 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-1
+- Update to 3.4.1
+
 * Thu Apr  5 2012 Owen Taylor <otaylor@redhat.com> - 3.4.0-2
 - Change gnome-shell-favourite-apps-firefox.patch to also patch the JS code
   to handle the transition from mozilla-firefox.desktop to firefox.desktop.
