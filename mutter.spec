@@ -1,12 +1,12 @@
 Name:          mutter
-Version:       3.4.0
+Version:       3.4.1
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
-Source0:       http://download.gnome.org/sources/%{name}/3.3/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.4/%{name}-%{version}.tar.xz
 
 BuildRequires: clutter-devel >= 1.7.5
 BuildRequires: pango-devel
@@ -29,6 +29,10 @@ BuildRequires: desktop-file-utils
 BuildRequires: gtk-doc gnome-common intltool
 BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel
+
+# Make sure this can't be installed with an old gnome-shell build because of
+# an ABI change in mutter 3.4.1 / gnome-shell 3.4.1
+Conflicts: gnome-shell < 3.4.1
 
 Requires: control-center-filesystem
 Requires: startup-notification
@@ -127,6 +131,10 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Wed Apr 18 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-1
+- Update to 3.4.1
+- Conflict with gnome-shell versions older than 3.4.1
+
 * Tue Mar 27 2012 Richard Hughes <hughsient@gmail.com> - 3.4.0-1
 - Update to 3.4.0
 
