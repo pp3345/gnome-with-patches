@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.4.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -115,10 +115,10 @@ chrpath -r %{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_libdir}/gnome-shell/libg
 %endif
 
 %preun
-glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
+glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null ||:
 
 %posttrans
-glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
+glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null ||:
 
 %files -f %{name}.lang
 %doc COPYING README
@@ -147,6 +147,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas ||:
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Apr 18 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-2
+- Silence glib-compile-schemas scriplets
+
 * Wed Apr 18 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-1
 - Update to 3.4.1
 
