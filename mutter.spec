@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       3.4.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -99,11 +99,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %postun
 /sbin/ldconfig
 if [ $1 -eq 0 ]; then
-  glib-compile-schemas %{_datadir}/glib-2.0/schemas
+  glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 fi
 
 %posttrans
-glib-compile-schemas %{_datadir}/glib-2.0/schemas
+glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 
 %files -f %{name}.lang
 %doc README AUTHORS COPYING NEWS HACKING doc/theme-format.txt
@@ -131,6 +131,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Wed Apr 18 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-2
+- Silence glib-compile-schemas scriplets
+
 * Wed Apr 18 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-1
 - Update to 3.4.1
 - Conflict with gnome-shell versions older than 3.4.1
