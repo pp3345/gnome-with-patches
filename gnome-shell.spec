@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.4.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -12,6 +12,8 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.4/%{name}-%{vers
 Patch0: gnome-shell-avoid-redhat-menus.patch
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
+# https://bugzilla.gnome.org/show_bug.cgi?id=674424
+Patch2: Mirror-Evolution-calendar-settings-into-our-own-sche.patch
 
 %define clutter_version 1.9.16
 %define gobject_introspection_version 0.10.1
@@ -87,12 +89,15 @@ easy to use experience.
 %setup -q
 %patch0 -p1 -b .avoid-redhat-menus
 %patch1 -p1 -b .firefox
+%patch2 -p1 -b .mirror-schemas
 
 rm configure
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS -Wno-error=deprecated-declarations"
-(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
+# (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
+# reautogen for Mirror-Evolution-calendar-settings-into-our-own-sche.patch
+ (NOCONFIGURE=1 ./autogen.sh; 
  %configure --disable-static)
 make V=1 %{?_smp_mflags}
 
@@ -147,6 +152,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Fri Apr 20 2012 Owen Taylor <otaylor@redhat.com> - 3.4.1-3
+- Add a patch from upstream to avoid a crash when Evolution is not installed (#814401)
+
 * Wed Apr 18 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-2
 - Silence glib-compile-schemas scriplets
 
