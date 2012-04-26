@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.0
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -189,6 +189,14 @@ Obsoletes: xorg-x11-drv-fpit <= 1.4.0-2.fc16
 Obsoletes: xorg-x11-drv-hyperpen <= 1.4.1-2.fc16
 Obsoletes: xorg-x11-drv-mutouch <= 1.3.0-2.fc16
 Obsoletes: xorg-x11-drv-penmount <= 1.5.0-3.fc16
+%if 0%{?fedora} > 17
+# Dropped from F18, use a video card instead
+Obsoletes: xorg-x11-drv-ark <= 0.7.3-15.fc17
+Obsoletes: xorg-x11-drv-chips <= 1.2.4-8.fc18
+Obsoletes: xorg-x11-drv-s3 <= 0.6.3-14.fc17
+Obsoletes: xorg-x11-drv-tseng <= 1.2.4-12.fc17
+%endif
+
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: system-setup-keyboard
@@ -563,6 +571,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Apr 26 2012 Adam Jackson <ajax@redhat.com> 1.12.0-4
+- Obsolete some old video drivers in F18+
+
 * Wed Mar 21 2012 Adam Jackson <ajax@redhat.com> 1.12.0-3
 - Tweak arches for RHEL
 
