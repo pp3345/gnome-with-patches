@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.4.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -152,6 +152,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed May 02 2012 Kalev Lember <kalevlember@gmail.com> - 3.4.1-4
+- Rebuilt for evolution-data-server soname bumps
+
 * Fri Apr 20 2012 Owen Taylor <otaylor@redhat.com> - 3.4.1-3
 - Add a patch from upstream to avoid a crash when Evolution is not installed (#814401)
 
