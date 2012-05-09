@@ -1,0 +1,43 @@
+From a22859a64a60b38346ce7faabad6a9a48d7a8d9f Mon Sep 17 00:00:00 2001
+From: Robert Bragg <robert@linux.intel.com>
+Date: Wed, 25 Apr 2012 00:48:19 +0000
+Subject: shaped-texture: never slice shape mask texture
+
+Since Cogl doesn't support multi-texturing with sliced textures and the
+shape texture is combined with the texture-from-pixmap texture we need
+to make sure we never construct a sliced mask texture. This patch simply
+passes the COGL_TEXTURE_NO_SLICE flag to cogl_texture_from_data when
+creating the shape mask texture.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=674731
+---
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index 07bd93c..182d23b 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -313,12 +313,17 @@ meta_shaped_texture_ensure_mask (MetaShapedTexture *stex)
+         }
+       else
+ #endif /* GL_TEXTURE_RECTANGLE_ARB */
+-        priv->mask_texture = cogl_texture_new_from_data (tex_width, tex_height,
+-                                                         COGL_TEXTURE_NONE,
+-                                                         COGL_PIXEL_FORMAT_A_8,
+-                                                         COGL_PIXEL_FORMAT_ANY,
+-                                                         stride,
+-                                                         mask_data);
++        {
++	  /* Note: we don't allow slicing for this texture because we
++           * need to use it with multi-texturing which doesn't support
++           * sliced textures */
++          priv->mask_texture = cogl_texture_new_from_data (tex_width, tex_height,
++                                                           COGL_TEXTURE_NO_SLICING,
++                                                           COGL_PIXEL_FORMAT_A_8,
++                                                           COGL_PIXEL_FORMAT_ANY,
++                                                           stride,
++                                                           mask_data);
++        }
+ 
+       g_free (mask_data);
+ 
+--
+cgit v0.9.0.2
