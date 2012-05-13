@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.0
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -118,7 +118,7 @@ Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 %define enable_xorg --disable-xorg
 %endif
 
-%ifnarch %{ix86} x86_64
+%ifnarch %{ix86} x86_64 %{arm}
 %define no_int10 --disable-vbe --disable-int10-module
 %endif
 
@@ -498,7 +498,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libshadowfb.so
 %{_libdir}/xorg/modules/libvgahw.so
 %{_libdir}/xorg/modules/libwfb.so
-%ifarch %{ix86} x86_64
+%ifarch %{ix86} x86_64 %{arm}
 %{_libdir}/xorg/modules/libint10.so
 %{_libdir}/xorg/modules/libvbe.so
 %endif
@@ -571,6 +571,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Sun May 13 2012 Dennis Gilmore <dennis@ausil.us> 1.12.0-5
+- enable vbe on arm arches
+
 * Thu Apr 26 2012 Adam Jackson <ajax@redhat.com> 1.12.0-4
 - Obsolete some old video drivers in F18+
 
