@@ -1,7 +1,7 @@
-From 7089841a7e026799328e97292c2f81aa4aa01f57 Mon Sep 17 00:00:00 2001
+From be0213313d42beeaaa4aa4a9637f2df8a849c98e Mon Sep 17 00:00:00 2001
 From: Peter Hutterer <peter.hutterer@who-t.net>
 Date: Fri, 27 Apr 2012 10:52:39 +1000
-Subject: [PATCH] os: make timers signal-safe
+Subject: [PATCH 7/7] os: make timers signal-safe
 
 If TimerSet() is called from a signal handler (synaptics tap handling code)
 may result in list corruption if we're currently inside TimerSet().
@@ -13,28 +13,23 @@ Block signals for all list manipulations in the timers.
 
 Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
 Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
-(cherry picked from commit 08962951de969b9d8c870af8b6e47303dc0decfd)
-
-Conflicts:
-
-	os/WaitFor.c
 ---
  os/WaitFor.c |   18 ++++++++++++++++--
  1 file changed, 16 insertions(+), 2 deletions(-)
 
 diff --git a/os/WaitFor.c b/os/WaitFor.c
-index 867cb04..236406e 100644
+index 4c3be34..59f3af6 100644
 --- a/os/WaitFor.c
 +++ b/os/WaitFor.c
-@@ -405,6 +405,7 @@ CheckAllTimers(void)
+@@ -382,6 +382,7 @@ CheckAllTimers(void)
      OsTimerPtr timer;
      CARD32 now;
  
 +    OsBlockSignals();
- start:
+  start:
      now = GetTimeInMillis();
  
-@@ -414,6 +415,7 @@ start:
+@@ -391,6 +392,7 @@ CheckAllTimers(void)
              goto start;
          }
      }
@@ -42,45 +37,44 @@ index 867cb04..236406e 100644
  }
  
  static void
-@@ -421,11 +423,13 @@ DoTimer(OsTimerPtr timer, CARD32 now, OsTimerPtr *prev)
+@@ -398,11 +400,13 @@ DoTimer(OsTimerPtr timer, CARD32 now, OsTimerPtr *prev)
  {
      CARD32 newTime;
  
 +    OsBlockSignals();
      *prev = timer->next;
      timer->next = NULL;
-     newTime = (*timer->callback)(timer, now, timer->arg);
+     newTime = (*timer->callback) (timer, now, timer->arg);
      if (newTime)
- 	TimerSet(timer, 0, newTime, timer->callback, timer->arg);
+         TimerSet(timer, 0, newTime, timer->callback, timer->arg);
 +    OsReleaseSignals();
  }
  
  OsTimerPtr
-@@ -443,6 +447,7 @@ TimerSet(OsTimerPtr timer, int flags, CARD32 millis,
+@@ -418,6 +422,7 @@ TimerSet(OsTimerPtr timer, int flags, CARD32 millis,
+             return NULL;
      }
-     else
-     {
+     else {
 +        OsBlockSignals();
- 	for (prev = &timers; *prev; prev = &(*prev)->next)
- 	{
- 	    if (*prev == timer)
-@@ -453,6 +458,7 @@ TimerSet(OsTimerPtr timer, int flags, CARD32 millis,
- 		break;
- 	    }
- 	}
+         for (prev = &timers; *prev; prev = &(*prev)->next) {
+             if (*prev == timer) {
+                 *prev = timer->next;
+@@ -426,6 +431,7 @@ TimerSet(OsTimerPtr timer, int flags, CARD32 millis,
+                 break;
+             }
+         }
 +        OsReleaseSignals();
      }
      if (!millis)
- 	return timer;
-@@ -473,29 +479,35 @@ TimerSet(OsTimerPtr timer, int flags, CARD32 millis,
- 	if (!millis)
- 	    return timer;
+         return timer;
+@@ -445,26 +451,32 @@ TimerSet(OsTimerPtr timer, int flags, CARD32 millis,
+         if (!millis)
+             return timer;
      }
 +    OsBlockSignals();
      for (prev = &timers;
- 	 *prev && (int) ((*prev)->expires - millis) <= 0;
- 	 prev = &(*prev)->next)
-         ;
+          *prev && (int) ((*prev)->expires - millis) <= 0;
+          prev = &(*prev)->next);
      timer->next = *prev;
      *prev = timer;
 +    OsReleaseSignals();
@@ -94,33 +88,30 @@ index 867cb04..236406e 100644
      OsTimerPtr *prev;
  
 +    OsBlockSignals();
-     for (prev = &timers; *prev; prev = &(*prev)->next)
-     {
- 	if (*prev == timer)
- 	{
- 	    DoTimer(timer, GetTimeInMillis(), prev);
--	    return TRUE;
-+	    rc = TRUE;
-+	    break;
- 	}
+     for (prev = &timers; *prev; prev = &(*prev)->next) {
+         if (*prev == timer) {
+             DoTimer(timer, GetTimeInMillis(), prev);
+-            return TRUE;
++            rc = TRUE;
++            break;
+         }
      }
 -    return FALSE;
 +    OsReleaseSignals();
 +    return rc;
  }
  
- 
-@@ -506,6 +518,7 @@ TimerCancel(OsTimerPtr timer)
+ void
+@@ -474,12 +486,14 @@ TimerCancel(OsTimerPtr timer)
  
      if (!timer)
- 	return;
+         return;
 +    OsBlockSignals();
-     for (prev = &timers; *prev; prev = &(*prev)->next)
-     {
- 	if (*prev == timer)
-@@ -514,6 +527,7 @@ TimerCancel(OsTimerPtr timer)
- 	    break;
- 	}
+     for (prev = &timers; *prev; prev = &(*prev)->next) {
+         if (*prev == timer) {
+             *prev = timer->next;
+             break;
+         }
      }
 +    OsReleaseSignals();
  }

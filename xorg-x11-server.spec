@@ -47,8 +47,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.12.0
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.12.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -369,7 +369,7 @@ test `getminor extension` == %{extension_minor}
 %endif
 
 # --with-pie ?
-autoreconf -v --install || exit 1
+autoreconf -f -v --install || exit 1
 # export CFLAGS="${RPM_OPT_FLAGS}"
 %configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
@@ -574,6 +574,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon May 14 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.1-1
+- server 1.12.1
+- force autoreconf to avoid libtool errors
+- update patches for new indentation style.
+
 * Mon May 14 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.0-6
 - Make timers signal-safe (#814869)
 

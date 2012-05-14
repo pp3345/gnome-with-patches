@@ -1,7 +1,7 @@
-From 080b3903ee57a682ac67306d7ff855bbf1dccda3 Mon Sep 17 00:00:00 2001
+From 5d16c39108c72b08478b6bd548494d6c675495ee Mon Sep 17 00:00:00 2001
 From: Peter Hutterer <peter.hutterer@who-t.net>
 Date: Wed, 4 Jan 2012 09:31:51 +1000
-Subject: [PATCH] Xext: fix selinux build failure
+Subject: [PATCH 6/7] Xext: fix selinux build failure
 
 The server builds with -Werror=missing-braces, causing
 
@@ -22,31 +22,31 @@ Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/Xext/xselinux_hooks.c b/Xext/xselinux_hooks.c
-index 0d4c9ab..943e5cc 100644
+index e9c7e93..0302f2f 100644
 --- a/Xext/xselinux_hooks.c
 +++ b/Xext/xselinux_hooks.c
-@@ -848,7 +848,7 @@ SELinuxFlaskReset(void)
+@@ -851,7 +851,7 @@ SELinuxFlaskReset(void)
  void
  SELinuxFlaskInit(void)
  {
--    struct selinux_opt avc_option = { AVC_OPT_SETENFORCE, (char *)0 };
-+    struct selinux_opt avc_option = { AVC_OPT_SETENFORCE, { (char *)0 } };
+-    struct selinux_opt avc_option = { AVC_OPT_SETENFORCE, (char *) 0 };
++    struct selinux_opt avc_option = { AVC_OPT_SETENFORCE, { (char *) 0 } };
      security_context_t ctx;
      int ret = TRUE;
  
 diff --git a/Xext/xselinux_label.c b/Xext/xselinux_label.c
-index e5929fa..de49f83 100644
+index 2c33d1c..81f2f36 100644
 --- a/Xext/xselinux_label.c
 +++ b/Xext/xselinux_label.c
-@@ -354,7 +354,7 @@ SELinuxDefaultClientLabel(void)
+@@ -361,7 +361,7 @@ SELinuxDefaultClientLabel(void)
  void
  SELinuxLabelInit(void)
  {
--    struct selinux_opt selabel_option = { SELABEL_OPT_VALIDATE, (char *)1 };
+-    struct selinux_opt selabel_option = { SELABEL_OPT_VALIDATE, (char *) 1 };
 +    struct selinux_opt selabel_option = { SELABEL_OPT_VALIDATE, { (char *)1 } };
  
      label_hnd = selabel_open(SELABEL_CTX_X, &selabel_option, 1);
      if (!label_hnd)
 -- 
-1.7.7.4
+1.7.10.1
 
