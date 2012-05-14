@@ -95,9 +95,6 @@ Patch6027: xserver-1.6.0-displayfd.patch
 Patch6030: xserver-1.6.99-right-of.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
-# tests require Xorg
-Patch7007: xserver-1.10.99.1-test.patch
-
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
 Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
@@ -574,6 +571,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon May 14 2012 Peter Hutterer <peter.hutterer@redhat.com>
+- Drop xserver-1.10.99.1-test.patch:
+  cd89482088f71ed517c2e88ed437e4752070c3f4 fixed it
+
 * Mon May 14 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.1-1
 - server 1.12.1
 - force autoreconf to avoid libtool errors
