@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.0
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -101,6 +101,9 @@ Patch7007: xserver-1.10.99.1-test.patch
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
 Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
+
+# 814869, fix from upstream 1.12 branch
+Patch7014: xserver-1.12-os-make-timers-signal-safe.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -571,6 +574,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon May 14 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.0-6
+- Make timers signal-safe (#814869)
+
 * Sun May 13 2012 Dennis Gilmore <dennis@ausil.us> 1.12.0-5
 - enable vbe on arm arches
 
