@@ -104,6 +104,8 @@ Patch7014: xserver-1.12-os-make-timers-signal-safe.patch
 
 # backport pci slot claiming fix for kms drivers
 Patch7015: xserver-fix-pci-slot-claims.patch
+# backport modesetting fallback driver
+Patch7016: xserver-1.12-modesetting-fallback.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -576,6 +578,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Fri May 25 2012 Dave Airlie <airlied@redhat.com> 1.12.1-2
 - xserver-fix-pci-slot-claims.patch: backport slot claiming fix from master
+- xserver-1.12-modesetting-fallback.patch: add modesetting to fallback list
 
 * Mon May 14 2012 Peter Hutterer <peter.hutterer@redhat.com>
 - Drop xserver-1.10.99.1-test.patch:
