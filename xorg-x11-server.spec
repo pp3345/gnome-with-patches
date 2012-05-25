@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.1
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -101,6 +101,9 @@ Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 
 # 814869, fix from upstream 1.12 branch
 Patch7014: xserver-1.12-os-make-timers-signal-safe.patch
+
+# backport pci slot claiming fix for kms drivers
+Patch7015: xserver-fix-pci-slot-claims.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -571,6 +574,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri May 25 2012 Dave Airlie <airlied@redhat.com> 1.12.1-2
+- xserver-fix-pci-slot-claims.patch: backport slot claiming fix from master
+
 * Mon May 14 2012 Peter Hutterer <peter.hutterer@redhat.com>
 - Drop xserver-1.10.99.1-test.patch:
   cd89482088f71ed517c2e88ed437e4752070c3f4 fixed it
