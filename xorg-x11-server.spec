@@ -47,8 +47,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.12.1
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.12.2
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -98,9 +98,6 @@ Patch6030: xserver-1.6.99-right-of.patch
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
 Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
-
-# 814869, fix from upstream 1.12 branch
-Patch7014: xserver-1.12-os-make-timers-signal-safe.patch
 
 # backport pci slot claiming fix for kms drivers
 Patch7015: xserver-fix-pci-slot-claims.patch
@@ -576,6 +573,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed May 30 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.2-1
+- xserver 1.12.2
+
 * Fri May 25 2012 Dave Airlie <airlied@redhat.com> 1.12.1-2
 - xserver-fix-pci-slot-claims.patch: backport slot claiming fix from master
 - xserver-1.12-modesetting-fallback.patch: add modesetting to fallback list
