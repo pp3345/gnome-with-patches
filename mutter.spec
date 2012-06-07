@@ -1,15 +1,12 @@
 Name:          mutter
-Version:       3.4.1
-Release:       3%{?dist}
+Version:       3.5.2
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
 Source0:       http://download.gnome.org/sources/%{name}/3.4/%{name}-%{version}.tar.xz
-
-Patch0: mutter-never-slice-shape-mask.patch
-Patch1: mutter-use-cogl-texrect-api.patch
 
 BuildRequires: clutter-devel >= 1.7.5
 BuildRequires: pango-devel
@@ -66,8 +63,6 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -136,6 +131,10 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Thu Jun 07 2012 Richard Hughes <hughsient@gmail.com> - 3.5.2-1
+- Update to 3.5.2
+- Remove upstreamed patches
+
 * Wed May 09 2012 Adam Jackson <ajax@redhat.com> 3.4.1-3
 - mutter-never-slice-shape-mask.patch, mutter-use-cogl-texrect-api.patch:
   Fix window texturing on hardware without ARB_texture_non_power_of_two
