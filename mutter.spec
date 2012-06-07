@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       3.5.2
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -68,7 +68,7 @@ utilities for testing Metacity/Mutter themes.
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static --enable-compile-warnings=maximum)
 
-SHOULD_HAVE_DEFINED="HAVE_SM HAVE_XINERAMA HAVE_XFREE_XINERAMA HAVE_SHAPE HAVE_RANDR HAVE_STARTUP_NOTIFICATION"
+SHOULD_HAVE_DEFINED="HAVE_SM HAVE_SHAPE HAVE_RANDR HAVE_STARTUP_NOTIFICATION"
 
 for I in $SHOULD_HAVE_DEFINED; do
   if ! grep -q "define $I" config.h; then
@@ -131,6 +131,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Thu Jun 07 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.2-2
+- Don't check for Xinerama anymore - it is now mandatory
+
 * Thu Jun 07 2012 Richard Hughes <hughsient@gmail.com> - 3.5.2-1
 - Update to 3.5.2
 - Remove upstreamed patches
