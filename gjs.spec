@@ -1,6 +1,6 @@
 Name:           gjs
 Version:        1.33.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Javascript Bindings for GNOME
 
 Group:          System Environment/Libraries
@@ -14,7 +14,7 @@ URL:            http://live.gnome.org/Gjs/
 Source0:        http://download.gnome.org/sources/%{name}/1.31/%{name}-%{version}.tar.xz
 
 BuildRequires: js-devel
-BuildRequires: cairo-devel
+BuildRequires: cairo-gobject-devel
 BuildRequires: gobject-introspection-devel >= 1.31.22
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
@@ -66,20 +66,22 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_bindir}/gjs
 %{_bindir}/gjs-console
 %{_libdir}/*.so.*
+%{_libdir}/gjs
 %{_libdir}/gjs-1.0
-%{_libdir}/girepository-1.0/GjsDBus-1.0.typelib
 %{_datadir}/gjs-1.0
 
 %files devel
 %doc examples/*
 %{_includedir}/gjs-1.0
-%{_datadir}/gir-1.0/GjsDBus-1.0.gir
 %{_libdir}/pkgconfig/gjs-1.0.pc
 %{_libdir}/pkgconfig/gjs-dbus-1.0.pc
 %{_libdir}/pkgconfig/gjs-internals-1.0.pc
 %{_libdir}/*.so
 
 %changelog
+* Sat Jun  9 2012 Matthias Clasen <mclasen@redhat.com> - 1.33.2-2
+- Fix the build
+
 * Thu Jun 07 2012 Richard Hughes <hughsient@gmail.com> - 1.33.2-1
 - Update to 1.33.2
 
