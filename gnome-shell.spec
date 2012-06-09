@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.5.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -105,6 +105,9 @@ rm -rf %{buildroot}/%{_libdir}/mozilla/plugins/*.la
 
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-extension-prefs.desktop
+
+# fixme: do we want to include this ?
+rm %{buildroot}/usr/bin/gnome-shell-perf-tool
 
 %find_lang %{name}
 
