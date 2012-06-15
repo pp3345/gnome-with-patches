@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.2
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -103,6 +103,8 @@ Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 Patch7015: xserver-fix-pci-slot-claims.patch
 # backport modesetting fallback driver
 Patch7016: xserver-1.12-modesetting-fallback.patch
+# needed when building without xorg (aka s390x)
+Patch7017: xserver-1.12.2-xorg-touch-test.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -573,6 +575,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Jun 15 2012 Dan Horák <dan[at]danny.cz> 1.12.2-2
+- fix build without xorg (aka s390x)
+
 * Wed May 30 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.2-1
 - xserver 1.12.2
 
