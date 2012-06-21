@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.2
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -105,6 +105,9 @@ Patch7015: xserver-fix-pci-slot-claims.patch
 Patch7016: xserver-1.12-modesetting-fallback.patch
 # needed when building without xorg (aka s390x)
 Patch7017: xserver-1.12.2-xorg-touch-test.patch
+
+# print newline on -displayfd (824594)
+Patch7018: xserver-1.12-os-print-newline-after-printing-display-name.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -575,6 +578,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jun 21 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.2-3
+- print newline after printing $DISPLAY to -displayfd (#824594)
+
 * Fri Jun 15 2012 Dan Horák <dan[at]danny.cz> 1.12.2-2
 - fix build without xorg (aka s390x)
 
