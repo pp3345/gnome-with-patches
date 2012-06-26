@@ -1,13 +1,13 @@
 Name:           gnome-shell
-Version:        3.5.2
-Release:        3%{?dist}
+Version:        3.5.3
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.4/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.5/%{name}-%{version}.tar.xz
 
 Patch0: gnome-shell-avoid-redhat-menus.patch
 # Replace Epiphany with Firefox in the default favourite apps list
@@ -152,6 +152,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Jun 26 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.3-1
+- Update to 3.5.3
+
 * Thu Jun 07 2012 Richard Hughes <hughsient@gmail.com> - 3.5.2-2
 - Remove upstreamed patch
 
