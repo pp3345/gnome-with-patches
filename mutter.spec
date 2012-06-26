@@ -1,12 +1,12 @@
 Name:          mutter
-Version:       3.5.2
-Release:       2%{?dist}
+Version:       3.5.3
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:	       git:git://git.gnome.org/mutter
-Source0:       http://download.gnome.org/sources/%{name}/3.4/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.5/%{name}-%{version}.tar.xz
 
 BuildRequires: clutter-devel >= 1.7.5
 BuildRequires: pango-devel
@@ -131,6 +131,12 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Jun 26 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.3-1
+- Update to 3.5.3
+
+* Fri Jun  8 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.2-3
+- Make resize grip area larger
+
 * Thu Jun 07 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.2-2
 - Don't check for Xinerama anymore - it is now mandatory
 
