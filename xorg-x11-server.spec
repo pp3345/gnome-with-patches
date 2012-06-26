@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.2
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -108,6 +108,10 @@ Patch7017: xserver-1.12.2-xorg-touch-test.patch
 
 # print newline on -displayfd (824594)
 Patch7018: xserver-1.12-os-print-newline-after-printing-display-name.patch
+
+# send keycode/event type for slow keys enable (#816764)
+Patch7019: xserver-1.12-xkb-warn-if-XKB-SlowKeys-have-been-automatically-ena.patch
+Patch7020: xserver-1.12-xkb-fill-in-keycode-and-event-type-for-slow-keys-ena.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -578,6 +582,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Jun 26 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.2-4
+- send keycode/event type down the wire when SlowKeys enable, otherwise
+  GNOME won't warn about it (#816764)
+
 * Thu Jun 21 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.2-3
 - print newline after printing $DISPLAY to -displayfd (#824594)
 
