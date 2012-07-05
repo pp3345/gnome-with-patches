@@ -1,17 +1,17 @@
-Name:           gjs
-Version:        1.33.3
-Release:        1%{?dist}
-Summary:        Javascript Bindings for GNOME
+Name:          gjs
+Version:       1.33.3
+Release:       2%{?dist}
+Summary:       Javascript Bindings for GNOME
 
-Group:          System Environment/Libraries
+Group:         System Environment/Libraries
 # The following files contain code from Mozilla which
 # is triple licensed under MPL1.1/LGPLv2+/GPLv2+:
 # The console module (modules/console.c)
 # Stack printer (gjs/stack.c)
-License:        MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
-URL:            http://live.gnome.org/Gjs/
-#VCS:           git://git.gnome.org/gjs
-Source0:        http://download.gnome.org/sources/%{name}/1.31/%{name}-%{version}.tar.xz
+License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
+URL:           http://live.gnome.org/Gjs/
+#VCS:          git://git.gnome.org/gjs
+Source0:       http://download.gnome.org/sources/%{name}/1.31/%{name}-%{version}.tar.xz
 
 BuildRequires: js-devel
 BuildRequires: cairo-gobject-devel
@@ -46,7 +46,7 @@ rm -f configure
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static)
 
-make %{?_smp_mflags}
+make %{?_smp_mflags} V=1
 
 %install
 make install DESTDIR=%{buildroot}
@@ -79,6 +79,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Thu Jul  5 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.33.3-2
+- Enable verbose build
+
 * Tue Jun 26 2012 Richard Hughes <hughsient@gmail.com> - 1.33.3-1
 - Update to 1.33.3
 
