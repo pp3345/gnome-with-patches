@@ -1,6 +1,6 @@
 Name:          gjs
-Version:       1.33.3
-Release:       2%{?dist}
+Version:       1.33.4
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -79,6 +79,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Tue Jul 17 2012 Richard Hughes <hughsient@gmail.com> - 1.33.4-1
+- Update to 1.33.4
+
 * Thu Jul  5 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.33.3-2
 - Enable verbose build
 
