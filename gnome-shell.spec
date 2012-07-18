@@ -93,13 +93,8 @@ easy to use experience.
 %patch0 -p1 -b .avoid-redhat-menus
 %patch1 -p1 -b .firefox
 
-# reautogen for Mirror-Evolution-calendar-settings-into-our-own-sche.patch
-rm configure
-
 %build
-export CFLAGS="$RPM_OPT_FLAGS -Wno-error=deprecated-declarations"
-(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static)
+%configure --disable-static
 make V=1 %{?_smp_mflags}
 
 %install
