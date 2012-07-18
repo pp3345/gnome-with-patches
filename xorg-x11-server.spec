@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-#define gitdate 20120215
+%define gitdate 20120717
 %define stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -19,9 +19,9 @@
 
 %define ansic_major 0
 %define ansic_minor 4
-%define videodrv_major 12
+%define videodrv_major 13
 %define videodrv_minor 0
-%define xinput_major 16
+%define xinput_major 18
 %define xinput_minor 0
 %define extension_major 6
 %define extension_minor 0
@@ -47,7 +47,7 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.12.3
+Version:   1.12.99.902
 Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
@@ -91,7 +91,6 @@ Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 
 # ajax needs to upstream this
-Patch6027: xserver-1.6.0-displayfd.patch
 Patch6030: xserver-1.6.99-right-of.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -99,10 +98,6 @@ Patch6030: xserver-1.6.99-right-of.patch
 # RedHat/Fedora-specific patch
 Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 
-# backport pci slot claiming fix for kms drivers
-Patch7015: xserver-fix-pci-slot-claims.patch
-# backport modesetting fallback driver
-Patch7016: xserver-1.12-modesetting-fallback.patch
 # needed when building without xorg (aka s390x)
 Patch7017: xserver-1.12.2-xorg-touch-test.patch
 
@@ -495,11 +490,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules/drivers
 %dir %{_libdir}/xorg/modules/extensions
 %{_libdir}/xorg/modules/extensions/libglx.so
-%{_libdir}/xorg/modules/extensions/libdri.so
-%{_libdir}/xorg/modules/extensions/libdri2.so
-%{_libdir}/xorg/modules/extensions/libdbe.so
-%{_libdir}/xorg/modules/extensions/libextmod.so
-%{_libdir}/xorg/modules/extensions/librecord.so
 %dir %{_libdir}/xorg/modules/input
 %{_libdir}/xorg/modules/libfbdevhw.so
 %{_libdir}/xorg/modules/libexa.so
@@ -581,6 +571,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jul 18 2012 Dave Airlie <airlied@redhat.com> 1.12.99.902-1
+- server 1.12.99.902
+
 * Mon Jul 09 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.3-1
 - server 1.12.3
 
