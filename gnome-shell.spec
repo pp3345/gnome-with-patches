@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.5.3
-Release:        2%{?dist}
+Version:        3.5.4
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -105,6 +105,7 @@ rm -rf %{buildroot}/%{_libdir}/mozilla/plugins/*.la
 
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-extension-prefs.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.desktop
 
 # fixme: do we want to include this ?
 rm %{buildroot}/usr/bin/gnome-shell-perf-tool
@@ -133,6 +134,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/applications/gnome-shell.desktop
 %{_datadir}/applications/gnome-shell-extension-prefs.desktop
+%{_datadir}/applications/evolution-calendar.desktop
 %{_datadir}/gnome-shell/
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
@@ -152,6 +154,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Jul 18 2012 Ray Strode <rstrode@redhat.com> 3.5.4-1
+- Update to 3.5.4
+
 * Tue Jun 26 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.3-2
 - Rebuild against new e-d-s
 
