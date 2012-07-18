@@ -94,7 +94,8 @@ easy to use experience.
 %patch1 -p1 -b .firefox
 
 %build
-%configure --disable-static
+(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
+ %configure --disable-static)
 make V=1 %{?_smp_mflags}
 
 %install
