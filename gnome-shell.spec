@@ -19,6 +19,11 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define eds_version 2.91.6
 %define json_glib_version 0.13.2
 
+## Needed when we re-autogen
+BuildRequires:  autoconf >= 2.53
+BuildRequires:  automake >= 1.10
+BuildRequires:  gnome-common >= 2.2.0
+BuildRequires:  libtool >= 1.4.3
 BuildRequires:  chrpath
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
@@ -88,13 +93,12 @@ easy to use experience.
 %patch0 -p1 -b .avoid-redhat-menus
 %patch1 -p1 -b .firefox
 
+# reautogen for Mirror-Evolution-calendar-settings-into-our-own-sche.patch
 rm configure
 
 %build
 export CFLAGS="$RPM_OPT_FLAGS -Wno-error=deprecated-declarations"
-# (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
-# reautogen for Mirror-Evolution-calendar-settings-into-our-own-sche.patch
- (NOCONFIGURE=1 ./autogen.sh; 
+(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static)
 make V=1 %{?_smp_mflags}
 
