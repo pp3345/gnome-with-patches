@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.5.4
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -80,6 +80,7 @@ Requires:       at-spi2-atk%{?_isa}
 Requires:       caribou%{?_isa}
 # needed for the user menu
 Requires:       accountsservice-libs
+Requires:       gdm-libs
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -154,6 +155,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Jul 19 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.4-3
+- Add a gdm-libs dependency
+
 * Wed Jul 18 2012 Colin Walters <walters@verbum.org> - 3.5.4-2
 - Bump release
 
