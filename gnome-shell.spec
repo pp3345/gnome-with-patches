@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.5.4
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -15,9 +15,12 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 
 %define clutter_version 1.9.16
 %define gobject_introspection_version 0.10.1
-%define mutter_version 3.4.1
+%define gjs_version 1.33.2
+%define mutter_version 3.5.4
 %define eds_version 2.91.6
+%define gnome_menus_version 3.5.3
 %define json_glib_version 0.13.2
+%define gsettings_desktop_schemas_version 3.5.1
 
 ## Needed when we re-autogen
 BuildRequires:  autoconf >= 2.53
@@ -30,9 +33,9 @@ BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
 BuildRequires:  evolution-data-server-devel >= %{eds_version}
 BuildRequires:  gcr-devel
-BuildRequires:  gjs-devel >= 0.7.14-6
+BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel
-BuildRequires:  gnome-menus-devel >= 3.1.5-2.fc16
+BuildRequires:  gnome-menus-devel >= %{gnome_menus_version}
 BuildRequires:  gnome-desktop3-devel
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  json-glib-devel >= %{json_glib_version}
@@ -61,10 +64,11 @@ BuildRequires:  gnome-bluetooth >= 2.91
 %endif
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
-Requires:       gnome-menus%{?_isa} >= 3.0.0-2
+Requires:       gnome-menus%{?_isa} >= %{gnome_menus_version}
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
 Requires:       gobject-introspection%{?_isa} >= %{gobject_introspection_version}
+Requires:       gjs%{?_isa} >= %{gjs_version}
 # needed for loading SVG's via gdk-pixbuf
 Requires:       librsvg2%{?_isa}
 # needed as it is now split from Clutter
@@ -74,13 +78,14 @@ Requires:       mozilla-filesystem%{?_isa}
 Requires:       mutter%{?_isa} >= %{mutter_version}
 Requires:       upower%{?_isa}
 Requires:       polkit%{?_isa} >= 0.100
+Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
 Requires:       caribou%{?_isa}
 # needed for the user menu
-Requires:       accountsservice-libs
-Requires:       gdm-libs
+Requires:       accountsservice-libs%{?_isa}
+Requires:       gdm-libs%{?_isa}
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -155,6 +160,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Sat Jul 21 2012 Kalev Lember <kalevlember@gmail.com> - 3.5.4-4
+- Tighten runtime requires
+
 * Thu Jul 19 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.4-3
 - Add a gdm-libs dependency
 
