@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.902
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -106,6 +106,8 @@ Patch7018: xserver-1.12-os-print-newline-after-printing-display-name.patch
 
 # send keycode/event type for slow keys enable (#816764)
 Patch7020: xserver-1.12-xkb-fill-in-keycode-and-event-type-for-slow-keys-ena.patch
+
+Patch7021: xserver-1.12.99-glx-fix.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -571,6 +573,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jul 25 2012 Dave Airlie <airlied@redhat.com> 1.12.99.902-3
+- fix crash due to GLX being linked twice
+
 * Sun Jul 22 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.12.99.902-2.20120717
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
