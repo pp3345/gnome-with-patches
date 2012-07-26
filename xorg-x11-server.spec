@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-%define gitdate 20120717
+%define gitdate 20120726
 %define stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -47,8 +47,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.12.99.902
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.12.99.903
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -573,6 +573,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jul 26 2012 Dave Airlie <airlied@redhat.com> 1.12.99.903-1
+- rebase to 1.12.99.903 snapshot
+
 * Wed Jul 25 2012 Dave Airlie <airlied@redhat.com> 1.12.99.902-3
 - fix crash due to GLX being linked twice
 
