@@ -13,10 +13,8 @@
 %define stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
-
 # Released ABI versions.  Have to keep these manually in sync with the
 # source because rpm is a terrible language.
-
 %define ansic_major 0
 %define ansic_minor 4
 %define videodrv_major 13
@@ -25,22 +23,19 @@
 %define xinput_minor 0
 %define extension_major 6
 %define extension_minor 0
+%endif
 
-%else
-
+%if 0%{?gitdate}
 # For git snapshots, use date for major and a serial number for minor
-
 %define minor_serial 0
-
-%define ansic_major %{gitdate}
-%define ansic_minor %{minor_serial}
-%define videodrv_major %{gitdate}
-%define videodrv_minor %{minor_serial}
-%define xinput_major %{gitdate}
-%define xinput_minor %{minor_serial}
-%define extension_major %{gitdate}
-%define extension_minor %{minor_serial}
-
+%define git_ansic_major %{gitdate}
+%define git_ansic_minor %{minor_serial}
+%define git_videodrv_major %{gitdate}
+%define git_videodrv_minor %{minor_serial}
+%define git_xinput_major %{gitdate}
+%define git_xinput_minor %{minor_serial}
+%define git_extension_major %{gitdate}
+%define git_extension_minor %{minor_serial}
 %endif
 
 %define pkgname xorg-server
@@ -48,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.903
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -181,10 +176,19 @@ Summary: Xorg X server
 Group: User Interface/X
 Provides: Xorg = %{version}-%{release}
 Provides: Xserver
+%if !0%{?gitdate} || %{stable_abi}
 Provides: xserver-abi(ansic-%{ansic_major}) = %{ansic_minor}
 Provides: xserver-abi(videodrv-%{videodrv_major}) = %{videodrv_minor}
 Provides: xserver-abi(xinput-%{xinput_major}) = %{xinput_minor}
 Provides: xserver-abi(extension-%{extension_major}) = %{extension_minor}
+%endif
+%if 0%{?gitdate}
+Provides: xserver-abi(ansic-%{git_ansic_major}) = %{git_ansic_minor}
+Provides: xserver-abi(videodrv-%{git_videodrv_major}) = %{git_videodrv_minor}
+Provides: xserver-abi(xinput-%{git_xinput_major}) = %{git_xinput_minor}
+Provides: xserver-abi(extension-%{git_extension_major}) = %{git_extension_minor}
+%endif
+
 # Dropped from F17, use evdev
 Obsoletes: xorg-x11-drv-acecad <= 1.5.0-2.fc16
 Obsoletes: xorg-x11-drv-aiptek <= 1.4.1-2.fc16
@@ -332,7 +336,7 @@ git commit -a -q -m "%{version} baseline."
 # Apply all the patches.
 git am -p1 %{patches} < /dev/null
 
-%if %{with_hw_servers} && !0%{?gitdate}
+%if %{with_hw_servers} && 0%{?stable_abi}
 # check the ABI in the source against what we expect.
 getmajor() {
     grep -i ^#define.ABI.$1_VERSION hw/xfree86/common/xf86Module.h |
@@ -570,6 +574,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jul 26 2012 Adam Jackson <ajax@redhat.com> 1.12.99.903-3
+- Make it possible to Provide: both stable and gitdate-style ABI versions.
+
 * Thu Jul 26 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.99.903-2
 - xserver-1.12-os-print-newline-after-printing-display-name.patch: drop,
   014ad46f1b353a95e2c4289443ee857cfbabb3ae
