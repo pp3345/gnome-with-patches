@@ -48,7 +48,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.903
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -100,9 +100,6 @@ Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 
 # needed when building without xorg (aka s390x)
 Patch7017: xserver-1.12.2-xorg-touch-test.patch
-
-# print newline on -displayfd (824594)
-Patch7018: xserver-1.12-os-print-newline-after-printing-display-name.patch
 
 # send keycode/event type for slow keys enable (#816764)
 Patch7020: xserver-1.12-xkb-fill-in-keycode-and-event-type-for-slow-keys-ena.patch
@@ -573,6 +570,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jul 26 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.12.99.903-2
+- xserver-1.12-os-print-newline-after-printing-display-name.patch: drop,
+  014ad46f1b353a95e2c4289443ee857cfbabb3ae
+
 * Thu Jul 26 2012 Dave Airlie <airlied@redhat.com> 1.12.99.903-1
 - rebase to 1.12.99.903 snapshot
 
