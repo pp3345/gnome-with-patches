@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.903
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -415,7 +415,7 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 
 mkdir -p $RPM_BUILD_ROOT%{_bindir}
 
-%if !0%{?gitdate} || %{stable_abi}
+%if %{stable_abi}
 install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
 %else
 sed -e s/@MAJOR@/%{gitdate}/g -e s/@MINOR@/%{minor_serial}/g %{SOURCE31} > \
@@ -574,6 +574,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jul 26 2012 Adam Jackson <ajax@redhat.com> 1.12.99.903-4
+- Install xserver-sdk-abi-requires.release based on stable_abi not gitdate,
+  so drivers built against a server that Provides multiple ABI versions will
+  Require the stable version.
+
 * Thu Jul 26 2012 Adam Jackson <ajax@redhat.com> 1.12.99.903-3
 - Make it possible to Provide: both stable and gitdate-style ABI versions.
 
