@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.5.4
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -160,6 +160,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Fri Jul 27 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.5.4-5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Sat Jul 21 2012 Kalev Lember <kalevlember@gmail.com> - 3.5.4-4
 - Tighten runtime requires
 
