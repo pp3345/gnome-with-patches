@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.903
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -73,10 +73,6 @@ Source31: xserver-sdk-abi-requires.git
 
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
-
-# OpenGL compositing manager feature/optimization patches.
-# FIXME: who calls this?
-#Patch103:  xserver-1.5.0-bg-none-root.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -386,7 +382,6 @@ autoreconf -f -v --install || exit 1
 	--with-os-name="$(hostname -s) $(uname -r)" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
         --with-dtrace \
-	--disable-xaa \
 	--enable-xselinux --enable-record \
 	--enable-config-udev \
 	%{dri_flags} %{?bodhi_flags} \
@@ -574,6 +569,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Jul 30 2012 Adam Jackson <ajax@redhat.com> 1.12.99.903-5
+- No need to --disable-xaa explicitly anymore.
+
 * Thu Jul 26 2012 Adam Jackson <ajax@redhat.com> 1.12.99.903-4
 - Install xserver-sdk-abi-requires.release based on stable_abi not gitdate,
   so drivers built against a server that Provides multiple ABI versions will
