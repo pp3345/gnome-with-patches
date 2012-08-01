@@ -46,12 +46,11 @@ BuildRequires:  polkit-devel
 BuildRequires:  telepathy-glib-devel
 BuildRequires:  telepathy-logger-devel >= 0.2.6
 # for screencast recorder functionality
-BuildRequires:  gstreamer-devel
+BuildRequires:  gstreamer1-devel
 BuildRequires:  gtk3-devel
 BuildRequires:  intltool
 BuildRequires:  libcanberra-devel
 BuildRequires:  libcroco-devel
-BuildRequires:  folks-devel
 
 # for barriers
 BuildRequires:  libXfixes-devel >= 5.0
@@ -163,6 +162,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Sep 11 2012 Florian Müllner <fmuellner@redhat.com> - 3.5.91-1
+- Update dependencies
+
 * Tue Sep 04 2012 Richard Hughes <hughsient@gmail.com> - 3.5.91-1
 - Update to 3.5.91
 
