@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.903
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -96,6 +96,10 @@ Patch7017: xserver-1.12.2-xorg-touch-test.patch
 Patch7020: xserver-1.12-xkb-fill-in-keycode-and-event-type-for-slow-keys-ena.patch
 
 Patch7021: xserver-1.12.99-glx-fix.patch
+
+Patch7022: 0001-linux-Refactor-xf86-En-Dis-ableIO.patch
+Patch7023: 0002-linux-Make-failure-to-iopl-non-fatal.patch
+Patch7024: 0003-xfree86-Change-the-semantics-of-driverFunc-GET_REQUI.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -569,6 +573,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Aug 03 2012 Adam Jackson <ajax@redhat.com> 1.12.99.903-6
+- Make failure to iopl non-fatal
+
 * Mon Jul 30 2012 Adam Jackson <ajax@redhat.com> 1.12.99.903-5
 - No need to --disable-xaa explicitly anymore.
 
