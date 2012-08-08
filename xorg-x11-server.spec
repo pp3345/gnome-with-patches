@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-%define gitdate 20120726
+%define gitdate 20120808
 %define stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -42,8 +42,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.12.99.903
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.12.99.904
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -94,8 +94,6 @@ Patch7017: xserver-1.12.2-xorg-touch-test.patch
 
 # send keycode/event type for slow keys enable (#816764)
 Patch7020: xserver-1.12-xkb-fill-in-keycode-and-event-type-for-slow-keys-ena.patch
-
-Patch7021: xserver-1.12.99-glx-fix.patch
 
 Patch7022: 0001-linux-Refactor-xf86-En-Dis-ableIO.patch
 Patch7023: 0002-linux-Make-failure-to-iopl-non-fatal.patch
@@ -573,6 +571,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Aug 08 2012 Dave Airlie <airlied@redhat.com> 1.12.99.904-1
+- rebase to 1.12.99.904 snapshot
+
 * Fri Aug 03 2012 Adam Jackson <ajax@redhat.com> 1.12.99.903-6
 - Make failure to iopl non-fatal
 
