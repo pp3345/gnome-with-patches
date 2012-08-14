@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.5.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -14,6 +14,7 @@ Patch0: gnome-shell-avoid-redhat-menus.patch
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
 %define clutter_version 1.9.16
+%define gnome_bluetooth_version 3.5.5
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.33.2
 %define mutter_version 3.5.4
@@ -64,6 +65,7 @@ BuildRequires:  gnome-bluetooth >= 2.91
 %endif
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
+Requires:       gnome-bluetooth%{?_isa} >= %{gnome_bluetooth_version}
 Requires:       gnome-menus%{?_isa} >= %{gnome_menus_version}
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
@@ -160,6 +162,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Aug 14 2012 Debarshi Ray <rishi@fedoraproject.org> - 3.5.5-2
+- Add Requires: gnome-bluetooth >= 3.5.5
+
 * Mon Aug 13 2012 Debarshi Ray <rishi@fedoraproject.org> - 3.5.5-1
 - Update to 3.5.5
 
