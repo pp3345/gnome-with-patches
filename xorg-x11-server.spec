@@ -9,36 +9,36 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-%define gitdate 20120808
-%define stable_abi 1
+%global gitdate 20120808
+%global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
 # Released ABI versions.  Have to keep these manually in sync with the
 # source because rpm is a terrible language.
-%define ansic_major 0
-%define ansic_minor 4
-%define videodrv_major 13
-%define videodrv_minor 0
-%define xinput_major 18
-%define xinput_minor 0
-%define extension_major 6
-%define extension_minor 0
+%global ansic_major 0
+%global ansic_minor 4
+%global videodrv_major 13
+%global videodrv_minor 0
+%global xinput_major 18
+%global xinput_minor 0
+%global extension_major 6
+%global extension_minor 0
 %endif
 
 %if 0%{?gitdate}
 # For git snapshots, use date for major and a serial number for minor
-%define minor_serial 0
-%define git_ansic_major %{gitdate}
-%define git_ansic_minor %{minor_serial}
-%define git_videodrv_major %{gitdate}
-%define git_videodrv_minor %{minor_serial}
-%define git_xinput_major %{gitdate}
-%define git_xinput_minor %{minor_serial}
-%define git_extension_major %{gitdate}
-%define git_extension_minor %{minor_serial}
+%global minor_serial 0
+%global git_ansic_major %{gitdate}
+%global git_ansic_minor %{minor_serial}
+%global git_videodrv_major %{gitdate}
+%global git_videodrv_minor %{minor_serial}
+%global git_xinput_major %{gitdate}
+%global git_xinput_minor %{minor_serial}
+%global git_extension_major %{gitdate}
+%global git_extension_minor %{minor_serial}
 %endif
 
-%define pkgname xorg-server
+%global pkgname xorg-server
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
@@ -105,28 +105,28 @@ Patch7026: xserver-1.12.99-git.patch
 # do not upstream - do not even use here yet
 # Patch7027: xserver-autobind-hotplug.patch
 
-%define moduledir	%{_libdir}/xorg/modules
-%define drimoduledir	%{_libdir}/dri
-%define sdkdir		%{_includedir}/xorg
+%global moduledir	%{_libdir}/xorg/modules
+%global drimoduledir	%{_libdir}/dri
+%global sdkdir		%{_includedir}/xorg
 
 %ifarch s390 s390x %{?rhel:ppc ppc64}
-%define with_hw_servers 0
+%global with_hw_servers 0
 %else
-%define with_hw_servers 1
+%global with_hw_servers 1
 %endif
 
 %if %{with_hw_servers}
-%define enable_xorg --enable-xorg
+%global enable_xorg --enable-xorg
 %else
-%define enable_xorg --disable-xorg
+%global enable_xorg --disable-xorg
 %endif
 
 %ifnarch %{ix86} x86_64 %{arm}
-%define no_int10 --disable-vbe --disable-int10-module
+%global no_int10 --disable-vbe --disable-int10-module
 %endif
 
-%define kdrive --enable-kdrive --enable-xephyr --disable-xfake --disable-xfbdev
-%define xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
+%global kdrive --enable-kdrive --enable-xephyr --disable-xfake --disable-xfbdev
+%global xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git-core
@@ -365,16 +365,16 @@ test `getminor extension` == %{extension_minor}
 
 %build
 
-%define default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
+%global default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
 
 %if %{with_hw_servers}
-%define dri_flags --with-dri-driver-path=%{drimoduledir}
+%global dri_flags --with-dri-driver-path=%{drimoduledir}
 %else
-%define dri_flags --disable-dri
+%global dri_flags --disable-dri
 %endif
 
 %if 0%{?fedora}
-%define bodhi_flags --with-vendor-name="Fedora Project"
+%global bodhi_flags --with-vendor-name="Fedora Project"
 %endif
 
 # --with-pie ?
@@ -429,8 +429,8 @@ chmod 755 $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
 %endif
 
 # Make the source package
-%define xserver_source_dir %{_datadir}/xorg-x11-server-source
-%define inst_srcdir %{buildroot}/%{xserver_source_dir}
+%global xserver_source_dir %{_datadir}/xorg-x11-server-source
+%global inst_srcdir %{buildroot}/%{xserver_source_dir}
 mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
 mkdir -p %{inst_srcdir}/{hw/dmx/doc,man,doc,hw/dmx/doxygen}
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
@@ -477,10 +477,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/lib/xkb/README.compiled
 
 %if 1
-%define Xorgperms %attr(4755, root, root)
+%global Xorgperms %attr(4755, root, root)
 %else
 # disable until module loading is audited
-%define Xorgperms %attr(0711,root,root) %caps(cap_sys_admin,cap_sys_rawio,cap_dac_override=pe)
+%global Xorgperms %attr(0711,root,root) %caps(cap_sys_admin,cap_sys_rawio,cap_dac_override=pe)
 %endif
 
 %if %{with_hw_servers}
