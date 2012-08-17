@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.904
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -102,8 +102,8 @@ Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
 Patch7026: xserver-1.12.99-git.patch
 
-# do not upstream
-Patch7027: xserver-autobind-hotplug.patch
+# do not upstream - do not even use here yet
+# Patch7027: xserver-autobind-hotplug.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -577,6 +577,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Aug 17 2012 Dave Airlie <airlied@redhat.com> 1.12.99.904-4
+- autobind was horribly broken on unplug - drop it like its hotplug.
+
 * Fri Aug 17 2012 Dave Airlie <airlied@redhat.com> 1.12.99.904-3
 - add git fixes + autobind to gpu devices.
 
