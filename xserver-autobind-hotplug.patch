@@ -1,0 +1,64 @@
+From 1bedef99881a63f5e8215ba259e9b222abeb1fe7 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@redhat.com>
+Date: Fri, 17 Aug 2012 09:49:24 +1000
+Subject: [PATCH] autobind GPUs to the screen,
+
+this is racy and really not what we want for hotplug going forward,
+but until DE support is in GNOME its probably for the best.
+
+DO NOT UPSTREAM.
+---
+ hw/xfree86/common/xf86Init.c        | 12 ++++++++++--
+ hw/xfree86/common/xf86platformBus.c | 13 ++++++++++---
+ 2 files changed, 20 insertions(+), 5 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
+index e4a6b86..f41423d 100644
+--- a/hw/xfree86/common/xf86Init.c
++++ b/hw/xfree86/common/xf86Init.c
+@@ -924,8 +924,16 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
+ #endif
+     }
+ 
+-    for (i = 0; i < xf86NumGPUScreens; i++)
+-        AttachUnboundGPU(xf86Screens[0]->pScreen, xf86GPUScreens[i]->pScreen);
++    for (i = 0; i < xf86NumGPUScreens; i++) {
++        if ((xf86Screens[0]->capabilities & RR_Capability_SinkOffload) &&
++             xf86GPUScreens[i]->capabilities & RR_Capability_SourceOffload)
++            AttachOffloadGPU(xf86Screens[0]->pScreen, xf86GPUScreens[i]->pScreen);
++        else if ((xf86Screens[0]->capabilities & RR_Capability_SourceOutput) &&
++                 xf86GPUScreens[i]->capabilities & RR_Capability_SinkOutput)
++            AttachOutputGPU(xf86Screens[0]->pScreen, xf86GPUScreens[i]->pScreen);
++        else
++            AttachUnboundGPU(xf86Screens[0]->pScreen, xf86GPUScreens[i]->pScreen);
++    }
+ 
+     xf86VGAarbiterWrapFunctions();
+     if (sigio_blocked)
+diff --git a/hw/xfree86/common/xf86platformBus.c b/hw/xfree86/common/xf86platformBus.c
+index 24b9473..6e397eb 100644
+--- a/hw/xfree86/common/xf86platformBus.c
++++ b/hw/xfree86/common/xf86platformBus.c
+@@ -440,9 +440,16 @@ xf86platformAddDevice(int index)
+ 
+    CreateScratchPixmapsForScreen(xf86GPUScreens[i]->pScreen);
+ 
+-   /* attach unbound to 0 protocol screen */
+-   AttachUnboundGPU(xf86Screens[0]->pScreen, xf86GPUScreens[i]->pScreen);
+-
++   if ((xf86Screens[0]->capabilities & RR_Capability_SinkOffload) &&
++       xf86GPUScreens[i]->capabilities & RR_Capability_SourceOffload)
++       AttachOffloadGPU(xf86Screens[0]->pScreen, xf86GPUScreens[i]->pScreen);
++   else if ((xf86Screens[0]->capabilities & RR_Capability_SourceOutput) &&
++       xf86GPUScreens[i]->capabilities & RR_Capability_SinkOutput)
++       AttachOutputGPU(xf86Screens[0]->pScreen, xf86GPUScreens[i]->pScreen);
++   else
++       /* attach unbound to 0 protocol screen */
++       AttachUnboundGPU(xf86Screens[0]->pScreen, xf86GPUScreens[i]->pScreen);
++
+    return 0;
+ }
+ 
+-- 
+1.7.11.2
+

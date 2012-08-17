@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.904
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -99,6 +99,11 @@ Patch7022: 0001-linux-Refactor-xf86-En-Dis-ableIO.patch
 Patch7023: 0002-linux-Make-failure-to-iopl-non-fatal.patch
 Patch7024: 0003-xfree86-Change-the-semantics-of-driverFunc-GET_REQUI.patch
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
+
+Patch7026: xserver-1.12.99-git.patch
+
+# do not upstream
+Patch7027: xserver-autobind-hotplug.patch
 
 %define moduledir	%{_libdir}/xorg/modules
 %define drimoduledir	%{_libdir}/dri
@@ -572,6 +577,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Aug 17 2012 Dave Airlie <airlied@redhat.com> 1.12.99.904-3
+- add git fixes + autobind to gpu devices.
+
 * Wed Aug 15 2012 Adam Jackson <ajax@redhat.com> 1.12.99.904-2
 - Always install int10 and vbe sdk headers
 

@@ -1,0 +1,173 @@
+From 2a0d4bdf11ef7d0dbc44ec517eb7e225dffcacdb Mon Sep 17 00:00:00 2001
+From: Fedora X Ninjas <x@fedoraproject.org>
+Date: Fri, 17 Aug 2012 09:53:13 +1000
+Subject: [PATCH] xserver: bunch of fixes from git
+
+---
+ dix/main.c                  | 18 +++++++++---------
+ fb/fbseg.c                  | 18 +++++++++---------
+ glx/glxscreens.c            |  3 +++
+ hw/xfree86/modes/xf86Crtc.c | 11 +++++++----
+ hw/xquartz/quartz.c         |  1 +
+ render/filter.c             |  5 ++++-
+ 6 files changed, 33 insertions(+), 23 deletions(-)
+
+diff --git a/dix/main.c b/dix/main.c
+index 42f517d..fb935c9 100644
+--- a/dix/main.c
++++ b/dix/main.c
+@@ -331,6 +331,15 @@ main(int argc, char *argv[], char *envp[])
+ 
+         CloseDownEvents();
+ 
++        for (i = screenInfo.numGPUScreens - 1; i >= 0; i--) {
++            ScreenPtr pScreen = screenInfo.gpuscreens[i];
++            FreeScratchPixmapsForScreen(pScreen);
++            (*pScreen->CloseScreen) (pScreen);
++            dixFreePrivates(pScreen->devPrivates, PRIVATE_SCREEN);
++            free(pScreen);
++            screenInfo.numGPUScreens = i;
++        }
++
+         for (i = screenInfo.numScreens - 1; i >= 0; i--) {
+             FreeScratchPixmapsForScreen(screenInfo.screens[i]);
+             FreeGCperDepth(i);
+@@ -342,15 +351,6 @@ main(int argc, char *argv[], char *envp[])
+             screenInfo.numScreens = i;
+         }
+ 
+-        for (i = screenInfo.numGPUScreens - 1; i >= 0; i--) {
+-            ScreenPtr pScreen = screenInfo.gpuscreens[i];
+-            FreeScratchPixmapsForScreen(pScreen);
+-            (*pScreen->CloseScreen) (pScreen);
+-            dixFreePrivates(pScreen->devPrivates, PRIVATE_SCREEN);
+-            free(pScreen);
+-            screenInfo.numGPUScreens = i;
+-        }
+-
+         ReleaseClientIds(serverClient);
+         dixFreePrivates(serverClient->devPrivates, PRIVATE_CLIENT);
+         serverClient->devPrivates = NULL;
+diff --git a/fb/fbseg.c b/fb/fbseg.c
+index 0e4e0a9..1848387 100644
+--- a/fb/fbseg.c
++++ b/fb/fbseg.c
+@@ -65,6 +65,12 @@ fbBresSolid(DrawablePtr pDrawable,
+     if (axis == X_AXIS) {
+         bits = 0;
+         while (len--) {
++            if (e >= 0) {
++                WRITE(dst, FbDoMaskRRop (READ(dst), and, xor, bits));
++                bits = 0;
++                dst += dstStride;
++                e += e3;
++            }
+             bits |= mask;
+             mask = fbBresShiftMask(mask, signdx, dstBpp);
+             if (!mask) {
+@@ -74,21 +80,12 @@ fbBresSolid(DrawablePtr pDrawable,
+                 mask = mask0;
+             }
+             e += e1;
+-            if (e >= 0) {
+-                WRITE(dst, FbDoMaskRRop(READ(dst), and, xor, bits));
+-                bits = 0;
+-                dst += dstStride;
+-                e += e3;
+-            }
+         }
+         if (bits)
+             WRITE(dst, FbDoMaskRRop(READ(dst), and, xor, bits));
+     }
+     else {
+         while (len--) {
+-            WRITE(dst, FbDoMaskRRop(READ(dst), and, xor, mask));
+-            dst += dstStride;
+-            e += e1;
+             if (e >= 0) {
+                 e += e3;
+                 mask = fbBresShiftMask(mask, signdx, dstBpp);
+@@ -97,6 +94,9 @@ fbBresSolid(DrawablePtr pDrawable,
+                     mask = mask0;
+                 }
+             }
++            WRITE(dst, FbDoMaskRRop(READ(dst), and, xor, mask));
++            dst += dstStride;
++            e += e1;
+         }
+     }
+ 
+diff --git a/glx/glxscreens.c b/glx/glxscreens.c
+index 037b037..61d590c 100644
+--- a/glx/glxscreens.c
++++ b/glx/glxscreens.c
+@@ -288,6 +288,9 @@ pickFBConfig(__GLXscreen * pGlxScreen, VisualPtr visual)
+             continue;
+         if (config->visualRating != GLX_NONE)
+             continue;
++        /* Ignore multisampled configs */
++        if (config->sampleBuffers)
++            continue;
+         if (glxConvertToXVisualType(config->visualType) != visual->class)
+             continue;
+         /* If it's the 32-bit RGBA visual, demand a 32-bit fbconfig. */
+diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
+index c58088d..964465e 100644
+--- a/hw/xfree86/modes/xf86Crtc.c
++++ b/hw/xfree86/modes/xf86Crtc.c
+@@ -726,6 +726,12 @@ xf86CrtcCloseScreen(ScreenPtr screen)
+ 
+     xf86RotateCloseScreen(screen);
+ 
++    xf86RandR12CloseScreen(screen);
++
++    free(config->name);
++
++    screen->CloseScreen(screen);
++
+     for (o = 0; o < config->num_output; o++) {
+         xf86OutputPtr output = config->output[o];
+ 
+@@ -749,10 +755,7 @@ xf86CrtcCloseScreen(ScreenPtr screen)
+         else if (screen->current_master)
+             DetachUnboundGPU(screen);
+     }
+-    xf86RandR12CloseScreen(screen);
+-
+-    free(config->name);
+-    return screen->CloseScreen(screen);
++    return TRUE;
+ }
+ 
+ /*
+diff --git a/hw/xquartz/quartz.c b/hw/xquartz/quartz.c
+index d74fc64..31b0e61 100644
+--- a/hw/xquartz/quartz.c
++++ b/hw/xquartz/quartz.c
+@@ -43,6 +43,7 @@
+ #include "darwinEvents.h"
+ #include "pseudoramiX.h"
+ #include "extension.h"
++#include "glx_extinit.h"
+ #define _APPLEWM_SERVER_
+ #include "applewmExt.h"
+ 
+diff --git a/render/filter.c b/render/filter.c
+index 8c401ee..019ea7f 100644
+--- a/render/filter.c
++++ b/render/filter.c
+@@ -273,7 +273,10 @@ PictureResetFilters(ScreenPtr pScreen)
+ 
+     free(ps->filters);
+     free(ps->filterAliases);
+-    PictureFreeFilterIds();
++
++    /* Free the filters when the last screen is closed */
++    if (pScreen->myNum == 0)
++        PictureFreeFilterIds();
+ }
+ 
+ int
+-- 
+1.7.11.2
+
