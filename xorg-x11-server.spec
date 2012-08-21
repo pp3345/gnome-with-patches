@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-%global gitdate 20120808
+%global gitdate 20120822
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -21,7 +21,7 @@
 %global videodrv_minor 0
 %global xinput_major 18
 %global xinput_minor 0
-%global extension_major 6
+%global extension_major 7
 %global extension_minor 0
 %endif
 
@@ -42,8 +42,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.12.99.904
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.12.99.905
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -99,8 +99,6 @@ Patch7022: 0001-linux-Refactor-xf86-En-Dis-ableIO.patch
 Patch7023: 0002-linux-Make-failure-to-iopl-non-fatal.patch
 Patch7024: 0003-xfree86-Change-the-semantics-of-driverFunc-GET_REQUI.patch
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
-
-Patch7026: xserver-1.12.99-git.patch
 
 # do not upstream - do not even use here yet
 # Patch7027: xserver-autobind-hotplug.patch
@@ -577,6 +575,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Aug 22 2012 Dave Airlie <airlied@redhat.com> 1.12.99.905-1
+- rebase to 1.12.99.905 snapshot
+
 * Fri Aug 17 2012 Dave Airlie <airlied@redhat.com> 1.12.99.904-4
 - autobind was horribly broken on unplug - drop it like its hotplug.
 
