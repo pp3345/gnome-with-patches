@@ -1,5 +1,5 @@
 Name:          mutter
-Version:       3.5.5
+Version:       3.5.90
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -131,6 +131,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Aug 21 2012 Richard Hughes <hughsient@gmail.com> - 3.5.90-1
+- Update to 3.5.90
+
 * Tue Aug 07 2012 Richard Hughes <hughsient@gmail.com> - 3.5.5-1
 - Update to 3.5.5
 
