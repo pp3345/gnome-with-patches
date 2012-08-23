@@ -88,6 +88,7 @@ Requires:       caribou%{?_isa}
 # needed for the user menu
 Requires:       accountsservice-libs%{?_isa}
 Requires:       gdm-libs%{?_isa}
+Requires:       clutter%{?_isa} >= 1.11.12
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
