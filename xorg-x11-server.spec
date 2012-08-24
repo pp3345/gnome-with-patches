@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.905
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -101,7 +101,11 @@ Patch7024: 0003-xfree86-Change-the-semantics-of-driverFunc-GET_REQUI.patch
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
 # do not upstream - do not even use here yet
-# Patch7027: xserver-autobind-hotplug.patch
+Patch7027: xserver-autobind-hotplug.patch
+
+# backport fixes from list
+Patch7030: 0001-xf86-crtc-don-t-free-config-name.patch
+Patch7031: 0002-dix-free-default-colormap-before-screen-deletion.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -575,6 +579,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Aug 24 2012 Dave Airlie <airlied@redhat.com> 1.12.99.905-2
+- reintroduce auto config but working this time
+- fix two recycle/exit crashes
+
 * Wed Aug 22 2012 Dave Airlie <airlied@redhat.com> 1.12.99.905-1
 - rebase to 1.12.99.905 snapshot
 
