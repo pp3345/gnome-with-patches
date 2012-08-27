@@ -1,0 +1,59 @@
+From 41b5b320ed1509be1e885992fc804322161d1533 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@redhat.com>
+Date: Mon, 27 Aug 2012 15:20:11 +1000
+Subject: [PATCH 3/3] xf86: fix multi-seat video device support.
+
+If we are not seat 0 the following apply:
+
+don't probe any bus other than platform
+don't probe any drivers other than platform
+assume the first platform device we match on the bus is the primary GPU.
+
+This just adds checks in the correct places to ensure this, and
+with this X can now start on a secondary seat for an output device.
+
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+---
+ hw/xfree86/common/xf86Bus.c         |    4 ++++
+ hw/xfree86/common/xf86platformBus.c |    3 +++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/hw/xfree86/common/xf86Bus.c b/hw/xfree86/common/xf86Bus.c
+index 6de8409..40f4921 100644
+--- a/hw/xfree86/common/xf86Bus.c
++++ b/hw/xfree86/common/xf86Bus.c
+@@ -81,6 +81,8 @@ xf86CallDriverProbe(DriverPtr drv, Bool detect_only)
+     if (drv->platformProbe != NULL) {
+         foundScreen = xf86platformProbeDev(drv);
+     }
++    if (ServerIsNotSeat0)
++        return foundScreen;
+ #endif
+ 
+ #ifdef XSERVER_LIBPCIACCESS
+@@ -214,6 +216,8 @@ xf86BusProbe(void)
+ {
+ #ifdef XSERVER_PLATFORM_BUS
+     xf86platformProbe();
++    if (ServerIsNotSeat0)
++        return;
+ #endif
+ #ifdef XSERVER_LIBPCIACCESS
+     xf86PciProbe();
+diff --git a/hw/xfree86/common/xf86platformBus.c b/hw/xfree86/common/xf86platformBus.c
+index 502d3c4..0b06e16 100644
+--- a/hw/xfree86/common/xf86platformBus.c
++++ b/hw/xfree86/common/xf86platformBus.c
+@@ -358,6 +358,9 @@ xf86platformProbeDev(DriverPtr drvp)
+                     break;
+             }
+             else {
++                /* for non-seat0 servers assume first device is the master */
++                if (ServerIsNotSeat0)
++                    break;
+                 if (xf86_platform_devices[j].pdev) {
+                     if (xf86IsPrimaryPlatform(&xf86_platform_devices[j]))
+                         break;
+-- 
+1.7.10.2
+

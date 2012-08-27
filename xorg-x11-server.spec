@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.905
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -106,6 +106,11 @@ Patch7027: xserver-autobind-hotplug.patch
 # backport fixes from list
 Patch7030: 0001-xf86-crtc-don-t-free-config-name.patch
 Patch7031: 0002-dix-free-default-colormap-before-screen-deletion.patch
+
+# backport multi-seat fixes from list
+Patch7040: 0001-config-udev-add-wrapper-around-check-if-server-is-no.patch
+Patch7041: 0002-config-udev-respect-seat-for-hotplugged-video-device.patch
+Patch7042: 0003-xf86-fix-multi-seat-video-device-support.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -579,6 +584,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Aug 27 2012 Dave Airlie <airlied@redhat.com> 1.12.99.905-3
+- port multi-seat video fixes from upstream
+
 * Fri Aug 24 2012 Dave Airlie <airlied@redhat.com> 1.12.99.905-2
 - reintroduce auto config but working this time
 - fix two recycle/exit crashes
