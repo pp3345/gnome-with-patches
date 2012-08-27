@@ -60,8 +60,8 @@ BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
 BuildRequires:  pulseaudio-libs-devel
 %ifnarch s390 s390x
-BuildRequires:  gnome-bluetooth-libs-devel >= 2.91
-BuildRequires:  gnome-bluetooth >= 2.91
+BuildRequires:  gnome-bluetooth-libs-devel >= %{gnome_bluetooth_version}
+BuildRequires:  gnome-bluetooth >= %{gnome_bluetooth_version}
 %endif
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
@@ -164,7 +164,8 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 
 %changelog
 * Mon Aug 27 2012 Debarshi Ray <rishi@fedoraproject.org> - 3.5.90-2
-- Rebuild for new libcamel
+- Rebuild for new libcamel and synchronize gnome-bluetooth Requires with
+  BuildRequires.
 
 * Wed Aug 22 2012 Richard Hughes <hughsient@gmail.com> - 3.5.90-1
 - Update to 3.5.90
