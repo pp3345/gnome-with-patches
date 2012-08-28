@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.5.90
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -163,6 +163,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Aug 28 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.90-3
+- Rebuild against new cogl/clutter
+
 * Mon Aug 27 2012 Debarshi Ray <rishi@fedoraproject.org> - 3.5.90-2
 - Rebuild for new libcamel and synchronize gnome-bluetooth Requires with
   BuildRequires.
