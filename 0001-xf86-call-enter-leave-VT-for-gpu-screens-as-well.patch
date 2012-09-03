@@ -1,0 +1,51 @@
+From fa9cd6caf572d6550f7acf679b6c727676241bb5 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@redhat.com>
+Date: Mon, 3 Sep 2012 15:09:36 +1000
+Subject: [PATCH] xf86: call enter/leave VT for gpu screens as well
+
+Otherwise we can't do fast user switch properly for multiple GPUs.
+
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+---
+ hw/xfree86/common/xf86Events.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/hw/xfree86/common/xf86Events.c b/hw/xfree86/common/xf86Events.c
+index 47429ec..3ad34b5 100644
+--- a/hw/xfree86/common/xf86Events.c
++++ b/hw/xfree86/common/xf86Events.c
+@@ -460,6 +460,8 @@ xf86VTSwitch(void)
+         OsBlockSIGIO();
+         for (i = 0; i < xf86NumScreens; i++)
+             xf86Screens[i]->LeaveVT(xf86Screens[i]);
++        for (i = 0; i < xf86NumGPUScreens; i++)
++            xf86GPUScreens[i]->LeaveVT(xf86GPUScreens[i]);
+ 
+         xf86AccessLeave();      /* We need this here, otherwise */
+ 
+@@ -474,6 +476,10 @@ xf86VTSwitch(void)
+                 if (!xf86Screens[i]->EnterVT(xf86Screens[i]))
+                     FatalError("EnterVT failed for screen %d\n", i);
+             }
++            for (i = 0; i < xf86NumGPUScreens; i++) {
++                if (!xf86GPUScreens[i]->EnterVT(xf86GPUScreens[i]))
++                    FatalError("EnterVT failed for gpu screen %d\n", i);
++            }
+             if (!(dispatchException & DE_TERMINATE)) {
+                 for (i = 0; i < xf86NumScreens; i++) {
+                     if (xf86Screens[i]->EnableDisableFBAccess)
+@@ -530,6 +536,11 @@ xf86VTSwitch(void)
+             if (!xf86Screens[i]->EnterVT(xf86Screens[i]))
+                 FatalError("EnterVT failed for screen %d\n", i);
+         }
++        for (i = 0; i < xf86NumGPUScreens; i++) {
++            xf86GPUScreens[i]->vtSema = TRUE;
++            if (!xf86GPUScreens[i]->EnterVT(xf86GPUScreens[i]))
++                FatalError("EnterVT failed for gpu screen %d\n", i);
++        }
+         for (i = 0; i < xf86NumScreens; i++) {
+             if (xf86Screens[i]->EnableDisableFBAccess)
+                 (*xf86Screens[i]->EnableDisableFBAccess) (xf86Screens[i], TRUE);
+-- 
+1.7.10.2
+
