@@ -1,11 +1,11 @@
 Name:          mutter
-Version:       3.5.90
-Release:       2%{?dist}
+Version:       3.5.91
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
-#VCS:	       git:git://git.gnome.org/mutter
+#VCS:          git:git://git.gnome.org/mutter
 Source0:       http://download.gnome.org/sources/%{name}/3.5/%{name}-%{version}.tar.xz
 
 BuildRequires: clutter-devel >= 1.7.5
@@ -131,6 +131,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Sep 04 2012 Debarshi Ray <rishi@fedoraproject.org> - 3.5.91-1
+- Update to 3.5.91
+
 * Tue Aug 28 2012 Matthias Clasen <mclasen@redhat.com> - 3.5.90-2
 - Rebuild against new cogl/clutter
 
