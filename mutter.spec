@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       3.5.91
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -131,6 +131,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Sep 04 2012 Debarshi Ray <rishi@fedoraproject.org> - 3.5.91-2
+- Rebuild against new cogl
+
 * Tue Sep 04 2012 Debarshi Ray <rishi@fedoraproject.org> - 3.5.91-1
 - Update to 3.5.91
 
