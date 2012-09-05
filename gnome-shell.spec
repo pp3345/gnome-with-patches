@@ -13,15 +13,15 @@ Patch0: gnome-shell-avoid-redhat-menus.patch
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
-%define clutter_version 1.9.16
+%define clutter_version 1.11.14-2
 %define gnome_bluetooth_version 3.5.5
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.33.2
-%define mutter_version 3.5.4
-%define eds_version 2.91.6
+%define mutter_version 3.5.91
+%define eds_version 3.5.3
 %define gnome_menus_version 3.5.3
 %define json_glib_version 0.13.2
-%define gsettings_desktop_schemas_version 3.5.1
+%define gsettings_desktop_schemas_version 3.5.4
 
 ## Needed when we re-autogen
 BuildRequires:  autoconf >= 2.53
@@ -88,7 +88,7 @@ Requires:       caribou%{?_isa}
 # needed for the user menu
 Requires:       accountsservice-libs%{?_isa}
 Requires:       gdm-libs%{?_isa}
-Requires:       clutter%{?_isa} >= 1.11.12
+Requires:       clutter%{?_isa} >= %{clutter_version}
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
