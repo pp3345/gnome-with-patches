@@ -9,7 +9,7 @@
 # check out the master branch, pull, cherry-pick, and push.  FIXME describe
 # rebasing, add convenience 'make' targets maybe.
 
-%global gitdate 20120822
+#global gitdate 20120822
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -42,8 +42,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.12.99.905
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.13.0
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -103,17 +103,8 @@ Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 # do not upstream - do not even use here yet
 Patch7027: xserver-autobind-hotplug.patch
 
-# backport fixes from list
-Patch7030: 0001-xf86-crtc-don-t-free-config-name.patch
-Patch7031: 0002-dix-free-default-colormap-before-screen-deletion.patch
-
 # backport multi-seat fixes from list
-Patch7040: 0001-config-udev-add-wrapper-around-check-if-server-is-no.patch
-Patch7041: 0002-config-udev-respect-seat-for-hotplugged-video-device.patch
 Patch7042: 0003-xf86-fix-multi-seat-video-device-support.patch
-
-# backport vt switch fix from list
-Patch7050: 0001-xf86-call-enter-leave-VT-for-gpu-screens-as-well.patch
 
 # backport dri2 drawable fix
 Patch7051: 0001-dri2-invalidate-drawable-after-sharing-pixmap.patch
@@ -590,6 +581,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Sep 07 2012 Dave Airlie <airlied@redhat.com> 1.13.0-1
+- rebase to upstream 1.13.0 release tarball
+
 * Fri Sep 07 2012 Dave Airlie <airlied@redhat.com> 1.12.99.905-5
 - fix prime offload with DRI2 compositors
 
