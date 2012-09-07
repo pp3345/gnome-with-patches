@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.12.99.905
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -114,6 +114,9 @@ Patch7042: 0003-xf86-fix-multi-seat-video-device-support.patch
 
 # backport vt switch fix from list
 Patch7050: 0001-xf86-call-enter-leave-VT-for-gpu-screens-as-well.patch
+
+# backport dri2 drawable fix
+Patch7051: 0001-dri2-invalidate-drawable-after-sharing-pixmap.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -587,6 +590,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Sep 07 2012 Dave Airlie <airlied@redhat.com> 1.12.99.905-5
+- fix prime offload with DRI2 compositors
+
 * Mon Sep 03 2012 Dave Airlie <airlied@redhat.com> 1.12.99.905-4
 - fix multi-gpu after VT switch
 
