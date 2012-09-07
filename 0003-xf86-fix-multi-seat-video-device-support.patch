@@ -26,7 +26,7 @@ index 6de8409..40f4921 100644
      if (drv->platformProbe != NULL) {
          foundScreen = xf86platformProbeDev(drv);
      }
-+    if (ServerIsNotSeat0)
++    if (ServerIsNotSeat0())
 +        return foundScreen;
  #endif
  
@@ -35,7 +35,7 @@ index 6de8409..40f4921 100644
  {
  #ifdef XSERVER_PLATFORM_BUS
      xf86platformProbe();
-+    if (ServerIsNotSeat0)
++    if (ServerIsNotSeat0())
 +        return;
  #endif
  #ifdef XSERVER_LIBPCIACCESS
@@ -49,7 +49,7 @@ index 502d3c4..0b06e16 100644
              }
              else {
 +                /* for non-seat0 servers assume first device is the master */
-+                if (ServerIsNotSeat0)
++                if (ServerIsNotSeat0())
 +                    break;
                  if (xf86_platform_devices[j].pdev) {
                      if (xf86IsPrimaryPlatform(&xf86_platform_devices[j]))
