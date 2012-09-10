@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -110,6 +110,8 @@ Patch7042: 0003-xf86-fix-multi-seat-video-device-support.patch
 Patch7051: 0001-dri2-invalidate-drawable-after-sharing-pixmap.patch
 
 Patch7052: 0001-xf86-return-NULL-for-compat-output-if-no-outputs.patch
+
+Patch7053: 0001-scan-pci-after-probing-devices.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -583,6 +585,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Sep 10 2012 Dave Airlie <airlied@redhat.com> 1.13.0-3
+- fix race across GPU power down and server startup
+
 * Mon Sep 10 2012 Dave Airlie <airlied@redhat.com> 1.13.0-2
 - fix compat output segfault on output less gpus.
 
