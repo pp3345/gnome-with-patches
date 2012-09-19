@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.5.91
+Version:        3.5.92
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -17,7 +17,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 3.5.5
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.33.2
-%define mutter_version 3.5.91
+%define mutter_version 3.5.92
 %define eds_version 3.5.3
 %define gnome_menus_version 3.5.3
 %define json_glib_version 0.13.2
@@ -143,6 +143,8 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_datadir}/applications/gnome-shell.desktop
 %{_datadir}/applications/gnome-shell-extension-prefs.desktop
 %{_datadir}/applications/evolution-calendar.desktop
+%{_datadir}/gnome-control-center/keybindings/50-gnome-shell-screenshot.xml
+%{_datadir}/gnome-control-center/keybindings/50-gnome-shell-system.xml
 %{_datadir}/gnome-shell/
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
@@ -162,6 +164,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Sep 19 2012 Florian Müllner <fmuellner@redhat.com> - 3.5.92-1
+- Update to 3.5.92
+
 * Tue Sep 11 2012 Florian Müllner <fmuellner@redhat.com> - 3.5.91-1
 - Update dependencies
 
