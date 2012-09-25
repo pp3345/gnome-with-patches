@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.5.92
+Version:        3.6.0
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -17,7 +17,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 3.5.5
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.33.2
-%define mutter_version 3.5.92
+%define mutter_version 3.6.0
 %define eds_version 3.5.3
 %define gnome_menus_version 3.5.3
 %define json_glib_version 0.13.2
@@ -164,6 +164,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Sep 25 2012 Florian Müllner <fmuellner@redhat.com> - 3.6.0-1
+- Update to 3.6.0
+
 * Wed Sep 19 2012 Florian Müllner <fmuellner@redhat.com> - 3.5.92-1
 - Update to 3.5.92
 
