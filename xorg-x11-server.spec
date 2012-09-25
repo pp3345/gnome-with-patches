@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -591,6 +591,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Sep 25 2012 Dave Airlie <airlied@redhat.com> 1.13.0-6
+- update server autobind patch to fix crash reported on irc
+
 * Thu Sep 20 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-5
 - Set the transformation matrix to the unity matrix to avoid spurious cursor
   jumps (#852841)
