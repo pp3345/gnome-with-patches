@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.6.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -9,7 +9,6 @@ URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
 Source0:        http://download.gnome.org/sources/gnome-shell/3.5/%{name}-%{version}.tar.xz
 
-Patch0: gnome-shell-avoid-redhat-menus.patch
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
@@ -98,7 +97,6 @@ easy to use experience.
 
 %prep
 %setup -q
-%patch0 -p1 -b .avoid-redhat-menus
 %patch1 -p1 -b .firefox
 
 %build
@@ -164,6 +162,12 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Oct 18 2012 Florian Müllner <fmuellner@redhat.com> - 3.6.1-2
+- Remove avoid-redhat-menus patch
+
+  The standard way of supporting a desktop-specific menu layout is
+  to set XDG_MENU_PREFIX (which we made gnome-session do now).
+
 * Mon Oct 15 2012 Florian Müllner <fmuellner@redhat.com> - 3.6.1-1
 - Update to 3.6.1
 
