@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.6.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -61,6 +61,7 @@ BuildRequires:  pulseaudio-libs-devel
 BuildRequires:  gnome-bluetooth-libs-devel >= %{gnome_bluetooth_version}
 BuildRequires:  gnome-bluetooth >= %{gnome_bluetooth_version}
 %endif
+BuildRequires:  control-center
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
 Requires:       gnome-bluetooth%{?_isa} >= %{gnome_bluetooth_version}
@@ -162,6 +163,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Sat Oct 20 2012 Dan Horák <dan[at]danny.cz> - 3.6.1-3
+- explicit BR: control-center as it isn't brought in indirectly on s390(x)
+
 * Thu Oct 18 2012 Florian Müllner <fmuellner@redhat.com> - 3.6.1-2
 - Remove avoid-redhat-menus patch
 
