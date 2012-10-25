@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.6.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -163,6 +163,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Oct 25 2012 Milan Crha <mcrha@redhat.com> - 3.6.1-4
+- Rebuild against newer evolution-data-server
+
 * Sat Oct 20 2012 Dan Horák <dan[at]danny.cz> - 3.6.1-3
 - explicit BR: control-center as it isn't brought in indirectly on s390(x)
 
