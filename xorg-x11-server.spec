@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -118,6 +118,12 @@ Patch7054: 0001-config-udev-ignore-change-on-drm-devices.patch
 # Bug 852841 - Mouse jumps to edges / corners when using an absolute input
 # device (ie virtual machine usb tablet)
 Patch7055: 0001-dix-set-the-device-transformation-matrix.patch
+
+# Bug 871064 - Add touchscreen fixes for F18
+Patch7056: 0001-Sync-TouchListener-memory-allocation-with-population.patch
+Patch7057: 0001-Xi-Call-UpdateDeviceState-after-the-first-emulated-m.patch
+Patch7058: 0001-Xi-Don-t-check-for-TOUCH_END-it-s-never-set.patch
+Patch7059: 0001-Xi-don-t-deliver-TouchEnd-to-a-client-waiting-for-To.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -591,6 +597,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Oct 30 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-6
+- Add touchscreen fixes (including pointer emulation) #871064
+
 * Thu Sep 20 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-5
 - Set the transformation matrix to the unity matrix to avoid spurious cursor
   jumps (#852841)

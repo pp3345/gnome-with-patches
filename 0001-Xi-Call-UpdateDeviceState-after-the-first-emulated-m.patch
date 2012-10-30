@@ -1,0 +1,60 @@
+From 0068a5ae02c6b9ba3a7c8e83de452b6383222b8d Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Mon, 29 Oct 2012 18:33:50 +0100
+Subject: [PATCH] Xi: Call UpdateDeviceState() after the first emulated motion
+ event
+
+The emulated motion event that happens before TouchBegin/ButtonPress should
+contain no buttons set in the mask, as it virtually happens at a time when
+the button is not yet pressed. This is known to confuse GTK+ and Abiword
+to different degrees, as enclosing button press/release events are expected
+around changes in the button mask.
+
+Signed-off-by: Carlos Garnacho <carlosg@gnome.org>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ Xi/exevents.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/Xi/exevents.c b/Xi/exevents.c
+index 4cbeb37..769bb41 100644
+--- a/Xi/exevents.c
++++ b/Xi/exevents.c
+@@ -1568,15 +1568,16 @@ ProcessTouchEvent(InternalEvent *ev, DeviceIntPtr dev)
+     else
+         touchid = ev->device_event.touchid;
+ 
+-    if (emulate_pointer)
+-        UpdateDeviceState(dev, &ev->device_event);
+-
+     if (type == ET_TouchBegin) {
+         ti = TouchBeginTouch(dev, ev->device_event.sourceid, touchid,
+                              emulate_pointer);
+     }
+-    else
++    else {
++        if (emulate_pointer)
++            UpdateDeviceState(dev, &ev->device_event);
++
+         ti = TouchFindByClientID(dev, touchid);
++    }
+ 
+     /* Under the following circumstances we create a new touch record for an
+      * existing touch:
+@@ -1615,8 +1616,12 @@ ProcessTouchEvent(InternalEvent *ev, DeviceIntPtr dev)
+     /* if emulate_pointer is set, emulate the motion event right
+      * here, so we can ignore it for button event emulation. TouchUpdate
+      * events which _only_ emulate motion just work normally */
+-    if (emulate_pointer && ev->any.type != ET_TouchUpdate)
++    if (emulate_pointer && ev->any.type != ET_TouchUpdate) {
+         DeliverEmulatedMotionEvent(dev, ti, ev);
++
++	if (ev->any.type == ET_TouchBegin)
++            UpdateDeviceState(dev, &ev->device_event);
++    }
+     if (emulate_pointer && IsMaster(dev))
+         CheckMotion(&ev->device_event, dev);
+ 
+-- 
+1.7.11.7
+

@@ -1,0 +1,36 @@
+From 3e6358ee6c33979329b78fe2097a1fdf76fb69cd Mon Sep 17 00:00:00 2001
+From: Daniel Drake <dsd@laptop.org>
+Date: Fri, 7 Sep 2012 21:48:35 -0400
+Subject: [PATCH] Xi: Don't check for TOUCH_END, it's never set
+
+This flag is never set, so checking for it here means that we'll
+never release the simulated mouse button press after the user touches
+(and releases) the touchscreen for the first time.
+
+Fixes a problem where the XO laptop touchpad became totally
+unusable after touching the screen for the first time (since X then
+behaved as if the mouse button was held down all the time).
+
+Signed-off-by: Daniel Drake <dsd@laptop.org>
+Reviewed-by: Chase Douglas <chase.douglas@canonical.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ Xi/exevents.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/Xi/exevents.c b/Xi/exevents.c
+index 494d07e..6ed4991 100644
+--- a/Xi/exevents.c
++++ b/Xi/exevents.c
+@@ -949,8 +949,6 @@ UpdateDeviceState(DeviceIntPtr device, DeviceEvent *event)
+ 
+         if (!(event->flags & TOUCH_POINTER_EMULATED))
+             return DONT_PROCESS;
+-        if (!(event->flags & TOUCH_END))
+-            return DONT_PROCESS;
+ 
+         DecreaseButtonCount(device, key, &t->buttonsDown, &t->motionMask,
+                             &t->state);
+-- 
+1.7.11.7
+
