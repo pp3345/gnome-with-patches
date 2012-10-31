@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Release:   7%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -124,6 +124,9 @@ Patch7056: 0001-Sync-TouchListener-memory-allocation-with-population.patch
 Patch7057: 0001-Xi-Call-UpdateDeviceState-after-the-first-emulated-m.patch
 Patch7058: 0001-Xi-Don-t-check-for-TOUCH_END-it-s-never-set.patch
 Patch7059: 0001-Xi-don-t-deliver-TouchEnd-to-a-client-waiting-for-To.patch
+
+# kernel doesn't use _INPUT_H anymore
+Patch7060:  0001-xf86-Fix-build-against-recent-Linux-kernel.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -597,6 +600,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Oct 31 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-7
+- Fix build issues on new kernels caused by removal of _INPUT_H
+
 * Tue Oct 30 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-6
 - Add touchscreen fixes (including pointer emulation) #871064
 
