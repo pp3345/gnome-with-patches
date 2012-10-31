@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.6.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -163,6 +163,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Oct 31 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.6.1-5
+- Rebuild against latest telepathy-logger
+
 * Thu Oct 25 2012 Milan Crha <mcrha@redhat.com> - 3.6.1-4
 - Rebuild against newer evolution-data-server
 
