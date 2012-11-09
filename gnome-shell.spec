@@ -1,13 +1,13 @@
 Name:           gnome-shell
-Version:        3.6.1
-Release:        5%{?dist}
+Version:        3.7.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.5/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.7/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -16,11 +16,13 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 3.5.5
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.33.2
-%define mutter_version 3.6.0
+%define mutter_version 3.7.1
 %define eds_version 3.5.3
+%define gnome_desktop_version 3.7.1
 %define gnome_menus_version 3.5.3
 %define json_glib_version 0.13.2
 %define gsettings_desktop_schemas_version 3.5.4
+%define libcroco_version 0.6.8
 
 ## Needed when we re-autogen
 BuildRequires:  autoconf >= 2.53
@@ -36,7 +38,7 @@ BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-menus-devel >= %{gnome_menus_version}
-BuildRequires:  gnome-desktop3-devel
+BuildRequires:  gnome-desktop3-devel >= %{gnome_desktop_version}
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  json-glib-devel >= %{json_glib_version}
 BuildRequires:  upower-devel
@@ -49,7 +51,7 @@ BuildRequires:  gstreamer1-devel
 BuildRequires:  gtk3-devel
 BuildRequires:  intltool
 BuildRequires:  libcanberra-devel
-BuildRequires:  libcroco-devel
+BuildRequires:  libcroco-devel >= %{libcroco_version}
 
 # for barriers
 BuildRequires:  libXfixes-devel >= 5.0
@@ -79,7 +81,9 @@ Requires:       mozilla-filesystem%{?_isa}
 Requires:       mutter%{?_isa} >= %{mutter_version}
 Requires:       upower%{?_isa}
 Requires:       polkit%{?_isa} >= 0.100
+Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
+Requires:       libcroco%{?_isa} >= %{libcroco_version}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
@@ -163,6 +167,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Fri Nov 09 2012 Kalev Lember <kalevlember@gmail.com> - 3.7.1-1
+- Update to 3.7.1
+
 * Wed Oct 31 2012 Brian Pepple <bpepple@fedoraproject.org> - 3.6.1-5
 - Rebuild against latest telepathy-logger
 
