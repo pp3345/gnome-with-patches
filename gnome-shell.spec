@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.7.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -66,7 +66,9 @@ BuildRequires:  gnome-bluetooth >= %{gnome_bluetooth_version}
 BuildRequires:  control-center
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
+%ifnarch s390 s390x
 Requires:       gnome-bluetooth%{?_isa} >= %{gnome_bluetooth_version}
+%endif
 Requires:       gnome-menus%{?_isa} >= %{gnome_menus_version}
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
@@ -167,6 +169,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Nov 13 2012 Dan Horák <dan[at]danny.cz> - 3.7.1-2
+- don't Require: gnome-bluetooth on s390(x)
+
 * Fri Nov 09 2012 Kalev Lember <kalevlember@gmail.com> - 3.7.1-1
 - Update to 3.7.1
 
