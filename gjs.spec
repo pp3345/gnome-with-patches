@@ -1,5 +1,5 @@
 Name:          gjs
-Version:       1.34.0
+Version:       1.35.2
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -79,6 +79,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Tue Nov 20 2012 Richard Hughes <hughsient@gmail.com> - 1.35.2-1
+- Update to 1.35.2
+
 * Tue Sep 25 2012 Kalev Lember <kalevlember@gmail.com> - 1.34.0-1
 - Update to 1.34.0
 
