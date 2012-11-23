@@ -31,8 +31,8 @@ BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel
 
 # Make sure this can't be installed with an old gnome-shell build because of
-# an ABI change in mutter 3.4.1 / gnome-shell 3.4.1
-Conflicts: gnome-shell < 3.4.1
+# an ABI change.
+Conflicts: gnome-shell < 3.7.2
 
 Requires: control-center-filesystem
 Requires: startup-notification
@@ -118,7 +118,7 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_libdir}/mutter/
 %{_datadir}/GConf/gsettings/mutter-schemas.convert
 %{_datadir}/glib-2.0/schemas/org.gnome.mutter.gschema.xml
-%{_datadir}/gnome-control-center/keybindings/50-mutter-windows.xml
+%{_datadir}/gnome-control-center/keybindings/50-mutter-*.xml
 
 
 %files devel
