@@ -42,6 +42,7 @@ BuildRequires:  gnome-desktop3-devel >= %{gnome_desktop_version}
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  json-glib-devel >= %{json_glib_version}
 BuildRequires:  upower-devel
+BuildRequires:  libnm-gtk-devel
 BuildRequires:  NetworkManager-glib-devel
 BuildRequires:  polkit-devel
 BuildRequires:  telepathy-glib-devel
