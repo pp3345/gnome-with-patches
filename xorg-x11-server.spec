@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   8%{?gitdate:.%{gitdate}}%{dist}
+Release:   9%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -130,6 +130,9 @@ Patch7060:  0001-xf86-Fix-build-against-recent-Linux-kernel.patch
 
 # Fix non-PCI configuration-less setups
 Patch7061:  v2-xf86-Fix-non-PCI-configuration-less-setups.patch
+
+# fdo Bug 54934 - Crash on XGrabDevice() of deactivated synaptics device -
+Patch7062: 0001-dix-fix-crash-on-XI-1.x-grabs-on-disabled-devices.-5.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -603,6 +606,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Nov 28 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-9
+- Fix server crash when a XI 1.x device grab is activated on a disabled
+  synaptics touchpad is disabled
+
 * Tue Nov 27 2012 Jiri Kastner <jkastner@redhat.com> 1.13.0-8
 - Fix for non-PCI configuration-less setups
 
