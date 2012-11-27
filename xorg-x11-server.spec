@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -127,6 +127,9 @@ Patch7059: 0001-Xi-don-t-deliver-TouchEnd-to-a-client-waiting-for-To.patch
 
 # kernel doesn't use _INPUT_H anymore
 Patch7060:  0001-xf86-Fix-build-against-recent-Linux-kernel.patch
+
+# Fix non-PCI configuration-less setups
+Patch7061:  v2-xf86-Fix-non-PCI-configuration-less-setups.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -600,6 +603,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Nov 27 2012 Jiri Kastner <jkastner@redhat.com> 1.13.0-8
+- Fix for non-PCI configuration-less setups
+
 * Wed Oct 31 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-7
 - Fix build issues on new kernels caused by removal of _INPUT_H
 

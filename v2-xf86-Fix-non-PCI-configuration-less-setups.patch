@@ -1,0 +1,53 @@
+From patchwork Wed Oct 17 10:06:47 2012
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [v2] xf86: Fix non-PCI configuration-less setups
+Date: Wed, 17 Oct 2012 10:06:47 -0000
+From: Thierry Reding <thierry.reding@avionic-design.de>
+X-Patchwork-Id: 12233
+Message-Id: <1350468407-27681-1-git-send-email-thierry.reding@avionic-design.de>
+To: xorg-devel@lists.x.org
+Cc: Dave Airlie <airlied@gmail.com>
+
+For non-PCI video devices, such as those found on many ARM embedded
+systems, the X server currently requires the BusID option to specify the
+full path to the DRM device's sysfs node in order to properly match it
+against the probed platform devices.
+
+In order to allow X to start up properly if either the BusID option was
+omitted or no configuration is present at all, the first video device is
+used by default.
+
+Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
+
+---
+Changes in v2:
+- Add additional checks for safety (I don't think numDevs will ever be 0
+  since a default will be generated if no configuration is present, but
+  it doesn't hurt to check anyway). Without these checks there is a
+  possibility of the X server crashing if no platform devices have been
+  found.
+
+ hw/xfree86/common/xf86platformBus.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/hw/xfree86/common/xf86platformBus.c b/hw/xfree86/common/xf86platformBus.c
+index 0525e39..599d84a 100644
+--- a/hw/xfree86/common/xf86platformBus.c
++++ b/hw/xfree86/common/xf86platformBus.c
+@@ -377,6 +377,14 @@ xf86platformProbeDev(DriverPtr drvp)
+             continue;
+     }
+ 
++    /*
++     * If all of the above fails, which can happen if X was started without
++     * configuration or if BusID wasn't set for non-PCI devices, use the first
++     * device by default.
++     */
++    if (!foundScreen && xf86_num_platform_devices > 0 && numDevs > 0)
++        foundScreen = probeSingleDevice(&xf86_platform_devices[0], drvp, devList[0], 0);
++
+     /* if autoaddgpu devices is enabled then go find a few more and add them as GPU screens */
+     if (xf86Info.autoAddGPU && numDevs) {
+         for (j = 0; j < xf86_num_platform_devices; j++) {
