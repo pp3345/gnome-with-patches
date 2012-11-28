@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   9%{?gitdate:.%{gitdate}}%{dist}
+Release:   10%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -133,6 +133,9 @@ Patch7061:  v2-xf86-Fix-non-PCI-configuration-less-setups.patch
 
 # fdo Bug 54934 - Crash on XGrabDevice() of deactivated synaptics device -
 Patch7062: 0001-dix-fix-crash-on-XI-1.x-grabs-on-disabled-devices.-5.patch
+
+# Bug 878956 - After installation is complete, Alt+F4 is broken
+Patch7063: 0001-linux-Prefer-ioctl-KDSKBMUTE-1-over-ioctl-KDSKBMODE-.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -606,6 +609,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Nov 28 2012 Adam Jackson <ajax@redhat.com> 1.13.0-10
+- Fix VT switch key handling
+
 * Wed Nov 28 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-9
 - Fix server crash when a XI 1.x device grab is activated on a disabled
   synaptics touchpad is disabled
