@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   9%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -124,6 +124,15 @@ Patch7056: 0001-Sync-TouchListener-memory-allocation-with-population.patch
 Patch7057: 0001-Xi-Call-UpdateDeviceState-after-the-first-emulated-m.patch
 Patch7058: 0001-Xi-Don-t-check-for-TOUCH_END-it-s-never-set.patch
 Patch7059: 0001-Xi-don-t-deliver-TouchEnd-to-a-client-waiting-for-To.patch
+
+# kernel doesn't use _INPUT_H anymore
+Patch7060:  0001-xf86-Fix-build-against-recent-Linux-kernel.patch
+
+# Fix non-PCI configuration-less setups
+Patch7061:  v2-xf86-Fix-non-PCI-configuration-less-setups.patch
+
+# fdo Bug 54934 - Crash on XGrabDevice() of deactivated synaptics device -
+Patch7062: 0001-dix-fix-crash-on-XI-1.x-grabs-on-disabled-devices.-5.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -597,7 +606,17 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
-* Tue Oct 30 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-7
+* Wed Nov 28 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-9
+- Fix server crash when a XI 1.x device grab is activated on a disabled
+  synaptics touchpad is disabled
+
+* Tue Nov 27 2012 Jiri Kastner <jkastner@redhat.com> 1.13.0-8
+- Fix for non-PCI configuration-less setups
+
+* Wed Oct 31 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-7
+- Fix build issues on new kernels caused by removal of _INPUT_H
+
+* Tue Oct 30 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.0-6
 - Add touchscreen fixes (including pointer emulation) #871064
 
 * Tue Sep 25 2012 Dave Airlie <airlied@redhat.com> 1.13.0-6
