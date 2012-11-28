@@ -38,7 +38,6 @@ BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel
 BuildRequires:  gnome-menus-devel >= %{gnome_menus_version}
-BuildRequires:  gnome-desktop3-devel >= %{gnome_desktop_version}
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  json-glib-devel >= %{json_glib_version}
 BuildRequires:  upower-devel
@@ -70,6 +69,7 @@ BuildRequires: gtk-doc gnome-common
 %ifnarch s390 s390x
 Requires:       gnome-bluetooth%{?_isa} >= %{gnome_bluetooth_version}
 %endif
+Requires:       gnome-desktop3-devel >= %{gnome_desktop_version}
 Requires:       gnome-menus%{?_isa} >= %{gnome_menus_version}
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
