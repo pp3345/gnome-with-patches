@@ -5,6 +5,7 @@ Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
 License:        GPLv2+
+Provides:       desktop-notification-daemon
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
 Source0:        http://download.gnome.org/sources/gnome-shell/3.7/%{name}-%{version}.tar.xz
