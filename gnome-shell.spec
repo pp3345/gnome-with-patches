@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.7.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -60,7 +60,7 @@ BuildRequires:  libXfixes-devel >= 5.0
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
 BuildRequires:  pulseaudio-libs-devel
-%ifnarch s390 s390x
+%ifnarch s390 s390x ppc ppc64 ppc64p7
 BuildRequires:  gnome-bluetooth-libs-devel >= %{gnome_bluetooth_version}
 BuildRequires:  gnome-bluetooth >= %{gnome_bluetooth_version}
 %endif
@@ -171,6 +171,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Mon Dec 10 2012 Adam Jackson <ajax@redhat.com> 3.7.2-2
+- Disable bluetooth on power
+
 * Mon Nov 19 2012 Florian Müllner <fmuellner@redhat.com> - 3.7.2-1
 - Update to 3.7.2
 
