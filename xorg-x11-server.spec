@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   11%{?gitdate:.%{gitdate}}%{dist}
+Release:   12%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -128,8 +128,8 @@ Patch7059: 0001-Xi-don-t-deliver-TouchEnd-to-a-client-waiting-for-To.patch
 # kernel doesn't use _INPUT_H anymore
 Patch7060:  0001-xf86-Fix-build-against-recent-Linux-kernel.patch
 
-# Fix non-PCI configuration-less setups
-Patch7061:  v2-xf86-Fix-non-PCI-configuration-less-setups.patch
+# Fix non-PCI configuration-less setups - broken
+#Patch7061:  v2-xf86-Fix-non-PCI-configuration-less-setups.patch
 
 # fdo Bug 54934 - Crash on XGrabDevice() of deactivated synaptics device -
 Patch7062: 0001-dix-fix-crash-on-XI-1.x-grabs-on-disabled-devices.-5.patch
@@ -612,6 +612,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Dec 12 2012 Dave Airlie <airlied@redhat.com< 1.13.0-12
+- backout non-pci configuration less patch, its breaks multi-GPU
+
 * Fri Nov 30 2012 Adam Jackson <ajax@redhat.com> 1.13.0-11
 - Bump default EQ length to reduce the number of unhelpful abrt reports
 
