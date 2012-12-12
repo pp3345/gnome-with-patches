@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   12%{?gitdate:.%{gitdate}}%{dist}
+Release:   13%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -139,6 +139,10 @@ Patch7063: 0001-linux-Prefer-ioctl-KDSKBMUTE-1-over-ioctl-KDSKBMODE-.patch
 
 # mustard: make the default queue length bigger to calm abrt down
 Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
+
+# some hotplug fixes/workaround
+Patch7065: 0001-xfree86-hotplug-cleanup-properly-if-the-screen-fails.patch
+Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -612,6 +616,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Dec 12 2012 Dave Airlie <airlied@redhat.com> 1.13.0-13
+- fix hotplug issue with usb devices and large screens
+
 * Wed Dec 12 2012 Dave Airlie <airlied@redhat.com< 1.13.0-12
 - backout non-pci configuration less patch, its breaks multi-GPU
 
