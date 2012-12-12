@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   13%{?gitdate:.%{gitdate}}%{dist}
+Release:   14%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -143,6 +143,8 @@ Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
 # some hotplug fixes/workaround
 Patch7065: 0001-xfree86-hotplug-cleanup-properly-if-the-screen-fails.patch
 Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
+# autoconfig: send events
+Patch7067: 0001-autoconfig-fixup-tell-changed-so-randr-clients-can-t.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -616,6 +618,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Dec 12 2012 Dave Airlie <airlied@redhat.com> 1.13.0-14
+- add events for autoconfig of gpus devices, allow usb devices to notify gnome
+
 * Wed Dec 12 2012 Dave Airlie <airlied@redhat.com> 1.13.0-13
 - fix hotplug issue with usb devices and large screens
 
