@@ -43,7 +43,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.0
-Release:   14%{?gitdate:.%{gitdate}}%{dist}
+Release:   15%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -145,6 +145,8 @@ Patch7065: 0001-xfree86-hotplug-cleanup-properly-if-the-screen-fails.patch
 Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
 # autoconfig: send events
 Patch7067: 0001-autoconfig-fixup-tell-changed-so-randr-clients-can-t.patch
+
+Patch7068: 0001-Touch-Fix-duplicate-TouchBegin-selection-with-virtua.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -618,6 +620,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Dec 14 2012 Adam Jackson <ajax@redhat.com> 1.13.0-15
+- Cherry-pick a fix for selection for TouchBegin from multiple clients
+
 * Wed Dec 12 2012 Dave Airlie <airlied@redhat.com> 1.13.0-14
 - add events for autoconfig of gpus devices, allow usb devices to notify gnome
 
