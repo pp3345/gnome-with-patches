@@ -18,7 +18,7 @@
 %global ansic_major 0
 %global ansic_minor 4
 %global videodrv_major 13
-%global videodrv_minor 0
+%global videodrv_minor 1
 %global xinput_major 18
 %global xinput_minor 0
 %global extension_major 7
@@ -42,8 +42,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.13.0
-Release:   15%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.13.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -92,9 +92,6 @@ Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 # needed when building without xorg (aka s390x)
 Patch7017: xserver-1.12.2-xorg-touch-test.patch
 
-# send keycode/event type for slow keys enable (#816764)
-Patch7020: xserver-1.12-xkb-fill-in-keycode-and-event-type-for-slow-keys-ena.patch
-
 Patch7022: 0001-linux-Refactor-xf86-En-Dis-ableIO.patch
 Patch7023: 0002-linux-Make-failure-to-iopl-non-fatal.patch
 Patch7024: 0003-xfree86-Change-the-semantics-of-driverFunc-GET_REQUI.patch
@@ -103,36 +100,13 @@ Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 # do not upstream - do not even use here yet
 Patch7027: xserver-autobind-hotplug.patch
 
-# backport multi-seat fixes from list
-Patch7042: 0003-xf86-fix-multi-seat-video-device-support.patch
-
-# backport dri2 drawable fix
-Patch7051: 0001-dri2-invalidate-drawable-after-sharing-pixmap.patch
-
 Patch7052: 0001-xf86-return-NULL-for-compat-output-if-no-outputs.patch
-
-Patch7053: 0001-scan-pci-after-probing-devices.patch
-
-Patch7054: 0001-config-udev-ignore-change-on-drm-devices.patch
-
-# Bug 852841 - Mouse jumps to edges / corners when using an absolute input
-# device (ie virtual machine usb tablet)
-Patch7055: 0001-dix-set-the-device-transformation-matrix.patch
-
-# Bug 871064 - Add touchscreen fixes for F18
-Patch7056: 0001-Sync-TouchListener-memory-allocation-with-population.patch
-Patch7057: 0001-Xi-Call-UpdateDeviceState-after-the-first-emulated-m.patch
-Patch7058: 0001-Xi-Don-t-check-for-TOUCH_END-it-s-never-set.patch
-Patch7059: 0001-Xi-don-t-deliver-TouchEnd-to-a-client-waiting-for-To.patch
 
 # kernel doesn't use _INPUT_H anymore
 Patch7060:  0001-xf86-Fix-build-against-recent-Linux-kernel.patch
 
 # Fix non-PCI configuration-less setups - broken
 #Patch7061:  v2-xf86-Fix-non-PCI-configuration-less-setups.patch
-
-# fdo Bug 54934 - Crash on XGrabDevice() of deactivated synaptics device -
-Patch7062: 0001-dix-fix-crash-on-XI-1.x-grabs-on-disabled-devices.-5.patch
 
 # Bug 878956 - After installation is complete, Alt+F4 is broken
 Patch7063: 0001-linux-Prefer-ioctl-KDSKBMUTE-1-over-ioctl-KDSKBMODE-.patch
@@ -145,8 +119,6 @@ Patch7065: 0001-xfree86-hotplug-cleanup-properly-if-the-screen-fails.patch
 Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
 # autoconfig: send events
 Patch7067: 0001-autoconfig-fixup-tell-changed-so-randr-clients-can-t.patch
-
-Patch7068: 0001-Touch-Fix-duplicate-TouchBegin-selection-with-virtua.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -620,6 +592,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Dec 18 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.1-1
+- server 1.13.1
+
 * Fri Dec 14 2012 Adam Jackson <ajax@redhat.com> 1.13.0-15
 - Cherry-pick a fix for selection for TouchBegin from multiple clients
 
