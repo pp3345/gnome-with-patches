@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.7.2
-Release:        3%{?dist}
+Version:        3.7.3
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -17,12 +17,12 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 3.5.5
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.33.2
-%define mutter_version 3.7.2
+%define mutter_version 3.7.3
 %define eds_version 3.5.3
 %define gnome_desktop_version 3.7.1
 %define gnome_menus_version 3.5.3
 %define json_glib_version 0.13.2
-%define gsettings_desktop_schemas_version 3.7.2
+%define gsettings_desktop_schemas_version 3.7.2.2
 %define libcroco_version 0.6.8
 
 ## Needed when we re-autogen
@@ -171,6 +171,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Dec 18 2012 Florian Müllner <fmuellner@redhat.com> 3.7.3-1
+- Update to 3.7.3
+
 * Mon Dec 17 2012 Adam Jackson <ajax@redhat.com> 3.7.2-3
 - Also don't mangle rpath on power
 
