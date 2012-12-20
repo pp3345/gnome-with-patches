@@ -42,9 +42,11 @@ BuildRequires:  gnome-menus-devel >= %{gnome_menus_version}
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  json-glib-devel >= %{json_glib_version}
 BuildRequires:  upower-devel
+BuildRequires:  libgnome-keyring-devel
 BuildRequires:  libnm-gtk-devel
 BuildRequires:  NetworkManager-glib-devel
 BuildRequires:  polkit-devel
+BuildRequires:  startup-notification-devel
 BuildRequires:  telepathy-glib-devel
 BuildRequires:  telepathy-logger-devel >= 0.2.6
 # for screencast recorder functionality
