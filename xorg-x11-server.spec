@@ -6,11 +6,10 @@
 # If you need to add a patch to the server, just do it like a normal git
 # operation, dump it with git-format-patch to a file in the standard naming
 # format, and add a PatchN: line.  If you want to push something upstream,
-# check out the master branch, pull, cherry-pick, and push.  FIXME describe
-# rebasing, add convenience 'make' targets maybe.
+# check out the master branch, pull, cherry-pick, and push.
 
-#global gitdate 20120822
-%global stable_abi 1
+%global gitdate 20130109
+%global stable_abi 0
 
 %if !0%{?gitdate} || %{stable_abi}
 # Released ABI versions.  Have to keep these manually in sync with the
@@ -42,7 +41,7 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.13.1
+Version:   1.13.99.901
 Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
@@ -92,9 +91,6 @@ Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 # needed when building without xorg (aka s390x)
 Patch7017: xserver-1.12.2-xorg-touch-test.patch
 
-Patch7022: 0001-linux-Refactor-xf86-En-Dis-ableIO.patch
-Patch7023: 0002-linux-Make-failure-to-iopl-non-fatal.patch
-Patch7024: 0003-xfree86-Change-the-semantics-of-driverFunc-GET_REQUI.patch
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
 # do not upstream - do not even use here yet
@@ -102,14 +98,8 @@ Patch7027: xserver-autobind-hotplug.patch
 
 Patch7052: 0001-xf86-return-NULL-for-compat-output-if-no-outputs.patch
 
-# kernel doesn't use _INPUT_H anymore
-Patch7060:  0001-xf86-Fix-build-against-recent-Linux-kernel.patch
-
 # Fix non-PCI configuration-less setups - broken
 #Patch7061:  v2-xf86-Fix-non-PCI-configuration-less-setups.patch
-
-# Bug 878956 - After installation is complete, Alt+F4 is broken
-Patch7063: 0001-linux-Prefer-ioctl-KDSKBMUTE-1-over-ioctl-KDSKBMODE-.patch
 
 # mustard: make the default queue length bigger to calm abrt down
 Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
@@ -592,6 +582,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jan 09 2013 Adam Jackson <ajax@redhat.com> 1.13.99.901-1
+- xserver 1.14RC1
+
 * Tue Dec 18 2012 Peter Hutterer <peter.hutterer@redhat.com> 1.13.1-1
 - server 1.13.1
 

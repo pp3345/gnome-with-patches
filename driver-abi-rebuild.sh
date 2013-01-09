@@ -6,7 +6,14 @@
 mkdir -p abi-rebuild
 pushd abi-rebuild
 
-repoquery --qf="%{name}" --whatrequires xserver-abi\* | xargs -n 1 fedpkg co
+fedpkg co xorg-x11-drivers
+pushd xorg-x11-drivers
+driverlist=$(grep ^Requires *.spec | awk '{ print $2 }')
+popd
+
+rm -rf xorg-x11-drivers
+echo $driverlist | xargs -n1 fedpkg co
+
 for i in */ ; do
     [ -e $i/dead.package ] && continue
     pushd $i
