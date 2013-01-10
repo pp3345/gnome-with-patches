@@ -110,9 +110,6 @@ Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
 # autoconfig: send events
 Patch7067: 0001-autoconfig-fixup-tell-changed-so-randr-clients-can-t.patch
 
-# sync with git
-Patch7070: 0001-dix-Make-small-bitfields-that-store-enums-unsigned.patch
-Patch7071: 0002-hw-xfree86-Require-only-one-working-CRTC-to-start-th.patch
 
 
 %global moduledir	%{_libdir}/xorg/modules
