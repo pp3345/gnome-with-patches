@@ -1,0 +1,56 @@
+From 6703a7c7cf1a349c137e247a0c8eb462ff7b07be Mon Sep 17 00:00:00 2001
+From: Keith Packard <keithp@keithp.com>
+Date: Tue, 8 Jan 2013 20:24:32 -0800
+Subject: [PATCH 2/2] hw/xfree86: Require only one working CRTC to start the
+ server.
+
+Instead of requiring every mode set to complete successfully, start up
+as long as at least one CRTC is working. This avoids failures when one
+or more CRTCs can't start due to mode setting conflicts.
+
+Signed-off-by: Keith Packard <keithp@keithp.com>
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+---
+ hw/xfree86/modes/xf86Crtc.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
+index 13251cf..b3ded5a 100644
+--- a/hw/xfree86/modes/xf86Crtc.c
++++ b/hw/xfree86/modes/xf86Crtc.c
+@@ -2605,6 +2605,7 @@ xf86SetDesiredModes(ScrnInfoPtr scrn)
+     xf86CrtcConfigPtr config = XF86_CRTC_CONFIG_PTR(scrn);
+     xf86CrtcPtr crtc = config->crtc[0];
+     int c;
++    int enabled = 0;
+ 
+     /* A driver with this hook will take care of this */
+     if (!crtc->funcs->set_mode_major) {
+@@ -2655,14 +2656,20 @@ xf86SetDesiredModes(ScrnInfoPtr scrn)
+             transform = &crtc->desiredTransform;
+         else
+             transform = NULL;
+-        if (!xf86CrtcSetModeTransform
++        if (xf86CrtcSetModeTransform
+             (crtc, &crtc->desiredMode, crtc->desiredRotation, transform,
+-             crtc->desiredX, crtc->desiredY))
+-            return FALSE;
++             crtc->desiredX, crtc->desiredY)) {
++            ++enabled;
++        } else {
++            for (o = 0; o < config->num_output; o++)
++                if (config->output[o]->crtc == crtc)
++                    config->output[o]->crtc = NULL;
++            crtc->enabled = FALSE;
++	}
+     }
+ 
+     xf86DisableUnusedFunctions(scrn);
+-    return TRUE;
++    return enabled != 0;
+ }
+ 
+ /**
+-- 
+1.8.0.2
+

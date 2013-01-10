@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.99.901
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -109,6 +109,11 @@ Patch7065: 0001-xfree86-hotplug-cleanup-properly-if-the-screen-fails.patch
 Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
 # autoconfig: send events
 Patch7067: 0001-autoconfig-fixup-tell-changed-so-randr-clients-can-t.patch
+
+# sync with git
+Patch7070: 0001-dix-Make-small-bitfields-that-store-enums-unsigned.patch
+Patch7071: 0002-hw-xfree86-Require-only-one-working-CRTC-to-start-th.patch
+
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -582,6 +587,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jan 09 2013 Adam Jackson <ajax@redhat.com> 1.13.99.901-2
+- Pick up fixes from git
+
 * Wed Jan 09 2013 Adam Jackson <ajax@redhat.com> 1.13.99.901-1
 - xserver 1.14RC1
 
