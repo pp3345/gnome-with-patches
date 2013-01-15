@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.7.3.1
+Version:        3.7.4
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -17,7 +17,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 3.5.5
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.33.2
-%define mutter_version 3.7.3
+%define mutter_version 3.7.4
 %define eds_version 3.5.3
 %define gnome_desktop_version 3.7.1
 %define gnome_menus_version 3.5.3
@@ -174,6 +174,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Jan 15 2013 Florian Müllner <fmuellner@redhat.com> - 3.7.4-1
+- Update to 3.7.4
+
 * Wed Jan 09 2013 Richard Hughes <hughsient@gmail.com> - 3.7.3.1-1
 - Update to 3.7.3.1
 
