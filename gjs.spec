@@ -74,7 +74,6 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %doc examples/*
 %{_includedir}/gjs-1.0
 %{_libdir}/pkgconfig/gjs-1.0.pc
-%{_libdir}/pkgconfig/gjs-dbus-1.0.pc
 %{_libdir}/pkgconfig/gjs-internals-1.0.pc
 %{_libdir}/*.so
 
