@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.99.901
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -109,8 +109,8 @@ Patch7065: 0001-xfree86-hotplug-cleanup-properly-if-the-screen-fails.patch
 Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
 # autoconfig: send events
 Patch7067: 0001-autoconfig-fixup-tell-changed-so-randr-clients-can-t.patch
-
-
+# http://patchwork.freedesktop.org/patch/12922/mbox/
+Patch7068: 0001-protocol-versions-Bump-minor-version-of-XI.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -584,6 +584,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Jan 23 2013 Adam Jackson <ajax@redhat.com> 1.13.99.901-3
+- Bump XI minor for barriers
+
 * Wed Jan 09 2013 Adam Jackson <ajax@redhat.com> 1.13.99.901-2
 - Pick up fixes from git
 
