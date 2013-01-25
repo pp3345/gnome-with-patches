@@ -111,7 +111,7 @@ easy to use experience.
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static)
+ %configure --disable-static --disable-compile-warnings)
 make V=1 %{?_smp_mflags}
 
 %install
