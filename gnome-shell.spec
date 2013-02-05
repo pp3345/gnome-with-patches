@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.7.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -174,6 +174,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Feb 06 2013 Kalev Lember <kalevlember@gmail.com> - 3.7.5-2
+- Rebuilt for libgcr soname bump
+
 * Wed Feb 06 2013 Florian Müllner <fmuellner@redhat.com> - 3.7.5-1
 - Update to 3.7.5
 
