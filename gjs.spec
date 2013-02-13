@@ -1,6 +1,6 @@
 Name:          gjs
 Version:       1.35.4
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -78,6 +78,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Wed Feb 13 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.35.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
 * Tue Jan 15 2013 Matthias Clasen <mclasen@redhat.com> - 1.35.4-1
 - Update to 1.35.4
 
