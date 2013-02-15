@@ -8,7 +8,7 @@
 # format, and add a PatchN: line.  If you want to push something upstream,
 # check out the master branch, pull, cherry-pick, and push.
 
-%global gitdate 20130109
+%global gitdate 20130215
 %global stable_abi 0
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -16,10 +16,10 @@
 # source because rpm is a terrible language.
 %global ansic_major 0
 %global ansic_minor 4
-%global videodrv_major 13
+%global videodrv_major 14
 %global videodrv_minor 1
-%global xinput_major 18
-%global xinput_minor 0
+%global xinput_major 19
+%global xinput_minor 1
 %global extension_major 7
 %global extension_minor 0
 %endif
@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.13.99.901
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.13.99.902
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -109,8 +109,6 @@ Patch7065: 0001-xfree86-hotplug-cleanup-properly-if-the-screen-fails.patch
 Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
 # autoconfig: send events
 Patch7067: 0001-autoconfig-fixup-tell-changed-so-randr-clients-can-t.patch
-# http://patchwork.freedesktop.org/patch/12922/mbox/
-Patch7068: 0001-protocol-versions-Bump-minor-version-of-XI.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -584,6 +582,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Feb 15 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.13.99.902-1
+- xserver 1.14RC2 from git
+
 * Thu Feb 14 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.13.99.901-5
 - Fix scrolling for Evoluent Vertical Mouse 3 (#612140#c20)
 
