@@ -11,8 +11,11 @@ pushd xorg-x11-drivers
 driverlist=$(grep ^Requires *.spec | awk '{ print $2 }')
 popd
 
+# Things not in -drivers for whatever reason...
+extradrivers="xorg-x11-drv-ivtv"
+
 rm -rf xorg-x11-drivers
-echo $driverlist | xargs -n1 fedpkg co
+echo $driverlist $extradrivers | xargs -n1 fedpkg co
 
 for i in */ ; do
     [ -e $i/dead.package ] && continue
