@@ -229,7 +229,6 @@ upon.
 %package Xnest
 Summary: A nested server.
 Group: User Interface/X
-Obsoletes: xorg-x11-Xnest
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xnest
 
@@ -243,7 +242,6 @@ applications without running them on their real X server.
 %package Xdmx
 Summary: Distributed Multihead X Server and utilities
 Group: User Interface/X
-Obsoletes: xorg-x11-Xdmx
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xdmx
 
@@ -262,7 +260,6 @@ Summary: A X Windows System virtual framebuffer X server.
 Group: User Interface/X
 # xvfb-run is GPLv2, rest is MIT
 License: MIT and GPLv2
-Obsoletes: xorg-x11-Xvfb
 Requires: xorg-x11-server-common >= %{version}-%{release}
 # required for xvfb-run
 Requires: xorg-x11-xauth
@@ -297,12 +294,9 @@ Render and Composite.
 %package devel
 Summary: SDK for X server driver module development
 Group: User Interface/X
-Obsoletes: xorg-x11-sdk xorg-x11-server-sdk
 Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
 Requires: pkgconfig pixman-devel libpciaccess-devel
-# Virtual provide for transition.  Delete me someday.
-Provides: xorg-x11-server-sdk = %{version}-%{release}
 Provides: xorg-x11-server-static
 
 
@@ -582,6 +576,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Feb 15 2013 Adam Jackson <ajax@redhat.com>
+- Drop -sdk Prov/Obs, changed to -devel in F9
+- Drop xorg-x11-X* Obsoletes, leftover from the modular transition in FC5
+
 * Fri Feb 15 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.13.99.902-1
 - xserver 1.14RC2 from git
 
