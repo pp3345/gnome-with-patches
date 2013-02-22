@@ -23,6 +23,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_menus_version 3.5.3
 %define json_glib_version 0.13.2
 %define gsettings_desktop_schemas_version 3.7.4
+%define caribou_version 0.4.8
 %define libcroco_version 0.6.8
 
 ## Needed when we re-autogen
@@ -30,6 +31,7 @@ BuildRequires:  autoconf >= 2.53
 BuildRequires:  automake >= 1.10
 BuildRequires:  gnome-common >= 2.2.0
 BuildRequires:  libtool >= 1.4.3
+BuildRequires:  caribou-devel >= %{caribou_version}
 BuildRequires:  chrpath
 BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
@@ -92,7 +94,7 @@ Requires:       libcroco%{?_isa} >= %{libcroco_version}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
-Requires:       caribou%{?_isa}
+Requires:       caribou%{?_isa} >= %{caribou_version}
 # needed for the user menu
 Requires:       accountsservice-libs%{?_isa}
 Requires:       gdm-libs%{?_isa}
