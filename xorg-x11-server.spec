@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.13.99.902
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -110,6 +110,9 @@ Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
 # autoconfig: send events
 Patch7067: 0001-autoconfig-fixup-tell-changed-so-randr-clients-can-t.patch
 
+# upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
+Patch7070: 0001-os-use-libunwind-to-generate-backtraces.patch
+
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
 %global sdkdir		%{_includedir}/xorg
@@ -162,6 +165,7 @@ BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.86-1
 BuildRequires: libudev-devel
+BuildRequires: libunwind-devel
 
 # All server subpackages have a virtual provide for the name of the server
 # they deliver.  The Xorg one is versioned, the others are intentionally
@@ -576,6 +580,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Mar 06 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.13.99.902-2
+- Use libunwind for backtraces
+
 * Fri Feb 15 2013 Adam Jackson <ajax@redhat.com>
 - Drop -sdk Prov/Obs, changed to -devel in F9
 - Drop xorg-x11-X* Obsoletes, leftover from the modular transition in FC5
