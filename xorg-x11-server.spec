@@ -8,8 +8,8 @@
 # format, and add a PatchN: line.  If you want to push something upstream,
 # check out the master branch, pull, cherry-pick, and push.
 
-%global gitdate 20130215
-%global stable_abi 0
+#global gitdate 20130215
+%global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
 # Released ABI versions.  Have to keep these manually in sync with the
@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.13.99.902
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.14.0
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -105,13 +105,16 @@ Patch7052: 0001-xf86-return-NULL-for-compat-output-if-no-outputs.patch
 Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
 
 # some hotplug fixes/workaround
-Patch7065: 0001-xfree86-hotplug-cleanup-properly-if-the-screen-fails.patch
 Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
 # autoconfig: send events
-Patch7067: 0001-autoconfig-fixup-tell-changed-so-randr-clients-can-t.patch
+Patch7067: 0001-randr-don-t-directly-set-changed-bits-in-randr-scree.patch
+Patch7068: 0001-randr-make-SetChanged-modify-the-main-protocol-scree.patch
+Patch7069: 0001-randr-only-respected-changed-on-the-protocol-screen.patch
+Patch7070: 0001-randr-report-changes-when-we-disconnect-a-GPU-slave.patch
+
 
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
-Patch7070: 0001-os-use-libunwind-to-generate-backtraces.patch
+Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -580,6 +583,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Mar 07 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.0-1
+- xserver 1.14
+
 * Wed Mar 06 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.13.99.902-2
 - Use libunwind for backtraces
 
