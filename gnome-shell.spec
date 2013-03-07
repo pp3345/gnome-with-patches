@@ -13,7 +13,7 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.7/%{name}-%{vers
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
-%define clutter_version 1.13.8
+%define clutter_version 1.13.4
 %define gnome_bluetooth_version 3.5.5
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.35.4
@@ -70,7 +70,6 @@ BuildRequires:  gnome-bluetooth-libs-devel >= %{gnome_bluetooth_version}
 BuildRequires:  control-center
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
-Requires:       clutter%{?_isa} >= %{clutter_version}
 %ifnarch s390 s390x
 Requires:       gnome-bluetooth%{?_isa} >= %{gnome_bluetooth_version}
 %endif
