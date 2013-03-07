@@ -3,8 +3,15 @@
 # Trivial script to rebuild drivers for ABI changes in the server
 # Run me after a new xserver has hit the buildroot
 
-mkdir -p abi-rebuild
-pushd abi-rebuild
+builddir="abi-rebuild"
+
+if [ -e "$builddir" ]; then
+    echo "Path '$builddir' exists. Move out of the way first"
+    exit 1
+fi
+
+mkdir -p $builddir
+pushd $builddir
 
 fedpkg co xorg-x11-drivers
 pushd xorg-x11-drivers
