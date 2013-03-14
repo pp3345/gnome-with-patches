@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.0
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -120,7 +120,7 @@ Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 %global drimoduledir	%{_libdir}/dri
 %global sdkdir		%{_includedir}/xorg
 
-%ifarch s390 s390x %{?rhel:ppc ppc64}
+%ifarch s390 s390x
 %global with_hw_servers 0
 %else
 %global with_hw_servers 1
@@ -583,6 +583,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Mar 14 2013 Adam Jackson <ajax@redhat.com> 1.14.0-2
+- Less RHEL customization
+
 * Thu Mar 07 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.0-1
 - xserver 1.14
 
