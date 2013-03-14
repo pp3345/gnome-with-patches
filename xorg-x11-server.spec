@@ -114,7 +114,9 @@ Patch7070: 0001-randr-report-changes-when-we-disconnect-a-GPU-slave.patch
 
 
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
+%if !0%{?rhel}
 Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
+%endif
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -168,7 +170,9 @@ BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.86-1
 BuildRequires: libudev-devel
+%if !0%{?rhel}
 BuildRequires: libunwind-devel
+%endif
 
 # All server subpackages have a virtual provide for the name of the server
 # they deliver.  The Xorg one is versioned, the others are intentionally
@@ -584,7 +588,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Thu Mar 14 2013 Adam Jackson <ajax@redhat.com> 1.14.0-2
-- Less RHEL customization
+- Different RHEL customization
 
 * Thu Mar 07 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.0-1
 - xserver 1.14
