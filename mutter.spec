@@ -129,6 +129,8 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_libdir}/pkgconfig/*
 %doc %{_mandir}/man1/mutter-theme-viewer.1.gz
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
+# exclude as these should be in a devel package (if packaged at all)
+%exclude %{_datadir}/gtk-doc
 
 %changelog
 * Tue Mar 19 2013 Florian Müllner <fmuellner@redhat.com> - 3.7.92-1
