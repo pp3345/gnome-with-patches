@@ -1,5 +1,5 @@
 Name:          mutter
-Version:       3.7.91
+Version:       3.7.92
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -131,6 +131,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %doc %{_mandir}/man1/mutter-window-demo.1.gz
 
 %changelog
+* Tue Mar 19 2013 Florian Müllner <fmuellner@redhat.com> - 3.7.92-1
+- Update to 3.7.92
+
 * Mon Mar 04 2013 Florian Müllner <fmuellner@redhat.com> - 3.7.91-1
 - Update to 3.7.91
 
