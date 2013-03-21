@@ -1,5 +1,5 @@
 Name:          gjs
-Version:       1.35.8
+Version:       1.35.9
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -67,7 +67,6 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_bindir}/gjs-console
 %{_libdir}/*.so.*
 %{_libdir}/gjs
-%{_libdir}/gjs-1.0
 %{_datadir}/gjs-1.0
 
 %files devel
@@ -78,6 +77,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Thu Mar 21 2013 Kalev Lember <kalevlember@gmail.com> - 1.35.9-1
+- Update to 1.35.9
+
 * Wed Feb 20 2013 Richard Hughes <rhughes@redhat.com> - 1.35.8-1
 - Update to 1.35.8
 
