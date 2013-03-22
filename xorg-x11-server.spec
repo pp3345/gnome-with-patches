@@ -591,7 +591,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Fri Mar 22 2013 Dan Horák <dan@danny.cz> 1.14.0-3
-- libunwind is exists only on selected arches
+- libunwind exists only on selected arches
 
 * Thu Mar 14 2013 Adam Jackson <ajax@redhat.com> 1.14.0-2
 - Different RHEL customization
