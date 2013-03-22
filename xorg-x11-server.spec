@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.0
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -171,7 +171,10 @@ BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.86-1
 BuildRequires: libudev-devel
 %if !0%{?rhel}
+# libunwind is Exclusive for the following arches
+%ifarch %{arm} hppa ia64 mips ppc ppc64 %{ix86} x86_64
 BuildRequires: libunwind-devel
+%endif
 %endif
 
 # All server subpackages have a virtual provide for the name of the server
@@ -587,6 +590,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Mar 22 2013 Dan Horák <dan@danny.cz> 1.14.0-3
+- libunwind is exists only on selected arches
+
 * Thu Mar 14 2013 Adam Jackson <ajax@redhat.com> 1.14.0-2
 - Different RHEL customization
 
