@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.8.0.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -125,9 +125,6 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-extension-prefs.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.desktop
 
-# fixme: do we want to include this ?
-rm %{buildroot}/usr/bin/gnome-shell-perf-tool
-
 %find_lang %{name}
 
 %ifnarch s390 s390x ppc ppc64 ppc64p7
@@ -148,6 +145,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %doc COPYING README
 %{_bindir}/gnome-shell
 %{_bindir}/gnome-shell-extension-tool
+%{_bindir}/gnome-shell-perf-tool
 %{_bindir}/gnome-shell-extension-prefs
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/applications/gnome-shell.desktop
@@ -176,6 +174,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Mar 28 2013 Adel Gadllah <adel.gadllah@gmail.com> - 3.8.0.1-2
+- Ship the perf tool
+
 * Wed Mar 27 2013 Ray Strode <rstrode@redhat.com> - 3.8.0.1-1
 - Update to 3.8.0.1
 
