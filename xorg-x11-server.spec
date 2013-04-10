@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.0
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -117,6 +117,11 @@ Patch7070: 0001-randr-report-changes-when-we-disconnect-a-GPU-slave.patch
 %if !0%{?rhel}
 Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 %endif
+
+# Bug 950438 - CVE-2013-1940 xorg-x11-server:
+# Information disclosure due enabling events from hot-plug devices despite
+# input from the device being momentarily disabled
+Patch7072: 0001-xf86-fix-flush-input-to-work-with-Linux-evdev-device.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -590,6 +595,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Apr 17 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.0-4
+- CVE-2013-1940: Fix xf86FlushInput() to drain evdev events
+  (#950438, #952949)
+
 * Fri Mar 22 2013 Dan Horák <dan@danny.cz> 1.14.0-3
 - libunwind exists only on selected arches
 
