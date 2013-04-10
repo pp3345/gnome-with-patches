@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.0
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -121,10 +121,14 @@ Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 # upstream submitted
 Patch7072: xserver-1.14.0-fix-gpu-hotplug-vt-switch.patch
 
+# Bug 950438 - CVE-2013-1940 xorg-x11-server:
+# Information disclosure due enabling events from hot-plug devices despite
+# input from the device being momentarily disabled
+Patch7073: 0001-xf86-fix-flush-input-to-work-with-Linux-evdev-device.patch
+
 # on way upstream: fixes for reverse optimus
 Patch8000: 0001-dix-allow-pixmap-dirty-helper-to-be-used-for-non-sha.patch
 Patch8001: 0001-xserver-call-CSR-for-gpus.patch
-
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -598,6 +602,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Apr 17 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.0-6
+- CVE-2013-1940: Fix xf86FlushInput() to drain evdev events
+  (#950438, #952949)
+
 * Fri Apr 12 2013 Dave Airlie <airlied@redhat.com> 1.14.0-5
 - reenable reverse optimus and some missing patch from F18
 
