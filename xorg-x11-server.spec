@@ -121,6 +121,11 @@ Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 # upstream submitted
 Patch7072: xserver-1.14.0-fix-gpu-hotplug-vt-switch.patch
 
+# on way upstream: fixes for reverse optimus
+Patch8000: 0001-dix-allow-pixmap-dirty-helper-to-be-used-for-non-sha.patch
+Patch8001: 0001-xserver-call-CSR-for-gpus.patch
+
+
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
 %global sdkdir		%{_includedir}/xorg
@@ -595,7 +600,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Fri Apr 12 2013 Dave Airlie <airlied@redhat.com> 1.14.0-4
 - fix bug with GPU hotplugging while VT switched
-- reenable reverse optimus
+- reenable reverse optimus and some missing patch from F18
 
 * Fri Mar 22 2013 Dan Horák <dan@danny.cz> 1.14.0-3
 - libunwind exists only on selected arches
