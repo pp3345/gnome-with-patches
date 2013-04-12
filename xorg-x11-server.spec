@@ -595,6 +595,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Fri Apr 12 2013 Dave Airlie <airlied@redhat.com> 1.14.0-4
 - fix bug with GPU hotplugging while VT switched
+- reenable reverse optimus
 
 * Fri Mar 22 2013 Dan Horák <dan@danny.cz> 1.14.0-3
 - libunwind exists only on selected arches

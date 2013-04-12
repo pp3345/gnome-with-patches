@@ -1,19 +1,41 @@
-From 536626891b60039c0f3f9b4cd96156e9fe810f39 Mon Sep 17 00:00:00 2001
+From 37d51acb3b6a38af1717bfaa7925043c35bfb447 Mon Sep 17 00:00:00 2001
 From: Dave Airlie <airlied@redhat.com>
 Date: Fri, 17 Aug 2012 09:49:24 +1000
-Subject: [PATCH] autobind GPUs to the screen, (v2)
+Subject: [PATCH] autobind GPUs to the screen, (v3)
 
 this is racy and really not what we want for hotplug going forward,
 but until DE support is in GNOME its probably for the best.
 
 v2: fix if config or slave config is NULL
+v3: fix multi useful slaves
 DO NOT UPSTREAM.
 ---
- hw/xfree86/common/xf86Init.c        |   12 ++++++++++++
- hw/xfree86/common/xf86platformBus.c |    3 +++
- hw/xfree86/modes/xf86Crtc.c         |   28 ++++++++++++++++++++++++++++
- 3 files changed, 43 insertions(+)
+ dix/dispatch.c                      |  2 --
+ hw/xfree86/common/xf86Init.c        | 12 ++++++++++++
+ hw/xfree86/common/xf86platformBus.c |  3 +++
+ hw/xfree86/modes/xf86Crtc.c         | 32 ++++++++++++++++++++++++++++++++
+ 4 files changed, 47 insertions(+), 2 deletions(-)
 
+diff --git a/dix/dispatch.c b/dix/dispatch.c
+index 0ce10c2..c2ab8f9 100644
+--- a/dix/dispatch.c
++++ b/dix/dispatch.c
+@@ -3933,7 +3933,6 @@ void
+ AttachOutputGPU(ScreenPtr pScreen, ScreenPtr new)
+ {
+     assert(new->isGPU);
+-    assert(!new->current_master);
+     xorg_list_add(&new->output_head, &pScreen->output_slave_list);
+     new->current_master = pScreen;
+ }
+@@ -3950,7 +3949,6 @@ void
+ AttachOffloadGPU(ScreenPtr pScreen, ScreenPtr new)
+ {
+     assert(new->isGPU);
+-    assert(!new->current_master);
+     xorg_list_add(&new->offload_head, &pScreen->offload_slave_list);
+     new->current_master = pScreen;
+ }
 diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
 index d231ced..89629c1 100644
 --- a/hw/xfree86/common/xf86Init.c
@@ -45,7 +67,7 @@ index d231ced..89629c1 100644
      if (sigio_blocked)
          OsReleaseSIGIO();
 diff --git a/hw/xfree86/common/xf86platformBus.c b/hw/xfree86/common/xf86platformBus.c
-index a73aea2..3810076 100644
+index 0525e39..82fef32 100644
 --- a/hw/xfree86/common/xf86platformBus.c
 +++ b/hw/xfree86/common/xf86platformBus.c
 @@ -387,6 +387,8 @@ xf86platformProbeDev(DriverPtr drvp)
@@ -66,10 +88,10 @@ index a73aea2..3810076 100644
     return 0;
  }
 diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
-index 8f05c53..ba84e6b 100644
+index 3011f13..34c1848 100644
 --- a/hw/xfree86/modes/xf86Crtc.c
 +++ b/hw/xfree86/modes/xf86Crtc.c
-@@ -3321,3 +3321,31 @@ xf86DetachAllCrtc(ScrnInfoPtr scrn)
+@@ -3323,3 +3323,35 @@ xf86DetachAllCrtc(ScrnInfoPtr scrn)
              crtc->x = crtc->y = 0;
          }
  }
@@ -80,6 +102,7 @@ index 8f05c53..ba84e6b 100644
 +    RRProviderPtr master_provider;
 +    xf86CrtcConfigPtr config = XF86_CRTC_CONFIG_PTR(master);
 +    xf86CrtcConfigPtr slave_config = XF86_CRTC_CONFIG_PTR(pScrn);
++    Bool unbound = FALSE;
 +
 +    if (!config || !slave_config)
 +        return;
@@ -91,16 +114,19 @@ index 8f05c53..ba84e6b 100644
 +            /* source offload */
 +            
 +        DetachUnboundGPU(pScrn->pScreen);
++        unbound = TRUE;
 +        AttachOffloadGPU(master->pScreen, pScrn->pScreen);
 +        slave_config->randr_provider->offload_sink = master_provider;
-+    } else if ((master->capabilities & RR_Capability_SourceOutput) &&
++    }
++    if ((master->capabilities & RR_Capability_SourceOutput) &&
 +               pScrn->capabilities & RR_Capability_SinkOutput) {
 +        /* sink offload */
-+        DetachUnboundGPU(pScrn->pScreen);
++        if (!unbound)
++            DetachUnboundGPU(pScrn->pScreen);
 +        AttachOutputGPU(master->pScreen, pScrn->pScreen);
 +        slave_config->randr_provider->output_source = master_provider;
 +    }
 +}
 -- 
-1.7.10.2
+1.8.1
 
