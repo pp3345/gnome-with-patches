@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.0
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -598,6 +598,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Apr 12 2013 Dave Airlie <airlied@redhat.com> 1.14.0-5
+- reenable reverse optimus and some missing patch from F18
+
 * Fri Apr 12 2013 Dave Airlie <airlied@redhat.com> 1.14.0-4
 - fix bug with GPU hotplugging while VT switched
 - reenable reverse optimus and some missing patch from F18
