@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.0
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -117,6 +117,9 @@ Patch7070: 0001-randr-report-changes-when-we-disconnect-a-GPU-slave.patch
 %if !0%{?rhel}
 Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 %endif
+
+# upstream submitted
+Patch7072: xserver-1.14.0-fix-gpu-hotplug-vt-switch.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -590,6 +593,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Apr 12 2013 Dave Airlie <airlied@redhat.com> 1.14.0-4
+- fix bug with GPU hotplugging while VT switched
+
 * Fri Mar 22 2013 Dan Horák <dan@danny.cz> 1.14.0-3
 - libunwind exists only on selected arches
 
