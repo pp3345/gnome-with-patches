@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.1.1
+Version:        3.9.1
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
