@@ -76,6 +76,7 @@ Requires:       gnome-bluetooth%{?_isa} >= %{gnome_bluetooth_version}
 %endif
 Requires:       gnome-desktop3 >= %{gnome_desktop_version}
 Requires:       gnome-menus%{?_isa} >= %{gnome_menus_version}
+Requires:       gnome-session-xsession
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
 Requires:       gobject-introspection%{?_isa} >= %{gobject_introspection_version}
@@ -178,6 +179,8 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %changelog
 * Wed May 01 2013 Kalev Lember <kalevlember@gmail.com> - 3.9.1-2
 - Add missing telepathy-logger runtime dep
+- Depend on gnome-session-xsession so that it gets pulled in for
+  typical GNOME installs
 
 * Wed May 01 2013 Florian Müllner <fmuellner@redhat.com> - 3.9.1-1
 - Update to 3.9.1
