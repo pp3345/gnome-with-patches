@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.9.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -25,6 +25,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gsettings_desktop_schemas_version 3.7.4
 %define caribou_version 0.4.8
 %define libcroco_version 0.6.8
+%define telepathy_logger_version 0.2.6
 
 ## Needed when we re-autogen
 BuildRequires:  autoconf >= 2.53
@@ -50,7 +51,7 @@ BuildRequires:  NetworkManager-glib-devel
 BuildRequires:  polkit-devel
 BuildRequires:  startup-notification-devel
 BuildRequires:  telepathy-glib-devel
-BuildRequires:  telepathy-logger-devel >= 0.2.6
+BuildRequires:  telepathy-logger-devel >= %{telepathy_logger_version}
 # for screencast recorder functionality
 BuildRequires:  gstreamer1-devel
 BuildRequires:  gtk3-devel
@@ -91,6 +92,7 @@ Requires:       polkit%{?_isa} >= 0.100
 Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires:       libcroco%{?_isa} >= %{libcroco_version}
+Requires:       telepathy-logger%{?_isa} >= %{telepathy_logger_version}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
@@ -174,6 +176,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed May 01 2013 Kalev Lember <kalevlember@gmail.com> - 3.9.1-2
+- Add missing telepathy-logger runtime dep
+
 * Wed May 01 2013 Florian Müllner <fmuellner@redhat.com> - 3.9.1-1
 - Update to 3.9.1
 
