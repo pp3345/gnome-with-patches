@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.14.0
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.14.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -84,6 +84,14 @@ Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 Patch6030: xserver-1.6.99-right-of.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
+# upstream backports - sent to stable
+Patch6050: xserver-1.14.0-fix-gpu-hotplug-vt-switch.patch
+Patch6051: 0001-hw-xfree86-Only-report-SetDesiredModes-failed-if-at-.patch
+
+# upstream submitted
+Patch6052: 0001-randr-upstream-set-changed-fixes.patch
+Patch6053: 0001-gpu-screen-upstream-fixes.patch
+
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
 Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
@@ -98,37 +106,13 @@ Patch7027: xserver-autobind-hotplug.patch
 
 Patch7052: 0001-xf86-return-NULL-for-compat-output-if-no-outputs.patch
 
-# Fix non-PCI configuration-less setups - broken
-#Patch7061:  v2-xf86-Fix-non-PCI-configuration-less-setups.patch
-
 # mustard: make the default queue length bigger to calm abrt down
 Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
-
-# some hotplug fixes/workaround
-Patch7066: 0001-xf86crtc-don-t-use-display-for-vx-vy-for-gpu-screens.patch
-# autoconfig: send events
-Patch7067: 0001-randr-don-t-directly-set-changed-bits-in-randr-scree.patch
-Patch7068: 0001-randr-make-SetChanged-modify-the-main-protocol-scree.patch
-Patch7069: 0001-randr-only-respected-changed-on-the-protocol-screen.patch
-Patch7070: 0001-randr-report-changes-when-we-disconnect-a-GPU-slave.patch
-
 
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
 %if !0%{?rhel}
 Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 %endif
-
-# upstream submitted
-Patch7072: xserver-1.14.0-fix-gpu-hotplug-vt-switch.patch
-
-# Bug 950438 - CVE-2013-1940 xorg-x11-server:
-# Information disclosure due enabling events from hot-plug devices despite
-# input from the device being momentarily disabled
-Patch7073: 0001-xf86-fix-flush-input-to-work-with-Linux-evdev-device.patch
-
-# on way upstream: fixes for reverse optimus
-Patch8000: 0001-dix-allow-pixmap-dirty-helper-to-be-used-for-non-sha.patch
-Patch8001: 0001-xserver-call-CSR-for-gpus.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -602,6 +586,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon May 06 2013 Dave Airlie <airlied@redhat.com> 1.14.1-1
+- upstream rebase
+- reorganise the randr/gpu screen patches + backports
+
 * Wed Apr 17 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.0-6
 - CVE-2013-1940: Fix xf86FlushInput() to drain evdev events
   (#950438, #952949)
