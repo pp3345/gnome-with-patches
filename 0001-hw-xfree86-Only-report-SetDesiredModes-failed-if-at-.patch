@@ -1,0 +1,60 @@
+From c760fb0154848d47438908ba8b3da2fffc68a460 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Thu, 10 Jan 2013 03:26:33 +0000
+Subject: [PATCH] hw/xfree86: Only report SetDesiredModes() failed if at least
+ one modeset fails
+
+commit 6703a7c7cf1a349c137e247a0c8eb462ff7b07be
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 8 20:24:32 2013 -0800
+
+    hw/xfree86: Require only one working CRTC to start the server.
+
+changed the logic to try to set the mode on all connected outputs rather
+than abort upon the first failure. The return error code was then
+tweaked such that it reported success if it set a mode on any crtc.
+However, this confuses the headless case where we never enable any crtcs
+and also, importantly, never fail to set a crtc.
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=59190
+
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Also-written-by: Maarten Lankhorst <maarten.lankhorst@canonical.com>
+Reviewed-by: Keith Packard <keithp@keithp.com>
+Signed-off-by: Keith Packard <keithp@keithp.com>
+(cherry picked from commit 451ba4bd41b82acd4aec6236ba121e00cfeb311b)
+---
+ hw/xfree86/modes/xf86Crtc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
+index f9ae465..7d55f60 100644
+--- a/hw/xfree86/modes/xf86Crtc.c
++++ b/hw/xfree86/modes/xf86Crtc.c
+@@ -2598,8 +2598,8 @@ xf86SetDesiredModes(ScrnInfoPtr scrn)
+ {
+     xf86CrtcConfigPtr config = XF86_CRTC_CONFIG_PTR(scrn);
+     xf86CrtcPtr crtc = config->crtc[0];
++    int enabled = 0, failed = 0;
+     int c;
+-    int enabled = 0;
+ 
+     /* A driver with this hook will take care of this */
+     if (!crtc->funcs->set_mode_major) {
+@@ -2659,11 +2659,12 @@ xf86SetDesiredModes(ScrnInfoPtr scrn)
+                 if (config->output[o]->crtc == crtc)
+                     config->output[o]->crtc = NULL;
+             crtc->enabled = FALSE;
++            ++failed;
+ 	}
+     }
+ 
+     xf86DisableUnusedFunctions(scrn);
+-    return enabled != 0;
++    return enabled != 0 || failed == 0;
+ }
+ 
+ /**
+-- 
+1.8.2
+
