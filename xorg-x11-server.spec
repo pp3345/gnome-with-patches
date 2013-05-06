@@ -114,11 +114,6 @@ Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
 Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 %endif
 
-# Bug 950438 - CVE-2013-1940 xorg-x11-server:
-# Information disclosure due enabling events from hot-plug devices despite
-# input from the device being momentarily disabled
-Patch7072: 0001-xf86-fix-flush-input-to-work-with-Linux-evdev-device.patch
-
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
 %global sdkdir		%{_includedir}/xorg
