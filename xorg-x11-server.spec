@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.1
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -108,6 +108,12 @@ Patch7052: 0001-xf86-return-NULL-for-compat-output-if-no-outputs.patch
 
 # mustard: make the default queue length bigger to calm abrt down
 Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
+
+# Bug 962572 - X-sandboxes are not resizeable
+# enabled by default until sandbox -X uses the option
+Patch7065: 0001-ephyr-Add-resizeable-option.patch
+# Bug 518960 - Xephyr crashes in 24bpp
+Patch7067: 0001-ephyr-Fix-crash-on-24bpp-host-framebuffer.patch
 
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
 %if !0%{?rhel}
@@ -586,6 +592,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue May 14 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.1-2
+- Add -resizeable option to Xephyr, enable by default (#962572)
+- Fix crash on 24bpp host server (#518960)
+
 * Mon May 06 2013 Dave Airlie <airlied@redhat.com> 1.14.1-1
 - upstream rebase
 - reorganise the randr/gpu screen patches + backports
