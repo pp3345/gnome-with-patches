@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.9.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -177,6 +177,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Sat May 25 2013 Rex Dieter <rdieter@fedoraproject.org> 3.9.1-3
+- rebuild (libical)
+
 * Wed May 01 2013 Kalev Lember <kalevlember@gmail.com> - 3.9.1-2
 - Add missing telepathy-logger runtime dep
 - Depend on gnome-session-xsession so that it gets pulled in for
