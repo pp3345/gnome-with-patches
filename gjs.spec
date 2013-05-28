@@ -13,7 +13,7 @@ URL:           http://live.gnome.org/Gjs/
 #VCS:          git://git.gnome.org/gjs
 Source0:       http://download.gnome.org/sources/%{name}/1.36/%{name}-%{version}.tar.xz
 
-BuildRequires: js-devel
+BuildRequires: mozjs17-devel
 BuildRequires: cairo-gobject-devel
 BuildRequires: gobject-introspection-devel >= 1.31.22
 BuildRequires: readline-devel
@@ -78,7 +78,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
 %changelog
 * Tue May 28 2013 Colin Walters <walters@verbum.org> - 1.37.1-1
-- Update to 1.37.1
+- Update to 1.37.1, and switch to mozjs17
 
 * Mon Apr 29 2013 Kalev Lember <kalevlember@gmail.com> - 1.36.1-1
 - Update to 1.36.1
