@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.1
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -119,6 +119,9 @@ Patch7067: 0001-ephyr-Fix-crash-on-24bpp-host-framebuffer.patch
 %if !0%{?rhel}
 Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 %endif
+
+# backport from master (#965749)
+Patch7072: 0001-dixstruct.h-fix-segfaults-char-is-unsigned-for-ARM-a.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -592,6 +595,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Sun Jun 02 2013 Adam Jackson <ajax@redhat.com> 1.14.1-3
+- Backport an arm/ppc crash fix from master (#965749)
+
 * Tue May 14 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.1-2
 - Add -resizeable option to Xephyr, enable by default (#962572)
 - Fix crash on 24bpp host server (#518960)
