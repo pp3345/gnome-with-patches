@@ -74,7 +74,7 @@ BuildRequires: gtk-doc gnome-common
 %ifnarch s390 s390x
 Requires:       gnome-bluetooth%{?_isa} >= %{gnome_bluetooth_version}
 %endif
-Requires:       gnome-desktop3 >= %{gnome_desktop_version}
+Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       gnome-menus%{?_isa} >= %{gnome_menus_version}
 Requires:       gnome-session-xsession
 # wrapper script uses to restart old GNOME session if run --replace
