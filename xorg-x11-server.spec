@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.1
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -595,6 +595,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Jun 04 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.1-4
+- Update quirks for trackballs and the La-VIEW Technology Naos 5000 mouse
+
 * Sun Jun 02 2013 Adam Jackson <ajax@redhat.com> 1.14.1-3
 - Backport an arm/ppc crash fix from master (#965749)
 
