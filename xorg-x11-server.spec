@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.14.1
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.14.1.901
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -84,13 +84,8 @@ Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 Patch6030: xserver-1.6.99-right-of.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
-# upstream backports - sent to stable
-Patch6050: xserver-1.14.0-fix-gpu-hotplug-vt-switch.patch
-Patch6051: 0001-hw-xfree86-Only-report-SetDesiredModes-failed-if-at-.patch
-
 # upstream submitted
 Patch6052: 0001-randr-upstream-set-changed-fixes.patch
-Patch6053: 0001-gpu-screen-upstream-fixes.patch
 
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
@@ -109,19 +104,10 @@ Patch7052: 0001-xf86-return-NULL-for-compat-output-if-no-outputs.patch
 # mustard: make the default queue length bigger to calm abrt down
 Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
 
-# Bug 962572 - X-sandboxes are not resizeable
-# enabled by default until sandbox -X uses the option
-Patch7065: 0001-ephyr-Add-resizeable-option.patch
-# Bug 518960 - Xephyr crashes in 24bpp
-Patch7067: 0001-ephyr-Fix-crash-on-24bpp-host-framebuffer.patch
-
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
 %if !0%{?rhel}
 Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 %endif
-
-# backport from master (#965749)
-Patch7072: 0001-dixstruct.h-fix-segfaults-char-is-unsigned-for-ARM-a.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -595,6 +581,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jun 06 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.1.901-1
+- xserver 1.14.2RC1
+
 * Tue Jun 04 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.1-4
 - Update quirks for trackballs and the La-VIEW Technology Naos 5000 mouse
 
