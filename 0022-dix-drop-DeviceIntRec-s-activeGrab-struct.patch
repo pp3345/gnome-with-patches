@@ -1,0 +1,114 @@
+From fff0bd42fe5ecaaebffbb85b671bc4cf9cc71c16 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Thu, 18 Apr 2013 10:32:11 +1000
+Subject: [PATCH 22/35] dix: drop DeviceIntRec's activeGrab struct
+
+Obsolete since 4bc2761ad5ec2d0668aec639780ffb136605fbc8. This struct
+existed so copying a passive grab could be simply done by
+  activeGrab = *grab
+
+and thus have a copy of the GrabPtr we'd get from various sources but still
+be able to check device->grab for NULL.
+
+Since 4bc2761 activeGrab is a pointer itself and points to the same memory
+as grabinfo->grab, leaving us with the potential of dangling pointers if
+either calls FreeGrab() and doesn't reset the other one.
+
+There is no reader of activeGrab anyway, so simply removing it is
+sufficient.
+
+Note: field is merely renamed to keep the ABI. Should be removed in the
+future.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 5363433a5cc64e2f83859aa1c32a89e5e1ddf9e4)
+---
+ dix/devices.c      |  4 ++--
+ dix/events.c       | 14 ++++++++++----
+ include/inputstr.h |  2 +-
+ 3 files changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/dix/devices.c b/dix/devices.c
+index a0d545a..9ef32bb 100644
+--- a/dix/devices.c
++++ b/dix/devices.c
+@@ -281,7 +281,6 @@ AddInputDevice(ClientPtr client, DeviceProc deviceProc, Bool autoStart)
+     dev->deviceGrab.grabTime = currentTime;
+     dev->deviceGrab.ActivateGrab = ActivateKeyboardGrab;
+     dev->deviceGrab.DeactivateGrab = DeactivateKeyboardGrab;
+-    dev->deviceGrab.activeGrab = AllocGrab();
+     dev->deviceGrab.sync.event = calloc(1, sizeof(DeviceEvent));
+ 
+     XkbSetExtension(dev, ProcessKeyboardEvent);
+@@ -977,7 +976,8 @@ CloseDevice(DeviceIntPtr dev)
+         }
+     }
+ 
+-    FreeGrab(dev->deviceGrab.activeGrab);
++    if (dev->deviceGrab.grab)
++        FreeGrab(dev->deviceGrab.grab);
+     free(dev->deviceGrab.sync.event);
+     free(dev->config_info);     /* Allocated in xf86ActivateDevice. */
+     free(dev->last.scroll);
+diff --git a/dix/events.c b/dix/events.c
+index 7772c0b..9ac8792 100644
+--- a/dix/events.c
++++ b/dix/events.c
+@@ -1487,8 +1487,9 @@ ActivatePointerGrab(DeviceIntPtr mouse, GrabPtr grab,
+         grabinfo->grabTime = time;
+     if (grab->cursor)
+         grab->cursor->refcnt++;
+-    CopyGrab(grabinfo->activeGrab, grab);
+-    grabinfo->grab = grabinfo->activeGrab;
++    BUG_WARN(grabinfo->grab != NULL);
++    grabinfo->grab = AllocGrab();
++    CopyGrab(grabinfo->grab, grab);
+     grabinfo->fromPassiveGrab = isPassive;
+     grabinfo->implicitGrab = autoGrab & ImplicitGrabMask;
+     PostNewCursor(mouse);
+@@ -1551,6 +1552,8 @@ DeactivatePointerGrab(DeviceIntPtr mouse)
+         ReattachToOldMaster(mouse);
+ 
+     ComputeFreezes();
++
++    FreeGrab(grab);
+ }
+ 
+ /**
+@@ -1588,8 +1591,9 @@ ActivateKeyboardGrab(DeviceIntPtr keybd, GrabPtr grab, TimeStamp time,
+         grabinfo->grabTime = syncEvents.time;
+     else
+         grabinfo->grabTime = time;
+-    CopyGrab(grabinfo->activeGrab, grab);
+-    grabinfo->grab = grabinfo->activeGrab;
++    BUG_WARN(grabinfo->grab != NULL);
++    grabinfo->grab = AllocGrab();
++    CopyGrab(grabinfo->grab, grab);
+     grabinfo->fromPassiveGrab = passive;
+     grabinfo->implicitGrab = passive & ImplicitGrabMask;
+     CheckGrabForSyncs(keybd, (Bool) grab->keyboardMode,
+@@ -1635,6 +1639,8 @@ DeactivateKeyboardGrab(DeviceIntPtr keybd)
+         ReattachToOldMaster(keybd);
+ 
+     ComputeFreezes();
++
++    FreeGrab(grab);
+ }
+ 
+ void
+diff --git a/include/inputstr.h b/include/inputstr.h
+index de96fae..85be885 100644
+--- a/include/inputstr.h
++++ b/include/inputstr.h
+@@ -485,7 +485,7 @@ typedef struct _GrabInfoRec {
+     TimeStamp grabTime;
+     Bool fromPassiveGrab;       /* true if from passive grab */
+     Bool implicitGrab;          /* implicit from ButtonPress */
+-    GrabPtr activeGrab;
++    GrabPtr unused;             /* Kept for ABI stability, remove soon */
+     GrabPtr grab;
+     CARD8 activatingKey;
+     void (*ActivateGrab) (DeviceIntPtr /*device */ ,
+-- 
+1.8.2.1
+

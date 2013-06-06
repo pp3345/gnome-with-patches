@@ -1,0 +1,62 @@
+From 435a0e5b747526b14bed380025d705ffb82fddfb Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Fri, 1 Mar 2013 08:26:06 +1000
+Subject: [PATCH 13/35] Xi: use a temp variable for the new listener
+
+Instead of accessing ti->listener[0] all the time.
+
+No functional changes.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Keith Packard <keithp@keithp.com>
+(cherry picked from commit fc504a44d12d537d4e07f659f1863f200a0272ad)
+---
+ Xi/exevents.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/Xi/exevents.c b/Xi/exevents.c
+index 2d531c7..06a0e03 100644
+--- a/Xi/exevents.c
++++ b/Xi/exevents.c
+@@ -1125,20 +1125,22 @@ static void
+ TouchPuntToNextOwner(DeviceIntPtr dev, TouchPointInfoPtr ti,
+                      TouchOwnershipEvent *ev)
+ {
++    TouchListener *listener = &ti->listeners[0]; /* new owner */
++
+     /* Deliver the ownership */
+-    if (ti->listeners[0].state == LISTENER_AWAITING_OWNER ||
+-        ti->listeners[0].state == LISTENER_EARLY_ACCEPT)
++    if (listener->state == LISTENER_AWAITING_OWNER ||
++        listener->state == LISTENER_EARLY_ACCEPT)
+         DeliverTouchEvents(dev, ti, (InternalEvent *) ev,
+-                           ti->listeners[0].listener);
+-    else if (ti->listeners[0].state == LISTENER_AWAITING_BEGIN) {
++                           listener->listener);
++    else if (listener->state == LISTENER_AWAITING_BEGIN) {
+         /* We can't punt to a pointer listener unless all older pointer
+          * emulated touches have been seen already. */
+-        if ((ti->listeners[0].type == LISTENER_POINTER_GRAB ||
+-             ti->listeners[0].type == LISTENER_POINTER_REGULAR) &&
++        if ((listener->type == LISTENER_POINTER_GRAB ||
++             listener->type == LISTENER_POINTER_REGULAR) &&
+             ti != FindOldestPointerEmulatedTouch(dev))
+             return;
+ 
+-        TouchEventHistoryReplay(ti, dev, ti->listeners[0].listener);
++        TouchEventHistoryReplay(ti, dev, listener->listener);
+     }
+ 
+     /* If we've just removed the last grab and the touch has physically
+@@ -1149,7 +1151,7 @@ TouchPuntToNextOwner(DeviceIntPtr dev, TouchPointInfoPtr ti,
+         return;
+     }
+ 
+-    if (ti->listeners[0].state == LISTENER_EARLY_ACCEPT)
++    if (listener->state == LISTENER_EARLY_ACCEPT)
+         ActivateEarlyAccept(dev, ti);
+ }
+ 
+-- 
+1.8.2.1
+

@@ -1,0 +1,31 @@
+From bf115aa906795df872104083c1187c126c3b1d76 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 17 Apr 2013 19:47:42 +1000
+Subject: [PATCH 01/35] dix: plug memory leak in freeing TouchClass
+
+==15562== 1,800 bytes in 1 blocks are definitely lost in loss record 298 of 330
+==15562==    at 0x4A06B6F: calloc (vg_replace_malloc.c:593)
+==15562==    by 0x4312C7: InitTouchClassDeviceStruct (devices.c:1644)
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Alan Coopersmith <alan.coopersmith@oracle.com>
+(cherry picked from commit 7d722796c678532e8c5897c673c43184da353f44)
+---
+ dix/devices.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dix/devices.c b/dix/devices.c
+index be236dd..85961a0 100644
+--- a/dix/devices.c
++++ b/dix/devices.c
+@@ -795,6 +795,7 @@ FreeDeviceClass(int type, pointer *class)
+             free((*t)->touches[i].valuators);
+         }
+ 
++        free((*t)->touches);
+         free((*t));
+         break;
+     }
+-- 
+1.8.2.1
+

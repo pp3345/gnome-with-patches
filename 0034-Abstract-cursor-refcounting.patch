@@ -1,0 +1,407 @@
+From edbae190d409f1042102d30dd5cc6ba1af5555b4 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 15 May 2013 19:01:11 +1000
+Subject: [PATCH 34/35] Abstract cursor refcounting
+
+Too many callers relied on the refcnt being handled correctly. Use a simple
+wrapper to handle that case.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 9a5ad65330693b3273972b63d10f2907d9ab954a)
+---
+ Xext/saver.c                   |  8 ++++----
+ dix/cursor.c                   | 33 ++++++++++++++++++++++++++++++++-
+ dix/events.c                   | 20 ++++++--------------
+ dix/grabs.c                    |  8 ++------
+ dix/window.c                   | 15 +++++----------
+ hw/xfree86/modes/xf86Cursors.c |  4 ++--
+ hw/xfree86/ramdac/xf86Cursor.c | 28 ++++++++++++++--------------
+ include/cursor.h               |  4 ++++
+ render/animcur.c               |  3 +--
+ xfixes/cursor.c                |  6 +++---
+ 10 files changed, 73 insertions(+), 56 deletions(-)
+
+diff --git a/Xext/saver.c b/Xext/saver.c
+index 8de043f..fe81bc4 100644
+--- a/Xext/saver.c
++++ b/Xext/saver.c
+@@ -531,15 +531,16 @@ CreateSaverWindow(ScreenPtr pScreen)
+         mask |= CWBorderPixmap;
+     }
+     if (pAttr->pCursor) {
++        CursorPtr cursor;
+         if (!pWin->optional)
+             if (!MakeWindowOptional(pWin)) {
+                 FreeResource(pWin->drawable.id, RT_NONE);
+                 return FALSE;
+             }
+-        pAttr->pCursor->refcnt++;
++        cursor = RefCursor(pAttr->pCursor);
+         if (pWin->optional->cursor)
+             FreeCursor(pWin->optional->cursor, (Cursor) 0);
+-        pWin->optional->cursor = pAttr->pCursor;
++        pWin->optional->cursor = cursor;
+         pWin->cursorIsNone = FALSE;
+         CheckWindowOptionalNeed(pWin);
+         mask |= CWCursor;
+@@ -1065,8 +1066,7 @@ ScreenSaverSetAttributes(ClientPtr client)
+                     client->errorValue = cursorID;
+                     goto PatchUp;
+                 }
+-                pCursor->refcnt++;
+-                pAttr->pCursor = pCursor;
++                pAttr->pCursor = RefCursor(pCursor);
+                 pAttr->mask &= ~CWCursor;
+             }
+             break;
+diff --git a/dix/cursor.c b/dix/cursor.c
+index 1ee127a..0820b18 100644
+--- a/dix/cursor.c
++++ b/dix/cursor.c
+@@ -114,9 +114,13 @@ FreeCursor(pointer value, XID cid)
+     ScreenPtr pscr;
+     DeviceIntPtr pDev = NULL;   /* unused anyway */
+ 
+-    if (--pCurs->refcnt != 0)
++
++    UnrefCursor(pCurs);
++    if (CursorRefCount(pCurs) != 0)
+         return Success;
+ 
++    BUG_WARN(CursorRefCount(pCurs) < 0);
++
+     for (nscr = 0; nscr < screenInfo.numScreens; nscr++) {
+         pscr = screenInfo.screens[nscr];
+         (void) (*pscr->UnrealizeCursor) (pDev, pscr, pCurs);
+@@ -127,6 +131,33 @@ FreeCursor(pointer value, XID cid)
+     return Success;
+ }
+ 
++CursorPtr
++RefCursor(CursorPtr cursor)
++{
++    ErrorF("%s ::::: cursor is %p", __func__, cursor);
++    if (cursor) {
++        xorg_backtrace();
++        cursor->refcnt++;
++    }
++    ErrorF("\n");
++    return cursor;
++}
++
++CursorPtr
++UnrefCursor(CursorPtr cursor)
++{
++    if (cursor)
++        cursor->refcnt--;
++    return cursor;
++}
++
++int
++CursorRefCount(const CursorPtr cursor)
++{
++    return cursor ? cursor->refcnt : 0;
++}
++
++
+ /*
+  * We check for empty cursors so that we won't have to display them
+  */
+diff --git a/dix/events.c b/dix/events.c
+index 64a8f15..4d50a24 100644
+--- a/dix/events.c
++++ b/dix/events.c
+@@ -931,8 +931,7 @@ ChangeToCursor(DeviceIntPtr pDev, CursorPtr cursor)
+ 
+         (*pScreen->DisplayCursor) (pDev, pScreen, cursor);
+         FreeCursor(pSprite->current, (Cursor) 0);
+-        pSprite->current = cursor;
+-        pSprite->current->refcnt++;
++        pSprite->current = RefCursor(cursor);
+     }
+ }
+ 
+@@ -3207,11 +3206,10 @@ InitializeSprite(DeviceIntPtr pDev, WindowPtr pWin)
+         pSprite->pEnqueueScreen = screenInfo.screens[0];
+         pSprite->pDequeueScreen = pSprite->pEnqueueScreen;
+     }
+-    if (pCursor)
+-        pCursor->refcnt++;
++    pCursor = RefCursor(pCursor);
+     if (pSprite->current)
+         FreeCursor(pSprite->current, None);
+-    pSprite->current = pCursor;
++    pSprite->current = RefCursor(pCursor);
+ 
+     if (pScreen) {
+         (*pScreen->RealizeCursor) (pDev, pScreen, pSprite->current);
+@@ -3290,9 +3288,7 @@ UpdateSpriteForScreen(DeviceIntPtr pDev, ScreenPtr pScreen)
+     pSprite->hotLimits.x2 = pScreen->width;
+     pSprite->hotLimits.y2 = pScreen->height;
+     pSprite->win = win;
+-    pCursor = wCursor(win);
+-    if (pCursor)
+-        pCursor->refcnt++;
++    pCursor = RefCursor(wCursor(win));
+     if (pSprite->current)
+         FreeCursor(pSprite->current, 0);
+     pSprite->current = pCursor;
+@@ -4942,9 +4938,7 @@ ProcChangeActivePointerGrab(ClientPtr client)
+         (CompareTimeStamps(time, device->deviceGrab.grabTime) == EARLIER))
+         return Success;
+     oldCursor = grab->cursor;
+-    grab->cursor = newCursor;
+-    if (newCursor)
+-        newCursor->refcnt++;
++    grab->cursor = RefCursor(newCursor);
+     PostNewCursor(device);
+     if (oldCursor)
+         FreeCursor(oldCursor, (Cursor) 0);
+@@ -5089,9 +5083,7 @@ GrabDevice(ClientPtr client, DeviceIntPtr dev,
+         else
+             xi2mask_merge(tempGrab->xi2mask, mask->xi2mask);
+         tempGrab->device = dev;
+-        tempGrab->cursor = cursor;
+-        if (cursor)
+-            tempGrab->cursor->refcnt++;
++        tempGrab->cursor = RefCursor(cursor);
+         tempGrab->confineTo = confineTo;
+         tempGrab->grabtype = grabtype;
+         (*grabInfo->ActivateGrab) (dev, tempGrab, time, FALSE);
+diff --git a/dix/grabs.c b/dix/grabs.c
+index b254ddc..a03897a 100644
+--- a/dix/grabs.c
++++ b/dix/grabs.c
+@@ -241,13 +241,11 @@ CreateGrab(int client, DeviceIntPtr device, DeviceIntPtr modDevice,
+     grab->detail.exact = keybut;
+     grab->detail.pMask = NULL;
+     grab->confineTo = confineTo;
+-    grab->cursor = cursor;
++    grab->cursor = RefCursor(cursor);
+     grab->next = NULL;
+ 
+     if (grabtype == XI2)
+         xi2mask_merge(grab->xi2mask, mask->xi2mask);
+-    if (cursor)
+-        cursor->refcnt++;
+     return grab;
+ 
+ }
+@@ -274,9 +272,6 @@ CopyGrab(GrabPtr dst, const GrabPtr src)
+     Mask *details_mask = NULL;
+     XI2Mask *xi2mask;
+ 
+-    if (src->cursor)
+-        src->cursor->refcnt++;
+-
+     if (src->modifiersDetail.pMask) {
+         int len = MasksPerDetailMask * sizeof(Mask);
+ 
+@@ -314,6 +309,7 @@ CopyGrab(GrabPtr dst, const GrabPtr src)
+     dst->modifiersDetail.pMask = mdetails_mask;
+     dst->detail.pMask = details_mask;
+     dst->xi2mask = xi2mask;
++    dst->cursor = RefCursor(src->cursor);
+ 
+     xi2mask_merge(dst->xi2mask, src->xi2mask);
+ 
+diff --git a/dix/window.c b/dix/window.c
+index a5b28a6..8e61779 100644
+--- a/dix/window.c
++++ b/dix/window.c
+@@ -547,8 +547,7 @@ InitRootWindow(WindowPtr pWin)
+     (*pScreen->PositionWindow) (pWin, 0, 0);
+ 
+     pWin->cursorIsNone = FALSE;
+-    pWin->optional->cursor = rootCursor;
+-    rootCursor->refcnt++;
++    pWin->optional->cursor = RefCursor(rootCursor);
+ 
+     if (party_like_its_1989) {
+         MakeRootTile(pWin);
+@@ -1416,8 +1415,7 @@ ChangeWindowAttributes(WindowPtr pWin, Mask vmask, XID *vlist, ClientPtr client)
+                     else if (pWin->parent && pCursor == wCursor(pWin->parent))
+                         checkOptional = TRUE;
+                     pOldCursor = pWin->optional->cursor;
+-                    pWin->optional->cursor = pCursor;
+-                    pCursor->refcnt++;
++                    pWin->optional->cursor = RefCursor(pCursor);
+                     pWin->cursorIsNone = FALSE;
+                     /*
+                      * check on any children now matching the new cursor
+@@ -3321,8 +3319,7 @@ MakeWindowOptional(WindowPtr pWin)
+     parentOptional = FindWindowWithOptional(pWin)->optional;
+     optional->visual = parentOptional->visual;
+     if (!pWin->cursorIsNone) {
+-        optional->cursor = parentOptional->cursor;
+-        optional->cursor->refcnt++;
++        optional->cursor = RefCursor(parentOptional->cursor);
+     }
+     else {
+         optional->cursor = None;
+@@ -3410,8 +3407,7 @@ ChangeWindowDeviceCursor(WindowPtr pWin, DeviceIntPtr pDev, CursorPtr pCursor)
+     if (pCursor && WindowParentHasDeviceCursor(pWin, pDev, pCursor))
+         pNode->cursor = None;
+     else {
+-        pNode->cursor = pCursor;
+-        pCursor->refcnt++;
++        pNode->cursor = RefCursor(pCursor);
+     }
+ 
+     pNode = pPrev = NULL;
+@@ -3419,8 +3415,7 @@ ChangeWindowDeviceCursor(WindowPtr pWin, DeviceIntPtr pDev, CursorPtr pCursor)
+     for (pChild = pWin->firstChild; pChild; pChild = pChild->nextSib) {
+         if (WindowSeekDeviceCursor(pChild, pDev, &pNode, &pPrev)) {
+             if (pNode->cursor == None) {        /* inherited from parent */
+-                pNode->cursor = pOldCursor;
+-                pOldCursor->refcnt++;
++                pNode->cursor = RefCursor(pOldCursor);
+             }
+             else if (pNode->cursor == pCursor) {
+                 pNode->cursor = None;
+diff --git a/hw/xfree86/modes/xf86Cursors.c b/hw/xfree86/modes/xf86Cursors.c
+index 634ee3f..2b0db34 100644
+--- a/hw/xfree86/modes/xf86Cursors.c
++++ b/hw/xfree86/modes/xf86Cursors.c
+@@ -481,7 +481,7 @@ xf86_use_hw_cursor(ScreenPtr screen, CursorPtr cursor)
+     xf86CrtcConfigPtr xf86_config = XF86_CRTC_CONFIG_PTR(scrn);
+     xf86CursorInfoPtr cursor_info = xf86_config->cursor_info;
+ 
+-    ++cursor->refcnt;
++    cursor = RefCursor(cursor);
+     if (xf86_config->cursor)
+         FreeCursor(xf86_config->cursor, None);
+     xf86_config->cursor = cursor;
+@@ -500,7 +500,7 @@ xf86_use_hw_cursor_argb(ScreenPtr screen, CursorPtr cursor)
+     xf86CrtcConfigPtr xf86_config = XF86_CRTC_CONFIG_PTR(scrn);
+     xf86CursorInfoPtr cursor_info = xf86_config->cursor_info;
+ 
+-    ++cursor->refcnt;
++    cursor = RefCursor(cursor);
+     if (xf86_config->cursor)
+         FreeCursor(xf86_config->cursor, None);
+     xf86_config->cursor = cursor;
+diff --git a/hw/xfree86/ramdac/xf86Cursor.c b/hw/xfree86/ramdac/xf86Cursor.c
+index 8d48a75..f30bd33 100644
+--- a/hw/xfree86/ramdac/xf86Cursor.c
++++ b/hw/xfree86/ramdac/xf86Cursor.c
+@@ -272,7 +272,7 @@ xf86CursorRealizeCursor(DeviceIntPtr pDev, ScreenPtr pScreen, CursorPtr pCurs)
+         (xf86CursorScreenPtr) dixLookupPrivate(&pScreen->devPrivates,
+                                                xf86CursorScreenKey);
+ 
+-    if (pCurs->refcnt <= 1)
++    if (CursorRefCount(pCurs) <= 1)
+         dixSetScreenPrivate(&pCurs->devPrivates, CursorScreenKey, pScreen,
+                             NULL);
+ 
+@@ -286,7 +286,7 @@ xf86CursorUnrealizeCursor(DeviceIntPtr pDev, ScreenPtr pScreen, CursorPtr pCurs)
+         (xf86CursorScreenPtr) dixLookupPrivate(&pScreen->devPrivates,
+                                                xf86CursorScreenKey);
+ 
+-    if (pCurs->refcnt <= 1) {
++    if (CursorRefCount(pCurs) <= 1) {
+         free(dixLookupScreenPrivate
+              (&pCurs->devPrivates, CursorScreenKey, pScreen));
+         dixSetScreenPrivate(&pCurs->devPrivates, CursorScreenKey, pScreen,
+@@ -323,37 +323,37 @@ xf86CursorSetCursor(DeviceIntPtr pDev, ScreenPtr pScreen, CursorPtr pCurs,
+     /* only update for VCP, otherwise we get cursor jumps when removing a
+        sprite. The second cursor is never HW rendered anyway. */
+     if (GetMaster(pDev, MASTER_POINTER) == inputInfo.pointer) {
+-        pCurs->refcnt++;
++        CursorPtr cursor = RefCursor(pCurs);
+         if (ScreenPriv->CurrentCursor)
+             FreeCursor(ScreenPriv->CurrentCursor, None);
+-        ScreenPriv->CurrentCursor = pCurs;
++        ScreenPriv->CurrentCursor = cursor;
+         ScreenPriv->x = x;
+         ScreenPriv->y = y;
+         ScreenPriv->CursorToRestore = NULL;
+-        ScreenPriv->HotX = pCurs->bits->xhot;
+-        ScreenPriv->HotY = pCurs->bits->yhot;
++        ScreenPriv->HotX = cursor->bits->xhot;
++        ScreenPriv->HotY = cursor->bits->yhot;
+ 
+         if (!infoPtr->pScrn->vtSema)
+-            ScreenPriv->SavedCursor = pCurs;
++            ScreenPriv->SavedCursor = cursor;
+ 
+         if (infoPtr->pScrn->vtSema && xorg_list_is_empty(&pScreen->pixmap_dirty_list) &&
+             (ScreenPriv->ForceHWCursorCount ||
+              ((
+ #ifdef ARGB_CURSOR
+-               pCurs->bits->argb &&
++               cursor->bits->argb &&
+                infoPtr->UseHWCursorARGB &&
+-               (*infoPtr->UseHWCursorARGB)(pScreen, pCurs)) ||
+-              (pCurs->bits->argb == 0 &&
++               (*infoPtr->UseHWCursorARGB)(pScreen, cursor)) ||
++              (cursor->bits->argb == 0 &&
+ #endif
+-               (pCurs->bits->height <= infoPtr->MaxHeight) &&
+-               (pCurs->bits->width <= infoPtr->MaxWidth) &&
+-               (!infoPtr->UseHWCursor || (*infoPtr->UseHWCursor) (pScreen, pCurs)))))) {
++               (cursor->bits->height <= infoPtr->MaxHeight) &&
++               (cursor->bits->width <= infoPtr->MaxWidth) &&
++               (!infoPtr->UseHWCursor || (*infoPtr->UseHWCursor) (pScreen, cursor)))))) {
+             
+             if (ScreenPriv->SWCursor)   /* remove the SW cursor */
+                 (*ScreenPriv->spriteFuncs->SetCursor) (pDev, pScreen,
+                                                        NullCursor, x, y);
+ 
+-            xf86SetCursor(pScreen, pCurs, x, y);
++            xf86SetCursor(pScreen, cursor, x, y);
+             ScreenPriv->SWCursor = FALSE;
+             ScreenPriv->isUp = TRUE;
+ 
+diff --git a/include/cursor.h b/include/cursor.h
+index 0823251..89a650f 100644
+--- a/include/cursor.h
++++ b/include/cursor.h
+@@ -71,6 +71,10 @@ extern _X_EXPORT CursorPtr rootCursor;
+ extern _X_EXPORT int FreeCursor(pointer /*pCurs */ ,
+                                 XID /*cid */ );
+ 
++extern _X_EXPORT CursorPtr RefCursor(CursorPtr /* cursor */);
++extern _X_EXPORT CursorPtr UnrefCursor(CursorPtr /* cursor */);
++extern _X_EXPORT int CursorRefCount(const CursorPtr /* cursor */);
++
+ extern _X_EXPORT int AllocARGBCursor(unsigned char * /*psrcbits */ ,
+                                      unsigned char * /*pmaskbits */ ,
+                                      CARD32 * /*argb */ ,
+diff --git a/render/animcur.c b/render/animcur.c
+index 9cbba83..038c5b9 100644
+--- a/render/animcur.c
++++ b/render/animcur.c
+@@ -383,8 +383,7 @@ AnimCursorCreate(CursorPtr *cursors, CARD32 *deltas, int ncursor,
+     ac->elts = (AnimCurElt *) (ac + 1);
+ 
+     for (i = 0; i < ncursor; i++) {
+-        cursors[i]->refcnt++;
+-        ac->elts[i].pCursor = cursors[i];
++        ac->elts[i].pCursor = RefCursor(cursors[i]);
+         ac->elts[i].delay = deltas[i];
+     }
+ 
+diff --git a/xfixes/cursor.c b/xfixes/cursor.c
+index 568e717..cc6e059 100644
+--- a/xfixes/cursor.c
++++ b/xfixes/cursor.c
+@@ -619,12 +619,12 @@ ReplaceCursorLookup(pointer value, XID id, pointer closure)
+     }
+     if (pCursor && pCursor != rcl->pNew) {
+         if ((*rcl->testCursor) (pCursor, rcl->closure)) {
+-            rcl->pNew->refcnt++;
++            CursorPtr curs = RefCursor(rcl->pNew);
+             /* either redirect reference or update resource database */
+             if (pCursorRef)
+-                *pCursorRef = rcl->pNew;
++                *pCursorRef = curs;
+             else
+-                ChangeResourceValue(id, RT_CURSOR, rcl->pNew);
++                ChangeResourceValue(id, RT_CURSOR, curs);
+             FreeCursor(pCursor, cursor);
+         }
+     }
+-- 
+1.8.2.1
+

@@ -1,0 +1,59 @@
+From 7c6a9b425a8366d3f9b9a823d4dfa1dfbdc66635 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 17 Apr 2013 20:13:34 +1000
+Subject: [PATCH 20/35] dix: invert a loop condition
+
+Change the single if condition in the loop body to a
+    if (!foo) continue;
+and re-indent the rest.
+
+No functional changes.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit a71a283934406d870bcd8dc376eb1c9ce1c8bbb4)
+---
+ dix/touch.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
+
+diff --git a/dix/touch.c b/dix/touch.c
+index 0cbc2eb..be4a7de 100644
+--- a/dix/touch.c
++++ b/dix/touch.c
+@@ -718,21 +718,22 @@ TouchRemoveListener(TouchPointInfoPtr ti, XID resource)
+     int i;
+ 
+     for (i = 0; i < ti->num_listeners; i++) {
+-        if (ti->listeners[i].listener == resource) {
+-            int j;
++        int j;
+ 
+-            if (ti->listeners[i].grab) {
+-                ti->listeners[i].grab = NULL;
+-                ti->num_grabs--;
+-            }
++        if (ti->listeners[i].listener != resource)
++            continue;
+ 
+-            for (j = i; j < ti->num_listeners - 1; j++)
+-                ti->listeners[j] = ti->listeners[j + 1];
+-            ti->num_listeners--;
+-            ti->listeners[ti->num_listeners].listener = 0;
+-            ti->listeners[ti->num_listeners].state = LISTENER_AWAITING_BEGIN;
+-            return TRUE;
++        if (ti->listeners[i].grab) {
++            ti->listeners[i].grab = NULL;
++            ti->num_grabs--;
+         }
++
++        for (j = i; j < ti->num_listeners - 1; j++)
++            ti->listeners[j] = ti->listeners[j + 1];
++        ti->num_listeners--;
++        ti->listeners[ti->num_listeners].listener = 0;
++        ti->listeners[ti->num_listeners].state = LISTENER_AWAITING_BEGIN;
++        return TRUE;
+     }
+     return FALSE;
+ }
+-- 
+1.8.2.1
+

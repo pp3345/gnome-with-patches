@@ -1,0 +1,27 @@
+From 06b33d8b9f3d463810e6005379411bbd412accf4 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Tue, 23 Apr 2013 15:46:04 +1000
+Subject: [PATCH 24/35] dix: freeing a null grab is a bug, complain if doing so
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 4980bcef9973ba1f90f53028f061669ee5d2661b)
+---
+ dix/grabs.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/dix/grabs.c b/dix/grabs.c
+index 3b02352..0a2111d 100644
+--- a/dix/grabs.c
++++ b/dix/grabs.c
+@@ -249,6 +249,8 @@ CreateGrab(int client, DeviceIntPtr device, DeviceIntPtr modDevice,
+ void
+ FreeGrab(GrabPtr pGrab)
+ {
++    BUG_RETURN(!pGrab);
++
+     if (pGrab->grabtype == XI2 && pGrab->type == XI_TouchBegin)
+         TouchListenerGone(pGrab->resource);
+ 
+-- 
+1.8.2.1
+

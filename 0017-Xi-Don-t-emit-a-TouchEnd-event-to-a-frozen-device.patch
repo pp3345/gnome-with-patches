@@ -1,0 +1,39 @@
+From 5bc56f53669a983ea0d263cbcd5af8302dbc28b1 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Fri, 1 Mar 2013 10:41:01 +1000
+Subject: [PATCH 17/35] Xi: Don't emit a TouchEnd event to a frozen device
+
+EmitTouchEnd calls DeliverTouchEvents directly instead of through
+public.processInputProc. If a device is frozen, the TouchEnd is
+processed while the device is waiting for a XAllowEvents and thus ends the
+touch point (and the grab) before the client decided what to do with it. In
+the case of ReplayPointer, this loses the event.
+
+This is a hack, but making EmitTouchEnd use processInputProc breaks
+approximately everything, especially the touch point is cleaned up during
+ProcessTouchEvents. Working around that is a bigger hack than this.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 0eb9390f6048049136347d5a5834d88bfc67cc09)
+---
+ Xi/exevents.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Xi/exevents.c b/Xi/exevents.c
+index 812ad08..a6e76f7 100644
+--- a/Xi/exevents.c
++++ b/Xi/exevents.c
+@@ -1067,6 +1067,10 @@ EmitTouchEnd(DeviceIntPtr dev, TouchPointInfoPtr ti, int flags, XID resource)
+ {
+     InternalEvent event;
+ 
++    /* We're not processing a touch end for a frozen device */
++    if (dev->deviceGrab.sync.frozen)
++        return;
++
+     flags |= TOUCH_CLIENT_ID;
+     if (ti->emulate_pointer)
+         flags |= TOUCH_POINTER_EMULATED;
+-- 
+1.8.2.1
+

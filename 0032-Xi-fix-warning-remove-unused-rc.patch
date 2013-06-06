@@ -1,0 +1,26 @@
+From 61259f5f0d03700751e60c0a9c95791dbca8cc9e Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Mon, 13 May 2013 15:22:12 +1000
+Subject: [PATCH 32/35] Xi: fix warning - remove unused 'rc'
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit fd5ea0237db6d725a48f76b706135df9d3246b82)
+---
+ Xi/exevents.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/Xi/exevents.c b/Xi/exevents.c
+index a4120de..b1318ab 100644
+--- a/Xi/exevents.c
++++ b/Xi/exevents.c
+@@ -1036,7 +1036,6 @@ DeliverOneTouchEvent(ClientPtr client, DeviceIntPtr dev, TouchPointInfoPtr ti,
+ static void
+ ActivateEarlyAccept(DeviceIntPtr dev, TouchPointInfoPtr ti)
+ {
+-    int rc;
+     ClientPtr client;
+     XID error;
+     GrabPtr grab = ti->listeners[0].grab;
+-- 
+1.8.2.1
+

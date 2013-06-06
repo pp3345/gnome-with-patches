@@ -1,0 +1,91 @@
+From 7a7aa4cd23734ddcd8cc620fc4a5a82a050917cd Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Fri, 3 May 2013 15:07:58 +1000
+Subject: [PATCH 31/35] dix: fix cursor refcounting
+
+The cursor is referenced during CopyGrab(), thus doesn't need to be handled
+manually anymore. It does need to be refcounted for temp grabs though.
+
+The oldGrab handling in ProcGrabPointer is a leftover from the cursor in the
+grab being refcounted, but the grab itself being a static struct in the
+DeviceIntRec. Now that all grabs are copied, this lead to a double-free of
+the cursor (Reproduced in Thunderbird, dragging an email twice (or more
+often) causes a crash).
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 481702101b86fff003430e952dc65fb41eb56400)
+---
+ dix/events.c | 20 ++++----------------
+ 1 file changed, 4 insertions(+), 16 deletions(-)
+
+diff --git a/dix/events.c b/dix/events.c
+index 24fd6b9..64a8f15 100644
+--- a/dix/events.c
++++ b/dix/events.c
+@@ -1488,9 +1488,6 @@ ActivatePointerGrab(DeviceIntPtr mouse, GrabPtr grab,
+         grabinfo->grabTime = syncEvents.time;
+     else
+         grabinfo->grabTime = time;
+-    if (grab->cursor)
+-        grab->cursor->refcnt++;
+-    BUG_WARN(grabinfo->grab != NULL);
+     grabinfo->grab = AllocGrab(grab);
+     grabinfo->fromPassiveGrab = isPassive;
+     grabinfo->implicitGrab = autoGrab & ImplicitGrabMask;
+@@ -1549,8 +1546,6 @@ DeactivatePointerGrab(DeviceIntPtr mouse)
+     if (grab->confineTo)
+         ConfineCursorToWindow(mouse, GetCurrentRootWindow(mouse), FALSE, FALSE);
+     PostNewCursor(mouse);
+-    if (grab->cursor)
+-        FreeCursor(grab->cursor, (Cursor) 0);
+ 
+     if (!wasImplicit && grab->grabtype == XI2)
+         ReattachToOldMaster(mouse);
+@@ -4857,7 +4852,6 @@ ProcGrabPointer(ClientPtr client)
+     GrabPtr grab;
+     GrabMask mask;
+     WindowPtr confineTo;
+-    CursorPtr oldCursor;
+     BYTE status;
+ 
+     REQUEST(xGrabPointerReq);
+@@ -4880,15 +4874,10 @@ ProcGrabPointer(ClientPtr client)
+             return rc;
+     }
+ 
+-    oldCursor = NullCursor;
+     grab = device->deviceGrab.grab;
+ 
+-    if (grab) {
+-        if (grab->confineTo && !confineTo)
+-            ConfineCursorToWindow(device, GetCurrentRootWindow(device), FALSE,
+-                                  FALSE);
+-        oldCursor = grab->cursor;
+-    }
++    if (grab && grab->confineTo && !confineTo)
++        ConfineCursorToWindow(device, GetCurrentRootWindow(device), FALSE, FALSE);
+ 
+     mask.core = stuff->eventMask;
+ 
+@@ -4898,9 +4887,6 @@ ProcGrabPointer(ClientPtr client)
+     if (rc != Success)
+         return rc;
+ 
+-    if (oldCursor && status == GrabSuccess)
+-        FreeCursor(oldCursor, (Cursor) 0);
+-
+     rep = (xGrabPointerReply) {
+         .type = X_Reply,
+         .status = status,
+@@ -5104,6 +5090,8 @@ GrabDevice(ClientPtr client, DeviceIntPtr dev,
+             xi2mask_merge(tempGrab->xi2mask, mask->xi2mask);
+         tempGrab->device = dev;
+         tempGrab->cursor = cursor;
++        if (cursor)
++            tempGrab->cursor->refcnt++;
+         tempGrab->confineTo = confineTo;
+         tempGrab->grabtype = grabtype;
+         (*grabInfo->ActivateGrab) (dev, tempGrab, time, FALSE);
+-- 
+1.8.2.1
+

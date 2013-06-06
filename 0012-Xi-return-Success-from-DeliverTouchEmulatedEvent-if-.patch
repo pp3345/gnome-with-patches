@@ -1,0 +1,50 @@
+From 5f7c3b1e50fb321d4c4489fad38a544419b1c21f Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Fri, 1 Mar 2013 08:43:58 +1000
+Subject: [PATCH 12/35] Xi: return !Success from DeliverTouchEmulatedEvent if
+ we didn't deliver
+
+All callers currently ignore the new value, so this patch has no effect.
+Inverse call graph:
+
+DeliverTouchEmulatedEvent
+        DeliverEmulatedMotionEvent              Ignores value
+        DeliverTouchBeginEvent
+                DeliverTouchEvent
+                        DeliverTouchEvents      Ignores value
+        DeliverTouchEndEvent
+                DeliverTouchEvent
+                        DeliverTouchEvents      Ignores value
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Keith Packard <keithp@keithp.com>
+(cherry picked from commit 9978b57b8d94f061d72a67b99a02b0ba16a11429)
+---
+ Xi/exevents.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Xi/exevents.c b/Xi/exevents.c
+index 21acf79..2d531c7 100644
+--- a/Xi/exevents.c
++++ b/Xi/exevents.c
+@@ -1382,7 +1382,7 @@ DeliverTouchEmulatedEvent(DeviceIntPtr dev, TouchPointInfoPtr ti,
+ 
+     /* We don't deliver pointer events to non-owners */
+     if (!TouchResourceIsOwner(ti, listener->listener))
+-        return Success;
++        return !Success;
+ 
+     nevents = TouchConvertToPointerEvent(ev, &motion, &button);
+     BUG_RETURN_VAL(nevents == 0, BadValue);
+@@ -1404,7 +1404,7 @@ DeliverTouchEmulatedEvent(DeviceIntPtr dev, TouchPointInfoPtr ti,
+             /* 'grab' is the passive grab, but if the grab isn't active,
+              * don't deliver */
+             if (!dev->deviceGrab.grab)
+-                return Success;
++                return !Success;
+ 
+             if (grab->ownerEvents) {
+                 WindowPtr focus = NullWindow;
+-- 
+1.8.2.1
+

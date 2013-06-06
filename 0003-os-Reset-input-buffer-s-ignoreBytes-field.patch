@@ -1,0 +1,42 @@
+From 57f6dbb3032b934a39c15cd1980b345f477ce1e6 Mon Sep 17 00:00:00 2001
+From: Robert Morell <rmorell@nvidia.com>
+Date: Thu, 9 May 2013 13:09:02 -0700
+Subject: [PATCH 03/35] os: Reset input buffer's 'ignoreBytes' field
+
+If a client sends a request larger than maxBigRequestSize, the server is
+supposed to ignore it.
+
+Before commit cf88363d, the server would simply disconnect the client.  After
+that commit, it attempts to gracefully ignore the request by remembering how
+long the client specified the request to be, and ignoring that many bytes.
+However, if a client sends a BigReq header with a large size and disconnects
+before actually sending the rest of the specified request, the server will
+reuse the ConnectionInput buffer without resetting the ignoreBytes field.  This
+makes the server ignore new X clients' requests.
+
+This fixes that behavior by resetting the ignoreBytes field when putting the
+ConnectionInput buffer back on the FreeInputs list.
+
+Signed-off-by: Robert Morell <rmorell@nvidia.com>
+Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 67c66606c760c263d7a4c2d1bba43ed6225a4e7c)
+---
+ os/io.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/os/io.c b/os/io.c
+index 2f091c4..0d980ab 100644
+--- a/os/io.c
++++ b/os/io.c
+@@ -1063,6 +1063,7 @@ FreeOsBuffers(OsCommPtr oc)
+             oci->bufptr = oci->buffer;
+             oci->bufcnt = 0;
+             oci->lenLastReq = 0;
++            oci->ignoreBytes = 0;
+         }
+     }
+     if ((oco = oc->output)) {
+-- 
+1.8.2.1
+

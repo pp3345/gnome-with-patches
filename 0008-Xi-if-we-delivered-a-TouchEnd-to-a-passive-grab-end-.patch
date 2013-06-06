@@ -1,0 +1,46 @@
+From 67f4d682336aa3af2e03be528f4a373499dd8353 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Mon, 25 Feb 2013 11:21:07 +1000
+Subject: [PATCH 08/35] Xi: if we delivered a TouchEnd to a passive grab, end
+ it
+
+ef64b5ee97099618cf2e2cbbd3e471095695ae24 (which introduced the
+TOUCH_CLIENT_ID check) has a wrong assumption that generated touch events
+(TOUCH_CLIENT_ID) should not terminate passive grabs.
+This is untrue, a TouchEnd may be generated in response to a TouchReject
+higher up. If we _deliver_ an event to a client, terminate the passive grab.
+
+This requires us to count the actually delivered events too (first hunk).
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 81554d274f04951c55ea7f2e38d0455e2025e08d)
+---
+ Xi/exevents.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/Xi/exevents.c b/Xi/exevents.c
+index d9122c9..a6a08b5 100644
+--- a/Xi/exevents.c
++++ b/Xi/exevents.c
+@@ -1415,7 +1415,7 @@ DeliverTouchEmulatedEvent(DeviceIntPtr dev, TouchPointInfoPtr ti,
+             }
+ 
+             if (!deliveries)
+-                DeliverOneGrabbedEvent(ptrev, dev, grab->grabtype);
++                deliveries = DeliverOneGrabbedEvent(ptrev, dev, grab->grabtype);
+ 
+             /* We must accept the touch sequence once a pointer listener has
+              * received one event past ButtonPress. */
+@@ -1423,8 +1423,7 @@ DeliverTouchEmulatedEvent(DeviceIntPtr dev, TouchPointInfoPtr ti,
+                 !(ev->device_event.flags & TOUCH_CLIENT_ID))
+                 TouchListenerAcceptReject(dev, ti, 0, XIAcceptTouch);
+ 
+-            if (ev->any.type == ET_TouchEnd &&
+-                !(ev->device_event.flags & TOUCH_CLIENT_ID) &&
++            if (deliveries && ev->any.type == ET_TouchEnd &&
+                 !dev->button->buttonsDown &&
+                 dev->deviceGrab.fromPassiveGrab && GrabIsPointerGrab(grab)) {
+                 (*dev->deviceGrab.DeactivateGrab) (dev);
+-- 
+1.8.2.1
+

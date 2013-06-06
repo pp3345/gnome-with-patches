@@ -1,0 +1,63 @@
+From 300ecb63ae7cab90d5f7719259c9741f8495141f Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Fri, 3 May 2013 15:02:05 +1000
+Subject: [PATCH 30/35] dix: free the old grab when activating a new grab
+
+A client may call XIGrabDevice twice, overwriting the existing grab. Thus,
+make sure we free the old copy after we copied it. Free it last, to make
+sure our refcounts don't run to 0 and inadvertantly free something on the
+way.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 3093f78d17e48a506aab170a9089cd10e21af299)
+---
+ dix/events.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/dix/events.c b/dix/events.c
+index 8745c11..24fd6b9 100644
+--- a/dix/events.c
++++ b/dix/events.c
+@@ -1465,6 +1465,7 @@ ActivatePointerGrab(DeviceIntPtr mouse, GrabPtr grab,
+                     TimeStamp time, Bool autoGrab)
+ {
+     GrabInfoPtr grabinfo = &mouse->deviceGrab;
++    GrabPtr oldgrab = grabinfo->grab;
+     WindowPtr oldWin = (grabinfo->grab) ?
+         grabinfo->grab->window : mouse->spriteInfo->sprite->win;
+     Bool isPassive = autoGrab & ~ImplicitGrabMask;
+@@ -1497,6 +1498,8 @@ ActivatePointerGrab(DeviceIntPtr mouse, GrabPtr grab,
+     UpdateTouchesForGrab(mouse);
+     CheckGrabForSyncs(mouse, (Bool) grab->pointerMode,
+                       (Bool) grab->keyboardMode);
++    if (oldgrab)
++        FreeGrab(oldgrab);
+ }
+ 
+ /**
+@@ -1567,6 +1570,7 @@ ActivateKeyboardGrab(DeviceIntPtr keybd, GrabPtr grab, TimeStamp time,
+                      Bool passive)
+ {
+     GrabInfoPtr grabinfo = &keybd->deviceGrab;
++    GrabPtr oldgrab = grabinfo->grab;
+     WindowPtr oldWin;
+ 
+     /* slave devices need to float for the duration of the grab. */
+@@ -1592,12 +1596,13 @@ ActivateKeyboardGrab(DeviceIntPtr keybd, GrabPtr grab, TimeStamp time,
+         grabinfo->grabTime = syncEvents.time;
+     else
+         grabinfo->grabTime = time;
+-    BUG_WARN(grabinfo->grab != NULL);
+     grabinfo->grab = AllocGrab(grab);
+     grabinfo->fromPassiveGrab = passive;
+     grabinfo->implicitGrab = passive & ImplicitGrabMask;
+     CheckGrabForSyncs(keybd, (Bool) grab->keyboardMode,
+                       (Bool) grab->pointerMode);
++    if (oldgrab)
++        FreeGrab(oldgrab);
+ }
+ 
+ /**
+-- 
+1.8.2.1
+

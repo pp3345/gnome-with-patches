@@ -1,0 +1,104 @@
+From e9201c9c1f5c80ee818a452ad1719994357971aa Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Thu, 28 Feb 2013 13:07:26 +1000
+Subject: [PATCH 16/35] Xi: use public.processInputProc to replay the touch
+ history
+
+If a device is frozen in results to a grab, we need to enqueue the events.
+
+This makes things complicated, and hard to follow since touch events are now
+replayed in the history, pushed into EnqueueEvent, then replayed later
+during PlayReleasedEvents in response to an XAllowEvents.
+
+While the device is frozen, no touch events are processed, so if there is a
+touch client with ownership mask _below_ the grab this will delay the
+delivery and potentially screw gesture recognition. However, this is the
+behaviour we have already anyway if the top-most client is a sync pgrab or
+there is a sync grab active on the device when the TouchBegin was generated.
+
+(also note, such a client would only reliably work in case of ReplayPointer
+anyway)
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit a7d989d335f903ffd8b168cd2beeb82c78d30c21)
+---
+ Xi/exevents.c      |  8 +++++---
+ dix/touch.c        | 16 +++++++++++++++-
+ include/eventstr.h |  1 +
+ 3 files changed, 21 insertions(+), 4 deletions(-)
+
+diff --git a/Xi/exevents.c b/Xi/exevents.c
+index 7c34c81..812ad08 100644
+--- a/Xi/exevents.c
++++ b/Xi/exevents.c
+@@ -1554,7 +1554,7 @@ ProcessTouchEvent(InternalEvent *ev, DeviceIntPtr dev)
+ 
+     touchid = ev->device_event.touchid;
+ 
+-    if (type == ET_TouchBegin) {
++    if (type == ET_TouchBegin && !(ev->device_event.flags & TOUCH_REPLAYING)) {
+         ti = TouchBeginTouch(dev, ev->device_event.sourceid, touchid,
+                              emulate_pointer);
+     }
+@@ -1621,7 +1621,9 @@ ProcessTouchEvent(InternalEvent *ev, DeviceIntPtr dev)
+      * called after event type mutation. Touch end events are always processed
+      * in order to end touch records. */
+     /* FIXME: check this */
+-    if ((type == ET_TouchBegin && !TouchBuildSprite(dev, ti, ev)) ||
++    if ((type == ET_TouchBegin &&
++         !(ev->device_event.flags & TOUCH_REPLAYING) &&
++         !TouchBuildSprite(dev, ti, ev)) ||
+         (type != ET_TouchEnd && ti->sprite.spriteTraceGood == 0))
+         return;
+ 
+@@ -1629,7 +1631,7 @@ ProcessTouchEvent(InternalEvent *ev, DeviceIntPtr dev)
+     /* WARNING: the event type may change to TouchUpdate in
+      * DeliverTouchEvents if a TouchEnd was delivered to a grabbing
+      * owner */
+-    DeliverTouchEvents(dev, ti, (InternalEvent *) ev, 0);
++    DeliverTouchEvents(dev, ti, ev, ev->device_event.resource);
+     if (ev->any.type == ET_TouchEnd)
+         TouchEndTouch(dev, ti);
+ 
+diff --git a/dix/touch.c b/dix/touch.c
+index 5d6e2a7..76592e7 100644
+--- a/dix/touch.c
++++ b/dix/touch.c
+@@ -474,7 +474,21 @@ TouchEventHistoryReplay(TouchPointInfoPtr ti, DeviceIntPtr dev, XID resource)
+         DeviceEvent *ev = &ti->history[i];
+ 
+         ev->flags |= TOUCH_REPLAYING;
+-        DeliverTouchEvents(dev, ti, (InternalEvent *) ev, resource);
++        ev->resource = resource;
++        /* FIXME:
++           We're replaying ti->history which contains the TouchBegin +
++           all TouchUpdates for ti. This needs to be passed on to the next
++           listener. If that is a touch listener, everything is dandy.
++           If the TouchBegin however triggers a sync passive grab, the
++           TouchUpdate events must be sent to EnqueueEvent so the events end
++           up in syncEvents.pending to be forwarded correctly in a
++           subsequent ComputeFreeze().
++
++           However, if we just send them to EnqueueEvent the sync'ing device
++           prevents handling of touch events for ownership listeners who
++           want the events right here, right now.
++         */
++        dev->public.processInputProc((InternalEvent*)ev, dev);
+     }
+ }
+ 
+diff --git a/include/eventstr.h b/include/eventstr.h
+index 5c1adc4..3950584 100644
+--- a/include/eventstr.h
++++ b/include/eventstr.h
+@@ -123,6 +123,7 @@ struct _DeviceEvent {
+     int corestate;    /**< Core key/button state BEFORE the event */
+     int key_repeat;   /**< Internally-generated key repeat event */
+     uint32_t flags;   /**< Flags to be copied into the generated event */
++    uint32_t resource; /**< Touch event resource, only for TOUCH_REPLAYING */
+ };
+ 
+ /**
+-- 
+1.8.2.1
+

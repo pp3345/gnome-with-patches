@@ -1,0 +1,51 @@
+From 8cc686735296f1ff32089e64f78dfee46b8e7149 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Thu, 9 May 2013 14:30:49 +1000
+Subject: [PATCH 02/35] dix: don't overwrite proximity/focus classes
+
+InitPointerClassDeviceStruct/InitKeyboardDeviceStruct allocate a
+proximity/focus class, respectively. If a driver calls
+InitFocusClassDeviceStruct or InitProximityClassDeviceStruct beforehand,
+the previously allocated class is overwritten, leaking the memory.
+
+Neither takes a parameter other than the device, so we can simply skip
+initialising it if we already have one.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+(cherry picked from commit 8a88b0ab52ba375ae84463a90503db88af10e368)
+---
+ dix/devices.c | 2 +-
+ xkb/xkbInit.c | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/dix/devices.c b/dix/devices.c
+index 85961a0..b2db4aa 100644
+--- a/dix/devices.c
++++ b/dix/devices.c
+@@ -1366,7 +1366,7 @@ InitValuatorClassDeviceStruct(DeviceIntPtr dev, int numAxes, Atom *labels,
+     valc->numMotionEvents = numMotionEvents;
+     valc->motionHintWindow = NullWindow;
+ 
+-    if (mode & OutOfProximity)
++    if ((mode & OutOfProximity) && !dev->proximity)
+         InitProximityClassDeviceStruct(dev);
+ 
+     dev->valuator = valc;
+diff --git a/xkb/xkbInit.c b/xkb/xkbInit.c
+index 4e8e267..ed01114 100644
+--- a/xkb/xkbInit.c
++++ b/xkb/xkbInit.c
+@@ -574,7 +574,8 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
+     XkbUpdateActions(dev, xkb->min_key_code, XkbNumKeys(xkb), &changes,
+                      &check, &cause);
+ 
+-    InitFocusClassDeviceStruct(dev);
++    if (!dev->focus)
++        InitFocusClassDeviceStruct(dev);
+ 
+     xkbi->kbdProc = ctrl_func;
+     dev->kbdfeed->BellProc = bell_func;
+-- 
+1.8.2.1
+

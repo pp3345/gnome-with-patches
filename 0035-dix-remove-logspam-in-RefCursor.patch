@@ -1,0 +1,37 @@
+From ee84aff9b29c95a45b739844ea42e2ab501e30b3 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Mon, 27 May 2013 13:46:49 +1000
+Subject: [PATCH 35/35] dix: remove logspam in RefCursor()
+
+This shouldn't have been in the patch
+
+Reported-by: Colin Harrison <colin.harrison@virgin.net>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Keith Packard <keithp@keithp.com>
+Signed-off-by: Keith Packard <keithp@keithp.com>
+(cherry picked from commit c21344add2fc589df83b29be5831c36a372201bd)
+---
+ dix/cursor.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/dix/cursor.c b/dix/cursor.c
+index 0820b18..cd8305c 100644
+--- a/dix/cursor.c
++++ b/dix/cursor.c
+@@ -134,12 +134,8 @@ FreeCursor(pointer value, XID cid)
+ CursorPtr
+ RefCursor(CursorPtr cursor)
+ {
+-    ErrorF("%s ::::: cursor is %p", __func__, cursor);
+-    if (cursor) {
+-        xorg_backtrace();
++    if (cursor)
+         cursor->refcnt++;
+-    }
+-    ErrorF("\n");
+     return cursor;
+ }
+ 
+-- 
+1.8.2.1
+
