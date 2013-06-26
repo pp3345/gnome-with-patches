@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.14.1.901
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.14.2
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -106,11 +106,7 @@ Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
 
 # touch-grab-race condition bug backports
 # https://bugs.freedesktop.org/show_bug.cgi?id=56578
-Patch8000: 0001-dix-plug-memory-leak-in-freeing-TouchClass.patch
-Patch8001: 0002-dix-don-t-overwrite-proximity-focus-classes.patch
-Patch8002: 0003-os-Reset-input-buffer-s-ignoreBytes-field.patch
 Patch8003: 0004-dix-pre-scale-x-by-the-screen-device-resolution-rati.patch
-Patch8004: 0005-dix-fix-device-scaling-to-use-a-min-max-range.patch
 Patch8005: 0006-Xi-not-having-an-ownership-mask-does-not-mean-automa.patch
 Patch8006: 0007-dix-don-t-prepend-an-activated-passive-grab-to-the-l.patch
 Patch8007: 0008-Xi-if-we-delivered-a-TouchEnd-to-a-passive-grab-end-.patch
@@ -620,6 +616,13 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Jul 04 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-1
+- xorg-server 1.4.2
+- drop merged patches
+- Add a quirk to set the synaptics resolution to 0 by default. The pre-scale
+  patch in the server clashes with synaptics inaccurate resolution numbers,
+  causing the touchpad movement to be stunted.
+
 * Thu Jun 06 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.1.901-2
 - Backport the touch grab race condition patches from fdo #56578
 
