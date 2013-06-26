@@ -14,7 +14,7 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.8/%{name}-%{vers
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
 %define clutter_version 1.13.4
-%define gnome_bluetooth_version 3.9.0
+%define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.35.4
 %define mutter_version 3.9.3
