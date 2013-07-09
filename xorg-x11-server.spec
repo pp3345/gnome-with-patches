@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.2
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -141,6 +141,10 @@ Patch8034: 0035-dix-remove-logspam-in-RefCursor.patch
 # Bug 66720 - Server crash when ungrabbing a touch device on the second touch
 # https://bugs.freedesktop.org/show_bug.cgi?id=66720
 Patch8035: 0001-dix-when-ungrabbing-an-active-grab-accept-pointer-gr.patch
+
+# Bug 972095 - X server fails on 32-bit Fedora 19 with VirtualBox Guest Additions installed 
+# https://bugzilla.redhat.com/show_bug.cgi?id=972095
+Patch8036: 0001-glx-fix-uninitialized-var-in-__glXDRIscreenProbe.patch
 
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
 %if !0%{?rhel}
@@ -619,6 +623,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Jul 09 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-3
+- Fix crash on 32-bit with virtual box guest additions (#972095)
+
 * Tue Jul 09 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-2
 - Fix crash in gnome-shell when tapping a menu twice (fdo #66720)
 
