@@ -1,0 +1,46 @@
+From 43f732478606e952fe728a109adeb8edbb63fc13 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Tue, 9 Jul 2013 13:27:19 +1000
+Subject: [PATCH] dix: when ungrabbing an active grab, accept pointer grabs
+ (#66720)
+
+Ungrabbing a device during an active touch grab rejects the grab. Ungrabbing
+a device during an active pointer grab accepts the grab.
+
+Rejection is not really an option for a pointer-emulated grab, if a client
+has a button mask on the window it would get a ButtonPress emulated after
+UngrabDevice. That is against the core grab behaviour.
+
+X.Org Bug 66720 <http://bugs.freedesktop.org/show_bug.cgi?id=66720>
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ dix/events.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/dix/events.c b/dix/events.c
+index e5db348..de41d6f 100644
+--- a/dix/events.c
++++ b/dix/events.c
+@@ -1522,13 +1522,16 @@ DeactivatePointerGrab(DeviceIntPtr mouse)
+     for (i = 0; !wasPassive && mouse->touch && i < mouse->touch->num_touches; i++) {
+         TouchPointInfoPtr ti = mouse->touch->touches + i;
+         if (ti->active && TouchResourceIsOwner(ti, grab_resource)) {
++            int mode = XIRejectTouch;
+             /* Rejecting will generate a TouchEnd, but we must not
+                emulate a ButtonRelease here. So pretend the listener
+                already has the end event */
+             if (grab->grabtype == CORE || grab->grabtype == XI ||
+-                    !xi2mask_isset(mouse->deviceGrab.grab->xi2mask, mouse, XI_TouchBegin))
++                    !xi2mask_isset(mouse->deviceGrab.grab->xi2mask, mouse, XI_TouchBegin)) {
++                mode = XIAcceptTouch;
+                 ti->listeners[0].state = LISTENER_HAS_END;
+-            TouchListenerAcceptReject(mouse, ti, 0, XIRejectTouch);
++            }
++            TouchListenerAcceptReject(mouse, ti, 0, mode);
+         }
+     }
+ 
+-- 
+1.8.2.1
+
