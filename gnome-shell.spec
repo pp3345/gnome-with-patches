@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.9.3
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -182,6 +182,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Jul 10 2013 Milan Crha <mcrha@redhat.com> - 3.9.3-3
+- Rebuild against newer evolution-data-server
+
 * Wed Jul 10 2013 Kalev Lember <kalevlember@gmail.com> - 3.9.3-2
 - Add a downstream patch to revert back to bluez 4
 
