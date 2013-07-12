@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.2
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -86,6 +86,7 @@ Patch6030: xserver-1.6.99-right-of.patch
 
 # upstream submitted
 Patch6052: 0001-randr-upstream-set-changed-fixes.patch
+Patch6053: 0001-gpu-screen-upstream-fixes.patch
 
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
@@ -623,6 +624,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Jul 12 2013 Dave Airlie <airlied@redhat.com> 1.14.2-4
+- reapply dropped patch to fix regression (#981953)
+
 * Tue Jul 09 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-3
 - Fix crash on 32-bit with virtual box guest additions (#972095)
 
