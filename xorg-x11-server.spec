@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.2
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -142,10 +142,14 @@ Patch8034: 0035-dix-remove-logspam-in-RefCursor.patch
 # Bug 66720 - Server crash when ungrabbing a touch device on the second touch
 # https://bugs.freedesktop.org/show_bug.cgi?id=66720
 Patch8035: 0001-dix-when-ungrabbing-an-active-grab-accept-pointer-gr.patch
+Patch8037: 0001-dix-UpdateTouchesForGrab-must-only-free-the-listener.patch
 
 # Bug 972095 - X server fails on 32-bit Fedora 19 with VirtualBox Guest Additions installed 
 # https://bugzilla.redhat.com/show_bug.cgi?id=972095
 Patch8036: 0001-glx-fix-uninitialized-var-in-__glXDRIscreenProbe.patch
+
+# Bug 962572 - X-sandboxes are not resizeable
+Patch8038: 0001-ephyr-Add-resizeable-option.patch
 
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
 %if !0%{?rhel}
@@ -624,6 +628,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Jul 15 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-5
+- Fix logspam when trying to free a non-existant grab.
+- Update touch patch to upstream version (from fdo #66720)
+- re-add xephyr resizable patch, got lost in rebase (#976995)
+
 * Fri Jul 12 2013 Dave Airlie <airlied@redhat.com> 1.14.2-4
 - reapply dropped patch to fix regression (#981953)
 

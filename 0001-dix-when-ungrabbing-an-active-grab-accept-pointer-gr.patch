@@ -1,4 +1,4 @@
-From 43f732478606e952fe728a109adeb8edbb63fc13 Mon Sep 17 00:00:00 2001
+From 8eeaa74bc241acb41f1d3ed64971e0b01e794776 Mon Sep 17 00:00:00 2001
 From: Peter Hutterer <peter.hutterer@who-t.net>
 Date: Tue, 9 Jul 2013 13:27:19 +1000
 Subject: [PATCH] dix: when ungrabbing an active grab, accept pointer grabs
@@ -14,15 +14,70 @@ UngrabDevice. That is against the core grab behaviour.
 X.Org Bug 66720 <http://bugs.freedesktop.org/show_bug.cgi?id=66720>
 
 Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Jasper St. Pierre <jstpierre@mecheye.net>
 ---
- dix/events.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ Xi/exevents.c | 33 ++++++++++++++++++++++-----------
+ dix/events.c  | 11 +++++++++--
+ 2 files changed, 31 insertions(+), 13 deletions(-)
+
+diff --git a/Xi/exevents.c b/Xi/exevents.c
+index 2bbc6f0..fd4b80c 100644
+--- a/Xi/exevents.c
++++ b/Xi/exevents.c
+@@ -1223,9 +1223,13 @@ ProcessTouchOwnershipEvent(TouchOwnershipEvent *ev,
+     else if (ev->reason == XIAcceptTouch) {
+         int i;
+
+-        /* Go through the motions of ending the touch if the listener has
++
++        /* For pointer-emulated listeners that ungrabbed the active grab,
++         * the state was forced to LISTENER_HAS_END. Still go
++         * through the motions of ending the touch if the listener has
+          * already seen the end. This ensures that the touch record is ended in
+-         * the server. */
++         * the server.
++         */
+         if (ti->listeners[0].state == LISTENER_HAS_END)
+             TouchEmitTouchEnd(dev, ti, TOUCH_ACCEPT, ti->listeners[0].listener);
+
+@@ -1883,16 +1887,23 @@ DeliverTouchEndEvent(DeviceIntPtr dev, TouchPointInfoPtr ti, InternalEvent *ev,
+
+     if (listener->type == LISTENER_POINTER_REGULAR ||
+         listener->type == LISTENER_POINTER_GRAB) {
+-        rc = DeliverTouchEmulatedEvent(dev, ti, ev, listener, client, win,
+-                                       grab, xi2mask);
++        /* Note: If the active grab was ungrabbed, we already changed the
++         * state to LISTENER_HAS_END but still get here. So we mustn't
++         * actually send the event.
++         * This is part two of the hack in DeactivatePointerGrab
++         */
++        if (listener->state != LISTENER_HAS_END) {
++            rc = DeliverTouchEmulatedEvent(dev, ti, ev, listener, client, win,
++                                           grab, xi2mask);
+
+-         /* Once we send a TouchEnd to a legacy listener, we're already well
+-          * past the accepting/rejecting stage (can only happen on
+-          * GrabModeSync + replay. This listener now gets the end event,
+-          * and we can continue.
+-          */
+-        if (rc == Success)
+-            listener->state = LISTENER_HAS_END;
++             /* Once we send a TouchEnd to a legacy listener, we're already well
++              * past the accepting/rejecting stage (can only happen on
++              * GrabModeSync + replay. This listener now gets the end event,
++              * and we can continue.
++              */
++            if (rc == Success)
++                listener->state = LISTENER_HAS_END;
++        }
+         goto out;
+     }
 
 diff --git a/dix/events.c b/dix/events.c
-index e5db348..de41d6f 100644
+index e5db348..03b2d2e 100644
 --- a/dix/events.c
 +++ b/dix/events.c
-@@ -1522,13 +1522,16 @@ DeactivatePointerGrab(DeviceIntPtr mouse)
+@@ -1522,13 +1522,20 @@ DeactivatePointerGrab(DeviceIntPtr mouse)
      for (i = 0; !wasPassive && mouse->touch && i < mouse->touch->num_touches; i++) {
          TouchPointInfoPtr ti = mouse->touch->touches + i;
          if (ti->active && TouchResourceIsOwner(ti, grab_resource)) {
@@ -34,6 +89,10 @@ index e5db348..de41d6f 100644
 -                    !xi2mask_isset(mouse->deviceGrab.grab->xi2mask, mouse, XI_TouchBegin))
 +                    !xi2mask_isset(mouse->deviceGrab.grab->xi2mask, mouse, XI_TouchBegin)) {
 +                mode = XIAcceptTouch;
++                /* NOTE: we set the state here, but
++                 * ProcessTouchOwnershipEvent() will still call
++                 * TouchEmitTouchEnd for this listener. The other half of
++                 * this hack is in DeliverTouchEndEvent */
                  ti->listeners[0].state = LISTENER_HAS_END;
 -            TouchListenerAcceptReject(mouse, ti, 0, XIRejectTouch);
 +            }
