@@ -19,7 +19,7 @@
 %global videodrv_major 14
 %global videodrv_minor 1
 %global xinput_major 19
-%global xinput_minor 1
+%global xinput_minor 2
 %global extension_major 7
 %global extension_minor 0
 %endif
@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.2
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -105,9 +105,12 @@ Patch7052: 0001-xf86-return-NULL-for-compat-output-if-no-outputs.patch
 # mustard: make the default queue length bigger to calm abrt down
 Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
 
+# scale events from abs devices in relative mode to something useful
+Patch8003: 0004-dix-pre-scale-x-by-the-screen-device-resolution-rati.patch
+Patch8004: 0005-dix-scale-y-back-instead-of-x-up-when-pre-scaling-co.patch
+
 # touch-grab-race condition bug backports
 # https://bugs.freedesktop.org/show_bug.cgi?id=56578
-Patch8003: 0004-dix-pre-scale-x-by-the-screen-device-resolution-rati.patch
 Patch8005: 0006-Xi-not-having-an-ownership-mask-does-not-mean-automa.patch
 Patch8006: 0007-dix-don-t-prepend-an-activated-passive-grab-to-the-l.patch
 Patch8007: 0008-Xi-if-we-delivered-a-TouchEnd-to-a-passive-grab-end-.patch
@@ -628,6 +631,12 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Jul 19 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-6
+- Add new version of the resolution-based scaling patch - scale y down
+  instead of x up. That gives almost the same behaviour as current
+  synaptics. Drop the synaptics quirk, this needs to be now removed from the
+  driver.
+
 * Mon Jul 15 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-5
 - Fix logspam when trying to free a non-existant grab.
 - Update touch patch to upstream version (from fdo #66720)
