@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.2
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Release:   7%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -153,6 +153,9 @@ Patch8036: 0001-glx-fix-uninitialized-var-in-__glXDRIscreenProbe.patch
 
 # Bug 962572 - X-sandboxes are not resizeable
 Patch8038: 0001-ephyr-Add-resizeable-option.patch
+
+# Fix cursor jumps in gimp
+Patch8039: 0001-dix-set-the-valuator-mask-to-ensure-XI-1.x-events-ha.patch
 
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
 %if !0%{?rhel}
@@ -631,6 +634,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Jul 22 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-7
+- Fix erroneous valuator 1 coordinate when an absolute device in relative
+  mode doesn't send y coordinates.
+
 * Fri Jul 19 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-6
 - Add new version of the resolution-based scaling patch - scale y down
   instead of x up. That gives almost the same behaviour as current
