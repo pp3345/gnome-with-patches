@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.9.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -182,6 +182,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Mon Jul 29 2013 Adam Williamson <awilliam@redhat.com> - 3.9.4-2
+- rebuild against updated evolution-data-server
+
 * Wed Jul 10 2013 Florian Müllner <fmuellner@redhat.com> - 3.9.4-1
 - Update to 3.9.4
 
