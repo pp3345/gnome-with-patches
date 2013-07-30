@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.2
-Release:   8%{?gitdate:.%{gitdate}}%{dist}
+Release:   9%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -160,6 +160,13 @@ Patch8039: 0001-dix-set-the-valuator-mask-to-ensure-XI-1.x-events-ha.patch
 # Fix multiple monitors in reverse optimus configurations
 Patch8040: 0001-rrcrtc-brackets-are-hard-lets-go-shopping.patch
 Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
+
+# Fix active touch grabs
+Patch8042: 0001-dix-check-the-xi2mask-not-the-grab-type-for-touch-li.patch
+# Fix failures for XI2 clients using other XI2 libraries (with different XI2
+# version support)
+Patch8043: 0003-Xi-Allow-clients-to-ask-for-2.3-and-then-2.2-without.patch
+
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
 %if !0%{?rhel}
 Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
@@ -637,6 +644,11 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Jul 30 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-9
+- Fix active touch grabs, second touchpoint didn't get sent to client
+- Fix version mismatch for XI 2.2+ clients (where a library supports > 2.2
+  but another version than the originally requested one).
+
 * Tue Jul 30 2013 Dave Airlie <airlied@redhat.com> 1.14.2-8
 - fixes for multi-monitor reverse optimus
 
