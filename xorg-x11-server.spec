@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.2
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -157,6 +157,9 @@ Patch8038: 0001-ephyr-Add-resizeable-option.patch
 # Fix cursor jumps in gimp
 Patch8039: 0001-dix-set-the-valuator-mask-to-ensure-XI-1.x-events-ha.patch
 
+# Fix multiple monitors in reverse optimus configurations
+Patch8040: 0001-rrcrtc-brackets-are-hard-lets-go-shopping.patch
+Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
 %if !0%{?rhel}
 Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
@@ -634,6 +637,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Jul 30 2013 Dave Airlie <airlied@redhat.com> 1.14.2-8
+- fixes for multi-monitor reverse optimus
+
 * Mon Jul 22 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-7
 - Fix erroneous valuator 1 coordinate when an absolute device in relative
   mode doesn't send y coordinates.

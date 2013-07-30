@@ -1,0 +1,42 @@
+From dd0c31d6b7559bb0dda6283a5d345d537f1d6b42 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@gmail.com>
+Date: Tue, 30 Jul 2013 13:17:45 +1000
+Subject: [PATCH] rrcrtc: brackets are hard, lets go shopping.
+
+Slaving two outputs on a secondary GPU to a primary GPU testing
+picked this up, in that we'd try to resize to the totally the
+wrong thing, then as usual segfault in the rotation code.
+
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+---
+ randr/rrcrtc.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/randr/rrcrtc.c b/randr/rrcrtc.c
+index 2f76b62..40b01f0 100644
+--- a/randr/rrcrtc.c
++++ b/randr/rrcrtc.c
+@@ -474,7 +474,7 @@ rrCheckPixmapBounding(ScreenPtr pScreen,
+ 
+     xorg_list_for_each_entry(slave, &pScreen->output_slave_list, output_head) {
+         rrScrPriv(slave);
+-        for (c = 0; c < pScrPriv->numCrtcs; c++)
++        for (c = 0; c < pScrPriv->numCrtcs; c++) {
+             if (pScrPriv->crtcs[c] == rr_crtc) {
+                 newbox.x1 = x;
+                 newbox.x2 = x + w;
+@@ -489,8 +489,9 @@ rrCheckPixmapBounding(ScreenPtr pScreen,
+                 newbox.y1 = pScrPriv->crtcs[c]->y;
+                 newbox.y2 = pScrPriv->crtcs[c]->y + pScrPriv->crtcs[c]->mode->mode.height;
+             }
+-        RegionInit(&new_crtc_region, &newbox, 1);
+-        RegionUnion(&total_region, &total_region, &new_crtc_region);
++	    RegionInit(&new_crtc_region, &newbox, 1);
++	    RegionUnion(&total_region, &total_region, &new_crtc_region);
++	}
+     }
+ 
+     newsize = RegionExtents(&total_region);
+-- 
+1.8.2.1
+
