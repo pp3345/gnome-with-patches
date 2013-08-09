@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.9.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -13,11 +13,8 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.9/%{name}-%{vers
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
-# Revert back to bluez 4 as a downstream patch
-Patch2: gnome-shell-revert-bluez5-port.patch
-
 %define clutter_version 1.13.4
-%define gnome_bluetooth_version 1:3.1.0
+%define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.35.4
 %define mutter_version 3.9.5
@@ -116,7 +113,6 @@ easy to use experience.
 %prep
 %setup -q
 %patch1 -p1 -b .firefox
-%patch2 -p1 -b .revert_bluez5 -R
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -182,6 +178,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Sat Aug 10 2013 Kalev Lember <kalevlember@gmail.com> - 3.9.5-2
+- Drop the bluez revert patch as we now have new enough gnome-bluetooth
+
 * Tue Jul 30 2013 Florian Müllner <fmuellner@redhat.com> - 3.9.5
 - Update to 3.9.5
 
