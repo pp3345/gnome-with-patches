@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.9.5
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -178,6 +178,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Mon Aug 19 2013 Adam Williamson <awilliam@redhat.com> - 3.9.5-3
+- Rebuild for new e-d-s
+
 * Sat Aug 10 2013 Kalev Lember <kalevlember@gmail.com> - 3.9.5-2
 - Drop the bluez revert patch as we now have new enough gnome-bluetooth
 
