@@ -1,6 +1,6 @@
 Name:          gjs
-Version:       1.37.4
-Release:       2%{?dist}
+Version:       1.37.6
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -11,7 +11,7 @@ Group:         System Environment/Libraries
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           http://live.gnome.org/Gjs/
 #VCS:          git://git.gnome.org/gjs
-Source0:       http://download.gnome.org/sources/%{name}/1.36/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/1.37/%{name}-%{version}.tar.xz
 
 BuildRequires: mozjs17-devel
 BuildRequires: cairo-gobject-devel
@@ -77,6 +77,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Thu Aug 22 2013 Kalev Lember <kalevlember@gmail.com> - 1.37.6-1
+- Update to 1.37.6
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.37.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
