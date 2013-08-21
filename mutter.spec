@@ -1,6 +1,6 @@
 Name:          mutter
-Version:       3.9.5
-Release:       2%{?dist}
+Version:       3.9.90
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -11,7 +11,7 @@ Source0:       http://download.gnome.org/sources/%{name}/3.9/%{name}-%{version}.
 BuildRequires: clutter-devel >= 1.13.5
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
-BuildRequires: gtk3-devel >= 3.3.3
+BuildRequires: gtk3-devel >= 3.9.11
 BuildRequires: pkgconfig
 BuildRequires: gobject-introspection-devel
 BuildRequires: libSM-devel
@@ -133,6 +133,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Aug 22 2013 Florian Müllner <fmuellner@redhat.com> - 3.9.90-1
+- Update to 3.9.90
+
 * Fri Aug 09 2013 Kalev Lember <kalevlember@gmail.com> - 3.9.5-2
 - Rebuilt for cogl 1.15.4 soname bump
 
