@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.9.5
-Release:        3%{?dist}
+Version:        3.9.90
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -17,7 +17,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.35.4
-%define mutter_version 3.9.5
+%define mutter_version 3.9.90
 %define eds_version 3.5.3
 %define gnome_desktop_version 3.7.90
 %define gnome_menus_version 3.5.3
@@ -178,6 +178,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Aug 22 2013 Florian Müllner <fmuellner@redhat.com> - 3.9.90-1
+- Update to 3.9.90
+
 * Mon Aug 19 2013 Adam Williamson <awilliam@redhat.com> - 3.9.5-3
 - Rebuild for new e-d-s
 
