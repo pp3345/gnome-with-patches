@@ -11,6 +11,7 @@ Source0:       http://download.gnome.org/sources/%{name}/3.9/%{name}-%{version}.
 BuildRequires: clutter-devel >= 1.13.5
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
+BuildRequires: gnome-desktop3-devel
 BuildRequires: gtk3-devel >= 3.9.11
 BuildRequires: pkgconfig
 BuildRequires: gobject-introspection-devel
@@ -22,8 +23,8 @@ BuildRequires: libXrandr-devel
 BuildRequires: libXrender-devel
 BuildRequires: libXcursor-devel
 BuildRequires: libXcomposite-devel
+BuildRequires: upower-devel
 BuildRequires: zenity
-BuildRequires: gnome-doc-utils
 BuildRequires: desktop-file-utils
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common intltool
@@ -32,7 +33,7 @@ BuildRequires: gsettings-desktop-schemas-devel
 
 # Make sure this can't be installed with an old gnome-shell build because of
 # an ABI change.
-Conflicts: gnome-shell < 3.7.2
+Conflicts: gnome-shell < 3.9.90
 
 Requires: control-center-filesystem
 Requires: startup-notification
@@ -110,10 +111,8 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %doc %{_mandir}/man1/mutter.1.gz
 %doc %{_mandir}/man1/mutter-message.1.gz
 %{_bindir}/mutter
-%{_bindir}/mutter-message
 %{_datadir}/applications/*.desktop
 %{_datadir}/gnome/wm-properties/mutter-wm.desktop
-%{_datadir}/mutter
 %{_libdir}/lib*.so.*
 %{_libdir}/mutter/
 %{_datadir}/GConf/gsettings/mutter-schemas.convert
@@ -122,8 +121,6 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 
 
 %files devel
-%{_bindir}/mutter-theme-viewer
-%{_bindir}/mutter-window-demo
 %{_includedir}/*
 %{_libdir}/lib*.so
 %{_libdir}/pkgconfig/*
