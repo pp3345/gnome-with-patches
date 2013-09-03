@@ -13,7 +13,7 @@
 +++ b/js/ui/appFavorites.js
 @@ -24,6 +24,12 @@ const AppFavorites = new Lang.Class({
  
-     _reload: function() {
+     reload: function() {
          let ids = global.settings.get_strv(this.FAVORITE_APPS_KEY);
 +        // Fedora: Replace old mozilla-firefox.desktop with firefox.desktop,
 +        for (let i = 0; i < ids.length; i++) {
