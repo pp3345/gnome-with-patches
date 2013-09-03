@@ -130,14 +130,6 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 
 %find_lang %{name}
 
-%ifnarch s390 s390x ppc ppc64 ppc64p7
-# The libdir rpath breaks nvidia binary only folks, so we remove it.
-# See bug 716572
-# skip on s390(x), workarounds a chrpath issue
-chrpath -r %{_libdir}/gnome-shell:%{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_bindir}/gnome-shell
-chrpath -r %{_libdir}/gnome-bluetooth $RPM_BUILD_ROOT%{_libdir}/gnome-shell/libgnome-shell.so
-%endif
-
 %preun
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null ||:
 
