@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.14.2
-Release:   9%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.14.3
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -86,7 +86,6 @@ Patch6030: xserver-1.6.99-right-of.patch
 
 # upstream submitted
 Patch6052: 0001-randr-upstream-set-changed-fixes.patch
-Patch6053: 0001-gpu-screen-upstream-fixes.patch
 
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
@@ -109,63 +108,12 @@ Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
 Patch8003: 0004-dix-pre-scale-x-by-the-screen-device-resolution-rati.patch
 Patch8004: 0005-dix-scale-y-back-instead-of-x-up-when-pre-scaling-co.patch
 
-# touch-grab-race condition bug backports
-# https://bugs.freedesktop.org/show_bug.cgi?id=56578
-Patch8005: 0006-Xi-not-having-an-ownership-mask-does-not-mean-automa.patch
-Patch8006: 0007-dix-don-t-prepend-an-activated-passive-grab-to-the-l.patch
-Patch8007: 0008-Xi-if-we-delivered-a-TouchEnd-to-a-passive-grab-end-.patch
-Patch8008: 0009-Xi-update-the-core-listener-state-if-we-delivered-th.patch
-Patch8009: 0010-Xi-fix-lookup-in-ActivateEarlyAccept.patch
-Patch8010: 0011-Xi-if-a-passive-async-grab-is-activated-from-an-emul.patch
-Patch8011: 0012-Xi-return-Success-from-DeliverTouchEmulatedEvent-if-.patch
-Patch8012: 0013-Xi-use-a-temp-variable-for-the-new-listener.patch
-Patch8013: 0014-Xi-save-state-for-early-acceptance.patch
-Patch8014: 0015-Xi-when-punting-to-a-new-owner-always-create-TouchEn.patch
-Patch8015: 0016-Xi-use-public.processInputProc-to-replay-the-touch-h.patch
-Patch8016: 0017-Xi-Don-t-emit-a-TouchEnd-event-to-a-frozen-device.patch
-Patch8017: 0018-dix-move-EmitTouchEnd-to-touch.c.patch
-Patch8018: 0019-dix-XAllowEvents-on-a-touch-event-means-accepting-it.patch
-Patch8019: 0020-dix-invert-a-loop-condition.patch
-Patch8020: 0021-dix-use-a-tmp-variable-for-the-to-be-removed-touch-l.patch
-Patch8021: 0022-dix-drop-DeviceIntRec-s-activeGrab-struct.patch
-Patch8022: 0023-dix-use-a-temporary-variable-for-listeners-0.patch
-Patch8023: 0024-dix-freeing-a-null-grab-is-a-bug-complain-if-doing-s.patch
-Patch8024: 0025-dix-AllocGrab-can-copy-if-an-argument-is-passed-in.patch
-Patch8025: 0026-dix-always-copy-grabs-don-t-reference-them.patch
-Patch8026: 0027-dix-remove-all-listeners-when-freeing-a-touch.patch
-Patch8027: 0028-Move-TouchListenerGone-call-to-CloseDownClient.patch
-Patch8028: 0029-Xi-check-for-HAS_ACCEPTED-only-for-grab-listeners.patch
-Patch8029: 0030-dix-free-the-old-grab-when-activating-a-new-grab.patch
-Patch8030: 0031-dix-fix-cursor-refcounting.patch
-Patch8031: 0032-Xi-fix-warning-remove-unused-rc.patch
-Patch8032: 0033-dix-call-UpdateDeviceState-for-emulated-TouchEndEven.patch
-Patch8033: 0034-Abstract-cursor-refcounting.patch
-Patch8034: 0035-dix-remove-logspam-in-RefCursor.patch
-
-# Bug 66720 - Server crash when ungrabbing a touch device on the second touch
-# https://bugs.freedesktop.org/show_bug.cgi?id=66720
-Patch8035: 0001-dix-when-ungrabbing-an-active-grab-accept-pointer-gr.patch
-Patch8037: 0001-dix-UpdateTouchesForGrab-must-only-free-the-listener.patch
-
-# Bug 972095 - X server fails on 32-bit Fedora 19 with VirtualBox Guest Additions installed 
-# https://bugzilla.redhat.com/show_bug.cgi?id=972095
-Patch8036: 0001-glx-fix-uninitialized-var-in-__glXDRIscreenProbe.patch
-
 # Bug 962572 - X-sandboxes are not resizeable
 Patch8038: 0001-ephyr-Add-resizeable-option.patch
-
-# Fix cursor jumps in gimp
-Patch8039: 0001-dix-set-the-valuator-mask-to-ensure-XI-1.x-events-ha.patch
 
 # Fix multiple monitors in reverse optimus configurations
 Patch8040: 0001-rrcrtc-brackets-are-hard-lets-go-shopping.patch
 Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
-
-# Fix active touch grabs
-Patch8042: 0001-dix-check-the-xi2mask-not-the-grab-type-for-touch-li.patch
-# Fix failures for XI2 clients using other XI2 libraries (with different XI2
-# version support)
-Patch8043: 0003-Xi-Allow-clients-to-ask-for-2.3-and-then-2.2-without.patch
 
 # upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
 %if !0%{?rhel}
@@ -644,6 +592,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Sep 16 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.3-1
+- xserver 1.14.3
+
 * Tue Jul 30 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-9
 - Fix active touch grabs, second touchpoint didn't get sent to client
 - Fix version mismatch for XI 2.2+ clients (where a library supports > 2.2
