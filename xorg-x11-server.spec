@@ -224,6 +224,7 @@ Obsoletes: xorg-x11-drv-mutouch <= 1.3.0-2.fc16
 Obsoletes: xorg-x11-drv-penmount <= 1.5.0-3.fc16
 %if 0%{?fedora} > 17
 # Dropped from F18, use a video card instead
+# in F17 updates-testing: 0.7.4-1.fc17
 Obsoletes: xorg-x11-drv-ark <= 0.7.3-15.fc17
 Obsoletes: xorg-x11-drv-chips <= 1.2.4-8.fc18
 Obsoletes: xorg-x11-drv-s3 <= 0.6.3-14.fc17
