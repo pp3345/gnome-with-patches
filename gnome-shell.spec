@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.9.92
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -126,6 +126,7 @@ make install DESTDIR=$RPM_BUILD_ROOT
 rm -rf %{buildroot}/%{_libdir}/mozilla/plugins/*.la
 
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-wayland.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-extension-prefs.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.desktop
 
@@ -140,11 +141,13 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %files -f %{name}.lang
 %doc COPYING README
 %{_bindir}/gnome-shell
+%{_bindir}/gnome-shell-wayland
 %{_bindir}/gnome-shell-extension-tool
 %{_bindir}/gnome-shell-perf-tool
 %{_bindir}/gnome-shell-extension-prefs
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/applications/gnome-shell.desktop
+%{_datadir}/applications/gnome-shell-wayland.desktop
 %{_datadir}/applications/gnome-shell-extension-prefs.desktop
 %{_datadir}/applications/evolution-calendar.desktop
 %{_datadir}/gnome-control-center/keybindings/50-gnome-shell-system.xml
@@ -170,7 +173,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
-* Wed Sep 18 2013 Matthias Clasen <mclasen@redhat.com> - 3.9.92-2
+* Wed Sep 18 2013 Matthias Clasen <mclasen@redhat.com> - 3.9.92-3
 - Build against mutter-wayland
 
 * Tue Sep 17 2013 Florian Müllner <fmuellner@redhat.com> - 3.9.92-1
