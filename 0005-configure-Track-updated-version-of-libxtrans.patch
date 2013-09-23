@@ -1,0 +1,35 @@
+From 3e23ef6269cfbcd2a3fb7e56bfed347ad6c1f3b9 Mon Sep 17 00:00:00 2001
+From: Tiago Vignatti <tiago.vignatti@intel.com>
+Date: Thu, 22 Nov 2012 20:22:56 -0200
+Subject: [PATCH 05/30] configure: Track updated version of libxtrans
+
+XWayland fails to initialize in some systems complaining about realloc
+problems on libxtrans (when ListenOnOpenFD() is called). It got fixed in
+libxtrans version 1.2.7, more specifically:
+
+    commit 6086f6c1d0e0a1c9e590879acb2319dea0eb6e96
+    Author: Robert Bragg <robert@linux.intel.com>
+    Date:   Mon Dec 12 00:30:43 2011 +0000
+
+Reported-by: nerdopolis, Prf_Jakob, spitzak among others at #wayland channel
+Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index ac24cb6..737025c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -802,7 +802,7 @@ FIXESPROTO="fixesproto >= 5.0"
+ DAMAGEPROTO="damageproto >= 1.1"
+ XCMISCPROTO="xcmiscproto >= 1.2.0"
+ BIGREQSPROTO="bigreqsproto >= 1.1.0"
+-XTRANS="xtrans >= 1.2.2"
++XTRANS="xtrans >= 1.2.7"
+ 
+ dnl List of libraries that require a specific version
+ LIBAPPLEWM="applewm >= 1.4"
+-- 
+1.8.3.1
+

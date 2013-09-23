@@ -1,0 +1,81 @@
+From 0a6e38c446258060bd49536f0ddad165c6fd367e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Date: Tue, 9 Apr 2013 17:11:03 -0400
+Subject: [PATCH 03/30] xkb: Split out code to start and finish xkbcomp
+
+Using the context struct from previous commit, we can now split out
+code to start xkbcomp and to finish and clean up after it.
+
+Reviewed-by: Daniel Stone <daniel@fooishbar.org>
+---
+ xkb/ddxLoad.c | 39 ++++++++++++++++++++++++++++-----------
+ 1 file changed, 28 insertions(+), 11 deletions(-)
+
+diff --git a/xkb/ddxLoad.c b/xkb/ddxLoad.c
+index 5da3a35..001ff46 100644
+--- a/xkb/ddxLoad.c
++++ b/xkb/ddxLoad.c
+@@ -99,10 +99,7 @@ typedef struct XkbCompContext {
+ } XkbCompContextRec, *XkbCompContextPtr;
+ 
+ static Bool
+-XkbDDXCompileKeymapByNames(XkbDescPtr xkb,
+-                           XkbComponentNamesPtr names,
+-                           unsigned want,
+-                           unsigned need, XkbCompContextPtr ctx)
++StartXkbComp(XkbCompContextPtr ctx)
+ {
+     char xkm_output_dir[PATH_MAX];
+ 
+@@ -168,14 +165,15 @@ XkbDDXCompileKeymapByNames(XkbDescPtr xkb,
+     ctx->out = fopen(ctx->tmpname, "w");
+ #endif
+ 
++    return ctx->out != NULL;
++}
++
++static Bool
++FinishXkbComp(XkbCompContextPtr ctx)
++{
++    if (!ctx->buf)
++	return FALSE;
+     if (ctx->out != NULL) {
+-#ifdef DEBUG
+-        if (xkbDebugFlags) {
+-            ErrorF("[xkb] XkbDDXCompileKeymapByNames compiling keymap:\n");
+-            XkbWriteXKBKeymapForNames(stderr, names, xkb, want, need);
+-        }
+-#endif
+-        XkbWriteXKBKeymapForNames(ctx->out, names, xkb, want, need);
+ #ifndef WIN32
+         if (Pclose(ctx->out) == 0)
+ #else
+@@ -209,6 +207,25 @@ XkbDDXCompileKeymapByNames(XkbDescPtr xkb,
+     return FALSE;
+ }
+ 
++static Bool
++XkbDDXCompileKeymapByNames(XkbDescPtr xkb,
++                           XkbComponentNamesPtr names,
++                           unsigned want,
++                           unsigned need, XkbCompContextPtr ctx)
++{
++    if (StartXkbComp(ctx)) {
++#ifdef DEBUG
++        if (xkbDebugFlags) {
++            ErrorF("[xkb] XkbDDXCompileKeymapByNames compiling keymap:\n");
++            XkbWriteXKBKeymapForNames(stderr, names, xkb, want, need);
++        }
++#endif
++        XkbWriteXKBKeymapForNames(ctx->out, names, xkb, want, need);
++    }
++
++    return FinishXkbComp(ctx);
++}
++
+ static FILE *
+ XkbDDXOpenConfigFile(char *mapName, char *fileNameRtrn, int fileNameRtrnLen)
+ {
+-- 
+1.8.3.1
+

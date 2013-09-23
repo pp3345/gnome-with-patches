@@ -1,0 +1,37 @@
+From 007b3b673d7bef6138b3e8a6c2342c1f569c8de8 Mon Sep 17 00:00:00 2001
+From: Daniel Stone <daniel@fooishbar.org>
+Date: Wed, 7 Nov 2012 17:22:42 +1100
+Subject: [PATCH 18/30] XWayland: Don't send out-of-bounds damage co-ordinates
+
+Make sure we don't send damage regions larger than the buffer.
+
+Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+---
+ hw/xfree86/xwayland/xwayland.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/hw/xfree86/xwayland/xwayland.c b/hw/xfree86/xwayland/xwayland.c
+index 2047a85..6a515f5 100644
+--- a/hw/xfree86/xwayland/xwayland.c
++++ b/hw/xfree86/xwayland/xwayland.c
+@@ -346,15 +346,14 @@ void xwl_screen_post_damage(struct xwl_screen *xwl_screen)
+ 
+     xorg_list_for_each_entry(xwl_window, &xwl_screen->damage_window_list,
+ 			     link_damage) {
+-
+ 	region = DamageRegion(xwl_window->damage);
+ 	count = RegionNumRects(region);
+ 	for (i = 0; i < count; i++) {
+ 	    box = &RegionRects(region)[i];
+ 	    wl_surface_damage(xwl_window->surface,
+ 			      box->x1, box->y1,
+-			      box->x2 - box->x1 + 1,
+-			      box->y2 - box->y1 + 1);
++			      box->x2 - box->x1,
++			      box->y2 - box->y1);
+ 	}
+ 	wl_surface_attach(xwl_window->surface,
+ 			  xwl_window->buffer,
+-- 
+1.8.3.1
+

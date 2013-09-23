@@ -1,0 +1,27 @@
+From 6c2b9647f370b0381756b2b2438c4d69d3327c92 Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagn@redhat.com>
+Date: Fri, 13 Sep 2013 15:52:29 +0200
+Subject: [PATCH 24/30] Add XORG_WAYLAND symbol to xorg-config.h.in
+
+We manually duplicate symbols that we want in both xorg-server.h and
+xorg-config.h.  XORG_WAYLAND is one such symbol, but it was missing from
+xorg-config.h.in.
+---
+ include/xorg-config.h.in | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/include/xorg-config.h.in b/include/xorg-config.h.in
+index a71b25d..b77e72c 100644
+--- a/include/xorg-config.h.in
++++ b/include/xorg-config.h.in
+@@ -139,4 +139,7 @@
+ /* Have X server platform bus support */
+ #undef XSERVER_PLATFORM_BUS
+ 
++/* Building Xorg server. */
++#undef XORG_WAYLAND
++
+ #endif /* _XORG_CONFIG_H_ */
+-- 
+1.8.3.1
+

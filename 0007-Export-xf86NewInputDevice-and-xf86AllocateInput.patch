@@ -1,0 +1,44 @@
+From a097d8905dcfeb799b003faf6aeea3826b5bb35b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Date: Thu, 21 Jul 2011 09:55:46 -0700
+Subject: [PATCH 07/30] Export xf86NewInputDevice and xf86AllocateInput
+
+---
+ hw/xfree86/common/xf86Xinput.c | 2 +-
+ hw/xfree86/common/xf86Xinput.h | 7 +++----
+ 2 files changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Xinput.c b/hw/xfree86/common/xf86Xinput.c
+index 26c03c6..7669ee0 100644
+--- a/hw/xfree86/common/xf86Xinput.c
++++ b/hw/xfree86/common/xf86Xinput.c
+@@ -811,7 +811,7 @@ xf86InputDevicePostInit(DeviceIntPtr dev)
+  *
+  * @return Success or an error code
+  */
+-_X_INTERNAL int
++int
+ xf86NewInputDevice(InputInfoPtr pInfo, DeviceIntPtr *pdev, BOOL enable)
+ {
+     InputDriverPtr drv = NULL;
+diff --git a/hw/xfree86/common/xf86Xinput.h b/hw/xfree86/common/xf86Xinput.h
+index 35c38a5..ff3d894 100644
+--- a/hw/xfree86/common/xf86Xinput.h
++++ b/hw/xfree86/common/xf86Xinput.h
+@@ -172,10 +172,9 @@ extern _X_EXPORT void xf86AddEnabledDevice(InputInfoPtr pInfo);
+ extern _X_EXPORT void xf86RemoveEnabledDevice(InputInfoPtr pInfo);
+ extern _X_EXPORT void xf86DisableDevice(DeviceIntPtr dev, Bool panic);
+ extern _X_EXPORT void xf86EnableDevice(DeviceIntPtr dev);
+-
+-/* not exported */
+-int xf86NewInputDevice(InputInfoPtr pInfo, DeviceIntPtr *pdev, BOOL is_auto);
+-InputInfoPtr xf86AllocateInput(void);
++extern _X_EXPORT int xf86NewInputDevice(InputInfoPtr pInfo, DeviceIntPtr *pdev,
++                                        BOOL is_auto);
++extern _X_EXPORT InputInfoPtr xf86AllocateInput(void);
+ 
+ /* xf86Helper.c */
+ extern _X_EXPORT void xf86AddInputDriver(InputDriverPtr driver, pointer module,
+-- 
+1.8.3.1
+

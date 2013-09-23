@@ -1,0 +1,319 @@
+From 927cff328c2b920a04c78c4ee23bd6908ad46ea5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Date: Tue, 9 Apr 2013 17:45:08 -0400
+Subject: [PATCH 04/30] xkb: Add XkbCompileKeymapFromString()
+
+This new function compiles a keymap from an in-memory string.  We use it
+to add a new keyooard device init function,
+InitKeyboardDeviceStructFromString(), which inits a keyboard device with
+a keymap specified as a string instead of a rmlvo set.
+
+Reviewed-by: Daniel Stone <daniel@fooishbar.org>
+---
+ include/input.h  |   6 +++
+ include/xkbsrv.h |   4 ++
+ xkb/ddxLoad.c    | 129 ++++++++++++++++++++++++++++++++++++++++++-------------
+ xkb/xkbInit.c    |  44 +++++++++++++++----
+ 4 files changed, 144 insertions(+), 39 deletions(-)
+
+diff --git a/include/input.h b/include/input.h
+index 7eed60b..9e98e1c 100644
+--- a/include/input.h
++++ b/include/input.h
+@@ -385,6 +385,12 @@ extern _X_EXPORT Bool InitKeyboardDeviceStruct(DeviceIntPtr /*device */ ,
+                                                KbdCtrlProcPtr /*controlProc */
+                                                );
+ 
++extern _X_EXPORT Bool InitKeyboardDeviceStructFromString(DeviceIntPtr dev,
++							 const char *keymap,
++							 int keymap_length,
++							 BellProcPtr bell_func,
++							 KbdCtrlProcPtr ctrl_func);
++
+ extern int ApplyPointerMapping(DeviceIntPtr /* pDev */ ,
+                                CARD8 * /* map */ ,
+                                int /* len */ ,
+diff --git a/include/xkbsrv.h b/include/xkbsrv.h
+index 45e2e8c..38cdd7b 100644
+--- a/include/xkbsrv.h
++++ b/include/xkbsrv.h
+@@ -858,4 +858,8 @@ extern _X_EXPORT XkbDescPtr XkbCompileKeymap(DeviceIntPtr /* dev */ ,
+                                              XkbRMLVOSet *      /* rmlvo */
+     );
+ 
++extern _X_EXPORT XkbDescPtr XkbCompileKeymapFromString(DeviceIntPtr dev,
++						       const char *keymap,
++						       int keymap_length);
++
+ #endif                          /* _XKBSRV_H_ */
+diff --git a/xkb/ddxLoad.c b/xkb/ddxLoad.c
+index 001ff46..7a7cf1e 100644
+--- a/xkb/ddxLoad.c
++++ b/xkb/ddxLoad.c
+@@ -262,6 +262,35 @@ XkbDDXOpenConfigFile(char *mapName, char *fileNameRtrn, int fileNameRtrnLen)
+     return file;
+ }
+ 
++static unsigned
++LoadXKM(unsigned want, unsigned need, XkbCompContextPtr ctx, XkbDescPtr *xkbRtrn)
++{
++    FILE *file;
++    char fileName[PATH_MAX];
++    unsigned missing;
++
++    file = XkbDDXOpenConfigFile(ctx->keymap, fileName, PATH_MAX);
++    if (file == NULL) {
++        LogMessage(X_ERROR, "Couldn't open compiled keymap file %s\n",
++                   fileName);
++        return 0;
++    }
++    missing = XkmReadFile(file, need, want, xkbRtrn);
++    if (*xkbRtrn == NULL) {
++        LogMessage(X_ERROR, "Error loading keymap %s\n", fileName);
++        fclose(file);
++        (void) unlink(fileName);
++        return 0;
++    }
++    else {
++        DebugF("Loaded XKB keymap %s, defined=0x%x\n", fileName,
++               (*xkbRtrn)->defined);
++    }
++    fclose(file);
++    (void) unlink(fileName);
++    return (need | want) & (~missing);
++}
++
+ unsigned
+ XkbDDXLoadKeymapByNames(DeviceIntPtr keybd,
+                         XkbComponentNamesPtr names,
+@@ -270,9 +299,6 @@ XkbDDXLoadKeymapByNames(DeviceIntPtr keybd,
+                         XkbDescPtr *xkbRtrn, char *nameRtrn, int nameRtrnLen)
+ {
+     XkbDescPtr xkb;
+-    FILE *file;
+-    char fileName[PATH_MAX];
+-    unsigned missing;
+     XkbCompContextRec ctx;
+ 
+     *xkbRtrn = NULL;
+@@ -292,26 +318,30 @@ XkbDDXLoadKeymapByNames(DeviceIntPtr keybd,
+         LogMessage(X_ERROR, "XKB: Couldn't compile keymap\n");
+         return 0;
+     }
+-    file = XkbDDXOpenConfigFile(ctx.keymap, fileName, PATH_MAX);
+-    if (file == NULL) {
+-        LogMessage(X_ERROR, "Couldn't open compiled keymap file %s\n",
+-                   fileName);
+-        return 0;
+-    }
+-    missing = XkmReadFile(file, need, want, xkbRtrn);
+-    if (*xkbRtrn == NULL) {
+-        LogMessage(X_ERROR, "Error loading keymap %s\n", fileName);
+-        fclose(file);
+-        (void) unlink(fileName);
++
++    return LoadXKM(want, need, &ctx, xkbRtrn);
++}
++
++static unsigned
++XkbDDXLoadKeymapFromString(DeviceIntPtr keybd,
++			   const char *keymap, int keymap_length,
++			   unsigned want,
++			   unsigned need,
++			   XkbDescPtr *xkbRtrn)
++{
++    XkbCompContextRec ctx;
++
++    *xkbRtrn = NULL;
++
++    if (StartXkbComp(&ctx))
++	fwrite(keymap, keymap_length, 1, ctx.out);
++
++    if (!FinishXkbComp(&ctx)) {
++        LogMessage(X_ERROR, "XKB: Couldn't compile keymap\n");
+         return 0;
+     }
+-    else {
+-        DebugF("Loaded XKB keymap %s, defined=0x%x\n", fileName,
+-               (*xkbRtrn)->defined);
+-    }
+-    fclose(file);
+-    (void) unlink(fileName);
+-    return (need | want) & (~missing);
++
++    return LoadXKM(want, need, &ctx, xkbRtrn);
+ }
+ 
+ Bool
+@@ -407,6 +437,29 @@ XkbCompileKeymapForDevice(DeviceIntPtr dev, XkbRMLVOSet * rmlvo, int need)
+     return xkb;
+ }
+ 
++static XkbDescPtr
++KeymapOrDefaults(DeviceIntPtr dev, XkbDescPtr xkb)
++{
++    XkbRMLVOSet dflts;
++
++    if (xkb)
++	return xkb;
++
++    /* we didn't get what we really needed. And that will likely leave
++     * us with a keyboard that doesn't work. Use the defaults instead */
++    LogMessage(X_ERROR, "XKB: Failed to load keymap. Loading default "
++	       "keymap instead.\n");
++
++    XkbGetRulesDflts(&dflts);
++
++    xkb = XkbCompileKeymapForDevice(dev, &dflts, 0);
++
++    XkbFreeRMLVOSet(&dflts, FALSE);
++
++    return xkb;
++}
++
++
+ XkbDescPtr
+ XkbCompileKeymap(DeviceIntPtr dev, XkbRMLVOSet * rmlvo)
+ {
+@@ -424,20 +477,34 @@ XkbCompileKeymap(DeviceIntPtr dev, XkbRMLVOSet * rmlvo)
+ 
+     xkb = XkbCompileKeymapForDevice(dev, rmlvo, need);
+ 
+-    if (!xkb) {
+-        XkbRMLVOSet dflts;
++    return KeymapOrDefaults(dev, xkb);
++}
+ 
+-        /* we didn't get what we really needed. And that will likely leave
+-         * us with a keyboard that doesn't work. Use the defaults instead */
+-        LogMessage(X_ERROR, "XKB: Failed to load keymap. Loading default "
+-                   "keymap instead.\n");
++XkbDescPtr
++XkbCompileKeymapFromString(DeviceIntPtr dev,
++			   const char *keymap, int keymap_length)
++{
++    XkbDescPtr xkb;
++    unsigned int need, provided;
+ 
+-        XkbGetRulesDflts(&dflts);
++    if (!dev || !keymap) {
++        LogMessage(X_ERROR, "XKB: No device or keymap specified\n");
++        return NULL;
++    }
+ 
+-        xkb = XkbCompileKeymapForDevice(dev, &dflts, 0);
++    /* These are the components we really really need */
++    need = XkmSymbolsMask | XkmCompatMapMask | XkmTypesMask |
++        XkmKeyNamesMask | XkmVirtualModsMask;
+ 
+-        XkbFreeRMLVOSet(&dflts, FALSE);
++    provided =
++	XkbDDXLoadKeymapFromString(dev, keymap, keymap_length,
++				   XkmAllIndicesMask, need, &xkb);
++    if ((need & provided) != need) {
++	if (xkb) {
++	    XkbFreeKeyboard(xkb, 0, TRUE);
++	    xkb = NULL;
++	}
+     }
+ 
+-    return xkb;
++    return KeymapOrDefaults(dev, xkb);
+ }
+diff --git a/xkb/xkbInit.c b/xkb/xkbInit.c
+index ed01114..7d06fa7 100644
+--- a/xkb/xkbInit.c
++++ b/xkb/xkbInit.c
+@@ -475,9 +475,10 @@ XkbInitControls(DeviceIntPtr pXDev, XkbSrvInfoPtr xkbi)
+     return Success;
+ }
+ 
+-_X_EXPORT Bool
+-InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
+-                         BellProcPtr bell_func, KbdCtrlProcPtr ctrl_func)
++static Bool
++InitKeyboardDeviceStructInternal(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
++				 const char *keymap, int keymap_length,
++				 BellProcPtr bell_func, KbdCtrlProcPtr ctrl_func)
+ {
+     int i;
+     unsigned int check;
+@@ -491,7 +492,7 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
+     if (dev->key || dev->kbdfeed)
+         return FALSE;
+ 
+-    if (!rmlvo) {
++    if (!rmlvo && !keymap) {
+         rmlvo = &rmlvo_dflts;
+         XkbGetRulesDflts(rmlvo);
+     }
+@@ -519,19 +520,26 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
+     }
+     dev->key->xkbInfo = xkbi;
+ 
+-    if (xkb_cached_map && !XkbCompareUsedRMLVO(rmlvo)) {
++    if (xkb_cached_map && (keymap || (rmlvo && !XkbCompareUsedRMLVO(rmlvo)))) {
+         XkbFreeKeyboard(xkb_cached_map, XkbAllComponentsMask, TRUE);
+         xkb_cached_map = NULL;
+     }
+ 
+     if (xkb_cached_map)
+         LogMessageVerb(X_INFO, 4, "XKB: Reusing cached keymap\n");
+-    else {
++    else if (rmlvo) {
+         xkb_cached_map = XkbCompileKeymap(dev, rmlvo);
+         if (!xkb_cached_map) {
+             ErrorF("XKB: Failed to compile keymap\n");
+             goto unwind_info;
+         }
++    } else {
++	xkb_cached_map = XkbCompileKeymapFromString(dev,
++						    keymap, keymap_length);
++        if (!xkb_cached_map) {
++            ErrorF("XKB: Failed to compile keymap from string\n");
++            goto unwind_info;
++        }
+     }
+ 
+     xkb = XkbAllocKeyboard();
+@@ -596,8 +604,10 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
+ 
+     dev->kbdfeed->CtrlProc(dev, &dev->kbdfeed->ctrl);
+ 
+-    XkbSetRulesDflts(rmlvo);
+-    XkbSetRulesUsed(rmlvo);
++    if (rmlvo) {
++	XkbSetRulesDflts(rmlvo);
++	XkbSetRulesUsed(rmlvo);
++    }
+     XkbFreeRMLVOSet(&rmlvo_dflts, FALSE);
+ 
+     return TRUE;
+@@ -616,6 +626,24 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
+     return FALSE;
+ }
+ 
++_X_EXPORT Bool
++InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
++                         BellProcPtr bell_func, KbdCtrlProcPtr ctrl_func)
++{
++    return InitKeyboardDeviceStructInternal(dev, rmlvo,
++					    NULL, 0, bell_func, ctrl_func);
++}
++
++_X_EXPORT Bool
++InitKeyboardDeviceStructFromString(DeviceIntPtr dev,
++				   const char *keymap, int keymap_length,
++				   BellProcPtr bell_func, KbdCtrlProcPtr ctrl_func)
++{
++    return InitKeyboardDeviceStructInternal(dev, NULL,
++					    keymap, keymap_length,
++					    bell_func, ctrl_func);
++}
++
+ /***====================================================================***/
+ 
+         /*
+-- 
+1.8.3.1
+

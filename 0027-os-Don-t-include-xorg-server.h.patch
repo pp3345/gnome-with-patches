@@ -1,0 +1,40 @@
+From 9e3f213572e83f38cc86dc4b68c5ccb547a6b0fe Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Date: Fri, 13 Sep 2013 14:53:16 -0700
+Subject: [PATCH 27/30] os: Don't include xorg-server.h
+
+Just always compile in ListenOnOpenFD and AddClientOnOpenFD, they
+don't depend on anything from Quartz or Wayland.
+---
+ os/connection.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/os/connection.c b/os/connection.c
+index 499a4dd..65ca01b 100644
+--- a/os/connection.c
++++ b/os/connection.c
+@@ -64,7 +64,6 @@ SOFTWARE.
+ #include <dix-config.h>
+ #endif
+ 
+-#include <xorg-server.h>
+ #ifdef WIN32
+ #include <X11/Xwinsock.h>
+ #endif
+@@ -1259,7 +1258,6 @@ MakeClientGrabPervious(ClientPtr client)
+     }
+ }
+ 
+-#if defined(XQUARTZ) || defined(XORG_WAYLAND)
+ /* Add a fd (from launchd) to our listeners */
+ void
+ ListenOnOpenFD(int fd, int noxauth)
+@@ -1334,5 +1332,3 @@ AddClientOnOpenFD(int fd)
+         return;
+     }
+ }
+-
+-#endif
+-- 
+1.8.3.1
+

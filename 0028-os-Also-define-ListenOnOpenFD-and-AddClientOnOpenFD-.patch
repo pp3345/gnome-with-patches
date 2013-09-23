@@ -1,0 +1,30 @@
+From cc086626e1e02a0639f6107ae10fdbffc9640551 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Date: Fri, 13 Sep 2013 15:16:31 -0700
+Subject: [PATCH 28/30] os: Also define ListenOnOpenFD and AddClientOnOpenFD
+ unconditionally
+
+Remove the #ifdef from the header file as well.
+---
+ include/os.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/include/os.h b/include/os.h
+index 32e5b96..5d845b0 100644
+--- a/include/os.h
++++ b/include/os.h
+@@ -160,10 +160,9 @@ extern _X_EXPORT void MakeClientGrabImpervious(ClientPtr /*client */ );
+ 
+ extern _X_EXPORT void MakeClientGrabPervious(ClientPtr /*client */ );
+ 
+-#if defined(XQUARTZ) || defined(XORG_WAYLAND)
+ extern _X_EXPORT void ListenOnOpenFD(int /* fd */ , int /* noxauth */ );
++
+ extern _X_EXPORT void AddClientOnOpenFD(int /* fd */ );
+-#endif
+ 
+ extern _X_EXPORT CARD32 GetTimeInMillis(void);
+ 
+-- 
+1.8.3.1
+

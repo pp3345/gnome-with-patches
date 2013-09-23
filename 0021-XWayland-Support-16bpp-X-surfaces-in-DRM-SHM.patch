@@ -1,0 +1,97 @@
+From b5d5a1cdb7454f6ed33ba68c79da79504846e568 Mon Sep 17 00:00:00 2001
+From: Daniel Stone <daniel@fooishbar.org>
+Date: Fri, 16 Aug 2013 13:51:08 +0100
+Subject: [PATCH 21/30] XWayland: Support 16bpp X surfaces in DRM/SHM
+
+Properly look at the window's visual to determine which format we should
+use for allocation.
+
+Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+---
+ hw/xfree86/xwayland/xwayland-drm.c | 12 ++++++++++--
+ hw/xfree86/xwayland/xwayland.c     | 38 +++++++++++++++++++++++++++++++-------
+ 2 files changed, 41 insertions(+), 9 deletions(-)
+
+diff --git a/hw/xfree86/xwayland/xwayland-drm.c b/hw/xfree86/xwayland/xwayland-drm.c
+index 6e4c778..5250857 100644
+--- a/hw/xfree86/xwayland/xwayland-drm.c
++++ b/hw/xfree86/xwayland/xwayland-drm.c
+@@ -225,10 +225,18 @@ xwl_create_window_buffer_drm(struct xwl_window *xwl_window,
+ 	if (screen->visuals[i].vid == visual)
+ 	    break;
+ 
+-    if (screen->visuals[i].nplanes == 32)
++    switch (screen->visuals[i].nplanes) {
++    case 32:
+ 	format = WL_DRM_FORMAT_ARGB8888;
+-    else
++        break;
++    case 24:
++    default:
+ 	format = WL_DRM_FORMAT_XRGB8888;
++        break;
++    case 16:
++        format = WL_DRM_FORMAT_RGB565;
++        break;
++    }
+ 
+     xwl_window->buffer =
+       wl_drm_create_buffer(xwl_window->xwl_screen->drm,
+diff --git a/hw/xfree86/xwayland/xwayland.c b/hw/xfree86/xwayland/xwayland.c
+index 6a515f5..36f7cbf 100644
+--- a/hw/xfree86/xwayland/xwayland.c
++++ b/hw/xfree86/xwayland/xwayland.c
+@@ -277,19 +277,43 @@ xwl_create_window_buffer_shm(struct xwl_window *xwl_window,
+ 			     PixmapPtr pixmap, int fd)
+ {
+     struct wl_shm_pool *pool;
+-    int size, stride;
++    WindowPtr window = xwl_window->window;
++    ScreenPtr screen = window->drawable.pScreen;
++    VisualID visual = wVisual(window);
++    uint32_t format;
++    int size, stride, bpp, i;
++
++    for (i = 0; i < screen->numVisuals; i++)
++        if (screen->visuals[i].vid == visual)
++            break;
++
++    switch (screen->visuals[i].nplanes) {
++    case 32:
++        format = WL_SHM_FORMAT_ARGB8888;
++        bpp = 4;
++        break;
++    case 24:
++    default:
++        format = WL_SHM_FORMAT_XRGB8888;
++        bpp = 4;
++        break;
++#ifdef WL_SHM_FORMAT_RGB565
++    case 16:
++        /* XXX: Check run-time protocol version too */
++        format = WL_SHM_FORMAT_RGB565;
++        bpp = 2;
++        break;
++#endif
++    }
+ 
+-    stride = pixmap->drawable.width * 4;
++    stride = pixmap->drawable.width * bpp;
++    size = stride * pixmap->drawable.height;
+ 
+-    size = pixmap->drawable.width * pixmap->drawable.height * 4;
+     pool = wl_shm_create_pool(xwl_window->xwl_screen->shm, fd, size);
+     xwl_window->buffer =  wl_shm_pool_create_buffer(pool, 0,
+ 			   pixmap->drawable.width,
+ 			   pixmap->drawable.height,
+-			   stride,
+-			   pixmap->drawable.depth == 32 ?
+-			   WL_SHM_FORMAT_ARGB8888 :
+-			   WL_SHM_FORMAT_XRGB8888);
++			   stride, format);
+     wl_shm_pool_destroy(pool);
+ 
+     return xwl_window->buffer ? Success : BadDrawable;
+-- 
+1.8.3.1
+

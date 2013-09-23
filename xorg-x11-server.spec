@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.3
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -120,6 +120,39 @@ Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
 Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
 %endif
 
+# xwayland.  trivial backport from master to 1.14:
+# http://cgit.freedesktop.org/~ajax/xserver/log/?h=xwayland-1.14
+Patch9001: 0001-dbe-Cleanup-in-CloseScreen-hook-not-ext-CloseDown.patch
+Patch9002: 0002-xkb-Add-struct-XkbCompContext.patch
+Patch9003: 0003-xkb-Split-out-code-to-start-and-finish-xkbcomp.patch
+Patch9004: 0004-xkb-Add-XkbCompileKeymapFromString.patch
+Patch9005: 0005-configure-Track-updated-version-of-libxtrans.patch
+Patch9006: 0006-os-Add-a-function-to-create-a-client-for-an-fd.patch
+Patch9007: 0007-Export-xf86NewInputDevice-and-xf86AllocateInput.patch
+Patch9008: 0008-Export-CompositeRedirectSubwindows-and-CompositeUnRe.patch
+Patch9009: 0009-Add-redirect-window-for-input-device-feature.patch
+Patch9010: 0010-dri2-Introduce-a-third-version-of-the-AuthMagic-func.patch
+Patch9011: 0011-Add-xwayland-module.patch
+Patch9012: 0012-xwayland-Add-a-HW_WAYLAND-flag-to-let-drivers-explic.patch
+Patch9013: 0013-xwayland-shm-don-t-create-alpha-buffers-if-the-windo.patch
+Patch9014: 0014-xwayland-handle-global-object-destruction.patch
+Patch9015: 0015-xwayland-add-support-for-multiple-outputs.patch
+Patch9016: 0016-xwayland-Probe-outputs-on-preinit.patch
+Patch9017: 0017-XFree86-Load-wlshm-driver-as-fallback-for-Wayland.patch
+Patch9018: 0018-XWayland-Don-t-send-out-of-bounds-damage-co-ordinate.patch
+Patch9019: 0019-xwayland-Introduce-an-auto-mode-for-enable-wayland.patch
+Patch9020: 0020-XWayland-Don-t-hardcode-DRM-libs-and-lwayland-client.patch
+Patch9021: 0021-XWayland-Support-16bpp-X-surfaces-in-DRM-SHM.patch
+Patch9022: 0022-xwayland-Remove-Xdnd-selection-watching-code.patch
+Patch9023: 0023-xf86Init-trim-out-non-wayland-capable-servers-from-d.patch
+Patch9024: 0024-Add-XORG_WAYLAND-symbol-to-xorg-config.h.in.patch
+Patch9025: 0025-Fix-fallback-loading-of-the-wayland-driver.patch
+Patch9026: 0026-xwayland-Don-t-include-xorg-server.h.patch
+Patch9027: 0027-os-Don-t-include-xorg-server.h.patch
+Patch9028: 0028-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
+Patch9029: 0029-xwayland-Remove-unused-variables.patch
+Patch9030: 0030-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
+
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
 %global sdkdir		%{_includedir}/xorg
@@ -161,9 +194,8 @@ BuildRequires: libXinerama-devel libXi-devel
 BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
 BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
-# Broken, this is global, should be Xephyr-only
 BuildRequires: libXv-devel
-
+BuildRequires: wayland-devel pkgconfig(wayland-client)
 BuildRequires: pixman-devel >= 0.21.8
 BuildRequires: libpciaccess-devel >= 0.12.901-1 openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 7.6-0.6
@@ -213,6 +245,10 @@ Provides: xserver-abi(videodrv-%{git_videodrv_major}) = %{git_videodrv_minor}
 Provides: xserver-abi(xinput-%{git_xinput_major}) = %{git_xinput_minor}
 Provides: xserver-abi(extension-%{git_extension_major}) = %{git_extension_minor}
 %endif
+# this is expected to be temporary, since eventually it will be implied by
+# the server version.  the serial number here is just paranoia in case we
+# need to do something lockstep between now and upstream merge
+Provides: xserver-abi(xwayland) = 1
 
 # Dropped from F17, use evdev
 Obsoletes: xorg-x11-drv-acecad <= 1.5.0-2.fc16
@@ -408,6 +444,7 @@ autoreconf -f -v --install || exit 1
         --with-dtrace \
 	--enable-xselinux --enable-record \
 	--enable-config-udev \
+	--enable-wayland \
 	%{dri_flags} %{?bodhi_flags} \
 	${CONFIGURE}
         
@@ -512,6 +549,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules/drivers
 %dir %{_libdir}/xorg/modules/extensions
 %{_libdir}/xorg/modules/extensions/libglx.so
+%{_libdir}/xorg/modules/extensions/libxwayland.so
 %dir %{_libdir}/xorg/modules/input
 %{_libdir}/xorg/modules/libfbdevhw.so
 %{_libdir}/xorg/modules/libexa.so
@@ -593,6 +631,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Sep 23 2013 Adam Jackson <ajax@redhat.com> 1.14.3-2
+- xwayland support
+
 * Mon Sep 16 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.3-1
 - xserver 1.14.3
 

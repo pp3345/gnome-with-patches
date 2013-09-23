@@ -1,0 +1,65 @@
+From e56c222b8e6e7f48e928770b1bd4dff20ad627a3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
+Date: Fri, 18 Sep 2009 22:02:43 -0400
+Subject: [PATCH 08/30] Export CompositeRedirectSubwindows and
+ CompositeUnRedirectSubwindows
+
+---
+ composite/compalloc.c    | 11 +++++++++++
+ composite/compositeext.h |  4 ++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/composite/compalloc.c b/composite/compalloc.c
+index cc69c68..edee499 100644
+--- a/composite/compalloc.c
++++ b/composite/compalloc.c
+@@ -46,6 +46,7 @@
+ #endif
+ 
+ #include "compint.h"
++#include "compositeext.h"
+ 
+ static void
+ compScreenUpdate(ScreenPtr pScreen)
+@@ -411,6 +412,11 @@ compRedirectSubwindows(ClientPtr pClient, WindowPtr pWin, int update)
+     return Success;
+ }
+ 
++int CompositeRedirectSubwindows (WindowPtr pWin, int update)
++{
++    return compRedirectSubwindows (serverClient, pWin, update);
++}
++
+ /*
+  * Free one of the per-client per-subwindows resources,
+  * which frees one redirect per subwindow
+@@ -482,6 +488,11 @@ compUnredirectSubwindows(ClientPtr pClient, WindowPtr pWin, int update)
+     return BadValue;
+ }
+ 
++int CompositeUnRedirectSubwindows (WindowPtr pWin, int update)
++{
++    return compUnredirectSubwindows (serverClient, pWin, update);
++}
++
+ /*
+  * Add redirection information for one subwindow (during reparent)
+  */
+diff --git a/composite/compositeext.h b/composite/compositeext.h
+index 0b148f0..a072966 100644
+--- a/composite/compositeext.h
++++ b/composite/compositeext.h
+@@ -34,6 +34,10 @@
+ extern _X_EXPORT Bool CompositeRegisterAlternateVisuals(ScreenPtr pScreen,
+                                                         VisualID * vids,
+                                                         int nVisuals);
++extern _X_EXPORT int CompositeRedirectSubwindows(WindowPtr pWin,
++						 int update);
++extern _X_EXPORT int CompositeUnRedirectSubwindows (WindowPtr pWin,
++						    int update);
+ 
+ extern _X_EXPORT RESTYPE CompositeClientWindowType;
+ 
+-- 
+1.8.3.1
+
