@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.10.0
+Version:        3.10.0.1
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -173,6 +173,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Sep 25 2013 Kalev Lember <kalevlember@gmail.com> - 3.10.0.1-1
+- Update to 3.10.0.1
+
 * Tue Sep 24 2013 Florian Müllner <fmuellner@redhat.com> - 3.10.0-1
 - Update to 3.10.0
 
