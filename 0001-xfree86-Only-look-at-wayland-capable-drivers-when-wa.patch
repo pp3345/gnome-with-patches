@@ -1,0 +1,55 @@
+From 6c6e1299492699d1f4cedaeb41503f31d1e9c6ec Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Wed, 2 Oct 2013 12:38:45 -0400
+Subject: [PATCH] xfree86: Only look at wayland-capable drivers when -wayland
+ given
+
+There's no particularly good reason to support mixing wayland and
+non-wayland screens in the same Xorg instance, and it probably doesn't
+work correctly, so let's prevent people from injuring themselves.
+
+Reviewed-by: Adam Jackson <ajax@redhat.com>
+Signed-off-by: Ray Strode <rstrode@redhat.com>
+---
+ hw/xfree86/common/xf86Init.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
+index a5a7daf..a7d2e0e 100644
+--- a/hw/xfree86/common/xf86Init.c
++++ b/hw/xfree86/common/xf86Init.c
+@@ -550,22 +550,22 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
+                 xf86DriverList[i]->driverFunc(NULL,
+                                               GET_REQUIRED_HW_INTERFACES,
+                                               &flags);
+-
+-            if (NEED_IO_ENABLED(flags))
+-                want_hw_access = TRUE;
+-
+-            if (!(flags & HW_SKIP_CONSOLE))
+-                xorgHWOpenConsole = TRUE;
+-
+ 	    if (xorgWayland) {
+-                if (flags != HW_WAYLAND) {
++                if (!(flags & HW_WAYLAND)) {
+                     xf86DeleteDriver(i);
+                     continue;
+                 }
+ 
+                 want_hw_access = FALSE;
+                 xorgHWOpenConsole = FALSE;
+-	    }
++
++            } else {
++                if (NEED_IO_ENABLED(flags))
++                    want_hw_access = TRUE;
++
++                if (!(flags & HW_SKIP_CONSOLE))
++                    xorgHWOpenConsole = TRUE;
++            }
+         }
+ 
+         for (i = 0; i < xf86NumDrivers; i++) {
+-- 
+1.8.3.1
+

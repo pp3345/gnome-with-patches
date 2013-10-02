@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.3
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -152,6 +152,7 @@ Patch9027: 0027-os-Don-t-include-xorg-server.h.patch
 Patch9028: 0028-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
 Patch9029: 0029-xwayland-Remove-unused-variables.patch
 Patch9030: 0030-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
+Patch9031: 0001-xfree86-Only-look-at-wayland-capable-drivers-when-wa.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -631,6 +632,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Oct 02 2013 Adam Jackson <ajax@redhat.com> 1.14.3-3
+- Only look at wayland-capable drivers when run with -wayland
+
 * Mon Sep 23 2013 Adam Jackson <ajax@redhat.com> 1.14.3-2
 - xwayland support
 
