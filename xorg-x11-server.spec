@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.3
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -632,6 +632,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Oct 03 2013 Adam Jackson <ajax@redhat.com> 1.14.3-4
+- Fix up fixing up the driver list after filtering out non-wayland
+
 * Wed Oct 02 2013 Adam Jackson <ajax@redhat.com> 1.14.3-3
 - Only look at wayland-capable drivers when run with -wayland
 
