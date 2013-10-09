@@ -1,0 +1,59 @@
+From a655c446880613e17c3b91e66a7f7ac125f62228 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Tue, 8 Oct 2013 13:54:27 -0400
+Subject: [PATCH] xwayland: Just send the bounding box of the damage
+
+... instead of every rect.  Most window updates are going to be CopyArea
+in from offscreen, with plenty of time to get back around to
+BlockHandler in between, so this is no change there.  However for
+pathological apps like x11perf that draw complicated primitives directly
+to the window you can end up with massive numbers of damage rects, and
+you can run out of space in the write buffer and crash.
+
+This obviously isn't a complete fix, and it would be nice to handle this
+more gracefully in the wayland client code, but this at least lets
+x11perf -all run to completion.
+
+While we're in the area, rearrange attach to be before damage, not
+after, since the spec says that's the correct order.
+
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+---
+ hw/xfree86/xwayland/xwayland.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
+
+diff --git a/hw/xfree86/xwayland/xwayland.c b/hw/xfree86/xwayland/xwayland.c
+index c70a52d..c10a213 100644
+--- a/hw/xfree86/xwayland/xwayland.c
++++ b/hw/xfree86/xwayland/xwayland.c
+@@ -333,22 +333,18 @@ void xwl_screen_post_damage(struct xwl_screen *xwl_screen)
+     struct xwl_window *xwl_window;
+     RegionPtr region;
+     BoxPtr box;
+-    int count, i;
+ 
+     xorg_list_for_each_entry(xwl_window, &xwl_screen->damage_window_list,
+ 			     link_damage) {
+ 	region = DamageRegion(xwl_window->damage);
+-	count = RegionNumRects(region);
+-	for (i = 0; i < count; i++) {
+-	    box = &RegionRects(region)[i];
+-	    wl_surface_damage(xwl_window->surface,
+-			      box->x1, box->y1,
+-			      box->x2 - box->x1,
+-			      box->y2 - box->y1);
+-	}
+ 	wl_surface_attach(xwl_window->surface,
+ 			  xwl_window->buffer,
+ 			  0, 0);
++	box = &region->extents;
++	wl_surface_damage(xwl_window->surface,
++			  box->x1, box->y1,
++			  box->x2 - box->x1,
++			  box->y2 - box->y1);
+ 	wl_surface_commit(xwl_window->surface);
+ 	DamageEmpty(xwl_window->damage);
+     }
+-- 
+1.8.3.1
+

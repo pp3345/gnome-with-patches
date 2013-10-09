@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.3
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -153,6 +153,7 @@ Patch9028: 0028-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
 Patch9029: 0029-xwayland-Remove-unused-variables.patch
 Patch9030: 0030-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
 Patch9031: 0001-xfree86-Only-look-at-wayland-capable-drivers-when-wa.patch
+Patch9032: 0001-xwayland-Just-send-the-bounding-box-of-the-damage.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -632,6 +633,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Oct 08 2013 Adam Jackson <ajax@redhat.com> 1.14.3-5
+- Snap wayland damage reports to the bounding box
+
 * Thu Oct 03 2013 Adam Jackson <ajax@redhat.com> 1.14.3-4
 - Fix up fixing up the driver list after filtering out non-wayland
 
