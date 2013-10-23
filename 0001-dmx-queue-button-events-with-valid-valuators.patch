@@ -1,0 +1,32 @@
+From c6c228e06f215091f13b74dd99e0ae9c99049771 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 23 Oct 2013 15:16:25 +1000
+Subject: [PATCH] dmx: queue button events with valid valuators
+
+Setting POINTER_SCREEN with a unset valuator mask causes a jump to 0/0.
+Alternative implementation here would be to remove the POINTER_SCREEN flag,
+but that's likely more confusing to the casual reader.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ hw/dmx/input/dmxevents.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/hw/dmx/input/dmxevents.c b/hw/dmx/input/dmxevents.c
+index 2875620..3fd6348 100644
+--- a/hw/dmx/input/dmxevents.c
++++ b/hw/dmx/input/dmxevents.c
+@@ -725,7 +725,9 @@ dmxEnqueue(DevicePtr pDev, int type, int detail, KeySym keySym,
+     case ButtonPress:
+     case ButtonRelease:
+         detail = dmxGetButtonMapping(dmxLocal, detail);
+-        valuator_mask_zero(&mask);
++        valuators[0] = e->xbutton.x;
++        valuators[1] = e->xbutton.y;
++        valuator_mask_set_range(&mask, 0, 2, valuators);
+         QueuePointerEvents(p, type, detail,
+                            POINTER_ABSOLUTE | POINTER_SCREEN, &mask);
+         return;
+-- 
+1.8.3.1
+

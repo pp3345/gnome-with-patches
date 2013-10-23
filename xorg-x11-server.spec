@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.3
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -154,6 +154,9 @@ Patch9029: 0029-xwayland-Remove-unused-variables.patch
 Patch9030: 0030-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
 Patch9031: 0001-xfree86-Only-look-at-wayland-capable-drivers-when-wa.patch
 Patch9032: 0001-xwayland-Just-send-the-bounding-box-of-the-damage.patch
+
+# Bug 1019821: Xdmx mouse after button-click goes to upper-left position
+Patch9040: 0001-dmx-queue-button-events-with-valid-valuators.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -633,6 +636,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Oct 23 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.3-6
+- Fix Xdmx cursor jumps (#1019821)
+
 * Tue Oct 08 2013 Adam Jackson <ajax@redhat.com> 1.14.3-5
 - Snap wayland damage reports to the bounding box
 
