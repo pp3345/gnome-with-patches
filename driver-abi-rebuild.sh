@@ -19,7 +19,13 @@ else
     pkg=fedpkg
 fi
 
-$pkg co xorg-x11-drivers
+# figure out the branch we're on
+branch=$(git branch | awk '/^\*/ { print $2 }' | grep -v '^master$')
+if [ $branch ]; then
+    branch="-b $branch"
+fi
+
+$pkg co $branch xorg-x11-drivers
 pushd xorg-x11-drivers
 driverlist=$(grep ^Requires *.spec | awk '{ print $2 }')
 popd
@@ -28,7 +34,7 @@ popd
 extradrivers="xorg-x11-drv-ivtv"
 
 rm -rf xorg-x11-drivers
-echo $driverlist $extradrivers | xargs -n1 $pkg co
+echo $driverlist $extradrivers | xargs -n1 $pkg co $branch
 
 for i in */ ; do
     [ -e $i/dead.package ] && continue
