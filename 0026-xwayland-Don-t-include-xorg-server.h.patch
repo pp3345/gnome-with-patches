@@ -1,7 +1,7 @@
-From cf5cf51ba3c19b2a736aa30eaf6f43c6f0b971f4 Mon Sep 17 00:00:00 2001
+From 043aa3410eaebb0bf97b6efd2e1897f53d69e76d Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Fri, 13 Sep 2013 14:52:13 -0700
-Subject: [PATCH 26/30] xwayland: Don't include xorg-server.h
+Subject: [PATCH 26/39] xwayland: Don't include xorg-server.h
 
 xorg-config.h now has the XORG_WAYLAND define.
 ---

@@ -1,7 +1,7 @@
-From 555c7ef6ca7846f68ec8d2ac680e50558b043f39 Mon Sep 17 00:00:00 2001
+From 048c854b7332d19b0654e856c414115acfd456b1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Wed, 11 Sep 2013 11:15:18 -0700
-Subject: [PATCH 22/30] xwayland: Remove Xdnd selection watching code
+Subject: [PATCH 22/39] xwayland: Remove Xdnd selection watching code
 
 We don't need this in the server, the wm can manage dnd proxying.
 ---

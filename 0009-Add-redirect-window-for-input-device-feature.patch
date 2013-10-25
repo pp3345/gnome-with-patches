@@ -1,7 +1,7 @@
-From d2fcacc2ce6da5348a1ac519cac845270a658669 Mon Sep 17 00:00:00 2001
+From be8fccebacac8c209bbc6e42e5aba49bc8102491 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
 Date: Fri, 18 Sep 2009 22:09:03 -0400
-Subject: [PATCH 09/30] Add redirect window for input device feature
+Subject: [PATCH 09/39] Add redirect window for input device feature
 
 ---
  Xi/exevents.c      | 13 +++++++++++++
@@ -11,10 +11,10 @@ Subject: [PATCH 09/30] Add redirect window for input device feature
  4 files changed, 29 insertions(+), 1 deletion(-)
 
 diff --git a/Xi/exevents.c b/Xi/exevents.c
-index 067e6b3..6dd182a 100644
+index fd4b80c..f510a9e 100644
 --- a/Xi/exevents.c
 +++ b/Xi/exevents.c
-@@ -2029,6 +2029,19 @@ DeliverTouchEvents(DeviceIntPtr dev, TouchPointInfoPtr ti,
+@@ -2025,6 +2025,19 @@ DeliverTouchEvents(DeviceIntPtr dev, TouchPointInfoPtr ti,
      }
  }
  
@@ -35,10 +35,10 @@ index 067e6b3..6dd182a 100644
  InitProximityClassDeviceStruct(DeviceIntPtr dev)
  {
 diff --git a/dix/events.c b/dix/events.c
-index c079f97..a0c7060 100644
+index 4632bb7..9caa8b0 100644
 --- a/dix/events.c
 +++ b/dix/events.c
-@@ -2820,7 +2820,16 @@ XYToWindow(SpritePtr pSprite, int x, int y)
+@@ -2877,7 +2877,16 @@ XYToWindow(SpritePtr pSprite, int x, int y)
      BoxRec box;
  
      pSprite->spriteTraceGood = 1;       /* root window still there */
@@ -72,7 +72,7 @@ index 321fc42..ba93be3 100644
   CheckGrabValues(ClientPtr /* client */ ,
                   GrabParameters * /* param */ );
 diff --git a/include/inputstr.h b/include/inputstr.h
-index 2da72c1..2ae6f5b 100644
+index dc36c5d..09471cf 100644
 --- a/include/inputstr.h
 +++ b/include/inputstr.h
 @@ -246,6 +246,8 @@ typedef struct _SpriteRec {

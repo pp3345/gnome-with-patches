@@ -1,7 +1,7 @@
-From 5ec1f1446acf1bb7ed04c2844ac62325fc125b91 Mon Sep 17 00:00:00 2001
+From 8608443b26b21991e27bc26fa83cd14b30ee9a01 Mon Sep 17 00:00:00 2001
 From: Giovanni Campagna <gcampagn@redhat.com>
 Date: Wed, 21 Aug 2013 09:53:26 +0200
-Subject: [PATCH 14/30] xwayland: handle global object destruction
+Subject: [PATCH 14/39] xwayland: handle global object destruction
 
 Certain global objects, such as outputs, can be destroyed during
 the session. We must handle that and not crash.

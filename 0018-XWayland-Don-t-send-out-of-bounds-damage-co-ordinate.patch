@@ -1,7 +1,7 @@
-From 007b3b673d7bef6138b3e8a6c2342c1f569c8de8 Mon Sep 17 00:00:00 2001
+From 55f33977d3753f357c407def598647698d5b05a4 Mon Sep 17 00:00:00 2001
 From: Daniel Stone <daniel@fooishbar.org>
 Date: Wed, 7 Nov 2012 17:22:42 +1100
-Subject: [PATCH 18/30] XWayland: Don't send out-of-bounds damage co-ordinates
+Subject: [PATCH 18/39] XWayland: Don't send out-of-bounds damage co-ordinates
 
 Make sure we don't send damage regions larger than the buffer.
 

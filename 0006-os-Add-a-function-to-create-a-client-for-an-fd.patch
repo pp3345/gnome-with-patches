@@ -1,7 +1,7 @@
-From e6d9ba7d490a08ffc553192e229d2488d7abbc9f Mon Sep 17 00:00:00 2001
+From 701261b0407926a34b6d23151f414d95b159c494 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Tue, 21 Jun 2011 21:28:31 -0400
-Subject: [PATCH 06/30] os: Add a function to create a client for an fd
+Subject: [PATCH 06/39] os: Add a function to create a client for an fd
 
 ---
  include/opaque.h |  1 +
@@ -116,10 +116,10 @@ index 6cd8bcf..499a4dd 100644
 +
  #endif
 diff --git a/os/utils.c b/os/utils.c
-index 60e828e..e56e4a4 100644
+index 97c3125..3e9f525 100644
 --- a/os/utils.c
 +++ b/os/utils.c
-@@ -780,7 +780,11 @@ ProcessCommandLine(int argc, char *argv[])
+@@ -778,7 +778,11 @@ ProcessCommandLine(int argc, char *argv[])
  #endif
          else if (strcmp(argv[i], "-nolisten") == 0) {
              if (++i < argc) {

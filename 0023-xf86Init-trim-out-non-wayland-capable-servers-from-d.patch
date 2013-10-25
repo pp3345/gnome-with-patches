@@ -1,7 +1,7 @@
-From 1173a0b6937bda0e684d75111242c2f513b3d072 Mon Sep 17 00:00:00 2001
+From 7865d8abc9fe47ccde165f37c4a887fb398f7216 Mon Sep 17 00:00:00 2001
 From: Ray Strode <rstrode@redhat.com>
 Date: Fri, 13 Sep 2013 17:17:16 -0400
-Subject: [PATCH 23/30] xf86Init: trim out non-wayland capable servers from
+Subject: [PATCH 23/39] xf86Init: trim out non-wayland capable servers from
  drive list
 
 Otherwise they'll cause the server to crash when run in wayland mode.
@@ -10,10 +10,10 @@ Otherwise they'll cause the server to crash when run in wayland mode.
  1 file changed, 9 insertions(+)
 
 diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
-index 5ac97cc..a5a7daf 100644
+index 2d3bb01..6282252 100644
 --- a/hw/xfree86/common/xf86Init.c
 +++ b/hw/xfree86/common/xf86Init.c
-@@ -568,6 +568,15 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
+@@ -558,6 +558,15 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
  	    }
          }
  

@@ -1,7 +1,7 @@
-From a097d8905dcfeb799b003faf6aeea3826b5bb35b Mon Sep 17 00:00:00 2001
+From be359481c9c0947451d119efb643dcaef0529a42 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Thu, 21 Jul 2011 09:55:46 -0700
-Subject: [PATCH 07/30] Export xf86NewInputDevice and xf86AllocateInput
+Subject: [PATCH 07/39] Export xf86NewInputDevice and xf86AllocateInput
 
 ---
  hw/xfree86/common/xf86Xinput.c | 2 +-

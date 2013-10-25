@@ -1,7 +1,7 @@
-From cc086626e1e02a0639f6107ae10fdbffc9640551 Mon Sep 17 00:00:00 2001
+From 31d81fa77db3989a987b12a822130f8f12cc2276 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Fri, 13 Sep 2013 15:16:31 -0700
-Subject: [PATCH 28/30] os: Also define ListenOnOpenFD and AddClientOnOpenFD
+Subject: [PATCH 28/39] os: Also define ListenOnOpenFD and AddClientOnOpenFD
  unconditionally
 
 Remove the #ifdef from the header file as well.

@@ -5,10 +5,10 @@
 
 builddir="abi-rebuild"
 
-if [ -e "$builddir" ]; then
-    echo "Path '$builddir' exists. Move out of the way first"
-    exit 1
-fi
+#if [ -e "$builddir" ]; then
+#    echo "Path '$builddir' exists. Move out of the way first"
+#    exit 1
+#fi
 
 mkdir -p $builddir
 pushd $builddir
@@ -36,11 +36,15 @@ extradrivers="xorg-x11-drv-ivtv"
 rm -rf xorg-x11-drivers
 echo $driverlist $extradrivers | xargs -n1 $pkg co $branch
 
-for i in */ ; do
+for i in xorg-x11-drv-*/ ; do
     [ -e $i/dead.package ] && continue
     pushd $i
     rpmdev-bumpspec -c "- ABI rebuild" *.spec
-    $pkg commit -c -p && $pkg build --nowait
+    #$pkg commit -c -p && $pkg build --nowait
+    #$pkg mockbuild
+    $pkg srpm
+    #mockchain -r fedora-20-x86_64 -l $OLDPWD
+    #mockchain -r rhel-7.0-candidate-x86_64 -l $OLDPWD
     popd
 done
 

@@ -8,8 +8,8 @@
 # format, and add a PatchN: line.  If you want to push something upstream,
 # check out the master branch, pull, cherry-pick, and push.
 
-#global gitdate 20130215
-%global stable_abi 1
+%global gitdate 20131021
+%global stable_abi 0
 
 %if !0%{?gitdate} || %{stable_abi}
 # Released ABI versions.  Have to keep these manually in sync with the
@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.14.3
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.14.99.3
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -51,7 +51,8 @@ Group:     User Interface/X
 %if 0%{?gitdate}
 # git snapshot.  to recreate, run:
 # ./make-git-snapshot.sh `cat commitid`
-Source0:   xorg-server-%{gitdate}.tar.xz
+#Source0:   xorg-server-%{gitdate}.tar.xz
+Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source1:   make-git-snapshot.sh
 Source2:   commitid
 %else
@@ -73,6 +74,48 @@ Source31: xserver-sdk-abi-requires.git
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
 
+# xwayland.  trivial rebase onto master:
+# http://cgit.freedesktop.org/~ajax/xserver/log/?h=wl-rebase-for-f20
+Patch0000: 0001-dbe-Cleanup-in-CloseScreen-hook-not-ext-CloseDown.patch
+Patch0001: 0002-xkb-Add-struct-XkbCompContext.patch
+Patch0002: 0003-xkb-Split-out-code-to-start-and-finish-xkbcomp.patch
+Patch0003: 0004-xkb-Add-XkbCompileKeymapFromString.patch
+Patch0004: 0005-configure-Track-updated-version-of-libxtrans.patch
+Patch0005: 0006-os-Add-a-function-to-create-a-client-for-an-fd.patch
+Patch0006: 0007-Export-xf86NewInputDevice-and-xf86AllocateInput.patch
+Patch0007: 0008-Export-CompositeRedirectSubwindows-and-CompositeUnRe.patch
+Patch0008: 0009-Add-redirect-window-for-input-device-feature.patch
+Patch0009: 0010-dri2-Introduce-a-third-version-of-the-AuthMagic-func.patch
+Patch0010: 0011-Add-xwayland-module.patch
+Patch0011: 0012-xwayland-Add-a-HW_WAYLAND-flag-to-let-drivers-explic.patch
+Patch0012: 0013-xwayland-shm-don-t-create-alpha-buffers-if-the-windo.patch
+Patch0013: 0014-xwayland-handle-global-object-destruction.patch
+Patch0014: 0015-xwayland-add-support-for-multiple-outputs.patch
+Patch0015: 0016-xwayland-Probe-outputs-on-preinit.patch
+Patch0016: 0017-XFree86-Load-wlshm-driver-as-fallback-for-Wayland.patch
+Patch0017: 0018-XWayland-Don-t-send-out-of-bounds-damage-co-ordinate.patch
+Patch0018: 0019-xwayland-Introduce-an-auto-mode-for-enable-wayland.patch
+Patch0019: 0020-XWayland-Don-t-hardcode-DRM-libs-and-lwayland-client.patch
+Patch0020: 0021-XWayland-Support-16bpp-X-surfaces-in-DRM-SHM.patch
+Patch0021: 0022-xwayland-Remove-Xdnd-selection-watching-code.patch
+Patch0022: 0023-xf86Init-trim-out-non-wayland-capable-servers-from-d.patch
+Patch0023: 0024-Add-XORG_WAYLAND-symbol-to-xorg-config.h.in.patch
+Patch0024: 0025-Fix-fallback-loading-of-the-wayland-driver.patch
+Patch0025: 0026-xwayland-Don-t-include-xorg-server.h.patch
+Patch0026: 0027-os-Don-t-include-xorg-server.h.patch
+Patch0027: 0028-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
+Patch0028: 0029-xwayland-Remove-unused-variables.patch
+Patch0029: 0030-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
+Patch0030: 0031-XWayland-Don-t-commit-empty-surfaces.patch
+Patch0031: 0032-xwayland-Also-look-for-wlglamor.patch
+Patch0032: 0033-xwayland-Add-wlglamor-the-right-way.patch
+Patch0033: 0034-xwayland-Don-t-redirect-windows-leave-it-to-the-wm.patch
+Patch0034: 0035-Revert-Export-CompositeRedirectSubwindows-and-Compos.patch
+Patch0035: 0036-xwayland-Fix-hidden-cursor.patch
+Patch0036: 0037-xkb-Repurpose-XkbCopyDeviceKeymap-to-apply-a-given-k.patch
+Patch0037: 0038-xkb-Factor-out-a-function-to-copy-a-keymap-s-control.patch
+Patch0038: 0039-xwayland-Handle-keymap-changes.patch
+
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
@@ -83,9 +126,6 @@ Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 # ajax needs to upstream this
 Patch6030: xserver-1.6.99-right-of.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
-
-# upstream submitted
-Patch6052: 0001-randr-upstream-set-changed-fixes.patch
 
 # Fix libselinux-triggered build error
 # RedHat/Fedora-specific patch
@@ -104,56 +144,14 @@ Patch7052: 0001-xf86-return-NULL-for-compat-output-if-no-outputs.patch
 # mustard: make the default queue length bigger to calm abrt down
 Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
 
-# scale events from abs devices in relative mode to something useful
-Patch8003: 0004-dix-pre-scale-x-by-the-screen-device-resolution-rati.patch
-Patch8004: 0005-dix-scale-y-back-instead-of-x-up-when-pre-scaling-co.patch
-
-# Bug 962572 - X-sandboxes are not resizeable
-Patch8038: 0001-ephyr-Add-resizeable-option.patch
-
 # Fix multiple monitors in reverse optimus configurations
 Patch8040: 0001-rrcrtc-brackets-are-hard-lets-go-shopping.patch
 Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
 
-# upstream in -next for 1.15, e21e183059df5975e7086850d1931edb2c1bbd06
-%if !0%{?rhel}
-Patch7071: 0001-os-use-libunwind-to-generate-backtraces.patch
-%endif
-
-# xwayland.  trivial backport from master to 1.14:
-# http://cgit.freedesktop.org/~ajax/xserver/log/?h=xwayland-1.14
-Patch9001: 0001-dbe-Cleanup-in-CloseScreen-hook-not-ext-CloseDown.patch
-Patch9002: 0002-xkb-Add-struct-XkbCompContext.patch
-Patch9003: 0003-xkb-Split-out-code-to-start-and-finish-xkbcomp.patch
-Patch9004: 0004-xkb-Add-XkbCompileKeymapFromString.patch
-Patch9005: 0005-configure-Track-updated-version-of-libxtrans.patch
-Patch9006: 0006-os-Add-a-function-to-create-a-client-for-an-fd.patch
-Patch9007: 0007-Export-xf86NewInputDevice-and-xf86AllocateInput.patch
-Patch9008: 0008-Export-CompositeRedirectSubwindows-and-CompositeUnRe.patch
-Patch9009: 0009-Add-redirect-window-for-input-device-feature.patch
-Patch9010: 0010-dri2-Introduce-a-third-version-of-the-AuthMagic-func.patch
-Patch9011: 0011-Add-xwayland-module.patch
-Patch9012: 0012-xwayland-Add-a-HW_WAYLAND-flag-to-let-drivers-explic.patch
-Patch9013: 0013-xwayland-shm-don-t-create-alpha-buffers-if-the-windo.patch
-Patch9014: 0014-xwayland-handle-global-object-destruction.patch
-Patch9015: 0015-xwayland-add-support-for-multiple-outputs.patch
-Patch9016: 0016-xwayland-Probe-outputs-on-preinit.patch
-Patch9017: 0017-XFree86-Load-wlshm-driver-as-fallback-for-Wayland.patch
-Patch9018: 0018-XWayland-Don-t-send-out-of-bounds-damage-co-ordinate.patch
-Patch9019: 0019-xwayland-Introduce-an-auto-mode-for-enable-wayland.patch
-Patch9020: 0020-XWayland-Don-t-hardcode-DRM-libs-and-lwayland-client.patch
-Patch9021: 0021-XWayland-Support-16bpp-X-surfaces-in-DRM-SHM.patch
-Patch9022: 0022-xwayland-Remove-Xdnd-selection-watching-code.patch
-Patch9023: 0023-xf86Init-trim-out-non-wayland-capable-servers-from-d.patch
-Patch9024: 0024-Add-XORG_WAYLAND-symbol-to-xorg-config.h.in.patch
-Patch9025: 0025-Fix-fallback-loading-of-the-wayland-driver.patch
-Patch9026: 0026-xwayland-Don-t-include-xorg-server.h.patch
-Patch9027: 0027-os-Don-t-include-xorg-server.h.patch
-Patch9028: 0028-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
-Patch9029: 0029-xwayland-Remove-unused-variables.patch
-Patch9030: 0030-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
-Patch9031: 0001-xfree86-Only-look-at-wayland-capable-drivers-when-wa.patch
-Patch9032: 0001-xwayland-Just-send-the-bounding-box-of-the-damage.patch
+# extra magic to be upstreamed
+Patch9001: 0001-xfree86-Only-look-at-wayland-capable-drivers-when-wa.patch
+Patch9002: 0001-xwayland-Just-send-the-bounding-box-of-the-damage.patch
+Patch9003: 0001-xwayland-Port-to-new-damage-API.patch
 
 # Bug 1019821: Xdmx mouse after button-click goes to upper-left position
 Patch9040: 0001-dmx-queue-button-events-with-valid-valuators.patch
@@ -184,12 +182,12 @@ Patch9040: 0001-dmx-queue-button-events-with-valid-valuators.patch
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
-BuildRequires: xorg-x11-util-macros >= 1.1.5
+BuildRequires: xorg-x11-util-macros >= 1.17
 
-BuildRequires: xorg-x11-proto-devel >= 7.6-20
+BuildRequires: xorg-x11-proto-devel >= 7.7-6
 BuildRequires: xorg-x11-font-utils >= 7.2-11
 
-BuildRequires: xorg-x11-xtrans-devel >= 1.2.2-1
+BuildRequires: xorg-x11-xtrans-devel >= 1.2.7
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
 BuildRequires: libfontenc-devel libXtst-devel libXdmcp-devel
 BuildRequires: libX11-devel libXext-devel
@@ -201,9 +199,9 @@ BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
 BuildRequires: libXv-devel
 BuildRequires: wayland-devel pkgconfig(wayland-client)
-BuildRequires: pixman-devel >= 0.21.8
-BuildRequires: libpciaccess-devel >= 0.12.901-1 openssl-devel byacc flex
-BuildRequires: mesa-libGL-devel >= 7.6-0.6
+BuildRequires: pixman-devel >= 0.30.0
+BuildRequires: libpciaccess-devel >= 0.13.1 openssl-devel byacc flex
+BuildRequires: mesa-libGL-devel >= 9.2
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
@@ -216,6 +214,9 @@ BuildRequires: libunwind-devel
 %endif
 %endif
 
+BuildRequires: pkgconfig(xcb-aux) pkgconfig(xcb-image) pkgconfig(xcb-icccm)
+BuildRequires: pkgconfig(xcb-keysyms)
+
 # All server subpackages have a virtual provide for the name of the server
 # they deliver.  The Xorg one is versioned, the others are intentionally
 # unversioned.
@@ -226,7 +227,7 @@ X.Org X11 X server
 %package common
 Summary: Xorg server common files
 Group: User Interface/X
-Requires: pixman >= 0.21.8
+Requires: pixman >= 0.30.0
 Requires: xkeyboard-config xkbcomp
 
 %description common
@@ -255,14 +256,6 @@ Provides: xserver-abi(extension-%{git_extension_major}) = %{git_extension_minor}
 # need to do something lockstep between now and upstream merge
 Provides: xserver-abi(xwayland) = 1
 
-# Dropped from F17, use evdev
-Obsoletes: xorg-x11-drv-acecad <= 1.5.0-2.fc16
-Obsoletes: xorg-x11-drv-aiptek <= 1.4.1-2.fc16
-Obsoletes: xorg-x11-drv-elographics <= 1.3.0-2.fc16
-Obsoletes: xorg-x11-drv-fpit <= 1.4.0-2.fc16
-Obsoletes: xorg-x11-drv-hyperpen <= 1.4.1-2.fc16
-Obsoletes: xorg-x11-drv-mutouch <= 1.3.0-2.fc16
-Obsoletes: xorg-x11-drv-penmount <= 1.5.0-3.fc16
 %if 0%{?fedora} > 17
 # Dropped from F18, use a video card instead
 # in F17 updates-testing: 0.7.4-1.fc17
@@ -374,9 +367,11 @@ BuildArch: noarch
 Xserver source code needed to build VNC server (Xvnc)
 
 %prep
-%setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
+#setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
+%setup -q -n %{pkgname}-%{version}
 
-%if 0%{?gitdate}
+#if 0%{?gitdate}
+%if 0
 git checkout -b fedora
 sed -i 's/git/&+ssh/' .git/config
 if [ -z "$GIT_COMMITTER_NAME" ]; then
@@ -460,7 +455,6 @@ rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
 
 %if %{with_hw_servers}
-rm -f $RPM_BUILD_ROOT%{_libdir}/xorg/modules/libxf8_16bpp.so
 rm -rf $RPM_BUILD_ROOT%{_libdir}/xorg/modules/multimedia/
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
@@ -636,6 +630,12 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Oct 25 2013 Adam Jackson <ajax@redhat.com> 1.14.99.3-1
+- xserver 1.14.99.3
+- xwayland branch refresh
+- Drop some F17-era Obsoletes
+- Update BuildReqs to match reality
+
 * Wed Oct 23 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.3-6
 - Fix Xdmx cursor jumps (#1019821)
 

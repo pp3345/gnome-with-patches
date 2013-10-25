@@ -1,7 +1,7 @@
-From ad867da0bccaf1b1d0c726e0e44721ea9cb299bf Mon Sep 17 00:00:00 2001
+From 6e37c4facede1739b5e4e84d775f480d5ebd67ef Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Mon, 16 Sep 2013 11:51:57 -0700
-Subject: [PATCH 29/30] xwayland: Remove unused variables
+Subject: [PATCH 29/39] xwayland: Remove unused variables
 
 ---
  hw/xfree86/xwayland/xwayland-window.c | 3 ---

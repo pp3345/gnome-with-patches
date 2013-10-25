@@ -1,7 +1,7 @@
-From ba1428dcb8cdeb22f93c1e3739a7bb8384ec705a Mon Sep 17 00:00:00 2001
+From b04cf1f3df9627b804de1c0c2a2436a608992333 Mon Sep 17 00:00:00 2001
 From: Giovanni Campagna <gcampagn@redhat.com>
 Date: Fri, 13 Sep 2013 15:52:30 +0200
-Subject: [PATCH 25/30] Fix fallback loading of the wayland driver
+Subject: [PATCH 25/39] Fix fallback loading of the wayland driver
 
 Fix the array name to actually compile, and fix the driver name
 with the new upstream.
@@ -24,10 +24,10 @@ index d5a3370..b35cb96 100644
  #endif
  #if !defined(__linux__) && defined(__sparc__)
 diff --git a/hw/xfree86/common/xf86Config.c b/hw/xfree86/common/xf86Config.c
-index 434249b..ffbea8f 100644
+index c65cb80..8255d8d 100644
 --- a/hw/xfree86/common/xf86Config.c
 +++ b/hw/xfree86/common/xf86Config.c
-@@ -520,7 +520,7 @@ fixup_video_driver_list(char **drivers)
+@@ -521,7 +521,7 @@ fixup_video_driver_list(char **drivers)
  {
      static const char *fallback_hw[4] = { "vesa", "fbdev", "wsfb", NULL };
  #ifdef XORG_WAYLAND

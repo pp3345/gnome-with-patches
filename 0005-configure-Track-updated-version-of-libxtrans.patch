@@ -1,7 +1,7 @@
-From 3e23ef6269cfbcd2a3fb7e56bfed347ad6c1f3b9 Mon Sep 17 00:00:00 2001
+From 513821c7014ad999033b273f76a521710f8f6116 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Thu, 22 Nov 2012 20:22:56 -0200
-Subject: [PATCH 05/30] configure: Track updated version of libxtrans
+Subject: [PATCH 05/39] configure: Track updated version of libxtrans
 
 XWayland fails to initialize in some systems complaining about realloc
 problems on libxtrans (when ListenOnOpenFD() is called). It got fixed in
@@ -18,7 +18,7 @@ Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index ac24cb6..737025c 100644
+index 7b4e70f..7f99d2f 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -802,7 +802,7 @@ FIXESPROTO="fixesproto >= 5.0"

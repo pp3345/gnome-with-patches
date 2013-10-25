@@ -1,7 +1,7 @@
-From 33cd04abaa651e90537cc15a1c743f35f8eebce6 Mon Sep 17 00:00:00 2001
+From 7bd95101b4a0f39f10d3ed455749a268bf37f967 Mon Sep 17 00:00:00 2001
 From: Robert Bragg <robert@linux.intel.com>
 Date: Thu, 12 Jan 2012 18:16:08 +0000
-Subject: [PATCH 01/30] dbe: Cleanup in CloseScreen hook not ext CloseDown
+Subject: [PATCH 01/39] dbe: Cleanup in CloseScreen hook not ext CloseDown
 
 Instead of registering an extension CloseDownProc when adding the dbe
 extension this patch hooks into pScreen->CloseScreen so that the chain
@@ -13,15 +13,15 @@ pScreen->DestroyWindow would clobber the chain of callbacks.
 This is needed for xwayland to be able to know when the root window is
 destroyed so it can unredirect root sub-windows.
 ---
- dbe/dbe.c       | 43 ++++++++++++++++++++++---------------------
+ dbe/dbe.c       | 41 +++++++++++++++++++++--------------------
  dbe/dbestruct.h |  1 +
- 2 files changed, 23 insertions(+), 21 deletions(-)
+ 2 files changed, 22 insertions(+), 20 deletions(-)
 
 diff --git a/dbe/dbe.c b/dbe/dbe.c
-index 9039d80..379feb1 100644
+index 5524615..8d8bfb9 100644
 --- a/dbe/dbe.c
 +++ b/dbe/dbe.c
-@@ -292,8 +292,8 @@ ProcDbeAllocateBackBufferName(ClientPtr client)
+@@ -288,8 +288,8 @@ ProcDbeAllocateBackBufferName(ClientPtr client)
  
              /* malloc/realloc a new array and initialize all elements to 0. */
              pDbeWindowPriv->IDs = (XID *) realloc(pIDs,
@@ -32,7 +32,7 @@ index 9039d80..379feb1 100644
                                                     DBE_INCR_MAX_IDS) *
                                                    sizeof(XID));
              if (!pDbeWindowPriv->IDs) {
-@@ -468,7 +468,7 @@ ProcDbeSwapBuffers(ClientPtr client)
+@@ -464,7 +464,7 @@ ProcDbeSwapBuffers(ClientPtr client)
          return BadAlloc;
  
      /* Get to the swap info appended to the end of the request. */
@@ -41,7 +41,7 @@ index 9039d80..379feb1 100644
  
      /* Allocate array to record swap information. */
      swapInfo = (DbeSwapInfoPtr) malloc(nStuff * sizeof(DbeSwapInfoRec));
-@@ -1298,7 +1298,7 @@ DbeWindowPrivDelete(pointer pDbeWinPriv, XID id)
+@@ -1230,7 +1230,7 @@ DbeWindowPrivDelete(pointer pDbeWinPriv, XID id)
  
  /******************************************************************************
   *
@@ -50,7 +50,7 @@ index 9039d80..379feb1 100644
   *
   * Description:
   *
-@@ -1307,28 +1307,26 @@ DbeWindowPrivDelete(pointer pDbeWinPriv, XID id)
+@@ -1239,25 +1239,23 @@ DbeWindowPrivDelete(pointer pDbeWinPriv, XID id)
   *     other tasks related to shutting down the extension.
   *
   *****************************************************************************/
@@ -74,16 +74,12 @@ index 9039d80..379feb1 100644
 -        if (pDbeScreenPriv) {
 -            /* Unwrap DestroyWindow, which was wrapped in DbeExtensionInit(). */
 -            pScreen->DestroyWindow = pDbeScreenPriv->DestroyWindow;
-+        /* Unwrap CloseScreen, which was wrapped in DbeExtensionInit(). */
-+        pScreen->CloseScreen = pDbeScreenPriv->CloseScreen;
- 
--            if (pDbeScreenPriv->ResetProc)
--                (*pDbeScreenPriv->ResetProc) (pScreen);
-+        if (pDbeScreenPriv->ResetProc)
-+            (*pDbeScreenPriv->ResetProc) (pScreen);
- 
+-            pScreen->PositionWindow = pDbeScreenPriv->PositionWindow;
 -            free(pDbeScreenPriv);
 -        }
++        /* Unwrap CloseScreen, which was wrapped in DbeExtensionInit(). */
++        pScreen->CloseScreen = pDbeScreenPriv->CloseScreen;
++
 +        free(pDbeScreenPriv);
      }
 -}                               /* DbeResetProc() */
@@ -93,7 +89,7 @@ index 9039d80..379feb1 100644
  
  /******************************************************************************
   *
-@@ -1498,6 +1496,9 @@ DbeExtensionInit(void)
+@@ -1427,6 +1425,9 @@ DbeExtensionInit(void)
  
                  pDbeScreenPriv->DestroyWindow = pScreen->DestroyWindow;
                  pScreen->DestroyWindow = DbeDestroyWindow;
@@ -103,7 +99,7 @@ index 9039d80..379feb1 100644
              }
              else {
                  /* DDX initialization failed.  Stub the screen. */
-@@ -1525,7 +1526,7 @@ DbeExtensionInit(void)
+@@ -1454,7 +1455,7 @@ DbeExtensionInit(void)
      /* Now add the extension. */
      extEntry = AddExtension(DBE_PROTOCOL_NAME, DbeNumberEvents,
                              DbeNumberErrors, ProcDbeDispatch, SProcDbeDispatch,
@@ -113,10 +109,10 @@ index 9039d80..379feb1 100644
      dbeErrorBase = extEntry->errorBase;
      SetResourceTypeErrorValue(dbeWindowPrivResType,
 diff --git a/dbe/dbestruct.h b/dbe/dbestruct.h
-index f9d938a..4b88d25 100644
+index 2002066..7733d0e 100644
 --- a/dbe/dbestruct.h
 +++ b/dbe/dbestruct.h
-@@ -162,6 +162,7 @@ typedef struct _DbeScreenPrivRec {
+@@ -176,6 +176,7 @@ typedef struct _DbeScreenPrivRec {
       */
      PositionWindowProcPtr PositionWindow;
      DestroyWindowProcPtr DestroyWindow;

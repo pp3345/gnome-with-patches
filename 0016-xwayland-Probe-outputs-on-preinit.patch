@@ -1,7 +1,7 @@
-From 20a6f974f413757da649dcc984fd6c759096dd54 Mon Sep 17 00:00:00 2001
+From 796e417ebb9c2f796ce9588a6a8d7b2cd29c7af3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Sun, 1 Sep 2013 23:14:43 +0200
-Subject: [PATCH 16/30] xwayland: Probe outputs on preinit
+Subject: [PATCH 16/39] xwayland: Probe outputs on preinit
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

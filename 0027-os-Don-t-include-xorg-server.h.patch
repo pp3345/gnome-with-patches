@@ -1,7 +1,7 @@
-From 9e3f213572e83f38cc86dc4b68c5ccb547a6b0fe Mon Sep 17 00:00:00 2001
+From 77e8c128a8f939895907060126539b2913326e75 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Fri, 13 Sep 2013 14:53:16 -0700
-Subject: [PATCH 27/30] os: Don't include xorg-server.h
+Subject: [PATCH 27/39] os: Don't include xorg-server.h
 
 Just always compile in ListenOnOpenFD and AddClientOnOpenFD, they
 don't depend on anything from Quartz or Wayland.

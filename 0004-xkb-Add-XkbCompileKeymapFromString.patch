@@ -1,7 +1,7 @@
-From 927cff328c2b920a04c78c4ee23bd6908ad46ea5 Mon Sep 17 00:00:00 2001
+From a8d1deb17d69dd8a5aa923edf6640173a5a2191b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Tue, 9 Apr 2013 17:45:08 -0400
-Subject: [PATCH 04/30] xkb: Add XkbCompileKeymapFromString()
+Subject: [PATCH 04/39] xkb: Add XkbCompileKeymapFromString()
 
 This new function compiles a keymap from an in-memory string.  We use it
 to add a new keyooard device init function,
@@ -17,7 +17,7 @@ Reviewed-by: Daniel Stone <daniel@fooishbar.org>
  4 files changed, 144 insertions(+), 39 deletions(-)
 
 diff --git a/include/input.h b/include/input.h
-index 7eed60b..9e98e1c 100644
+index 350daba..6573a3a 100644
 --- a/include/input.h
 +++ b/include/input.h
 @@ -385,6 +385,12 @@ extern _X_EXPORT Bool InitKeyboardDeviceStruct(DeviceIntPtr /*device */ ,
@@ -34,10 +34,10 @@ index 7eed60b..9e98e1c 100644
                                 CARD8 * /* map */ ,
                                 int /* len */ ,
 diff --git a/include/xkbsrv.h b/include/xkbsrv.h
-index 45e2e8c..38cdd7b 100644
+index 346ebcc..bef98ef 100644
 --- a/include/xkbsrv.h
 +++ b/include/xkbsrv.h
-@@ -858,4 +858,8 @@ extern _X_EXPORT XkbDescPtr XkbCompileKeymap(DeviceIntPtr /* dev */ ,
+@@ -861,4 +861,8 @@ extern _X_EXPORT XkbDescPtr XkbCompileKeymap(DeviceIntPtr /* dev */ ,
                                               XkbRMLVOSet *      /* rmlvo */
      );
  
@@ -221,10 +221,10 @@ index 001ff46..7a7cf1e 100644
 +    return KeymapOrDefaults(dev, xkb);
  }
 diff --git a/xkb/xkbInit.c b/xkb/xkbInit.c
-index ed01114..7d06fa7 100644
+index f72655f..f3f0d8f 100644
 --- a/xkb/xkbInit.c
 +++ b/xkb/xkbInit.c
-@@ -475,9 +475,10 @@ XkbInitControls(DeviceIntPtr pXDev, XkbSrvInfoPtr xkbi)
+@@ -490,9 +490,10 @@ XkbInitControls(DeviceIntPtr pXDev, XkbSrvInfoPtr xkbi)
      return Success;
  }
  
@@ -238,16 +238,16 @@ index ed01114..7d06fa7 100644
  {
      int i;
      unsigned int check;
-@@ -491,7 +492,7 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
-     if (dev->key || dev->kbdfeed)
-         return FALSE;
+@@ -507,7 +508,7 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
+     BUG_RETURN_VAL(dev->key != NULL, FALSE);
+     BUG_RETURN_VAL(dev->kbdfeed != NULL, FALSE);
  
 -    if (!rmlvo) {
 +    if (!rmlvo && !keymap) {
          rmlvo = &rmlvo_dflts;
          XkbGetRulesDflts(rmlvo);
      }
-@@ -519,19 +520,26 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
+@@ -535,19 +536,26 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
      }
      dev->key->xkbInfo = xkbi;
  
@@ -276,7 +276,7 @@ index ed01114..7d06fa7 100644
      }
  
      xkb = XkbAllocKeyboard();
-@@ -596,8 +604,10 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
+@@ -612,8 +620,10 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
  
      dev->kbdfeed->CtrlProc(dev, &dev->kbdfeed->ctrl);
  
@@ -289,7 +289,7 @@ index ed01114..7d06fa7 100644
      XkbFreeRMLVOSet(&rmlvo_dflts, FALSE);
  
      return TRUE;
-@@ -616,6 +626,24 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
+@@ -632,6 +642,24 @@ InitKeyboardDeviceStruct(DeviceIntPtr dev, XkbRMLVOSet * rmlvo,
      return FALSE;
  }
  

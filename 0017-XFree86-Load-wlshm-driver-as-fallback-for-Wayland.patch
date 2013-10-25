@@ -1,7 +1,7 @@
-From 2ef0364d48a6be3ef69328045ab85d3167840402 Mon Sep 17 00:00:00 2001
+From 400d9b22c0927a20b7255100a4ba8d3d11bef262 Mon Sep 17 00:00:00 2001
 From: Daniel Stone <daniel@fooishbar.org>
 Date: Fri, 16 Aug 2013 13:21:21 +0100
-Subject: [PATCH 17/30] XFree86: Load wlshm driver as fallback for Wayland
+Subject: [PATCH 17/39] XFree86: Load wlshm driver as fallback for Wayland
 
 Since fbdev or vesa are unlikely to be too useful there ...
 
@@ -34,10 +34,10 @@ index 95d58fe..d5a3370 100644
      }
  #endif                          /* !sun */
 diff --git a/hw/xfree86/common/xf86Config.c b/hw/xfree86/common/xf86Config.c
-index 55f9883..434249b 100644
+index 39cd58c..c65cb80 100644
 --- a/hw/xfree86/common/xf86Config.c
 +++ b/hw/xfree86/common/xf86Config.c
-@@ -518,7 +518,11 @@ xf86InputDriverlistFromConfig(void)
+@@ -519,7 +519,11 @@ xf86InputDriverlistFromConfig(void)
  static void
  fixup_video_driver_list(char **drivers)
  {
@@ -50,7 +50,7 @@ index 55f9883..434249b 100644
      char **end, **drv;
      char *x;
      int i;
-@@ -531,9 +535,15 @@ fixup_video_driver_list(char **drivers)
+@@ -532,9 +536,15 @@ fixup_video_driver_list(char **drivers)
       * for each of the fallback drivers, if we find it in the list,
       * swap it with the last available non-fallback driver.
       */

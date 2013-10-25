@@ -1,7 +1,7 @@
-From ef9f67ee52b6a49e3a4901704e51f2f6cde9698a Mon Sep 17 00:00:00 2001
+From 2d673d0606ca79ede96c019670286338949e59ec Mon Sep 17 00:00:00 2001
 From: Giovanni Campagna <gcampagn@redhat.com>
 Date: Wed, 21 Aug 2013 09:53:25 +0200
-Subject: [PATCH 13/30] xwayland-shm: don't create alpha buffers if the window
+Subject: [PATCH 13/39] xwayland-shm: don't create alpha buffers if the window
  doesn't have alpha
 
 If the window is using a 24 bit visual, we must request a buffer

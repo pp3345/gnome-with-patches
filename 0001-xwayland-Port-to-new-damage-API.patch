@@ -1,0 +1,24 @@
+From cef3bbdd16e12c344e40e10ede0e511044e3a8df Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Fri, 25 Oct 2013 12:33:38 -0400
+Subject: [PATCH] xwayland: Port to new damage API
+
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+---
+ hw/xfree86/xwayland/xwayland-window.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/hw/xfree86/xwayland/xwayland-window.c b/hw/xfree86/xwayland/xwayland-window.c
+index c03855c..0cb4f28 100644
+--- a/hw/xfree86/xwayland/xwayland-window.c
++++ b/hw/xfree86/xwayland/xwayland-window.c
+@@ -190,7 +190,6 @@ xwl_unrealize_window(WindowPtr window)
+     xorg_list_del(&xwl_window->link);
+     if (RegionNotEmpty(DamageRegion(xwl_window->damage)))
+	xorg_list_del(&xwl_window->link_damage);
+-    DamageUnregister(&window->drawable, xwl_window->damage);
+     DamageDestroy(xwl_window->damage);
+     free(xwl_window);
+     dixSetPrivate(&window->devPrivates, &xwl_window_private_key, NULL);
+--
+1.8.3.1

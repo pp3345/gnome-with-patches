@@ -1,7 +1,7 @@
-From e56c222b8e6e7f48e928770b1bd4dff20ad627a3 Mon Sep 17 00:00:00 2001
+From 2493a32018a467ff7a6b8420f1110eb5687a0526 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
 Date: Fri, 18 Sep 2009 22:02:43 -0400
-Subject: [PATCH 08/30] Export CompositeRedirectSubwindows and
+Subject: [PATCH 08/39] Export CompositeRedirectSubwindows and
  CompositeUnRedirectSubwindows
 
 ---
@@ -10,7 +10,7 @@ Subject: [PATCH 08/30] Export CompositeRedirectSubwindows and
  2 files changed, 15 insertions(+)
 
 diff --git a/composite/compalloc.c b/composite/compalloc.c
-index cc69c68..edee499 100644
+index b7d731e..98b27b1 100644
 --- a/composite/compalloc.c
 +++ b/composite/compalloc.c
 @@ -46,6 +46,7 @@

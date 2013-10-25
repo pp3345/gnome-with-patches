@@ -1,7 +1,7 @@
-From 5c3fe524e192c878278c650c337b52044daf144a Mon Sep 17 00:00:00 2001
+From 53821bf2c6e95332e3141cafe2fe26527f5dd543 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Wed, 21 Aug 2013 21:23:09 -0700
-Subject: [PATCH 10/30] dri2: Introduce a third version of the AuthMagic
+Subject: [PATCH 10/39] dri2: Introduce a third version of the AuthMagic
  function
 
 This most recent version takes a client pointer to allow xwayland to
@@ -13,10 +13,10 @@ asynchronously authenticate a client.
  3 files changed, 34 insertions(+), 12 deletions(-)
 
 diff --git a/hw/xfree86/dri2/dri2.c b/hw/xfree86/dri2/dri2.c
-index 40963c3..8bf0392 100644
+index 0b047f0..efdcd66 100644
 --- a/hw/xfree86/dri2/dri2.c
 +++ b/hw/xfree86/dri2/dri2.c
-@@ -122,8 +122,9 @@ typedef struct _DRI2Screen {
+@@ -121,8 +121,9 @@ typedef struct _DRI2Screen {
      DRI2ScheduleSwapProcPtr ScheduleSwap;
      DRI2GetMSCProcPtr GetMSC;
      DRI2ScheduleWaitMSCProcPtr ScheduleWaitMSC;
@@ -27,7 +27,7 @@ index 40963c3..8bf0392 100644
      DRI2ReuseBufferNotifyProcPtr ReuseBufferNotify;
      DRI2SwapLimitValidateProcPtr SwapLimitValidate;
      DRI2GetParamProcPtr GetParam;
-@@ -1369,7 +1370,7 @@ DRI2Authenticate(ClientPtr client, ScreenPtr pScreen, uint32_t magic)
+@@ -1352,7 +1353,7 @@ DRI2Authenticate(ClientPtr client, ScreenPtr pScreen, uint32_t magic)
          return FALSE;
  
      primescreen = GetScreenPrime(pScreen, dri2_client->prime_id);
@@ -36,7 +36,7 @@ index 40963c3..8bf0392 100644
          return FALSE;
      return TRUE;
  }
-@@ -1474,8 +1475,11 @@ DRI2ScreenInit(ScreenPtr pScreen, DRI2InfoPtr info)
+@@ -1457,8 +1458,11 @@ DRI2ScreenInit(ScreenPtr pScreen, DRI2InfoPtr info)
          cur_minor = 1;
      }
  
@@ -49,7 +49,7 @@ index 40963c3..8bf0392 100644
      }
      if (info->version >= 5) {
          ds->LegacyAuthMagic = info->AuthMagic;
-@@ -1514,7 +1518,7 @@ DRI2ScreenInit(ScreenPtr pScreen, DRI2InfoPtr info)
+@@ -1497,7 +1501,7 @@ DRI2ScreenInit(ScreenPtr pScreen, DRI2InfoPtr info)
           * If the driver doesn't provide an AuthMagic function
           * it relies on the old method (using libdrm) or fails
           */

@@ -1,7 +1,7 @@
-From 696902dbd5a87b09e2972066d9d87928fdc2f61d Mon Sep 17 00:00:00 2001
+From ce5be44c0556b9b097b4800aee75025feef9e2ff Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Mon, 16 Sep 2013 12:05:19 -0700
-Subject: [PATCH 30/30] xwayland: Use a per-screen private key for cursor
+Subject: [PATCH 30/39] xwayland: Use a per-screen private key for cursor
  privates
 
 The cursor is a per-display object, so we need to set private data on it

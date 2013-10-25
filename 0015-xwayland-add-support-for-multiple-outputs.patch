@@ -1,7 +1,7 @@
-From cf0293df1032b3646ed77b5c1981d6346577f678 Mon Sep 17 00:00:00 2001
+From 99b250c3246d6547cbc6bc84f7f42b9aec5b3a4f Mon Sep 17 00:00:00 2001
 From: Giovanni Campagna <gcampagn@redhat.com>
 Date: Thu, 22 Aug 2013 16:23:48 +0200
-Subject: [PATCH 15/30] xwayland: add support for multiple outputs
+Subject: [PATCH 15/39] xwayland: add support for multiple outputs
 
 Drop xf86InitialConfiguration, which just gets in the way
 of the compositor doing its own output arrangement, and transform
