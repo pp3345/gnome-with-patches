@@ -16,17 +16,17 @@ index 5045e65..c03855c 100644
  #include <sys/mman.h>
  #include <wayland-client.h>
 -#include <X11/extensions/compositeproto.h>
-
+ 
  #include <xf86Crtc.h>
  #include <selection.h>
 -#include <compositeext.h>
  #include <exevents.h>
-
+ 
  #include "xwayland.h"
 @@ -86,49 +84,6 @@ xwl_window_attach(struct xwl_window *xwl_window, PixmapPtr pixmap)
      pixmap->refcnt++;
  }
-
+ 
 -static Bool
 -xwl_create_window(WindowPtr window)
 -{
@@ -75,8 +75,8 @@ index 5045e65..c03855c 100644
  {
 @@ -290,12 +245,6 @@ xwl_screen_init_window(struct xwl_screen *xwl_screen, ScreenPtr screen)
      if (!dixRegisterPrivateKey(&xwl_window_private_key, PRIVATE_WINDOW, 0))
-	return BadAlloc;
-
+ 	return BadAlloc;
+ 
 -    xwl_screen->CreateWindow = screen->CreateWindow;
 -    screen->CreateWindow = xwl_create_window;
 -
@@ -85,6 +85,7 @@ index 5045e65..c03855c 100644
 -
      xwl_screen->RealizeWindow = screen->RealizeWindow;
      screen->RealizeWindow = xwl_realize_window;
-
---
+ 
+-- 
 1.8.3.1
+
