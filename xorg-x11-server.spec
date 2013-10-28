@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.99.3
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -197,8 +197,10 @@ BuildRequires: libXinerama-devel libXi-devel
 BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
 BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
-BuildRequires: libXv-devel
+%if !0%{?rhel}
 BuildRequires: wayland-devel pkgconfig(wayland-client)
+%endif
+BuildRequires: libXv-devel
 BuildRequires: pixman-devel >= 0.30.0
 BuildRequires: libpciaccess-devel >= 0.13.1 openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 9.2
@@ -251,10 +253,12 @@ Provides: xserver-abi(videodrv-%{git_videodrv_major}) = %{git_videodrv_minor}
 Provides: xserver-abi(xinput-%{git_xinput_major}) = %{git_xinput_minor}
 Provides: xserver-abi(extension-%{git_extension_major}) = %{git_extension_minor}
 %endif
+%if !0%{?rhel}
 # this is expected to be temporary, since eventually it will be implied by
 # the server version.  the serial number here is just paranoia in case we
 # need to do something lockstep between now and upstream merge
 Provides: xserver-abi(xwayland) = 1
+%endif
 
 %if 0%{?fedora} > 17
 # Dropped from F18, use a video card instead
@@ -427,11 +431,18 @@ test `getminor extension` == %{extension_minor}
 
 %if 0%{?fedora}
 %global bodhi_flags --with-vendor-name="Fedora Project"
+%global wayland --with-wayland
+%endif
+
+# ick
+%if 0%{?rhel}
+sed -i 's/WAYLAND_SCANNER_RULES.*//g' configure.ac
 %endif
 
 # --with-pie ?
 autoreconf -f -v --install || exit 1
 # export CFLAGS="${RPM_OPT_FLAGS}"
+
 %configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
 	--with-pic \
@@ -444,7 +455,7 @@ autoreconf -f -v --install || exit 1
         --with-dtrace \
 	--enable-xselinux --enable-record \
 	--enable-config-udev \
-	--enable-wayland \
+	%{?wayland} \
 	%{dri_flags} %{?bodhi_flags} \
 	${CONFIGURE}
         
@@ -548,7 +559,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules/drivers
 %dir %{_libdir}/xorg/modules/extensions
 %{_libdir}/xorg/modules/extensions/libglx.so
+%if !0%{?rhel}
 %{_libdir}/xorg/modules/extensions/libxwayland.so
+%endif
 %dir %{_libdir}/xorg/modules/input
 %{_libdir}/xorg/modules/libfbdevhw.so
 %{_libdir}/xorg/modules/libexa.so
@@ -630,6 +643,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Oct 28 2013 Adam Jackson <ajax@redhat.com> 1.14.99.3-2
+- Don't build xwayland in RHEL
+
 * Fri Oct 25 2013 Adam Jackson <ajax@redhat.com> 1.14.99.3-1
 - xserver 1.14.99.3
 - xwayland branch refresh
