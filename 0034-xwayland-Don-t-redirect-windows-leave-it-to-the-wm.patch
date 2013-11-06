@@ -1,4 +1,4 @@
-From 0f0a11b4d5d573080e9db39d150eb66d78a9aab2 Mon Sep 17 00:00:00 2001
+From 52668595cb7e52612944a77276eb71f29d037738 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Fri, 11 Oct 2013 15:41:59 -0700
 Subject: [PATCH 34/39] xwayland: Don't redirect windows, leave it to the wm
@@ -8,7 +8,7 @@ Subject: [PATCH 34/39] xwayland: Don't redirect windows, leave it to the wm
  1 file changed, 51 deletions(-)
 
 diff --git a/hw/xfree86/xwayland/xwayland-window.c b/hw/xfree86/xwayland/xwayland-window.c
-index 5045e65..c03855c 100644
+index fb9c64a..0cb4f28 100644
 --- a/hw/xfree86/xwayland/xwayland-window.c
 +++ b/hw/xfree86/xwayland/xwayland-window.c
 @@ -31,11 +31,9 @@
@@ -73,7 +73,7 @@ index 5045e65..c03855c 100644
  static void
  damage_report(DamagePtr pDamage, RegionPtr pRegion, void *data)
  {
-@@ -290,12 +245,6 @@ xwl_screen_init_window(struct xwl_screen *xwl_screen, ScreenPtr screen)
+@@ -289,12 +244,6 @@ xwl_screen_init_window(struct xwl_screen *xwl_screen, ScreenPtr screen)
      if (!dixRegisterPrivateKey(&xwl_window_private_key, PRIVATE_WINDOW, 0))
  	return BadAlloc;
  

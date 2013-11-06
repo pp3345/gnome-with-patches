@@ -1,4 +1,4 @@
-From b04cf1f3df9627b804de1c0c2a2436a608992333 Mon Sep 17 00:00:00 2001
+From 3b4990d5042c9e6520fa1bd6ff2be696243b3792 Mon Sep 17 00:00:00 2001
 From: Giovanni Campagna <gcampagn@redhat.com>
 Date: Fri, 13 Sep 2013 15:52:30 +0200
 Subject: [PATCH 25/39] Fix fallback loading of the wayland driver

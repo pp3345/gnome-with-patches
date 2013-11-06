@@ -1,4 +1,4 @@
-From 7d66d6b1bceebea3bdb49886e1f6980d480713df Mon Sep 17 00:00:00 2001
+From d99536639333fb9d90a296196395ba96ffe22d96 Mon Sep 17 00:00:00 2001
 From: Daniel Stone <daniel@fooishbar.org>
 Date: Fri, 16 Aug 2013 13:51:08 +0100
 Subject: [PATCH 21/39] XWayland: Support 16bpp X surfaces in DRM/SHM

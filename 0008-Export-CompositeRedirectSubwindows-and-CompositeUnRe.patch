@@ -1,4 +1,4 @@
-From 2493a32018a467ff7a6b8420f1110eb5687a0526 Mon Sep 17 00:00:00 2001
+From b91512c03726e442854813af60b1e399492f346c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
 Date: Fri, 18 Sep 2009 22:02:43 -0400
 Subject: [PATCH 08/39] Export CompositeRedirectSubwindows and

@@ -1,4 +1,4 @@
-From f6f1c358958303aaa0cb2ae40044dd8cdc756618 Mon Sep 17 00:00:00 2001
+From 8742e0ca22257c2c028fbe434ba81a3859a9bf94 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Fri, 11 Oct 2013 16:14:54 -0700
 Subject: [PATCH 32/39] xwayland: Also look for wlglamor
@@ -19,5 +19,6 @@ index b35cb96..9576b86 100644
              matches[i++] = xnfstrdup("wayland");
          else
  #endif
---
+-- 
 1.8.3.1
+

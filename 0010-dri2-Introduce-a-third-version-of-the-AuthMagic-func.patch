@@ -1,4 +1,4 @@
-From 53821bf2c6e95332e3141cafe2fe26527f5dd543 Mon Sep 17 00:00:00 2001
+From 995cadad451bce76a211b1b2f366c41efa1a8c65 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Wed, 21 Aug 2013 21:23:09 -0700
 Subject: [PATCH 10/39] dri2: Introduce a third version of the AuthMagic

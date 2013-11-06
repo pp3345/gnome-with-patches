@@ -1,4 +1,4 @@
-From 58a429b667443eb2c38bad82358edc1d3df045c5 Mon Sep 17 00:00:00 2001
+From ef4f0c33441998d31776b4e05ac637c8e2571219 Mon Sep 17 00:00:00 2001
 From: Giovanni Campagna <gcampagn@redhat.com>
 Date: Fri, 13 Sep 2013 15:52:29 +0200
 Subject: [PATCH 24/39] Add XORG_WAYLAND symbol to xorg-config.h.in
@@ -11,12 +11,12 @@ xorg-config.h.in.
  1 file changed, 3 insertions(+)
 
 diff --git a/include/xorg-config.h.in b/include/xorg-config.h.in
-index 0df31ae..8aec1d8 100644
+index e3444da..a35a9b0 100644
 --- a/include/xorg-config.h.in
 +++ b/include/xorg-config.h.in
-@@ -142,4 +142,7 @@
- /* Define to 1 if you have the `seteuid' function. */
- #undef HAVE_SETEUID
+@@ -148,4 +148,7 @@
+ /* Have support for X shared memory fence library (xshmfence) */
+ #undef HAVE_XSHMFENCE
  
 +/* Building Xorg server. */
 +#undef XORG_WAYLAND

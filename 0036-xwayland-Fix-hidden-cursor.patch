@@ -1,4 +1,4 @@
-From 00e15ddb814dd39bbe7915fff7920aa90ca52cea Mon Sep 17 00:00:00 2001
+From 48552ee6143a7fd576b746cce1ed2580d25a5bce Mon Sep 17 00:00:00 2001
 From: Trevor McCort <tjmccort@gmail.com>
 Date: Tue, 15 Oct 2013 19:41:12 -0500
 Subject: [PATCH 36/39] xwayland: Fix hidden cursor
@@ -18,11 +18,11 @@ index 2cdd248..2b3cb5e 100644
 @@ -153,9 +153,16 @@ xwl_seat_set_cursor(struct xwl_seat *xwl_seat)
  {
      struct wl_buffer *buffer;
-
+ 
 -    if (!xwl_seat->x_cursor || !xwl_seat->wl_pointer)
 +    if (!xwl_seat->wl_pointer)
          return;
-
+ 
 +    if (!xwl_seat->x_cursor) {
 +        wl_pointer_set_cursor(xwl_seat->wl_pointer,
 +                              xwl_seat->pointer_enter_serial,
@@ -32,6 +32,7 @@ index 2cdd248..2b3cb5e 100644
 +
      buffer = dixGetPrivate(&xwl_seat->x_cursor->devPrivates,
                             &xwl_seat->xwl_screen->cursor_private_key);
-
---
+ 
+-- 
 1.8.3.1
+

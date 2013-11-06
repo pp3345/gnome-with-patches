@@ -1,4 +1,4 @@
-From f56320a89c3da88bc844069e33edf34cca09e39a Mon Sep 17 00:00:00 2001
+From d43a01c9cb622ea7300614dce3d0752e21ca180a Mon Sep 17 00:00:00 2001
 From: Rui Matos <tiagomatos@gmail.com>
 Date: Mon, 21 Oct 2013 14:41:54 +0200
 Subject: [PATCH 39/39] xwayland: Handle keymap changes

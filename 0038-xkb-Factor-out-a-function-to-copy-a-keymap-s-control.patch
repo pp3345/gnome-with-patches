@@ -1,4 +1,4 @@
-From 50904d21bffcd88bede056d10e7826d5f6c83278 Mon Sep 17 00:00:00 2001
+From bcbc8bf3a7ed433cb6424deca845f49d3b744339 Mon Sep 17 00:00:00 2001
 From: Rui Matos <tiagomatos@gmail.com>
 Date: Mon, 21 Oct 2013 14:41:53 +0200
 Subject: [PATCH 38/39] xkb: Factor out a function to copy a keymap's controls
@@ -17,13 +17,13 @@ index 83ee1d0..6a2e96e 100644
 @@ -829,6 +829,9 @@ extern void XkbFakeDeviceButton(DeviceIntPtr /* dev */ ,
                                  int /* press */ ,
                                  int /* button */ );
-
+ 
 +extern _X_EXPORT void XkbCopyControls(XkbDescPtr /* dst */ ,
 +                                      XkbDescPtr /* src */ );
 +
  #include "xkbfile.h"
  #include "xkbrules.h"
-
+ 
 diff --git a/xkb/xkb.c b/xkb/xkb.c
 index 7a631b8..6a68e81 100644
 --- a/xkb/xkb.c
@@ -33,12 +33,12 @@ index 7a631b8..6a68e81 100644
          XkbDescPtr old_xkb;
          xkbNewKeyboardNotify nkn;
 -        int i, nG, nTG;
-
+ 
          old_xkb = xkb;
          xkb = new;
          dev->key->xkbInfo->desc = xkb;
          new = old_xkb;          /* so it'll get freed automatically */
-
+ 
 -        *xkb->ctrls = *old_xkb->ctrls;
 -        for (nG = nTG = 0, i = xkb->min_key_code; i <= xkb->max_key_code; i++) {
 -            nG = XkbKeyNumGroups(xkb, i);
@@ -52,7 +52,7 @@ index 7a631b8..6a68e81 100644
 -        }
 -        xkb->ctrls->num_groups = nTG;
 +        XkbCopyControls(xkb, old_xkb);
-
+ 
          nkn.deviceID = nkn.oldDeviceID = dev->id;
          nkn.minKeyCode = new->min_key_code;
 diff --git a/xkb/xkbUtils.c b/xkb/xkbUtils.c
@@ -86,5 +86,6 @@ index 1f8a839..6cf6e79 100644
 +    }
 +    dst->ctrls->num_groups = nTG;
 +}
---
+-- 
 1.8.3.1
+

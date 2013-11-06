@@ -1,4 +1,4 @@
-From 31d81fa77db3989a987b12a822130f8f12cc2276 Mon Sep 17 00:00:00 2001
+From cc29e0dc978c1aea7b989c69a6512a80e2acf071 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Fri, 13 Sep 2013 15:16:31 -0700
 Subject: [PATCH 28/39] os: Also define ListenOnOpenFD and AddClientOnOpenFD
@@ -10,10 +10,10 @@ Remove the #ifdef from the header file as well.
  1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/include/os.h b/include/os.h
-index 32e5b96..5d845b0 100644
+index 4d4a0d6..4752d15 100644
 --- a/include/os.h
 +++ b/include/os.h
-@@ -160,10 +160,9 @@ extern _X_EXPORT void MakeClientGrabImpervious(ClientPtr /*client */ );
+@@ -164,10 +164,9 @@ extern _X_EXPORT void MakeClientGrabImpervious(ClientPtr /*client */ );
  
  extern _X_EXPORT void MakeClientGrabPervious(ClientPtr /*client */ );
  
@@ -24,7 +24,7 @@ index 32e5b96..5d845b0 100644
 -#endif
  
  extern _X_EXPORT CARD32 GetTimeInMillis(void);
- 
+ extern _X_EXPORT CARD64 GetTimeInMicros(void);
 -- 
 1.8.3.1
 

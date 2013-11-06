@@ -1,4 +1,4 @@
-From 77e8c128a8f939895907060126539b2913326e75 Mon Sep 17 00:00:00 2001
+From 064a8d7f03e8576be8d581a197efe12d319304e6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Fri, 13 Sep 2013 14:53:16 -0700
 Subject: [PATCH 27/39] os: Don't include xorg-server.h
@@ -10,7 +10,7 @@ don't depend on anything from Quartz or Wayland.
  1 file changed, 4 deletions(-)
 
 diff --git a/os/connection.c b/os/connection.c
-index 499a4dd..65ca01b 100644
+index a95e7da..0a858b7 100644
 --- a/os/connection.c
 +++ b/os/connection.c
 @@ -64,7 +64,6 @@ SOFTWARE.

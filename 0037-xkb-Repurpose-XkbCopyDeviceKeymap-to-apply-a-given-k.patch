@@ -1,4 +1,4 @@
-From 1af712071d2cf7aac5232da166276d38cded68e7 Mon Sep 17 00:00:00 2001
+From 2a58c1c5cc8db21252838b6aacb14986850f1ddd Mon Sep 17 00:00:00 2001
 From: Rui Matos <tiagomatos@gmail.com>
 Date: Tue, 22 Oct 2013 16:50:29 +0200
 Subject: [PATCH 37/39] xkb: Repurpose XkbCopyDeviceKeymap to apply a given
@@ -14,18 +14,18 @@ apply to a device but don't have a source device.
  4 files changed, 11 insertions(+), 11 deletions(-)
 
 diff --git a/Xi/exevents.c b/Xi/exevents.c
-index f510a9e..5b6d370 100644
+index 69b4038..028bdb4 100644
 --- a/Xi/exevents.c
 +++ b/Xi/exevents.c
 @@ -230,7 +230,7 @@ CopyKeyClass(DeviceIntPtr device, DeviceIntPtr master)
-
+ 
      mk->sourceid = device->id;
-
+ 
 -    if (!XkbCopyDeviceKeymap(master, device))
 +    if (!XkbDeviceApplyKeymap(master, device->key->xkbInfo->desc))
          FatalError("Couldn't pivot keymap from device to core!\n");
  }
-
+ 
 diff --git a/include/xkbsrv.h b/include/xkbsrv.h
 index bef98ef..83ee1d0 100644
 --- a/include/xkbsrv.h
@@ -33,12 +33,12 @@ index bef98ef..83ee1d0 100644
 @@ -812,8 +812,8 @@ extern _X_EXPORT void XkbSendNewKeyboardNotify(DeviceIntPtr /* kbd */ ,
  extern Bool XkbCopyKeymap(XkbDescPtr /* dst */ ,
                            XkbDescPtr /* src */ );
-
+ 
 -extern _X_EXPORT Bool XkbCopyDeviceKeymap(DeviceIntPtr /* dst */ ,
 -                                          DeviceIntPtr /* src */ );
 +extern _X_EXPORT Bool XkbDeviceApplyKeymap(DeviceIntPtr /* dst */ ,
 +                                           XkbDescPtr /* src */ );
-
+ 
  extern void XkbFilterEvents(ClientPtr /* pClient */ ,
                              int /* nEvents */ ,
 diff --git a/xkb/xkb.c b/xkb/xkb.c
@@ -47,11 +47,11 @@ index c78aceb..7a631b8 100644
 +++ b/xkb/xkb.c
 @@ -5991,7 +5991,7 @@ ProcXkbGetKbdByName(ClientPtr client)
                  continue;
-
+ 
              if (tmpd != dev)
 -                XkbCopyDeviceKeymap(tmpd, dev);
 +                XkbDeviceApplyKeymap(tmpd, xkb);
-
+ 
              if (tmpd->kbdfeed && tmpd->kbdfeed->xkb_sli) {
                  old_sli = tmpd->kbdfeed->xkb_sli;
 diff --git a/xkb/xkbUtils.c b/xkb/xkbUtils.c
@@ -60,18 +60,18 @@ index 6c6af60..1f8a839 100644
 +++ b/xkb/xkbUtils.c
 @@ -1999,28 +1999,28 @@ XkbCopyKeymap(XkbDescPtr dst, XkbDescPtr src)
  }
-
+ 
  Bool
 -XkbCopyDeviceKeymap(DeviceIntPtr dst, DeviceIntPtr src)
 +XkbDeviceApplyKeymap(DeviceIntPtr dst, XkbDescPtr desc)
  {
      xkbNewKeyboardNotify nkn;
      Bool ret;
-
+ 
 -    if (!dst->key || !src->key)
 +    if (!dst->key || !desc)
          return FALSE;
-
+ 
      memset(&nkn, 0, sizeof(xkbNewKeyboardNotify));
      nkn.oldMinKeyCode = dst->key->xkbInfo->desc->min_key_code;
      nkn.oldMaxKeyCode = dst->key->xkbInfo->desc->max_key_code;
@@ -88,11 +88,12 @@ index 6c6af60..1f8a839 100644
 -    if (src->key->xkbInfo->desc->geom)
 +    if (desc->geom)
          nkn.changed |= XkbNKN_GeometryMask;
-
+ 
 -    ret = XkbCopyKeymap(dst->key->xkbInfo->desc, src->key->xkbInfo->desc);
 +    ret = XkbCopyKeymap(dst->key->xkbInfo->desc, desc);
      if (ret)
          XkbSendNewKeyboardNotify(dst, &nkn);
-
---
+ 
+-- 
 1.8.3.1
+

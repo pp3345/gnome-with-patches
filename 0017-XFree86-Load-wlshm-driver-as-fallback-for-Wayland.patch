@@ -1,4 +1,4 @@
-From 400d9b22c0927a20b7255100a4ba8d3d11bef262 Mon Sep 17 00:00:00 2001
+From 11a0bb26adf1a5daf6805c0973bc3bef009c53b1 Mon Sep 17 00:00:00 2001
 From: Daniel Stone <daniel@fooishbar.org>
 Date: Fri, 16 Aug 2013 13:21:21 +0100
 Subject: [PATCH 17/39] XFree86: Load wlshm driver as fallback for Wayland

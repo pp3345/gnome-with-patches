@@ -1,4 +1,4 @@
-From 513821c7014ad999033b273f76a521710f8f6116 Mon Sep 17 00:00:00 2001
+From 4346239a5d9d34761885009ba65a4e3231a45182 Mon Sep 17 00:00:00 2001
 From: Tiago Vignatti <tiago.vignatti@intel.com>
 Date: Thu, 22 Nov 2012 20:22:56 -0200
 Subject: [PATCH 05/39] configure: Track updated version of libxtrans
@@ -18,18 +18,18 @@ Signed-off-by: Tiago Vignatti <tiago.vignatti@intel.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index 7b4e70f..7f99d2f 100644
+index 6925df8..9fb014f 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -802,7 +802,7 @@ FIXESPROTO="fixesproto >= 5.0"
+@@ -806,7 +806,7 @@ FIXESPROTO="fixesproto >= 5.0"
  DAMAGEPROTO="damageproto >= 1.1"
  XCMISCPROTO="xcmiscproto >= 1.2.0"
  BIGREQSPROTO="bigreqsproto >= 1.1.0"
 -XTRANS="xtrans >= 1.2.2"
 +XTRANS="xtrans >= 1.2.7"
+ PRESENTPROTO="presentproto >= 1.0"
  
  dnl List of libraries that require a specific version
- LIBAPPLEWM="applewm >= 1.4"
 -- 
 1.8.3.1
 

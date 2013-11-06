@@ -1,0 +1,30 @@
+From 5f1e832694e57986c0185048a941b3af51b2f85f Mon Sep 17 00:00:00 2001
+From: Julien Cristau <jcristau@debian.org>
+Date: Tue, 5 Nov 2013 07:08:21 -0800
+Subject: [PATCH 3/5] os: Actually use the computed clockid in GetTimeInMicros
+
+The selection of which clock to use for this function was not actually
+getting used when fetching the final clock value.
+
+Reported-by: Julien Cristau <jcristau@debian.org>
+Signed-off-by: Keith Packard <keithp@keithp.com>
+---
+ os/utils.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/os/utils.c b/os/utils.c
+index 995f62a..fb20da7 100644
+--- a/os/utils.c
++++ b/os/utils.c
+@@ -480,7 +480,7 @@ GetTimeInMicros(void)
+         else
+             clockid = ~0L;
+     }
+-    if (clock_gettime(CLOCK_MONOTONIC, &tp) == 0)
++    if (clockid != ~0L && clock_gettime(clockid, &tp) == 0)
+         return (CARD64) tp.tv_sec * (CARD64)1000000 + tp.tv_nsec / 1000;
+ #endif
+ 
+-- 
+1.8.3.1
+

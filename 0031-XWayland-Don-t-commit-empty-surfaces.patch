@@ -1,4 +1,4 @@
-From fc45cb4efcb5dd4de3e90911b44c6d66ef6e6618 Mon Sep 17 00:00:00 2001
+From 274388f6055f0fe33654113b6c2eb09551f20c2b Mon Sep 17 00:00:00 2001
 From: Daniel Stone <daniels@collabora.com>
 Date: Thu, 12 Sep 2013 16:58:00 -0400
 Subject: [PATCH 31/39] XWayland: Don't commit empty surfaces
@@ -16,7 +16,7 @@ Signed-off-by: Daniel Stone <daniels@collabora.com>
  1 file changed, 1 deletion(-)
 
 diff --git a/hw/xfree86/xwayland/xwayland-window.c b/hw/xfree86/xwayland/xwayland-window.c
-index 20db80c..5045e65 100644
+index 3c85630..fb9c64a 100644
 --- a/hw/xfree86/xwayland/xwayland-window.c
 +++ b/hw/xfree86/xwayland/xwayland-window.c
 @@ -80,7 +80,6 @@ xwl_window_attach(struct xwl_window *xwl_window, PixmapPtr pixmap)

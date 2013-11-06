@@ -1,4 +1,4 @@
-From 6ed319fdf521f3a36eb9635297beec3d3d23be8d Mon Sep 17 00:00:00 2001
+From 4a8be9e6f0b389d6e2c883dbf9bceb1f8403ac75 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Fri, 11 Oct 2013 16:29:02 -0700
 Subject: [PATCH 33/39] xwayland: Add wlglamor the right way
@@ -13,7 +13,7 @@ index 9576b86..cc6dcce 100644
 --- a/hw/xfree86/common/xf86AutoConfig.c
 +++ b/hw/xfree86/common/xf86AutoConfig.c
 @@ -282,12 +282,12 @@ listPossibleVideoDrivers(char *matches[], int nmatches)
-
+ 
  #if !defined(sun)
      /* Fallback to platform default frame buffer driver */
 -    if (i < (nmatches - 1)) {
@@ -28,5 +28,6 @@ index 9576b86..cc6dcce 100644
  #endif
  #if !defined(__linux__) && defined(__sparc__)
              matches[i++] = xnfstrdup("wsfb");
---
+-- 
 1.8.3.1
+

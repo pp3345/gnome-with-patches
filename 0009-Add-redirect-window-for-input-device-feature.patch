@@ -1,4 +1,4 @@
-From be8fccebacac8c209bbc6e42e5aba49bc8102491 Mon Sep 17 00:00:00 2001
+From 9702f1ac244758172c3f8edbfc26e99fe1d52fbe Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
 Date: Fri, 18 Sep 2009 22:09:03 -0400
 Subject: [PATCH 09/39] Add redirect window for input device feature
@@ -11,7 +11,7 @@ Subject: [PATCH 09/39] Add redirect window for input device feature
  4 files changed, 29 insertions(+), 1 deletion(-)
 
 diff --git a/Xi/exevents.c b/Xi/exevents.c
-index fd4b80c..f510a9e 100644
+index 5dc9020..69b4038 100644
 --- a/Xi/exevents.c
 +++ b/Xi/exevents.c
 @@ -2025,6 +2025,19 @@ DeliverTouchEvents(DeviceIntPtr dev, TouchPointInfoPtr ti,

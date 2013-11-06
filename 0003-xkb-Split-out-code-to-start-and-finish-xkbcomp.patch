@@ -1,4 +1,4 @@
-From c2e072d4eeeaa15bfe4b963617688a1f25230ab7 Mon Sep 17 00:00:00 2001
+From 04122fce2aac2185efc9a0e6d6e4363e73990658 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Tue, 9 Apr 2013 17:11:03 -0400
 Subject: [PATCH 03/39] xkb: Split out code to start and finish xkbcomp

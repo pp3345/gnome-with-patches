@@ -1,4 +1,4 @@
-From 99b250c3246d6547cbc6bc84f7f42b9aec5b3a4f Mon Sep 17 00:00:00 2001
+From b4354c5a6d8587c079f52e3363b339558f5832a7 Mon Sep 17 00:00:00 2001
 From: Giovanni Campagna <gcampagn@redhat.com>
 Date: Thu, 22 Aug 2013 16:23:48 +0200
 Subject: [PATCH 15/39] xwayland: add support for multiple outputs

@@ -1,4 +1,4 @@
-From b1439c7708dae1b0f68f6e53264d5be1f636bd82 Mon Sep 17 00:00:00 2001
+From 201d8504ebaa1de7be149089281a7f40cd57bb38 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Wed, 21 Aug 2013 23:02:58 -0700
 Subject: [PATCH 12/39] xwayland: Add a HW_WAYLAND flag to let drivers

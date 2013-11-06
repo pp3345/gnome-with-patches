@@ -1,27 +1,27 @@
-From cf0846ea962e60ae1229dba6ee25b067ebafe906 Mon Sep 17 00:00:00 2001
+From 4950f4b3973a9391a674fedd02dc364abe0f121e Mon Sep 17 00:00:00 2001
 From: Daniel Stone <daniel@fooishbar.org>
 Date: Tue, 16 Oct 2012 17:14:01 +1100
 Subject: [PATCH 19/39] xwayland: Introduce an auto mode for --enable-wayland
 
 Signed-off-by: Daniel Stone <daniel@fooishbar.org>
 ---
- configure.ac | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ configure.ac | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index da10573..a74d607 100644
+index c146b7b..5cb4f5d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -635,7 +635,7 @@ AC_ARG_ENABLE(windowswm,      AS_HELP_STRING([--enable-windowswm], [Build XWin w
- AC_ARG_ENABLE(libdrm,         AS_HELP_STRING([--enable-libdrm], [Build Xorg with libdrm support (default: enabled)]), [DRM=$enableval],[DRM=yes])
- AC_ARG_ENABLE(clientids,      AS_HELP_STRING([--disable-clientids], [Build Xorg with client ID tracking (default: enabled)]), [CLIENTIDS=$enableval], [CLIENTIDS=yes])
+@@ -635,7 +635,7 @@ AC_ARG_ENABLE(clientids,      AS_HELP_STRING([--disable-clientids], [Build Xorg
  AC_ARG_ENABLE(pciaccess, AS_HELP_STRING([--enable-pciaccess], [Build Xorg with pciaccess library (default: enabled)]), [PCI=$enableval], [PCI=yes])
+ AC_ARG_ENABLE(linux_acpi, AC_HELP_STRING([--disable-linux-acpi], [Disable building ACPI support on Linux (if available).]), [enable_linux_acpi=$enableval], [enable_linux_acpi=yes])
+ AC_ARG_ENABLE(linux_apm, AC_HELP_STRING([--disable-linux-apm], [Disable building APM support on Linux (if available).]), [enable_linux_apm=$enableval], [enable_linux_apm=yes])
 -AC_ARG_ENABLE(wayland,      AS_HELP_STRING([--disable-wayland], [Build Wayland extension (default: enabled)]), [WAYLAND=$enableval], [WAYLAND=yes])
 +AC_ARG_ENABLE(wayland,      AS_HELP_STRING([--disable-wayland], [Build Wayland extension (default: auto)]), [WAYLAND=$enableval], [WAYLAND=auto])
  
  dnl DDXes.
  AC_ARG_ENABLE(xorg,    	      AS_HELP_STRING([--enable-xorg], [Build Xorg server (default: auto)]), [XORG=$enableval], [XORG=auto])
-@@ -1020,12 +1020,16 @@ if test "x$MITSHM" = xauto; then
+@@ -1025,12 +1025,16 @@ if test "x$MITSHM" = xauto; then
  	MITSHM="$ac_cv_sysv_ipc"
  fi
  
@@ -40,6 +40,26 @@ index da10573..a74d607 100644
  
  AM_CONDITIONAL(MITSHM, [test "x$MITSHM" = xyes])
  if test "x$MITSHM" = xyes; then
+@@ -1127,7 +1131,6 @@ case "$DRI2,$HAVE_DRI2PROTO" in
+ esac
+ AM_CONDITIONAL(DRI2, test "x$DRI2" = xyes)
+ 
+-<<<<<<< HEAD
+ PKG_CHECK_MODULES([DRI3PROTO], $DRI3PROTO,
+                   [HAVE_DRI3PROTO=yes], [HAVE_DRI3PROTO=no])
+ 
+@@ -1186,10 +1189,7 @@ esac
+ 
+ AM_CONDITIONAL(DRI3, test "x$DRI3" = xyes)
+ 
+-if test "x$DRI" = xyes || test "x$DRI2" = xyes || test "x$DRI3" = xyes || test "x$CONFIG_UDEV_KMS" = xyes; then
+-=======
+-if test "x$DRI" = xyes || test "x$DRI2" = xyes || test "x$CONFIG_UDEV_KMS" = xyes || test "x$WAYLAND" = xyes ; then
+->>>>>>> Add xwayland module
++if test "x$DRI" = xyes || test "x$DRI2" = xyes || test "x$DRI3" = xyes || test "x$CONFIG_UDEV_KMS" = xyes || test "x$WAYLAND" = xyes ; then
+ 	if test "x$DRM" = xyes; then
+ 		AC_DEFINE(WITH_LIBDRM, 1, [Building with libdrm support])
+ 		PKG_CHECK_MODULES([LIBDRM], $LIBDRM)
 -- 
 1.8.3.1
 

@@ -8,7 +8,7 @@
 # format, and add a PatchN: line.  If you want to push something upstream,
 # check out the master branch, pull, cherry-pick, and push.
 
-%global gitdate 20131021
+%global gitdate 20131101
 %global stable_abi 0
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.14.99.3
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.14.99.901
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -74,54 +74,58 @@ Source31: xserver-sdk-abi-requires.git
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
 
+# sync with tip
+Patch0001: 0001-Disable-DRI3-and-sync-fence-FD-functions-if-xshmfenc.patch
+Patch0002: 0002-hw-xfree86-Link-libdri3-only-when-DRI3-is-defined.patch
+Patch0003: 0003-os-Actually-use-the-computed-clockid-in-GetTimeInMic.patch
+Patch0004: 0004-Link-with-xshmfence-reference-miSyncShmScreenInit-in.patch
+Patch0005: 0005-Use-GL_LIBS-instead-of-lGL-for-linking.patch
+
 # xwayland.  trivial rebase onto master:
 # http://cgit.freedesktop.org/~ajax/xserver/log/?h=wl-rebase-for-f20
-Patch0000: 0001-dbe-Cleanup-in-CloseScreen-hook-not-ext-CloseDown.patch
-Patch0001: 0002-xkb-Add-struct-XkbCompContext.patch
-Patch0002: 0003-xkb-Split-out-code-to-start-and-finish-xkbcomp.patch
-Patch0003: 0004-xkb-Add-XkbCompileKeymapFromString.patch
-Patch0004: 0005-configure-Track-updated-version-of-libxtrans.patch
-Patch0005: 0006-os-Add-a-function-to-create-a-client-for-an-fd.patch
-Patch0006: 0007-Export-xf86NewInputDevice-and-xf86AllocateInput.patch
-Patch0007: 0008-Export-CompositeRedirectSubwindows-and-CompositeUnRe.patch
-Patch0008: 0009-Add-redirect-window-for-input-device-feature.patch
-Patch0009: 0010-dri2-Introduce-a-third-version-of-the-AuthMagic-func.patch
-Patch0010: 0011-Add-xwayland-module.patch
-Patch0011: 0012-xwayland-Add-a-HW_WAYLAND-flag-to-let-drivers-explic.patch
-Patch0012: 0013-xwayland-shm-don-t-create-alpha-buffers-if-the-windo.patch
-Patch0013: 0014-xwayland-handle-global-object-destruction.patch
-Patch0014: 0015-xwayland-add-support-for-multiple-outputs.patch
-Patch0015: 0016-xwayland-Probe-outputs-on-preinit.patch
-Patch0016: 0017-XFree86-Load-wlshm-driver-as-fallback-for-Wayland.patch
-Patch0017: 0018-XWayland-Don-t-send-out-of-bounds-damage-co-ordinate.patch
-Patch0018: 0019-xwayland-Introduce-an-auto-mode-for-enable-wayland.patch
-Patch0019: 0020-XWayland-Don-t-hardcode-DRM-libs-and-lwayland-client.patch
-Patch0020: 0021-XWayland-Support-16bpp-X-surfaces-in-DRM-SHM.patch
-Patch0021: 0022-xwayland-Remove-Xdnd-selection-watching-code.patch
-Patch0022: 0023-xf86Init-trim-out-non-wayland-capable-servers-from-d.patch
-Patch0023: 0024-Add-XORG_WAYLAND-symbol-to-xorg-config.h.in.patch
-Patch0024: 0025-Fix-fallback-loading-of-the-wayland-driver.patch
-Patch0025: 0026-xwayland-Don-t-include-xorg-server.h.patch
-Patch0026: 0027-os-Don-t-include-xorg-server.h.patch
-Patch0027: 0028-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
-Patch0028: 0029-xwayland-Remove-unused-variables.patch
-Patch0029: 0030-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
-Patch0030: 0031-XWayland-Don-t-commit-empty-surfaces.patch
-Patch0031: 0032-xwayland-Also-look-for-wlglamor.patch
-Patch0032: 0033-xwayland-Add-wlglamor-the-right-way.patch
-Patch0033: 0034-xwayland-Don-t-redirect-windows-leave-it-to-the-wm.patch
-Patch0034: 0035-Revert-Export-CompositeRedirectSubwindows-and-Compos.patch
-Patch0035: 0036-xwayland-Fix-hidden-cursor.patch
-Patch0036: 0037-xkb-Repurpose-XkbCopyDeviceKeymap-to-apply-a-given-k.patch
-Patch0037: 0038-xkb-Factor-out-a-function-to-copy-a-keymap-s-control.patch
-Patch0038: 0039-xwayland-Handle-keymap-changes.patch
+Patch0101: 0001-dbe-Cleanup-in-CloseScreen-hook-not-ext-CloseDown.patch
+Patch0102: 0002-xkb-Add-struct-XkbCompContext.patch
+Patch0103: 0003-xkb-Split-out-code-to-start-and-finish-xkbcomp.patch
+Patch0104: 0004-xkb-Add-XkbCompileKeymapFromString.patch
+Patch0105: 0005-configure-Track-updated-version-of-libxtrans.patch
+Patch0106: 0006-os-Add-a-function-to-create-a-client-for-an-fd.patch
+Patch0107: 0007-Export-xf86NewInputDevice-and-xf86AllocateInput.patch
+Patch0108: 0008-Export-CompositeRedirectSubwindows-and-CompositeUnRe.patch
+Patch0109: 0009-Add-redirect-window-for-input-device-feature.patch
+Patch0110: 0010-dri2-Introduce-a-third-version-of-the-AuthMagic-func.patch
+Patch0111: 0011-Add-xwayland-module.patch
+Patch0112: 0012-xwayland-Add-a-HW_WAYLAND-flag-to-let-drivers-explic.patch
+Patch0113: 0013-xwayland-shm-don-t-create-alpha-buffers-if-the-windo.patch
+Patch0114: 0014-xwayland-handle-global-object-destruction.patch
+Patch0115: 0015-xwayland-add-support-for-multiple-outputs.patch
+Patch0116: 0016-xwayland-Probe-outputs-on-preinit.patch
+Patch0117: 0017-XFree86-Load-wlshm-driver-as-fallback-for-Wayland.patch
+Patch0118: 0018-XWayland-Don-t-send-out-of-bounds-damage-co-ordinate.patch
+Patch0119: 0019-xwayland-Introduce-an-auto-mode-for-enable-wayland.patch
+Patch0120: 0020-XWayland-Don-t-hardcode-DRM-libs-and-lwayland-client.patch
+Patch0121: 0021-XWayland-Support-16bpp-X-surfaces-in-DRM-SHM.patch
+Patch0122: 0022-xwayland-Remove-Xdnd-selection-watching-code.patch
+Patch0123: 0023-xf86Init-trim-out-non-wayland-capable-servers-from-d.patch
+Patch0124: 0024-Add-XORG_WAYLAND-symbol-to-xorg-config.h.in.patch
+Patch0125: 0025-Fix-fallback-loading-of-the-wayland-driver.patch
+Patch0126: 0026-xwayland-Don-t-include-xorg-server.h.patch
+Patch0127: 0027-os-Don-t-include-xorg-server.h.patch
+Patch0128: 0028-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
+Patch0129: 0029-xwayland-Remove-unused-variables.patch
+Patch0130: 0030-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
+Patch0131: 0031-XWayland-Don-t-commit-empty-surfaces.patch
+Patch0132: 0032-xwayland-Also-look-for-wlglamor.patch
+Patch0133: 0033-xwayland-Add-wlglamor-the-right-way.patch
+Patch0134: 0034-xwayland-Don-t-redirect-windows-leave-it-to-the-wm.patch
+Patch0135: 0035-Revert-Export-CompositeRedirectSubwindows-and-Compos.patch
+Patch0136: 0036-xwayland-Fix-hidden-cursor.patch
+Patch0137: 0037-xkb-Repurpose-XkbCopyDeviceKeymap-to-apply-a-given-k.patch
+Patch0138: 0038-xkb-Factor-out-a-function-to-copy-a-keymap-s-control.patch
+Patch0139: 0039-xwayland-Handle-keymap-changes.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
-
-# don't build the (broken) acpi code
-Patch6011: xserver-1.6.0-less-acpi-brokenness.patch
 
 # ajax needs to upstream this
 Patch6030: xserver-1.6.99-right-of.patch
@@ -151,10 +155,6 @@ Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
 # extra magic to be upstreamed
 Patch9001: 0001-xfree86-Only-look-at-wayland-capable-drivers-when-wa.patch
 Patch9002: 0001-xwayland-Just-send-the-bounding-box-of-the-damage.patch
-Patch9003: 0001-xwayland-Port-to-new-damage-API.patch
-
-# Bug 1019821: Xdmx mouse after button-click goes to upper-left position
-Patch9040: 0001-dmx-queue-button-events-with-valid-valuators.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -218,6 +218,8 @@ BuildRequires: libunwind-devel
 
 BuildRequires: pkgconfig(xcb-aux) pkgconfig(xcb-image) pkgconfig(xcb-icccm)
 BuildRequires: pkgconfig(xcb-keysyms)
+# blocking on https://bugzilla.redhat.com/show_bug.cgi?id=1027380
+#BuildRequires: pkgconfig(xshmfence)
 
 # All server subpackages have a virtual provide for the name of the server
 # they deliver.  The Xorg one is versioned, the others are intentionally
@@ -453,6 +455,7 @@ autoreconf -f -v --install || exit 1
 	--with-os-name="$(hostname -s) $(uname -r)" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
         --with-dtrace \
+	--disable-linux-acpi --disable-linux-apm \
 	--enable-xselinux --enable-record \
 	--enable-config-udev \
 	%{?wayland} \
@@ -643,6 +646,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Nov 06 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-1
+- 1.15RC1
+
 * Mon Oct 28 2013 Adam Jackson <ajax@redhat.com> 1.14.99.3-2
 - Don't build xwayland in RHEL
 

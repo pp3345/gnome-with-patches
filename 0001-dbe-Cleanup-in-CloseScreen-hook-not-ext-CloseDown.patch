@@ -1,4 +1,4 @@
-From 7bd95101b4a0f39f10d3ed455749a268bf37f967 Mon Sep 17 00:00:00 2001
+From cace30177d37bf70dafcc297c38af4ecd7f74dba Mon Sep 17 00:00:00 2001
 From: Robert Bragg <robert@linux.intel.com>
 Date: Thu, 12 Jan 2012 18:16:08 +0000
 Subject: [PATCH 01/39] dbe: Cleanup in CloseScreen hook not ext CloseDown

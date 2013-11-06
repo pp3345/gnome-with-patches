@@ -1,4 +1,4 @@
-From 15a94f4f263cfe848382e0587a68d48da31a24b3 Mon Sep 17 00:00:00 2001
+From f7a01c6db6f3aaf161b1c057633a4e53adf8b62b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Fri, 11 Oct 2013 16:40:39 -0700
 Subject: [PATCH 35/39] Revert "Export CompositeRedirectSubwindows and
@@ -18,16 +18,16 @@ index 98b27b1..b7d731e 100644
 +++ b/composite/compalloc.c
 @@ -46,7 +46,6 @@
  #endif
-
+ 
  #include "compint.h"
 -#include "compositeext.h"
-
+ 
  static void
  compScreenUpdate(ScreenPtr pScreen)
 @@ -412,11 +411,6 @@ compRedirectSubwindows(ClientPtr pClient, WindowPtr pWin, int update)
      return Success;
  }
-
+ 
 -int CompositeRedirectSubwindows (WindowPtr pWin, int update)
 -{
 -    return compRedirectSubwindows (serverClient, pWin, update);
@@ -39,7 +39,7 @@ index 98b27b1..b7d731e 100644
 @@ -488,11 +482,6 @@ compUnredirectSubwindows(ClientPtr pClient, WindowPtr pWin, int update)
      return BadValue;
  }
-
+ 
 -int CompositeUnRedirectSubwindows (WindowPtr pWin, int update)
 -{
 -    return compUnredirectSubwindows (serverClient, pWin, update);
@@ -60,8 +60,9 @@ index a072966..0b148f0 100644
 -						 int update);
 -extern _X_EXPORT int CompositeUnRedirectSubwindows (WindowPtr pWin,
 -						    int update);
-
+ 
  extern _X_EXPORT RESTYPE CompositeClientWindowType;
-
---
+ 
+-- 
 1.8.3.1
+

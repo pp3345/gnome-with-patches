@@ -1,4 +1,4 @@
-From 701261b0407926a34b6d23151f414d95b159c494 Mon Sep 17 00:00:00 2001
+From 82eb27b4322bf392542381adf4aef1aae9fc7c37 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Tue, 21 Jun 2011 21:28:31 -0400
 Subject: [PATCH 06/39] os: Add a function to create a client for an fd
@@ -22,10 +22,10 @@ index b76ab6e..8ad9af0 100644
  
  #endif                          /* OPAQUE_H */
 diff --git a/include/os.h b/include/os.h
-index c7108a5..32e5b96 100644
+index 11b2198..4d4a0d6 100644
 --- a/include/os.h
 +++ b/include/os.h
-@@ -160,8 +160,9 @@ extern _X_EXPORT void MakeClientGrabImpervious(ClientPtr /*client */ );
+@@ -164,8 +164,9 @@ extern _X_EXPORT void MakeClientGrabImpervious(ClientPtr /*client */ );
  
  extern _X_EXPORT void MakeClientGrabPervious(ClientPtr /*client */ );
  
@@ -38,7 +38,7 @@ index c7108a5..32e5b96 100644
  
  extern _X_EXPORT CARD32 GetTimeInMillis(void);
 diff --git a/os/connection.c b/os/connection.c
-index 6cd8bcf..499a4dd 100644
+index 162e1d9..a95e7da 100644
 --- a/os/connection.c
 +++ b/os/connection.c
 @@ -64,6 +64,7 @@ SOFTWARE.
@@ -116,10 +116,10 @@ index 6cd8bcf..499a4dd 100644
 +
  #endif
 diff --git a/os/utils.c b/os/utils.c
-index 97c3125..3e9f525 100644
+index fb20da7..42aa13b 100644
 --- a/os/utils.c
 +++ b/os/utils.c
-@@ -778,7 +778,11 @@ ProcessCommandLine(int argc, char *argv[])
+@@ -805,7 +805,11 @@ ProcessCommandLine(int argc, char *argv[])
  #endif
          else if (strcmp(argv[i], "-nolisten") == 0) {
              if (++i < argc) {

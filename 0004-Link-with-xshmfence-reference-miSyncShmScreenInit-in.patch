@@ -1,0 +1,71 @@
+From f348935e7d2c84a438aba08eee2f2c4e0dc77d20 Mon Sep 17 00:00:00 2001
+From: Keith Packard <keithp@keithp.com>
+Date: Tue, 5 Nov 2013 18:37:12 -0800
+Subject: [PATCH 4/5] Link with xshmfence, reference miSyncShmScreenInit in
+ sdksyms
+
+This gets the server to link with xshmfence again, and also ensures
+that the miSyncShm code is linked into the server with the reference
+from sdksyms.
+
+Signed-off-by: Keith Packard <keithp@keithp.com>
+---
+ configure.ac             | 1 +
+ hw/xfree86/sdksyms.sh    | 3 +++
+ include/dix-config.h.in  | 3 +++
+ include/xorg-config.h.in | 3 +++
+ 4 files changed, 10 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index a7515a3..feeae04 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1144,6 +1144,7 @@ AM_CONDITIONAL(XSHMFENCE, test "x$HAVE_XSHMFENCE" = xyes)
+ case x"$HAVE_XSHMFENCE" in
+ 	xyes)
+ 		AC_DEFINE(HAVE_XSHMFENCE, 1, [Have X Shared Memory Fence library])
++		REQUIRED_LIBS="$REQUIRED_LIBS xshmfence"
+ 		;;
+ esac
+ 
+diff --git a/hw/xfree86/sdksyms.sh b/hw/xfree86/sdksyms.sh
+index 7c9734c..d7f259d 100755
+--- a/hw/xfree86/sdksyms.sh
++++ b/hw/xfree86/sdksyms.sh
+@@ -44,6 +44,9 @@ cat > sdksyms.c << EOF
+ /* miext/sync/Makefile.am */
+ #include "misync.h"
+ #include "misyncstr.h"
++#if HAVE_XSHMFENCE
++#include "misyncshm.h"
++#endif
+ 
+ /* Xext/Makefile.am -- half is module, half is builtin */
+ #ifdef XV
+diff --git a/include/dix-config.h.in b/include/dix-config.h.in
+index 397ee96..156383b 100644
+--- a/include/dix-config.h.in
++++ b/include/dix-config.h.in
+@@ -449,4 +449,7 @@
+ #include "dix-config-apple-verbatim.h"
+ #endif
+ 
++/* Have support for X shared memory fence library (xshmfence) */
++#undef HAVE_XSHMFENCE
++
+ #endif /* _DIX_CONFIG_H_ */
+diff --git a/include/xorg-config.h.in b/include/xorg-config.h.in
+index 487d7ad..e3444da 100644
+--- a/include/xorg-config.h.in
++++ b/include/xorg-config.h.in
+@@ -145,4 +145,7 @@
+ /* Support APM/ACPI power management in the server */
+ #undef XF86PM
+ 
++/* Have support for X shared memory fence library (xshmfence) */
++#undef HAVE_XSHMFENCE
++
+ #endif /* _XORG_CONFIG_H_ */
+-- 
+1.8.3.1
+

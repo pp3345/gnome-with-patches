@@ -1,4 +1,4 @@
-From 7865d8abc9fe47ccde165f37c4a887fb398f7216 Mon Sep 17 00:00:00 2001
+From 0d8af023c8037f9d6a219ec38da11e5e473a9610 Mon Sep 17 00:00:00 2001
 From: Ray Strode <rstrode@redhat.com>
 Date: Fri, 13 Sep 2013 17:17:16 -0400
 Subject: [PATCH 23/39] xf86Init: trim out non-wayland capable servers from
