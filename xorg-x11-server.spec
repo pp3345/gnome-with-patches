@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.99.901
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -158,6 +158,14 @@ Patch9002: 0001-xwayland-Just-send-the-bounding-box-of-the-damage.patch
 
 # submitted: http://lists.x.org/archives/xorg-devel/2013-November/038768.html
 Patch9003: 0001-present-Don-t-try-to-initialize-when-building-withou.patch
+
+# also submitted
+Patch9011: 0001-xinerama-Export-the-screen-region.patch
+Patch9012: 0002-dix-Add-PostDispatchCallback.patch
+Patch9013: 0003-damageext-Xineramify-v6.patch
+Patch9014: 0004-composite-Fix-COW-creation-for-Xinerama.patch
+Patch9015: 0005-fixes-Fix-PanoramiXSetPictureClipRegion-for-window-p.patch
+Patch9016: 0006-fixes-Fix-PanoramiXSetWindowShapeRegion.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -654,6 +662,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Nov 07 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-3
+- Merge Xinerama+{Damage,Render,Composite} fix series
+
 * Thu Nov 07 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-2
 - Fix build with --disable-present
 

@@ -1,0 +1,630 @@
+From 728866dbc1246a04dc614fac94b81f6baed19959 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Mon, 16 Sep 2013 15:17:26 -0400
+Subject: [PATCH 3/6] damageext: Xineramify (v6)
+
+v6:
+- Clip window damages even more excruciatingly correctly
+
+Screen 0 holds the "real" damage for all drawable types; the window
+report hooks for other screens look up screen 0 and pile on.  Therefore
+we don't need to wrap Subtract, though we do have to be careful how we
+subtract since we need to clip to the (apparent) root window geometry.
+The real compexity is the cleverness required for deferring writing the
+events, but there's no getting around that.
+
+Add is probably (still) somewhat broken since it will only hit screen 0,
+but Add really only exists for DRI1's sake, and DRI1 disables itself
+with Xinerama enabled anyway.  In the absence of a use case, I'm leaving
+it unwrapped under Xinerama; if someone wants to define how it ought to
+work, be my guest.
+
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+
+stuff
+---
+ Xext/panoramiX.c         |   3 +
+ Xext/panoramiX.h         |   3 +
+ damageext/damageext.c    | 425 ++++++++++++++++++++++++++++++++++++++++++-----
+ damageext/damageextint.h |   4 +
+ 4 files changed, 390 insertions(+), 45 deletions(-)
+
+diff --git a/Xext/panoramiX.c b/Xext/panoramiX.c
+index 15c38a9..ce0d072 100644
+--- a/Xext/panoramiX.c
++++ b/Xext/panoramiX.c
+@@ -54,6 +54,7 @@ Equipment Corporation.
+ #include "resource.h"
+ #include "picturestr.h"
+ #include "xfixesint.h"
++#include "damageextint.h"
+ #ifdef COMPOSITE
+ #include "compint.h"
+ #endif
+@@ -582,6 +583,7 @@ PanoramiXExtensionInit(void)
+ 
+     PanoramiXRenderInit();
+     PanoramiXFixesInit();
++    PanoramiXDamageInit();
+ #ifdef COMPOSITE
+     PanoramiXCompositeInit();
+ #endif
+@@ -887,6 +889,7 @@ PanoramiXResetProc(ExtensionEntry * extEntry)
+ 
+     PanoramiXRenderReset();
+     PanoramiXFixesReset();
++    PanoramiXDamageReset();
+ #ifdef COMPOSITE
+     PanoramiXCompositeReset ();
+ #endif
+diff --git a/Xext/panoramiX.h b/Xext/panoramiX.h
+index 6578dfa..b06fce4 100644
+--- a/Xext/panoramiX.h
++++ b/Xext/panoramiX.h
+@@ -64,6 +64,9 @@ typedef struct {
+         struct {
+             Bool root;
+         } pict;
++        struct {
++            Bool queued;
++        } damage;
+         char raw_data[4];
+     } u;
+ } PanoramiXRes;
+diff --git a/damageext/damageext.c b/damageext/damageext.c
+index 9521c26..7c86491 100644
+--- a/damageext/damageext.c
++++ b/damageext/damageext.c
+@@ -1,5 +1,6 @@
+ /*
+  * Copyright © 2002 Keith Packard
++ * Copyright 2013 Red Hat, Inc.
+  *
+  * Permission to use, copy, modify, distribute, and sell this software and its
+  * documentation for any purpose is hereby granted without fee, provided that
+@@ -28,6 +29,15 @@
+ #include "protocol-versions.h"
+ #include "extinit.h"
+ 
++#ifdef PANORAMIX
++#include "panoramiX.h"
++#include "panoramiXsrv.h"
++
++static RESTYPE XRT_DAMAGE;
++static int (*PanoramiXSaveDamageVector[XDamageNumberRequests]) (ClientPtr);
++
++#endif
++
+ static unsigned char DamageReqCode;
+ static int DamageEventBase;
+ static RESTYPE DamageExtType;
+@@ -37,25 +47,61 @@ static DevPrivateKeyRec DamageClientPrivateKeyRec;
+ #define DamageClientPrivateKey (&DamageClientPrivateKeyRec)
+ 
+ static void
++DamageNoteCritical(ClientPtr pClient)
++{
++    DamageClientPtr pDamageClient = GetDamageClient(pClient);
++
++    /* Composite extension marks clients with manual Subwindows as critical */
++    if (pDamageClient->critical > 0) {
++        SetCriticalOutputPending();
++        pClient->smart_priority = SMART_MAX_PRIORITY;
++    }
++}
++
++static void
++damageGetGeometry(DrawablePtr draw, int *x, int *y, int *w, int *h)
++{
++#ifdef PANORAMIX
++    if (!noPanoramiXExtension && draw->type == DRAWABLE_WINDOW) {
++        WindowPtr win = (WindowPtr)draw;
++
++        if (!win->parent) {
++            *x = screenInfo.x;
++            *y = screenInfo.y;
++            *w = screenInfo.width;
++            *h = screenInfo.height;
++            return;
++        }
++    }
++#endif
++
++    *x = draw->x;
++    *y = draw->y;
++    *w = draw->width;
++    *h = draw->height;
++}
++
++static void
+ DamageExtNotify(DamageExtPtr pDamageExt, BoxPtr pBoxes, int nBoxes)
+ {
+     ClientPtr pClient = pDamageExt->pClient;
+-    DamageClientPtr pDamageClient = GetDamageClient(pClient);
+     DrawablePtr pDrawable = pDamageExt->pDrawable;
+     xDamageNotifyEvent ev;
+-    int i;
++    int i, x, y, w, h;
++
++    damageGetGeometry(pDrawable, &x, &y, &w, &h);
+ 
+     UpdateCurrentTimeIf();
+     ev = (xDamageNotifyEvent) {
+         .type = DamageEventBase + XDamageNotify,
+         .level = pDamageExt->level,
+         .drawable = pDamageExt->drawable,
+-        .damage = pDamageExt->id,
++        .damage = pDamageExt->report_id,
+         .timestamp = currentTime.milliseconds,
+-        .geometry.x = pDrawable->x,
+-        .geometry.y = pDrawable->y,
+-        .geometry.width = pDrawable->width,
+-        .geometry.height = pDrawable->height
++        .geometry.x = x,
++        .geometry.y = y,
++        .geometry.width = w,
++        .geometry.height = h
+     };
+     if (pBoxes) {
+         for (i = 0; i < nBoxes; i++) {
+@@ -72,15 +118,12 @@ DamageExtNotify(DamageExtPtr pDamageExt, BoxPtr pBoxes, int nBoxes)
+     else {
+         ev.area.x = 0;
+         ev.area.y = 0;
+-        ev.area.width = pDrawable->width;
+-        ev.area.height = pDrawable->height;
++        ev.area.width = w;
++        ev.area.height = h;
+         WriteEventsToClient(pClient, 1, (xEvent *) &ev);
+     }
+-    /* Composite extension marks clients with manual Subwindows as critical */
+-    if (pDamageClient->critical > 0) {
+-        SetCriticalOutputPending();
+-        pClient->smart_priority = SMART_MAX_PRIORITY;
+-    }
++
++    DamageNoteCritical(pClient);
+ }
+ 
+ static void
+@@ -162,19 +205,55 @@ ProcDamageQueryVersion(ClientPtr client)
+     return Success;
+ }
+ 
++static DamageExtPtr
++DamageExtCreate(DrawablePtr pDrawable, DamageReportLevel level,
++                ClientPtr client, XID id, XID drawable, XID report_id,
++                DamageReportFunc reportFunc)
++{
++    DamageExtPtr pDamageExt = malloc(sizeof(DamageExtRec));
++    if (!pDamageExt)
++        return NULL;
++
++    pDamageExt->id = id;
++    pDamageExt->report_id = report_id;
++    pDamageExt->drawable = drawable;
++    pDamageExt->pDrawable = pDrawable;
++    pDamageExt->level = level;
++    pDamageExt->pClient = client;
++    pDamageExt->pDamage = DamageCreate(reportFunc, DamageExtDestroy, level,
++                                       FALSE, pDrawable->pScreen, pDamageExt);
++    if (!pDamageExt->pDamage) {
++        free(pDamageExt);
++        return NULL;
++    }
++
++    if (!AddResource(id, DamageExtType, (pointer) pDamageExt))
++        return NULL;
++
++    DamageSetReportAfterOp(pDamageExt->pDamage, TRUE);
++    DamageRegister(pDrawable, pDamageExt->pDamage);
++
++    if (pDrawable->type == DRAWABLE_WINDOW) {
++        RegionPtr pRegion = &((WindowPtr) pDrawable)->borderClip;
++        RegionTranslate(pRegion, -pDrawable->x, -pDrawable->y);
++        DamageReportDamage(pDamageExt->pDamage, pRegion);
++        RegionTranslate(pRegion, pDrawable->x, pDrawable->y);
++    }
++
++    return pDamageExt;
++}
++
+ static int
+-ProcDamageCreate(ClientPtr client)
++doDamageCreate(ClientPtr client, XID reportDrawable, XID reportDamage,
++               DamageReportFunc reportFunc)
+ {
+     DrawablePtr pDrawable;
+     DamageExtPtr pDamageExt;
+     DamageReportLevel level;
+-    RegionPtr pRegion;
+     int rc;
+ 
+     REQUEST(xDamageCreateReq);
+ 
+-    REQUEST_SIZE_MATCH(xDamageCreateReq);
+-    LEGAL_NEW_RESOURCE(stuff->damage, client);
+     rc = dixLookupDrawable(&pDrawable, stuff->drawable, client, 0,
+                            DixGetAttrAccess | DixReadAccess);
+     if (rc != Success)
+@@ -198,39 +277,25 @@ ProcDamageCreate(ClientPtr client)
+         return BadValue;
+     }
+ 
+-    pDamageExt = malloc(sizeof(DamageExtRec));
++    pDamageExt = DamageExtCreate(pDrawable, level, client, stuff->damage,
++                                 reportDrawable, reportDamage, reportFunc);
+     if (!pDamageExt)
+         return BadAlloc;
+-    pDamageExt->id = stuff->damage;
+-    pDamageExt->drawable = stuff->drawable;
+-    pDamageExt->pDrawable = pDrawable;
+-    pDamageExt->level = level;
+-    pDamageExt->pClient = client;
+-    pDamageExt->pDamage = DamageCreate(DamageExtReport,
+-                                       DamageExtDestroy,
+-                                       level,
+-                                       FALSE, pDrawable->pScreen, pDamageExt);
+-    if (!pDamageExt->pDamage) {
+-        free(pDamageExt);
+-        return BadAlloc;
+-    }
+-    if (!AddResource(stuff->damage, DamageExtType, (pointer) pDamageExt))
+-        return BadAlloc;
+-
+-    DamageSetReportAfterOp(pDamageExt->pDamage, TRUE);
+-    DamageRegister(pDamageExt->pDrawable, pDamageExt->pDamage);
+-
+-    if (pDrawable->type == DRAWABLE_WINDOW) {
+-        pRegion = &((WindowPtr) pDrawable)->borderClip;
+-        RegionTranslate(pRegion, -pDrawable->x, -pDrawable->y);
+-        DamageReportDamage(pDamageExt->pDamage, pRegion);
+-        RegionTranslate(pRegion, pDrawable->x, pDrawable->y);
+-    }
+ 
+     return Success;
+ }
+ 
+ static int
++ProcDamageCreate(ClientPtr client)
++{
++    REQUEST(xDamageCreateReq);
++    REQUEST_SIZE_MATCH(xDamageCreateReq);
++    LEGAL_NEW_RESOURCE(stuff->damage, client);
++    return doDamageCreate(client, stuff->drawable, stuff->damage,
++                          DamageExtReport);
++}
++
++static int
+ ProcDamageDestroy(ClientPtr client)
+ {
+     REQUEST(xDamageDestroyReq);
+@@ -242,6 +307,88 @@ ProcDamageDestroy(ClientPtr client)
+     return Success;
+ }
+ 
++#ifdef PANORAMIX
++static RegionPtr
++DamageExtSubtractWindowClip(DamageExtPtr pDamageExt)
++{
++    WindowPtr win = (WindowPtr)pDamageExt->pDrawable;
++    PanoramiXRes *res = NULL;
++    RegionPtr ret;
++    int i;
++
++    if (!win->parent)
++        return &PanoramiXScreenRegion;
++
++    dixLookupResourceByType((void **)&res, win->drawable.id, XRT_WINDOW,
++                            serverClient, DixReadAccess);
++    if (!res)
++        return NULL;
++
++    ret = RegionCreate(NULL, 0);
++    if (!ret)
++        return NULL;
++
++    FOR_NSCREENS_FORWARD(i) {
++        ScreenPtr screen;
++        if (Success != dixLookupWindow(&win, res->info[i].id, serverClient,
++                                       DixReadAccess))
++            goto out;
++
++        screen = win->drawable.pScreen;
++
++        RegionTranslate(ret, -screen->x, -screen->y);
++        if (!RegionUnion(ret, ret, &win->borderClip))
++            goto out;
++        RegionTranslate(ret, screen->x, screen->y);
++    }
++
++    return ret;
++
++out:
++    RegionDestroy(ret);
++    return NULL;
++}
++
++static void
++DamageExtFreeWindowClip(RegionPtr reg)
++{
++    if (reg != &PanoramiXScreenRegion)
++        RegionDestroy(reg);
++}
++#endif
++
++/*
++ * DamageSubtract intersects with borderClip, so we must reconstruct the
++ * protocol's perspective of same...
++ */
++static Bool
++DamageExtSubtract(DamageExtPtr pDamageExt, const RegionPtr pRegion)
++{
++    DamagePtr pDamage = pDamageExt->pDamage;
++
++#ifdef PANORAMIX
++    if (!noPanoramiXExtension) {
++        RegionPtr damage = DamageRegion(pDamage);
++        RegionSubtract(damage, damage, pRegion);
++
++        if (pDamageExt->pDrawable->type == DRAWABLE_WINDOW) {
++            DrawablePtr pDraw = pDamageExt->pDrawable;
++            RegionPtr clip = DamageExtSubtractWindowClip(pDamageExt);
++            if (clip) {
++                RegionTranslate(clip, -pDraw->x, -pDraw->y);
++                RegionIntersect(damage, damage, clip);
++                RegionTranslate(clip, pDraw->x, pDraw->y);
++                DamageExtFreeWindowClip(clip);
++            }
++        }
++
++        return RegionNotEmpty(damage);
++    }
++#endif
++
++    return DamageSubtract(pDamage, pRegion);
++}
++
+ static int
+ ProcDamageSubtract(ClientPtr client)
+ {
+@@ -261,7 +408,7 @@ ProcDamageSubtract(ClientPtr client)
+         if (pRepair) {
+             if (pParts)
+                 RegionIntersect(pParts, DamageRegion(pDamage), pRepair);
+-            if (DamageSubtract(pDamage, pRepair))
++            if (DamageExtSubtract(pDamageExt, pRepair))
+                 DamageExtReport(pDamage, DamageRegion(pDamage),
+                                 (void *) pDamageExt);
+         }
+@@ -271,6 +418,7 @@ ProcDamageSubtract(ClientPtr client)
+             DamageEmpty(pDamage);
+         }
+     }
++
+     return Success;
+ }
+ 
+@@ -460,6 +608,188 @@ SDamageNotifyEvent(xDamageNotifyEvent * from, xDamageNotifyEvent * to)
+     cpswaps(from->geometry.height, to->geometry.height);
+ }
+ 
++#ifdef PANORAMIX
++
++static void
++damageDispatchCallback(CallbackListPtr *cbl, void *closure, void *unused)
++{
++    DamageExtPtr pDamageExt = closure;
++    RegionPtr pRegion = DamageRegion(pDamageExt->pDamage);
++    PanoramiXRes *damage = NULL;
++
++    DamageExtReport(pDamageExt->pDamage, pRegion, pDamageExt);
++    DeleteCallback(&PostDispatchCallback, damageDispatchCallback, pDamageExt);
++
++    dixLookupResourceByType((void **)&damage, pDamageExt->id, XRT_DAMAGE,
++                            serverClient, DixWriteAccess);
++
++    if (damage)
++        damage->u.damage.queued = FALSE;
++}
++
++/* for screen 0 */
++static void
++PanoramiXDamageQueue(DamagePtr pDamage, RegionPtr pRegion, void *closure)
++{
++    DamageExtPtr pDamageExt = closure;
++    PanoramiXRes *damage = NULL;
++
++    /* happens on unmap? sigh xinerama */
++    if (RegionNil(pRegion))
++        return;
++
++    dixLookupResourceByType((void **)&damage, pDamageExt->report_id, XRT_DAMAGE,
++                            serverClient, DixWriteAccess);
++
++    if (damage) {
++        if (!damage->u.damage.queued) {
++            AddCallback(&PostDispatchCallback, damageDispatchCallback,
++                        pDamageExt);
++            damage->u.damage.queued = TRUE;
++        }
++    }
++
++    DamageNoteCritical(pDamageExt->pClient);
++}
++
++/* for screens 1 to n */
++static void
++PanoramiXDamageAccumulate(DamagePtr pDamage, RegionPtr pRegion, void *closure)
++{
++    DamageExtPtr pDamageExt = closure, pDamageExt0 = NULL;
++    PanoramiXRes *damage = NULL;
++
++    /* happens on unmap? sigh xinerama */
++    if (RegionNil(pRegion))
++        return;
++
++    dixLookupResourceByType((void **)&damage, pDamageExt->report_id, XRT_DAMAGE,
++                            serverClient, DixWriteAccess);
++
++    if (damage) {
++        dixLookupResourceByType((void **)&pDamageExt0, damage->info[0].id,
++                                DamageExtType, serverClient, DixWriteAccess);
++
++        if (pDamageExt0) {
++            DrawablePtr pDrawable = pDamageExt->pDrawable;
++            ScreenPtr pScreen = pDrawable->pScreen;
++
++            if (pDrawable->type == DRAWABLE_WINDOW) {
++                WindowPtr pWin = (WindowPtr)pDrawable;
++
++                if (!pWin->parent)
++                    if (RegionNotEmpty(pRegion))
++                        RegionTranslate(pRegion, pScreen->x, pScreen->y);
++            }
++
++            DamageReportDamage(pDamageExt0->pDamage, pRegion);
++            DamageEmpty(pDamageExt->pDamage);
++        }
++    }
++}
++
++static int
++PanoramiXDamageCreate(ClientPtr client)
++{
++    PanoramiXRes *draw, *damage;
++    int i, rc;
++
++    REQUEST(xDamageCreateReq);
++
++    REQUEST_SIZE_MATCH(xDamageCreateReq);
++    LEGAL_NEW_RESOURCE(stuff->damage, client);
++    rc = dixLookupResourceByClass((void **)&draw, stuff->drawable, XRC_DRAWABLE,
++                                  client, DixGetAttrAccess | DixReadAccess);
++    if (rc != Success)
++        return rc;
++
++    if (!(damage = calloc(1, sizeof(PanoramiXRes))))
++        return BadAlloc;
++
++    damage->type = XRT_DAMAGE;
++    if (!AddResource(stuff->damage, XRT_DAMAGE, damage))
++        return BadAlloc;
++
++    /* pixmaps exist on all screens, so just watching screen 0 works */
++    if (draw->type == XRT_PIXMAP) {
++        damage->info[0].id = stuff->damage;
++
++        rc = PanoramiXSaveDamageVector[X_DamageCreate](client);
++        if (rc != Success) {
++            FreeResource(damage->info[0].id, None);
++            return rc;
++        }
++    } else {
++        rc = doDamageCreate(client, stuff->drawable, stuff->damage,
++                            PanoramiXDamageQueue);
++        if (rc == Success) {
++            panoramix_setup_ids(damage, client, stuff->damage);
++
++            FOR_NSCREENS_FORWARD_SKIP(i) {
++                stuff->damage = damage->info[i].id;
++                stuff->drawable = draw->info[i].id;
++                rc = doDamageCreate(client, draw->info[0].id,
++                                    damage->info[0].id,
++                                    PanoramiXDamageAccumulate);
++                if (rc != Success)
++                    FreeResource(damage->info[0].id, None);
++            }
++        } else {
++            FreeResource(damage->info[0].id, None);
++        }
++    }
++
++    return rc;
++}
++
++static int
++PanoramiXDamageDestroy(ClientPtr client)
++{
++    REQUEST(xDamageDestroyReq);
++    PanoramiXRes *damage;
++    int i, rc = Success;
++
++    REQUEST_SIZE_MATCH(xDamageDestroyReq);
++
++    rc = dixLookupResourceByType((void **)&damage, stuff->damage, XRT_DAMAGE,
++                                 client, DixDestroyAccess);
++    if (rc != Success)
++        return rc;
++
++    FOR_NSCREENS_BACKWARD(i) {
++        stuff->damage = damage->info[i].id;
++        if (stuff->damage) {
++            rc = PanoramiXSaveDamageVector[X_DamageDestroy](client);
++            if (rc != Success)
++                break;
++        }
++    }
++
++    return rc;
++}
++
++void
++PanoramiXDamageInit(void)
++{
++    XRT_DAMAGE = CreateNewResourceType(XineramaDeleteResource,
++                                       "XineramaDamage");
++
++    memcpy(PanoramiXSaveDamageVector, ProcDamageVector,
++           sizeof(ProcDamageVector));
++
++    ProcDamageVector[X_DamageCreate] = PanoramiXDamageCreate;
++    ProcDamageVector[X_DamageDestroy] = PanoramiXDamageDestroy;
++}
++
++void
++PanoramiXDamageReset(void)
++{
++    memcpy(ProcDamageVector, PanoramiXSaveDamageVector,
++           sizeof(ProcDamageVector));
++}
++
++#endif /* PANORAMIX */
++
+ void
+ DamageExtensionInit(void)
+ {
+@@ -490,5 +820,10 @@ DamageExtensionInit(void)
+             (EventSwapPtr) SDamageNotifyEvent;
+         SetResourceTypeErrorValue(DamageExtType,
+                                   extEntry->errorBase + BadDamage);
++#ifdef PANORAMIX
++        if (XRT_DAMAGE)
++            SetResourceTypeErrorValue(XRT_DAMAGE,
++                                      extEntry->errorBase + BadDamage);
++#endif
+     }
+ }
+diff --git a/damageext/damageextint.h b/damageext/damageextint.h
+index 2723379..7319a1d 100644
+--- a/damageext/damageextint.h
++++ b/damageext/damageextint.h
+@@ -54,6 +54,7 @@ typedef struct _DamageExt {
+     DamageReportLevel level;
+     ClientPtr pClient;
+     XID id;
++    XID report_id;
+     XID drawable;
+ } DamageExtRec, *DamageExtPtr;
+ 
+@@ -67,4 +68,7 @@ typedef struct _DamageExt {
+ void
+  DamageExtSetCritical(ClientPtr pClient, Bool critical);
+ 
++void PanoramiXDamageInit(void);
++void PanoramiXDamageReset(void);
++
+ #endif                          /* _DAMAGEEXTINT_H_ */
+-- 
+1.8.3.1
+
