@@ -1,0 +1,30 @@
+From 77c2d915c571894d1b17127ba29924fabb5a0fd8 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Thu, 7 Nov 2013 12:00:37 -0500
+Subject: [PATCH] present: Don't try to initialize when building without
+ present support
+
+There's a --disable-present, so it'd be nice if it worked.
+
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+---
+ mi/miinitext.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/mi/miinitext.c b/mi/miinitext.c
+index 6366182..67511b8 100644
+--- a/mi/miinitext.c
++++ b/mi/miinitext.c
+@@ -287,7 +287,9 @@ static ExtensionModule staticExtensions[] = {
+ #ifdef DPMSExtension
+     {DPMSExtensionInit, DPMSExtensionName, &noDPMSExtension},
+ #endif
++#ifdef PRESENT
+     {present_extension_init, PRESENT_NAME, NULL},
++#endif
+ #ifdef DRI3
+     {dri3_extension_init, DRI3_NAME, NULL},
+ #endif
+-- 
+1.8.3.1
+
