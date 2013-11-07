@@ -458,6 +458,7 @@ autoreconf -f -v --install || exit 1
 	--disable-linux-acpi --disable-linux-apm \
 	--enable-xselinux --enable-record \
 	--enable-config-udev \
+	--disable-unit-tests \
 	%{?wayland} \
 	%{dri_flags} %{?bodhi_flags} \
 	${CONFIGURE}
@@ -646,6 +647,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Thu Nov 07 2013 Adam Jackson <ajax@redhat.com
+- Don't bother trying to build the unit tests for now
+
 * Wed Nov 06 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-1
 - 1.15RC1
 
