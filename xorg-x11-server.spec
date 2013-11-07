@@ -529,6 +529,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
     rm -f $RPM_BUILD_ROOT%{_datadir}/aclocal/xorg-server.m4
     rm -rf $RPM_BUILD_ROOT%{_defaultdocdir}/xorg-server
 %endif
+# wtf
+%ifnarch %{ix86} x86_64 %{arm}
+    rm -f $RPM_BUILD_ROOT%{_libdir}/xorg/modules/lib{int10,vbe}.so
+%endif
 }
 
 %clean
