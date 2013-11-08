@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.99.901
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -122,6 +122,8 @@ Patch0136: 0036-xwayland-Fix-hidden-cursor.patch
 Patch0137: 0037-xkb-Repurpose-XkbCopyDeviceKeymap-to-apply-a-given-k.patch
 Patch0138: 0038-xkb-Factor-out-a-function-to-copy-a-keymap-s-control.patch
 Patch0139: 0039-xwayland-Handle-keymap-changes.patch
+# restore ABI
+Patch0200: 0001-mustard-Restore-XkbCopyDeviceKeymap.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -662,6 +664,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Nov 08 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-5
+- Restore XkbCopyDeviceKeymap for (older) tigervnc
+
 * Fri Nov 08 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-4
 - Explicitly enable DRI2
 

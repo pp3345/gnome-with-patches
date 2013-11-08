@@ -1,0 +1,47 @@
+From abdbfba12e439d6c27156b1f4a773d68337e30c0 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Fri, 8 Nov 2013 09:44:24 -0500
+Subject: [PATCH] mustard: Restore XkbCopyDeviceKeymap
+
+xwayland series takes this out, tigervnc 1.2.80 needs it
+
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+---
+ include/xkbsrv.h | 3 +++
+ xkb/xkbUtils.c   | 6 ++++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/include/xkbsrv.h b/include/xkbsrv.h
+index 6a2e96e..d5a4eb6 100644
+--- a/include/xkbsrv.h
++++ b/include/xkbsrv.h
+@@ -812,6 +812,9 @@ extern _X_EXPORT void XkbSendNewKeyboardNotify(DeviceIntPtr /* kbd */ ,
+ extern Bool XkbCopyKeymap(XkbDescPtr /* dst */ ,
+                           XkbDescPtr /* src */ );
+ 
++extern _X_EXPORT Bool XkbCopyDeviceKeymap(DeviceIntPtr /* dst */,
++					  DeviceIntPtr /* src */);
++
+ extern _X_EXPORT Bool XkbDeviceApplyKeymap(DeviceIntPtr /* dst */ ,
+                                            XkbDescPtr /* src */ );
+ 
+diff --git a/xkb/xkbUtils.c b/xkb/xkbUtils.c
+index 6cf6e79..c14a790 100644
+--- a/xkb/xkbUtils.c
++++ b/xkb/xkbUtils.c
+@@ -2027,6 +2027,12 @@ XkbDeviceApplyKeymap(DeviceIntPtr dst, XkbDescPtr desc)
+     return ret;
+ }
+ 
++Bool
++XkbCopyDeviceKeymap(DeviceIntPtr dst, DeviceIntPtr src)
++{
++    return XkbDeviceApplyKeymap(dst, src->key->xkbInfo->desc);
++}
++
+ int
+ XkbGetEffectiveGroup(XkbSrvInfoPtr xkbi, XkbStatePtr xkbState, CARD8 keycode)
+ {
+-- 
+1.8.3.1
+
