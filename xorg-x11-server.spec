@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.99.901
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -437,7 +437,7 @@ test `getminor extension` == %{extension_minor}
 %global default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
 
 %if %{with_hw_servers}
-%global dri_flags --with-dri-driver-path=%{drimoduledir}
+%global dri_flags --with-dri-driver-path=%{drimoduledir} --enable-dri2
 %else
 %global dri_flags --disable-dri
 %endif
@@ -662,6 +662,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Nov 08 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-4
+- Explicitly enable DRI2
+
 * Thu Nov 07 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-3
 - Merge Xinerama+{Damage,Render,Composite} fix series
 
