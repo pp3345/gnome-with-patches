@@ -8,7 +8,7 @@
 # format, and add a PatchN: line.  If you want to push something upstream,
 # check out the master branch, pull, cherry-pick, and push.
 
-%global gitdate 20131101
+%global gitdate 20131118
 %global stable_abi 0
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.14.99.901
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.14.99.902
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -75,11 +75,15 @@ Source31: xserver-sdk-abi-requires.git
 Source40: driver-abi-rebuild.sh
 
 # sync with tip
-Patch0001: 0001-Disable-DRI3-and-sync-fence-FD-functions-if-xshmfenc.patch
-Patch0002: 0002-hw-xfree86-Link-libdri3-only-when-DRI3-is-defined.patch
-Patch0003: 0003-os-Actually-use-the-computed-clockid-in-GetTimeInMic.patch
-Patch0004: 0004-Link-with-xshmfence-reference-miSyncShmScreenInit-in.patch
-Patch0005: 0005-Use-GL_LIBS-instead-of-lGL-for-linking.patch
+Patch0001: 0001-ephyr-xcb_connect-returns-an-error-not-NULL.patch
+Patch0002: 0002-kdrive-handle-WxH-as-valid-geometry-spec.patch
+Patch0003: 0003-kdrive-modify-ephyr-events-to-use-POINTER_DESKTOP-an.patch
+Patch0004: 0004-kdrive-fix-cursor-jumps-on-CursorOffScreen-behavior.patch
+Patch0005: 0005-Stop-including-inline-assembly-.il-file-for-Solaris-.patch
+Patch0006: 0006-include-export-key_is_down-and-friends.patch
+Patch0007: 0007-test-build-the-touch-test-only-when-building-Xorg.patch
+Patch0008: 0008-xfree86-return-NULL-for-compat-output-if-no-outputs.patch
+Patch0009: 0009-mieq-Bump-default-queue-size-to-512.patch
 
 # xwayland.  trivial rebase onto master:
 # http://cgit.freedesktop.org/~ajax/xserver/log/?h=wl-rebase-for-f20
@@ -87,41 +91,40 @@ Patch0101: 0001-dbe-Cleanup-in-CloseScreen-hook-not-ext-CloseDown.patch
 Patch0102: 0002-xkb-Add-struct-XkbCompContext.patch
 Patch0103: 0003-xkb-Split-out-code-to-start-and-finish-xkbcomp.patch
 Patch0104: 0004-xkb-Add-XkbCompileKeymapFromString.patch
-Patch0105: 0005-configure-Track-updated-version-of-libxtrans.patch
-Patch0106: 0006-os-Add-a-function-to-create-a-client-for-an-fd.patch
-Patch0107: 0007-Export-xf86NewInputDevice-and-xf86AllocateInput.patch
-Patch0108: 0008-Export-CompositeRedirectSubwindows-and-CompositeUnRe.patch
-Patch0109: 0009-Add-redirect-window-for-input-device-feature.patch
-Patch0110: 0010-dri2-Introduce-a-third-version-of-the-AuthMagic-func.patch
-Patch0111: 0011-Add-xwayland-module.patch
-Patch0112: 0012-xwayland-Add-a-HW_WAYLAND-flag-to-let-drivers-explic.patch
-Patch0113: 0013-xwayland-shm-don-t-create-alpha-buffers-if-the-windo.patch
-Patch0114: 0014-xwayland-handle-global-object-destruction.patch
-Patch0115: 0015-xwayland-add-support-for-multiple-outputs.patch
-Patch0116: 0016-xwayland-Probe-outputs-on-preinit.patch
-Patch0117: 0017-XFree86-Load-wlshm-driver-as-fallback-for-Wayland.patch
-Patch0118: 0018-XWayland-Don-t-send-out-of-bounds-damage-co-ordinate.patch
-Patch0119: 0019-xwayland-Introduce-an-auto-mode-for-enable-wayland.patch
-Patch0120: 0020-XWayland-Don-t-hardcode-DRM-libs-and-lwayland-client.patch
-Patch0121: 0021-XWayland-Support-16bpp-X-surfaces-in-DRM-SHM.patch
-Patch0122: 0022-xwayland-Remove-Xdnd-selection-watching-code.patch
-Patch0123: 0023-xf86Init-trim-out-non-wayland-capable-servers-from-d.patch
-Patch0124: 0024-Add-XORG_WAYLAND-symbol-to-xorg-config.h.in.patch
-Patch0125: 0025-Fix-fallback-loading-of-the-wayland-driver.patch
-Patch0126: 0026-xwayland-Don-t-include-xorg-server.h.patch
-Patch0127: 0027-os-Don-t-include-xorg-server.h.patch
-Patch0128: 0028-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
-Patch0129: 0029-xwayland-Remove-unused-variables.patch
-Patch0130: 0030-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
-Patch0131: 0031-XWayland-Don-t-commit-empty-surfaces.patch
-Patch0132: 0032-xwayland-Also-look-for-wlglamor.patch
-Patch0133: 0033-xwayland-Add-wlglamor-the-right-way.patch
-Patch0134: 0034-xwayland-Don-t-redirect-windows-leave-it-to-the-wm.patch
-Patch0135: 0035-Revert-Export-CompositeRedirectSubwindows-and-Compos.patch
-Patch0136: 0036-xwayland-Fix-hidden-cursor.patch
-Patch0137: 0037-xkb-Repurpose-XkbCopyDeviceKeymap-to-apply-a-given-k.patch
-Patch0138: 0038-xkb-Factor-out-a-function-to-copy-a-keymap-s-control.patch
-Patch0139: 0039-xwayland-Handle-keymap-changes.patch
+Patch0105: 0005-os-Add-a-function-to-create-a-client-for-an-fd.patch
+Patch0106: 0006-Export-xf86NewInputDevice-and-xf86AllocateInput.patch
+Patch0107: 0007-Export-CompositeRedirectSubwindows-and-CompositeUnRe.patch
+Patch0108: 0008-Add-redirect-window-for-input-device-feature.patch
+Patch0109: 0009-dri2-Introduce-a-third-version-of-the-AuthMagic-func.patch
+Patch0110: 0010-Add-xwayland-module.patch
+Patch0111: 0011-xwayland-Add-a-HW_WAYLAND-flag-to-let-drivers-explic.patch
+Patch0112: 0012-xwayland-shm-don-t-create-alpha-buffers-if-the-windo.patch
+Patch0113: 0013-xwayland-handle-global-object-destruction.patch
+Patch0114: 0014-xwayland-add-support-for-multiple-outputs.patch
+Patch0115: 0015-xwayland-Probe-outputs-on-preinit.patch
+Patch0116: 0016-XFree86-Load-wlshm-driver-as-fallback-for-Wayland.patch
+Patch0117: 0017-XWayland-Don-t-send-out-of-bounds-damage-co-ordinate.patch
+Patch0118: 0018-xwayland-Introduce-an-auto-mode-for-enable-wayland.patch
+Patch0119: 0019-XWayland-Don-t-hardcode-DRM-libs-and-lwayland-client.patch
+Patch0120: 0020-XWayland-Support-16bpp-X-surfaces-in-DRM-SHM.patch
+Patch0121: 0021-xwayland-Remove-Xdnd-selection-watching-code.patch
+Patch0122: 0022-xf86Init-trim-out-non-wayland-capable-servers-from-d.patch
+Patch0123: 0023-Add-XORG_WAYLAND-symbol-to-xorg-config.h.in.patch
+Patch0124: 0024-Fix-fallback-loading-of-the-wayland-driver.patch
+Patch0125: 0025-xwayland-Don-t-include-xorg-server.h.patch
+Patch0126: 0026-os-Don-t-include-xorg-server.h.patch
+Patch0127: 0027-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
+Patch0128: 0028-xwayland-Remove-unused-variables.patch
+Patch0129: 0029-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
+Patch0130: 0030-XWayland-Don-t-commit-empty-surfaces.patch
+Patch0131: 0031-xwayland-Also-look-for-wlglamor.patch
+Patch0132: 0032-xwayland-Add-wlglamor-the-right-way.patch
+Patch0133: 0033-xwayland-Don-t-redirect-windows-leave-it-to-the-wm.patch
+Patch0134: 0034-Revert-Export-CompositeRedirectSubwindows-and-Compos.patch
+Patch0135: 0035-xwayland-Fix-hidden-cursor.patch
+Patch0136: 0036-xkb-Repurpose-XkbCopyDeviceKeymap-to-apply-a-given-k.patch
+Patch0137: 0037-xkb-Factor-out-a-function-to-copy-a-keymap-s-control.patch
+Patch0138: 0038-xwayland-Handle-keymap-changes.patch
 # restore ABI
 Patch0200: 0001-mustard-Restore-XkbCopyDeviceKeymap.patch
 
@@ -137,18 +140,10 @@ Patch6030: xserver-1.6.99-right-of.patch
 # RedHat/Fedora-specific patch
 Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 
-# needed when building without xorg (aka s390x)
-Patch7017: xserver-1.12.2-xorg-touch-test.patch
-
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
 # do not upstream - do not even use here yet
 Patch7027: xserver-autobind-hotplug.patch
-
-Patch7052: 0001-xf86-return-NULL-for-compat-output-if-no-outputs.patch
-
-# mustard: make the default queue length bigger to calm abrt down
-Patch7064: 0001-mieq-Bump-default-queue-size-to-512.patch
 
 # Fix multiple monitors in reverse optimus configurations
 Patch8040: 0001-rrcrtc-brackets-are-hard-lets-go-shopping.patch
@@ -157,9 +152,6 @@ Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
 # extra magic to be upstreamed
 Patch9001: 0001-xfree86-Only-look-at-wayland-capable-drivers-when-wa.patch
 Patch9002: 0001-xwayland-Just-send-the-bounding-box-of-the-damage.patch
-
-# submitted: http://lists.x.org/archives/xorg-devel/2013-November/038768.html
-Patch9003: 0001-present-Don-t-try-to-initialize-when-building-withou.patch
 
 # also submitted
 Patch9011: 0001-xinerama-Export-the-screen-region.patch
@@ -664,6 +656,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Nov 18 2013 Adam Jackson <ajax@redhat.com> 1.14.99.902-1
+- 1.15RC2
+
 * Fri Nov 08 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-5
 - Restore XkbCopyDeviceKeymap for (older) tigervnc
 

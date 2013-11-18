@@ -1,0 +1,33 @@
+From b7fccf0d62ecf16ad591270ed5130241f005b635 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Date: Fri, 11 Oct 2013 16:29:02 -0700
+Subject: [PATCH 32/38] xwayland: Add wlglamor the right way
+
+Defeated by #ifdefs.
+---
+ hw/xfree86/common/xf86AutoConfig.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86AutoConfig.c b/hw/xfree86/common/xf86AutoConfig.c
+index 9576b86..cc6dcce 100644
+--- a/hw/xfree86/common/xf86AutoConfig.c
++++ b/hw/xfree86/common/xf86AutoConfig.c
+@@ -282,12 +282,12 @@ listPossibleVideoDrivers(char *matches[], int nmatches)
+ 
+ #if !defined(sun)
+     /* Fallback to platform default frame buffer driver */
+-    if (i < (nmatches - 1)) {
++    if (i < (nmatches - 2)) {
+ #ifdef XORG_WAYLAND
+-        if (xorgWayland)
++        if (xorgWayland) {
+             matches[i++] = xnfstrdup("wlglamor");
+             matches[i++] = xnfstrdup("wayland");
+-        else
++        } else
+ #endif
+ #if !defined(__linux__) && defined(__sparc__)
+             matches[i++] = xnfstrdup("wsfb");
+-- 
+1.8.3.1
+

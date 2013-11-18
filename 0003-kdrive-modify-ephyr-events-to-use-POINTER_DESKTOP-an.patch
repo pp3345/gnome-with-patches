@@ -1,0 +1,70 @@
+From a94d945065177d73f3ee8dc0b9147264ba281136 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Tue, 29 Oct 2013 14:24:41 +1000
+Subject: [PATCH 3/9] kdrive: modify ephyr events to use POINTER_DESKTOP and
+ scale them to that
+
+A multi-head Xephyr instance has the pointer stuck on one screen
+because of bad coordinate calculation. The coordinates passed to
+GetPointerEvents are per-screen, so the cursor gets stuck on the left-most
+screen by default.
+
+Adjust and mark the events as POINTER_DESKTOP, so the DIX
+can adjust them accordingly.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Keith Packard <keithp@keithp.com>
+---
+ hw/kdrive/ephyr/ephyr.c | 9 ++++++++-
+ hw/kdrive/src/kdrive.h  | 1 +
+ hw/kdrive/src/kinput.c  | 2 ++
+ 3 files changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/hw/kdrive/ephyr/ephyr.c b/hw/kdrive/ephyr/ephyr.c
+index 91e949d..ef4b321 100644
+--- a/hw/kdrive/ephyr/ephyr.c
++++ b/hw/kdrive/ephyr/ephyr.c
+@@ -959,7 +959,14 @@ ephyrProcessMouseMotion(xcb_generic_event_t *xev)
+         }
+         EPHYR_LOG("final (x,y):(%d,%d)\n", x, y);
+ #endif
+-        KdEnqueuePointerEvent(ephyrMouse, mouseState, x, y, 0);
++
++        /* convert coords into desktop-wide coordinates.
++         * fill_pointer_events will convert that back to
++         * per-screen coordinates where needed */
++        x += screen->pScreen->x;
++        y += screen->pScreen->y;
++
++        KdEnqueuePointerEvent(ephyrMouse, mouseState | KD_POINTER_DESKTOP, x, y, 0);
+     }
+ }
+ 
+diff --git a/hw/kdrive/src/kdrive.h b/hw/kdrive/src/kdrive.h
+index d5d0799..296d611 100644
+--- a/hw/kdrive/src/kdrive.h
++++ b/hw/kdrive/src/kdrive.h
+@@ -506,6 +506,7 @@ KdEnqueueKeyboardEvent(KdKeyboardInfo * ki, unsigned char scan_code,
+ #define KD_BUTTON_4	0x08
+ #define KD_BUTTON_5	0x10
+ #define KD_BUTTON_8	0x80
++#define KD_POINTER_DESKTOP 0x40000000
+ #define KD_MOUSE_DELTA	0x80000000
+ 
+ void
+diff --git a/hw/kdrive/src/kinput.c b/hw/kdrive/src/kinput.c
+index d845830..abda693 100644
+--- a/hw/kdrive/src/kinput.c
++++ b/hw/kdrive/src/kinput.c
+@@ -1895,6 +1895,8 @@ KdEnqueuePointerEvent(KdPointerInfo * pi, unsigned long flags, int rx, int ry,
+     }
+     else {
+         dixflags = POINTER_ABSOLUTE;
++        if (flags & KD_POINTER_DESKTOP)
++            dixflags |= POINTER_DESKTOP;
+         if (x != pi->dixdev->last.valuators[0] ||
+             y != pi->dixdev->last.valuators[1])
+             _KdEnqueuePointerEvent(pi, MotionNotify, x, y, z, 0, dixflags,
+-- 
+1.8.3.1
+

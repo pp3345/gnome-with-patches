@@ -1,0 +1,137 @@
+From 92b914a0d1df9d53bdb0e69d8acef8b7a6ee969d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Date: Tue, 21 Jun 2011 21:28:31 -0400
+Subject: [PATCH 05/38] os: Add a function to create a client for an fd
+
+---
+ include/opaque.h |  1 +
+ include/os.h     |  5 +++--
+ os/connection.c  | 32 +++++++++++++++++++++++++++++---
+ os/utils.c       |  6 +++++-
+ 4 files changed, 38 insertions(+), 6 deletions(-)
+
+diff --git a/include/opaque.h b/include/opaque.h
+index b76ab6e..8ad9af0 100644
+--- a/include/opaque.h
++++ b/include/opaque.h
+@@ -74,5 +74,6 @@ extern _X_EXPORT Bool whiteRoot;
+ extern _X_EXPORT Bool bgNoneRoot;
+ 
+ extern _X_EXPORT Bool CoreDump;
++extern _X_EXPORT Bool NoListenAll;
+ 
+ #endif                          /* OPAQUE_H */
+diff --git a/include/os.h b/include/os.h
+index 450e1a8..2a24f4b 100644
+--- a/include/os.h
++++ b/include/os.h
+@@ -166,8 +166,9 @@ extern _X_EXPORT void MakeClientGrabImpervious(ClientPtr /*client */ );
+ 
+ extern _X_EXPORT void MakeClientGrabPervious(ClientPtr /*client */ );
+ 
+-#ifdef XQUARTZ
+-extern void ListenOnOpenFD(int /* fd */ , int /* noxauth */ );
++#if defined(XQUARTZ) || defined(XORG_WAYLAND)
++extern _X_EXPORT void ListenOnOpenFD(int /* fd */ , int /* noxauth */ );
++extern _X_EXPORT void AddClientOnOpenFD(int /* fd */ );
+ #endif
+ 
+ extern _X_EXPORT CARD32 GetTimeInMillis(void);
+diff --git a/os/connection.c b/os/connection.c
+index 162e1d9..a95e7da 100644
+--- a/os/connection.c
++++ b/os/connection.c
+@@ -64,6 +64,7 @@ SOFTWARE.
+ #include <dix-config.h>
+ #endif
+ 
++#include <xorg-server.h>
+ #ifdef WIN32
+ #include <X11/Xwinsock.h>
+ #endif
+@@ -138,6 +139,7 @@ fd_set OutputPending;           /* clients with reply/event data ready to go */
+ int MaxClients = 0;
+ Bool NewOutputPending;          /* not yet attempted to write some new output */
+ Bool AnyClientsWriteBlocked;    /* true if some client blocked on write */
++Bool NoListenAll;               /* Don't establish any listening sockets */
+ 
+ static Bool RunFromSmartParent; /* send SIGUSR1 to parent process */
+ Bool RunFromSigStopParent;      /* send SIGSTOP to our own process; Upstart (or
+@@ -406,7 +408,10 @@ CreateWellKnownSockets(void)
+     /* display is initialized to "0" by main(). It is then set to the display
+      * number if specified on the command line, or to NULL when the -displayfd
+      * option is used. */
+-    if (display) {
++    if (NoListenAll) {
++        ListenTransCount = 0;
++    }
++    else if (display) {
+         if (TryCreateSocket(atoi(display), &partial) &&
+             ListenTransCount >= 1)
+             if (!PartialNetwork && partial)
+@@ -440,9 +445,10 @@ CreateWellKnownSockets(void)
+             DefineSelf (fd);
+     }
+ 
+-    if (!XFD_ANYSET(&WellKnownConnections))
++    if (!XFD_ANYSET(&WellKnownConnections) && !NoListenAll)
+         FatalError
+             ("Cannot establish any listening sockets - Make sure an X server isn't already running");
++
+ #if !defined(WIN32)
+     OsSignal(SIGPIPE, SIG_IGN);
+     OsSignal(SIGHUP, AutoResetServer);
+@@ -1253,7 +1259,7 @@ MakeClientGrabPervious(ClientPtr client)
+     }
+ }
+ 
+-#ifdef XQUARTZ
++#if defined(XQUARTZ) || defined(XORG_WAYLAND)
+ /* Add a fd (from launchd) to our listeners */
+ void
+ ListenOnOpenFD(int fd, int noxauth)
+@@ -1309,4 +1315,24 @@ ListenOnOpenFD(int fd, int noxauth)
+ #endif
+ }
+ 
++/* based on TRANS(SocketUNIXAccept) (XtransConnInfo ciptr, int *status) */
++void
++AddClientOnOpenFD(int fd)
++{
++    XtransConnInfo ciptr;
++    CARD32 connect_time;
++
++    ciptr = _XSERVTransReopenCOTSServer(5, fd, "@anonymous");
++
++    _XSERVTransSetOption(ciptr, TRANS_NONBLOCKING, 1);
++    ciptr->flags |= TRANS_NOXAUTH;
++
++    connect_time = GetTimeInMillis();
++
++    if (!AllocNewConnection(ciptr, fd, connect_time)) {
++        fprintf(stderr, "failed to create client for wayland server\n");
++        return;
++    }
++}
++
+ #endif
+diff --git a/os/utils.c b/os/utils.c
+index fb20da7..42aa13b 100644
+--- a/os/utils.c
++++ b/os/utils.c
+@@ -805,7 +805,11 @@ ProcessCommandLine(int argc, char *argv[])
+ #endif
+         else if (strcmp(argv[i], "-nolisten") == 0) {
+             if (++i < argc) {
+-                if (_XSERVTransNoListen(argv[i]))
++                if (strcmp(argv[i], "all") == 0) {
++                    NoListenAll = TRUE;
++                    nolock = TRUE;
++                }
++                else if (_XSERVTransNoListen(argv[i]))
+                     ErrorF("Failed to disable listen for %s transport",
+                            argv[i]);
+             }
+-- 
+1.8.3.1
+

@@ -1,0 +1,36 @@
+From d66832a3b8a8675f1e5f3656dcb1bbe95598f0ea Mon Sep 17 00:00:00 2001
+From: Keith Packard <keithp@keithp.com>
+Date: Thu, 14 Nov 2013 13:21:54 +1000
+Subject: [PATCH 2/9] kdrive: handle WxH as valid geometry spec
+
+If a screen size was specified as WxH, the loop returned early and kdOrigin
+was never advanced. Thus, screen->origin was always 0 (or whatever was given
+at the -origin commandline flag).
+
+If a screen size was given with a bit depth (WxHxD), kdOrigin would always
+advance by the current screen, offsetting the next screen.
+
+Signed-off-by: Keith Packard <keithp@keithp.com>
+Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ hw/kdrive/src/kdrive.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/hw/kdrive/src/kdrive.c b/hw/kdrive/src/kdrive.c
+index f8949be..3829684 100644
+--- a/hw/kdrive/src/kdrive.c
++++ b/hw/kdrive/src/kdrive.c
+@@ -328,7 +328,8 @@ KdParseScreen(KdScreenInfo * screen, const char *arg)
+             screen->height = pixels;
+             screen->height_mm = mm;
+         }
+-        if (delim != 'x' && delim != '@' && delim != 'X' && delim != 'Y')
++        if (delim != 'x' && delim != '@' && delim != 'X' && delim != 'Y' &&
++            (delim != '\0' || i == 0))
+             return;
+     }
+ 
+-- 
+1.8.3.1
+

@@ -1,7 +1,7 @@
-From b126aca8d6b8b81527a7dcab0d9659a9b5d63d01 Mon Sep 17 00:00:00 2001
+From 9ebe5168a76b769139c5173bf86b97eaa1e40bc3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Tue, 9 Apr 2013 16:54:55 -0400
-Subject: [PATCH 02/39] xkb: Add struct XkbCompContext
+Subject: [PATCH 02/38] xkb: Add struct XkbCompContext
 
 This commit adds a struct that contains most of the context for starting,
 running and cleaning up after xkbcomp.

@@ -1,7 +1,7 @@
-From ae806ffa6b94bf75b9cb1b2db3e717fcaf13c8d0 Mon Sep 17 00:00:00 2001
+From 3f37d9a8a3ceaf888feb4994a4c61e14e903a368 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Tue, 9 Apr 2013 17:45:08 -0400
-Subject: [PATCH 04/39] xkb: Add XkbCompileKeymapFromString()
+Subject: [PATCH 04/38] xkb: Add XkbCompileKeymapFromString()
 
 This new function compiles a keymap from an in-memory string.  We use it
 to add a new keyooard device init function,
@@ -17,7 +17,7 @@ Reviewed-by: Daniel Stone <daniel@fooishbar.org>
  4 files changed, 144 insertions(+), 39 deletions(-)
 
 diff --git a/include/input.h b/include/input.h
-index 350daba..6573a3a 100644
+index 2d5e531..b1cc3ff 100644
 --- a/include/input.h
 +++ b/include/input.h
 @@ -385,6 +385,12 @@ extern _X_EXPORT Bool InitKeyboardDeviceStruct(DeviceIntPtr /*device */ ,

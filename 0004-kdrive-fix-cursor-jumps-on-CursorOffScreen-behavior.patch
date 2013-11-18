@@ -1,0 +1,64 @@
+From 550baf38f6096658f0bcf0ad647c4fedf93132f2 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Fri, 4 Oct 2013 10:55:52 +1000
+Subject: [PATCH 4/9] kdrive: fix cursor jumps on CursorOffScreen behavior
+
+This patch fixes cursor jumps when there is a grab on the Xephyr window and
+the pointer moves outside the window.
+
+So on two side-by-side 640x480 screens, a coordinate of 0/481
+triggers KdCursorOffscreen.
+
+If the delta between two screens is 0, they share the same offset for
+that dimension. When searching for the new screen, the loop always rules out
+the current screen. So we get to the second screen, trigger the conditions
+where dy <= 0 and decide that this new screen is the correct one. The result
+is that whenever KdCursorOffScreen is called, the pointer jumps to the other
+screen.
+
+Change to check for dy < 0 etc. so that the cursor stays on the same screen if
+there is no other screen at the target location.
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+Reviewed-by: Keith Packard <keithp@keithp.com>
+---
+ hw/kdrive/src/kinput.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/hw/kdrive/src/kinput.c b/hw/kdrive/src/kinput.c
+index abda693..a9a9fa5 100644
+--- a/hw/kdrive/src/kinput.c
++++ b/hw/kdrive/src/kinput.c
+@@ -2030,25 +2030,25 @@ KdCursorOffScreen(ScreenPtr *ppScreen, int *x, int *y)
+         dx = KdScreenOrigin(pNewScreen)->x - KdScreenOrigin(pScreen)->x;
+         dy = KdScreenOrigin(pNewScreen)->y - KdScreenOrigin(pScreen)->y;
+         if (*x < 0) {
+-            if (dx <= 0 && -dx < best_x) {
++            if (dx < 0 && -dx < best_x) {
+                 best_x = -dx;
+                 n_best_x = n;
+             }
+         }
+         else if (*x >= pScreen->width) {
+-            if (dx >= 0 && dx < best_x) {
++            if (dx > 0 && dx < best_x) {
+                 best_x = dx;
+                 n_best_x = n;
+             }
+         }
+         if (*y < 0) {
+-            if (dy <= 0 && -dy < best_y) {
++            if (dy < 0 && -dy < best_y) {
+                 best_y = -dy;
+                 n_best_y = n;
+             }
+         }
+         else if (*y >= pScreen->height) {
+-            if (dy >= 0 && dy < best_y) {
++            if (dy > 0 && dy < best_y) {
+                 best_y = dy;
+                 n_best_y = n;
+             }
+-- 
+1.8.3.1
+

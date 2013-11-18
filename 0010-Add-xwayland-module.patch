@@ -1,0 +1,2895 @@
+From 4a3354179f4e758971667ac6359080a014dcb033 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@redhat.com>
+Date: Fri, 18 Sep 2009 22:08:16 -0400
+Subject: [PATCH 10/38] Add xwayland module
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Squashed and rebased from the xwayland-1.12 branch.  Contributions from
+
+  Christopher James Halse Rogers <christopher.halse.rogers@canonical.com>
+  Corentin Chary <corentin.chary@gmail.com>
+  Daniel Stone <daniel@fooishbar.org>
+  Kristian Høgsberg <krh@bitplanet.net>
+  Robert Bragg <robert@linux.intel.com>
+  Scott Moreau <oreaus@gmail.com>
+  Tiago Vignatti <tiago.vignatti@intel.com>
+---
+ configure.ac                           |  13 +-
+ hw/xfree86/Makefile.am                 |   8 +-
+ hw/xfree86/common/xf86Config.c         |  28 +-
+ hw/xfree86/common/xf86Globals.c        |   2 +
+ hw/xfree86/common/xf86Init.c           |  20 ++
+ hw/xfree86/common/xf86Priv.h           |   2 +
+ hw/xfree86/dri2/dri2.c                 |   7 +-
+ hw/xfree86/dri2/dri2.h                 |   2 +-
+ hw/xfree86/xwayland/Makefile.am        |  44 +++
+ hw/xfree86/xwayland/drm.xml            | 139 ++++++++
+ hw/xfree86/xwayland/xserver.xml        |  18 +
+ hw/xfree86/xwayland/xwayland-cursor.c  | 241 +++++++++++++
+ hw/xfree86/xwayland/xwayland-drm.c     | 235 +++++++++++++
+ hw/xfree86/xwayland/xwayland-input.c   | 610 +++++++++++++++++++++++++++++++++
+ hw/xfree86/xwayland/xwayland-output.c  | 309 +++++++++++++++++
+ hw/xfree86/xwayland/xwayland-private.h | 132 +++++++
+ hw/xfree86/xwayland/xwayland-window.c  | 316 +++++++++++++++++
+ hw/xfree86/xwayland/xwayland.c         | 392 +++++++++++++++++++++
+ hw/xfree86/xwayland/xwayland.h         |  83 +++++
+ include/xorg-server.h.in               |   3 +
+ 20 files changed, 2594 insertions(+), 10 deletions(-)
+ create mode 100644 hw/xfree86/xwayland/Makefile.am
+ create mode 100644 hw/xfree86/xwayland/drm.xml
+ create mode 100644 hw/xfree86/xwayland/xserver.xml
+ create mode 100644 hw/xfree86/xwayland/xwayland-cursor.c
+ create mode 100644 hw/xfree86/xwayland/xwayland-drm.c
+ create mode 100644 hw/xfree86/xwayland/xwayland-input.c
+ create mode 100644 hw/xfree86/xwayland/xwayland-output.c
+ create mode 100644 hw/xfree86/xwayland/xwayland-private.h
+ create mode 100644 hw/xfree86/xwayland/xwayland-window.c
+ create mode 100644 hw/xfree86/xwayland/xwayland.c
+ create mode 100644 hw/xfree86/xwayland/xwayland.h
+
+diff --git a/configure.ac b/configure.ac
+index 1e6f813..ab693e9 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -636,6 +636,7 @@ AC_ARG_ENABLE(clientids,      AS_HELP_STRING([--disable-clientids], [Build Xorg
+ AC_ARG_ENABLE(pciaccess, AS_HELP_STRING([--enable-pciaccess], [Build Xorg with pciaccess library (default: enabled)]), [PCI=$enableval], [PCI=yes])
+ AC_ARG_ENABLE(linux_acpi, AC_HELP_STRING([--disable-linux-acpi], [Disable building ACPI support on Linux (if available).]), [enable_linux_acpi=$enableval], [enable_linux_acpi=yes])
+ AC_ARG_ENABLE(linux_apm, AC_HELP_STRING([--disable-linux-apm], [Disable building APM support on Linux (if available).]), [enable_linux_apm=$enableval], [enable_linux_apm=yes])
++AC_ARG_ENABLE(wayland,      AS_HELP_STRING([--disable-wayland], [Build Wayland extension (default: enabled)]), [WAYLAND=$enableval], [WAYLAND=yes])
+ 
+ dnl DDXes.
+ AC_ARG_ENABLE(xorg,    	      AS_HELP_STRING([--enable-xorg], [Build Xorg server (default: auto)]), [XORG=$enableval], [XORG=auto])
+@@ -1024,6 +1025,14 @@ fi
+ if test "x$MITSHM" = xauto; then
+ 	MITSHM="$ac_cv_sysv_ipc"
+ fi
++
++AM_CONDITIONAL(WAYLAND, [test "x$WAYLAND" = xyes])
++if test "x$WAYLAND" = xyes; then
++	AC_DEFINE(XORG_WAYLAND, 1, [Support wayland mode])
++	REQUIRED_MODULES="$REQUIRED_MODULES wayland-client"
++	WAYLAND_SCANNER_RULES(['$(top_srcdir)/hw/xfree86/xwayland'])
++fi
++
+ AM_CONDITIONAL(MITSHM, [test "x$MITSHM" = xyes])
+ if test "x$MITSHM" = xyes; then
+ 	AC_DEFINE(MITSHM, 1, [Support MIT-SHM extension])
+@@ -1204,12 +1213,13 @@ esac
+ 
+ AM_CONDITIONAL(DRI3, test "x$DRI3" = xyes)
+ 
+-if test "x$DRI" = xyes || test "x$DRI2" = xyes || test "x$DRI3" = xyes || test "x$CONFIG_UDEV_KMS" = xyes; then
++if test "x$DRI" = xyes || test "x$DRI2" = xyes || test "x$DRI3" = xyes || test "x$CONFIG_UDEV_KMS" = xyes || test "x$WAYLAND" = xyes ; then
+ 	if test "x$DRM" = xyes; then
+ 		AC_DEFINE(WITH_LIBDRM, 1, [Building with libdrm support])
+ 		PKG_CHECK_MODULES([LIBDRM], $LIBDRM)
+ 	fi
+ fi
++AM_CONDITIONAL(DRM, test "x$DRM" = xyes)
+ 
+ if test "x$DRI2" = xyes; then
+ 	save_CFLAGS=$CFLAGS
+@@ -2399,6 +2409,7 @@ hw/xfree86/dixmods/Makefile
+ hw/xfree86/doc/Makefile
+ hw/xfree86/dri/Makefile
+ hw/xfree86/dri2/Makefile
++hw/xfree86/xwayland/Makefile
+ hw/xfree86/exa/Makefile
+ hw/xfree86/exa/man/Makefile
+ hw/xfree86/fbdevhw/Makefile
+diff --git a/hw/xfree86/Makefile.am b/hw/xfree86/Makefile.am
+index 15670d0..cf60196 100644
+--- a/hw/xfree86/Makefile.am
++++ b/hw/xfree86/Makefile.am
+@@ -14,6 +14,10 @@ DRI3_BUILDDIR = $(top_builddir)/dri3
+ DRI3_LIB = $(DRI3_BUILDDIR)/libdri3.la
+ endif
+ 
++if WAYLAND
++WAYLAND_SUBDIR = xwayland
++endif
++
+ if XF86UTILS
+ XF86UTILS_SUBDIR = utils
+ endif
+@@ -32,12 +36,12 @@ endif
+ 
+ SUBDIRS = common ddc x86emu $(INT10_SUBDIR) os-support parser \
+ 	  ramdac $(VGAHW_SUBDIR) loader modes $(DRI_SUBDIR) \
+-	  $(DRI2_SUBDIR) . $(VBE_SUBDIR) i2c dixmods \
++	  $(DRI2_SUBDIR)  $(WAYLAND_SUBDIR) . $(VBE_SUBDIR) i2c dixmods \
+ 	  fbdevhw shadowfb exa $(XF86UTILS_SUBDIR) doc man
+ 
+ DIST_SUBDIRS = common ddc i2c x86emu int10 fbdevhw os-support \
+                parser ramdac shadowfb vbe vgahw \
+-               loader dixmods dri dri2 exa modes \
++               loader dixmods dri dri2 exa modes xwayland \
+ 	       utils doc man
+ 
+ bin_PROGRAMS = Xorg
+diff --git a/hw/xfree86/common/xf86Config.c b/hw/xfree86/common/xf86Config.c
+index 74d5ed3..39cd58c 100644
+--- a/hw/xfree86/common/xf86Config.c
++++ b/hw/xfree86/common/xf86Config.c
+@@ -118,7 +118,8 @@ static ModuleDefault ModuleDefaults[] = {
+     {.name = "fb",.toLoad = TRUE,.load_opt = NULL},
+     {.name = "shadow",.toLoad = TRUE,.load_opt = NULL},
+ #endif
+-    {.name = NULL,.toLoad = FALSE,.load_opt = NULL}
++    {.name = "xwayland",.toLoad = FALSE,.load_opt=NULL},
++    {.name = NULL,.toLoad = FALSE,.load_opt=NULL}
+ };
+ 
+ /* Forward declarations */
+@@ -260,6 +261,17 @@ xf86ModulelistFromConfig(pointer **optlist)
+         return NULL;
+     }
+ 
++    /*
++     * Set the xwayland module to autoload if requested.
++     */
++    if (xorgWayland) {
++        for (i=0 ; ModuleDefaults[i].name != NULL ; i++) {
++            if (strcmp(ModuleDefaults[i].name, "xwayland") == 0) {
++                ModuleDefaults[i].toLoad = TRUE;
++            }
++        }
++    }
++
+     if (xf86configptr->conf_modules) {
+         /* Walk the disable list and let people know what we've parsed to
+          * not be loaded 
+@@ -863,6 +875,13 @@ configServerFlags(XF86ConfFlagsPtr flagsconf, XF86OptionPtr layoutopts)
+     }
+     xf86Msg(from, "%sutomatically adding GPU devices\n",
+             xf86Info.autoAddGPU ? "A" : "Not a");
++
++    /* FIXME: Do that at the right place (before xf86Msg). */
++    if (xorgWayland) {
++            xf86Info.autoAddDevices = FALSE;
++            xf86Info.autoEnableDevices = FALSE;
++    }
++
+     /*
+      * Set things up based on the config file information.  Some of these
+      * settings may be overridden later when the command line options are
+@@ -953,9 +972,10 @@ configServerFlags(XF86ConfFlagsPtr flagsconf, XF86OptionPtr layoutopts)
+     }
+ #endif
+ 
+-    /* if we're not hotplugging, force some input devices to exist */
+-    xf86Info.forceInputDevices = !(xf86Info.autoAddDevices &&
+-                                   xf86Info.autoEnableDevices);
++    if (xorgWayland) /* Don't force input devices */
++	xf86Info.forceInputDevices = FALSE;
++    else /* if we're not hotplugging, force some input devices to exist */
++	xf86Info.forceInputDevices = !(xf86Info.autoAddDevices && xf86Info.autoEnableDevices);
+ 
+     /* when forcing input devices, we use kbd. otherwise evdev, so use the
+      * evdev rules set. */
+diff --git a/hw/xfree86/common/xf86Globals.c b/hw/xfree86/common/xf86Globals.c
+index 7df7a80..b41d2cc 100644
+--- a/hw/xfree86/common/xf86Globals.c
++++ b/hw/xfree86/common/xf86Globals.c
+@@ -204,3 +204,5 @@ Bool xf86VidModeAllowNonLocal = FALSE;
+ #endif
+ RootWinPropPtr *xf86RegisteredPropertiesTable = NULL;
+ Bool xorgHWAccess = FALSE;
++Bool xorgWayland = FALSE;
++Bool xorgRootless = FALSE;
+diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
+index 91ec4c8..98adaab 100644
+--- a/hw/xfree86/common/xf86Init.c
++++ b/hw/xfree86/common/xf86Init.c
+@@ -546,6 +546,13 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
+ 
+             if (!(flags & HW_SKIP_CONSOLE))
+                 xorgHWOpenConsole = TRUE;
++
++	    if (xorgWayland &&
++		(NEED_IO_ENABLED(flags) || !(flags & HW_SKIP_CONSOLE))) {
++
++		xf86DeleteDriver(i);
++		continue;
++	    }
+         }
+ 
+         if (xorgHWOpenConsole)
+@@ -957,6 +964,9 @@ InitInput(int argc, char **argv)
+ 
+     mieqInit();
+ 
++    if (xorgWayland)
++	return;
++
+     /* Initialize all configured input devices */
+     for (pInfo = xf86ConfigLayout.inputs; pInfo && *pInfo; pInfo++) {
+         (*pInfo)->options =
+@@ -1455,6 +1465,16 @@ ddxProcessArgument(int argc, char **argv, int i)
+         return 1;
+     }
+ 
++    if (!strcmp(argv[i], "-wayland")) {
++        xorgWayland = TRUE;
++        return 1;
++    }
++
++    if (!strcmp(argv[i], "-rootless")) {
++        xorgRootless = TRUE;
++        return 1;
++    }
++
+     /* OS-specific processing */
+     return xf86ProcessArgument(argc, argv, i);
+ }
+diff --git a/hw/xfree86/common/xf86Priv.h b/hw/xfree86/common/xf86Priv.h
+index 58cfe0a..3dd2697 100644
+--- a/hw/xfree86/common/xf86Priv.h
++++ b/hw/xfree86/common/xf86Priv.h
+@@ -91,6 +91,8 @@ extern _X_EXPORT int xf86NumScreens;
+ extern _X_EXPORT const char *xf86VisualNames[];
+ extern _X_EXPORT int xf86Verbose;       /* verbosity level */
+ extern _X_EXPORT int xf86LogVerbose;    /* log file verbosity level */
++extern _X_EXPORT Bool xorgWayland;
++extern _X_EXPORT Bool xorgRootless;
+ 
+ extern _X_EXPORT RootWinPropPtr *xf86RegisteredPropertiesTable;
+ 
+diff --git a/hw/xfree86/dri2/dri2.c b/hw/xfree86/dri2/dri2.c
+index efdcd66..483d630 100644
+--- a/hw/xfree86/dri2/dri2.c
++++ b/hw/xfree86/dri2/dri2.c
+@@ -1332,13 +1332,16 @@ DRI2Connect(ClientPtr client, ScreenPtr pScreen,
+ }
+ 
+ static int
+-DRI2AuthMagic (ScreenPtr pScreen, uint32_t magic)
++DRI2AuthMagic (ClientPtr client, ScreenPtr pScreen, uint32_t magic)
+ {
+     DRI2ScreenPtr ds = DRI2GetScreen(pScreen);
+     if (ds == NULL)
+         return -EINVAL;
+ 
+-    return (*ds->LegacyAuthMagic) (ds->fd, magic);
++    if (ds->LegacyAuthMagic2)
++        return (*ds->LegacyAuthMagic2) (pScreen, magic);
++    else
++        return (*ds->LegacyAuthMagic) (ds->fd, magic);
+ }
+ 
+ Bool
+diff --git a/hw/xfree86/dri2/dri2.h b/hw/xfree86/dri2/dri2.h
+index 38b4f58..ed67d01 100644
+--- a/hw/xfree86/dri2/dri2.h
++++ b/hw/xfree86/dri2/dri2.h
+@@ -207,7 +207,7 @@ typedef int (*DRI2GetParamProcPtr) (ClientPtr client,
+ /**
+  * Version of the DRI2InfoRec structure defined in this header
+  */
+-#define DRI2INFOREC_VERSION 9
++#define DRI2INFOREC_VERSION 10
+ 
+ typedef struct {
+     unsigned int version;       /**< Version of this struct */
+diff --git a/hw/xfree86/xwayland/Makefile.am b/hw/xfree86/xwayland/Makefile.am
+new file mode 100644
+index 0000000..b739145
+--- /dev/null
++++ b/hw/xfree86/xwayland/Makefile.am
+@@ -0,0 +1,44 @@
++AM_CPPFLAGS =					\
++	$(XORG_INCS)				\
++	-I$(srcdir)/../ddc			\
++	-I$(srcdir)/../ramdac			\
++	-I$(srcdir)/../i2c			\
++	-I$(srcdir)/../parser			\
++	-I$(srcdir)/../modes
++
++libxwayland_la_LTLIBRARIES = libxwayland.la
++libxwayland_la_CFLAGS = \
++	-DHAVE_XORG_CONFIG_H \
++	@DIX_CFLAGS@ @XORG_CFLAGS@ @LIBDRM_CFLAGS@ \
++	-I$(top_srcdir)/hw/xfree86/common \
++	-I$(top_srcdir)/hw/xfree86/os-support/bus
++
++libxwayland_la_LDFLAGS = -module -avoid-version @LIBDRM_LIBS@ -lwayland-client
++libxwayland_ladir = $(moduledir)/extensions
++libxwayland_la_SOURCES =			\
++	xwayland.c				\
++	xwayland-input.c			\
++	xwayland-output.c			\
++	xwayland-cursor.c			\
++	xwayland-window.c			\
++	xwayland-private.h			\
++	drm-client-protocol.h			\
++	drm-protocol.c				\
++	xserver-client-protocol.h		\
++	xserver-protocol.c
++
++if DRM
++libxwayland_la_SOURCES += xwayland-drm.c
++endif
++
++sdk_HEADERS = xwayland.h
++
++BUILT_SOURCES =					\
++	drm-client-protocol.h			\
++	drm-protocol.c				\
++	xserver-client-protocol.h		\
++	xserver-protocol.c
++
++CLEANFILES = $(BUILT_SOURCES)
++
++@wayland_scanner_rules@
+diff --git a/hw/xfree86/xwayland/drm.xml b/hw/xfree86/xwayland/drm.xml
+new file mode 100644
+index 0000000..89fd8f0
+--- /dev/null
++++ b/hw/xfree86/xwayland/drm.xml
+@@ -0,0 +1,139 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<protocol name="drm">
++
++  <copyright>
++    Copyright © 2008-2011 Kristian Høgsberg
++    Copyright © 2010-2011 Intel Corporation
++
++    Permission to use, copy, modify, distribute, and sell this
++    software and its documentation for any purpose is hereby granted
++    without fee, provided that\n the above copyright notice appear in
++    all copies and that both that copyright notice and this permission
++    notice appear in supporting documentation, and that the name of
++    the copyright holders not be used in advertising or publicity
++    pertaining to distribution of the software without specific,
++    written prior permission.  The copyright holders make no
++    representations about the suitability of this software for any
++    purpose.  It is provided "as is" without express or implied
++    warranty.
++
++    THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++    SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++    FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++    SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++    AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
++    ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
++    THIS SOFTWARE.
++  </copyright>
++
++  <!-- drm support. This object is created by the server and published
++       using the display's global event. -->
++  <interface name="wl_drm" version="1">
++    <enum name="error">
++      <entry name="authenticate_fail" value="0"/>
++      <entry name="invalid_format" value="1"/>
++      <entry name="invalid_name" value="2"/>
++    </enum>
++
++    <enum name="format">
++      <!-- The drm format codes match the #defines in drm_fourcc.h.
++           The formats actually supported by the compositor will be
++           reported by the format event. -->
++      <entry name="c8" value="0x20203843"/>
++      <entry name="rgb332" value="0x38424752"/>
++      <entry name="bgr233" value="0x38524742"/>
++      <entry name="xrgb4444" value="0x32315258"/>
++      <entry name="xbgr4444" value="0x32314258"/>
++      <entry name="rgbx4444" value="0x32315852"/>
++      <entry name="bgrx4444" value="0x32315842"/>
++      <entry name="argb4444" value="0x32315241"/>
++      <entry name="abgr4444" value="0x32314241"/>
++      <entry name="rgba4444" value="0x32314152"/>
++      <entry name="bgra4444" value="0x32314142"/>
++      <entry name="xrgb1555" value="0x35315258"/>
++      <entry name="xbgr1555" value="0x35314258"/>
++      <entry name="rgbx5551" value="0x35315852"/>
++      <entry name="bgrx5551" value="0x35315842"/>
++      <entry name="argb1555" value="0x35315241"/>
++      <entry name="abgr1555" value="0x35314241"/>
++      <entry name="rgba5551" value="0x35314152"/>
++      <entry name="bgra5551" value="0x35314142"/>
++      <entry name="rgb565" value="0x36314752"/>
++      <entry name="bgr565" value="0x36314742"/>
++      <entry name="rgb888" value="0x34324752"/>
++      <entry name="bgr888" value="0x34324742"/>
++      <entry name="xrgb8888" value="0x34325258"/>
++      <entry name="xbgr8888" value="0x34324258"/>
++      <entry name="rgbx8888" value="0x34325852"/>
++      <entry name="bgrx8888" value="0x34325842"/>
++      <entry name="argb8888" value="0x34325241"/>
++      <entry name="abgr8888" value="0x34324241"/>
++      <entry name="rgba8888" value="0x34324152"/>
++      <entry name="bgra8888" value="0x34324142"/>
++      <entry name="xrgb2101010" value="0x30335258"/>
++      <entry name="xbgr2101010" value="0x30334258"/>
++      <entry name="rgbx1010102" value="0x30335852"/>
++      <entry name="bgrx1010102" value="0x30335842"/>
++      <entry name="argb2101010" value="0x30335241"/>
++      <entry name="abgr2101010" value="0x30334241"/>
++      <entry name="rgba1010102" value="0x30334152"/>
++      <entry name="bgra1010102" value="0x30334142"/>
++      <entry name="yuyv" value="0x56595559"/>
++      <entry name="yvyu" value="0x55595659"/>
++      <entry name="uyvy" value="0x59565955"/>
++      <entry name="vyuy" value="0x59555956"/>
++      <entry name="ayuv" value="0x56555941"/>
++      <entry name="nv12" value="0x3231564e"/>
++      <entry name="nv21" value="0x3132564e"/>
++      <entry name="nv16" value="0x3631564e"/>
++      <entry name="nv61" value="0x3136564e"/>
++      <entry name="yuv410" value="0x39565559"/>
++      <entry name="yvu410" value="0x39555659"/>
++      <entry name="yuv411" value="0x31315559"/>
++      <entry name="yvu411" value="0x31315659"/>
++      <entry name="yuv420" value="0x32315559"/>
++      <entry name="yvu420" value="0x32315659"/>
++      <entry name="yuv422" value="0x36315559"/>
++      <entry name="yvu422" value="0x36315659"/>
++      <entry name="yuv444" value="0x34325559"/>
++      <entry name="yvu444" value="0x34325659"/>
++    </enum>
++
++    <!-- Call this request with the magic received from drmGetMagic().
++         It will be passed on to the drmAuthMagic() or
++         DRIAuthConnection() call.  This authentication must be
++         completed before create_buffer could be used. -->
++    <request name="authenticate">
++      <arg name="id" type="uint"/>
++    </request>
++
++    <!-- Create a wayland buffer for the named DRM buffer.  The DRM
++         surface must have a name using the flink ioctl -->
++    <request name="create_buffer">
++      <arg name="id" type="new_id" interface="wl_buffer"/>
++      <arg name="name" type="uint"/>
++      <arg name="width" type="int"/>
++      <arg name="height" type="int"/>
++      <arg name="stride" type="uint"/>
++      <arg name="format" type="uint"/>
++    </request>
++
++    <!-- Notification of the path of the drm device which is used by
++         the server.  The client should use this device for creating
++         local buffers.  Only buffers created from this device should
++         be be passed to the server using this drm object's
++         create_buffer request. -->
++    <event name="device">
++      <arg name="name" type="string"/>
++    </event>
++
++    <event name="format">
++      <arg name="format" type="uint"/>
++    </event>
++
++    <!-- Raised if the authenticate request succeeded -->
++    <event name="authenticated"/>
++  </interface>
++
++</protocol>
+diff --git a/hw/xfree86/xwayland/xserver.xml b/hw/xfree86/xwayland/xserver.xml
+new file mode 100644
+index 0000000..9e25f5c
+--- /dev/null
++++ b/hw/xfree86/xwayland/xserver.xml
+@@ -0,0 +1,18 @@
++<protocol name="xserver">
++
++  <interface name="xserver" version="1">
++    <request name="set_window_id">
++      <arg name="surface" type="object" interface="wl_surface"/>
++      <arg name="id" type="uint"/>
++    </request>
++
++    <event name="client">
++      <arg name="fd" type="fd"/>
++    </event>
++
++    <event name="listen_socket">
++      <arg name="fd" type="fd"/>
++    </event>
++  </interface>
++
++</protocol>
+diff --git a/hw/xfree86/xwayland/xwayland-cursor.c b/hw/xfree86/xwayland/xwayland-cursor.c
+new file mode 100644
+index 0000000..f8860bd
+--- /dev/null
++++ b/hw/xfree86/xwayland/xwayland-cursor.c
+@@ -0,0 +1,241 @@
++/*
++ * Copyright © 2011 Kristian Høgsberg
++ *
++ * Permission to use, copy, modify, distribute, and sell this software
++ * and its documentation for any purpose is hereby granted without
++ * fee, provided that the above copyright notice appear in all copies
++ * and that both that copyright notice and this permission notice
++ * appear in supporting documentation, and that the name of the
++ * copyright holders not be used in advertising or publicity
++ * pertaining to distribution of the software without specific,
++ * written prior permission.  The copyright holders make no
++ * representations about the suitability of this software for any
++ * purpose.  It is provided "as is" without express or implied
++ * warranty.
++ *
++ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++ * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
++ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
++ * SOFTWARE.
++ */
++
++#ifdef HAVE_XORG_CONFIG_H
++#include "xorg-config.h"
++#endif
++
++#include <unistd.h>
++#include <errno.h>
++#include <sys/mman.h>
++#include <wayland-client.h>
++
++#include <xorg-server.h>
++#include <cursorstr.h>
++#include <xf86Crtc.h>
++#include <mipointrst.h>
++
++#include "xwayland.h"
++#include "xwayland-private.h"
++#include "xserver-client-protocol.h"
++
++static DevPrivateKeyRec xwl_cursor_private_key;
++
++static void
++expand_source_and_mask(CursorPtr cursor, void *data)
++{
++    CARD32 *argb, *p, d, fg, bg;
++    CursorBitsPtr bits = cursor->bits;
++    int size;
++    int x, y, stride, i, bit;
++
++    size = bits->width * bits->height * 4;
++    argb = malloc(size);
++    if (argb == NULL)
++	return;
++
++    p = argb;
++    fg = ((cursor->foreRed & 0xff00) << 8) |
++	(cursor->foreGreen & 0xff00) | (cursor->foreGreen >> 8);
++    bg = ((cursor->backRed & 0xff00) << 8) |
++	(cursor->backGreen & 0xff00) | (cursor->backGreen >> 8);
++    stride = (bits->width / 8 + 3) & ~3;
++    for (y = 0; y < bits->height; y++)
++	for (x = 0; x < bits->width; x++) {
++	    i = y * stride + x / 8;
++	    bit = 1 << (x & 7);
++	    if (bits->source[i] & bit)
++		d = fg;
++	    else
++		d = bg;
++	    if (bits->mask[i] & bit)
++		d |= 0xff000000;
++	    else
++		d = 0x00000000;
++
++	    *p++ = d;
++	}
++
++    memcpy(data, argb, size);
++    free(argb);
++}
++
++static Bool
++xwl_realize_cursor(DeviceIntPtr device, ScreenPtr screen, CursorPtr cursor)
++{
++    struct xwl_screen *xwl_screen;
++    int size;
++    char filename[] = "/tmp/wayland-shm-XXXXXX";
++    int fd;
++    struct wl_shm_pool *pool;
++    struct wl_buffer *buffer;
++    void *data;
++
++    xwl_screen = xwl_screen_get(screen);
++    size = cursor->bits->width * cursor->bits->height * 4;
++
++    fd = mkstemp(filename);
++    if (fd < 0) {
++	ErrorF("open %s failed: %s", filename, strerror(errno));
++	return FALSE;
++    }
++    if (ftruncate(fd, size) < 0) {
++	ErrorF("ftruncate failed: %s", strerror(errno));
++	close(fd);
++	return FALSE;
++    }
++
++    data = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
++    unlink(filename);
++
++    if (data == MAP_FAILED) {
++	ErrorF("mmap failed: %s", strerror(errno));
++	close(fd);
++	return FALSE;
++    }
++
++    if (cursor->bits->argb)
++	memcpy(data, cursor->bits->argb, size);
++    else
++	expand_source_and_mask(cursor, data);
++    munmap(data, size);
++
++    pool = wl_shm_create_pool(xwl_screen->shm, fd, size);
++    close(fd);
++    buffer = wl_shm_pool_create_buffer(pool, 0,
++				  cursor->bits->width, cursor->bits->height,
++				  cursor->bits->width * 4,
++				  WL_SHM_FORMAT_ARGB8888);
++    wl_shm_pool_destroy(pool);
++
++    dixSetPrivate(&cursor->devPrivates, &xwl_cursor_private_key, buffer);
++
++    return TRUE;
++}
++
++static Bool
++xwl_unrealize_cursor(DeviceIntPtr device,
++			ScreenPtr screen, CursorPtr cursor)
++{
++    struct wl_buffer *buffer;
++
++    buffer = dixGetPrivate(&cursor->devPrivates, &xwl_cursor_private_key);
++    wl_buffer_destroy(buffer);
++
++    return TRUE;
++}
++
++void
++xwl_seat_set_cursor(struct xwl_seat *xwl_seat)
++{
++    struct wl_buffer *buffer;
++
++    if (!xwl_seat->x_cursor || !xwl_seat->wl_pointer)
++        return;
++
++    buffer = dixGetPrivate(&xwl_seat->x_cursor->devPrivates,
++                           &xwl_cursor_private_key);
++
++    wl_pointer_set_cursor(xwl_seat->wl_pointer,
++			  xwl_seat->pointer_enter_serial,
++			  xwl_seat->cursor,
++			  xwl_seat->x_cursor->bits->xhot,
++			  xwl_seat->x_cursor->bits->yhot);
++    wl_surface_attach(xwl_seat->cursor, buffer, 0, 0);
++    wl_surface_damage(xwl_seat->cursor, 0, 0,
++		      xwl_seat->x_cursor->bits->width,
++		      xwl_seat->x_cursor->bits->height);
++    wl_surface_commit(xwl_seat->cursor);
++}
++
++static void
++xwl_set_cursor(DeviceIntPtr device,
++	       ScreenPtr screen, CursorPtr cursor, int x, int y)
++{
++    struct xwl_screen *xwl_screen;
++    struct xwl_seat *xwl_seat;
++
++    xwl_screen = xwl_screen_get(screen);
++
++    if (!xwl_screen || xorg_list_is_empty(&xwl_screen->seat_list))
++	return;
++
++    xwl_seat = xorg_list_first_entry(&xwl_screen->seat_list,
++		                     struct xwl_seat, link);
++
++    xwl_seat->x_cursor = cursor;
++    xwl_seat_set_cursor(xwl_seat);
++}
++
++static void
++xwl_move_cursor(DeviceIntPtr device, ScreenPtr screen, int x, int y)
++{
++}
++
++static Bool
++xwl_device_cursor_initialize(DeviceIntPtr device, ScreenPtr screen)
++{
++    struct xwl_screen *xwl_screen;
++
++    xwl_screen = xwl_screen_get(screen);
++
++    return xwl_screen->sprite_funcs->DeviceCursorInitialize(device,
++							       screen);
++}
++
++static void
++xwl_device_cursor_cleanup(DeviceIntPtr device, ScreenPtr screen)
++{
++    struct xwl_screen *xwl_screen;
++
++    xwl_screen = xwl_screen_get(screen);
++
++    xwl_screen->sprite_funcs->DeviceCursorCleanup(device, screen);
++}
++
++static miPointerSpriteFuncRec xwl_pointer_sprite_funcs =
++{
++    xwl_realize_cursor,
++    xwl_unrealize_cursor,
++    xwl_set_cursor,
++    xwl_move_cursor,
++    xwl_device_cursor_initialize,
++    xwl_device_cursor_cleanup
++};
++
++int
++xwl_screen_init_cursor(struct xwl_screen *xwl_screen, ScreenPtr screen)
++{
++    miPointerScreenPtr pointer_priv;
++
++    if (!dixRegisterPrivateKey(&xwl_cursor_private_key, PRIVATE_CURSOR, 0))
++	return BadAlloc;
++
++    pointer_priv = dixLookupPrivate(&screen->devPrivates, miPointerScreenKey);
++    xwl_screen->sprite_funcs = pointer_priv->spriteFuncs;
++    pointer_priv->spriteFuncs = &xwl_pointer_sprite_funcs;
++
++    return Success;
++}
+diff --git a/hw/xfree86/xwayland/xwayland-drm.c b/hw/xfree86/xwayland/xwayland-drm.c
+new file mode 100644
+index 0000000..ce56e4c
+--- /dev/null
++++ b/hw/xfree86/xwayland/xwayland-drm.c
+@@ -0,0 +1,235 @@
++/*
++ * Copyright © 2011 Kristian Høgsberg
++ *
++ * Permission to use, copy, modify, distribute, and sell this software
++ * and its documentation for any purpose is hereby granted without
++ * fee, provided that the above copyright notice appear in all copies
++ * and that both that copyright notice and this permission notice
++ * appear in supporting documentation, and that the name of the
++ * copyright holders not be used in advertising or publicity
++ * pertaining to distribution of the software without specific,
++ * written prior permission.  The copyright holders make no
++ * representations about the suitability of this software for any
++ * purpose.  It is provided "as is" without express or implied
++ * warranty.
++ *
++ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++ * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
++ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
++ * SOFTWARE.
++ */
++
++#ifdef HAVE_XORG_CONFIG_H
++#include "xorg-config.h"
++#endif
++
++#include <unistd.h>
++#include <fcntl.h>
++
++#include <xf86drm.h>
++#include <wayland-util.h>
++#include <wayland-client.h>
++#include <drm-client-protocol.h>
++
++#include <xf86Xinput.h>
++#include <xf86Crtc.h>
++#include <xf86str.h>
++#include <windowstr.h>
++#include <input.h>
++#include <inputstr.h>
++#include <exevents.h>
++
++#include "xwayland.h"
++#include "xwayland-private.h"
++#include "../dri2/dri2.h"
++
++struct xwl_auth_req {
++    struct xorg_list link;
++
++    ClientPtr client;
++    struct xwl_screen *xwl_screen;
++    uint32_t magic;
++};
++
++static void
++drm_handle_device (void *data, struct wl_drm *drm, const char *device)
++{
++    struct xwl_screen *xwl_screen = data;
++
++    xwl_screen->device_name = strdup (device);
++}
++
++static void
++drm_handle_format(void *data, struct wl_drm *wl_drm, uint32_t format)
++{
++}
++
++static void
++drm_handle_authenticated (void *data, struct wl_drm *drm)
++{
++    struct xwl_screen *xwl_screen = data;
++    struct xwl_auth_req *req;
++
++    xwl_screen->authenticated = 1;
++
++    /* it does one authentication transaction at a time, so if there's an
++     * element in the list, we call DRI2SendAuthReply for that client, remove
++     * the head and free the struct. If there are still elements in the list,
++     * it means that we have one or more clients waiting to be authenticated
++     * and we send out a wl_drm authenticate request for the first client in
++     * the list */
++    if (xorg_list_is_empty(&xwl_screen->authenticate_client_list))
++	return;
++
++    req = xorg_list_first_entry(&xwl_screen->authenticate_client_list,
++	                        struct xwl_auth_req, link);
++    DRI2SendAuthReply(req->client, TRUE);
++    AttendClient(req->client);
++    xorg_list_del(&req->link);
++    free(req);
++
++    xorg_list_for_each_entry(req, &xwl_screen->authenticate_client_list,
++	                     link) {
++	wl_drm_authenticate (xwl_screen->drm, req->magic);
++	return;
++    }
++}
++
++static const struct wl_drm_listener xwl_drm_listener =
++{
++    drm_handle_device,
++    drm_handle_format,
++    drm_handle_authenticated
++};
++
++static void
++drm_handler(void *data, struct wl_registry *registry, uint32_t id,
++	    const char *interface, uint32_t version)
++{
++    struct xwl_screen *xwl_screen = data;
++
++    if (strcmp (interface, "wl_drm") == 0) {
++	xwl_screen->drm = wl_registry_bind(xwl_screen->registry, id,
++                                           &wl_drm_interface, 1);
++	wl_drm_add_listener(xwl_screen->drm, &xwl_drm_listener, xwl_screen);
++    }
++}
++
++static const struct wl_registry_listener drm_listener = {
++    drm_handler,
++};
++
++int
++xwl_drm_pre_init(struct xwl_screen *xwl_screen)
++{
++    uint32_t magic;
++
++    xwl_screen->drm_registry = wl_display_get_registry(xwl_screen->display);
++    wl_registry_add_listener(xwl_screen->drm_registry, &drm_listener,
++                             xwl_screen);
++
++    /* Ensure drm_handler has seen all the interfaces */
++    wl_display_roundtrip(xwl_screen->display);
++    /* Ensure the xwl_drm_listener has seen the drm device, if any */
++    wl_display_roundtrip(xwl_screen->display);
++
++    ErrorF("wayland_drm_screen_init, device name %s\n",
++	   xwl_screen->device_name);
++
++    xwl_screen->drm_fd = open(xwl_screen->device_name, O_RDWR);
++    if (xwl_screen->drm_fd < 0) {
++	ErrorF("failed to open the drm fd\n");
++	return BadAccess;
++    }
++
++    if (drmGetMagic(xwl_screen->drm_fd, &magic)) {
++	ErrorF("failed to get drm magic");
++	return BadAccess;
++    }
++
++    wl_drm_authenticate(xwl_screen->drm, magic);
++
++    wl_display_roundtrip(xwl_screen->display);
++
++    ErrorF("opened drm fd: %d\n", xwl_screen->drm_fd);
++
++    if (!xwl_screen->authenticated) {
++	ErrorF("Failed to auth drm fd\n");
++	return BadAccess;
++    }
++
++    return Success;
++}
++
++Bool xwl_drm_initialised(struct xwl_screen *xwl_screen)
++{
++    return xwl_screen->authenticated;
++}
++
++int xwl_screen_get_drm_fd(struct xwl_screen *xwl_screen)
++{
++    return xwl_screen->drm_fd;
++}
++
++int xwl_drm_authenticate(ClientPtr client, struct xwl_screen *xwl_screen,
++			    uint32_t magic)
++{
++    struct xwl_auth_req *req;
++
++    if (!xwl_screen->drm)
++	return BadAccess;
++
++    req = malloc (sizeof *req);
++    if (req == NULL)
++	return BadAlloc;
++
++    req->client = client;
++    req->xwl_screen = xwl_screen;
++    req->magic = magic;
++
++    if (xorg_list_is_empty(&xwl_screen->authenticate_client_list))
++	wl_drm_authenticate (xwl_screen->drm, magic);
++
++    xorg_list_append(&req->link, &xwl_screen->authenticate_client_list);
++
++    IgnoreClient(req->client);
++    xwl_screen->authenticated = 0;
++
++    return Success;
++}
++
++
++int
++xwl_create_window_buffer_drm(struct xwl_window *xwl_window,
++			     PixmapPtr pixmap, uint32_t name)
++{
++    VisualID visual;
++    WindowPtr window = xwl_window->window;
++    ScreenPtr screen = window->drawable.pScreen;
++    uint32_t format;
++    int i;
++
++    visual = wVisual(window);
++    for (i = 0; i < screen->numVisuals; i++)
++	if (screen->visuals[i].vid == visual)
++	    break;
++
++    if (screen->visuals[i].nplanes == 32)
++	format = WL_DRM_FORMAT_ARGB8888;
++    else
++	format = WL_DRM_FORMAT_XRGB8888;
++
++    xwl_window->buffer =
++      wl_drm_create_buffer(xwl_window->xwl_screen->drm,
++			   name,
++			   pixmap->drawable.width,
++			   pixmap->drawable.height,
++			   pixmap->devKind,
++			   format);
++
++    return xwl_window->buffer ? Success : BadDrawable;
++}
+diff --git a/hw/xfree86/xwayland/xwayland-input.c b/hw/xfree86/xwayland/xwayland-input.c
+new file mode 100644
+index 0000000..2f8e0c7
+--- /dev/null
++++ b/hw/xfree86/xwayland/xwayland-input.c
+@@ -0,0 +1,610 @@
++/*
++ * Copyright © 2008 Kristian Høgsberg
++ *
++ * Permission to use, copy, modify, distribute, and sell this software
++ * and its documentation for any purpose is hereby granted without
++ * fee, provided that the above copyright notice appear in all copies
++ * and that both that copyright notice and this permission notice
++ * appear in supporting documentation, and that the name of the
++ * copyright holders not be used in advertising or publicity
++ * pertaining to distribution of the software without specific,
++ * written prior permission.  The copyright holders make no
++ * representations about the suitability of this software for any
++ * purpose.  It is provided "as is" without express or implied
++ * warranty.
++ *
++ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++ * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
++ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
++ * SOFTWARE.
++ */
++
++#ifdef HAVE_XORG_CONFIG_H
++#include "xorg-config.h"
++#endif
++
++#include <errno.h>
++#include <stdint.h>
++#include <unistd.h>
++#include <linux/input.h>
++#include <wayland-util.h>
++#include <wayland-client.h>
++#include <X11/extensions/compositeproto.h>
++#include <xserver-properties.h>
++
++#include <compositeext.h>
++#include <selection.h>
++#include <extinit.h>
++#include <exevents.h>
++#include <input.h>
++#include <inpututils.h>
++#include <inputstr.h>
++#include <exevents.h>
++#include <xkbsrv.h>
++#include <xf86Xinput.h>
++#include <xf86Crtc.h>
++#include <xf86str.h>
++#include <windowstr.h>
++#include <xf86Priv.h>
++#include <mipointrst.h>
++#include <sys/mman.h>
++
++#include "xwayland.h"
++#include "xwayland-private.h"
++#include "xserver-client-protocol.h"
++
++static void
++xwl_pointer_control(DeviceIntPtr device, PtrCtrl *ctrl)
++{
++	/* Nothing to do, dix handles all settings */
++}
++
++static int
++xwl_pointer_proc(DeviceIntPtr device, int what)
++{
++#define NBUTTONS 10
++#define NAXES 2
++    BYTE map[NBUTTONS + 1];
++    int i = 0;
++    Atom btn_labels[NBUTTONS] = {0};
++    Atom axes_labels[NAXES] = {0};
++
++    switch (what) {
++    case DEVICE_INIT:
++	device->public.on = FALSE;
++
++        for (i = 1; i <= NBUTTONS; i++)
++            map[i] = i;
++
++        btn_labels[0] = XIGetKnownProperty(BTN_LABEL_PROP_BTN_LEFT);
++        btn_labels[1] = XIGetKnownProperty(BTN_LABEL_PROP_BTN_MIDDLE);
++        btn_labels[2] = XIGetKnownProperty(BTN_LABEL_PROP_BTN_RIGHT);
++        btn_labels[3] = XIGetKnownProperty(BTN_LABEL_PROP_BTN_WHEEL_UP);
++        btn_labels[4] = XIGetKnownProperty(BTN_LABEL_PROP_BTN_WHEEL_DOWN);
++        btn_labels[5] = XIGetKnownProperty(BTN_LABEL_PROP_BTN_HWHEEL_LEFT);
++        btn_labels[6] = XIGetKnownProperty(BTN_LABEL_PROP_BTN_HWHEEL_RIGHT);
++        /* don't know about the rest */
++
++        axes_labels[0] = XIGetKnownProperty(AXIS_LABEL_PROP_ABS_X);
++        axes_labels[1] = XIGetKnownProperty(AXIS_LABEL_PROP_ABS_Y);
++
++        if (!InitValuatorClassDeviceStruct(device, 2, btn_labels,
++                                           GetMotionHistorySize(), Absolute))
++            return BadValue;
++
++        /* Valuators */
++        InitValuatorAxisStruct(device, 0, axes_labels[0],
++                               0, 0xFFFF, 10000, 0, 10000, Absolute);
++        InitValuatorAxisStruct(device, 1, axes_labels[1],
++                               0, 0xFFFF, 10000, 0, 10000, Absolute);
++
++        if (!InitPtrFeedbackClassDeviceStruct(device, xwl_pointer_control))
++            return BadValue;
++
++        if (!InitButtonClassDeviceStruct(device, 3, btn_labels, map))
++            return BadValue;
++
++        return Success;
++
++    case DEVICE_ON:
++	device->public.on = TRUE;
++        return Success;
++
++    case DEVICE_OFF:
++    case DEVICE_CLOSE:
++	device->public.on = FALSE;
++        return Success;
++    }
++
++    return BadMatch;
++
++#undef NBUTTONS
++#undef NAXES
++}
++
++static void
++xwl_keyboard_control(DeviceIntPtr device, KeybdCtrl *ctrl)
++{
++    /* FIXME: Set keyboard leds based on CAPSFLAG etc being set in
++     * ctrl->leds - needs private protocol. */
++}
++
++static int
++xwl_keyboard_proc(DeviceIntPtr device, int what)
++{
++    InputInfoPtr pInfo = device->public.devicePrivate;
++    struct xwl_seat *xwl_seat = pInfo->private;
++    int len;
++
++    switch (what) {
++    case DEVICE_INIT:
++	device->public.on = FALSE;
++	len = strnlen(xwl_seat->keymap, xwl_seat->keymap_size);
++        if (!InitKeyboardDeviceStructFromString(device, xwl_seat->keymap,
++						len,
++						NULL, xwl_keyboard_control))
++            return BadValue;
++
++        return Success;
++    case DEVICE_ON:
++	device->public.on = TRUE;
++        return Success;
++
++    case DEVICE_OFF:
++    case DEVICE_CLOSE:
++	device->public.on = FALSE;
++        return Success;
++    }
++
++    return BadMatch;
++}
++
++static void
++xwl_keyboard_uninit(InputDriverPtr drv, InputInfoPtr pInfo, int flags)
++{
++}
++
++static int
++xwl_keyboard_init(InputDriverPtr drv, InputInfoPtr pInfo, int flags)
++{
++    pInfo->type_name = "xwayland-keyboard";
++    pInfo->device_control = xwl_keyboard_proc;
++    pInfo->read_input = NULL;
++    pInfo->control_proc = NULL;
++    pInfo->switch_mode = NULL;
++    pInfo->fd = -1;
++
++    return Success;
++}
++
++_X_EXPORT InputDriverRec xwl_keyboard_driver = {
++    1,
++    "xwayland-keyboard",
++    NULL,
++    xwl_keyboard_init,
++    xwl_keyboard_uninit,
++    NULL,
++};
++
++static void
++xwl_pointer_uninit(InputDriverPtr drv, InputInfoPtr pInfo, int flags)
++{
++}
++
++static int
++xwl_pointer_init(InputDriverPtr drv, InputInfoPtr pInfo, int flags)
++{
++    pInfo->type_name = "xwayland-pointer";
++    pInfo->device_control = xwl_pointer_proc;
++    pInfo->read_input = NULL;
++    pInfo->control_proc = NULL;
++    pInfo->switch_mode = NULL;
++    pInfo->fd = -1;
++
++    return Success;
++}
++
++_X_EXPORT InputDriverRec xwl_pointer_driver = {
++    1,
++    "xwayland-pointer",
++    NULL,
++    xwl_pointer_init,
++    xwl_pointer_uninit,
++    NULL,
++};
++
++void
++xwl_input_teardown(pointer p)
++{
++}
++
++pointer
++xwl_input_setup(pointer module, pointer opts, int *errmaj, int *errmin)
++{
++    xf86AddInputDriver(&xwl_keyboard_driver, module, 0);
++    xf86AddInputDriver(&xwl_pointer_driver, module, 0);
++
++    return module;
++}
++
++static DeviceIntPtr
++device_added(struct xwl_seat *xwl_seat, const char *driver)
++{
++    DeviceIntPtr dev = NULL;
++    InputInfoPtr pInfo;
++    int rc;
++
++    pInfo = xf86AllocateInput();
++    if (!pInfo)
++        return NULL;
++
++    pInfo->driver = xstrdup(driver);
++
++    if (asprintf(&pInfo->name, "%s:%d", pInfo->driver, xwl_seat->id) == -1) {
++	free(pInfo);
++	return NULL;
++    }
++
++    pInfo->private = xwl_seat;
++
++    rc = xf86NewInputDevice(pInfo, &dev, 1);
++    if (rc != Success) {
++	free(pInfo);
++	return NULL;
++    }
++
++    LogMessage(X_INFO, "config/xwayland: Adding input device %s\n",
++	       pInfo->name);
++
++    return dev;
++}
++
++static void
++pointer_handle_enter(void *data, struct wl_pointer *pointer,
++		     uint32_t serial, struct wl_surface *surface,
++		     wl_fixed_t sx_w, wl_fixed_t sy_w)
++
++{
++    struct xwl_seat *xwl_seat = data;
++    DeviceIntPtr dev = xwl_seat->pointer;
++    int i;
++    int sx = wl_fixed_to_int(sx_w);
++    int sy = wl_fixed_to_int(sy_w);
++    ScreenPtr pScreen = xwl_seat->xwl_screen->screen;
++
++    xwl_seat->xwl_screen->serial = serial;
++    xwl_seat->pointer_enter_serial = serial;
++
++    xwl_seat->focus_window = wl_surface_get_user_data(surface);
++
++    (*pScreen->SetCursorPosition) (dev, pScreen, sx, sy, TRUE);
++
++    SetDeviceRedirectWindow(xwl_seat->pointer, xwl_seat->focus_window->window);
++
++    /* Ideally, X clients shouldn't see these button releases.  When
++     * the pointer leaves a window with buttons down, it means that
++     * the wayland compositor has grabbed the pointer.  The button
++     * release event is consumed by whatever grab in the compositor
++     * and won't be sent to clients (the X server is a client).
++     * However, we need to reset X's idea of which buttons are up and
++     * down, and they're all up (by definition) when the pointer
++     * enters a window.  We should figure out a way to swallow these
++     * events, perhaps using an X grab whenever the pointer is not in
++     * any X window, but for now just send the events. */
++    for (i = 0; i < dev->button->numButtons; i++)
++	if (BitIsOn(dev->button->down, i))
++		xf86PostButtonEvent(dev, TRUE, i, 0, 0, 0);
++
++    (*pScreen->DisplayCursor)(dev, pScreen, dev->spriteInfo->sprite->current);
++}
++
++static void
++pointer_handle_leave(void *data, struct wl_pointer *pointer,
++		     uint32_t serial, struct wl_surface *surface)
++{
++    struct xwl_seat *xwl_seat = data;
++    DeviceIntPtr dev = xwl_seat->pointer;
++    ScreenPtr pScreen = xwl_seat->xwl_screen->screen;
++
++    xwl_seat->xwl_screen->serial = serial;
++
++    xwl_seat->focus_window = NULL;
++    SetDeviceRedirectWindow(xwl_seat->pointer, PointerRootWin);
++    (*pScreen->DisplayCursor)(dev, pScreen, NullCursor);
++}
++
++static void
++pointer_handle_motion(void *data, struct wl_pointer *pointer,
++		      uint32_t time, wl_fixed_t sx_w, wl_fixed_t sy_w)
++{
++    struct xwl_seat *xwl_seat = data;
++    int32_t dx, dy;
++    int sx = wl_fixed_to_int(sx_w);
++    int sy = wl_fixed_to_int(sy_w);
++    ValuatorMask mask;
++
++    if (!xwl_seat->focus_window)
++	return ;
++
++    dx = xwl_seat->focus_window->window->drawable.x;
++    dy = xwl_seat->focus_window->window->drawable.y;
++
++    valuator_mask_zero(&mask);
++    valuator_mask_set(&mask, 0, dx + sx);
++    valuator_mask_set(&mask, 1, dy + sy);
++
++    QueuePointerEvents(xwl_seat->pointer, MotionNotify, 0,
++		       POINTER_ABSOLUTE | POINTER_SCREEN, &mask);
++}
++
++static void
++pointer_handle_button(void *data, struct wl_pointer *pointer, uint32_t serial,
++		      uint32_t time, uint32_t button, uint32_t state)
++{
++    struct xwl_seat *xwl_seat = data;
++    int index;
++
++    xwl_seat->xwl_screen->serial = serial;
++
++    switch (button) {
++    case BTN_MIDDLE:
++	index = 2;
++	break;
++    case BTN_RIGHT:
++	index = 3;
++	break;
++    default:
++	index = button - BTN_LEFT + 1;
++	break;
++    }
++
++    xf86PostButtonEvent(xwl_seat->pointer, TRUE, index, state, 0, 0);
++}
++
++static void
++pointer_handle_axis(void *data, struct wl_pointer *pointer,
++		    uint32_t time, uint32_t axis, wl_fixed_t value)
++{
++    struct xwl_seat *xwl_seat = data;
++    int index, count;
++    int i, val;
++    const int divisor = 10;
++
++    if (time - xwl_seat->scroll_time > 2000) {
++	xwl_seat->vertical_scroll = 0;
++	xwl_seat->horizontal_scroll = 0;
++    }
++    xwl_seat->scroll_time = time;
++
++    /* FIXME: Need to do proper smooth scrolling here! */
++    switch (axis) {
++    case WL_POINTER_AXIS_VERTICAL_SCROLL:
++	xwl_seat->vertical_scroll += value / divisor;
++	val = wl_fixed_to_int(xwl_seat->vertical_scroll);
++	xwl_seat->vertical_scroll -= wl_fixed_from_int(val);
++
++	if (val <= -1)
++            index = 4;
++	else if (val >= 1)
++            index = 5;
++	else
++            return;
++	break;
++    case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
++	xwl_seat->horizontal_scroll += value / divisor;
++	val = wl_fixed_to_int(xwl_seat->horizontal_scroll);
++	xwl_seat->horizontal_scroll -= wl_fixed_from_int(val);
++
++	if (val <= -1)
++            index = 6;
++	else if (val >= 1)
++            index = 7;
++	else
++            return;
++	break;
++    default:
++	return;
++    }
++
++    count = abs(val);
++    for (i = 0; i < count; i++) {
++	xf86PostButtonEvent(xwl_seat->pointer, TRUE, index, 1, 0, 0);
++	xf86PostButtonEvent(xwl_seat->pointer, TRUE, index, 0, 0, 0);
++    }
++}
++
++static const struct wl_pointer_listener pointer_listener = {
++	pointer_handle_enter,
++	pointer_handle_leave,
++	pointer_handle_motion,
++	pointer_handle_button,
++	pointer_handle_axis,
++};
++
++static void
++keyboard_handle_key(void *data, struct wl_keyboard *keyboard, uint32_t serial,
++		    uint32_t time, uint32_t key, uint32_t state)
++{
++    struct xwl_seat *xwl_seat = data;
++    uint32_t *k, *end;
++
++    xwl_seat->xwl_screen->serial = serial;
++
++    end = xwl_seat->keys.data + xwl_seat->keys.size;
++    for (k = xwl_seat->keys.data; k < end; k++) {
++	if (*k == key)
++	    *k = *--end;
++    }
++    xwl_seat->keys.size = (void *) end - xwl_seat->keys.data;
++    if (state) {
++	k = wl_array_add(&xwl_seat->keys, sizeof *k);
++	*k = key;
++    }
++
++    xf86PostKeyboardEvent(xwl_seat->keyboard, key + 8, state);
++}
++
++static void
++keyboard_handle_keymap(void *data, struct wl_keyboard *keyboard,
++		       uint32_t format, int fd, uint32_t size)
++{
++    struct xwl_seat *xwl_seat = data;
++
++    xwl_seat->keymap_size = size;
++    xwl_seat->keymap = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
++    if (xwl_seat->keymap == MAP_FAILED)
++	;	/* wah wah */
++
++    close(fd);
++}
++
++static void
++keyboard_handle_enter(void *data, struct wl_keyboard *keyboard,
++		      uint32_t serial,
++		      struct wl_surface *surface, struct wl_array *keys)
++{
++    struct xwl_seat *xwl_seat = data;
++    uint32_t *k;
++
++    xwl_seat->xwl_screen->serial = serial;
++
++    wl_array_copy(&xwl_seat->keys, keys);
++    wl_array_for_each(k, &xwl_seat->keys)
++	xf86PostKeyboardEvent(xwl_seat->keyboard, *k + 8, 1);
++}
++
++static void
++keyboard_handle_leave(void *data, struct wl_keyboard *keyboard,
++		      uint32_t serial, struct wl_surface *surface)
++{
++    struct xwl_seat *xwl_seat = data;
++    uint32_t *k;
++
++    xwl_seat->xwl_screen->serial = serial;
++
++    wl_array_for_each(k, &xwl_seat->keys)
++	xf86PostKeyboardEvent(xwl_seat->keyboard, *k + 8, 0);
++}
++
++static void
++keyboard_handle_modifiers(void *data, struct wl_keyboard *keyboard,
++			  uint32_t serial, uint32_t mods_depressed,
++			  uint32_t mods_latched, uint32_t mods_locked,
++			  uint32_t group)
++{
++    /* FIXME: Need more server XKB API here. */
++}
++
++static const struct wl_keyboard_listener keyboard_listener = {
++	keyboard_handle_keymap,
++	keyboard_handle_enter,
++	keyboard_handle_leave,
++	keyboard_handle_key,
++	keyboard_handle_modifiers,
++};
++
++static void
++add_devices(void *data, struct wl_callback *callback, uint32_t time)
++{
++    struct xwl_seat *xwl_seat = data;
++
++    wl_callback_destroy(callback);
++
++    if (xwl_seat->wl_pointer)
++	xwl_seat->pointer = device_added(xwl_seat, "xwayland-pointer");
++    if (xwl_seat->wl_keyboard)
++	xwl_seat->keyboard = device_added(xwl_seat, "xwayland-keyboard");
++}
++
++static const struct wl_callback_listener add_devices_listener = {
++	add_devices
++};
++
++static void
++seat_handle_capabilities(void *data, struct wl_seat *seat,
++			 enum wl_seat_capability caps)
++{
++	struct xwl_seat *xwl_seat = data;
++	struct wl_callback *callback;
++
++	if (caps & WL_SEAT_CAPABILITY_POINTER) {
++	    xwl_seat->wl_pointer = wl_seat_get_pointer(seat);
++	    wl_pointer_add_listener(xwl_seat->wl_pointer,
++				    &pointer_listener, xwl_seat);
++            xwl_seat_set_cursor(xwl_seat);
++	}
++
++	if (caps & WL_SEAT_CAPABILITY_KEYBOARD) {
++	    xwl_seat->wl_keyboard = wl_seat_get_keyboard(seat);
++	    wl_keyboard_add_listener(xwl_seat->wl_keyboard,
++				     &keyboard_listener, xwl_seat);
++
++	}
++        /* FIXME: Touch ... */
++
++	/* Add devices after we've received keymaps. */
++	if (caps) {
++	    callback = wl_display_sync(xwl_seat->xwl_screen->display);
++	    wl_callback_add_listener(callback,
++				     &add_devices_listener, xwl_seat);
++	}
++}
++
++static const struct wl_seat_listener seat_listener = {
++	seat_handle_capabilities,
++};
++
++static void
++create_input_device(struct xwl_screen *xwl_screen, uint32_t id)
++{
++    struct xwl_seat *xwl_seat;
++
++    xwl_seat = calloc(sizeof *xwl_seat, 1);
++    if (xwl_seat == NULL) {
++	ErrorF("create_input ENOMEM");
++	return ;
++    }
++
++    xwl_seat->xwl_screen = xwl_screen;
++    xorg_list_add(&xwl_seat->link, &xwl_screen->seat_list);
++
++    xwl_seat->seat =
++	wl_registry_bind(xwl_screen->registry, id, &wl_seat_interface, 1);
++    xwl_seat->id = id;
++
++    xwl_seat->cursor = wl_compositor_create_surface(xwl_screen->compositor);
++    wl_seat_add_listener(xwl_seat->seat, &seat_listener, xwl_seat);
++    wl_array_init(&xwl_seat->keys);
++}
++
++static void
++input_handler(void *data, struct wl_registry *registry, uint32_t id,
++	      const char *interface, uint32_t version)
++{
++    struct xwl_screen *xwl_screen = data;
++
++    if (strcmp (interface, "wl_seat") == 0) {
++        create_input_device(xwl_screen, id);
++    } else if (strcmp(interface, "xserver") == 0) {
++        xwl_screen->xorg_server =
++            wl_registry_bind(registry, id, &xserver_interface, 1);
++        xserver_add_listener(xwl_screen->xorg_server, &xwl_server_listener,
++                             xwl_screen);
++    }
++}
++
++static const struct wl_registry_listener input_listener = {
++    input_handler,
++};
++
++void
++xwl_input_init(struct xwl_screen *xwl_screen)
++{
++    xwl_screen->input_registry = wl_display_get_registry(xwl_screen->display);
++    wl_registry_add_listener(xwl_screen->input_registry, &input_listener,
++                             xwl_screen);
++}
+diff --git a/hw/xfree86/xwayland/xwayland-output.c b/hw/xfree86/xwayland/xwayland-output.c
+new file mode 100644
+index 0000000..8f087f6
+--- /dev/null
++++ b/hw/xfree86/xwayland/xwayland-output.c
+@@ -0,0 +1,309 @@
++/*
++ * Copyright © 2011 Intel Corporation
++ *
++ * Permission to use, copy, modify, distribute, and sell this software
++ * and its documentation for any purpose is hereby granted without
++ * fee, provided that the above copyright notice appear in all copies
++ * and that both that copyright notice and this permission notice
++ * appear in supporting documentation, and that the name of the
++ * copyright holders not be used in advertising or publicity
++ * pertaining to distribution of the software without specific,
++ * written prior permission.  The copyright holders make no
++ * representations about the suitability of this software for any
++ * purpose.  It is provided "as is" without express or implied
++ * warranty.
++ *
++ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++ * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
++ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
++ * SOFTWARE.
++ */
++
++#ifdef HAVE_XORG_CONFIG_H
++#include "xorg-config.h"
++#endif
++
++#include <unistd.h>
++#include <errno.h>
++#include <sys/mman.h>
++#include <wayland-client.h>
++
++#include <xorg-server.h>
++#include <cursorstr.h>
++#include <xf86Crtc.h>
++#include <mipointrst.h>
++
++#include "xwayland.h"
++#include "xwayland-private.h"
++#include "xserver-client-protocol.h"
++
++static void
++crtc_dpms(xf86CrtcPtr drmmode_crtc, int mode)
++{
++}
++
++static Bool
++crtc_set_mode_major(xf86CrtcPtr crtc, DisplayModePtr mode,
++		    Rotation rotation, int x, int y)
++{
++	return TRUE;
++}
++
++static void
++crtc_set_cursor_colors (xf86CrtcPtr crtc, int bg, int fg)
++{
++}
++
++static void
++crtc_set_cursor_position (xf86CrtcPtr crtc, int x, int y)
++{
++}
++
++static void
++crtc_show_cursor (xf86CrtcPtr crtc)
++{
++}
++
++static void
++crtc_hide_cursor (xf86CrtcPtr crtc)
++{
++}
++
++static void
++crtc_load_cursor_argb (xf86CrtcPtr crtc, CARD32 *image)
++{
++}
++
++static PixmapPtr
++crtc_shadow_create(xf86CrtcPtr crtc, void *data, int width, int height)
++{
++	return NULL;
++}
++
++static void *
++crtc_shadow_allocate(xf86CrtcPtr crtc, int width, int height)
++{
++	return NULL;
++}
++
++static void
++crtc_shadow_destroy(xf86CrtcPtr crtc, PixmapPtr rotate_pixmap, void *data)
++{
++}
++
++static const xf86CrtcFuncsRec crtc_funcs = {
++    .dpms                = crtc_dpms,
++    .set_mode_major      = crtc_set_mode_major,
++    .set_cursor_colors   = crtc_set_cursor_colors,
++    .set_cursor_position = crtc_set_cursor_position,
++    .show_cursor         = crtc_show_cursor,
++    .hide_cursor         = crtc_hide_cursor,
++    .load_cursor_argb    = crtc_load_cursor_argb,
++    .shadow_create       = crtc_shadow_create,
++    .shadow_allocate     = crtc_shadow_allocate,
++    .shadow_destroy      = crtc_shadow_destroy,
++    .destroy		 = NULL, /* XXX */
++};
++
++static void
++output_dpms(xf86OutputPtr output, int mode)
++{
++	return;
++}
++
++static xf86OutputStatus
++output_detect(xf86OutputPtr output)
++{
++	return XF86OutputStatusConnected;
++}
++
++static Bool
++output_mode_valid(xf86OutputPtr output, DisplayModePtr pModes)
++{
++	return MODE_OK;
++}
++
++static DisplayModePtr
++output_get_modes(xf86OutputPtr xf86output)
++{
++    struct xwl_output *output = xf86output->driver_private;
++    struct monitor_ranges *ranges;
++    DisplayModePtr modes;
++
++    modes = xf86CVTMode(output->width, output->height, 60, TRUE, FALSE);
++    output->xf86monitor.det_mon[0].type = DS_RANGES;
++    ranges = &output->xf86monitor.det_mon[0].section.ranges;
++    ranges->min_h = modes->HSync - 10;
++    ranges->max_h = modes->HSync + 10;
++    ranges->min_v = modes->VRefresh - 10;
++    ranges->max_v = modes->VRefresh + 10;
++    ranges->max_clock = modes->Clock + 100;
++    output->xf86monitor.det_mon[1].type = DT;
++    output->xf86monitor.det_mon[2].type = DT;
++    output->xf86monitor.det_mon[3].type = DT;
++    output->xf86monitor.no_sections = 0;
++
++    xf86output->MonInfo = &output->xf86monitor;
++
++    return modes;
++}
++
++static void
++output_destroy(xf86OutputPtr xf86output)
++{
++    struct xwl_output *output = xf86output->driver_private;
++
++    free(output);
++}
++
++static const xf86OutputFuncsRec output_funcs = {
++    .dpms	= output_dpms,
++    .detect	= output_detect,
++    .mode_valid	= output_mode_valid,
++    .get_modes	= output_get_modes,
++    .destroy	= output_destroy
++};
++
++struct xwl_output *
++xwl_output_create(struct xwl_screen *xwl_screen)
++{
++    struct xwl_output *xwl_output;
++    xf86OutputPtr xf86output;
++    xf86CrtcPtr xf86crtc;
++
++    xwl_output = calloc(sizeof *xwl_output, 1);
++    if (xwl_output == NULL) {
++	ErrorF("create_output ENOMEM");
++	return NULL;
++    }
++
++    xwl_output->xwl_screen = xwl_screen;
++
++    xf86output = xf86OutputCreate(xwl_screen->scrninfo,
++				  &output_funcs, "XWAYLAND-1");
++    xf86output->driver_private = xwl_output;
++    xf86output->possible_crtcs = 1;
++    xf86output->possible_clones = 1;
++
++    xf86crtc = xf86CrtcCreate(xwl_screen->scrninfo, &crtc_funcs);
++    xf86crtc->driver_private = xwl_output;
++
++    xwl_output->xf86output = xf86output;
++    xwl_output->xf86crtc = xf86crtc;
++
++    return xwl_output;
++}
++
++static Bool
++resize(ScrnInfoPtr scrn, int width, int height)
++{
++    if (scrn->virtualX == width && scrn->virtualY == height)
++	return TRUE;
++    /* We don't handle resize at all, we must match the compositor size */
++    return FALSE;
++}
++
++static const xf86CrtcConfigFuncsRec config_funcs = {
++    resize
++};
++
++static void
++display_handle_geometry(void *data, struct wl_output *wl_output, int x, int y,
++			int physical_width, int physical_height, int subpixel,
++			const char *make, const char *model, int transform)
++{
++    struct xwl_output *xwl_output = data;
++    struct xwl_screen *xwl_screen = xwl_output->xwl_screen;
++
++    xwl_output->xf86output->mm_width = physical_width;
++    xwl_output->xf86output->mm_height = physical_height;
++
++    switch (subpixel) {
++    case WL_OUTPUT_SUBPIXEL_UNKNOWN:
++	xwl_output->xf86output->subpixel_order = SubPixelUnknown;
++	break;
++    case WL_OUTPUT_SUBPIXEL_NONE:
++	xwl_output->xf86output->subpixel_order = SubPixelNone;
++	break;
++    case WL_OUTPUT_SUBPIXEL_HORIZONTAL_RGB:
++	xwl_output->xf86output->subpixel_order = SubPixelHorizontalRGB;
++	break;
++    case WL_OUTPUT_SUBPIXEL_HORIZONTAL_BGR:
++	xwl_output->xf86output->subpixel_order = SubPixelHorizontalBGR;
++	break;
++    case WL_OUTPUT_SUBPIXEL_VERTICAL_RGB:
++	xwl_output->xf86output->subpixel_order = SubPixelVerticalRGB;
++	break;
++    case WL_OUTPUT_SUBPIXEL_VERTICAL_BGR:
++	xwl_output->xf86output->subpixel_order = SubPixelVerticalBGR;
++	break;
++    }
++
++    xwl_output->x = x;
++    xwl_output->y = y;
++
++    xwl_screen->xwl_output = xwl_output;
++}
++
++static void
++display_handle_mode(void *data, struct wl_output *wl_output, uint32_t flags,
++		    int width, int height, int refresh)
++{
++    struct xwl_output *xwl_output = data;
++
++    if (flags & WL_OUTPUT_MODE_CURRENT) {
++	xwl_output->width = width;
++	xwl_output->height = height;
++    }
++}
++
++static const struct wl_output_listener output_listener = {
++    display_handle_geometry,
++    display_handle_mode
++};
++
++static void
++global_handler(void *data, struct wl_registry *registry, uint32_t id,
++	       const char *interface, uint32_t version)
++{
++    struct xwl_screen *xwl_screen = data;
++    struct xwl_output *xwl_output;
++
++    if (strcmp (interface, "wl_output") == 0) {
++	xwl_output = xwl_output_create(xwl_screen);
++	xwl_output->output = wl_registry_bind(registry, id,
++	                                      &wl_output_interface, 1);
++	wl_output_add_listener(xwl_output->output,
++			       &output_listener, xwl_output);
++    }
++}
++
++static const struct wl_registry_listener global_listener = {
++    global_handler,
++};
++
++void
++xwayland_screen_preinit_output(struct xwl_screen *xwl_screen, ScrnInfoPtr scrninfo)
++{
++    int ret;
++
++    xf86CrtcConfigInit(scrninfo, &config_funcs);
++
++    xf86CrtcSetSizeRange(scrninfo, 320, 200, 8192, 8192);
++
++    xwl_screen->output_registry = wl_display_get_registry(xwl_screen->display);
++    wl_registry_add_listener(xwl_screen->output_registry, &global_listener,
++                             xwl_screen);
++
++    while (!xwl_screen->xwl_output) {
++        ret = wl_display_roundtrip(xwl_screen->display);
++        if (ret == -1)
++            FatalError("failed to dispatch Wayland events: %s\n", strerror(errno));
++    }
++
++    xf86InitialConfiguration(scrninfo, TRUE);
++}
+diff --git a/hw/xfree86/xwayland/xwayland-private.h b/hw/xfree86/xwayland/xwayland-private.h
+new file mode 100644
+index 0000000..e427316
+--- /dev/null
++++ b/hw/xfree86/xwayland/xwayland-private.h
+@@ -0,0 +1,132 @@
++/*
++ * Copyright © 2010 Kristian Høgsberg
++ *
++ * Permission to use, copy, modify, distribute, and sell this software
++ * and its documentation for any purpose is hereby granted without
++ * fee, provided that the above copyright notice appear in all copies
++ * and that both that copyright notice and this permission notice
++ * appear in supporting documentation, and that the name of the
++ * copyright holders not be used in advertising or publicity
++ * pertaining to distribution of the software without specific,
++ * written prior permission.  The copyright holders make no
++ * representations about the suitability of this software for any
++ * purpose.  It is provided "as is" without express or implied
++ * warranty.
++ *
++ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++ * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
++ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
++ * SOFTWARE.
++ */
++
++#ifndef _XWAYLAND_PRIVATE_H_
++#define _XWAYLAND_PRIVATE_H_
++
++struct xwl_window {
++    struct xwl_screen		*xwl_screen;
++    struct wl_surface		*surface;
++    struct wl_buffer		*buffer;
++    WindowPtr			 window;
++    DamagePtr			 damage;
++    struct xorg_list		 link;
++    struct xorg_list		 link_damage;
++};
++
++struct xwl_output;
++
++struct xwl_screen {
++    struct xwl_driver		*driver;
++    ScreenPtr			 screen;
++    ScrnInfoPtr			 scrninfo;
++    int				 drm_fd;
++    int				 wayland_fd;
++    struct xwl_output		*xwl_output;
++    struct wl_display		*display;
++    struct wl_registry          *registry;
++    struct wl_registry          *drm_registry;
++    struct wl_registry          *input_registry;
++    struct wl_registry          *output_registry;
++    struct wl_compositor	*compositor;
++    struct wl_drm		*drm;
++    struct wl_shm		*shm;
++    struct xserver		*xorg_server;
++    uint32_t			 mask;
++    uint32_t			 flags;
++    char			*device_name;
++    uint32_t			 authenticated;
++    struct xorg_list		 seat_list;
++    struct xorg_list		 damage_window_list;
++    struct xorg_list		 window_list;
++    struct xorg_list		 authenticate_client_list;
++    uint32_t			 serial;
++
++    CreateWindowProcPtr		 CreateWindow;
++    DestroyWindowProcPtr	 DestroyWindow;
++    RealizeWindowProcPtr	 RealizeWindow;
++    UnrealizeWindowProcPtr	 UnrealizeWindow;
++    SetWindowPixmapProcPtr	 SetWindowPixmap;
++    MoveWindowProcPtr		 MoveWindow;
++    miPointerSpriteFuncPtr	 sprite_funcs;
++};
++
++struct xwl_output {
++    struct wl_output		*output;
++    struct xwl_screen		*xwl_screen;
++    int32_t			 x, y, width, height;
++    xf86Monitor			 xf86monitor;
++    xf86OutputPtr		 xf86output;
++    xf86CrtcPtr			 xf86crtc;
++};
++
++
++#define MODIFIER_META 0x01
++
++struct xwl_seat {
++    DeviceIntPtr		 pointer;
++    DeviceIntPtr		 keyboard;
++    struct xwl_screen		*xwl_screen;
++    struct wl_seat		*seat;
++    struct wl_pointer		*wl_pointer;
++    struct wl_keyboard		*wl_keyboard;
++    struct wl_array		 keys;
++    struct wl_surface		*cursor;
++    struct xwl_window		*focus_window;
++    uint32_t			 id;
++    uint32_t			 pointer_enter_serial;
++    struct xorg_list		 link;
++    CursorPtr                    x_cursor;
++
++    wl_fixed_t			 horizontal_scroll;
++    wl_fixed_t			 vertical_scroll;
++    uint32_t			 scroll_time;
++
++    size_t			 keymap_size;
++    char			*keymap;
++
++};
++
++
++struct xwl_screen *xwl_screen_get(ScreenPtr screen);
++
++void xwayland_screen_preinit_output(struct xwl_screen *xwl_screen, ScrnInfoPtr scrninfo);
++
++int xwl_screen_init_cursor(struct xwl_screen *xwl_screen, ScreenPtr screen);
++int xwl_screen_init_window(struct xwl_screen *xwl_screen, ScreenPtr screen);
++
++struct xwl_output *xwl_output_create(struct xwl_screen *xwl_screen);
++
++void xwl_input_teardown(pointer p);
++pointer xwl_input_setup(pointer module, pointer opts, int *errmaj, int *errmin);
++void xwl_input_init(struct xwl_screen *screen);
++
++Bool xwl_drm_initialised(struct xwl_screen *screen);
++
++void xwl_seat_set_cursor(struct xwl_seat *xwl_seat);
++
++extern const struct xserver_listener xwl_server_listener;
++
++#endif /* _XWAYLAND_PRIVATE_H_ */
+diff --git a/hw/xfree86/xwayland/xwayland-window.c b/hw/xfree86/xwayland/xwayland-window.c
+new file mode 100644
+index 0000000..925d63c
+--- /dev/null
++++ b/hw/xfree86/xwayland/xwayland-window.c
+@@ -0,0 +1,316 @@
++/*
++ * Copyright © 2011 Intel Corporation
++ *
++ * Permission to use, copy, modify, distribute, and sell this software
++ * and its documentation for any purpose is hereby granted without
++ * fee, provided that the above copyright notice appear in all copies
++ * and that both that copyright notice and this permission notice
++ * appear in supporting documentation, and that the name of the
++ * copyright holders not be used in advertising or publicity
++ * pertaining to distribution of the software without specific,
++ * written prior permission.  The copyright holders make no
++ * representations about the suitability of this software for any
++ * purpose.  It is provided "as is" without express or implied
++ * warranty.
++ *
++ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++ * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
++ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
++ * SOFTWARE.
++ */
++
++#ifdef HAVE_XORG_CONFIG_H
++#include "xorg-config.h"
++#endif
++
++#include <unistd.h>
++#include <errno.h>
++#include <sys/mman.h>
++#include <wayland-client.h>
++#include <X11/extensions/compositeproto.h>
++
++#include <xorg-server.h>
++#include <xf86Crtc.h>
++#include <selection.h>
++#include <compositeext.h>
++#include <exevents.h>
++
++#include "xwayland.h"
++#include "xwayland-private.h"
++#include "xserver-client-protocol.h"
++
++static DevPrivateKeyRec xwl_window_private_key;
++
++static void
++free_pixmap(void *data, struct wl_callback *callback, uint32_t time)
++{
++    PixmapPtr pixmap = data;
++    ScreenPtr screen = pixmap->drawable.pScreen;
++
++    (*screen->DestroyPixmap)(pixmap);
++    wl_callback_destroy(callback);
++}
++
++static const struct wl_callback_listener free_pixmap_listener = {
++	free_pixmap,
++};
++
++static void
++xwl_window_attach(struct xwl_window *xwl_window, PixmapPtr pixmap)
++{
++    struct xwl_screen *xwl_screen = xwl_window->xwl_screen;
++    struct wl_callback *callback;
++
++    /* We can safely destroy the buffer because we only use one buffer
++     * per surface in xwayland model */
++    if (xwl_window->buffer)
++        wl_buffer_destroy(xwl_window->buffer);
++
++    xwl_screen->driver->create_window_buffer(xwl_window, pixmap);
++
++    if (!xwl_window->buffer) {
++        ErrorF("failed to create buffer\n");
++	return;
++    }
++
++    wl_surface_attach(xwl_window->surface, xwl_window->buffer, 0, 0);
++    wl_surface_damage(xwl_window->surface, 0, 0,
++		      pixmap->drawable.width,
++		      pixmap->drawable.height);
++    wl_surface_commit(xwl_window->surface);
++
++    callback = wl_display_sync(xwl_screen->display);
++    wl_callback_add_listener(callback, &free_pixmap_listener, pixmap);
++    pixmap->refcnt++;
++}
++
++static Bool
++xwl_create_window(WindowPtr window)
++{
++    ScreenPtr screen = window->drawable.pScreen;
++    struct xwl_screen *xwl_screen;
++    char buffer[32];
++    int len, rc;
++    Atom name;
++    Bool ret;
++
++    xwl_screen = xwl_screen_get(screen);
++
++    screen->CreateWindow = xwl_screen->CreateWindow;
++    ret = (*screen->CreateWindow)(window);
++    xwl_screen->CreateWindow = screen->CreateWindow;
++    screen->CreateWindow = xwl_create_window;
++
++    if (!(xwl_screen->flags & XWL_FLAGS_ROOTLESS) ||
++	window->parent != NULL)
++	return ret;
++
++    CompositeRedirectSubwindows(window, CompositeRedirectManual);
++
++    return ret;
++}
++
++static int
++xwl_destroy_window (WindowPtr window)
++{
++    ScreenPtr screen = window->drawable.pScreen;
++    struct xwl_screen *xwl_screen;
++    Bool ret;
++
++    if (window->parent == NULL)
++	CompositeUnRedirectSubwindows (window, CompositeRedirectManual);
++
++    xwl_screen = xwl_screen_get(screen);
++
++    screen->DestroyWindow = xwl_screen->DestroyWindow;
++    ret = (*screen->DestroyWindow)(window);
++    xwl_screen->DestroyWindow = screen->DestroyWindow;
++    screen->DestroyWindow = xwl_destroy_window;
++
++    return ret;
++}
++
++static void
++damage_report(DamagePtr pDamage, RegionPtr pRegion, void *data)
++{
++    struct xwl_window *xwl_window = data;
++    struct xwl_screen *xwl_screen = xwl_window->xwl_screen;
++
++    xorg_list_add(&xwl_window->link_damage, &xwl_screen->damage_window_list);
++}
++
++static void
++damage_destroy(DamagePtr pDamage, void *data)
++{
++}
++
++static Bool
++xwl_realize_window(WindowPtr window)
++{
++    ScreenPtr screen = window->drawable.pScreen;
++    struct xwl_screen *xwl_screen;
++    struct xwl_window *xwl_window;
++    Bool ret;
++
++    xwl_screen = xwl_screen_get(screen);
++
++    screen->RealizeWindow = xwl_screen->RealizeWindow;
++    ret = (*screen->RealizeWindow)(window);
++    xwl_screen->RealizeWindow = xwl_screen->RealizeWindow;
++    screen->RealizeWindow = xwl_realize_window;
++
++    if (xwl_screen->flags & XWL_FLAGS_ROOTLESS) {
++	if (window->redirectDraw != RedirectDrawManual)
++	    return ret;
++    } else {
++	if (window->parent)
++	    return ret;
++    }
++
++    xwl_window = calloc(sizeof *xwl_window, 1);
++    xwl_window->xwl_screen = xwl_screen;
++    xwl_window->window = window;
++    xwl_window->surface =
++	wl_compositor_create_surface(xwl_screen->compositor);
++    if (xwl_window->surface == NULL) {
++	ErrorF("wl_display_create_surface failed\n");
++	return FALSE;
++    }
++
++    if (xwl_screen->xorg_server)
++	xserver_set_window_id(xwl_screen->xorg_server,
++			      xwl_window->surface, window->drawable.id);
++
++    wl_surface_set_user_data(xwl_window->surface, xwl_window);
++    xwl_window_attach(xwl_window, (*screen->GetWindowPixmap)(window));
++
++    dixSetPrivate(&window->devPrivates,
++		  &xwl_window_private_key, xwl_window);
++
++    xwl_window->damage =
++	DamageCreate(damage_report, damage_destroy, DamageReportNonEmpty,
++		     FALSE, screen, xwl_window);
++    DamageRegister(&window->drawable, xwl_window->damage);
++    DamageSetReportAfterOp(xwl_window->damage, TRUE);
++
++    xorg_list_add(&xwl_window->link, &xwl_screen->window_list);
++    xorg_list_init(&xwl_window->link_damage);
++
++    return ret;
++}
++
++static Bool
++xwl_unrealize_window(WindowPtr window)
++{
++    ScreenPtr screen = window->drawable.pScreen;
++    struct xwl_screen *xwl_screen;
++    struct xwl_window *xwl_window;
++    struct xwl_seat *xwl_seat;
++    Bool ret;
++
++    xwl_screen = xwl_screen_get(screen);
++
++    xorg_list_for_each_entry(xwl_seat,
++			     &xwl_screen->seat_list, link) {
++	if (!xwl_seat->focus_window)
++	    continue ;
++	if (xwl_seat->focus_window->window == window) {
++	    xwl_seat->focus_window = NULL;
++	    SetDeviceRedirectWindow(xwl_seat->pointer, PointerRootWin);
++	}
++    }
++
++    screen->UnrealizeWindow = xwl_screen->UnrealizeWindow;
++    ret = (*screen->UnrealizeWindow)(window);
++    xwl_screen->UnrealizeWindow = screen->UnrealizeWindow;
++    screen->UnrealizeWindow = xwl_unrealize_window;
++
++    xwl_window =
++	dixLookupPrivate(&window->devPrivates, &xwl_window_private_key);
++    if (!xwl_window)
++	return ret;
++
++    if (xwl_window->buffer)
++	wl_buffer_destroy(xwl_window->buffer);
++    wl_surface_destroy(xwl_window->surface);
++    xorg_list_del(&xwl_window->link);
++    if (RegionNotEmpty(DamageRegion(xwl_window->damage)))
++	xorg_list_del(&xwl_window->link_damage);
++    DamageDestroy(xwl_window->damage);
++    free(xwl_window);
++    dixSetPrivate(&window->devPrivates, &xwl_window_private_key, NULL);
++
++    return ret;
++}
++
++static void
++xwl_set_window_pixmap(WindowPtr window, PixmapPtr pixmap)
++{
++    ScreenPtr screen = window->drawable.pScreen;
++    struct xwl_screen *xwl_screen;
++    struct xwl_window *xwl_window;
++
++    xwl_screen = xwl_screen_get(screen);
++
++    screen->SetWindowPixmap = xwl_screen->SetWindowPixmap;
++    (*screen->SetWindowPixmap)(window, pixmap);
++    xwl_screen->SetWindowPixmap = screen->SetWindowPixmap;
++    screen->SetWindowPixmap = xwl_set_window_pixmap;
++
++    xwl_window =
++	dixLookupPrivate(&window->devPrivates, &xwl_window_private_key);
++    if (xwl_window)
++	xwl_window_attach(xwl_window, pixmap);
++}
++
++static void
++xwl_move_window(WindowPtr window, int x, int y,
++		   WindowPtr sibling, VTKind kind)
++{
++    ScreenPtr screen = window->drawable.pScreen;
++    struct xwl_screen *xwl_screen;
++    struct xwl_window *xwl_window;
++
++    xwl_screen = xwl_screen_get(screen);
++
++    screen->MoveWindow = xwl_screen->MoveWindow;
++    (*screen->MoveWindow)(window, x, y, sibling, kind);
++    xwl_screen->MoveWindow = screen->MoveWindow;
++    screen->MoveWindow = xwl_move_window;
++
++    xwl_window =
++	dixLookupPrivate(&window->devPrivates, &xwl_window_private_key);
++    if (xwl_window == NULL)
++	return;
++}
++
++int
++xwl_screen_init_window(struct xwl_screen *xwl_screen, ScreenPtr screen)
++{
++    if (!dixRegisterPrivateKey(&xwl_window_private_key, PRIVATE_WINDOW, 0))
++	return BadAlloc;
++
++    xwl_screen->CreateWindow = screen->CreateWindow;
++    screen->CreateWindow = xwl_create_window;
++
++    xwl_screen->DestroyWindow = screen->DestroyWindow;
++    screen->DestroyWindow = xwl_destroy_window;
++
++    xwl_screen->RealizeWindow = screen->RealizeWindow;
++    screen->RealizeWindow = xwl_realize_window;
++
++    xwl_screen->UnrealizeWindow = screen->UnrealizeWindow;
++    screen->UnrealizeWindow = xwl_unrealize_window;
++
++    xwl_screen->SetWindowPixmap = screen->SetWindowPixmap;
++    screen->SetWindowPixmap = xwl_set_window_pixmap;
++
++    xwl_screen->MoveWindow = screen->MoveWindow;
++    screen->MoveWindow = xwl_move_window;
++
++    return Success;
++}
+diff --git a/hw/xfree86/xwayland/xwayland.c b/hw/xfree86/xwayland/xwayland.c
+new file mode 100644
+index 0000000..f59bfe4
+--- /dev/null
++++ b/hw/xfree86/xwayland/xwayland.c
+@@ -0,0 +1,392 @@
++/*
++ * Copyright © 2008-2011 Kristian Høgsberg
++ *
++ * Permission to use, copy, modify, distribute, and sell this software
++ * and its documentation for any purpose is hereby granted without
++ * fee, provided that the above copyright notice appear in all copies
++ * and that both that copyright notice and this permission notice
++ * appear in supporting documentation, and that the name of the
++ * copyright holders not be used in advertising or publicity
++ * pertaining to distribution of the software without specific,
++ * written prior permission.  The copyright holders make no
++ * representations about the suitability of this software for any
++ * purpose.  It is provided "as is" without express or implied
++ * warranty.
++ *
++ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++ * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
++ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
++ * SOFTWARE.
++ */
++
++#ifdef HAVE_XORG_CONFIG_H
++#include "xorg-config.h"
++#endif
++
++#include <stdint.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <errno.h>
++#include <wayland-util.h>
++#include <wayland-client.h>
++
++#include <xorg-server.h>
++#include <extinit.h>
++
++#include <xf86Xinput.h>
++#include <xf86Crtc.h>
++#include <xf86Priv.h>
++#include <os.h>
++#include <selection.h>
++
++#include "xwayland.h"
++#include "xwayland-private.h"
++#include "xserver-client-protocol.h"
++
++/*
++ * TODO:
++ *  - lose X kb focus when wayland surface loses it
++ *  - active grabs, grab owner crack
++ */
++
++static DevPrivateKeyRec xwl_screen_private_key;
++static Atom xdnd_atom;
++
++static void
++xserver_client(void *data, struct xserver *xserver, int fd)
++{
++    AddClientOnOpenFD(fd);
++}
++
++static void
++xserver_listen_socket(void *data, struct xserver *xserver, int fd)
++{
++    ListenOnOpenFD(fd, TRUE);
++}
++
++const struct xserver_listener xwl_server_listener = {
++    xserver_client,
++    xserver_listen_socket
++};
++
++static void
++xwl_input_delayed_init(void *data, struct wl_callback *callback, uint32_t time)
++{
++    struct xwl_screen *xwl_screen = data;
++
++    ErrorF("xwl_input_delayed_init\n");
++
++    wl_callback_destroy(callback);
++    xwl_input_init(xwl_screen);
++}
++
++static const struct wl_callback_listener delayed_init_listner = {
++	xwl_input_delayed_init
++};
++
++static void
++registry_global(void *data, struct wl_registry *registry, uint32_t id,
++	        const char *interface, uint32_t version)
++{
++    struct xwl_screen *xwl_screen = data;
++
++    if (strcmp (interface, "wl_compositor") == 0) {
++	xwl_screen->compositor =
++            wl_registry_bind(registry, id, &wl_compositor_interface, 1);
++    } else if (strcmp(interface, "wl_shm") == 0) {
++        xwl_screen->shm =
++            wl_registry_bind(registry, id, &wl_shm_interface, 1);
++    }
++}
++
++static const struct wl_registry_listener registry_listener = {
++    registry_global,
++};
++
++static void
++wakeup_handler(pointer data, int err, pointer read_mask)
++{
++    struct xwl_screen *xwl_screen = data;
++    int ret;
++
++    if (err < 0)
++        return;
++
++    if (!FD_ISSET(xwl_screen->wayland_fd, (fd_set *) read_mask))
++        return;
++
++    ret = wl_display_dispatch(xwl_screen->display);
++    if (ret == -1)
++        FatalError("failed to dispatch Wayland events: %s\n", strerror(errno));
++}
++
++static void
++block_handler(pointer data, struct timeval **tv, pointer read_mask)
++{
++    struct xwl_screen *xwl_screen = data;
++    int ret;
++
++    ret = wl_display_dispatch_pending(xwl_screen->display);
++    if (ret == -1)
++	FatalError("failed to dispatch Wayland events: %s\n", strerror(errno));
++
++    ret = wl_display_flush(xwl_screen->display);
++    if (ret == -1)
++        FatalError("failed to write to XWayland fd: %s\n", strerror(errno));
++}
++
++int
++xwl_screen_init(struct xwl_screen *xwl_screen, ScreenPtr screen)
++{
++    struct wl_callback *callback;
++
++    xwl_screen->screen = screen;
++
++    if (!dixRegisterPrivateKey(&xwl_screen_private_key, PRIVATE_SCREEN, 0))
++	return BadAlloc;
++
++    dixSetPrivate(&screen->devPrivates,
++		  &xwl_screen_private_key, xwl_screen);
++
++    xwl_screen_init_window(xwl_screen, screen);
++
++    xwl_screen_init_cursor(xwl_screen, screen);
++
++    AddGeneralSocket(xwl_screen->wayland_fd);
++    RegisterBlockAndWakeupHandlers(block_handler, wakeup_handler, xwl_screen);
++
++    callback = wl_display_sync(xwl_screen->display);
++    wl_callback_add_listener(callback, &delayed_init_listner, xwl_screen);
++
++    return Success;
++}
++
++struct xwl_screen *
++xwl_screen_get(ScreenPtr screen)
++{
++    return dixLookupPrivate(&screen->devPrivates, &xwl_screen_private_key);
++}
++
++static void
++xwayland_selection_callback(CallbackListPtr *callbacks,
++			    pointer data, pointer args)
++{
++    SelectionInfoRec *info = (SelectionInfoRec *) args;
++    Selection *selection = info->selection;
++
++    switch (info->kind) {
++    case SelectionSetOwner:
++	if (selection->selection == xdnd_atom) {
++	    if (selection->window != None)
++		ErrorF("client %p starts dnd\n", info->client);
++	    else
++		ErrorF("client %p stops dnd\n", info->client);
++	}
++	break;
++    case SelectionWindowDestroy:
++	ErrorF("selection window destroy\n");
++	break;
++    case SelectionClientClose:
++	ErrorF("selection client close\n");
++	break;
++    }
++}
++
++struct xwl_screen *
++xwl_screen_create(void)
++{
++    struct xwl_screen *xwl_screen;
++
++    xwl_screen = calloc(sizeof *xwl_screen, 1);
++    if (xwl_screen == NULL) {
++	ErrorF("calloc failed\n");
++	return NULL;
++    }
++
++    xwl_screen->display = wl_display_connect(NULL);
++    if (xwl_screen->display == NULL) {
++	ErrorF("wl_display_create failed\n");
++	return NULL;
++    }
++
++    return xwl_screen;
++}
++
++Bool
++xwl_screen_pre_init(ScrnInfoPtr scrninfo, struct xwl_screen *xwl_screen,
++		    uint32_t flags, struct xwl_driver *driver)
++{
++    int ret;
++
++    noScreenSaverExtension = TRUE;
++
++    xdnd_atom = MakeAtom("XdndSelection", 13, 1);
++    if (!AddCallback(&SelectionCallback,
++		     xwayland_selection_callback, xwl_screen)) {
++	return FALSE;
++    }
++
++    xorg_list_init(&xwl_screen->seat_list);
++    xorg_list_init(&xwl_screen->damage_window_list);
++    xorg_list_init(&xwl_screen->window_list);
++    xorg_list_init(&xwl_screen->authenticate_client_list);
++    xwl_screen->scrninfo = scrninfo;
++    xwl_screen->driver = driver;
++    xwl_screen->flags = flags;
++    xwl_screen->wayland_fd = wl_display_get_fd(xwl_screen->display);
++
++    if (xorgRootless)
++	xwl_screen->flags |= XWL_FLAGS_ROOTLESS;
++
++    /* Set up listener so we'll catch all events. */
++    xwl_screen->registry = wl_display_get_registry(xwl_screen->display);
++    wl_registry_add_listener(xwl_screen->registry, &registry_listener,
++                             xwl_screen);
++    ret = wl_display_roundtrip(xwl_screen->display);
++    if (ret == -1) {
++        xf86DrvMsg(scrninfo->scrnIndex, X_ERROR,
++                   "failed to dispatch Wayland events: %s\n", strerror(errno));
++        return FALSE;
++    }
++
++#ifdef WITH_LIBDRM
++    if (xwl_screen->driver->use_drm && !xwl_drm_initialised(xwl_screen))
++	if (xwl_drm_pre_init(xwl_screen) != Success)
++            return FALSE;
++#endif
++
++    xwayland_screen_preinit_output(xwl_screen, scrninfo);
++
++    return TRUE;
++}
++
++int
++xwl_create_window_buffer_shm(struct xwl_window *xwl_window,
++			     PixmapPtr pixmap, int fd)
++{
++    struct wl_shm_pool *pool;
++    int size, stride;
++
++    stride = pixmap->drawable.width * 4;
++
++    size = pixmap->drawable.width * pixmap->drawable.height * 4;
++    pool = wl_shm_create_pool(xwl_window->xwl_screen->shm, fd, size);
++    xwl_window->buffer =  wl_shm_pool_create_buffer(pool, 0,
++			   pixmap->drawable.width,
++			   pixmap->drawable.height,
++			   stride, WL_SHM_FORMAT_ARGB8888);
++    wl_shm_pool_destroy(pool);
++
++    return xwl_window->buffer ? Success : BadDrawable;
++}
++
++void xwl_screen_close(struct xwl_screen *xwl_screen)
++{
++    struct xwl_seat *xwl_seat, *itmp;
++    struct xwl_window *xwl_window, *wtmp;
++
++    if (xwl_screen->registry)
++        wl_registry_destroy(xwl_screen->registry);
++    xwl_screen->registry = NULL;
++
++    xorg_list_for_each_entry_safe(xwl_seat, itmp,
++				  &xwl_screen->seat_list, link) {
++	wl_seat_destroy(xwl_seat->seat);
++	free(xwl_seat);
++    }
++    xorg_list_for_each_entry_safe(xwl_window, wtmp,
++				  &xwl_screen->window_list, link) {
++	wl_buffer_destroy(xwl_window->buffer);
++	wl_surface_destroy(xwl_window->surface);
++	free(xwl_window);
++    }
++
++    xorg_list_init(&xwl_screen->seat_list);
++    xorg_list_init(&xwl_screen->damage_window_list);
++    xorg_list_init(&xwl_screen->window_list);
++    xorg_list_init(&xwl_screen->authenticate_client_list);
++
++    wl_display_roundtrip(xwl_screen->display);
++}
++
++void xwl_screen_destroy(struct xwl_screen *xwl_screen)
++{
++    if (xwl_screen->xwl_output) {
++	xf86OutputDestroy(xwl_screen->xwl_output->xf86output);
++	xf86CrtcDestroy(xwl_screen->xwl_output->xf86crtc);
++    }
++
++    free(xwl_screen->xwl_output);
++    free(xwl_screen);
++}
++
++/* DDX driver must call this after submitting the rendering */
++void xwl_screen_post_damage(struct xwl_screen *xwl_screen)
++{
++    struct xwl_window *xwl_window;
++    RegionPtr region;
++    BoxPtr box;
++    int count, i;
++
++    xorg_list_for_each_entry(xwl_window, &xwl_screen->damage_window_list,
++			     link_damage) {
++
++	region = DamageRegion(xwl_window->damage);
++	count = RegionNumRects(region);
++	for (i = 0; i < count; i++) {
++	    box = &RegionRects(region)[i];
++	    wl_surface_damage(xwl_window->surface,
++			      box->x1, box->y1,
++			      box->x2 - box->x1 + 1,
++			      box->y2 - box->y1 + 1);
++	}
++	wl_surface_attach(xwl_window->surface,
++			  xwl_window->buffer,
++			  0, 0);
++	wl_surface_commit(xwl_window->surface);
++	DamageEmpty(xwl_window->damage);
++    }
++
++    xorg_list_init(&xwl_screen->damage_window_list);
++}
++
++static pointer
++xwl_setup(pointer module, pointer opts, int *errmaj, int *errmin)
++{
++    return xwl_input_setup(module, opts, errmaj, errmin);
++}
++
++static void
++xwl_teardown(pointer p)
++{
++    xwl_input_teardown(p);
++}
++
++static XF86ModuleVersionInfo xwl_version_info = {
++    "xwayland",
++    MODULEVENDORSTRING,
++    MODINFOSTRING1,
++    MODINFOSTRING2,
++    XORG_VERSION_CURRENT,
++    1, 0, 0,
++    ABI_CLASS_EXTENSION,
++    ABI_EXTENSION_VERSION,
++    MOD_CLASS_NONE,
++    { 0, 0, 0, 0 }
++};
++
++_X_EXPORT const XF86ModuleData xwaylandModuleData = {
++    &xwl_version_info,
++    &xwl_setup,
++    &xwl_teardown
++};
++
++int
++xwl_version(void)
++{
++    return xwl_version_info.minorversion;
++}
+diff --git a/hw/xfree86/xwayland/xwayland.h b/hw/xfree86/xwayland/xwayland.h
+new file mode 100644
+index 0000000..f268366
+--- /dev/null
++++ b/hw/xfree86/xwayland/xwayland.h
+@@ -0,0 +1,83 @@
++/*
++ * Copyright © 2008 Kristian Høgsberg
++ *
++ * Permission to use, copy, modify, distribute, and sell this software
++ * and its documentation for any purpose is hereby granted without
++ * fee, provided that the above copyright notice appear in all copies
++ * and that both that copyright notice and this permission notice
++ * appear in supporting documentation, and that the name of the
++ * copyright holders not be used in advertising or publicity
++ * pertaining to distribution of the software without specific,
++ * written prior permission.  The copyright holders make no
++ * representations about the suitability of this software for any
++ * purpose.  It is provided "as is" without express or implied
++ * warranty.
++ *
++ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++ * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
++ * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
++ * SOFTWARE.
++ */
++
++#ifndef _XWAYLAND_H_
++#define _XWAYLAND_H_
++
++#define XWL_VERSION 2
++
++struct xwl_window;
++struct xwl_screen;
++
++struct xwl_driver {
++    int version;
++    int use_drm;
++    int (*create_window_buffer)(struct xwl_window *xwl_window,
++                                PixmapPtr pixmap);
++};
++
++#define XWL_FLAGS_ROOTLESS 0x01
++
++extern _X_EXPORT int
++xwl_version(void);
++
++extern _X_EXPORT struct xwl_screen *
++xwl_screen_create(void);
++
++extern _X_EXPORT Bool
++xwl_screen_pre_init(ScrnInfoPtr scrninfo, struct xwl_screen *xwl_screen,
++		    uint32_t flags, struct xwl_driver *driver);
++
++extern _X_EXPORT int
++xwl_screen_init(struct xwl_screen *xwl_screen, ScreenPtr screen);
++
++extern _X_EXPORT int
++xwl_drm_pre_init(struct xwl_screen *xwl_screen);
++
++extern _X_EXPORT int
++xwl_screen_get_drm_fd(struct xwl_screen *xwl_screen);
++
++extern _X_EXPORT void
++xwl_screen_close(struct xwl_screen *xwl_screen);
++
++extern _X_EXPORT void
++xwl_screen_destroy(struct xwl_screen *xwl_screen);
++
++extern _X_EXPORT void
++xwl_screen_post_damage(struct xwl_screen *xwl_screen);
++
++extern _X_EXPORT int
++xwl_drm_authenticate(ClientPtr client, struct xwl_screen *xwl_screen,
++		     uint32_t magic);
++
++extern _X_EXPORT int
++xwl_create_window_buffer_drm(struct xwl_window *xwl_window,
++			     PixmapPtr pixmap, uint32_t name);
++
++extern _X_EXPORT int
++xwl_create_window_buffer_shm(struct xwl_window *xwl_window,
++			     PixmapPtr pixmap, int fd);
++
++#endif /* _XWAYLAND_H_ */
+diff --git a/include/xorg-server.h.in b/include/xorg-server.h.in
+index 0c651bf..7f6eba2 100644
+--- a/include/xorg-server.h.in
++++ b/include/xorg-server.h.in
+@@ -224,4 +224,7 @@
+ /* Use XTrans FD passing support */
+ #undef XTRANS_SEND_FDS
+ 
++/* Building Xorg server. */
++#undef XORG_WAYLAND
++
+ #endif /* _XORG_SERVER_H_ */
+-- 
+1.8.3.1
+

@@ -1,0 +1,38 @@
+From b6d7459e27814c23292e9e7172bb6f95b4aadd2b Mon Sep 17 00:00:00 2001
+From: Trevor McCort <tjmccort@gmail.com>
+Date: Tue, 15 Oct 2013 19:41:12 -0500
+Subject: [PATCH 35/38] xwayland: Fix hidden cursor
+
+If a cursor is set when bits->emptyMask is true, the xserver
+sets a NULL cursor instead.
+
+Signed-off-by: Trevor McCort <tjmccort@gmail.com>
+---
+ hw/xfree86/xwayland/xwayland-cursor.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/hw/xfree86/xwayland/xwayland-cursor.c b/hw/xfree86/xwayland/xwayland-cursor.c
+index 2cdd248..2b3cb5e 100644
+--- a/hw/xfree86/xwayland/xwayland-cursor.c
++++ b/hw/xfree86/xwayland/xwayland-cursor.c
+@@ -153,9 +153,16 @@ xwl_seat_set_cursor(struct xwl_seat *xwl_seat)
+ {
+     struct wl_buffer *buffer;
+ 
+-    if (!xwl_seat->x_cursor || !xwl_seat->wl_pointer)
++    if (!xwl_seat->wl_pointer)
+         return;
+ 
++    if (!xwl_seat->x_cursor) {
++        wl_pointer_set_cursor(xwl_seat->wl_pointer,
++                              xwl_seat->pointer_enter_serial,
++                              NULL, 0, 0);
++        return;
++    }
++
+     buffer = dixGetPrivate(&xwl_seat->x_cursor->devPrivates,
+                            &xwl_seat->xwl_screen->cursor_private_key);
+ 
+-- 
+1.8.3.1
+

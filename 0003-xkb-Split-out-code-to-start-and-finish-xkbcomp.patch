@@ -1,7 +1,7 @@
-From 04122fce2aac2185efc9a0e6d6e4363e73990658 Mon Sep 17 00:00:00 2001
+From d71fbbc66b9a014831039758105aab6bd95421a5 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Tue, 9 Apr 2013 17:11:03 -0400
-Subject: [PATCH 03/39] xkb: Split out code to start and finish xkbcomp
+Subject: [PATCH 03/38] xkb: Split out code to start and finish xkbcomp
 
 Using the context struct from previous commit, we can now split out
 code to start xkbcomp and to finish and clean up after it.

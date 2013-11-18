@@ -1,0 +1,36 @@
+From d7ee27e5e415778240919082c83a65226c6f17e6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Dan=20Hor=C3=A1k?= <dan@danny.cz>
+Date: Tue, 29 Oct 2013 12:09:25 -0400
+Subject: [PATCH 7/9] test: build the touch test only when building Xorg
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Reviewed-by: Adam Jackson <ajax@redhat.com>
+Signed-off-by: Dan Horák <dan@danny.cz>
+Signed-off-by: Keith Packard <keithp@keithp.com>
+---
+ test/Makefile.am | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/test/Makefile.am b/test/Makefile.am
+index e59c412..2852bb3 100644
+--- a/test/Makefile.am
++++ b/test/Makefile.am
+@@ -1,11 +1,11 @@
+ if ENABLE_UNIT_TESTS
+ SUBDIRS= .
+-noinst_PROGRAMS = list string touch
++noinst_PROGRAMS = list string
+ if XORG
+ # Tests that require at least some DDX functions in order to fully link
+ # For now, requires xf86 ddx, could be adjusted to use another
+ SUBDIRS += xi2
+-noinst_PROGRAMS += xkb input xtest misc fixes xfree86 hashtabletest os signal-logging
++noinst_PROGRAMS += xkb input xtest misc fixes xfree86 hashtabletest os signal-logging touch
+ endif
+ check_LTLIBRARIES = libxservertest.la
+ 
+-- 
+1.8.3.1
+

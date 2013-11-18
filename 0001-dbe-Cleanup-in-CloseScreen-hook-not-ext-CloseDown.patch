@@ -1,7 +1,7 @@
-From cace30177d37bf70dafcc297c38af4ecd7f74dba Mon Sep 17 00:00:00 2001
+From 893eb3b6920b8e703f2e10c1c71cd0f788bfb468 Mon Sep 17 00:00:00 2001
 From: Robert Bragg <robert@linux.intel.com>
 Date: Thu, 12 Jan 2012 18:16:08 +0000
-Subject: [PATCH 01/39] dbe: Cleanup in CloseScreen hook not ext CloseDown
+Subject: [PATCH 01/38] dbe: Cleanup in CloseScreen hook not ext CloseDown
 
 Instead of registering an extension CloseDownProc when adding the dbe
 extension this patch hooks into pScreen->CloseScreen so that the chain
