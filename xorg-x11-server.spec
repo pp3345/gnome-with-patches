@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.99.901
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -168,6 +168,9 @@ Patch9013: 0003-damageext-Xineramify-v6.patch
 Patch9014: 0004-composite-Fix-COW-creation-for-Xinerama.patch
 Patch9015: 0005-fixes-Fix-PanoramiXSetPictureClipRegion-for-window-p.patch
 Patch9016: 0006-fixes-Fix-PanoramiXSetWindowShapeRegion.patch
+
+# also also submitted, 1030454, 1030695
+Patch9050: 0001-xfree86-Prefer-fbdev-to-vesa.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -664,6 +667,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Nov 18 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-6
+- Prefer fbdev to vesa, fixes fallback path on UEFI
+
 * Fri Nov 08 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-5
 - Restore XkbCopyDeviceKeymap for (older) tigervnc
 
