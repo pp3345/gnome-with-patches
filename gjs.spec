@@ -1,5 +1,5 @@
 Name:          gjs
-Version:       1.38.1
+Version:       1.39.0
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -11,7 +11,7 @@ Group:         System Environment/Libraries
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           http://live.gnome.org/Gjs/
 #VCS:          git://git.gnome.org/gjs
-Source0:       http://download.gnome.org/sources/%{name}/1.38/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/1.39/%{name}-%{version}.tar.xz
 
 BuildRequires: mozjs17-devel
 BuildRequires: cairo-gobject-devel
