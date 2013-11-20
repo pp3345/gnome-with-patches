@@ -1,0 +1,62 @@
+From 3818d72812f895207a0e89d0d4ebaeca941f852a Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Mon, 18 Nov 2013 11:26:46 -0500
+Subject: [PATCH] xfree86: Prefer fbdev to vesa
+
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+---
+ hw/xfree86/common/xf86AutoConfig.c | 17 +++++++++--------
+ hw/xfree86/common/xf86Config.c     |  2 +-
+ 2 files changed, 10 insertions(+), 9 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86AutoConfig.c b/hw/xfree86/common/xf86AutoConfig.c
+index cc6dcce..4c5d1d5 100644
+--- a/hw/xfree86/common/xf86AutoConfig.c
++++ b/hw/xfree86/common/xf86AutoConfig.c
+@@ -267,14 +267,6 @@ listPossibleVideoDrivers(char *matches[], int nmatches)
+     if (i < (nmatches - 1))
+         i = xf86PciMatchDriver(matches, nmatches);
+ #endif
+-    /* Fallback to platform default hardware */
+-    if (i < (nmatches - 1)) {
+-#if defined(__i386__) || defined(__amd64__) || defined(__hurd__)
+-        matches[i++] = xnfstrdup("vesa");
+-#elif defined(__sparc__) && !defined(sun)
+-        matches[i++] = xnfstrdup("sunffb");
+-#endif
+-    }
+ 
+ #if defined(__linux__)
+     matches[i++] = xnfstrdup("modesetting");
+@@ -296,6 +288,15 @@ listPossibleVideoDrivers(char *matches[], int nmatches)
+ #endif
+     }
+ #endif                          /* !sun */
++
++    /* Fallback to platform default hardware */
++    if (i < (nmatches - 1)) {
++#if defined(__i386__) || defined(__amd64__) || defined(__hurd__)
++        matches[i++] = xnfstrdup("vesa");
++#elif defined(__sparc__) && !defined(sun)
++        matches[i++] = xnfstrdup("sunffb");
++#endif
++    }
+ }
+ 
+ /* copy a screen section and enter the desired driver
+diff --git a/hw/xfree86/common/xf86Config.c b/hw/xfree86/common/xf86Config.c
+index 8255d8d..66f98b2 100644
+--- a/hw/xfree86/common/xf86Config.c
++++ b/hw/xfree86/common/xf86Config.c
+@@ -519,7 +519,7 @@ xf86InputDriverlistFromConfig(void)
+ static void
+ fixup_video_driver_list(char **drivers)
+ {
+-    static const char *fallback_hw[4] = { "vesa", "fbdev", "wsfb", NULL };
++    static const char *fallback_hw[4] = { "fbdev", "vesa", "wsfb", NULL };
+ #ifdef XORG_WAYLAND
+     static const char *fallback_wl[2] = { "wayland", NULL };
+ #endif
+-- 
+1.8.4.2
+
