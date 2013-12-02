@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.14.99.902
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -219,7 +219,7 @@ BuildRequires: audit-libs-devel libselinux-devel >= 2.0.86-1
 BuildRequires: libudev-devel
 %if !0%{?rhel}
 # libunwind is Exclusive for the following arches
-%ifarch %{arm} hppa ia64 mips ppc ppc64 %{ix86} x86_64
+%ifarch aarch64 %{arm} hppa ia64 mips ppc ppc64 %{ix86} x86_64
 BuildRequires: libunwind-devel
 %endif
 %endif
@@ -659,6 +659,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Dec  2 2013 Peter Robinson <pbrobinson@fedoraproject.org> 1.14.99.902-2
+- Add aarch64 to platforms that have libunwind
+
 * Wed Nov 20 2013 Adam Jackson <ajax@redhat.com> 1.14.99.902-1
 - 1.15RC2
 
