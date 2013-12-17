@@ -1,4 +1,4 @@
-From 893eb3b6920b8e703f2e10c1c71cd0f788bfb468 Mon Sep 17 00:00:00 2001
+From bd6c61de441087b808a45ff3fea4fe5a31455c5c Mon Sep 17 00:00:00 2001
 From: Robert Bragg <robert@linux.intel.com>
 Date: Thu, 12 Jan 2012 18:16:08 +0000
 Subject: [PATCH 01/38] dbe: Cleanup in CloseScreen hook not ext CloseDown
@@ -121,5 +121,5 @@ index 2002066..7733d0e 100644
      /* Per-screen DIX routines */
      Bool (*SetupBackgroundPainter) (WindowPtr /*pWin */ ,
 -- 
-1.8.3.1
+1.8.4.2
 

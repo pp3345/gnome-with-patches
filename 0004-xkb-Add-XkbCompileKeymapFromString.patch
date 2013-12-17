@@ -1,4 +1,4 @@
-From 3f37d9a8a3ceaf888feb4994a4c61e14e903a368 Mon Sep 17 00:00:00 2001
+From 927e9c1b26b618a20d590062d346b9a53b120d1f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Tue, 9 Apr 2013 17:45:08 -0400
 Subject: [PATCH 04/38] xkb: Add XkbCompileKeymapFromString()
@@ -315,5 +315,5 @@ index f72655f..f3f0d8f 100644
  
          /*
 -- 
-1.8.3.1
+1.8.4.2
 

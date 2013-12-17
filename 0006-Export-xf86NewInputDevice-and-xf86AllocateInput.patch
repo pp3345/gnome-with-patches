@@ -1,4 +1,4 @@
-From 0de4805467ee2491890fd4a0e4261f397eb16584 Mon Sep 17 00:00:00 2001
+From f5767856b6dc214a7beb7c1f914a2e491da3f0c7 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Thu, 21 Jul 2011 09:55:46 -0700
 Subject: [PATCH 06/38] Export xf86NewInputDevice and xf86AllocateInput
@@ -40,5 +40,5 @@ index 35c38a5..ff3d894 100644
  /* xf86Helper.c */
  extern _X_EXPORT void xf86AddInputDriver(InputDriverPtr driver, pointer module,
 -- 
-1.8.3.1
+1.8.4.2
 

@@ -1,0 +1,91 @@
+From 067752476a9c2bac9e01c3c923fa94b4bf0ec0c1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Date: Fri, 11 Oct 2013 15:41:59 -0700
+Subject: [PATCH 32/38] xwayland: Don't redirect windows, leave it to the wm
+
+---
+ hw/xfree86/xwayland/xwayland-window.c | 51 -----------------------------------
+ 1 file changed, 51 deletions(-)
+
+diff --git a/hw/xfree86/xwayland/xwayland-window.c b/hw/xfree86/xwayland/xwayland-window.c
+index 5045e65..c03855c 100644
+--- a/hw/xfree86/xwayland/xwayland-window.c
++++ b/hw/xfree86/xwayland/xwayland-window.c
+@@ -31,11 +31,9 @@
+ #include <errno.h>
+ #include <sys/mman.h>
+ #include <wayland-client.h>
+-#include <X11/extensions/compositeproto.h>
+ 
+ #include <xf86Crtc.h>
+ #include <selection.h>
+-#include <compositeext.h>
+ #include <exevents.h>
+ 
+ #include "xwayland.h"
+@@ -86,49 +84,6 @@ xwl_window_attach(struct xwl_window *xwl_window, PixmapPtr pixmap)
+     pixmap->refcnt++;
+ }
+ 
+-static Bool
+-xwl_create_window(WindowPtr window)
+-{
+-    ScreenPtr screen = window->drawable.pScreen;
+-    struct xwl_screen *xwl_screen;
+-    Bool ret;
+-
+-    xwl_screen = xwl_screen_get(screen);
+-
+-    screen->CreateWindow = xwl_screen->CreateWindow;
+-    ret = (*screen->CreateWindow)(window);
+-    xwl_screen->CreateWindow = screen->CreateWindow;
+-    screen->CreateWindow = xwl_create_window;
+-
+-    if (!(xwl_screen->flags & XWL_FLAGS_ROOTLESS) ||
+-	window->parent != NULL)
+-	return ret;
+-
+-    CompositeRedirectSubwindows(window, CompositeRedirectManual);
+-
+-    return ret;
+-}
+-
+-static int
+-xwl_destroy_window (WindowPtr window)
+-{
+-    ScreenPtr screen = window->drawable.pScreen;
+-    struct xwl_screen *xwl_screen;
+-    Bool ret;
+-
+-    if (window->parent == NULL)
+-	CompositeUnRedirectSubwindows (window, CompositeRedirectManual);
+-
+-    xwl_screen = xwl_screen_get(screen);
+-
+-    screen->DestroyWindow = xwl_screen->DestroyWindow;
+-    ret = (*screen->DestroyWindow)(window);
+-    xwl_screen->DestroyWindow = screen->DestroyWindow;
+-    screen->DestroyWindow = xwl_destroy_window;
+-
+-    return ret;
+-}
+-
+ static void
+ damage_report(DamagePtr pDamage, RegionPtr pRegion, void *data)
+ {
+@@ -290,12 +245,6 @@ xwl_screen_init_window(struct xwl_screen *xwl_screen, ScreenPtr screen)
+     if (!dixRegisterPrivateKey(&xwl_window_private_key, PRIVATE_WINDOW, 0))
+ 	return BadAlloc;
+ 
+-    xwl_screen->CreateWindow = screen->CreateWindow;
+-    screen->CreateWindow = xwl_create_window;
+-
+-    xwl_screen->DestroyWindow = screen->DestroyWindow;
+-    screen->DestroyWindow = xwl_destroy_window;
+-
+     xwl_screen->RealizeWindow = screen->RealizeWindow;
+     screen->RealizeWindow = xwl_realize_window;
+ 
+-- 
+1.8.4.2
+

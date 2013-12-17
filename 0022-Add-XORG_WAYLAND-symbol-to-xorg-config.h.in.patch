@@ -1,0 +1,29 @@
+From a575da27027b91e44df75318f3b570bf8291fe7c Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagn@redhat.com>
+Date: Fri, 13 Sep 2013 15:52:29 +0200
+Subject: [PATCH 22/38] Add XORG_WAYLAND symbol to xorg-config.h.in
+
+We manually duplicate symbols that we want in both xorg-server.h and
+xorg-config.h.  XORG_WAYLAND is one such symbol, but it was missing from
+xorg-config.h.in.
+---
+ include/xorg-config.h.in | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/xorg-config.h.in b/include/xorg-config.h.in
+index 487d7ad..8aec1d8 100644
+--- a/include/xorg-config.h.in
++++ b/include/xorg-config.h.in
+@@ -142,7 +142,7 @@
+ /* Define to 1 if you have the `seteuid' function. */
+ #undef HAVE_SETEUID
+ 
+-/* Support APM/ACPI power management in the server */
+-#undef XF86PM
++/* Building Xorg server. */
++#undef XORG_WAYLAND
+ 
+ #endif /* _XORG_CONFIG_H_ */
+-- 
+1.8.4.2
+

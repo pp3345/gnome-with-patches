@@ -1,0 +1,85 @@
+From 2890dca70f04c3961578062207c5354d48730da3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
+Date: Mon, 16 Sep 2013 12:05:19 -0700
+Subject: [PATCH 28/38] xwayland: Use a per-screen private key for cursor
+ privates
+
+The cursor is a per-display object, so we need to set private data on it
+using a per-screen private key to avoid stepping on privates from other
+screens.
+---
+ hw/xfree86/xwayland/xwayland-cursor.c  | 15 +++++++++------
+ hw/xfree86/xwayland/xwayland-private.h |  2 ++
+ 2 files changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/hw/xfree86/xwayland/xwayland-cursor.c b/hw/xfree86/xwayland/xwayland-cursor.c
+index 1cd6457..2cdd248 100644
+--- a/hw/xfree86/xwayland/xwayland-cursor.c
++++ b/hw/xfree86/xwayland/xwayland-cursor.c
+@@ -40,8 +40,6 @@
+ #include "xwayland-private.h"
+ #include "xserver-client-protocol.h"
+ 
+-static DevPrivateKeyRec xwl_cursor_private_key;
+-
+ static void
+ expand_source_and_mask(CursorPtr cursor, void *data)
+ {
+@@ -129,7 +127,8 @@ xwl_realize_cursor(DeviceIntPtr device, ScreenPtr screen, CursorPtr cursor)
+ 				  WL_SHM_FORMAT_ARGB8888);
+     wl_shm_pool_destroy(pool);
+ 
+-    dixSetPrivate(&cursor->devPrivates, &xwl_cursor_private_key, buffer);
++    dixSetPrivate(&cursor->devPrivates,
++                  &xwl_screen->cursor_private_key, buffer);
+ 
+     return TRUE;
+ }
+@@ -139,8 +138,11 @@ xwl_unrealize_cursor(DeviceIntPtr device,
+ 			ScreenPtr screen, CursorPtr cursor)
+ {
+     struct wl_buffer *buffer;
++    struct xwl_screen *xwl_screen;
+ 
+-    buffer = dixGetPrivate(&cursor->devPrivates, &xwl_cursor_private_key);
++    xwl_screen = xwl_screen_get(screen);
++    buffer = dixGetPrivate(&cursor->devPrivates,
++                           &xwl_screen->cursor_private_key);
+     wl_buffer_destroy(buffer);
+ 
+     return TRUE;
+@@ -155,7 +157,7 @@ xwl_seat_set_cursor(struct xwl_seat *xwl_seat)
+         return;
+ 
+     buffer = dixGetPrivate(&xwl_seat->x_cursor->devPrivates,
+-                           &xwl_cursor_private_key);
++                           &xwl_seat->xwl_screen->cursor_private_key);
+ 
+     wl_pointer_set_cursor(xwl_seat->wl_pointer,
+ 			  xwl_seat->pointer_enter_serial,
+@@ -229,7 +231,8 @@ xwl_screen_init_cursor(struct xwl_screen *xwl_screen, ScreenPtr screen)
+ {
+     miPointerScreenPtr pointer_priv;
+ 
+-    if (!dixRegisterPrivateKey(&xwl_cursor_private_key, PRIVATE_CURSOR, 0))
++    if (!dixRegisterPrivateKey(&xwl_screen->cursor_private_key,
++                               PRIVATE_CURSOR, 0))
+ 	return BadAlloc;
+ 
+     pointer_priv = dixLookupPrivate(&screen->devPrivates, miPointerScreenKey);
+diff --git a/hw/xfree86/xwayland/xwayland-private.h b/hw/xfree86/xwayland/xwayland-private.h
+index b0b2201..aa9fc03 100644
+--- a/hw/xfree86/xwayland/xwayland-private.h
++++ b/hw/xfree86/xwayland/xwayland-private.h
+@@ -65,6 +65,8 @@ struct xwl_screen {
+     uint32_t			 serial;
+     Bool                         outputs_initialized;
+ 
++    DevPrivateKeyRec             cursor_private_key;
++
+     CreateWindowProcPtr		 CreateWindow;
+     DestroyWindowProcPtr	 DestroyWindow;
+     RealizeWindowProcPtr	 RealizeWindow;
+-- 
+1.8.4.2
+

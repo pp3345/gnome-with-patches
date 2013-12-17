@@ -1,4 +1,4 @@
-From 9ebe5168a76b769139c5173bf86b97eaa1e40bc3 Mon Sep 17 00:00:00 2001
+From 8470f377fc36772d885f4b614f4d42443c4b812b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Tue, 9 Apr 2013 16:54:55 -0400
 Subject: [PATCH 02/38] xkb: Add struct XkbCompContext
@@ -186,5 +186,5 @@ index d462957..5da3a35 100644
          LogMessage(X_ERROR, "Couldn't open compiled keymap file %s\n",
                     fileName);
 -- 
-1.8.3.1
+1.8.4.2
 

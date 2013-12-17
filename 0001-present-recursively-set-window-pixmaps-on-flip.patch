@@ -1,0 +1,93 @@
+From fe07ec19e212a68076560d243a2a935c54589068 Mon Sep 17 00:00:00 2001
+From: Keith Packard <keithp@keithp.com>
+Date: Tue, 10 Dec 2013 11:27:47 -0800
+Subject: [PATCH] present: recursively set window pixmaps on flip
+
+Newly created windows inherit the pixmap of their parent, similarly,
+reparenting a tree inherits the pixmap of the destination tree.
+
+Making present preserve the invariant that unredirected windows always
+have the same pixmap as their parent ensures that the above cases work
+correctly.
+
+v2: name the recursive function to 'set_tree_pixmap' instead of 'set_window_pixmap'
+
+Signed-off-by: Keith Packard <keithp@keithp.com>
+Reviewed-by: Adam Jackson <ajax@redhat.com>
+---
+ present/present.c | 44 +++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 37 insertions(+), 7 deletions(-)
+
+diff --git a/present/present.c b/present/present.c
+index ffbb0b3..50bd055 100644
+--- a/present/present.c
++++ b/present/present.c
+@@ -312,6 +312,36 @@ present_flip_idle(ScreenPtr screen)
+     }
+ }
+ 
++struct pixmap_visit {
++    PixmapPtr   old;
++    PixmapPtr   new;
++};
++
++static int
++present_set_tree_pixmap_visit(WindowPtr window, pointer data)
++{
++    struct pixmap_visit *visit = data;
++    ScreenPtr           screen = window->drawable.pScreen;
++
++    if ((*screen->GetWindowPixmap)(window) != visit->old)
++        return WT_DONTWALKCHILDREN;
++    (*screen->SetWindowPixmap)(window, visit->new);
++    return WT_WALKCHILDREN;
++}
++    
++static void
++present_set_tree_pixmap(WindowPtr window, PixmapPtr pixmap)
++{
++    struct pixmap_visit visit;
++    ScreenPtr           screen = window->drawable.pScreen;
++
++    visit.old = (*screen->GetWindowPixmap)(window);
++    visit.new = pixmap;
++    if (visit.old == visit.new)
++        return;
++    TraverseTree(window, present_set_tree_pixmap_visit, &visit);
++}
++
+ static void
+ present_unflip(ScreenPtr screen)
+ {
+@@ -321,10 +351,10 @@ present_unflip(ScreenPtr screen)
+     assert (!screen_priv->flip_pending);
+ 
+     if (screen_priv->flip_window)
+-        (*screen->SetWindowPixmap)(screen_priv->flip_window,
+-                                   (*screen->GetScreenPixmap)(screen));
++        present_set_tree_pixmap(screen_priv->flip_window,
++                                  (*screen->GetScreenPixmap)(screen));
+ 
+-    (*screen->SetWindowPixmap)(screen->root, (*screen->GetScreenPixmap)(screen));
++    present_set_tree_pixmap(screen->root, (*screen->GetScreenPixmap)(screen));
+ 
+     /* Update the screen pixmap with the current flip pixmap contents
+      */
+@@ -527,10 +557,10 @@ present_execute(present_vblank_ptr vblank, uint64_t ust, uint64_t crtc_msc)
+                  *  2) Set current flip window pixmap to the new pixmap
+                  */
+                 if (screen_priv->flip_window && screen_priv->flip_window != window)
+-                    (*screen->SetWindowPixmap)(screen_priv->flip_window,
+-                                               (*screen->GetScreenPixmap)(screen));
+-                (*screen->SetWindowPixmap)(vblank->window, vblank->pixmap);
+-                (*screen->SetWindowPixmap)(screen->root, vblank->pixmap);
++                    present_set_tree_pixmap(screen_priv->flip_window,
++                                              (*screen->GetScreenPixmap)(screen));
++                present_set_tree_pixmap(vblank->window, vblank->pixmap);
++                present_set_tree_pixmap(screen->root, vblank->pixmap);
+ 
+                 /* Report update region as damaged
+                  */
+-- 
+1.8.4.2
+

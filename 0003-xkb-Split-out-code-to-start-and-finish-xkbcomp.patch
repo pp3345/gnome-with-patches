@@ -1,4 +1,4 @@
-From d71fbbc66b9a014831039758105aab6bd95421a5 Mon Sep 17 00:00:00 2001
+From 7d08561178ab9384791a944bdb5797cf2ea14e1b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Kristian=20H=C3=B8gsberg?= <krh@bitplanet.net>
 Date: Tue, 9 Apr 2013 17:11:03 -0400
 Subject: [PATCH 03/38] xkb: Split out code to start and finish xkbcomp
@@ -77,5 +77,5 @@ index 5da3a35..001ff46 100644
  XkbDDXOpenConfigFile(char *mapName, char *fileNameRtrn, int fileNameRtrnLen)
  {
 -- 
-1.8.3.1
+1.8.4.2
 

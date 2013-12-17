@@ -1,0 +1,73 @@
+From 4e8eb23a03e14ce149e302e4dfc6e6af6fa61424 Mon Sep 17 00:00:00 2001
+From: Daniel Stone <daniel@fooishbar.org>
+Date: Fri, 16 Aug 2013 13:21:21 +0100
+Subject: [PATCH 15/38] XFree86: Load wlshm driver as fallback for Wayland
+
+Since fbdev or vesa are unlikely to be too useful there ...
+
+Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+---
+ hw/xfree86/common/xf86AutoConfig.c |  9 +++++++--
+ hw/xfree86/common/xf86Config.c     | 16 +++++++++++++---
+ 2 files changed, 20 insertions(+), 5 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86AutoConfig.c b/hw/xfree86/common/xf86AutoConfig.c
+index af2b7f8..a3e1fa7 100644
+--- a/hw/xfree86/common/xf86AutoConfig.c
++++ b/hw/xfree86/common/xf86AutoConfig.c
+@@ -275,10 +275,15 @@ listPossibleVideoDrivers(char *matches[], int nmatches)
+ #if !defined(sun)
+     /* Fallback to platform default frame buffer driver */
+     if (i < (nmatches - 1)) {
++#ifdef XORG_WAYLAND
++        if (xorgWayland)
++            matches[i++] = xnfstrdup("wlshm");
++        else
++#endif
+ #if !defined(__linux__) && defined(__sparc__)
+-        matches[i++] = xnfstrdup("wsfb");
++            matches[i++] = xnfstrdup("wsfb");
+ #else
+-        matches[i++] = xnfstrdup("fbdev");
++            matches[i++] = xnfstrdup("fbdev");
+ #endif
+     }
+ #endif                          /* !sun */
+diff --git a/hw/xfree86/common/xf86Config.c b/hw/xfree86/common/xf86Config.c
+index 3b0bb89..aebfc1b 100644
+--- a/hw/xfree86/common/xf86Config.c
++++ b/hw/xfree86/common/xf86Config.c
+@@ -519,7 +519,11 @@ xf86InputDriverlistFromConfig(void)
+ static void
+ fixup_video_driver_list(char **drivers)
+ {
+-    static const char *fallback[4] = { "fbdev", "vesa", "wsfb", NULL };
++    static const char *fallback_hw[4] = { "fbdev", "vesa", "wsfb", NULL };
++#ifdef XORG_WAYLAND
++    static const char *fallback_wayland[2] = { "wlshm", NULL };
++#endif
++    const char **fallbacks;
+     char **end, **drv;
+     char *x;
+     int i;
+@@ -532,9 +536,15 @@ fixup_video_driver_list(char **drivers)
+      * for each of the fallback drivers, if we find it in the list,
+      * swap it with the last available non-fallback driver.
+      */
+-    for (i = 0; fallback[i]; i++) {
++#ifdef XORG_WAYLAND
++    if (xorgWayland)
++        fallbacks = fallback_wl;
++    else
++#endif
++        fallbacks = fallback_hw;
++    for (i = 0; fallbacks[i]; i++) {
+         for (drv = drivers; drv != end; drv++) {
+-            if (strstr(*drv, fallback[i])) {
++            if (strstr(*drv, fallbacks[i])) {
+                 x = *drv;
+                 *drv = *end;
+                 *end = x;
+-- 
+1.8.4.2
+

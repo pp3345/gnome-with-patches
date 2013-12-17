@@ -8,19 +8,19 @@
 # format, and add a PatchN: line.  If you want to push something upstream,
 # check out the master branch, pull, cherry-pick, and push.
 
-%global gitdate 20131118
-%global stable_abi 0
+#global gitdate 20131118
+%global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
 # Released ABI versions.  Have to keep these manually in sync with the
 # source because rpm is a terrible language.
 %global ansic_major 0
 %global ansic_minor 4
-%global videodrv_major 14
-%global videodrv_minor 1
-%global xinput_major 19
-%global xinput_minor 2
-%global extension_major 7
+%global videodrv_major 15
+%global videodrv_minor 0
+%global xinput_major 20
+%global xinput_minor 0
+%global extension_major 8
 %global extension_minor 0
 %endif
 
@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.14.99.902
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.14.99.904
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -75,56 +75,51 @@ Source31: xserver-sdk-abi-requires.git
 Source40: driver-abi-rebuild.sh
 
 # sync with tip
-Patch0001: 0001-ephyr-xcb_connect-returns-an-error-not-NULL.patch
-Patch0002: 0002-kdrive-handle-WxH-as-valid-geometry-spec.patch
-Patch0003: 0003-kdrive-modify-ephyr-events-to-use-POINTER_DESKTOP-an.patch
-Patch0004: 0004-kdrive-fix-cursor-jumps-on-CursorOffScreen-behavior.patch
-Patch0005: 0005-Stop-including-inline-assembly-.il-file-for-Solaris-.patch
-Patch0006: 0006-include-export-key_is_down-and-friends.patch
-Patch0007: 0007-test-build-the-touch-test-only-when-building-Xorg.patch
-Patch0008: 0008-xfree86-return-NULL-for-compat-output-if-no-outputs.patch
-Patch0009: 0009-mieq-Bump-default-queue-size-to-512.patch
+Patch0001: 0001-present-recursively-set-window-pixmaps-on-flip.patch
+
+# submitted
+Patch0050: 0001-configure-Fix-a-typo-near-dri3-shmfence-detection.patch
 
 # xwayland.  trivial rebase onto master:
-# http://cgit.freedesktop.org/~ajax/xserver/log/?h=wl-rebase-for-f20
+# http://cgit.freedesktop.org/~ajax/xserver/log/?h=wayland-f21
 Patch0101: 0001-dbe-Cleanup-in-CloseScreen-hook-not-ext-CloseDown.patch
 Patch0102: 0002-xkb-Add-struct-XkbCompContext.patch
 Patch0103: 0003-xkb-Split-out-code-to-start-and-finish-xkbcomp.patch
 Patch0104: 0004-xkb-Add-XkbCompileKeymapFromString.patch
 Patch0105: 0005-os-Add-a-function-to-create-a-client-for-an-fd.patch
 Patch0106: 0006-Export-xf86NewInputDevice-and-xf86AllocateInput.patch
-Patch0107: 0007-Export-CompositeRedirectSubwindows-and-CompositeUnRe.patch
-Patch0108: 0008-Add-redirect-window-for-input-device-feature.patch
-Patch0109: 0009-dri2-Introduce-a-third-version-of-the-AuthMagic-func.patch
-Patch0110: 0010-Add-xwayland-module.patch
-Patch0111: 0011-xwayland-Add-a-HW_WAYLAND-flag-to-let-drivers-explic.patch
-Patch0112: 0012-xwayland-shm-don-t-create-alpha-buffers-if-the-windo.patch
-Patch0113: 0013-xwayland-handle-global-object-destruction.patch
-Patch0114: 0014-xwayland-add-support-for-multiple-outputs.patch
-Patch0115: 0015-xwayland-Probe-outputs-on-preinit.patch
-Patch0116: 0016-XFree86-Load-wlshm-driver-as-fallback-for-Wayland.patch
-Patch0117: 0017-XWayland-Don-t-send-out-of-bounds-damage-co-ordinate.patch
-Patch0118: 0018-xwayland-Introduce-an-auto-mode-for-enable-wayland.patch
-Patch0119: 0019-XWayland-Don-t-hardcode-DRM-libs-and-lwayland-client.patch
-Patch0120: 0020-XWayland-Support-16bpp-X-surfaces-in-DRM-SHM.patch
-Patch0121: 0021-xwayland-Remove-Xdnd-selection-watching-code.patch
-Patch0122: 0022-xf86Init-trim-out-non-wayland-capable-servers-from-d.patch
-Patch0123: 0023-Add-XORG_WAYLAND-symbol-to-xorg-config.h.in.patch
-Patch0124: 0024-Fix-fallback-loading-of-the-wayland-driver.patch
-Patch0125: 0025-xwayland-Don-t-include-xorg-server.h.patch
-Patch0126: 0026-os-Don-t-include-xorg-server.h.patch
-Patch0127: 0027-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
-Patch0128: 0028-xwayland-Remove-unused-variables.patch
-Patch0129: 0029-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
-Patch0130: 0030-XWayland-Don-t-commit-empty-surfaces.patch
-Patch0131: 0031-xwayland-Also-look-for-wlglamor.patch
-Patch0132: 0032-xwayland-Add-wlglamor-the-right-way.patch
-Patch0133: 0033-xwayland-Don-t-redirect-windows-leave-it-to-the-wm.patch
-Patch0134: 0034-Revert-Export-CompositeRedirectSubwindows-and-Compos.patch
-Patch0135: 0035-xwayland-Fix-hidden-cursor.patch
-Patch0136: 0036-xkb-Repurpose-XkbCopyDeviceKeymap-to-apply-a-given-k.patch
-Patch0137: 0037-xkb-Factor-out-a-function-to-copy-a-keymap-s-control.patch
-Patch0138: 0038-xwayland-Handle-keymap-changes.patch
+Patch0107: 0007-Add-redirect-window-for-input-device-feature.patch
+Patch0108: 0008-dri2-Introduce-a-third-version-of-the-AuthMagic-func.patch
+Patch0109: 0009-Add-xwayland-module.patch
+Patch0110: 0010-xwayland-Add-a-HW_WAYLAND-flag-to-let-drivers-explic.patch
+Patch0111: 0011-xwayland-shm-don-t-create-alpha-buffers-if-the-windo.patch
+Patch0112: 0012-xwayland-handle-global-object-destruction.patch
+Patch0113: 0013-xwayland-add-support-for-multiple-outputs.patch
+Patch0114: 0014-xwayland-Probe-outputs-on-preinit.patch
+Patch0115: 0015-XFree86-Load-wlshm-driver-as-fallback-for-Wayland.patch
+Patch0116: 0016-XWayland-Don-t-send-out-of-bounds-damage-co-ordinate.patch
+Patch0117: 0017-xwayland-Introduce-an-auto-mode-for-enable-wayland.patch
+Patch0118: 0018-XWayland-Don-t-hardcode-DRM-libs-and-lwayland-client.patch
+Patch0119: 0019-XWayland-Support-16bpp-X-surfaces-in-DRM-SHM.patch
+Patch0120: 0020-xwayland-Remove-Xdnd-selection-watching-code.patch
+Patch0121: 0021-xf86Init-trim-out-non-wayland-capable-servers-from-d.patch
+Patch0122: 0022-Add-XORG_WAYLAND-symbol-to-xorg-config.h.in.patch
+Patch0123: 0023-Fix-fallback-loading-of-the-wayland-driver.patch
+Patch0124: 0024-xwayland-Don-t-include-xorg-server.h.patch
+Patch0125: 0025-os-Don-t-include-xorg-server.h.patch
+Patch0126: 0026-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
+Patch0127: 0027-xwayland-Remove-unused-variables.patch
+Patch0128: 0028-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
+Patch0129: 0029-XWayland-Don-t-commit-empty-surfaces.patch
+Patch0130: 0030-xwayland-Also-look-for-wlglamor.patch
+Patch0131: 0031-xwayland-Add-wlglamor-the-right-way.patch
+Patch0132: 0032-xwayland-Don-t-redirect-windows-leave-it-to-the-wm.patch
+Patch0133: 0033-xwayland-Fix-hidden-cursor.patch
+Patch0134: 0034-xkb-Repurpose-XkbCopyDeviceKeymap-to-apply-a-given-k.patch
+Patch0135: 0035-xkb-Factor-out-a-function-to-copy-a-keymap-s-control.patch
+Patch0136: 0036-xwayland-Handle-keymap-changes.patch
+Patch0137: 0037-xwayland-Fix-re-wrapping-of-RealizeWindow.patch
+Patch0138: 0038-xwayland-Adapt-to-1.15-Damage-API.patch
 # restore ABI
 Patch0200: 0001-mustard-Restore-XkbCopyDeviceKeymap.patch
 
@@ -135,10 +130,6 @@ Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 # ajax needs to upstream this
 Patch6030: xserver-1.6.99-right-of.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
-
-# Fix libselinux-triggered build error
-# RedHat/Fedora-specific patch
-Patch7013: xserver-1.12-Xext-fix-selinux-build-failure.patch
 
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
@@ -152,17 +143,6 @@ Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
 # extra magic to be upstreamed
 Patch9001: 0001-xfree86-Only-look-at-wayland-capable-drivers-when-wa.patch
 Patch9002: 0001-xwayland-Just-send-the-bounding-box-of-the-damage.patch
-
-# also submitted
-Patch9011: 0001-xinerama-Export-the-screen-region.patch
-Patch9012: 0002-dix-Add-PostDispatchCallback.patch
-Patch9013: 0003-damageext-Xineramify-v6.patch
-Patch9014: 0004-composite-Fix-COW-creation-for-Xinerama.patch
-Patch9015: 0005-fixes-Fix-PanoramiXSetPictureClipRegion-for-window-p.patch
-Patch9016: 0006-fixes-Fix-PanoramiXSetWindowShapeRegion.patch
-
-# also also submitted, 1030454, 1030695
-Patch9050: 0001-xfree86-Prefer-fbdev-to-vesa.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -180,7 +160,7 @@ Patch9050: 0001-xfree86-Prefer-fbdev-to-vesa.patch
 %global enable_xorg --disable-xorg
 %endif
 
-%ifnarch %{ix86} x86_64 %{arm}
+%ifnarch %{ix86} x86_64
 %global no_int10 --disable-vbe --disable-int10-module
 %endif
 
@@ -192,10 +172,10 @@ BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.17
 
-BuildRequires: xorg-x11-proto-devel >= 7.7-6
+BuildRequires: xorg-x11-proto-devel >= 7.7-8
 BuildRequires: xorg-x11-font-utils >= 7.2-11
 
-BuildRequires: xorg-x11-xtrans-devel >= 1.2.7
+BuildRequires: xorg-x11-xtrans-devel >= 1.3.2
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
 BuildRequires: libfontenc-devel libXtst-devel libXdmcp-devel
 BuildRequires: libX11-devel libXext-devel
@@ -207,6 +187,7 @@ BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
 %if !0%{?rhel}
 BuildRequires: wayland-devel pkgconfig(wayland-client)
+BuildRequires: pkgconfig(xshmfence) >= 1.1
 %endif
 BuildRequires: libXv-devel
 BuildRequires: pixman-devel >= 0.30.0
@@ -226,8 +207,6 @@ BuildRequires: libunwind-devel
 
 BuildRequires: pkgconfig(xcb-aux) pkgconfig(xcb-image) pkgconfig(xcb-icccm)
 BuildRequires: pkgconfig(xcb-keysyms)
-# blocking on https://bugzilla.redhat.com/show_bug.cgi?id=1027380
-#BuildRequires: pkgconfig(xshmfence)
 
 # All server subpackages have a virtual provide for the name of the server
 # they deliver.  The Xorg one is versioned, the others are intentionally
@@ -298,7 +277,7 @@ Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xnest
 
 %description Xnest
-Xnest is an X server, which has been implemented as an ordinary
+Xnest is an X server which has been implemented as an ordinary
 X application.  It runs in a window just like other X applications,
 but it is an X server itself in which you can run other software.  It
 is a very useful tool for developers who wish to test their
@@ -345,7 +324,7 @@ Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xephyr
 
 %description Xephyr
-Xephyr is an X server, which has been implemented as an ordinary
+Xephyr is an X server which has been implemented as an ordinary
 X application.  It runs in a window just like other X applications,
 but it is an X server itself in which you can run other software.  It
 is a very useful tool for developers who wish to test their
@@ -434,7 +413,7 @@ test `getminor extension` == %{extension_minor}
 %global default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
 
 %if %{with_hw_servers}
-%global dri_flags --with-dri-driver-path=%{drimoduledir} --enable-dri2
+%global dri_flags --with-dri-driver-path=%{drimoduledir} --enable-dri2 --enable-dri3
 %else
 %global dri_flags --disable-dri
 %endif
@@ -452,6 +431,7 @@ sed -i 's/WAYLAND_SCANNER_RULES.*//g' configure.ac
 # --with-pie ?
 autoreconf -f -v --install || exit 1
 # export CFLAGS="${RPM_OPT_FLAGS}"
+# XXX without dtrace
 
 %configure --enable-maintainer-mode %{xservers} \
 	--disable-static \
@@ -462,9 +442,9 @@ autoreconf -f -v --install || exit 1
 	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
 	--with-os-name="$(hostname -s) $(uname -r)" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
-        --with-dtrace \
+        --without-dtrace \
 	--disable-linux-acpi --disable-linux-apm \
-	--enable-xselinux --enable-record \
+	--enable-xselinux --enable-record --enable-present \
 	--enable-config-udev \
 	--disable-unit-tests \
 	%{?wayland} \
@@ -538,7 +518,7 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
     rm -rf $RPM_BUILD_ROOT%{_defaultdocdir}/xorg-server
 %endif
 # wtf
-%ifnarch %{ix86} x86_64 %{arm}
+%ifnarch %{ix86} x86_64
     rm -f $RPM_BUILD_ROOT%{_libdir}/xorg/modules/lib{int10,vbe}.so
 %endif
 }
@@ -586,7 +566,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/xorg/modules/libshadowfb.so
 %{_libdir}/xorg/modules/libvgahw.so
 %{_libdir}/xorg/modules/libwfb.so
-%ifarch %{ix86} x86_64 %{arm}
+%ifarch %{ix86} x86_64
 %{_libdir}/xorg/modules/libint10.so
 %{_libdir}/xorg/modules/libvbe.so
 %endif
@@ -643,9 +623,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %if %{with_hw_servers}
 %files devel
-%defattr(-,root,root,-)
 %doc COPYING
-%{_docdir}/xorg-server
+%defattr(-,root,root,-)
+#{_docdir}/xorg-server
 %{_bindir}/xserver-sdk-abi-requires
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
@@ -659,6 +639,10 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Tue Dec 17 2013 Adam Jackson <ajax@redhat.com> 1.14.99.904-1
+- 1.15RC4
+- Re-disable int10 on arm
+
 * Mon Dec  2 2013 Peter Robinson <pbrobinson@fedoraproject.org> 1.14.99.902-2
 - Add aarch64 to platforms that have libunwind
 

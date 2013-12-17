@@ -1,0 +1,215 @@
+From c22c7d4062b24f10a1d841629cc1e1822cad1f45 Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagn@redhat.com>
+Date: Thu, 22 Aug 2013 16:23:48 +0200
+Subject: [PATCH 13/38] xwayland: add support for multiple outputs
+
+Drop xf86InitialConfiguration, which just gets in the way
+of the compositor doing its own output arrangement, and transform
+wayland events into the appropriate low-level xf86 calls to
+keep the screen size updated.
+
+Kristian: after the rebase it was crashing for me too, had to fix
+the patch a bit. This one should work, and also gives sensible (though
+not perfect) results for xrandr clients.
+Tested with weston/x11 and mutter-wayland/kms.
+---
+ hw/xfree86/xwayland/xwayland-output.c  | 112 ++++++++++++++++++++++++++++++---
+ hw/xfree86/xwayland/xwayland-private.h |   2 +
+ 2 files changed, 105 insertions(+), 9 deletions(-)
+
+diff --git a/hw/xfree86/xwayland/xwayland-output.c b/hw/xfree86/xwayland/xwayland-output.c
+index 46238f4..66c7d48 100644
+--- a/hw/xfree86/xwayland/xwayland-output.c
++++ b/hw/xfree86/xwayland/xwayland-output.c
+@@ -36,6 +36,7 @@
+ #include <cursorstr.h>
+ #include <xf86Crtc.h>
+ #include <mipointrst.h>
++#include <randrstr.h>
+ 
+ #include "xwayland.h"
+ #include "xwayland-private.h"
+@@ -182,6 +183,10 @@ xwl_output_create(struct xwl_screen *xwl_screen)
+     struct xwl_output *xwl_output;
+     xf86OutputPtr xf86output;
+     xf86CrtcPtr xf86crtc;
++    xf86CrtcConfigPtr xf86_config = XF86_CRTC_CONFIG_PTR(xwl_screen->scrninfo);
++    int crtcId, outputId;
++    static int nameId;
++    char *name;
+ 
+     xwl_output = calloc(sizeof *xwl_output, 1);
+     if (xwl_output == NULL) {
+@@ -189,19 +194,41 @@ xwl_output_create(struct xwl_screen *xwl_screen)
+ 	return NULL;
+     }
+ 
++    nameId++;
++    if (asprintf(&name, "XWAYLAND-%d", nameId) < 0) {
++        ErrorF("create_output ENOMEM");
++        free(xwl_output);
++        return NULL;
++    }
++
+     xwl_output->xwl_screen = xwl_screen;
+ 
++    xf86crtc = xf86CrtcCreate(xwl_screen->scrninfo, &crtc_funcs);
++    xf86crtc->enabled = TRUE;
++    xf86crtc->driver_private = xwl_output;
++
++    for (crtcId = 0; crtcId < xf86_config->num_crtc; crtcId++) {
++        if (xf86_config->crtc[crtcId] == xf86crtc)
++            break;
++    }
++
+     xf86output = xf86OutputCreate(xwl_screen->scrninfo,
+-				  &output_funcs, "XWAYLAND-1");
++				  &output_funcs, name);
+     xf86output->driver_private = xwl_output;
+-    xf86output->possible_crtcs = 1;
+-    xf86output->possible_clones = 1;
++    xf86output->possible_crtcs = 1 << crtcId;
+ 
+-    xf86crtc = xf86CrtcCreate(xwl_screen->scrninfo, &crtc_funcs);
+-    xf86crtc->driver_private = xwl_output;
++    for (outputId = 0; outputId < xf86_config->num_output; outputId++) {
++        if (xf86_config->output[outputId] == xf86output)
++            break;
++    }
++
++    xf86output->possible_clones = 1 << outputId;
+ 
+     xwl_output->xf86output = xf86output;
+     xwl_output->xf86crtc = xf86crtc;
++    xwl_output->xf86output->crtc = xf86crtc;
++
++    free(name);
+ 
+     return xwl_output;
+ }
+@@ -219,6 +246,32 @@ static const xf86CrtcConfigFuncsRec config_funcs = {
+     resize
+ };
+ 
++static Rotation
++wl_transform_to_xrandr (enum wl_output_transform transform)
++{
++  switch (transform)
++    {
++    case WL_OUTPUT_TRANSFORM_NORMAL:
++      return RR_Rotate_0;
++    case WL_OUTPUT_TRANSFORM_90:
++      return RR_Rotate_90;
++    case WL_OUTPUT_TRANSFORM_180:
++      return RR_Rotate_180;
++    case WL_OUTPUT_TRANSFORM_270:
++      return RR_Rotate_270;
++    case WL_OUTPUT_TRANSFORM_FLIPPED:
++      return RR_Reflect_X | RR_Rotate_0;
++    case WL_OUTPUT_TRANSFORM_FLIPPED_90:
++      return RR_Reflect_X | RR_Rotate_90;
++    case WL_OUTPUT_TRANSFORM_FLIPPED_180:
++      return RR_Reflect_X | RR_Rotate_180;
++    case WL_OUTPUT_TRANSFORM_FLIPPED_270:
++      return RR_Reflect_X | RR_Rotate_270;
++    }
++
++  return RR_Rotate_0;
++}
++
+ static void
+ display_handle_geometry(void *data, struct wl_output *wl_output, int x, int y,
+ 			int physical_width, int physical_height, int subpixel,
+@@ -253,6 +306,7 @@ display_handle_geometry(void *data, struct wl_output *wl_output, int x, int y,
+ 
+     xwl_output->x = x;
+     xwl_output->y = y;
++    xwl_output->rotation = wl_transform_to_xrandr (transform);
+ 
+     xorg_list_append (&xwl_output->link, &xwl_screen->output_list);
+ }
+@@ -262,11 +316,49 @@ display_handle_mode(void *data, struct wl_output *wl_output, uint32_t flags,
+ 		    int width, int height, int refresh)
+ {
+     struct xwl_output *xwl_output = data;
++    struct xwl_screen *xwl_screen = xwl_output->xwl_screen;
++    ScreenPtr pScreen = xwl_screen->screen;
++    ScrnInfoPtr scrn = xwl_screen->scrninfo;
++    CARD16 width_mm, height_mm;
++    DisplayModePtr mode;
++    rrScrPrivPtr rp;
+ 
+-    if (flags & WL_OUTPUT_MODE_CURRENT) {
+-	xwl_output->width = width;
+-	xwl_output->height = height;
++    if (!(flags & WL_OUTPUT_MODE_CURRENT))
++	return;
++
++    xwl_output->width = width;
++    xwl_output->height = height;
++
++    if (xwl_output->x + xwl_output->width > scrn->virtualX ||
++	xwl_output->y + xwl_output->height > scrn->virtualY) {
++	/* Fake a RandR request to resize the screen. It will bounce
++	   back to our crtc_resize, which does nothing.
++	*/
++	/* Preupdate virtualX / virtualY, so that crtc_resize returns TRUE */
++	scrn->virtualX = xwl_output->x + xwl_output->width;
++	scrn->virtualY = xwl_output->y + xwl_output->height;
++
++	/* Ignore the compositor provided values for mm_width/mm_height,
++	   as it doesn't make sense to sum the values of different outputs.
++	   Just make the DPI 96 */
++	width_mm = (scrn->virtualX / 96.0) * 25.4 + 0.5;
++	height_mm = (scrn->virtualY / 96.0) * 25.4 + 0.5;
++
++	/* But! When the server starts, the RandR stuff is not initialized,
++	   so we can't call rrGetScrPriv. We updated virtualX/Y anyway, let's
++	   hope it's enough.
++	*/
++	if (xwl_screen->outputs_initialized) {
++	    rp = rrGetScrPriv(pScreen);
++	    if (rp->rrScreenSetSize)
++		rp->rrScreenSetSize(pScreen, scrn->virtualX, scrn->virtualY, width_mm, height_mm);
++	}
+     }
++
++    xwl_output->xf86crtc->enabled = TRUE;
++    mode = xf86CVTMode(width, height, refresh, TRUE, FALSE);
++    xf86CrtcSetModeTransform(xwl_output->xf86crtc, mode, xwl_output->rotation,
++                             NULL, xwl_output->x, xwl_output->y);
+ }
+ 
+ static const struct wl_output_listener output_listener = {
+@@ -339,5 +431,7 @@ xwayland_screen_preinit_output(struct xwl_screen *xwl_screen, ScrnInfoPtr scrnin
+             FatalError("failed to dispatch Wayland events: %s\n", strerror(errno));
+     }
+ 
+-    xf86InitialConfiguration(scrninfo, TRUE);
++    xwl_screen->outputs_initialized = TRUE;
++
++    xf86SetScrnInfoModes(scrninfo);
+ }
+diff --git a/hw/xfree86/xwayland/xwayland-private.h b/hw/xfree86/xwayland/xwayland-private.h
+index 7005db2..b0b2201 100644
+--- a/hw/xfree86/xwayland/xwayland-private.h
++++ b/hw/xfree86/xwayland/xwayland-private.h
+@@ -63,6 +63,7 @@ struct xwl_screen {
+     struct xorg_list		 window_list;
+     struct xorg_list		 authenticate_client_list;
+     uint32_t			 serial;
++    Bool                         outputs_initialized;
+ 
+     CreateWindowProcPtr		 CreateWindow;
+     DestroyWindowProcPtr	 DestroyWindow;
+@@ -82,6 +83,7 @@ struct xwl_output {
+     xf86OutputPtr		 xf86output;
+     xf86CrtcPtr			 xf86crtc;
+     int32_t                      name;
++    Rotation                     rotation;
+ };
+ 
+ 
+-- 
+1.8.4.2
+
