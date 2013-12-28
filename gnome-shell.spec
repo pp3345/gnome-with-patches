@@ -64,7 +64,10 @@ BuildRequires:  libXfixes-devel >= 5.0
 # used in unused BigThemeImage
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
-BuildRequires:  mutter-wayland-devel >= %{mutter_version}
+# Hack to allow build to go through while there is no clutter 1.17
+# Should be %{mutter_version}, restore when we can build mutter-wayland
+# again - adamw 2013/12
+BuildRequires:  mutter-wayland-devel >= 3.11.1
 BuildRequires:  pulseaudio-libs-devel
 %ifnarch s390 s390x ppc ppc64 ppc64p7
 BuildRequires:  gnome-bluetooth-libs-devel >= %{gnome_bluetooth_version}
