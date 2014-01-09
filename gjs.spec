@@ -77,6 +77,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+*  Wed Nov 20 2013 Jasper St. Pierre <jstpierre@mecheye.net> - 1.39.0-1
+- Update to 1.39.0
+
 * Wed Sep 25 2013 Kalev Lember <kalevlember@gmail.com> - 1.38.1-1
 - Update to 1.38.1
 
