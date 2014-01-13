@@ -33,3 +33,4 @@ xorg-server-1.9.1.tar.bz2
 /xorg-server-1.14.99.902.tar.bz2
 *.bz2
 *.xz
+/xorg-x11-server-1.15.0-1.fc21.src.rpm

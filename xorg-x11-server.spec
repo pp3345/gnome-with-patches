@@ -41,7 +41,7 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.14.99.904
+Version:   1.15.0
 Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
@@ -73,12 +73,6 @@ Source31: xserver-sdk-abi-requires.git
 
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
-
-# sync with tip
-Patch0001: 0001-present-recursively-set-window-pixmaps-on-flip.patch
-
-# submitted
-Patch0050: 0001-configure-Fix-a-typo-near-dri3-shmfence-detection.patch
 
 # xwayland.  trivial rebase onto master:
 # http://cgit.freedesktop.org/~ajax/xserver/log/?h=wayland-f21
@@ -639,6 +633,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Jan 13 2014 Adam Jackson <ajax@redhat.com> 1.15.0-1
+- xserver 1.15.0
+
 * Tue Dec 17 2013 Adam Jackson <ajax@redhat.com> 1.14.99.904-1
 - 1.15RC4
 - Re-disable int10 on arm
