@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.11.3
-Release:        2%{?dist}
+Version:        3.11.4
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -17,12 +17,12 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.35.4
-%define mutter_version 3.11.3
+%define mutter_version 3.11.4
 %define eds_version 3.5.3
 %define gnome_desktop_version 3.7.90
 %define gnome_menus_version 3.5.3
 %define json_glib_version 0.13.2
-%define gsettings_desktop_schemas_version 3.9.2
+%define gsettings_desktop_schemas_version 3.11.4
 %define caribou_version 0.4.8
 %define libcroco_version 0.6.8
 %define telepathy_logger_version 0.2.6
@@ -176,6 +176,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Jan 16 2014 Florian Müllner <fmuellner@redhat.com> - 3.11.4-1
+- Update to 3.11.4
+
 * Tue Jan 14 2014 Milan Crha <mcrha@redhat.com> - 3.11.3-2
 - Rebuild against newer evolution-data-server
 
