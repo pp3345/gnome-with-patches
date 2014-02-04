@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.0
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -140,6 +140,9 @@ Patch9002: 0001-xwayland-Just-send-the-bounding-box-of-the-damage.patch
 
 # submitted: http://lists.x.org/archives/xorg-devel/2013-October/037996.html
 Patch9100: exa-only-draw-valid-trapezoids.patch
+
+# in pull request http://patchwork.freedesktop.org/patch/19468/
+Patch9103: 0001-dix-fix-button-state-check-before-changing-a-button-.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -636,6 +639,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Wed Feb 05 2014 Peter Hutterer <peter.hutterer@redhat.com> 1.15.0-3
+- Prevent out-of-bounds access in check_butmap_change (#1061466)
+
 * Tue Jan 14 2014 Adam Jackson <ajax@redhat.com> 1.15.0-2
 - exa-only-draw-valid-trapezoids.patch: Fix crash in exa.
 

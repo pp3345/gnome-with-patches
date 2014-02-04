@@ -1,0 +1,37 @@
+From 554814642e7c927d0c10cdc8a33067c076b159ed Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Fri, 24 Jan 2014 18:16:54 +1000
+Subject: [PATCH 1/3] dix: fix button state check before changing a button
+ mapping
+
+dev->button->down is a bitmask, not a normal array. Use the helper function to
+check, we technically allow the mapping to change after the physical button
+has been pressed (but not yet processed yet), so only check BUTTON_PROCESSED.
+
+From XSetPointerMapping(3):
+"If any of the buttons to be altered are logically in the down state,
+XSetPointerMapping returns MappingBusy, and the mapping is not changed."
+
+Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ dix/inpututils.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/dix/inpututils.c b/dix/inpututils.c
+index 3e1d75f..0cbb02b 100644
+--- a/dix/inpututils.c
++++ b/dix/inpututils.c
+@@ -60,7 +60,8 @@ check_butmap_change(DeviceIntPtr dev, CARD8 *map, int len, CARD32 *errval_out,
+     }
+ 
+     for (i = 0; i < len; i++) {
+-        if (dev->button->map[i + 1] != map[i] && dev->button->down[i + 1])
++        if (dev->button->map[i + 1] != map[i] &&
++            button_is_down(dev, i + 1, BUTTON_PROCESSED))
+             return MappingBusy;
+     }
+ 
+-- 
+1.8.4.2
+
