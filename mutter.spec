@@ -9,12 +9,6 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.11/%{name}-%{version}.tar.xz
 
-# As cogl 1.17.1 does not exist yet, temporarily revert the commits that
-# adjust to 1.17 API and require 1.17. This patch reverts upstream commits
-# d2a1db8834 and 3548e6da73. Note this patch requires autogen.sh to be run:
-# when dropping this patch, also drop the autoreconf call.
-Patch0:        mutter-3.11.4-cogl-revert.patch
-
 BuildRequires: clutter-devel >= 1.13.5
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -70,12 +64,8 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
-%patch0 -p1 -b .cogl_revert
 
 %build
-# only needed for patch0 (patches configure.ac), drop when dropping this patch
-autoreconf -i
-
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static --enable-compile-warnings=maximum)
 
