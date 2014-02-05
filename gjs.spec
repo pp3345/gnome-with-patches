@@ -1,6 +1,6 @@
 Name:          gjs
 Version:       1.39.3
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -13,11 +13,12 @@ URL:           http://live.gnome.org/Gjs/
 #VCS:          git://git.gnome.org/gjs
 Source0:       http://download.gnome.org/sources/%{name}/1.39/%{name}-%{version}.tar.xz
 
-BuildRequires: mozjs17-devel
+BuildRequires: mozjs24-devel
 BuildRequires: cairo-gobject-devel
 BuildRequires: gobject-introspection-devel >= 1.31.22
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
+BuildRequires: gtk3-devel
 BuildRequires: intltool
 BuildRequires: pkgconfig
 # Bootstrap requirements
@@ -67,7 +68,6 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_bindir}/gjs-console
 %{_libdir}/*.so.*
 %{_libdir}/gjs
-%{_datadir}/gjs-1.0
 
 %files devel
 %doc examples/*
@@ -77,6 +77,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Wed Feb 05 2014 Adam Williamson <awilliam@redhat.com> - 1.39.3-2
+- build against mozjs24
+
 * Wed Jan 29 2014 Richard Hughes <rhughes@redhat.com> - 1.39.3-1
 - Update to 1.39.3
 
