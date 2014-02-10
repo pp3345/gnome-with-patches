@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.11.5
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -173,6 +173,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Mon Feb 10 2014 Peter Hutterer <peter.hutterer@redhat.com> - 3.11.5-3
+- Rebuild for libevdev soname bump
+
 * Wed Feb 05 2014 Adam Williamson <awilliam@redhat.com> - 3.11.5-2
 - build against new gjs (and hence mozjs24)
 
