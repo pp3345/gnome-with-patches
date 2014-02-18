@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.0
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -116,6 +116,18 @@ Patch0137: 0037-xwayland-Fix-re-wrapping-of-RealizeWindow.patch
 Patch0138: 0038-xwayland-Adapt-to-1.15-Damage-API.patch
 # restore ABI
 Patch0200: 0001-mustard-Restore-XkbCopyDeviceKeymap.patch
+# Submitted upstream: http://lists.freedesktop.org/archives/wayland-devel/2014-February/013218.html
+# but likely to be rendered irrelevant by pending present support:
+# http://lists.freedesktop.org/archives/wayland-devel/2014-February/013219.html
+# and queried as to correctness:
+# http://lists.freedesktop.org/archives/wayland-devel/2014-February/013227.html
+# so may wind up never being merged. View with concern. Adding just because
+# even this imperfect patch is probably better than XWayland being entirely
+# busted in Rawhide:
+# https://bugzilla.gnome.org/show_bug.cgi?id=724443
+# https://bugzilla.redhat.com/show_bug.cgi?id=1065109
+# - adamw 2014/02
+Patch0201: xwayland_destroy_wl_buffers.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -639,6 +651,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Mon Feb 17 2014 Adam Williamson <awilliam@redhat.com> - 1.15.0-4
+- fix xwayland crash under mutter (RH #1065109 , BGO #724443)
+
 * Wed Feb 05 2014 Peter Hutterer <peter.hutterer@redhat.com> 1.15.0-3
 - Prevent out-of-bounds access in check_butmap_change (#1061466)
 
