@@ -1,6 +1,6 @@
 Name:          mutter
-Version:       3.11.5
-Release:       4%{?dist}
+Version:       3.11.90
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -127,6 +127,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Feb 19 2014 Florian Müllner <fmuellner@redhat.com> - 3.11.90-1
+- Update to 3.11.90
+
 * Wed Feb 19 2014 Richard Hughes <rhughes@redhat.com> - 3.11.5-4
 - Rebuilt for gnome-desktop soname bump
 
