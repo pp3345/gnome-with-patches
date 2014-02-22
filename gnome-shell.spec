@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.11.90
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -103,6 +103,8 @@ Requires:       caribou%{?_isa} >= %{caribou_version}
 Requires:       accountsservice-libs%{?_isa}
 Requires:       gdm-libs%{?_isa}
 Requires:       clutter%{?_isa} >= %{clutter_version}
+# needed for settings items in menus
+Requires:	control-center
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -173,6 +175,10 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Sat Feb 22 2014 Florian Müllner <fmuellner@redhat.com> - 3.11.90-3
+- Add dependency on gnome-control-center - several panels are referenced
+  by a number of menu items
+
 * Thu Feb 20 2014 Kalev Lember <kalevlember@gmail.com> - 3.11.90-2
 - Rebuilt for cogl soname bump
 
