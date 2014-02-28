@@ -1,0 +1,86 @@
+From 2377c922b8b639d3c511ca92a6ddd2db921b3105 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 26 Feb 2014 07:54:56 +1000
+Subject: [PATCH] config: search for PnPID on all parents (#75513)
+
+The PnPID for a device may not be on the immediate parent, so search up the
+device tree until we find one.
+
+X.Org Bug 75513 <http://bugs.freedesktop.org/show_bug.cgi?id=75513>
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ config/hal.c  | 16 +++++++++++++---
+ config/udev.c | 15 +++++++++++----
+ 2 files changed, 24 insertions(+), 7 deletions(-)
+
+diff --git a/config/hal.c b/config/hal.c
+index 2ead556..d8e8db7 100644
+--- a/config/hal.c
++++ b/config/hal.c
+@@ -184,8 +184,7 @@ device_added(LibHalContext * hal_ctx, const char *udi)
+     parent = get_prop_string(hal_ctx, udi, "info.parent");
+     if (parent) {
+         int usb_vendor, usb_product;
+-
+-        attrs.pnp_id = get_prop_string(hal_ctx, parent, "pnp.id");
++        char *old_parent;
+ 
+         /* construct USB ID in lowercase - "0000:ffff" */
+         usb_vendor = libhal_device_get_property_int(hal_ctx, parent,
+@@ -203,7 +202,18 @@ device_added(LibHalContext * hal_ctx, const char *udi)
+                 == -1)
+                 attrs.usb_id = NULL;
+ 
+-        free(parent);
++        attrs.pnp_id = get_prop_string(hal_ctx, parent, "pnp.id");
++        old_parent = parent;
++
++        while (!attrs.pnp_id &&
++               (parent = get_prop_string(hal_ctx, parent, "info.parent"))) {
++            attrs.pnp_id = get_prop_string(hal_ctx, parent, "pnp.id");
++
++            free(old_parent);
++            old_parent = parent;
++        }
++
++        free(old_parent);
+     }
+ 
+     input_options = input_option_new(NULL, "_source", "server/hal");
+diff --git a/config/udev.c b/config/udev.c
+index b55b78e..bcafbd9 100644
+--- a/config/udev.c
++++ b/config/udev.c
+@@ -130,10 +130,6 @@ device_added(struct udev_device *udev_device)
+             LOG_PROPERTY(ppath, "NAME", name);
+         }
+ 
+-        if (pnp_id)
+-            attrs.pnp_id = strdup(pnp_id);
+-        LOG_SYSATTR(ppath, "id", pnp_id);
+-
+         /* construct USB ID in lowercase hex - "0000:ffff" */
+         if (product &&
+             sscanf(product, "%*x/%4x/%4x/%*x", &usb_vendor, &usb_model) == 2) {
+@@ -143,6 +139,17 @@ device_added(struct udev_device *udev_device)
+             else
+                 LOG_PROPERTY(ppath, "PRODUCT", product);
+         }
++
++        while (!pnp_id && (parent = udev_device_get_parent(parent))) {
++            pnp_id = udev_device_get_sysattr_value(parent, "id");
++            if (!pnp_id)
++                continue;
++
++            attrs.pnp_id = strdup(pnp_id);
++            ppath = udev_device_get_devnode(parent);
++            LOG_SYSATTR(ppath, "id", pnp_id);
++        }
++
+     }
+     if (!name)
+         name = "(unnamed)";
+-- 
+1.8.4.2
+

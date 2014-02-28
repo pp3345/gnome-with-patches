@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.0
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -155,6 +155,8 @@ Patch9100: exa-only-draw-valid-trapezoids.patch
 
 # in pull request http://patchwork.freedesktop.org/patch/19468/
 Patch9103: 0001-dix-fix-button-state-check-before-changing-a-button-.patch
+
+Patch9104: 0001-config-search-for-PnPID-on-all-parents-75513.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -651,6 +653,9 @@ rm -rf $RPM_BUILD_ROOT
 %{xserver_source_dir}
 
 %changelog
+* Fri Feb 28 2014 Peter Hutterer <peter.hutterer@redhat.com> 1.15.0-5
+- Search all parent devices for a PnPID.
+
 * Mon Feb 17 2014 Adam Williamson <awilliam@redhat.com> - 1.15.0-4
 - fix xwayland crash under mutter (RH #1065109 , BGO #724443)
 
