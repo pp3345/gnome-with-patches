@@ -1,0 +1,31 @@
+From 89a2dc71fc1ed56702b0eac83b6d597cb946596f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 21 Feb 2014 10:38:29 +0100
+Subject: [PATCH 1/8] workspaceThumbnails: Fix creating new workspace via DND
+
+Commit 61a58ff3c981d4 replaced the (removed in commit 254afc50223a7)
+MetaWindowActor.get_workspace() method by MetaWindow.get_workspace(),
+but did not take into account that the return values differ - the
+former returns the workspace index, the latter the workspace object.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=724686
+---
+ js/ui/workspaceThumbnail.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/js/ui/workspaceThumbnail.js b/js/ui/workspaceThumbnail.js
+index 7b7bc90..913ed23 100644
+--- a/js/ui/workspaceThumbnail.js
++++ b/js/ui/workspaceThumbnail.js
+@@ -822,7 +822,7 @@ const ThumbnailsBox = new Lang.Class({
+             // ... move them down one.
+             windows.forEach(function(winActor) {
+                 let window = winActor.meta_window;
+-                window.change_workspace_by_index(window.get_workspace() + 1, true);
++                window.change_workspace_by_index(window.get_workspace().index() + 1, true);
+             });
+ 
+             if (isWindow)
+-- 
+1.9.0
+

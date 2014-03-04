@@ -1,0 +1,33 @@
+From f4607626e40b97500f18bbe719952d4c58fef83a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Sun, 23 Feb 2014 00:10:50 +0100
+Subject: [PATCH 8/8] workspaceThumbnails: Really fix DND creating new
+ workspaces
+
+The same problem spotted in commit 89a2dc71fc1ed is present in
+some more places, fix those as well.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=724686
+---
+ js/ui/workspaceThumbnail.js | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/js/ui/workspaceThumbnail.js b/js/ui/workspaceThumbnail.js
+index 913ed23..25469e3 100644
+--- a/js/ui/workspaceThumbnail.js
++++ b/js/ui/workspaceThumbnail.js
+@@ -812,9 +812,9 @@ const ThumbnailsBox = new Lang.Class({
+                     return false;
+ 
+                 if (isWindow)
+-                    return window.get_workspace() >= newWorkspaceIndex && winActor != source;
++                    return window.get_workspace().index() >= newWorkspaceIndex && winActor != source;
+                 else
+-                    return window.get_workspace() >= newWorkspaceIndex;
++                    return window.get_workspace().index() >= newWorkspaceIndex;
+             });
+ 
+             this._spliceIndex = newWorkspaceIndex;
+-- 
+1.9.0
+
