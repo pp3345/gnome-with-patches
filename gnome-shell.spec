@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.11.90
-Release:        5%{?dist}
+Version:        3.11.91
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -15,13 +15,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 
 # https://bugzilla.gnome.org/show_bug.cgi?id=722149
 Patch2: gnome-shell-3.11.90-background.patch
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=724779
-Patch3: gnome-shell-3.11.90-wifi_secrets.patch
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=724686
-Patch4: 0001-workspaceThumbnails-Fix-creating-new-workspace-via-D.patch
-Patch5: 0008-workspaceThumbnails-Really-fix-DND-creating-new-work.patch
 
 %define clutter_version 1.13.4
 %define gnome_bluetooth_version 1:3.9.0
@@ -127,9 +120,6 @@ easy to use experience.
 %setup -q
 %patch1 -p1 -b .firefox
 %patch2 -p1 -b .background
-%patch3 -p1 -b .wifi_secrets
-%patch4 -p1 -b .workspace_dnd1
-%patch5 -p1 -b .workspace_dnd2
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -189,6 +179,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Mar 06 2014 Florian Müllner <fmuellner@redhat.com> - 3.11.91-1
+- Update to 3.11.91
+
 * Mon Mar 03 2014 Adam Williamson <awilliam@redhat.com> - 3.11.90-5
 - backport fixes to fix drag-and-drop workspace creation (BGO #724686)
 
