@@ -1,0 +1,67 @@
+From fdf264ff64cd0e67fc5310f6720ea4586b72890d Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Wed, 26 Feb 2014 16:09:26 -0500
+Subject: [PATCH 3/4] background: get rid of nested loop when finishing file
+ loading
+
+At the moment when a file is loaded, we iterate through the list of
+pending file loads and ignore any unrelated to the file, then iterate
+all the callers of the related file loads and finish them.
+
+In fact, there can only ever be one pending file load related to the
+file, and we already know it, so we can avoid the ugly nested loops.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=722149
+---
+ js/ui/background.js | 32 +++++++++++++-------------------
+ 1 file changed, 13 insertions(+), 19 deletions(-)
+
+diff --git a/js/ui/background.js b/js/ui/background.js
+index 396309a..506fe59 100644
+--- a/js/ui/background.js
++++ b/js/ui/background.js
+@@ -178,28 +178,22 @@ const BackgroundCache = new Lang.Class({
+                                                   content = null;
+                                               }
+ 
+-                                              for (let i = 0; i < this._pendingFileLoads.length; i++) {
+-                                                  let pendingLoad = this._pendingFileLoads[i];
+-                                                  if (pendingLoad.filename != params.filename ||
+-                                                      pendingLoad.style != params.style)
+-                                                      continue;
+-
+-                                                  for (let j = 0; j < pendingLoad.callers.length; j++) {
+-                                                      if (pendingLoad.callers[j].onFinished) {
+-                                                          let newContent;
+-
+-                                                          if (content) {
+-                                                              newContent = content.copy(pendingLoad.callers[j].monitorIndex,
+-                                                                                        pendingLoad.callers[j].effects);
+-                                                              this._images.push(newContent);
+-                                                          }
+-
+-                                                          pendingLoad.callers[j].onFinished(newContent);
++                                              for (let i = 0; i < fileLoad.callers.length; i++) {
++                                                  let caller = fileLoad.callers[i];
++                                                  if (caller.onFinished) {
++                                                      let newContent;
++
++                                                      if (content) {
++                                                          newContent = content.copy(caller.monitorIndex, caller.effects);
++                                                          this._images.push(newContent);
+                                                       }
+-                                                  }
+ 
+-                                                  this._pendingFileLoads.splice(i, 1);
++                                                      caller.onFinished(newContent);
++                                                  }
+                                               }
++
++                                              let idx = this._pendingFileLoads.indexOf(fileLoad);
++                                              this._pendingFileLoads.splice(idx, 1);
+                                           }));
+     },
+ 
+-- 
+1.9.0
+
