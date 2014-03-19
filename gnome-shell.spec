@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.11.91
-Release:        2%{?dist}
+Version:        3.11.92
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -12,13 +12,6 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.11/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=722149
-# Patch series all backported from upstream git master, will be in 3.11.92
-Patch2: 0001-background-always-copy-background-content-when-loadi.patch
-Patch3: 0002-background-refactor-file-loading.patch
-Patch4: 0003-background-get-rid-of-nested-loop-when-finishing-fil.patch
-Patch5: 0004-background-fix-cancellable-issue.patch
 
 %define clutter_version 1.13.4
 %define gnome_bluetooth_version 1:3.9.0
@@ -123,10 +116,6 @@ easy to use experience.
 %prep
 %setup -q
 %patch1 -p1 -b .firefox
-%patch2 -p1 -b .background1
-%patch3 -p1 -b .background2
-%patch4 -p1 -b .background3
-%patch5 -p1 -b .background4
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -186,6 +175,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Mar 19 2014 Florian Müllner <fmuellner@redhat.com> - 3.11.92-1
+- Update to 3.11.92
+
 * Wed Mar 12 2014 Adam Williamson <awilliam@redhat.com> - 3.11.91-2
 - update to final revision of background bug fix from upstream (BGO #722149)
 
