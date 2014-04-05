@@ -1,6 +1,6 @@
 Name:          gjs
 Version:       1.40.0
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -32,7 +32,7 @@ framework.
 %package devel
 Summary: Development package for %{name}
 Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
+Requires: %{name}%{?_isa} = %{version}-%{release}
 Requires: pkgconfig
 
 %description devel
@@ -77,6 +77,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Sat Apr 05 2014 Kalev Lember <kalevlember@gmail.com> - 1.40.0-2
+- Tighten -devel deps
+
 * Tue Mar 25 2014 Richard Hughes <rhughes@redhat.com> - 1.40.0-1
 - Update to 1.40.0
 
