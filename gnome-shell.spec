@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.12.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -13,10 +13,10 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.12/%{name}-%{ver
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
-%define clutter_version 1.13.4
+%define clutter_version 1.15.90
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 0.10.1
-%define gjs_version 1.35.4
+%define gjs_version 1.39.0
 %define mutter_version 3.12.0
 %define eds_version 3.5.3
 %define gnome_desktop_version 3.7.90
@@ -175,6 +175,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Sat Apr 05 2014 Kalev Lember <kalevlember@gmail.com> - 3.12.0-2
+- Update dep versions
+
 * Tue Mar 25 2014 Florian Müllner <fmuellner@redhat.com> - 3.12.0-1
 - Update to 3.12.0
 
