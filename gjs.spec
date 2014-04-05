@@ -1,3 +1,5 @@
+%global gobject_introspection_version 1.39.3
+
 Name:          gjs
 Version:       1.40.0
 Release:       2%{?dist}
@@ -15,7 +17,7 @@ Source0:       http://download.gnome.org/sources/%{name}/1.40/%{name}-%{version}
 
 BuildRequires: mozjs24-devel
 BuildRequires: cairo-gobject-devel
-BuildRequires: gobject-introspection-devel >= 1.31.22
+BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
 BuildRequires: gtk3-devel
@@ -23,6 +25,8 @@ BuildRequires: intltool
 BuildRequires: pkgconfig
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
+
+Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
@@ -79,6 +83,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %changelog
 * Sat Apr 05 2014 Kalev Lember <kalevlember@gmail.com> - 1.40.0-2
 - Tighten -devel deps
+- Set minimum gobject-introspection version
 
 * Tue Mar 25 2014 Richard Hughes <rhughes@redhat.com> - 1.40.0-1
 - Update to 1.40.0
