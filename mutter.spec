@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       3.12.0
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -9,7 +9,7 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.12/%{name}-%{version}.tar.xz
 
-BuildRequires: clutter-devel >= 1.13.5
+BuildRequires: clutter-devel >= 1.15.90
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
 BuildRequires: gnome-desktop3-devel
@@ -32,9 +32,9 @@ BuildRequires: gtk-doc gnome-common intltool
 BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel
 
-# Make sure this can't be installed with an old gnome-shell build because of
-# an ABI change.
-Conflicts: gnome-shell < 3.9.90
+# Make sure yum updates gnome-shell as well; otherwise we might end up with
+# broken gnome-shell installations due to mutter ABI changes.
+Conflicts: gnome-shell < 3.12.0
 
 Requires: control-center-filesystem
 Requires: startup-notification
@@ -127,6 +127,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Sat Apr 05 2014 Kalev Lember <kalevlember@gmail.com> - 3.12.0-2
+- Update dep versions
+
 * Tue Mar 25 2014 Florian Müllner <fmuellner@redhat.com> - 3.12.0-1
 - Update to 3.12.0
 
