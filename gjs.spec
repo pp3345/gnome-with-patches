@@ -1,8 +1,8 @@
 %global gobject_introspection_version 1.39.3
 
 Name:          gjs
-Version:       1.40.0
-Release:       2%{?dist}
+Version:       1.40.1
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -81,6 +81,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Tue Apr 15 2014 Kalev Lember <kalevlember@gmail.com> - 1.40.1-1
+- Update to 1.40.1
+
 * Sat Apr 05 2014 Kalev Lember <kalevlember@gmail.com> - 1.40.0-2
 - Tighten -devel deps
 - Set minimum gobject-introspection version
