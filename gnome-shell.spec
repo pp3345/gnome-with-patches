@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.12.0
-Release:        2%{?dist}
+Version:        3.12.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -175,6 +175,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Apr 15 2014 Florian Müllner <fmuellner@redhat.com> - 3.12.1-1
+- Update to 3.12.1
+
 * Sat Apr 05 2014 Kalev Lember <kalevlember@gmail.com> - 3.12.0-2
 - Update dep versions
 
