@@ -16,9 +16,9 @@
 # source because rpm is a terrible language.
 %global ansic_major 0
 %global ansic_minor 4
-%global videodrv_major 15
+%global videodrv_major 17
 %global videodrv_minor 0
-%global xinput_major 20
+%global xinput_major 21
 %global xinput_minor 0
 %global extension_major 8
 %global extension_minor 0
@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.15.0
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.15.99.902
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -74,60 +74,9 @@ Source31: xserver-sdk-abi-requires.git
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
 
-# xwayland.  trivial rebase onto master:
-# http://cgit.freedesktop.org/~ajax/xserver/log/?h=wayland-f21
-Patch0101: 0001-dbe-Cleanup-in-CloseScreen-hook-not-ext-CloseDown.patch
-Patch0102: 0002-xkb-Add-struct-XkbCompContext.patch
-Patch0103: 0003-xkb-Split-out-code-to-start-and-finish-xkbcomp.patch
-Patch0104: 0004-xkb-Add-XkbCompileKeymapFromString.patch
-Patch0105: 0005-os-Add-a-function-to-create-a-client-for-an-fd.patch
-Patch0106: 0006-Export-xf86NewInputDevice-and-xf86AllocateInput.patch
-Patch0107: 0007-Add-redirect-window-for-input-device-feature.patch
-Patch0108: 0008-dri2-Introduce-a-third-version-of-the-AuthMagic-func.patch
-Patch0109: 0009-Add-xwayland-module.patch
-Patch0110: 0010-xwayland-Add-a-HW_WAYLAND-flag-to-let-drivers-explic.patch
-Patch0111: 0011-xwayland-shm-don-t-create-alpha-buffers-if-the-windo.patch
-Patch0112: 0012-xwayland-handle-global-object-destruction.patch
-Patch0113: 0013-xwayland-add-support-for-multiple-outputs.patch
-Patch0114: 0014-xwayland-Probe-outputs-on-preinit.patch
-Patch0115: 0015-XFree86-Load-wlshm-driver-as-fallback-for-Wayland.patch
-Patch0116: 0016-XWayland-Don-t-send-out-of-bounds-damage-co-ordinate.patch
-Patch0117: 0017-xwayland-Introduce-an-auto-mode-for-enable-wayland.patch
-Patch0118: 0018-XWayland-Don-t-hardcode-DRM-libs-and-lwayland-client.patch
-Patch0119: 0019-XWayland-Support-16bpp-X-surfaces-in-DRM-SHM.patch
-Patch0120: 0020-xwayland-Remove-Xdnd-selection-watching-code.patch
-Patch0121: 0021-xf86Init-trim-out-non-wayland-capable-servers-from-d.patch
-Patch0122: 0022-Add-XORG_WAYLAND-symbol-to-xorg-config.h.in.patch
-Patch0123: 0023-Fix-fallback-loading-of-the-wayland-driver.patch
-Patch0124: 0024-xwayland-Don-t-include-xorg-server.h.patch
-Patch0125: 0025-os-Don-t-include-xorg-server.h.patch
-Patch0126: 0026-os-Also-define-ListenOnOpenFD-and-AddClientOnOpenFD-.patch
-Patch0127: 0027-xwayland-Remove-unused-variables.patch
-Patch0128: 0028-xwayland-Use-a-per-screen-private-key-for-cursor-pri.patch
-Patch0129: 0029-XWayland-Don-t-commit-empty-surfaces.patch
-Patch0130: 0030-xwayland-Also-look-for-wlglamor.patch
-Patch0131: 0031-xwayland-Add-wlglamor-the-right-way.patch
-Patch0132: 0032-xwayland-Don-t-redirect-windows-leave-it-to-the-wm.patch
-Patch0133: 0033-xwayland-Fix-hidden-cursor.patch
-Patch0134: 0034-xkb-Repurpose-XkbCopyDeviceKeymap-to-apply-a-given-k.patch
-Patch0135: 0035-xkb-Factor-out-a-function-to-copy-a-keymap-s-control.patch
-Patch0136: 0036-xwayland-Handle-keymap-changes.patch
-Patch0137: 0037-xwayland-Fix-re-wrapping-of-RealizeWindow.patch
-Patch0138: 0038-xwayland-Adapt-to-1.15-Damage-API.patch
-# restore ABI
-Patch0200: 0001-mustard-Restore-XkbCopyDeviceKeymap.patch
-# Submitted upstream: http://lists.freedesktop.org/archives/wayland-devel/2014-February/013218.html
-# but likely to be rendered irrelevant by pending present support:
-# http://lists.freedesktop.org/archives/wayland-devel/2014-February/013219.html
-# and queried as to correctness:
-# http://lists.freedesktop.org/archives/wayland-devel/2014-February/013227.html
-# so may wind up never being merged. View with concern. Adding just because
-# even this imperfect patch is probably better than XWayland being entirely
-# busted in Rawhide:
-# https://bugzilla.gnome.org/show_bug.cgi?id=724443
-# https://bugzilla.redhat.com/show_bug.cgi?id=1065109
-# - adamw 2014/02
-Patch0201: xwayland_destroy_wl_buffers.patch
+# workaround for make dist bug in 1.15.99.902, remove once fixed
+Source50: Xorg.wrap.man
+Source51: Xwrapper.config.man
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -146,17 +95,11 @@ Patch7027: xserver-autobind-hotplug.patch
 Patch8040: 0001-rrcrtc-brackets-are-hard-lets-go-shopping.patch
 Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
 
-# extra magic to be upstreamed
-Patch9001: 0001-xfree86-Only-look-at-wayland-capable-drivers-when-wa.patch
-Patch9002: 0001-xwayland-Just-send-the-bounding-box-of-the-damage.patch
-
 # submitted: http://lists.x.org/archives/xorg-devel/2013-October/037996.html
 Patch9100: exa-only-draw-valid-trapezoids.patch
 
-# in pull request http://patchwork.freedesktop.org/patch/19468/
-Patch9103: 0001-dix-fix-button-state-check-before-changing-a-button-.patch
-
-Patch9104: 0001-config-search-for-PnPID-on-all-parents-75513.patch
+# because the display-managers are not ready yet, do not upstream
+Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -186,7 +129,7 @@ BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.17
 
-BuildRequires: xorg-x11-proto-devel >= 7.7-8
+BuildRequires: xorg-x11-proto-devel >= 7.7-10
 BuildRequires: xorg-x11-font-utils >= 7.2-11
 
 BuildRequires: xorg-x11-xtrans-devel >= 1.3.2
@@ -200,7 +143,7 @@ BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
 BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
 %if !0%{?rhel}
-BuildRequires: wayland-devel pkgconfig(wayland-client)
+BuildRequires: wayland-devel pkgconfig(wayland-client) pkgconfig(epoxy)
 BuildRequires: pkgconfig(xshmfence) >= 1.1
 %endif
 BuildRequires: libXv-devel
@@ -229,6 +172,7 @@ BuildRequires: pkgconfig(xcb-keysyms)
 %description
 X.Org X11 X server
 
+
 %package common
 Summary: Xorg server common files
 Group: User Interface/X
@@ -238,12 +182,16 @@ Requires: xkeyboard-config xkbcomp
 %description common
 Common files shared among all X servers.
 
+
 %if %{with_hw_servers}
 %package Xorg
 Summary: Xorg X server
 Group: User Interface/X
 Provides: Xorg = %{version}-%{release}
 Provides: Xserver
+# HdG: This should be moved to the wrapper package once the wrapper gets
+# its own sub-package:
+Provides: xorg-x11-server-wrapper = %{version}-%{release}
 %if !0%{?gitdate} || %{stable_abi}
 Provides: xserver-abi(ansic-%{ansic_major}) = %{ansic_minor}
 Provides: xserver-abi(videodrv-%{videodrv_major}) = %{videodrv_minor}
@@ -256,12 +204,6 @@ Provides: xserver-abi(videodrv-%{git_videodrv_major}) = %{git_videodrv_minor}
 Provides: xserver-abi(xinput-%{git_xinput_major}) = %{git_xinput_minor}
 Provides: xserver-abi(extension-%{git_extension_major}) = %{git_extension_minor}
 %endif
-%if !0%{?rhel}
-# this is expected to be temporary, since eventually it will be implied by
-# the server version.  the serial number here is just paranoia in case we
-# need to do something lockstep between now and upstream merge
-Provides: xserver-abi(xwayland) = 1
-%endif
 
 %if 0%{?fedora} > 17
 # Dropped from F18, use a video card instead
@@ -271,7 +213,6 @@ Obsoletes: xorg-x11-drv-chips <= 1.2.4-8.fc18
 Obsoletes: xorg-x11-drv-s3 <= 0.6.3-14.fc17
 Obsoletes: xorg-x11-drv-tseng <= 1.2.4-12.fc17
 %endif
-
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: system-setup-keyboard
@@ -297,6 +238,7 @@ but it is an X server itself in which you can run other software.  It
 is a very useful tool for developers who wish to test their
 applications without running them on their real X server.
 
+
 %package Xdmx
 Summary: Distributed Multihead X Server and utilities
 Group: User Interface/X
@@ -312,6 +254,7 @@ for Xdmx would be to provide multi-head support using two desktop machines,
 each of which has a single display device attached to it.  A complex
 application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 (each attached to one of 16 computers) into a unified 5120x4096 display.
+
 
 %package Xvfb
 Summary: A X Windows System virtual framebuffer X server.
@@ -348,6 +291,17 @@ X protocol, and therefore supports the newer X extensions like
 Render and Composite.
 
 
+%if !0%{?rhel}
+%package Xwayland
+Summary: Wayland X Sserver.
+Group: User Interface/X
+Requires: xorg-x11-server-common >= %{version}-%{release}
+
+%description Xwayland
+Xwayland is an X server for running X clients under Wayland.
+%endif
+
+
 %if %{with_hw_servers}
 %package devel
 Summary: SDK for X server driver module development
@@ -357,13 +311,13 @@ Requires: xorg-x11-proto-devel
 Requires: pkgconfig pixman-devel libpciaccess-devel
 Provides: xorg-x11-server-static
 
-
 %description devel
 The SDK package provides the developmental files which are necessary for
 developing X server driver modules, and for compiling driver modules
 outside of the standard X11 source code tree.  Developers writing video
 drivers, input drivers, or other X modules should install this package.
 %endif
+
 
 %package source
 Summary: Xserver source code required to build VNC server (Xvnc)
@@ -372,6 +326,7 @@ BuildArch: noarch
 
 %description source
 Xserver source code needed to build VNC server (Xvnc)
+
 
 %prep
 #setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
@@ -395,6 +350,9 @@ cp %{SOURCE1} .gitignore
 git add .
 git commit -a -q -m "%{version} baseline."
 %endif
+
+# workaround for make dist bug in 1.15.99.902, remove once fixed
+cp %{SOURCE50} %{SOURCE51} hw/xfree86/man
 
 # Apply all the patches.
 git am -p1 %{patches} < /dev/null
@@ -427,14 +385,14 @@ test `getminor extension` == %{extension_minor}
 %global default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
 
 %if %{with_hw_servers}
-%global dri_flags --with-dri-driver-path=%{drimoduledir} --enable-dri2 %{?!rhel:--enable-dri3}
+%global dri_flags --with-dri-driver-path=%{drimoduledir} --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper
 %else
 %global dri_flags --disable-dri
 %endif
 
 %if 0%{?fedora}
 %global bodhi_flags --with-vendor-name="Fedora Project"
-%global wayland --with-wayland
+%global wayland --enable-xwayland
 %endif
 
 # ick
@@ -461,15 +419,16 @@ autoreconf -f -v --install || exit 1
 	--enable-xselinux --enable-record --enable-present \
 	--enable-config-udev \
 	--disable-unit-tests \
+	--enable-dmx \
 	%{?wayland} \
 	%{dri_flags} %{?bodhi_flags} \
 	${CONFIGURE}
         
 make V=1 %{?_smp_mflags}
 
+
 %install
-rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT moduledir=%{moduledir}
+%make_install moduledir=%{moduledir}
 
 %if %{with_hw_servers}
 rm -rf $RPM_BUILD_ROOT%{_libdir}/xorg/modules/multimedia/
@@ -537,12 +496,8 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %endif
 }
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 
 %files common
-%defattr(-,root,root,-)
 %doc COPYING
 %{_mandir}/man1/Xserver.1*
 %{_libdir}/xorg/protocol.txt
@@ -558,10 +513,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %if %{with_hw_servers}
 %files Xorg
-%defattr(-,root,root,-)
 %config %attr(0644,root,root) %{_sysconfdir}/pam.d/xserver
 %{_bindir}/X
-%{Xorgperms} %{_bindir}/Xorg
+%{_bindir}/Xorg
+%{_libexecdir}/Xorg.bin
+%{Xorgperms} %{_libexecdir}/Xorg.wrap
 %{_bindir}/cvt
 %{_bindir}/gtf
 %dir %{_libdir}/xorg
@@ -569,9 +525,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/xorg/modules/drivers
 %dir %{_libdir}/xorg/modules/extensions
 %{_libdir}/xorg/modules/extensions/libglx.so
-%if !0%{?rhel}
-%{_libdir}/xorg/modules/extensions/libxwayland.so
-%endif
 %dir %{_libdir}/xorg/modules/input
 %{_libdir}/xorg/modules/libfbdevhw.so
 %{_libdir}/xorg/modules/libexa.so
@@ -586,9 +539,11 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %{_mandir}/man1/gtf.1*
 %{_mandir}/man1/Xorg.1*
+%{_mandir}/man1/Xorg.wrap.1*
 %{_mandir}/man1/cvt.1*
 %{_mandir}/man4/fbdevhw.4*
 %{_mandir}/man4/exa.4*
+%{_mandir}/man5/Xwrapper.config.5*
 %{_mandir}/man5/xorg.conf.5*
 %{_mandir}/man5/xorg.conf.d.5*
 %dir %{_sysconfdir}/X11/xorg.conf.d
@@ -599,12 +554,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files Xnest
-%defattr(-,root,root,-)
 %{_bindir}/Xnest
 %{_mandir}/man1/Xnest.1*
 
 %files Xdmx
-%defattr(-,root,root,-)
 %{_bindir}/Xdmx
 %{_bindir}/dmxaddinput
 %{_bindir}/dmxaddscreen
@@ -623,22 +576,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/xdmxconfig.1*
 
 %files Xvfb
-%defattr(-,root,root,-)
 %{_bindir}/Xvfb
 %{_bindir}/xvfb-run
 %{_mandir}/man1/Xvfb.1*
 
-
 %files Xephyr
-%defattr(-,root,root,-)
 %{_bindir}/Xephyr
 %{_mandir}/man1/Xephyr.1*
 
+%files Xwayland
+%{_bindir}/Xwayland
 
 %if %{with_hw_servers}
 %files devel
 %doc COPYING
-%defattr(-,root,root,-)
 #{_docdir}/xorg-server
 %{_bindir}/xserver-sdk-abi-requires
 %{_libdir}/pkgconfig/xorg-server.pc
@@ -647,12 +598,17 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/xorg-server.m4
 %endif
 
-
 %files source
-%defattr(-, root, root, -)
 %{xserver_source_dir}
 
+
 %changelog
+* Thu Apr 17 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-1
+- Update to 1.15.99.902
+- Drop the Xwayland as extension patch-set
+- Add a new xorg-x11-server-Xwayland package with the new standalone Xwayland
+  server
+
 * Fri Feb 28 2014 Peter Hutterer <peter.hutterer@redhat.com> 1.15.0-5
 - Search all parent devices for a PnPID.
 
