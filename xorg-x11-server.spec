@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.902
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -77,6 +77,9 @@ Source40: driver-abi-rebuild.sh
 # workaround for make dist bug in 1.15.99.902, remove once fixed
 Source50: Xorg.wrap.man
 Source51: Xwrapper.config.man
+Source52: glamor_font.h
+Source53: glamor_program.h
+Source54: glamor_transform.h
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -204,6 +207,8 @@ Provides: xserver-abi(videodrv-%{git_videodrv_major}) = %{git_videodrv_minor}
 Provides: xserver-abi(xinput-%{git_xinput_major}) = %{git_xinput_minor}
 Provides: xserver-abi(extension-%{git_extension_major}) = %{git_extension_minor}
 %endif
+Obsoletes: xorg-x11-glamor < %{version}-%{release}
+Provides: xorg-x11-glamor = %{version}-%{release}
 
 %if 0%{?fedora} > 17
 # Dropped from F18, use a video card instead
@@ -310,6 +315,8 @@ Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
 Requires: pkgconfig pixman-devel libpciaccess-devel
 Provides: xorg-x11-server-static
+Obsoletes: xorg-x11-glamor-devel < %{version}-%{release}
+Provides: xorg-x11-glamor-devel = %{version}-%{release}
 
 %description devel
 The SDK package provides the developmental files which are necessary for
@@ -353,6 +360,7 @@ git commit -a -q -m "%{version} baseline."
 
 # workaround for make dist bug in 1.15.99.902, remove once fixed
 cp %{SOURCE50} %{SOURCE51} hw/xfree86/man
+cp %{SOURCE52} %{SOURCE53} %{SOURCE54} glamor
 
 # Apply all the patches.
 git am -p1 %{patches} < /dev/null
@@ -385,7 +393,7 @@ test `getminor extension` == %{extension_minor}
 %global default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
 
 %if %{with_hw_servers}
-%global dri_flags --with-dri-driver-path=%{drimoduledir} --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper
+%global dri_flags --with-dri-driver-path=%{drimoduledir} --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper --enable-glamor
 %else
 %global dri_flags --disable-dri
 %endif
@@ -529,6 +537,7 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %{_libdir}/xorg/modules/libfbdevhw.so
 %{_libdir}/xorg/modules/libexa.so
 %{_libdir}/xorg/modules/libfb.so
+%{_libdir}/xorg/modules/libglamoregl.so
 %{_libdir}/xorg/modules/libshadow.so
 %{_libdir}/xorg/modules/libshadowfb.so
 %{_libdir}/xorg/modules/libvgahw.so
@@ -603,6 +612,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Apr 23 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-2
+- Add --enable-glamor to configure flags
+
 * Thu Apr 17 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-1
 - Update to 1.15.99.902
 - Drop the Xwayland as extension patch-set
