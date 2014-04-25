@@ -135,7 +135,7 @@ BuildRequires: xorg-x11-util-macros >= 1.17
 BuildRequires: xorg-x11-proto-devel >= 7.7-10
 BuildRequires: xorg-x11-font-utils >= 7.2-11
 
-BuildRequires: dbus-devel systemd-devel
+BuildRequires: dbus-devel libepoxy-devel systemd-devel
 BuildRequires: xorg-x11-xtrans-devel >= 1.3.2
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
 BuildRequires: libfontenc-devel libXtst-devel libXdmcp-devel
@@ -154,6 +154,7 @@ BuildRequires: libXv-devel
 BuildRequires: pixman-devel >= 0.30.0
 BuildRequires: libpciaccess-devel >= 0.13.1 openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 9.2
+BuildRequires: mesa-libEGL-devel
 BuildRequires: mesa-libgbm-devel
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
@@ -615,7 +616,8 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 %changelog
 * Fri Apr 25 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-3
-- Add missing BRs for dbus-devel, systemd-devel and mesa-libgbm-devel
+- Add missing BuildRequires for dbus-devel, libepoxy-devel, mesa-libEGL-devel,
+  mesa-libgbm-devel and systemd-devel
 
 * Wed Apr 23 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-2
 - Add --enable-glamor to configure flags
