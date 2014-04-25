@@ -127,7 +127,6 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 %global kdrive --enable-kdrive --enable-xephyr --disable-xfake --disable-xfbdev
 %global xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
 
-BuildRequires: systemd-devel
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
@@ -136,6 +135,7 @@ BuildRequires: xorg-x11-util-macros >= 1.17
 BuildRequires: xorg-x11-proto-devel >= 7.7-10
 BuildRequires: xorg-x11-font-utils >= 7.2-11
 
+BuildRequires: dbus-devel systemd-devel
 BuildRequires: xorg-x11-xtrans-devel >= 1.3.2
 BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
 BuildRequires: libfontenc-devel libXtst-devel libXdmcp-devel
@@ -615,7 +615,7 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 %changelog
 * Fri Apr 25 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-3
-- Add missing BuildRequires for systemd-devel and mesa-libgbm-devel
+- Add missing BRs for dbus-devel, systemd-devel and mesa-libgbm-devel
 
 * Wed Apr 23 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-2
 - Add --enable-glamor to configure flags
