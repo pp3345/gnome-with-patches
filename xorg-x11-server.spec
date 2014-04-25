@@ -8,7 +8,7 @@
 # format, and add a PatchN: line.  If you want to push something upstream,
 # check out the master branch, pull, cherry-pick, and push.
 
-#global gitdate 20131118
+%global gitdate 20140428
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.902
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -51,8 +51,8 @@ Group:     User Interface/X
 %if 0%{?gitdate}
 # git snapshot.  to recreate, run:
 # ./make-git-snapshot.sh `cat commitid`
-#Source0:   xorg-server-%{gitdate}.tar.xz
-Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
+Source0:   xorg-server-%{gitdate}.tar.xz
+#Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source1:   make-git-snapshot.sh
 Source2:   commitid
 %else
@@ -74,13 +74,7 @@ Source31: xserver-sdk-abi-requires.git
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
 
-# workaround for make dist bug in 1.15.99.902, remove once fixed
-Source50: Xorg.wrap.man
-Source51: Xwrapper.config.man
-Source52: glamor_font.h
-Source53: glamor_program.h
-Source54: glamor_transform.h
-
+# Fix pending upstream
 Patch1: 0001-Fix-compilation-of-int10-module-on-arm.patch
 
 # Trivial things to never merge upstream ever:
@@ -341,8 +335,8 @@ Xserver source code needed to build VNC server (Xvnc)
 
 
 %prep
-#setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
-%setup -q -n %{pkgname}-%{version}
+%setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
+#setup -q -n %{pkgname}-%{version}
 
 #if 0%{?gitdate}
 %if 0
@@ -362,10 +356,6 @@ cp %{SOURCE1} .gitignore
 git add .
 git commit -a -q -m "%{version} baseline."
 %endif
-
-# workaround for make dist bug in 1.15.99.902, remove once fixed
-cp %{SOURCE50} %{SOURCE51} hw/xfree86/man
-cp %{SOURCE52} %{SOURCE53} %{SOURCE54} glamor
 
 # Apply all the patches.
 git am -p1 %{patches} < /dev/null
@@ -617,6 +607,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Apr 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-4.20140428
+- Git snapshot 20140428
+- This fixes the silent hardware cursor API break in 1.15.99.902 (#1090897)
+
 * Fri Apr 25 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-3
 - Add missing BuildRequires for dbus-devel, libepoxy-devel, mesa-libEGL-devel,
   mesa-libgbm-devel and systemd-devel

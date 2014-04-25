@@ -35,7 +35,7 @@ index 90c8c11..539bfe4 100644
 -    int needs_root_rights = -1;
 +    int needs_root_rights = 1;
  
-     parse_config(&allowed, &needs_root_rights);
+     progname = argv[0];
  
 -- 
 1.9.0
