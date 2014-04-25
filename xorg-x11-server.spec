@@ -81,6 +81,8 @@ Source52: glamor_font.h
 Source53: glamor_program.h
 Source54: glamor_transform.h
 
+Patch1: 0001-Fix-compilation-of-int10-module-on-arm.patch
+
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
@@ -618,6 +620,7 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 * Fri Apr 25 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-3
 - Add missing BuildRequires for dbus-devel, libepoxy-devel, mesa-libEGL-devel,
   mesa-libgbm-devel and systemd-devel
+- Fix compilation of int10 module on arm
 
 * Wed Apr 23 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-2
 - Add --enable-glamor to configure flags
