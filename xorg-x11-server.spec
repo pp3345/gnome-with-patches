@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.902
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -127,6 +127,7 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 %global kdrive --enable-kdrive --enable-xephyr --disable-xfake --disable-xfbdev
 %global xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
 
+BuildRequires: systemd-devel
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git-core
 BuildRequires: automake autoconf libtool pkgconfig
@@ -153,6 +154,7 @@ BuildRequires: libXv-devel
 BuildRequires: pixman-devel >= 0.30.0
 BuildRequires: libpciaccess-devel >= 0.13.1 openssl-devel byacc flex
 BuildRequires: mesa-libGL-devel >= 9.2
+BuildRequires: mesa-libgbm-devel
 # XXX silly...
 BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
@@ -612,6 +614,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Apr 25 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-3
+- Add missing BuildRequires for systemd-devel and mesa-libgbm-devel
+
 * Wed Apr 23 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-2
 - Add --enable-glamor to configure flags
 
