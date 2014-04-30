@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.12.1
+Version:        3.13.1
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -8,7 +8,7 @@ License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.12/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.13/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -17,7 +17,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 0.10.1
 %define gjs_version 1.39.0
-%define mutter_version 3.12.0
+%define mutter_version 3.13.1
 %define eds_version 3.5.3
 %define gnome_desktop_version 3.7.90
 %define gnome_menus_version 3.5.3
@@ -64,7 +64,6 @@ BuildRequires:  libXfixes-devel >= 5.0
 # used in unused BigThemeImage
 BuildRequires:  librsvg2-devel
 BuildRequires:  mutter-devel >= %{mutter_version}
-BuildRequires:  mutter-wayland-devel >= %{mutter_version}
 BuildRequires:  pulseaudio-libs-devel
 %ifnarch s390 s390x ppc ppc64 ppc64p7
 BuildRequires:  gnome-bluetooth-libs-devel >= %{gnome_bluetooth_version}
@@ -143,7 +142,6 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %files -f %{name}.lang
 %doc COPYING README
 %{_bindir}/gnome-shell
-%{_bindir}/gnome-shell-wayland
 %{_bindir}/gnome-shell-extension-tool
 %{_bindir}/gnome-shell-perf-tool
 %{_bindir}/gnome-shell-extension-prefs
@@ -175,6 +173,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Apr 30 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.1-1
+- Update to 3.13.1
+
 * Tue Apr 15 2014 Florian Müllner <fmuellner@redhat.com> - 3.12.1-1
 - Update to 3.12.1
 
