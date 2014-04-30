@@ -1,5 +1,5 @@
 Name:          mutter
-Version:       3.12.1
+Version:       3.13.1
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -7,7 +7,7 @@ Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.12/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.13/%{name}-%{version}.tar.xz
 
 BuildRequires: clutter-devel >= 1.15.90
 BuildRequires: pango-devel
@@ -24,6 +24,7 @@ BuildRequires: libXrandr-devel
 BuildRequires: libXrender-devel
 BuildRequires: libXcursor-devel
 BuildRequires: libXcomposite-devel
+BuildRequires: pam-devel
 BuildRequires: upower-devel
 BuildRequires: zenity
 BuildRequires: desktop-file-utils
@@ -107,15 +108,16 @@ fi
 glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 
 %files -f %{name}.lang
-%doc README AUTHORS COPYING NEWS HACKING doc/theme-format.txt
+%doc COPYING NEWS doc/theme-format.txt
 %doc %{_mandir}/man1/mutter.1.gz
 %{_bindir}/mutter
+%{_bindir}/mutter-launch
 %{_datadir}/applications/*.desktop
-%{_datadir}/gnome/wm-properties/mutter-wm.desktop
 %{_libdir}/lib*.so.*
 %{_libdir}/mutter/
 %{_datadir}/GConf/gsettings/mutter-schemas.convert
 %{_datadir}/glib-2.0/schemas/org.gnome.mutter.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.mutter.wayland.gschema.xml
 %{_datadir}/gnome-control-center/keybindings/50-mutter-*.xml
 
 
@@ -127,6 +129,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Apr 30 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.1-1
+- Update to 3.13.1
+
 * Tue Apr 15 2014 Florian Müllner <fmuellner@redhat.com> - 3.12.1-1
 - Update to 3.12.1
 
