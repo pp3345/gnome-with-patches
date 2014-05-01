@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.13.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -85,6 +85,7 @@ Requires:       gjs%{?_isa} >= %{gjs_version}
 Requires:       librsvg2%{?_isa}
 # needed as it is now split from Clutter
 Requires:       json-glib%{?_isa} >= %{json_glib_version}
+Requires:       libgsystem%{?_isa}
 # For $libdir/mozilla/plugins
 Requires:       mozilla-filesystem%{?_isa}
 Requires:       mutter%{?_isa} >= %{mutter_version}
@@ -173,6 +174,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu May 01 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.1-2
+- Pull in libgsystem
+
 * Wed Apr 30 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.1-1
 - Update to 3.13.1
 
