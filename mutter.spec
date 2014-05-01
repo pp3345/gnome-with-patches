@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       3.13.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -32,6 +32,9 @@ BuildRequires: desktop-file-utils
 BuildRequires: gtk-doc gnome-common intltool
 BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel
+
+Obsoletes: mutter-wayland < 3.13.0
+Obsoletes: mutter-wayland-devel < 3.13.0
 
 # Make sure yum updates gnome-shell as well; otherwise we might end up with
 # broken gnome-shell installations due to mutter ABI changes.
@@ -129,6 +132,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu May 01 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.1-2
+- Obsolete mutter-wayland
+
 * Wed Apr 30 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.1-1
 - Update to 3.13.1
 
