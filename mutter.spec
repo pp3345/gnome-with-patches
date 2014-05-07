@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       3.13.1
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -8,6 +8,9 @@ License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.13/%{name}-%{version}.tar.xz
+
+# Backported upstream fix for a Wayland session crash
+Patch0:        0001-keybindings-Make-sure-not-to-call-meta_change_keygra.patch
 
 BuildRequires: clutter-devel >= 1.15.90
 BuildRequires: pango-devel
@@ -68,6 +71,7 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -132,6 +136,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed May 07 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.1-4
+- Backport an upstream fix for a Wayland session crash
+
 * Wed May 07 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.1-3
 - Install mutter-launch as setuid root
 
