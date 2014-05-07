@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       3.13.1
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -114,7 +114,7 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %doc COPYING NEWS doc/theme-format.txt
 %doc %{_mandir}/man1/mutter.1.gz
 %{_bindir}/mutter
-%{_bindir}/mutter-launch
+%attr(4755,root,root) %{_bindir}/mutter-launch
 %{_datadir}/applications/*.desktop
 %{_libdir}/lib*.so.*
 %{_libdir}/mutter/
@@ -132,6 +132,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed May 07 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.1-3
+- Install mutter-launch as setuid root
+
 * Thu May 01 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.1-2
 - Obsolete mutter-wayland
 
