@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       3.13.1
-Release:       4%{?dist}
+Release:       5%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -11,6 +11,9 @@ Source0:       http://download.gnome.org/sources/%{name}/3.13/%{name}-%{version}
 
 # Backported upstream fix for a Wayland session crash
 Patch0:        0001-keybindings-Make-sure-not-to-call-meta_change_keygra.patch
+# Fix shrinking terminals
+Patch1: 	0001-constraints-Size-increments-need-to-be-applied-to-th.patch
+Patch2:		0001-constraints-Complete-fix-for-size-hints-constrainmen.patch
 
 BuildRequires: clutter-devel >= 1.15.90
 BuildRequires: pango-devel
@@ -72,6 +75,8 @@ utilities for testing Metacity/Mutter themes.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
+%patch2 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -136,6 +141,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu May  8 2014 Matthias Clasen <mclasen@redhat.com> - 3.13.1-5
+- Fix shrinking terminals
+
 * Wed May 07 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.1-4
 - Backport an upstream fix for a Wayland session crash
 
