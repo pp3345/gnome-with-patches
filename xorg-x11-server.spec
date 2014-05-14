@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.902
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -608,6 +608,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed May 14 2014 Peter Hutterer <peter.hutterer@redhat.com> - 1.15.99.902-6.20140428
+- Revert button mapping for Evoluent Vertical mouse, the default mapping
+  matches the manufacturer's documentation (#612140)
+
 * Mon Apr 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-5.20140428
 - Add hw/xfree86/Xorg.sh.in to xorg-x11-server-source
 
