@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.902
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Release:   7%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -96,6 +96,8 @@ Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
 
 # submitted: http://lists.x.org/archives/xorg-devel/2013-October/037996.html
 Patch9100: exa-only-draw-valid-trapezoids.patch
+# submitted: http://lists.x.org/archives/xorg-devel/2014-May/042497.html
+Patch9101: 0001-shadowfb-Fix-initialization.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -295,7 +297,7 @@ X protocol, and therefore supports the newer X extensions like
 Render and Composite.
 
 
-%if !0%{?rhel}
+%if !0%{?rhel} || 0%{?fedora} > 20
 %package Xwayland
 Summary: Wayland X Sserver.
 Group: User Interface/X
@@ -395,7 +397,11 @@ test `getminor extension` == %{extension_minor}
 
 %if 0%{?fedora}
 %global bodhi_flags --with-vendor-name="Fedora Project"
+%if 0%{?fedora} > 20
 %global wayland --enable-xwayland
+%else
+%global wayland --disable-xwayland
+%endif
 %endif
 
 # ick
@@ -589,8 +595,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %{_bindir}/Xephyr
 %{_mandir}/man1/Xephyr.1*
 
+%if !0%{?rhel} || 0%{?fedora} < 21
 %files Xwayland
 %{_bindir}/Xwayland
+%endif
 
 %if %{with_hw_servers}
 %files devel
@@ -608,6 +616,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed May 21 2014 Adam Jackson <ajax@redhat.com> 1.15.99.902-7
+- Don't try to build Xwayland in F20
+- Fix shadowfb initialization to, er, work
+
 * Wed May 14 2014 Peter Hutterer <peter.hutterer@redhat.com> - 1.15.99.902-6.20140428
 - Revert button mapping for Evoluent Vertical mouse, the default mapping
   matches the manufacturer's documentation (#612140)
