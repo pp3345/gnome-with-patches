@@ -1,6 +1,6 @@
 Name:          mutter
-Version:       3.13.1
-Release:       5%{?dist}
+Version:       3.13.2
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -9,13 +9,7 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.13/%{name}-%{version}.tar.xz
 
-# Backported upstream fix for a Wayland session crash
-Patch0:        0001-keybindings-Make-sure-not-to-call-meta_change_keygra.patch
-# Fix shrinking terminals
-Patch1: 	0001-constraints-Size-increments-need-to-be-applied-to-th.patch
-Patch2:		0001-constraints-Complete-fix-for-size-hints-constrainmen.patch
-
-BuildRequires: clutter-devel >= 1.15.90
+BuildRequires: clutter-devel >= 1.19.2
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
 BuildRequires: gnome-desktop3-devel
@@ -74,9 +68,6 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -123,7 +114,6 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %doc COPYING NEWS doc/theme-format.txt
 %doc %{_mandir}/man1/mutter.1.gz
 %{_bindir}/mutter
-%attr(4755,root,root) %{_bindir}/mutter-launch
 %{_datadir}/applications/*.desktop
 %{_libdir}/lib*.so.*
 %{_libdir}/mutter/
@@ -141,6 +131,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue May 27 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.2-1
+- Update to 3.13.2, drop upstreamed patches
+
 * Thu May  8 2014 Matthias Clasen <mclasen@redhat.com> - 3.13.1-5
 - Fix shrinking terminals
 
