@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.902
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -616,6 +616,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.15.99.902-8.20140428
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Wed May 21 2014 Adam Jackson <ajax@redhat.com> 1.15.99.902-7
 - Don't try to build Xwayland in F20
 - Fix shadowfb initialization to, er, work
