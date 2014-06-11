@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       3.13.2
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -8,6 +8,8 @@ License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.13/%{name}-%{version}.tar.xz
+
+Patch1: 0001-constraints-Translate-frame-to-client-rect-for-legac.patch
 
 BuildRequires: clutter-devel >= 1.19.2
 BuildRequires: pango-devel
@@ -68,6 +70,7 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
+%patch1 -p1 -b .fix-legacy-fullscreen-check
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -131,6 +134,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Jun 11 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.2-2
+- Backport fix for legacy fullscreen check
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.13.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
