@@ -8,7 +8,7 @@
 # format, and add a PatchN: line.  If you want to push something upstream,
 # check out the master branch, pull, cherry-pick, and push.
 
-%global gitdate 20140428
+#global gitdate 20140428
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -16,7 +16,7 @@
 # source because rpm is a terrible language.
 %global ansic_major 0
 %global ansic_minor 4
-%global videodrv_major 17
+%global videodrv_major 18
 %global videodrv_minor 0
 %global xinput_major 21
 %global xinput_minor 0
@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.15.99.902
-Release:   8%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.15.99.903
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -74,9 +74,6 @@ Source31: xserver-sdk-abi-requires.git
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
 
-# Fix pending upstream
-Patch1: 0001-Fix-compilation-of-int10-module-on-arm.patch
-
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
@@ -91,13 +88,10 @@ Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 Patch7027: xserver-autobind-hotplug.patch
 
 # Fix multiple monitors in reverse optimus configurations
-Patch8040: 0001-rrcrtc-brackets-are-hard-lets-go-shopping.patch
 Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
 
 # submitted: http://lists.x.org/archives/xorg-devel/2013-October/037996.html
 Patch9100: exa-only-draw-valid-trapezoids.patch
-# submitted: http://lists.x.org/archives/xorg-devel/2014-May/042497.html
-Patch9101: 0001-shadowfb-Fix-initialization.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -616,6 +610,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Jun 11 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.903-1
+- Update to 1.15.99.903
+- This bumps the videodrv ABI once more, so all drivers must be rebuild
+
 * Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.15.99.902-8.20140428
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
