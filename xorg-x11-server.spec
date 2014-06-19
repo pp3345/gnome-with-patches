@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.903
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -95,6 +95,11 @@ Patch9100: exa-only-draw-valid-trapezoids.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
+
+# submitted http://lists.x.org/archives/xorg-devel/2014-June/042826.html
+# needed to allow X to start on arm and other devices without video on pci buses
+Patch10100: platform-support-non-pci-platform-devices.patch
+Patch10101: add-SERVER_SUPPORTS_NON_PCI_PLATFORM_DEVS.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -610,6 +615,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Jun 19 2014 Dennis Gilmore <dennis@ausil.us> - 1.15.99.903-2
+- add support for non pci platform devices
+
 * Wed Jun 11 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.903-1
 - Update to 1.15.99.903
 - This bumps the videodrv ABI once more, so all drivers must be rebuild
