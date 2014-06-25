@@ -9,6 +9,8 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.13/%{name}-%{version}.tar.xz
 
+Patch1: 0001-Revert-Update-allow-none-annotations.patch
+
 BuildRequires: clutter-devel >= 1.19.2
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -68,6 +70,7 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
+%patch1 -p1 -b .revert-nullable-annotations
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -131,6 +134,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Jun 25 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.3-1
+- Revert annotation updates until we get a new gobject-introspection build
+
 * Wed Jun 25 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.3-1
 - Update to 3.13.1
 
