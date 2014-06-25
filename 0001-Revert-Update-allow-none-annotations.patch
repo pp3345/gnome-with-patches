@@ -1,0 +1,463 @@
+From 03c6e3ad3e2971b8435eaed196f92a1d643f32d7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Wed, 25 Jun 2014 23:03:24 +0200
+Subject: [PATCH] Revert "Update (allow-none) annotations"
+
+This reverts commit 93c9e031e37de963375f7dfd0938c4f4591025d1.
+---
+ src/gtkactionmuxer.c       |  2 +-
+ src/shell-app-system.c     |  4 ++--
+ src/shell-app.c            |  2 +-
+ src/shell-global.c         | 12 ++++++------
+ src/shell-keyring-prompt.c |  8 ++++----
+ src/shell-menu-tracker.c   |  2 +-
+ src/shell-recorder.c       |  4 ++--
+ src/shell-tp-client.c      |  4 ++--
+ src/st/st-bin.c            |  2 +-
+ src/st/st-entry.c          |  8 ++++----
+ src/st/st-icon.c           |  2 +-
+ src/st/st-scrollable.c     |  4 ++--
+ src/st/st-texture-cache.c  |  4 ++--
+ src/st/st-theme-node.c     | 18 +++++++++---------
+ src/st/st-widget.c         | 14 +++++++-------
+ src/st/st-widget.h         |  2 +-
+ 16 files changed, 46 insertions(+), 46 deletions(-)
+
+diff --git a/src/gtkactionmuxer.c b/src/gtkactionmuxer.c
+index 8e992ea..1537864 100644
+--- a/src/gtkactionmuxer.c
++++ b/src/gtkactionmuxer.c
+@@ -778,7 +778,7 @@ emit_changed_accels (GtkActionMuxer  *muxer,
+ /**
+  * gtk_action_muxer_set_parent:
+  * @muxer: a #GtkActionMuxer
+- * @parent: (nullable): the new parent #GtkActionMuxer
++ * @parent: (allow-none): the new parent #GtkActionMuxer
+  *
+  * Sets the parent of @muxer to @parent.
+  */
+diff --git a/src/shell-app-system.c b/src/shell-app-system.c
+index d330975..ac0206c 100644
+--- a/src/shell-app-system.c
++++ b/src/shell-app-system.c
+@@ -252,7 +252,7 @@ shell_app_system_lookup_heuristic_basename (ShellAppSystem *system,
+ /**
+  * shell_app_system_lookup_desktop_wmclass:
+  * @system: a #ShellAppSystem
+- * @wmclass: (nullable): A WM_CLASS value
++ * @wmclass: (allow-none): A WM_CLASS value
+  *
+  * Find a valid application whose .desktop file, without the extension
+  * and properly canonicalized, matches @wmclass.
+@@ -303,7 +303,7 @@ shell_app_system_lookup_desktop_wmclass (ShellAppSystem *system,
+ /**
+  * shell_app_system_lookup_startup_wmclass:
+  * @system: a #ShellAppSystem
+- * @wmclass: (nullable): A WM_CLASS value
++ * @wmclass: (allow-none): A WM_CLASS value
+  *
+  * Find a valid application whose .desktop file contains a
+  * StartupWMClass entry matching @wmclass.
+diff --git a/src/shell-app.c b/src/shell-app.c
+index 6529025..e2f3c71 100644
+--- a/src/shell-app.c
++++ b/src/shell-app.c
+@@ -516,7 +516,7 @@ find_most_recent_transient_on_same_workspace (MetaDisplay *display,
+ /**
+  * shell_app_activate_window:
+  * @app: a #ShellApp
+- * @window: (nullable): Window to be focused
++ * @window: (allow-none): Window to be focused
+  * @timestamp: Event timestamp
+  *
+  * Bring all windows for the given app to the foreground,
+diff --git a/src/shell-global.c b/src/shell-global.c
+index 18e3e09..1516ab6 100644
+--- a/src/shell-global.c
++++ b/src/shell-global.c
+@@ -1633,7 +1633,7 @@ build_ca_proplist_for_event (ca_proplist  *props,
+  * @global: the #ShellGlobal
+  * @id: an id, used to cancel later (0 if not needed)
+  * @name: the sound name
+- * @for_event: (nullable): a #ClutterEvent in response to which the sound is played
++ * @for_event: (allow-none): a #ClutterEvent in response to which the sound is played
+  *
+  * Plays a simple sound picked according to Freedesktop sound theme.
+  * Really just a workaround for libcanberra not being introspected.
+@@ -1661,7 +1661,7 @@ shell_global_play_theme_sound (ShellGlobal  *global,
+  * @id: an id, used to cancel later (0 if not needed)
+  * @name: the sound name
+  * @description: the localized description of the event that triggered this alert
+- * @for_event: (nullable): a #ClutterEvent in response to which the sound is played
++ * @for_event: (allow-none): a #ClutterEvent in response to which the sound is played
+  * @application_id: application on behalf of which the sound is played
+  * @application_name:
+  *
+@@ -1695,7 +1695,7 @@ shell_global_play_theme_sound_full (ShellGlobal  *global,
+  * @id: an id, used to cancel later (0 if not needed)
+  * @file_name: the file name to play
+  * @description: the localized description of the event that triggered this alert
+- * @for_event: (nullable): a #ClutterEvent in response to which the sound is played
++ * @for_event: (allow-none): a #ClutterEvent in response to which the sound is played
+  * @application_id: application on behalf of which the sound is played
+  * @application_name:
+  *
+@@ -1729,7 +1729,7 @@ shell_global_play_sound_file_full  (ShellGlobal  *global,
+  * @id: an id, used to cancel later (0 if not needed)
+  * @file_name: the file name to play
+  * @description: the localized description of the event that triggered this alert
+- * @for_event: (nullable): a #ClutterEvent in response to which the sound is played
++ * @for_event: (allow-none): a #ClutterEvent in response to which the sound is played
+  *
+  * Like shell_global_play_theme_sound(), but with an explicit path
+  * instead of a themed sound.
+@@ -1890,7 +1890,7 @@ load_variant (GFile      *dir,
+  * shell_global_set_runtime_state:
+  * @global: a #ShellGlobal
+  * @property_name: Name of the property
+- * @variant: (nullable): A #GVariant, or %NULL to unset
++ * @variant: (allow-none): A #GVariant, or %NULL to unset
+  *
+  * Change the value of serialized runtime state.
+  */
+@@ -1925,7 +1925,7 @@ shell_global_get_runtime_state (ShellGlobal  *global,
+  * shell_global_set_persistent_state:
+  * @global: a #ShellGlobal
+  * @property_name: Name of the property
+- * @variant: (nullable): A #GVariant, or %NULL to unset
++ * @variant: (allow-none): A #GVariant, or %NULL to unset
+  *
+  * Change the value of serialized persistent state.
+  */
+diff --git a/src/shell-keyring-prompt.c b/src/shell-keyring-prompt.c
+index e07cd1e..2e9bc67 100644
+--- a/src/shell-keyring-prompt.c
++++ b/src/shell-keyring-prompt.c
+@@ -516,7 +516,7 @@ shell_keyring_prompt_new (void)
+  *
+  * Get the prompt password text actor
+  *
+- * Returns: (transfer none) (nullable): the password actor
++ * Returns: (transfer none) (allow-none): the password actor
+  */
+ ClutterText *
+ shell_keyring_prompt_get_password_actor (ShellKeyringPrompt *self)
+@@ -531,7 +531,7 @@ shell_keyring_prompt_get_password_actor (ShellKeyringPrompt *self)
+  *
+  * Get the prompt password text actor
+  *
+- * Returns: (transfer none) (nullable): the password actor
++ * Returns: (transfer none) (allow-none): the password actor
+  */
+ ClutterText *
+ shell_keyring_prompt_get_confirm_actor (ShellKeyringPrompt *self)
+@@ -616,7 +616,7 @@ on_password_changed (ClutterText *text,
+ /**
+  * shell_keyring_prompt_set_password_actor:
+  * @self: the internal prompt
+- * @password_actor: (nullable): the password actor
++ * @password_actor: (allow-none): the password actor
+  *
+  * Set the prompt password text actor
+  */
+@@ -651,7 +651,7 @@ shell_keyring_prompt_set_password_actor (ShellKeyringPrompt *self,
+ /**
+  * shell_keyring_prompt_set_confirm_actor:
+  * @self: the internal prompt
+- * @confirm_actor: (nullable): the confirm password actor
++ * @confirm_actor: (allow-none): the confirm password actor
+  *
+  * Set the prompt password confirmation text actor
+  */
+diff --git a/src/shell-menu-tracker.c b/src/shell-menu-tracker.c
+index 158c6d3..4f104ff 100644
+--- a/src/shell-menu-tracker.c
++++ b/src/shell-menu-tracker.c
+@@ -64,7 +64,7 @@ shell_menu_tracker_remove_func (gint position,
+  * shell_menu_tracker_new:
+  * @observable:
+  * @model:
+- * @action_namespace: (nullable):
++ * @action_namespace: (allow-none):
+  * @insert_func:
+  * @insert_user_data:
+  * @insert_notify:
+diff --git a/src/shell-recorder.c b/src/shell-recorder.c
+index 494ae52..2a4a3f6 100644
+--- a/src/shell-recorder.c
++++ b/src/shell-recorder.c
+@@ -1627,7 +1627,7 @@ shell_recorder_set_draw_cursor (ShellRecorder *recorder,
+ /**
+  * shell_recorder_set_pipeline:
+  * @recorder: the #ShellRecorder
+- * @pipeline: (nullable): the GStreamer pipeline used to encode recordings
++ * @pipeline: (allow-none): the GStreamer pipeline used to encode recordings
+  *            or %NULL for the default value.
+  *
+  * Sets the GStreamer pipeline used to encode recordings.
+@@ -1679,7 +1679,7 @@ shell_recorder_set_area (ShellRecorder *recorder,
+ /**
+  * shell_recorder_record:
+  * @recorder: the #ShellRecorder
+- * @filename_used: (out) (optional): actual filename used for recording
++ * @filename_used: (out) (allow-none): actual filename used for recording
+  *
+  * Starts recording, Starting the recording may fail if the output file
+  * cannot be opened, or if the output stream cannot be created
+diff --git a/src/shell-tp-client.c b/src/shell-tp-client.c
+index 400b829..b6232e5 100644
+--- a/src/shell-tp-client.c
++++ b/src/shell-tp-client.c
+@@ -35,7 +35,7 @@ struct _ShellTpClientPrivate
+  * if possible
+  * @channels: (element-type TelepathyGLib.Channel): a #GList of #TpChannel,
+  *  all having %TP_CHANNEL_FEATURE_CORE prepared if possible
+- * @dispatch_operation: (nullable): a #TpChannelDispatchOperation or %NULL;
++ * @dispatch_operation: (allow-none): a #TpChannelDispatchOperation or %NULL;
+  *  the dispatch_operation is not guaranteed to be prepared
+  * @requests: (element-type TelepathyGLib.ChannelRequest): a #GList of
+  *  #TpChannelRequest, all having their object-path defined but are not
+@@ -54,7 +54,7 @@ struct _ShellTpClientPrivate
+  * if possible
+  * @channels: (element-type TelepathyGLib.Channel): a #GList of #TpChannel,
+  *  all having %TP_CHANNEL_FEATURE_CORE prepared if possible
+- * @dispatch_operation: (nullable): a #TpChannelDispatchOperation or %NULL;
++ * @dispatch_operation: (allow-none): a #TpChannelDispatchOperation or %NULL;
+  *  the dispatch_operation is not guaranteed to be prepared
+  * @context: a #TpAddDispatchOperationContext representing the context of this
+  *  D-Bus call
+diff --git a/src/st/st-bin.c b/src/st/st-bin.c
+index 1e18271..cbb957e 100644
+--- a/src/st/st-bin.c
++++ b/src/st/st-bin.c
+@@ -414,7 +414,7 @@ st_bin_new (void)
+ /**
+  * st_bin_set_child:
+  * @bin: a #StBin
+- * @child: (nullable): a #ClutterActor, or %NULL
++ * @child: (allow-none): a #ClutterActor, or %NULL
+  *
+  * Sets @child as the child of @bin.
+  *
+diff --git a/src/st/st-entry.c b/src/st/st-entry.c
+index 8ad3f80..cc99476 100644
+--- a/src/st/st-entry.c
++++ b/src/st/st-entry.c
+@@ -908,7 +908,7 @@ st_entry_get_text (StEntry *entry)
+ /**
+  * st_entry_set_text:
+  * @entry: a #StEntry
+- * @text: (nullable): text to set the entry to
++ * @text: (allow-none): text to set the entry to
+  *
+  * Sets the text displayed on the entry
+  */
+@@ -963,7 +963,7 @@ st_entry_get_clutter_text (StEntry *entry)
+ /**
+  * st_entry_set_hint_text:
+  * @entry: a #StEntry
+- * @text: (nullable): text to set as the entry hint
++ * @text: (allow-none): text to set as the entry hint
+  *
+  * Sets the text to display when the entry is empty and unfocused. When the
+  * entry is displaying the hint, it has a pseudo class of "indeterminate".
+@@ -1136,7 +1136,7 @@ _st_entry_set_icon (StEntry       *entry,
+ /**
+  * st_entry_set_primary_icon:
+  * @entry: a #StEntry
+- * @icon: (nullable): a #ClutterActor
++ * @icon: (allow-none): a #ClutterActor
+  *
+  * Set the primary icon of the entry to @icon
+  */
+@@ -1156,7 +1156,7 @@ st_entry_set_primary_icon (StEntry      *entry,
+ /**
+  * st_entry_set_secondary_icon:
+  * @entry: a #StEntry
+- * @icon: (nullable): an #ClutterActor
++ * @icon: (allow-none): an #ClutterActor
+  *
+  * Set the secondary icon of the entry to @icon
+  */
+diff --git a/src/st/st-icon.c b/src/st/st-icon.c
+index f3a9ecf..a869409 100644
+--- a/src/st/st-icon.c
++++ b/src/st/st-icon.c
+@@ -532,7 +532,7 @@ st_icon_get_gicon (StIcon *icon)
+ /**
+  * st_icon_set_gicon:
+  * @icon: an icon
+- * @gicon: (nullable): a #GIcon to override :icon-name
++ * @gicon: (allow-none): a #GIcon to override :icon-name
+  */
+ void
+ st_icon_set_gicon (StIcon *icon, GIcon *gicon)
+diff --git a/src/st/st-scrollable.c b/src/st/st-scrollable.c
+index bb606c3..b2c5451 100644
+--- a/src/st/st-scrollable.c
++++ b/src/st/st-scrollable.c
+@@ -131,8 +131,8 @@ st_scrollable_set_adjustments (StScrollable *scrollable,
+ 
+ /**
+  * st_scroll_bar_get_adjustments:
+- * @hadjustment: (transfer none) (out) (optional) (nullable): location to store the horizontal adjustment, or %NULL
+- * @vadjustment: (transfer none) (out) (optional) (nullable): location to store the vertical adjustment, or %NULL
++ * @hadjustment: (transfer none) (out) (allow-none): location to store the horizontal adjustment, or %NULL
++ * @vadjustment: (transfer none) (out) (allow-none): location to store the vertical adjustment, or %NULL
+  *
+  * Gets the adjustment objects that store the offsets of the scrollable widget
+  * into its possible scrolling area.
+diff --git a/src/st/st-texture-cache.c b/src/st/st-texture-cache.c
+index 51f5449..02ab1a3 100644
+--- a/src/st/st-texture-cache.c
++++ b/src/st/st-texture-cache.c
+@@ -1022,7 +1022,7 @@ load_gicon_with_colors (StTextureCache    *cache,
+ /**
+  * st_texture_cache_load_gicon:
+  * @cache: The texture cache instance
+- * @theme_node: (nullable): The #StThemeNode to use for colors, or NULL
++ * @theme_node: (allow-none): The #StThemeNode to use for colors, or NULL
+  *                            if the icon must not be recolored
+  * @icon: the #GIcon to load
+  * @size: Size of themed
+@@ -1235,7 +1235,7 @@ load_sliced_image (GSimpleAsyncResult *result,
+  * @grid_width: Width in pixels
+  * @grid_height: Height in pixels
+  * @scale: Scale factor of the display
+- * @load_callback: (scope async) (nullable): Function called when the image is loaded, or %NULL
++ * @load_callback: (scope async) (allow-none): Function called when the image is loaded, or %NULL
+  * @user_data: Data to pass to the load callback
+  *
+  * This function reads a single image file which contains multiple images internally.
+diff --git a/src/st/st-theme-node.c b/src/st/st-theme-node.c
+index 8179f41..16f247a 100644
+--- a/src/st/st-theme-node.c
++++ b/src/st/st-theme-node.c
+@@ -204,17 +204,17 @@ split_on_whitespace (const gchar *s)
+ /**
+  * st_theme_node_new:
+  * @context: the context representing global state for this themed tree
+- * @parent_node: (nullable): the parent node of this node
+- * @theme: (nullable): a theme (stylesheet set) that overrides the
++ * @parent_node: (allow-none): the parent node of this node
++ * @theme: (allow-none): a theme (stylesheet set) that overrides the
+  *   theme inherited from the parent node
+  * @element_type: the type of the GObject represented by this node
+  *  in the tree (corresponding to an element if we were theming an XML
+  *  document. %G_TYPE_NONE means this style was created for the stage
+  * actor and matches a selector element name of 'stage'.
+- * @element_id: (nullable): the ID to match CSS rules against
+- * @element_class: (nullable): a whitespace-separated list of classes
++ * @element_id: (allow-none): the ID to match CSS rules against
++ * @element_class: (allow-none): a whitespace-separated list of classes
+  *   to match CSS rules against
+- * @pseudo_class: (nullable): a whitespace-separated list of pseudo-classes
++ * @pseudo_class: (allow-none): a whitespace-separated list of pseudo-classes
+  *   (like 'hover' or 'visited') to match CSS rules against
+  *
+  * Creates a new #StThemeNode. Once created, a node is immutable. Of any
+@@ -3536,7 +3536,7 @@ st_theme_node_adjust_for_height (StThemeNode  *node,
+ /**
+  * st_theme_node_adjust_preferred_width:
+  * @node: a #StThemeNode
+- * @min_width_p: (inout) (nullable): the minimum width to adjust
++ * @min_width_p: (inout) (allow-none): the minimum width to adjust
+  * @natural_width_p: (inout): the natural width to adjust
+  *
+  * Adjusts the minimum and natural width computed for an actor by
+@@ -3603,7 +3603,7 @@ st_theme_node_adjust_for_width (StThemeNode  *node,
+ /**
+  * st_theme_node_adjust_preferred_height:
+  * @node: a #StThemeNode
+- * @min_height_p: (inout) (nullable): the minimum height to adjust
++ * @min_height_p: (inout) (allow-none): the minimum height to adjust
+  * @natural_height_p: (inout): the natural height to adjust
+  *
+  * Adjusts the minimum and natural height computed for an actor by
+@@ -3815,8 +3815,8 @@ st_theme_node_geometry_equal (StThemeNode *node,
+ 
+ /**
+  * st_theme_node_paint_equal:
+- * @node: (nullable): a #StThemeNode
+- * @other: (nullable): a different #StThemeNode
++ * @node: (allow-none): a #StThemeNode
++ * @other: (allow-none): a different #StThemeNode
+  *
+  * Check if st_theme_node_paint() will paint identically for @node as it does
+  * for @other. Note that in some cases this function may return %TRUE even
+diff --git a/src/st/st-widget.c b/src/st/st-widget.c
+index 6353e48..3e7c854 100644
+--- a/src/st/st-widget.c
++++ b/src/st/st-widget.c
+@@ -1173,7 +1173,7 @@ remove_class_name (gchar       **class_list,
+ /**
+  * st_widget_set_style_class_name:
+  * @actor: a #StWidget
+- * @style_class_list: (nullable): a new style class list string
++ * @style_class_list: (allow-none): a new style class list string
+  *
+  * Set the style class name list. @style_class_list can either be
+  * %NULL, for no classes, or a space-separated list of style class
+@@ -1316,7 +1316,7 @@ st_widget_has_style_pseudo_class (StWidget    *actor,
+ /**
+  * st_widget_set_style_pseudo_class:
+  * @actor: a #StWidget
+- * @pseudo_class_list: (nullable): a new pseudo class list string
++ * @pseudo_class_list: (allow-none): a new pseudo class list string
+  *
+  * Set the style pseudo class list. @pseudo_class_list can either be
+  * %NULL, for no classes, or a space-separated list of pseudo class
+@@ -1382,7 +1382,7 @@ st_widget_remove_style_pseudo_class (StWidget    *actor,
+ /**
+  * st_widget_set_style:
+  * @actor: a #StWidget
+- * @style: (nullable): a inline style string, or %NULL
++ * @style: (allow-none): a inline style string, or %NULL
+  *
+  * Set the inline style string for this widget. The inline style string is an
+  * optional ';'-separated list of CSS properties that override the style as
+@@ -2051,7 +2051,7 @@ st_widget_real_navigate_focus (StWidget         *widget,
+ /**
+  * st_widget_navigate_focus:
+  * @widget: the "top level" container
+- * @from: (nullable): the actor that the focus is coming from
++ * @from: (allow-none): the actor that the focus is coming from
+  * @direction: the direction focus is moving in
+  * @wrap_around: whether focus should wrap around
+  *
+@@ -2270,7 +2270,7 @@ st_widget_set_label_actor (StWidget     *widget,
+ /**
+  * st_widget_set_accessible_name:
+  * @widget: widget to set the accessible name for
+- * @name: (nullable): a character string to be set as the accessible name
++ * @name: (allow-none): a character string to be set as the accessible name
+  *
+  * This method sets @name as the accessible name for @widget.
+  *
+@@ -2845,8 +2845,8 @@ st_widget_get_focus_chain (StWidget *widget)
+  * st_get_align_factors:
+  * @x_align: an #StAlign
+  * @y_align: an #StAlign
+- * @x_align_out: (out) (optional): @x_align as a #gdouble
+- * @y_align_out: (out) (optional): @y_align as a #gdouble
++ * @x_align_out: (out) (allow-none): @x_align as a #gdouble
++ * @y_align_out: (out) (allow-none): @y_align as a #gdouble
+  *
+  * Converts @x_align and @y_align to #gdouble values.
+  */
+diff --git a/src/st/st-widget.h b/src/st/st-widget.h
+index b089b03..424f049 100644
+--- a/src/st/st-widget.h
++++ b/src/st/st-widget.h
+@@ -80,7 +80,7 @@ struct _StWidgetClass
+   /**
+    * StWidgetClass::navigate_focus:
+    * @self: the "top level" container
+-   * @from: (nullable): the actor that the focus is coming from
++   * @from: (allow-none): the actor that the focus is coming from
+    * @direction: the direction focus is moving in
+    */
+   gboolean (* navigate_focus)      (StWidget         *self,
+-- 
+2.0.0
+
