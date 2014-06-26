@@ -1,8 +1,8 @@
 %global gobject_introspection_version 1.39.3
 
 Name:          gjs
-Version:       1.40.1
-Release:       2%{?dist}
+Version:       1.41.3
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -13,7 +13,7 @@ Group:         System Environment/Libraries
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           http://live.gnome.org/Gjs/
 #VCS:          git://git.gnome.org/gjs
-Source0:       http://download.gnome.org/sources/%{name}/1.40/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/1.41/%{name}-%{version}.tar.xz
 
 BuildRequires: mozjs24-devel
 BuildRequires: cairo-gobject-devel
@@ -81,6 +81,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Thu Jun 26 2014 Richard Hughes <rhughes@redhat.com> - 1.41.3-1
+- Update to 1.41.3
+
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.40.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
