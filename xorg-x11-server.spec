@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.903
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,6 +76,7 @@ Source40: driver-abi-rebuild.sh
 
 # Submitted upstream
 Patch0001: 0001-fb-Fix-xvfb-crash-in-fbCloseScreen-on-client-disconn.patch
+Patch0002: 0001-headers-Fix-build-errors-with-latest-glibc.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -621,6 +622,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Jul  2 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.903-5
+- Fix code including glamor.h not compiling due to strndup re-definition
+
 * Wed Jul 02 2014 Adam Jackson <ajax@redhat.com> 1.15.99.903-4
 - Snap xwayland damage reports to the bounding box
 
