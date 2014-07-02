@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.903
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -73,6 +73,9 @@ Source31: xserver-sdk-abi-requires.git
 
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
+
+# Submitted upstream
+Patch0001: 0001-fb-Fix-xvfb-crash-in-fbCloseScreen-on-client-disconn.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -615,6 +618,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Jul  2 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.903-3
+- Fix xvfb crash on client disconnect (rhbz#1113128)
+
 * Thu Jun 19 2014 Dennis Gilmore <dennis@ausil.us> - 1.15.99.903-2
 - add support for non pci platform devices
 

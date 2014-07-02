@@ -1,0 +1,35 @@
+From 7103563676f5970e14da38923a15641fc1877328 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Wed, 2 Jul 2014 17:19:30 +0200
+Subject: [PATCH] fb: Fix xvfb crash in fbCloseScreen on client disconnect
+
+Fix xvfb crash on client disconnect:
+https://bugzilla.redhat.com/show_bug.cgi?id=1113128
+caused by:
+http://patchwork.freedesktop.org/patch/24757/
+
+The discussion there has some ideas for a better / cleaner fix, but for now
+lets gets this fixed before the 1.16 release with this simple fix.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ fb/fbscreen.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/fb/fbscreen.c b/fb/fbscreen.c
+index 1f91089..0d4d87f 100644
+--- a/fb/fbscreen.c
++++ b/fb/fbscreen.c
+@@ -37,7 +37,8 @@ fbCloseScreen(ScreenPtr pScreen)
+         free(depths[d].vids);
+     free(depths);
+     free(pScreen->visuals);
+-    FreePixmap((PixmapPtr)pScreen->devPrivate);
++    if (pScreen->devPrivate)
++        FreePixmap((PixmapPtr)pScreen->devPrivate);
+     return TRUE;
+ }
+ 
+-- 
+2.0.0
+
