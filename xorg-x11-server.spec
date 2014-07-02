@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.903
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -103,6 +103,9 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 # needed to allow X to start on arm and other devices without video on pci buses
 Patch10100: platform-support-non-pci-platform-devices.patch
 Patch10101: add-SERVER_SUPPORTS_NON_PCI_PLATFORM_DEVS.patch
+
+# submitted http://lists.x.org/archives/xorg-devel/2014-July/042936.html
+Patch10200: 0001-xwayland-Snap-damage-reports-to-the-bounding-box.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -618,6 +621,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Jul 02 2014 Adam Jackson <ajax@redhat.com> 1.15.99.903-4
+- Snap xwayland damage reports to the bounding box
+
 * Wed Jul  2 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.903-3
 - Fix xvfb crash on client disconnect (rhbz#1113128)
 
