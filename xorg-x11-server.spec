@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.15.99.903
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.15.99.904
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -75,8 +75,10 @@ Source31: xserver-sdk-abi-requires.git
 Source40: driver-abi-rebuild.sh
 
 # Submitted upstream
-Patch0001: 0001-fb-Fix-xvfb-crash-in-fbCloseScreen-on-client-disconn.patch
-Patch0002: 0001-headers-Fix-build-errors-with-latest-glibc.patch
+Patch0001: 0001-headers-Fix-build-errors-with-latest-glibc.patch
+
+# Revert of a touchpad motion scaling fix with known issues (rhbz#1104789)
+Patch0002: 0002-Revert-dix-fix-up-coordinate-scaling-when-external-m.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -99,11 +101,6 @@ Patch9100: exa-only-draw-valid-trapezoids.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
-
-# submitted http://lists.x.org/archives/xorg-devel/2014-June/042826.html
-# needed to allow X to start on arm and other devices without video on pci buses
-Patch10100: platform-support-non-pci-platform-devices.patch
-Patch10101: add-SERVER_SUPPORTS_NON_PCI_PLATFORM_DEVS.patch
 
 # submitted http://lists.x.org/archives/xorg-devel/2014-July/042936.html
 Patch10200: 0001-xwayland-Snap-damage-reports-to-the-bounding-box.patch
@@ -622,6 +619,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Jul  8 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.904-1
+- Update to 1.15.99.904
+
 * Wed Jul  2 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.903-5
 - Fix code including glamor.h not compiling due to strndup re-definition
 

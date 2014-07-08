@@ -22,7 +22,7 @@ diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
 index b966e50..a4aeecd 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -326,25 +326,21 @@ xwl_screen_post_damage(struct xwl_screen *xwl_screen)
+@@ -326,31 +326,27 @@ xwl_screen_post_damage(struct xwl_screen *xwl_screen)
      struct xwl_window *xwl_window;
      RegionPtr region;
      BoxPtr box;
@@ -37,7 +37,13 @@ index b966e50..a4aeecd 100644
 -
          pixmap = (*xwl_screen->screen->GetWindowPixmap) (xwl_window->window);
  
-         buffer = xwl_shm_pixmap_get_wl_buffer(pixmap);
+ #if GLAMOR_HAS_GBM
+         if (xwl_screen->glamor)
+             buffer = xwl_glamor_pixmap_get_wl_buffer(pixmap);
+ #endif
+         if (!xwl_screen->glamor)
+             buffer = xwl_shm_pixmap_get_wl_buffer(pixmap);
+ 
          wl_surface_attach(xwl_window->surface, buffer, 0, 0);
 -        for (i = 0; i < count; i++) {
 -            box = &RegionRects(region)[i];
