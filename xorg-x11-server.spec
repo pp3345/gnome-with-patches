@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.904
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -104,6 +104,10 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 # submitted http://lists.x.org/archives/xorg-devel/2014-July/042936.html
 Patch10200: 0001-xwayland-Snap-damage-reports-to-the-bounding-box.patch
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=731241
+# submitted: http://patchwork.freedesktop.org/patch/29412/
+Patch10201: 0001-xfree86-don-t-force-the-screensaver-off-on-DPMS-unbl.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -619,6 +623,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Jul 11 2014 Peter Hutterer <peter.hutterer@redhat.com> 1.15.99.904-2
+- Don't  force the screensaver off on DPMS unblank
+
 * Tue Jul  8 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.904-1
 - Update to 1.15.99.904
 
