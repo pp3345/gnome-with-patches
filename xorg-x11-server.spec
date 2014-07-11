@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.904
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -79,6 +79,9 @@ Patch0001: 0001-headers-Fix-build-errors-with-latest-glibc.patch
 
 # Revert of a touchpad motion scaling fix with known issues (rhbz#1104789)
 Patch0002: 0002-Revert-dix-fix-up-coordinate-scaling-when-external-m.patch
+
+# Submitted upstream
+Patch0003: 0003-Fix-ODEV_ATTRIB_DRIVER-overlapping-with-ODEV_ATTRIB_.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -623,6 +626,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Jul 11 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.904-3
+- Fix startx crash introduced by 1.15.99.904 (rhbz#1118540)
+
 * Fri Jul 11 2014 Peter Hutterer <peter.hutterer@redhat.com> 1.15.99.904-2
 - Don't  force the screensaver off on DPMS unblank
 

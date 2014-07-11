@@ -1,0 +1,29 @@
+From 3e4e029cca08e97ede67d19020476cd460eec00f Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Fri, 11 Jul 2014 09:49:13 +0200
+Subject: [PATCH 3/3] Fix ODEV_ATTRIB_DRIVER overlapping with ODEV_ATTRIB_FD
+
+Looks like the value of ODEV_ATTRIB_DRIVER was not updated when the patch
+adding it got rebased on top of a newer server version.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ include/hotplug.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/hotplug.h b/include/hotplug.h
+index c4268a0..b2c0d78 100644
+--- a/include/hotplug.h
++++ b/include/hotplug.h
+@@ -88,7 +88,7 @@ config_odev_free_attributes(struct OdevAttributes *attribs);
+ /* Minor number of the device node pointed to by ODEV_ATTRIB_PATH */
+ #define ODEV_ATTRIB_MINOR 6
+ /* kernel driver name */
+-#define ODEV_ATTRIB_DRIVER 4
++#define ODEV_ATTRIB_DRIVER 7
+ 
+ typedef void (*config_odev_probe_proc_ptr)(struct OdevAttributes *attribs);
+ void config_odev_probe(config_odev_probe_proc_ptr probe_callback);
+-- 
+2.0.0
+
