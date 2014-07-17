@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.15.99.904
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -228,6 +228,26 @@ Obsoletes: xorg-x11-drv-ark <= 0.7.3-15.fc17
 Obsoletes: xorg-x11-drv-chips <= 1.2.4-8.fc18
 Obsoletes: xorg-x11-drv-s3 <= 0.6.3-14.fc17
 Obsoletes: xorg-x11-drv-tseng <= 1.2.4-12.fc17
+%endif
+
+%if 0%{?fedora} > 20
+# Dropped from F21
+Obsoletes: xorg-x11-drv-apm <= 1.2.5-9.fc20
+Obsoletes: xorg-x11-drv-cirrus <= 1.5.1-10.fc20
+Obsoletes: xorg-x11-drv-glint <= 1.2.8-8.fc20
+Obsoletes: xorg-x11-drv-i128 <= 1.3.6-9.fc20
+Obsoletes: xorg-x11-drv-i740 <= 1.3.4-9.fc20
+Obsoletes: xorg-x11-drv-mach64 <= 6.9.4-7.fc20
+Obsoletes: xorg-x11-drv-mga <= 1.6.2-8.fc20
+Obsoletes: xorg-x11-drv-neomagic <= 1.2.7-7.fc20
+Obsoletes: xorg-x11-drv-r128 <= 6.9.1-6.fc20
+Obsoletes: xorg-x11-drv-rendition <= 4.2.5-9.fc20
+Obsoletes: xorg-x11-drv-s3virge <= 1.10.6-9.fc20
+Obsoletes: xorg-x11-drv-savage <= 2.3.7-1.fc20
+Obsoletes: xorg-x11-drv-siliconmotion <= 1.7.7-8.fc20
+Obsoletes: xorg-x11-drv-sis <= 0.10.7-9.fc20
+Obsoletes: xorg-x11-drv-tdfx <= 1.4.5-8.fc20
+Obsoletes: xorg-x11-drv-trident <= 1.3.6-9.fc20
 %endif
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
@@ -626,11 +646,14 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Jul 17 2014 Adam Jackson <ajax@redhat.com> 1.15.99.904-4
+- Add Obsoletes for video drivers dropped in F21+
+
 * Fri Jul 11 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.904-3
 - Fix startx crash introduced by 1.15.99.904 (rhbz#1118540)
 
 * Fri Jul 11 2014 Peter Hutterer <peter.hutterer@redhat.com> 1.15.99.904-2
-- Don't  force the screensaver off on DPMS unblank
+- Don't force the screensaver off on DPMS unblank
 
 * Tue Jul  8 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.904-1
 - Update to 1.15.99.904
