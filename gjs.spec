@@ -45,8 +45,6 @@ Files for development with %{name}.
 %prep
 %setup -q
 
-rm -f configure
-
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static)
