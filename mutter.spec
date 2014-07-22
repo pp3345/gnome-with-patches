@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       3.13.3
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -131,6 +131,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Jul 22 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.3-2
+- Rebuilt for gobject-introspection 1.41.4
+
 * Fri Jun 27 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.3-1
 - New gobject-introspection has been built, drop the last patch again
 
