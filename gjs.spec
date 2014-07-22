@@ -1,7 +1,7 @@
-%global gobject_introspection_version 1.39.3
+%global gobject_introspection_version 1.41.4
 
 Name:          gjs
-Version:       1.41.3
+Version:       1.41.4
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -81,6 +81,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Tue Jul 22 2014 Kalev Lember <kalevlember@gmail.com> - 1.41.4-1
+- Update to 1.41.4
+
 * Thu Jun 26 2014 Richard Hughes <rhughes@redhat.com> - 1.41.3-1
 - Update to 1.41.3
 
