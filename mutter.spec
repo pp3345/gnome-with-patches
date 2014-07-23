@@ -1,3 +1,5 @@
+%global clutter_version 1.19.5
+
 Name:          mutter
 Version:       3.13.4
 Release:       1%{?dist}
@@ -9,7 +11,7 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.13/%{name}-%{version}.tar.xz
 
-BuildRequires: clutter-devel >= 1.19.2
+BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
 BuildRequires: gnome-desktop3-devel
@@ -40,6 +42,7 @@ Obsoletes: mutter-wayland-devel < 3.13.0
 # broken gnome-shell installations due to mutter ABI changes.
 Conflicts: gnome-shell < 3.12.0
 
+Requires: clutter%{?_isa} >= %{clutter_version}
 Requires: control-center-filesystem
 Requires: startup-notification
 Requires: dbus-x11
