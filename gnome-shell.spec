@@ -151,10 +151,12 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_datadir}/applications/gnome-shell-wayland.desktop
 %{_datadir}/applications/gnome-shell-extension-prefs.desktop
 %{_datadir}/applications/evolution-calendar.desktop
+%{_datadir}/applications/org.gnome.Shell.PortalHelper.desktop
 %{_datadir}/gnome-control-center/keybindings/50-gnome-shell-system.xml
 %{_datadir}/gnome-shell/
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
+%{_datadir}/dbus-1/services/org.gnome.Shell.PortalHelper.service
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Screencast.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Screenshot.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider.xml
@@ -164,6 +166,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_libexecdir}/gnome-shell-calendar-server
 %{_libexecdir}/gnome-shell-perf-helper
 %{_libexecdir}/gnome-shell-hotplug-sniffer
+%{_libexecdir}/gnome-shell-portal-helper
 # Co own these directories instead of pulling in GConf
 # after all, we are trying to get rid of GConf with these files
 %dir %{_datadir}/GConf
