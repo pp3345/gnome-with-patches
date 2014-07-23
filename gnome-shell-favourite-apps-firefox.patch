@@ -11,16 +11,11 @@
          The applications corresponding to these identifiers
 --- a/js/ui/appFavorites.js
 +++ b/js/ui/appFavorites.js
-@@ -24,6 +24,12 @@ const AppFavorites = new Lang.Class({
- 
-     reload: function() {
-         let ids = global.settings.get_strv(this.FAVORITE_APPS_KEY);
-+        // Fedora: Replace old mozilla-firefox.desktop with firefox.desktop,
-+        for (let i = 0; i < ids.length; i++) {
-+            if (ids[i] == 'mozilla-firefox.desktop')
-+                ids[i] = 'firefox.desktop'
-+        }
-+
-         let appSys = Shell.AppSystem.get_default();
-         let apps = ids.map(function (id) {
-                 return appSys.lookup_app(id);
+@@ -22,6 +22,7 @@ const RENAMED_DESKTOP_IDS = {
+     'gnome-software.desktop': 'org.gnome.Software.desktop',
+     'gnome-weather.desktop': 'org.gnome.Weather.Application.desktop',
+     'gnomine.desktop': 'gnome-mines.desktop',
++    'mozilla-firefox.desktop': 'firefox.desktop',
+     'nautilus.desktop': 'org.gnome.Nautilus.desktop',
+     'polari.desktop': 'org.gnome.Polari.desktop',
+ };
