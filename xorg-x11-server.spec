@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.15.99.904
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.16.0
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -74,15 +74,6 @@ Source31: xserver-sdk-abi-requires.git
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
 
-# Submitted upstream
-Patch0001: 0001-headers-Fix-build-errors-with-latest-glibc.patch
-
-# Revert of a touchpad motion scaling fix with known issues (rhbz#1104789)
-Patch0002: 0002-Revert-dix-fix-up-coordinate-scaling-when-external-m.patch
-
-# Submitted upstream
-Patch0003: 0003-Fix-ODEV_ATTRIB_DRIVER-overlapping-with-ODEV_ATTRIB_.patch
-
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
@@ -107,10 +98,6 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 # submitted http://lists.x.org/archives/xorg-devel/2014-July/042936.html
 Patch10200: 0001-xwayland-Snap-damage-reports-to-the-bounding-box.patch
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=731241
-# submitted: http://patchwork.freedesktop.org/patch/29412/
-Patch10201: 0001-xfree86-don-t-force-the-screensaver-off-on-DPMS-unbl.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -646,6 +633,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Jul 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-1
+- Update to 1.16.0
+
 * Thu Jul 17 2014 Adam Jackson <ajax@redhat.com> 1.15.99.904-4
 - Add Obsoletes for video drivers dropped in F21+
 
