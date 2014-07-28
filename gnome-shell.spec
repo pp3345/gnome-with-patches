@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.13.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -104,7 +104,9 @@ Requires:       accountsservice-libs%{?_isa}
 Requires:       gdm-libs%{?_isa}
 Requires:       clutter%{?_isa} >= %{clutter_version}
 # needed for settings items in menus
-Requires:	control-center
+Requires:	    control-center
+# needed for captive portal support
+Requires:       NetworkManager-config-connectivity-fedora
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -177,6 +179,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Mon Jul 28 2014 Adel Gadllah <adel.gadllah@gmail.com> - 3.13.4-2
+- Require NetworkManager-config-connectivity-fedora
+
 * Wed Jul 23 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.4-1
 - Update to 3.13.4
 
