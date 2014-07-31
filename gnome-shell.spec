@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.13.4
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -179,6 +179,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Jul 31 2014 Milan Crha <mcrha@redhat.com> - 3.13.4-3
+- Rebuild against newer evolution-data-server
+
 * Mon Jul 28 2014 Adel Gadllah <adel.gadllah@gmail.com> - 3.13.4-2
 - Require NetworkManager-config-connectivity-fedora
 
