@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.16.0
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -141,7 +141,7 @@ BuildRequires: libXinerama-devel libXi-devel
 BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
 BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
-%if !0%{?rhel}
+%if 0%{?fedora} > 20
 BuildRequires: wayland-devel pkgconfig(wayland-client) pkgconfig(epoxy)
 BuildRequires: pkgconfig(xshmfence) >= 1.1
 %endif
@@ -314,7 +314,7 @@ X protocol, and therefore supports the newer X extensions like
 Render and Composite.
 
 
-%if !0%{?rhel} || 0%{?fedora} > 20
+%if 0%{?fedora} > 20
 %package Xwayland
 Summary: Wayland X Sserver.
 Group: User Interface/X
@@ -612,7 +612,7 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %{_bindir}/Xephyr
 %{_mandir}/man1/Xephyr.1*
 
-%if !0%{?rhel} || 0%{?fedora} < 21
+%if 0%{?fedora} > 20
 %files Xwayland
 %{_bindir}/Xwayland
 %endif
@@ -633,6 +633,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Aug  7 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-2
+- Fix xwayland conditionals to allow building on F-20 (rhbz#1127351)
+
 * Mon Jul 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-1
 - Update to 1.16.0
 
