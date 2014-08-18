@@ -2,7 +2,7 @@
 
 Name:          mutter
 Version:       3.13.4
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -135,6 +135,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Mon Aug 18 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.4-3
+- Rebuilt for upower 0.99.1 soname bump
+
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.13.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
