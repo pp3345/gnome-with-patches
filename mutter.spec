@@ -1,4 +1,4 @@
-%global clutter_version 1.19.7
+%global clutter_version 1.19.6-3
 
 Name:          mutter
 Version:       3.13.90
