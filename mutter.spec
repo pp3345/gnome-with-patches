@@ -1,8 +1,8 @@
 %global clutter_version 1.19.5
 
 Name:          mutter
-Version:       3.13.4
-Release:       3%{?dist}
+Version:       3.13.90
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -26,8 +26,12 @@ BuildRequires: libXrandr-devel
 BuildRequires: libXrender-devel
 BuildRequires: libXcursor-devel
 BuildRequires: libXcomposite-devel
+BuildRequires: libxcb-devel
+BuildRequires: libxkbcommon-x11-devel
+BuildRequires: libxkbfile-devel
 BuildRequires: pam-devel
 BuildRequires: upower-devel
+BuildRequires: xkeyboard-config-devel
 BuildRequires: zenity
 BuildRequires: desktop-file-utils
 # Bootstrap requirements
@@ -135,6 +139,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Aug 20 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.90-1
+- Update to 3.13.90
+
 * Mon Aug 18 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.4-3
 - Rebuilt for upower 0.99.1 soname bump
 
