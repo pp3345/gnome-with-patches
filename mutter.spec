@@ -1,4 +1,4 @@
-%global clutter_version 1.19.5
+%global clutter_version 1.19.7
 
 Name:          mutter
 Version:       3.13.90
@@ -139,6 +139,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Aug 20 2014 Florian Müllner <fmuellner@redhat.com>
+- Bump Clutter requirement
+
 * Wed Aug 20 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.90-1
 - Update to 3.13.90
 
