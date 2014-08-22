@@ -2,7 +2,7 @@
 
 Name:          mutter
 Version:       3.13.90
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -139,6 +139,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Fri Aug 22 2014 Kevin Fenzi <kevin@scrye.com> 3.13.90-2
+- Rebuild for new wayland
+
 * Wed Aug 20 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.90-1
 - Update to 3.13.90
 
