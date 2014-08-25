@@ -2,7 +2,7 @@
 
 Name:          mutter
 Version:       3.13.90
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -10,6 +10,8 @@ License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.13/%{name}-%{version}.tar.xz
+# rhbz1103221 From upstream git, drop when rebasing
+Patch1:        0001-workspace-Smarten-assert-in-light-of-O-R-windows.patch
 
 BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
@@ -75,6 +77,7 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -139,6 +142,10 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Mon Aug 25 2014 Hans de Goede <hdegoede@redhat.com> - 3.13.90-3
+- Add a patch from upstream fixing gnome-shell crashing non stop on
+  multi monitor setups (rhbz#1103221)
+
 * Fri Aug 22 2014 Kevin Fenzi <kevin@scrye.com> 3.13.90-2
 - Rebuild for new wayland
 
