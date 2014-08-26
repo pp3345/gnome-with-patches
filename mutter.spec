@@ -2,7 +2,7 @@
 
 Name:          mutter
 Version:       3.13.90
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -12,6 +12,8 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.13/%{name}-%{version}.tar.xz
 # rhbz1103221 From upstream git, drop when rebasing
 Patch1:        0001-workspace-Smarten-assert-in-light-of-O-R-windows.patch
+Patch2:        0001-meta-surface-actor-Fix-is_argb32-for-unredirected-wi.patch
+
 
 BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
@@ -78,6 +80,7 @@ utilities for testing Metacity/Mutter themes.
 %prep
 %setup -q
 %patch1 -p1
+%patch2 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -142,6 +145,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Aug 26 2014 Adel Gadllah <adel.gadllah@gmail.com> - 3.13.90-4
+- Apply fix for RH #1133166
+
 * Mon Aug 25 2014 Hans de Goede <hdegoede@redhat.com> - 3.13.90-3
 - Add a patch from upstream fixing gnome-shell crashing non stop on
   multi monitor setups (rhbz#1103221)
