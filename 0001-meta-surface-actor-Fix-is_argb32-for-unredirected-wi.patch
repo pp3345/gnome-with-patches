@@ -1,0 +1,43 @@
+From d15bce3e4aff06e4a70f156f41eec73f4089cd16 Mon Sep 17 00:00:00 2001
+From: Adel Gadllah <adel.gadllah@gmail.com>
+Date: Tue, 26 Aug 2014 18:22:33 +0200
+Subject: [PATCH] meta-surface-actor: Fix is_argb32 for unredirected windows
+
+meta_surface_actor_is_argb32 assumes that lack of stex means that a window is
+ARGB32. When we unredirect a window we detach the texture so we end up without
+a texture. Given that should_unredirect returns FALSE when a window is argb32,
+we know that this window is indeed not ARGB32.
+
+Returing TRUE in that case causes us to flip between redirected and
+unredirected on every paint.
+
+So fix that by returning FALSE in that case.
+---
+ src/compositor/meta-surface-actor.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/src/compositor/meta-surface-actor.c b/src/compositor/meta-surface-actor.c
+index e7e3a02..bb85478 100644
+--- a/src/compositor/meta-surface-actor.c
++++ b/src/compositor/meta-surface-actor.c
+@@ -280,9 +280,15 @@ meta_surface_actor_is_argb32 (MetaSurfaceActor *self)
+   CoglTexture *texture = meta_shaped_texture_get_texture (stex);
+ 
+   /* If we don't have a texture, like during initialization, assume
+-   * that we're ARGB32. */
++   * that we're ARGB32.
++   *
++   * If we are unredirected and we have no texture assume that we are
++   * not ARGB32 otherwise we wouldn't be unredirected in the first
++   * place. This prevents us from continually redirecting and
++   * unredirecting on every paint.
++   */
+   if (!texture)
+-    return TRUE;
++    return !meta_surface_actor_is_unredirected (self);
+ 
+   switch (cogl_texture_get_components (texture))
+     {
+-- 
+1.9.3
+
