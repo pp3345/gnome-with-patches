@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.16.0
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -415,7 +415,7 @@ test `getminor extension` == %{extension_minor}
 %global default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
 
 %if %{with_hw_servers}
-%global dri_flags --with-dri-driver-path=%{drimoduledir} --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper --enable-glamor
+%global dri_flags --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper --enable-glamor
 %else
 %global dri_flags --disable-dri
 %endif
@@ -439,7 +439,7 @@ autoreconf -f -v --install || exit 1
 # export CFLAGS="${RPM_OPT_FLAGS}"
 # XXX without dtrace
 
-%configure --enable-maintainer-mode %{xservers} \
+%configure %{xservers} \
 	--disable-static \
 	--with-pic \
 	%{?no_int10} --with-int10=x86emu \
@@ -641,7 +641,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
-* Mon Aug 26 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.16.0-5
+* Thu Aug 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-6
+- drop no longer valid configure arguments (rhbz#1133350)
+
+* Mon Aug 25 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.16.0-5
 - re-add support for non pci platform devices
 
 * Mon Aug 18 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.16.0-4
