@@ -1,8 +1,8 @@
 %global gobject_introspection_version 1.41.4
 
 Name:          gjs
-Version:       1.41.4
-Release:       2%{?dist}
+Version:       1.41.91
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -79,6 +79,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/*.so
 
 %changelog
+* Mon Sep 01 2014 Kalev Lember <kalevlember@gmail.com> - 1.41.91-1
+- Update to 1.41.91
+
 * Sat Aug 16 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.41.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
