@@ -18,4 +18,4 @@
 +    'mozilla-firefox.desktop': 'firefox.desktop',
      'nautilus.desktop': 'org.gnome.Nautilus.desktop',
      'polari.desktop': 'org.gnome.Polari.desktop',
- };
+     'totem.desktop': 'org.gnome.Totem.desktop',
