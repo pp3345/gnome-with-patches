@@ -2,7 +2,7 @@
 
 Name:          gjs
 Version:       1.41.91
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -42,12 +42,21 @@ Requires: pkgconfig
 %description devel
 Files for development with %{name}.
 
+%package tests
+Summary: Tests for the gjs package
+Group: Development/Libraries
+Requires: %{name}%{?_isa} = %{version}-%{release}
+
+%description tests
+The gjs-tests package contains tests that can be used to verify
+the functionality of the installed gjs package.
+
 %prep
 %setup -q
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static)
+ %configure --disable-static --enable-installed-tests)
 
 make %{?_smp_mflags} V=1
 
@@ -78,7 +87,14 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_libdir}/pkgconfig/gjs-internals-1.0.pc
 %{_libdir}/*.so
 
+%files tests
+%{_libexecdir}/gjs/installed-tests
+%{_datadir}/installed-tests
+
 %changelog
+* Fri Sep  5 2014 Vadim Rutkovsky <vrutkovs@redhat.com> - 1.41.91-2
+- Build installed tests
+
 * Mon Sep 01 2014 Kalev Lember <kalevlember@gmail.com> - 1.41.91-1
 - Update to 1.41.91
 
