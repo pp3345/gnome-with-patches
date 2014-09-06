@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.16.0
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   7%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -99,11 +99,10 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 # submitted http://lists.x.org/archives/xorg-devel/2014-July/042936.html
 Patch10200: 0001-xwayland-Snap-damage-reports-to-the-bounding-box.patch
 
-# submitted http://lists.x.org/archives/xorg-devel/2014-June/042826.html
+# cherry picked from upstream
 # needed to allow X to start on arm and other devices without video on pci buses
-# There's a slight variant upstream but it doesn't build against 1.16.0 atm
-# rebase of Rob Clark's patches
-Patch10300: xorg-non-pci.patch
+Patch10301: 0001-xfree86-Fallback-to-first-platform-device-as-primary.patch
+Patch10302: 0002-xfree86-Allow-non-PCI-devices-as-primary.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -147,8 +146,10 @@ BuildRequires: libXinerama-devel libXi-devel
 BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
 BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
-%if !0%{?rhel}
+%if 0%{?fedora} > 20
 BuildRequires: wayland-devel pkgconfig(wayland-client) pkgconfig(epoxy)
+%endif
+%if !0%{?rhel}
 BuildRequires: pkgconfig(xshmfence) >= 1.1
 %endif
 BuildRequires: libXv-devel
@@ -320,7 +321,7 @@ X protocol, and therefore supports the newer X extensions like
 Render and Composite.
 
 
-%if !0%{?rhel} || 0%{?fedora} > 20
+%if 0%{?fedora} > 20
 %package Xwayland
 Summary: Wayland X Sserver.
 Group: User Interface/X
@@ -413,7 +414,7 @@ test `getminor extension` == %{extension_minor}
 %global default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
 
 %if %{with_hw_servers}
-%global dri_flags --with-dri-driver-path=%{drimoduledir} --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper --enable-glamor
+%global dri_flags --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper --enable-glamor
 %else
 %global dri_flags --disable-dri
 %endif
@@ -437,7 +438,7 @@ autoreconf -f -v --install || exit 1
 # export CFLAGS="${RPM_OPT_FLAGS}"
 # XXX without dtrace
 
-%configure --enable-maintainer-mode %{xservers} \
+%configure %{xservers} \
 	--disable-static \
 	--with-pic \
 	%{?no_int10} --with-int10=x86emu \
@@ -618,7 +619,7 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %{_bindir}/Xephyr
 %{_mandir}/man1/Xephyr.1*
 
-%if !0%{?rhel} || 0%{?fedora} < 21
+%if 0%{?fedora} > 20
 %files Xwayland
 %{_bindir}/Xwayland
 %endif
@@ -639,11 +640,24 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
-* Mon Aug 26 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.16.0-3
+* Tue Sep  2 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-7
+- Drop Fedora specific xorg-non-pci.patch, replace with solution from
+  upstream
+
+* Thu Aug 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-6
+- drop no longer valid configure arguments (rhbz#1133350)
+
+* Mon Aug 25 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.16.0-5
 - re-add support for non pci platform devices
 
-* Mon Aug 18 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org>
+* Mon Aug 18 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.16.0-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
+* Fri Aug  8 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-3
+- Really fix conditionals to allow building on F-20 (rhbz#1127351)
+
+* Thu Aug  7 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-2
+- Fix xwayland conditionals to allow building on F-20 (rhbz#1127351)
 
 * Mon Jul 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-1
 - Update to 1.16.0
