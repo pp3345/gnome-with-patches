@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.16.0
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -226,22 +226,22 @@ Obsoletes: xorg-x11-drv-tseng <= 1.2.4-12.fc17
 
 %if 0%{?fedora} > 20
 # Dropped from F21
-Obsoletes: xorg-x11-drv-apm <= 1.2.5-9.fc20
-Obsoletes: xorg-x11-drv-cirrus <= 1.5.1-10.fc20
-Obsoletes: xorg-x11-drv-glint <= 1.2.8-8.fc20
-Obsoletes: xorg-x11-drv-i128 <= 1.3.6-9.fc20
-Obsoletes: xorg-x11-drv-i740 <= 1.3.4-9.fc20
-Obsoletes: xorg-x11-drv-mach64 <= 6.9.4-7.fc20
-Obsoletes: xorg-x11-drv-mga <= 1.6.2-8.fc20
-Obsoletes: xorg-x11-drv-neomagic <= 1.2.7-7.fc20
-Obsoletes: xorg-x11-drv-r128 <= 6.9.1-6.fc20
-Obsoletes: xorg-x11-drv-rendition <= 4.2.5-9.fc20
-Obsoletes: xorg-x11-drv-s3virge <= 1.10.6-9.fc20
-Obsoletes: xorg-x11-drv-savage <= 2.3.7-1.fc20
-Obsoletes: xorg-x11-drv-siliconmotion <= 1.7.7-8.fc20
-Obsoletes: xorg-x11-drv-sis <= 0.10.7-9.fc20
-Obsoletes: xorg-x11-drv-tdfx <= 1.4.5-8.fc20
-Obsoletes: xorg-x11-drv-trident <= 1.3.6-9.fc20
+Obsoletes: xorg-x11-drv-apm < 1.2.5-18
+Obsoletes: xorg-x11-drv-cirrus < 1.5.2-10
+Obsoletes: xorg-x11-drv-glint < 1.2.8-17
+Obsoletes: xorg-x11-drv-i128 < 1.3.6-18
+Obsoletes: xorg-x11-drv-i740 < 1.3.4-18
+Obsoletes: xorg-x11-drv-mach64 < 6.9.4-16
+Obsoletes: xorg-x11-drv-mga < 1.6.2-17
+Obsoletes: xorg-x11-drv-neomagic < 1.2.8-8
+Obsoletes: xorg-x11-drv-r128 < 6.9.1-15
+Obsoletes: xorg-x11-drv-rendition < 4.2.5-18
+Obsoletes: xorg-x11-drv-s3virge < 1.10.6-18
+Obsoletes: xorg-x11-drv-savage < 2.3.7-7
+Obsoletes: xorg-x11-drv-siliconmotion < 1.7.7-17
+Obsoletes: xorg-x11-drv-sis < 0.10.7-19
+Obsoletes: xorg-x11-drv-tdfx < 1.4.5-17
+Obsoletes: xorg-x11-drv-trident < 1.3.6-18
 %endif
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
@@ -640,6 +640,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Sep 09 2014 Kalev Lember <kalevlember@gmail.com> - 1.16.0-8
+- Update the versions of obsoletes for dropped drivers
+
 * Tue Sep  2 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-7
 - Drop Fedora specific xorg-non-pci.patch, replace with solution from
   upstream
