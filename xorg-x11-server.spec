@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.16.0
-Release:   8%{?gitdate:.%{gitdate}}%{dist}
+Release:   9%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -256,7 +256,7 @@ upon.
 
 
 %package Xnest
-Summary: A nested server.
+Summary: A nested server
 Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xnest
@@ -287,7 +287,7 @@ application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 
 
 %package Xvfb
-Summary: A X Windows System virtual framebuffer X server.
+Summary: A X Windows System virtual framebuffer X server
 Group: User Interface/X
 # xvfb-run is GPLv2, rest is MIT
 License: MIT and GPLv2
@@ -305,7 +305,7 @@ is normally used for testing servers.
 
 
 %package Xephyr
-Summary: A nested server.
+Summary: A nested server
 Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xephyr
@@ -323,7 +323,7 @@ Render and Composite.
 
 %if 0%{?fedora} > 20
 %package Xwayland
-Summary: Wayland X Sserver.
+Summary: Wayland X Server
 Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
 
@@ -640,6 +640,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Sep 10 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-9
+- Fixup Xwayland summary, remove . at end of summaries (rhbz#1140225)
+
 * Tue Sep 09 2014 Kalev Lember <kalevlember@gmail.com> - 1.16.0-8
 - Update the versions of obsoletes for dropped drivers
 
