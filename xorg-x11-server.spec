@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.16.0
-Release:   8%{?gitdate:.%{gitdate}}%{dist}
+Release:   10%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -103,6 +103,9 @@ Patch10200: 0001-xwayland-Snap-damage-reports-to-the-bounding-box.patch
 # needed to allow X to start on arm and other devices without video on pci buses
 Patch10301: 0001-xfree86-Fallback-to-first-platform-device-as-primary.patch
 Patch10302: 0002-xfree86-Allow-non-PCI-devices-as-primary.patch
+
+# http://lists.x.org/archives/xorg-devel/2014-September/043722.html
+Patch10303: patchwork-33052.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -256,7 +259,7 @@ upon.
 
 
 %package Xnest
-Summary: A nested server.
+Summary: A nested server
 Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xnest
@@ -287,7 +290,7 @@ application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 
 
 %package Xvfb
-Summary: A X Windows System virtual framebuffer X server.
+Summary: A X Windows System virtual framebuffer X server
 Group: User Interface/X
 # xvfb-run is GPLv2, rest is MIT
 License: MIT and GPLv2
@@ -305,7 +308,7 @@ is normally used for testing servers.
 
 
 %package Xephyr
-Summary: A nested server.
+Summary: A nested server
 Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xephyr
@@ -323,7 +326,7 @@ Render and Composite.
 
 %if 0%{?fedora} > 20
 %package Xwayland
-Summary: Wayland X Sserver.
+Summary: Wayland X Server
 Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
 
@@ -640,6 +643,12 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Sep 11 2014 Adam Jackson <ajax@redhat.com> 1.16.0-10
+- Only send GLX_BufferSwapComplete for PresentCompleteKindPixmap
+
+* Wed Sep 10 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-9
+- Fixup Xwayland summary, remove . at end of summaries (rhbz#1140225)
+
 * Tue Sep 09 2014 Kalev Lember <kalevlember@gmail.com> - 1.16.0-8
 - Update the versions of obsoletes for dropped drivers
 
