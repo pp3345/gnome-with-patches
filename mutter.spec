@@ -1,8 +1,8 @@
 %global clutter_version 1.19.6-3
 
 Name:          mutter
-Version:       3.13.91
-Release:       2%{?dist}
+Version:       3.13.92
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -140,6 +140,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Sep 17 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.92-1
+- Update to 3.13.92
+
 * Fri Sep 12 2014 Peter Hutterer <peter.hutterer@redhat.com> - 3.13.91-2
 - Rebuild for libinput soname bump
 
