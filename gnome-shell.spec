@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.13.92
+Version:        3.14.0
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -8,7 +8,7 @@ License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            http://live.gnome.org/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.13/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.14/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -179,6 +179,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Mon Sep 22 2014 Florian Müllner <fmuellner@redhat.com> - 3.14.0-1
+- Update to 3.14.0
+
 * Wed Sep 17 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.92-1
 - Update to 3.13.92
 
