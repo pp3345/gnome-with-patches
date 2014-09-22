@@ -2,7 +2,7 @@
 
 Name:          mutter
 Version:       3.14.0
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -10,7 +10,6 @@ License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.14/%{name}-%{version}.tar.xz
-
 
 BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
@@ -45,7 +44,7 @@ Obsoletes: mutter-wayland-devel < 3.13.0
 
 # Make sure yum updates gnome-shell as well; otherwise we might end up with
 # broken gnome-shell installations due to mutter ABI changes.
-Conflicts: gnome-shell < 3.12.0
+Conflicts: gnome-shell < 3.14.0
 
 Requires: clutter%{?_isa} >= %{clutter_version}
 Requires: control-center-filesystem
@@ -140,6 +139,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Mon Sep 22 2014 Kalev Lember <kalevlember@gmail.com> - 3.14.0-2
+- Bump gnome-shell conflicts version
+
 * Mon Sep 22 2014 Florian Müllner <fmuellner@redhat.com> - 3.14.0-1
 - Update to 3.14.0
 
