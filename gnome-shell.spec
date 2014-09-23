@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.14.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -20,7 +20,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define mutter_version 3.13.90
 %define eds_version 3.5.3
 %define gnome_desktop_version 3.7.90
-%define gnome_menus_version 3.5.3
 %define json_glib_version 0.13.2
 %define gsettings_desktop_schemas_version 3.11.4
 %define caribou_version 0.4.8
@@ -41,7 +40,6 @@ BuildRequires:  evolution-data-server-devel >= %{eds_version}
 BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel
-BuildRequires:  gnome-menus-devel >= %{gnome_menus_version}
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  json-glib-devel >= %{json_glib_version}
 BuildRequires:  upower-devel
@@ -75,7 +73,6 @@ BuildRequires: gtk-doc gnome-common
 Requires:       gnome-bluetooth%{?_isa} >= %{gnome_bluetooth_version}
 %endif
 Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
-Requires:       gnome-menus%{?_isa} >= %{gnome_menus_version}
 Requires:       gnome-session-xsession
 # wrapper script uses to restart old GNOME session if run --replace
 # from the command line
@@ -179,6 +176,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Sep 23 2014 Kalev Lember <kalevlember@gmail.com> - 3.14.0-2
+- Drop unused gnome-menus dependency
+
 * Mon Sep 22 2014 Florian Müllner <fmuellner@redhat.com> - 3.14.0-1
 - Update to 3.14.0
 
