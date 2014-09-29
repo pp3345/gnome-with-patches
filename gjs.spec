@@ -37,7 +37,6 @@ framework.
 Summary: Development package for %{name}
 Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: pkgconfig
 
 %description devel
 Files for development with %{name}.
