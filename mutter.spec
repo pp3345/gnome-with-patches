@@ -2,7 +2,7 @@
 
 Name:          mutter
 Version:       3.14.0
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -10,6 +10,10 @@ License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.14/%{name}-%{version}.tar.xz
+
+# Backport fix for BGO #737233 / RHBZ #1145952
+# Will be fixed in 3.14.1, drop at that point - adamw 2014/10
+Patch0:        0001-Fix-stacking-of-the-guard-window.patch
 
 BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
@@ -75,6 +79,7 @@ utilities for testing Metacity/Mutter themes.
 
 %prep
 %setup -q
+%patch0 -p1 -b .stacking
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -139,6 +144,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Fri Oct 03 2014 Adam Williamson <awilliam@redhat.com> - 3.14.0-3
+- backport fix for BGO #737233 / RHBZ #1145952 (desktop right click broken)
+
 * Mon Sep 22 2014 Kalev Lember <kalevlember@gmail.com> - 3.14.0-2
 - Bump gnome-shell conflicts version
 

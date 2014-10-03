@@ -1,0 +1,44 @@
+From d3111a9f07d3741501fb3a85cf3716c2cb362b27 Mon Sep 17 00:00:00 2001
+From: "Owen W. Taylor" <otaylor@fishsoup.net>
+Date: Wed, 24 Sep 2014 16:16:27 -0400
+Subject: [PATCH 01/27] Fix stacking of the guard window
+
+With the change to how hidden windows are stacked, the position
+of the guard window with respect to the hidden windows got flipped
+and the guard window was at the bottom of everything; fix it to
+be on top of the hidden windows.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=737233
+---
+ src/core/stack.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/core/stack.c b/src/core/stack.c
+index 15ea826..037e878 100644
+--- a/src/core/stack.c
++++ b/src/core/stack.c
+@@ -1056,10 +1056,6 @@ stack_sync_to_xserver (MetaStack *stack)
+   all_root_children_stacked = g_array_new (FALSE, FALSE, sizeof (guint64));
+   x11_hidden_stack_ids = g_array_new (FALSE, FALSE, sizeof (guint64));
+ 
+-  /* The screen guard window sits above all hidden windows and acts as
+-   * a barrier to input reaching these windows. */
+-  g_array_append_val (x11_hidden_stack_ids, stack->screen->guard_window);
+-
+   meta_topic (META_DEBUG_STACK, "Top to bottom: ");
+   meta_push_no_msg_prefix ();
+ 
+@@ -1107,6 +1103,10 @@ stack_sync_to_xserver (MetaStack *stack)
+   meta_topic (META_DEBUG_STACK, "\n");
+   meta_pop_no_msg_prefix ();
+ 
++  /* The screen guard window sits above all hidden windows and acts as
++   * a barrier to input reaching these windows. */
++  g_array_append_val (x11_hidden_stack_ids, stack->screen->guard_window);
++
+   /* Sync to server */
+ 
+   meta_topic (META_DEBUG_STACK, "Restacking %u windows\n",
+-- 
+2.1.0
+
