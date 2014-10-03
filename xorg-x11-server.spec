@@ -142,7 +142,9 @@ BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
 BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
 %if 0%{?fedora} > 20
-BuildRequires: wayland-devel pkgconfig(wayland-client) pkgconfig(epoxy)
+BuildRequires: wayland-devel
+BuildRequires: pkgconfig(wayland-client) >= 1.3.0
+BuildRequires: pkgconfig(epoxy)
 %endif
 %if !0%{?rhel}
 BuildRequires: pkgconfig(xshmfence) >= 1.1
