@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.16.0
-Release:   10%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.16.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -98,14 +98,6 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 # submitted http://lists.x.org/archives/xorg-devel/2014-July/042936.html
 Patch10200: 0001-xwayland-Snap-damage-reports-to-the-bounding-box.patch
-
-# cherry picked from upstream
-# needed to allow X to start on arm and other devices without video on pci buses
-Patch10301: 0001-xfree86-Fallback-to-first-platform-device-as-primary.patch
-Patch10302: 0002-xfree86-Allow-non-PCI-devices-as-primary.patch
-
-# http://lists.x.org/archives/xorg-devel/2014-September/043722.html
-Patch10303: patchwork-33052.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -643,6 +635,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Oct  3 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.1-1
+- New upstream bugfix release 1.16.1 (rhbz#1144404)
+
 * Thu Sep 11 2014 Adam Jackson <ajax@redhat.com> 1.16.0-10
 - Only send GLX_BufferSwapComplete for PresentCompleteKindPixmap
 
