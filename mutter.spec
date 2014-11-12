@@ -2,7 +2,7 @@
 
 Name:          mutter
 Version:       3.15.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -73,12 +73,21 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 Header files and libraries for developing Mutter plugins. Also includes
 utilities for testing Metacity/Mutter themes.
 
+%package  tests
+Summary:  Tests for the %{name} package
+Group:    Development/Libraries
+Requires: %{name}%{?_isa} = %{version}-%{release}
+
+%description tests
+The %{name}-tests package contains tests that can be used to verify
+the functionality of the installed %{name} package.
+
 %prep
 %setup -q
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static --enable-compile-warnings=maximum)
+ %configure --disable-static --enable-compile-warnings=maximum --enable-installed-tests)
 
 SHOULD_HAVE_DEFINED="HAVE_SM HAVE_RANDR HAVE_STARTUP_NOTIFICATION"
 
@@ -138,7 +147,14 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 # exclude as these should be in a devel package (if packaged at all)
 %exclude %{_datadir}/gtk-doc
 
+%files tests
+%{_libexecdir}/installed-tests/mutter
+%{_datadir}/mutter/tests
+
 %changelog
+* Wed Nov 12 2014 Vadim Rutkovsky <vrutkovs@redhat.com> - 3.15.1-2
+- Build installed tests
+
 * Thu Oct 30 2014 Florian Müllner <fmuellner@redhat.com> - 3.15.1-1
 - Update to 3.15.1
 
