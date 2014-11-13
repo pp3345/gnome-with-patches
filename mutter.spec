@@ -149,6 +149,7 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 
 %files tests
 %{_libexecdir}/installed-tests/mutter
+%{_datadir}/installed-tests/mutter
 %{_datadir}/mutter/tests
 
 %changelog
