@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.16.1
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.16.2
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -639,6 +639,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Nov 21 2014 Dave Airlie <airlied@redhat.com> 1.16.2-1
+- New upstream bugfix release 1.16.2
+
 * Fri Nov 21 2014 Dave Airlie <airlied@redhat.com> 1.16.1-2
 - backport glamor DRI3 sync integration from upstream
 
