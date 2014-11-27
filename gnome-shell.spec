@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.15.1
+Version:        3.15.2
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -17,7 +17,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.41.0
 %define gjs_version 1.39.0
-%define mutter_version 3.14.1
+%define mutter_version 3.15.2
 %define eds_version 3.5.3
 %define gnome_desktop_version 3.7.90
 %define json_glib_version 0.13.2
@@ -56,6 +56,7 @@ BuildRequires:  gtk3-devel
 BuildRequires:  intltool
 BuildRequires:  libcanberra-devel
 BuildRequires:  libcroco-devel >= %{libcroco_version}
+BuildRequires:  python3
 
 # for barriers
 BuildRequires:  libXfixes-devel >= 5.0
@@ -104,6 +105,8 @@ Requires:       clutter%{?_isa} >= %{clutter_version}
 Requires:	    control-center
 # needed for captive portal support
 Requires:       NetworkManager-config-connectivity-fedora
+# needed by some utilities
+Requires:       python3%{_isa}
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -176,6 +179,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Nov 27 2014 Florian Müllner <fmuellner@redhat.com> - 3.15.2-1
+- Update to 3.15.2
+
 * Thu Oct 30 2014 Florian Müllner <fmuellner@redhat.com> - 3.15.1-1
 - Update to 3.15.1
 
