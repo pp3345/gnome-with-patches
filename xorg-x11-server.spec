@@ -41,7 +41,7 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.16.2
+Version:   1.16.2.901
 Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
@@ -639,6 +639,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Dec 10 2014 Dave Airlie <airlied@redhat.com> 1.16.2.901-1
+- upstream security release. 1.16.2.901
+
 * Fri Nov 21 2014 Dave Airlie <airlied@redhat.com> 1.16.2-1
 - New upstream bugfix release 1.16.2
 
