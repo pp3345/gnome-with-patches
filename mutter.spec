@@ -1,7 +1,7 @@
 %global clutter_version 1.19.6-3
 
 Name:          mutter
-Version:       3.15.2
+Version:       3.15.3
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -153,6 +153,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Fri Dec 19 2014 Florian Müllner <fmuellner@redhat.com> - 3.15.3-1
+- Update to 3.15.3
+
 * Thu Nov 27 2014 Florian Müllner <fmuellner@redhat.com> - 3.15.2-1
 - Update to 3.15.2
 
