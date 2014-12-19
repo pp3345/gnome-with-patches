@@ -11,6 +11,8 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.15/%{name}-%{version}.tar.xz
 
+Patch0: dont-depend-on-unreleased-wayland.patch
+
 BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -84,6 +86,7 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q
+%patch0 -p1 -b .dont-depend-on-unreleased-wayland
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -153,6 +156,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Fri Dec 19 2014 Florian Müllner <fmuellner@redhat.com> - 3.15.3-1
+- Revert unsatisfiable wayland requirement
+
 * Fri Dec 19 2014 Florian Müllner <fmuellner@redhat.com> - 3.15.3-1
 - Update to 3.15.3
 

@@ -1,0 +1,75 @@
+From 1b1eda59a46665cc61ec66e1ab8cc2aaed006215 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 19 Dec 2014 13:51:54 +0100
+Subject: [PATCH 1/2] Revert "wayland: Upgrade to v2 of data-device"
+
+This reverts commit b832bc7424d7d14a9a43334476e7dd17122f22f0.
+---
+ src/wayland/meta-wayland-data-device.c | 7 -------
+ src/wayland/meta-wayland-versions.h    | 2 +-
+ 2 files changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-data-device.c b/src/wayland/meta-wayland-data-device.c
+index 36675a5..a726cd2 100644
+--- a/src/wayland/meta-wayland-data-device.c
++++ b/src/wayland/meta-wayland-data-device.c
+@@ -547,16 +547,9 @@ data_device_set_selection (struct wl_client *client,
+   meta_wayland_data_device_set_selection (data_device, source, serial);
+ }
+ 
+-static void
+-data_device_release(struct wl_client *client, struct wl_resource *resource)
+-{
+-  wl_resource_destroy(resource);
+-}
+-
+ static const struct wl_data_device_interface data_device_interface = {
+   data_device_start_drag,
+   data_device_set_selection,
+-  data_device_release,
+ };
+ 
+ static void
+diff --git a/src/wayland/meta-wayland-versions.h b/src/wayland/meta-wayland-versions.h
+index 3944956..e6ba794 100644
+--- a/src/wayland/meta-wayland-versions.h
++++ b/src/wayland/meta-wayland-versions.h
+@@ -36,7 +36,7 @@
+ 
+ /* Global/master objects (version exported by wl_registry and negotiated through bind) */
+ #define META_WL_COMPOSITOR_VERSION          3
+-#define META_WL_DATA_DEVICE_MANAGER_VERSION 2
++#define META_WL_DATA_DEVICE_MANAGER_VERSION 1
+ #define META_XDG_SHELL_VERSION              1
+ #define META_WL_SHELL_VERSION               1
+ #define META_WL_SEAT_VERSION                4
+-- 
+2.1.0
+
+
+From e3b247435f809d91e58169c8dec61109d68a5d0f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 19 Dec 2014 13:52:16 +0100
+Subject: [PATCH 2/2] Revert "build: Require wayland-server >= 1.6.90"
+
+This reverts commit e73f5cc8ab97050ae140a478310f92955bd76212.
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index a3724d9..65dc031 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -206,7 +206,7 @@ if test $have_native_backend = yes; then
+ fi
+ AM_CONDITIONAL([HAVE_NATIVE_BACKEND],[test $have_native_backend = yes])
+ 
+-PKG_CHECK_MODULES(MUTTER_WAYLAND, [clutter-wayland-1.0 clutter-wayland-compositor-1.0 wayland-server >= 1.6.90], [have_wayland=yes], [have_wayland=no])
++PKG_CHECK_MODULES(MUTTER_WAYLAND, [clutter-wayland-1.0 clutter-wayland-compositor-1.0 wayland-server >= 1.5.90], [have_wayland=yes], [have_wayland=no])
+ if test $have_wayland = yes; then
+    AC_PATH_PROG([WAYLAND_SCANNER],[wayland-scanner],[no])
+    AS_IF([test $WAYLAND_SCANNER = "no"],
+-- 
+2.1.0
+
