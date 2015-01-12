@@ -40,6 +40,7 @@ BuildRequires: desktop-file-utils
 BuildRequires: gtk-doc gnome-common intltool
 BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel
+BuildRequires: automake, autoconf, libtool
 BuildRequires: pkgconfig(gudev-1.0)
 BuildRequires: pkgconfig(clutter-egl-1.0)
 BuildRequires: pkgconfig(libdrm)
@@ -166,6 +167,8 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 * Mon Jan 12 2015 Ray Strode <rstrode@redhat.com> 3.15.3-2
 - Add specific BuildRequires for wayland bits, so we don't
   get wayland support by happenstance.
+- Add BuildRequires for autogoo since ./autogen.sh is run as part of
+  the build process
 
 * Fri Dec 19 2014 Florian Müllner <fmuellner@redhat.com> - 3.15.3-1
 - Revert unsatisfiable wayland requirement
