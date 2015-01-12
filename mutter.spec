@@ -97,6 +97,7 @@ the functionality of the installed %{name} package.
 %patch0 -p1 -b .dont-depend-on-unreleased-wayland
 
 %build
+autoreconf -f -i
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static --enable-compile-warnings=maximum --enable-installed-tests)
 
