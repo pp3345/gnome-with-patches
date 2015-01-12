@@ -2,7 +2,7 @@
 
 Name:          mutter
 Version:       3.15.3
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -40,6 +40,13 @@ BuildRequires: desktop-file-utils
 BuildRequires: gtk-doc gnome-common intltool
 BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel
+BuildRequires: pkgconfig(gudev-1.0)
+BuildRequires: pkgconfig(clutter-egl-1.0)
+BuildRequires: pkgconfig(libdrm)
+BuildRequires: pkgconfig(gbm)
+BuildRequires: pkgconfig(clutter-wayland-1.0)
+BuildRequires: pkgconfig(clutter-wayland-compositor-1.0)
+BuildRequires: pkgconfig(wayland-server)
 
 Obsoletes: mutter-wayland < 3.13.0
 Obsoletes: mutter-wayland-devel < 3.13.0
@@ -156,6 +163,10 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Mon Jan 12 2015 Ray Strode <rstrode@redhat.com> 3.15.3-2
+- Add specific BuildRequires for wayland bits, so we don't
+  get wayland support by happenstance.
+
 * Fri Dec 19 2014 Florian Müllner <fmuellner@redhat.com> - 3.15.3-1
 - Revert unsatisfiable wayland requirement
 
