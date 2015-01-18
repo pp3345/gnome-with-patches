@@ -2,7 +2,7 @@
 
 Name:          mutter
 Version:       3.15.3
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -165,6 +165,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Mon Jan 19 2015 Peter Hutterer <peter.hutterer@redhat.com> 3.15.3-3
+- Rebuild for libinput soname bump
+
 * Mon Jan 12 2015 Ray Strode <rstrode@redhat.com> 3.15.3-2
 - Add specific BuildRequires for wayland bits, so we don't
   get wayland support by happenstance.
