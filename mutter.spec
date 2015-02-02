@@ -2,7 +2,7 @@
 
 Name:          mutter
 Version:       3.15.4
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -12,6 +12,8 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.15/%{name}-%{version}.tar.xz
 
 Patch0: dont-depend-on-unreleased-wayland.patch
+# Backport ad90b7dd to fix BGO #743412 / RHBZ #1185811
+Patch1: 0001-monitor-manager-Initialize-MetaOutput-even-when-we-c.patch
 
 BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
@@ -95,6 +97,7 @@ the functionality of the installed %{name} package.
 %prep
 %setup -q
 %patch0 -p1 -b .dont-depend-on-unreleased-wayland
+%patch1 -p1 -b .metaoutput-initialize
 
 %build
 autoreconf -f -i
@@ -165,6 +168,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Mon Feb 02 2015 Adam Williamson <awilliam@redhat.com> - 3.15.4-2
+- backport ad90b7dd to fix BGO #743412 / RHBZ #1185811
+
 * Wed Jan 21 2015 Florian Müllner <fmuellner@redhat.com> - 3.15.4-1
 - Update to 3.15.4
 
