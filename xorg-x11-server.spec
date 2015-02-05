@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.16.2.901
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -81,6 +81,9 @@ Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 # ajax needs to upstream this
 Patch6030: xserver-1.6.99-right-of.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=737226
+Patch6045: 0001-present-make-unflip-work-when-the-flip-window-is-des.patch
 
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
@@ -630,6 +633,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Feb 05 2015 Ray Strode <rstrode@redhat.com> 1.16.2.901-2
+- Add patch from ickle to fix flicker on login / durin vt switch
+  see https://bugzilla.gnome.org/show_bug.cgi?id=737226
+
 * Wed Dec 10 2014 Dave Airlie <airlied@redhat.com> 1.16.2.901-1
 - upstream security release. 1.16.2.901
 

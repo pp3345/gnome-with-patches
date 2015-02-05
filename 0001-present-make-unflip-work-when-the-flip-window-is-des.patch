@@ -1,0 +1,128 @@
+From df3b03e05b5c826584fc75466f404b53844edcf4 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Thu, 5 Feb 2015 14:11:40 -0500
+Subject: [PATCH] present: make unflip work when the flip window is destroyed
+ or clipped
+
+Present allows a window to redirect itself to a client provided buffer.
+
+If that buffer is about to be invalidated, the window needs to direct
+itself back to its original buffer (some part of the root window/front
+buffer), and update that storage to have a current contents (a process
+called "unflipping").
+
+The present_unflip finds the original buffer by way of the drawable
+associated with the window presented to.  If the window is already
+destroyed, then it get dissociated from its drawable, and the copy
+operation used to update the original buffer fails.
+
+When the compositor exits its buffers become invalidated and the
+composite overlay window gets destroyed at the same time.  This leads
+to a temporary flash of the root window as it looked at the time
+the X server was started.
+
+The present_unflip function performs the copy using the clip list of
+the window presented to. If the window is clipped, the copy operation
+used to update the original buffer will be clipped as well.
+
+When VT switching away the X server sets the clip to 0, so that
+applications get fully reexposed the next time the VT is active.
+
+When VT switching the present_unflip function is called.  This leads
+to a temporary flash of the root window as it looked at the time
+the X server was started.
+
+This commit changes present_flip to update the front buffer directly,
+rather than by way of the drawable associated with the window presented
+to.  At the same time, doing this means avoiding the clip list
+associated with the window.
+---
+ present/present.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/present/present.c b/present/present.c
+index 8e4829e..a516575 100644
+--- a/present/present.c
++++ b/present/present.c
+@@ -377,74 +377,74 @@ present_set_tree_pixmap(WindowPtr window, PixmapPtr pixmap)
+ 
+     visit.old = (*screen->GetWindowPixmap)(window);
+     visit.new = pixmap;
+     if (visit.old == visit.new)
+         return;
+     TraverseTree(window, present_set_tree_pixmap_visit, &visit);
+ }
+ 
+ static void
+ present_set_abort_flip(ScreenPtr screen)
+ {
+     present_screen_priv_ptr screen_priv = present_screen_priv(screen);
+ 
+     /* Switch back to using the screen pixmap now to avoid
+      * 2D applications drawing to the wrong pixmap.
+      */
+ 
+     if (screen_priv->flip_window)
+         present_set_tree_pixmap(screen_priv->flip_window,
+                                   (*screen->GetScreenPixmap)(screen));
+ 
+     present_set_tree_pixmap(screen->root, (*screen->GetScreenPixmap)(screen));
+ 
+     screen_priv->flip_pending->abort_flip = TRUE;
+ }
+ 
+ static void
+ present_unflip(ScreenPtr screen)
+ {
+     present_screen_priv_ptr screen_priv = present_screen_priv(screen);
++    PixmapPtr pixmap = (*screen->GetScreenPixmap)(screen);
+ 
+     assert (!screen_priv->unflip_event_id);
+     assert (!screen_priv->flip_pending);
+ 
+     if (screen_priv->flip_window)
+-        present_set_tree_pixmap(screen_priv->flip_window,
+-                                  (*screen->GetScreenPixmap)(screen));
++        present_set_tree_pixmap(screen_priv->flip_window, pixmap);
+ 
+-    present_set_tree_pixmap(screen->root, (*screen->GetScreenPixmap)(screen));
++    present_set_tree_pixmap(screen->root, pixmap);
+ 
+     /* Update the screen pixmap with the current flip pixmap contents
+      */
+     if (screen_priv->flip_pixmap && screen_priv->flip_window) {
+-        present_copy_region(&screen_priv->flip_window->drawable,
++        present_copy_region(&pixmap->drawable,
+                             screen_priv->flip_pixmap,
+                             NULL, 0, 0);
+     }
+     screen_priv->unflip_event_id = ++present_event_id;
+     DebugPresent(("u %lld\n", screen_priv->unflip_event_id));
+     (*screen_priv->info->unflip) (screen, screen_priv->unflip_event_id);
+ }
+ 
+ static void
+ present_flip_notify(present_vblank_ptr vblank, uint64_t ust, uint64_t crtc_msc)
+ {
+     ScreenPtr                   screen = vblank->screen;
+     present_screen_priv_ptr     screen_priv = present_screen_priv(screen);
+ 
+     DebugPresent(("\tn %lld %p %8lld: %08lx -> %08lx\n",
+                   vblank->event_id, vblank, vblank->target_msc,
+                   vblank->pixmap ? vblank->pixmap->drawable.id : 0,
+                   vblank->window ? vblank->window->drawable.id : 0));
+ 
+     assert (vblank == screen_priv->flip_pending);
+ 
+     present_flip_idle(screen);
+ 
+     xorg_list_del(&vblank->event_queue);
+ 
+     /* Transfer reference for pixmap and fence from vblank to screen_priv */
+     screen_priv->flip_crtc = vblank->crtc;
+     screen_priv->flip_window = vblank->window;
+     screen_priv->flip_serial = vblank->serial;
+     screen_priv->flip_pixmap = vblank->pixmap;
+-- 
+2.1.0
+
