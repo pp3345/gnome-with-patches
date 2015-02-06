@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.16.2.901
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -104,6 +104,11 @@ Patch10200: 0001-xwayland-Snap-damage-reports-to-the-bounding-box.patch
 
 # already in master:
 Patch10300: glamor-add-shm-sync-fence-support.patch
+
+# CVE-2015-0255
+Patch10400: 0001-xkb-Don-t-swap-XkbSetGeometry-data-in-the-input-buff.patch
+Patch10401: 0002-xkb-Check-strings-length-against-request-size.patch
+
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
 %global sdkdir		%{_includedir}/xorg
@@ -633,6 +638,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Feb 06 2015 Peter Hutterer <peter.hutterer@redhat.com> 1.16.2.901-3
+- CVE-2015-0255: unchecked XKB string lengths
+
 * Thu Feb 05 2015 Ray Strode <rstrode@redhat.com> 1.16.2.901-2
 - Add patch from ickle to fix flicker on login / durin vt switch
   see https://bugzilla.gnome.org/show_bug.cgi?id=737226
