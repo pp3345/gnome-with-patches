@@ -1,41 +1,15 @@
 From df3b03e05b5c826584fc75466f404b53844edcf4 Mon Sep 17 00:00:00 2001
 From: Chris Wilson <chris@chris-wilson.co.uk>
 Date: Thu, 5 Feb 2015 14:11:40 -0500
-Subject: [PATCH] present: make unflip work when the flip window is destroyed
- or clipped
+Subject: [PATCH] present: Copy unflip contents back to the Screen Pixmap
 
-Present allows a window to redirect itself to a client provided buffer.
+As we unflip after the flip Window no longer passes the pixel ownership
+test for the full Screen Pixmap, we can no longer utilize that Window to
+copy the contents back to the backing pixmap. To first flip means that
+the Window was originally backed by the Screen Pixmap and wholly covered
+the Pixmap, thus we need to copy the last frame contents to the Screen
+Pixmap when the flip chain is complete.
 
-If that buffer is about to be invalidated, the window needs to direct
-itself back to its original buffer (some part of the root window/front
-buffer), and update that storage to have a current contents (a process
-called "unflipping").
-
-The present_unflip finds the original buffer by way of the drawable
-associated with the window presented to.  If the window is already
-destroyed, then it get dissociated from its drawable, and the copy
-operation used to update the original buffer fails.
-
-When the compositor exits its buffers become invalidated and the
-composite overlay window gets destroyed at the same time.  This leads
-to a temporary flash of the root window as it looked at the time
-the X server was started.
-
-The present_unflip function performs the copy using the clip list of
-the window presented to. If the window is clipped, the copy operation
-used to update the original buffer will be clipped as well.
-
-When VT switching away the X server sets the clip to 0, so that
-applications get fully reexposed the next time the VT is active.
-
-When VT switching the present_unflip function is called.  This leads
-to a temporary flash of the root window as it looked at the time
-the X server was started.
-
-This commit changes present_flip to update the front buffer directly,
-rather than by way of the drawable associated with the window presented
-to.  At the same time, doing this means avoiding the clip list
-associated with the window.
 ---
  present/present.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
