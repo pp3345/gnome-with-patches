@@ -96,6 +96,9 @@ Patch9100: exa-only-draw-valid-trapezoids.patch
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
+# Fix build with gcc5, submitted upstream, likely needs a better fix
+Patch10001: 0001-sdksyms.sh-Make-sdksyms.sh-work-with-gcc5.patch
+
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
 %global sdkdir		%{_includedir}/xorg
