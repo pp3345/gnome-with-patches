@@ -18,34 +18,7 @@ diff --git a/present/present.c b/present/present.c
 index 8e4829e..a516575 100644
 --- a/present/present.c
 +++ b/present/present.c
-@@ -377,74 +377,74 @@ present_set_tree_pixmap(WindowPtr window, PixmapPtr pixmap)
- 
-     visit.old = (*screen->GetWindowPixmap)(window);
-     visit.new = pixmap;
-     if (visit.old == visit.new)
-         return;
-     TraverseTree(window, present_set_tree_pixmap_visit, &visit);
- }
- 
- static void
- present_set_abort_flip(ScreenPtr screen)
- {
-     present_screen_priv_ptr screen_priv = present_screen_priv(screen);
- 
-     /* Switch back to using the screen pixmap now to avoid
-      * 2D applications drawing to the wrong pixmap.
-      */
- 
-     if (screen_priv->flip_window)
-         present_set_tree_pixmap(screen_priv->flip_window,
-                                   (*screen->GetScreenPixmap)(screen));
- 
-     present_set_tree_pixmap(screen->root, (*screen->GetScreenPixmap)(screen));
- 
-     screen_priv->flip_pending->abort_flip = TRUE;
- }
- 
- static void
+@@ -377,20 +377,20 @@ present_set_tree_pixmap(WindowPtr window, PixmapPtr pixmap)
  present_unflip(ScreenPtr screen)
  {
      present_screen_priv_ptr screen_priv = present_screen_priv(screen);
@@ -70,33 +43,6 @@ index 8e4829e..a516575 100644
                              screen_priv->flip_pixmap,
                              NULL, 0, 0);
      }
-     screen_priv->unflip_event_id = ++present_event_id;
-     DebugPresent(("u %lld\n", screen_priv->unflip_event_id));
-     (*screen_priv->info->unflip) (screen, screen_priv->unflip_event_id);
- }
- 
- static void
- present_flip_notify(present_vblank_ptr vblank, uint64_t ust, uint64_t crtc_msc)
- {
-     ScreenPtr                   screen = vblank->screen;
-     present_screen_priv_ptr     screen_priv = present_screen_priv(screen);
- 
-     DebugPresent(("\tn %lld %p %8lld: %08lx -> %08lx\n",
-                   vblank->event_id, vblank, vblank->target_msc,
-                   vblank->pixmap ? vblank->pixmap->drawable.id : 0,
-                   vblank->window ? vblank->window->drawable.id : 0));
- 
-     assert (vblank == screen_priv->flip_pending);
- 
-     present_flip_idle(screen);
- 
-     xorg_list_del(&vblank->event_queue);
- 
-     /* Transfer reference for pixmap and fence from vblank to screen_priv */
-     screen_priv->flip_crtc = vblank->crtc;
-     screen_priv->flip_window = vblank->window;
-     screen_priv->flip_serial = vblank->serial;
-     screen_priv->flip_pixmap = vblank->pixmap;
 -- 
 2.1.0
 

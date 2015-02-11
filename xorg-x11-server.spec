@@ -16,11 +16,11 @@
 # source because rpm is a terrible language.
 %global ansic_major 0
 %global ansic_minor 4
-%global videodrv_major 18
+%global videodrv_major 19
 %global videodrv_minor 0
 %global xinput_major 21
 %global xinput_minor 0
-%global extension_major 8
+%global extension_major 9
 %global extension_minor 0
 %endif
 
@@ -41,8 +41,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.16.2.901
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.17.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -90,24 +90,11 @@ Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 # do not upstream - do not even use here yet
 Patch7027: xserver-autobind-hotplug.patch
 
-# Fix multiple monitors in reverse optimus configurations
-Patch8041: 0001-pixmap-fix-reverse-optimus-support-with-multiple-hea.patch
-
 # submitted: http://lists.x.org/archives/xorg-devel/2013-October/037996.html
 Patch9100: exa-only-draw-valid-trapezoids.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
-
-# submitted http://lists.x.org/archives/xorg-devel/2014-July/042936.html
-Patch10200: 0001-xwayland-Snap-damage-reports-to-the-bounding-box.patch
-
-# already in master:
-Patch10300: glamor-add-shm-sync-fence-support.patch
-
-# CVE-2015-0255
-Patch10400: 0001-xkb-Don-t-swap-XkbSetGeometry-data-in-the-input-buff.patch
-Patch10401: 0002-xkb-Check-strings-length-against-request-size.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -178,7 +165,7 @@ BuildRequires: libunwind-devel
 %endif
 
 BuildRequires: pkgconfig(xcb-aux) pkgconfig(xcb-image) pkgconfig(xcb-icccm)
-BuildRequires: pkgconfig(xcb-keysyms)
+BuildRequires: pkgconfig(xcb-keysyms) pkgconfig(xcb-renderutil)
 
 # All server subpackages have a virtual provide for the name of the server
 # they deliver.  The Xorg one is versioned, the others are intentionally
@@ -221,6 +208,8 @@ Provides: xserver-abi(extension-%{git_extension_major}) = %{git_extension_minor}
 %endif
 Obsoletes: xorg-x11-glamor < %{version}-%{release}
 Provides: xorg-x11-glamor = %{version}-%{release}
+Obsoletes: xorg-x11-drv-modesetting < %{version}-%{release}
+Provides: xorg-x11-drv-modesetting = %{version}-%{release}
 
 %if 0%{?fedora} > 20
 # Dropped from F21
@@ -232,7 +221,7 @@ Obsoletes: xorg-x11-drv-i740 < 1.3.4-18
 Obsoletes: xorg-x11-drv-mach64 < 6.9.4-16
 Obsoletes: xorg-x11-drv-mga < 1.6.2-17
 Obsoletes: xorg-x11-drv-neomagic < 1.2.8-8
-Obsoletes: xorg-x11-drv-r128 < 6.9.1-15
+Obsoletes: xorg-x11-drv-r128 < 6.9.2-2
 Obsoletes: xorg-x11-drv-rendition < 4.2.5-18
 Obsoletes: xorg-x11-drv-s3virge < 1.10.6-18
 Obsoletes: xorg-x11-drv-savage < 2.3.7-7
@@ -548,13 +537,14 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %config %attr(0644,root,root) %{_sysconfdir}/pam.d/xserver
 %{_bindir}/X
 %{_bindir}/Xorg
-%{_libexecdir}/Xorg.bin
+%{_libexecdir}/Xorg
 %{Xorgperms} %{_libexecdir}/Xorg.wrap
 %{_bindir}/cvt
 %{_bindir}/gtf
 %dir %{_libdir}/xorg
 %dir %{_libdir}/xorg/modules
 %dir %{_libdir}/xorg/modules/drivers
+%{_libdir}/xorg/modules/drivers/modesetting_drv.so
 %dir %{_libdir}/xorg/modules/extensions
 %{_libdir}/xorg/modules/extensions/libglx.so
 %dir %{_libdir}/xorg/modules/input
@@ -576,6 +566,7 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %{_mandir}/man1/cvt.1*
 %{_mandir}/man4/fbdevhw.4*
 %{_mandir}/man4/exa.4*
+%{_mandir}/man4/modesetting.4*
 %{_mandir}/man5/Xwrapper.config.5*
 %{_mandir}/man5/xorg.conf.5*
 %{_mandir}/man5/xorg.conf.d.5*
@@ -638,6 +629,12 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Feb 11 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-1
+- New upstream release 1.17.1 (rhbz#1144404)
+- xorg-x11-drv-modesetting is now included in xorg-x11-server-Xorg,
+  obsolete it
+- Fix xorg-x11-drv-r128 obsoletes (rhbz#1176791)
+
 * Fri Feb 06 2015 Peter Hutterer <peter.hutterer@redhat.com> 1.16.2.901-3
 - CVE-2015-0255: unchecked XKB string lengths
 
