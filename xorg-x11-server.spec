@@ -42,7 +42,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.1
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -92,6 +92,9 @@ Patch7027: xserver-autobind-hotplug.patch
 
 # submitted: http://lists.x.org/archives/xorg-devel/2013-October/037996.html
 Patch9100: exa-only-draw-valid-trapezoids.patch
+
+# submitted upstream: regression in 1.17.0
+Patch9200: 0001-os-access-fix-regression-in-server-interpreted-auth.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -632,6 +635,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Feb 17 2015 Dave Airlie <airlied@redhat.com> 1.17.1-2
+- fix regression in SI:localuser handling
+
 * Wed Feb 11 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-1
 - New upstream release 1.17.1 (rhbz#1144404)
 - xorg-x11-drv-modesetting is now included in xorg-x11-server-Xorg,
