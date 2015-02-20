@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.15.4
-Release:        2%{?dist}
+Version:        3.15.90
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -17,8 +17,8 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.41.0
 %define gjs_version 1.39.0
-%define mutter_version 3.15.2
-%define eds_version 3.5.3
+%define mutter_version 3.15.90
+%define eds_version 3.13.90
 %define gnome_desktop_version 3.7.90
 %define json_glib_version 0.13.2
 %define gsettings_desktop_schemas_version 3.11.4
@@ -179,6 +179,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Fri Feb 20 2015 Florian Müllner <fmuellner@redhat.com> - 3.15.90-1
+- Update to 3.15.90
+
 * Tue Feb 17 2015 Milan Crha <mcrha@redhat.com> - 3.15.4-2
 - Rebuild against newer evolution-data-server
 
