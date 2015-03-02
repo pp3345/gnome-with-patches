@@ -10,7 +10,6 @@
 
 # X.org requires lazy relocations to work.
 %undefine _hardened_build
-%global _hardended_build 0
 
 #global gitdate 20140428
 %global stable_abi 1
@@ -46,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.1
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -639,6 +638,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Mar 02 2015 Dave Airlie <airlied@redhat.com> 1.17.1-5
+- omg, define something to 0 makes it work, security.
+
 * Mon Mar 02 2015 Dave Airlie <airlied@redhat.com> 1.17.1-4
 - require lazy relocations to work, remove cement
 
