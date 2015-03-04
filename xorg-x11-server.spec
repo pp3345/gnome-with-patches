@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.1
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -104,6 +104,8 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 # Fix build with gcc5, submitted upstream, likely needs a better fix
 Patch10001: 0001-sdksyms.sh-Make-sdksyms.sh-work-with-gcc5.patch
+
+Patch10002: 0001-int10-Fix-mapping-the-interrupt-vector.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -638,6 +640,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Mar 04 2015 Adam Jackson <ajax@redhat.com> 1.17.1-6
+- Fix int10 interrupt vector setup
+
 * Mon Mar 02 2015 Dave Airlie <airlied@redhat.com> 1.17.1-5
 - omg, define something to 0 makes it work, security.
 
