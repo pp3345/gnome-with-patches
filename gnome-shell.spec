@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.15.90
+Version:        3.15.91
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -179,6 +179,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Mar 04 2015 Florian Müllner <fmuellner@redhat.com> - 3.15.91-1
+- Update to 3.15.91
+
 * Fri Feb 20 2015 Florian Müllner <fmuellner@redhat.com> - 3.15.90-1
 - Update to 3.15.90
 
