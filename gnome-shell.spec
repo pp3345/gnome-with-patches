@@ -12,6 +12,7 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.15/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
+Patch2: 0001-appFavorites-Add-gnome-terminal-to-the-rename-list.patch
 
 %define clutter_version 1.15.90
 %define gnome_bluetooth_version 1:3.9.0
@@ -118,6 +119,7 @@ easy to use experience.
 %prep
 %setup -q
 %patch1 -p1 -b .firefox
+%patch2 -p1 -b .terminal-renamed-desktop-file
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
