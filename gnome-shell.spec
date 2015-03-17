@@ -145,7 +145,8 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null ||:
 
 %files -f %{name}.lang
-%doc COPYING README
+%license COPYING
+%doc README
 %{_bindir}/gnome-shell
 %{_bindir}/gnome-shell-extension-tool
 %{_bindir}/gnome-shell-perf-tool
@@ -183,6 +184,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %changelog
 * Tue Mar 17 2015 Kalev Lember <kalevlember@gmail.com> - 3.15.92-2
 - Update minimum dep versions
+- Use license macro for the COPYING file
 
 * Tue Mar 17 2015 Florian Müllner <fmuellner@redhat.com> - 3.15.92-1
 - Update to 3.15.92
