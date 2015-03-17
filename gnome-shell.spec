@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.15.91
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -104,8 +104,6 @@ Requires:       gdm-libs%{?_isa}
 Requires:       clutter%{?_isa} >= %{clutter_version}
 # needed for settings items in menus
 Requires:	    control-center
-# needed for captive portal support
-Requires:       NetworkManager-config-connectivity-fedora
 # needed by some utilities
 Requires:       python3%{_isa}
 
@@ -181,6 +179,10 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Mar 17 2015 Ray Strode <rstrode@redhat.com> 3.15.91-2
+- Drop dep on NetworkManager-config-connectivity-fedora
+  It's already required by fedora-release-workstation
+
 * Wed Mar 04 2015 Florian Müllner <fmuellner@redhat.com> - 3.15.91-1
 - Update to 3.15.91
 
