@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.15.91
-Release:        2%{?dist}
+Version:        3.15.92
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -179,6 +179,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Mar 17 2015 Florian Müllner <fmuellner@redhat.com> - 3.15.92-1
+- Update to 3.15.92
+
 * Tue Mar 17 2015 Ray Strode <rstrode@redhat.com> 3.15.91-2
 - Drop dep on NetworkManager-config-connectivity-fedora
   It's already required by fedora-release-workstation
