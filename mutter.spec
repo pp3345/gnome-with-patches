@@ -1,8 +1,9 @@
-%global clutter_version 1.19.6-3
+%global clutter_version 1.21.3
+%global gsettings_desktop_schemas_version 3.15.92
 
 Name:          mutter
 Version:       3.15.92
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -37,7 +38,7 @@ BuildRequires: desktop-file-utils
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common intltool
 BuildRequires: libcanberra-devel
-BuildRequires: gsettings-desktop-schemas-devel
+BuildRequires: gsettings-desktop-schemas-devel >= %{gsettings_desktop_schemas_version}
 BuildRequires: automake, autoconf, libtool
 BuildRequires: pkgconfig(gudev-1.0)
 BuildRequires: pkgconfig(clutter-egl-1.0)
@@ -56,6 +57,7 @@ Conflicts: gnome-shell < 3.14.1
 
 Requires: clutter%{?_isa} >= %{clutter_version}
 Requires: control-center-filesystem
+Requires: gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires: startup-notification
 Requires: dbus-x11
 Requires: zenity
@@ -162,6 +164,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Mar 17 2015 Kalev Lember <kalevlember@gmail.com> - 3.15.92-2
+- Update minimum dep versions
+
 * Tue Mar 17 2015 Florian Müllner <fmuellner@redhat.com> - 3.15.92-1
 - Update to 3.15.92
 
