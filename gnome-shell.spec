@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.15.92
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -14,15 +14,16 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.15/%{name}-%{ver
 Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-appFavorites-Add-gnome-terminal-to-the-rename-list.patch
 
-%define clutter_version 1.15.90
+%define clutter_version 1.21.5
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.41.0
 %define gjs_version 1.39.0
-%define mutter_version 3.15.90
+%define mutter_version 3.15.92
+%define gtk3_version 3.15.0
 %define eds_version 3.13.90
 %define gnome_desktop_version 3.7.90
 %define json_glib_version 0.13.2
-%define gsettings_desktop_schemas_version 3.11.4
+%define gsettings_desktop_schemas_version 3.13.1
 %define caribou_version 0.4.8
 %define libcroco_version 0.6.8
 %define telepathy_logger_version 0.2.6
@@ -53,7 +54,7 @@ BuildRequires:  telepathy-glib-devel
 BuildRequires:  telepathy-logger-devel >= %{telepathy_logger_version}
 # for screencast recorder functionality
 BuildRequires:  gstreamer1-devel
-BuildRequires:  gtk3-devel
+BuildRequires:  gtk3-devel >= %{gtk3_version}
 BuildRequires:  intltool
 BuildRequires:  libcanberra-devel
 BuildRequires:  libcroco-devel >= %{libcroco_version}
@@ -80,6 +81,7 @@ Requires:       gnome-session-xsession
 # from the command line
 Requires:       gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires:       gjs%{?_isa} >= %{gjs_version}
+Requires:       gtk3%{?_isa} >= %{gtk3_version}
 # needed for loading SVG's via gdk-pixbuf
 Requires:       librsvg2%{?_isa}
 # needed as it is now split from Clutter
@@ -103,7 +105,7 @@ Requires:       accountsservice-libs%{?_isa}
 Requires:       gdm-libs%{?_isa}
 Requires:       clutter%{?_isa} >= %{clutter_version}
 # needed for settings items in menus
-Requires:	    control-center
+Requires:       control-center
 # needed by some utilities
 Requires:       python3%{_isa}
 
@@ -179,6 +181,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Mar 17 2015 Kalev Lember <kalevlember@gmail.com> - 3.15.92-2
+- Update minimum dep versions
+
 * Tue Mar 17 2015 Florian Müllner <fmuellner@redhat.com> - 3.15.92-1
 - Update to 3.15.92
 
