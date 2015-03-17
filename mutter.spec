@@ -140,7 +140,6 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %files -f %{name}.lang
 %license COPYING
 %doc NEWS
-%doc %{_mandir}/man1/mutter.1.gz
 %{_bindir}/mutter
 %{_datadir}/applications/*.desktop
 %{_libdir}/lib*.so.*
@@ -150,7 +149,7 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/glib-2.0/schemas/org.gnome.mutter.gschema.xml
 %{_datadir}/glib-2.0/schemas/org.gnome.mutter.wayland.gschema.xml
 %{_datadir}/gnome-control-center/keybindings/50-mutter-*.xml
-
+%{_mandir}/man1/mutter.1*
 
 %files devel
 %{_includedir}/*
