@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.1
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Release:   7%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -640,6 +640,13 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Mar 18 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-7
+- Modify the server wrapper to not always start the server as root.
+  Callers of the server which start it in a way which is compatible with the
+  server running without root rights can now set a XORG_RUN_AS_USER_OK env
+  variable and then the wrapper will behave as if needs_root_rights = auto
+  is specified, unless overriden from Xwrapper.config
+
 * Wed Mar 04 2015 Adam Jackson <ajax@redhat.com> 1.17.1-6
 - Fix int10 interrupt vector setup
 
