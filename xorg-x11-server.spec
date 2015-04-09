@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.1
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -106,6 +106,7 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 Patch10001: 0001-sdksyms.sh-Make-sdksyms.sh-work-with-gcc5.patch
 
 Patch10002: 0001-int10-Fix-mapping-the-interrupt-vector.patch
+Patch10003: 0001-include-Fix-endianness-setup.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -640,6 +641,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Apr 09 2015 Adam Jackson <ajax@redhat.com> 1.17.1-8
+- Fix endian detection code (#1206060)
+
 * Wed Mar 18 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-7
 - Modify the server wrapper to not always start the server as root.
   Callers of the server which start it in a way which is compatible with the
