@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.1
-Release:   8%{?gitdate:.%{gitdate}}%{dist}
+Release:   9%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -87,6 +87,10 @@ Patch6030: xserver-1.6.99-right-of.patch
 
 # https://bugzilla.gnome.org/show_bug.cgi?id=737226
 Patch6045: 0001-present-make-unflip-work-when-the-flip-window-is-des.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1209347
+Patch6055: systemd-logind-filter-out-non-signal-messages-from.patch
+Patch6056: systemd-logind-dont-second-guess-D-Bus-default-tim.patch
 
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
@@ -641,6 +645,12 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Sat Apr 11 2015 Ray Strode <rstrode@redhat.com> 1.17.1-9
+- Handle logind timeouts more gracefuly.
+- Bump timeouts so they don't happen in practice
+  Fixes X on some old optimus and other hybrid hardware
+  Related: #1209347
+
 * Thu Apr 09 2015 Adam Jackson <ajax@redhat.com> 1.17.1-8
 - Fix endian detection code (#1206060)
 
