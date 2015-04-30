@@ -2,15 +2,15 @@
 %global gsettings_desktop_schemas_version 3.15.92
 
 Name:          mutter
-Version:       3.16.1.1
-Release:       2%{?dist}
+Version:       3.17.1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.16/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.17/%{name}-%{version}.tar.xz
 
 BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
@@ -164,6 +164,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu Apr 30 2015 Florian Müllner <fmuellner@redhat.com> - 3.17.1-1
+- Update to 3.17.1
+
 * Thu Apr 16 2015 Kalev Lember <kalevlember@gmail.com> - 3.16.1.1-2
 - Bump gnome-shell conflicts version
 
