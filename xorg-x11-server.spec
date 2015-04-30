@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.1
-Release:   9%{?gitdate:.%{gitdate}}%{dist}
+Release:   10%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -111,6 +111,10 @@ Patch10001: 0001-sdksyms.sh-Make-sdksyms.sh-work-with-gcc5.patch
 
 Patch10002: 0001-int10-Fix-mapping-the-interrupt-vector.patch
 Patch10003: 0001-include-Fix-endianness-setup.patch
+
+# rhbz1203780, submitted upstream
+Patch10004: 0001-linux-Add-linux_get_vtno-and-linux_get_keeptty-helpe.patch
+Patch10005: 0002-systemd-logind-Only-use-systemd-logind-integration-t.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -645,6 +649,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Apr 30 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-10
+- Fix "start -- vt7" not working (#1203780)
+
 * Sat Apr 11 2015 Ray Strode <rstrode@redhat.com> 1.17.1-9
 - Handle logind timeouts more gracefuly.
 - Bump timeouts so they don't happen in practice
