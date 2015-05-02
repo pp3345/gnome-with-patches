@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.1
-Release:   10%{?gitdate:.%{gitdate}}%{dist}
+Release:   11%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -115,6 +115,9 @@ Patch10003: 0001-include-Fix-endianness-setup.patch
 # rhbz1203780, submitted upstream
 Patch10004: 0001-linux-Add-linux_get_vtno-and-linux_get_keeptty-helpe.patch
 Patch10005: 0002-systemd-logind-Only-use-systemd-logind-integration-t.patch
+
+# rhbz1205725, submitted upstream
+Patch10006: 0001-modesetting-Fix-software-cursor-fallback.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -649,6 +652,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Sat May 02 2015 Adel Gadllah <adel.gadllah@gmail.com> - 1.17.1-11
+- modesetting: Fix software cursor fallback (#1205725)
+
 * Thu Apr 30 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-10
 - Fix "start -- vt7" not working (#1203780)
 
