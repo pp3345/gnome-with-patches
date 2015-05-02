@@ -2,7 +2,7 @@
 
 Name:          gjs
 Version:       1.43.3
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -91,6 +91,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Sat May 02 2015 Kalev Lember <kalevlember@gmail.com> - 1.43.3-2
+- Rebuilt for GCC 5 C++11 ABI change
+
 * Mon Dec 29 2014 Richard Hughes <rhughes@redhat.com> - 1.43.3-1
 - Update to 1.43.3
 
