@@ -1,7 +1,7 @@
-From 4c5a293c20394bad6abb695aaa0d8ef374ed1080 Mon Sep 17 00:00:00 2001
+From 816c85d0e8fc517db3382bce4a94bc5d859b3eca Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 21 Jan 2015 10:13:20 +0100
-Subject: [PATCH 2/2] systemd-logind: Only use systemd-logind integration
+Subject: [PATCH v2 3/3] systemd-logind: Only use systemd-logind integration
  together with keeptty
 
 systemd-logind integration does not work when starting X on a new tty, as
@@ -16,13 +16,22 @@ not using KeepTty, or iow we may only use systemd-logind integration together
 with KeepTty.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+Changes in v2:
+-Document that -keeptty must be passed for logind integration in man page
+-Print an INFO message when disabling logind integration due to -keeptty
+ not being set
+Changes in v3:
+-Fix typo in manpage additions
+-Use new may_fail parameter to linux_parse_vt_settings
 ---
  hw/xfree86/man/Xorg.man                      | 6 +++---
- hw/xfree86/os-support/linux/systemd-logind.c | 9 +++++++++
- 2 files changed, 12 insertions(+), 3 deletions(-)
+ hw/xfree86/os-support/linux/systemd-logind.c | 8 ++++++++
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/hw/xfree86/man/Xorg.man b/hw/xfree86/man/Xorg.man
-index 3ff6aef..0864a58 100644
+index 3ff6aef..ddf1358 100644
 --- a/hw/xfree86/man/Xorg.man
 +++ b/hw/xfree86/man/Xorg.man
 @@ -271,9 +271,9 @@ is ignored if
@@ -34,12 +43,12 @@ index 3ff6aef..0864a58 100644
 -support (or can use) this option.
 +Prevent the server from detaching its initial controlling terminal. If you
 +want to use systemd-logind integration you must specify this option.
-+Not all platorms support (or can use) this option.
++Not all platforms support (or can use) this option.
  .TP 8
  .BI \-keyboard " keyboard-name"
  Use the xorg.conf(__filemansuffix__) file
 diff --git a/hw/xfree86/os-support/linux/systemd-logind.c b/hw/xfree86/os-support/linux/systemd-logind.c
-index 4ad41a3..72f1ae3 100644
+index 4ad41a3..69e2f67 100644
 --- a/hw/xfree86/os-support/linux/systemd-logind.c
 +++ b/hw/xfree86/os-support/linux/systemd-logind.c
 @@ -34,6 +34,7 @@
@@ -50,12 +59,11 @@ index 4ad41a3..72f1ae3 100644
  #include "xf86.h"
  #include "xf86platformBus.h"
  #include "xf86Xinput.h"
-@@ -596,6 +597,14 @@ static struct dbus_core_hook core_hook = {
+@@ -596,6 +597,13 @@ static struct dbus_core_hook core_hook = {
  int
  systemd_logind_init(void)
  {
-+    linux_parse_vt_settings();
-+    if (!linux_get_keeptty()) {
++    if (linux_parse_vt_settings(TRUE) && !linux_get_keeptty()) {
 +        LogMessage(X_INFO,
 +            "systemd-logind: logind integration requires -keeptty and "
 +            "-keeptty was not provided, disabling logind integration\n");
@@ -66,5 +74,5 @@ index 4ad41a3..72f1ae3 100644
  }
  
 -- 
-2.3.6
+2.4.0
 
