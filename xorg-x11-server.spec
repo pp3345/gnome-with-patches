@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.1
-Release:   12%{?gitdate:.%{gitdate}}%{dist}
+Release:   13%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -253,6 +253,10 @@ Obsoletes: xorg-x11-drv-siliconmotion < 1.7.7-17
 Obsoletes: xorg-x11-drv-sis < 0.10.7-19
 Obsoletes: xorg-x11-drv-tdfx < 1.4.5-17
 Obsoletes: xorg-x11-drv-trident < 1.3.6-18
+%endif
+%if 0%{?fedora} > 21
+# Dropped from F22
+Obsoletes: xorg-x11-drv-void < 1.4.1-2
 %endif
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
@@ -653,6 +657,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed May 20 2015 Kalev Lember <kalevlember@gmail.com> - 1.17.1-13
+- Obsolete xorg-x11-drv-void
+
 * Tue May 19 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-12
 - Fix "start -- vt7" not working fix breaking headless setups (#1203780)
 
