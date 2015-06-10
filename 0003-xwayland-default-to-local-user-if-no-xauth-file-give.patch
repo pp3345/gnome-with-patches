@@ -1,0 +1,63 @@
+From fc11a1d595222932af192e7aef551b98cd3393f2 Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Thu, 23 Apr 2015 15:39:50 -0400
+Subject: [PATCH 3/3] xwayland: default to local user if no xauth file given. 
+ [CVE-2015-3164 3/3]
+
+Right now if "-auth" isn't passed on the command line, we let
+any user on the system connect to the Xwayland server.
+
+That's clearly suboptimal, given Xwayland is generally designed
+to be used by one user at a time.
+
+This commit changes the behavior, so only the user who started the
+X server can connect clients to it.
+
+Signed-off-by: Ray Strode <rstrode@redhat.com>
+Reviewed-by: Daniel Stone <daniels@collabora.com>
+Reviewed-by: Alan Coopersmith <alan.coopersmith@oracle.com>
+---
+ hw/xwayland/xwayland.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index c5bee77..bc92beb 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -675,31 +675,33 @@ static const ExtensionModule xwayland_extensions[] = {
+ void
+ InitOutput(ScreenInfo * screen_info, int argc, char **argv)
+ {
+     int depths[] = { 1, 4, 8, 15, 16, 24, 32 };
+     int bpp[] =    { 1, 8, 8, 16, 16, 32, 32 };
+     int i;
+ 
+     for (i = 0; i < ARRAY_SIZE(depths); i++) {
+         screen_info->formats[i].depth = depths[i];
+         screen_info->formats[i].bitsPerPixel = bpp[i];
+         screen_info->formats[i].scanlinePad = BITMAP_SCANLINE_PAD;
+     }
+ 
+     screen_info->imageByteOrder = IMAGE_BYTE_ORDER;
+     screen_info->bitmapScanlineUnit = BITMAP_SCANLINE_UNIT;
+     screen_info->bitmapScanlinePad = BITMAP_SCANLINE_PAD;
+     screen_info->bitmapBitOrder = BITMAP_BIT_ORDER;
+     screen_info->numPixmapFormats = ARRAY_SIZE(depths);
+ 
+     LoadExtensionList(xwayland_extensions,
+                       ARRAY_SIZE(xwayland_extensions), FALSE);
+ 
+     /* Cast away warning from missing printf annotation for
+      * wl_log_func_t.  Wayland 1.5 will have the annotation, so we can
+      * remove the cast and require that when it's released. */
+     wl_log_set_handler_client((void *) xwl_log_handler);
+ 
+     if (AddScreen(xwl_screen_init, argc, argv) == -1) {
+         FatalError("Couldn't add screen\n");
+     }
++
++    LocalAccessScopeUser();
+ }
+-- 
+2.3.7
+
