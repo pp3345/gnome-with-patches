@@ -155,7 +155,7 @@ Patch201531642: 0003-xwayland-default-to-local-user-if-no-xauth-file-give.patch
 %global xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
 
 BuildRequires: systemtap-sdt-devel
-BuildRequires: git-core
+BuildRequires: git
 BuildRequires: automake autoconf libtool pkgconfig
 BuildRequires: xorg-x11-util-macros >= 1.17
 
