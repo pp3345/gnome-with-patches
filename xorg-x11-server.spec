@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.1
-Release:   15%{?gitdate:.%{gitdate}}%{dist}
+Release:   16%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -125,6 +125,9 @@ Patch10007: 0001-modesetting-Fix-software-cursor-fallback.patch
 # already upstream
 Patch10010: 0001-dix-Add-unaccelerated-valuators-to-the-ValuatorMask.patch
 Patch10011: 0002-dix-hook-up-the-unaccelerated-valuator-masks.patch
+
+# glamor fix from RHEL7 fix sent upstream
+Patch10020: 0001-glamor-don-t-do-render-ops-with-matching-source-dest.patch
 
 # CVE-2015-3164
 Patch201531640: 0001-xwayland-Enable-access-control-on-open-sockets-CVE-2.patch
@@ -668,6 +671,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Jun 16 2015 Dave Airlie <airlied@redhat.com> 1.17.1-16
+- fix bug with glamor and overlapping copies
+
 * Wed Jun 10 2015 Ray Strode <rstrode@redhat.com> 1.17.1-15
 - CVE-2015-3164
 

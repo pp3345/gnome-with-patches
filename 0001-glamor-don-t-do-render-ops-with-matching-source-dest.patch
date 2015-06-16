@@ -1,0 +1,71 @@
+From dd94c65ecc8b36617566df7db5b5ec2378ea96d8 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@redhat.com>
+Date: Thu, 28 May 2015 05:30:01 +0000
+Subject: [PATCH] glamor: don't do render ops with matching source/dest (v2)
+
+XRender defines this, GL really doesn't like it.
+
+kwin 4.x and qt 4.x seem to make this happen for the
+gradient in the titlebar, and on radeonsi/r600 hw
+this draws all kinds of wrong.
+
+v2: bump this up a level, and check it earlier.
+(I assume the XXXX was for this case.)
+
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+---
+ glamor/glamor_largepixmap.c |  9 +++++++++
+ glamor/glamor_render.c      | 10 +++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/glamor/glamor_largepixmap.c b/glamor/glamor_largepixmap.c
+index 9b24584..b9c3b9a 100644
+--- a/glamor/glamor_largepixmap.c
++++ b/glamor/glamor_largepixmap.c
+@@ -1046,6 +1046,15 @@ glamor_composite_largepixmap_region(CARD8 op,
+     int source_repeat_type = 0, mask_repeat_type = 0;
+     int ok = TRUE;
+ 
++    if (source_pixmap_priv == dest_pixmap_priv) {
++        glamor_fallback("source and dest pixmaps are the same\n");
++        return FALSE;
++    }
++    if (mask_pixmap_priv ==  dest_pixmap_priv) {
++        glamor_fallback("mask and dest pixmaps are the same\n");
++        return FALSE;
++    }
++
+     if (source->repeat)
+         source_repeat_type = source->repeatType;
+     else
+diff --git a/glamor/glamor_render.c b/glamor/glamor_render.c
+index 2386f2e..d9b16ea 100644
+--- a/glamor/glamor_render.c
++++ b/glamor/glamor_render.c
+@@ -1400,6 +1400,7 @@ glamor_composite_clipped_region(CARD8 op,
+ {
+     ScreenPtr screen = dest->pDrawable->pScreen;
+     PixmapPtr source_pixmap = NULL, mask_pixmap = NULL;
++    PixmapPtr dest_pixmap = glamor_get_drawable_pixmap(dest->pDrawable);
+     PicturePtr temp_src = source, temp_mask = mask;
+     glamor_pixmap_private *temp_src_priv = source_pixmap_priv;
+     glamor_pixmap_private *temp_mask_priv = mask_pixmap_priv;
+@@ -1502,7 +1503,14 @@ glamor_composite_clipped_region(CARD8 op,
+         }
+     }
+ 
+-    /*XXXXX, self copy? */
++    if (source_pixmap == dest_pixmap) {
++        glamor_fallback("source and dest pixmaps are the same\n");
++        goto out;
++    }
++    if (mask_pixmap == dest_pixmap) {
++        glamor_fallback("mask and dest pixmaps are the same\n");
++        goto out;
++    }
+ 
+     x_dest += dest->pDrawable->x;
+     y_dest += dest->pDrawable->y;
+-- 
+1.8.3.1
+
