@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.17.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -182,6 +182,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.17.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Wed May 27 2015 Florian Müllner <fmuellner@redhat.com> - 3.17.2-1
 - Update to 3.17.2
 
