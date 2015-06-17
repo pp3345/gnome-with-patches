@@ -2,7 +2,7 @@
 
 Name:          gjs
 Version:       1.43.3
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 Group:         System Environment/Libraries
@@ -91,6 +91,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.43.3-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Sat May 02 2015 Kalev Lember <kalevlember@gmail.com> - 1.43.3-2
 - Rebuilt for GCC 5 C++11 ABI change
 
