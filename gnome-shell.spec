@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.17.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -16,7 +16,7 @@ Patch2: 0001-appFavorites-Add-gnome-terminal-to-the-rename-list.patch
 
 %define clutter_version 1.21.5
 %define gnome_bluetooth_version 1:3.9.0
-%define gobject_introspection_version 1.41.0
+%define gobject_introspection_version 1.45.3
 %define gjs_version 1.39.0
 %define mutter_version 3.17.3
 %define gtk3_version 3.15.0
@@ -182,6 +182,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Sat Jul 04 2015 Kalev Lember <klember@redhat.com> - 3.17.3-2
+- Require gobject-introspection 1.45.3
+
 * Thu Jul 02 2015 Florian Müllner <fmuellner@redhat.com> - 3.17.3-1
 - Update to 3.17.3
 
