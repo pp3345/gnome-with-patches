@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.17.2
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -106,6 +106,8 @@ Patch10006: 0003-systemd-logind-Only-use-systemd-logind-integration-t.patch
 # already upstream
 Patch10010: 0001-dix-Add-unaccelerated-valuators-to-the-ValuatorMask.patch
 Patch10011: 0002-dix-hook-up-the-unaccelerated-valuator-masks.patch
+
+Patch10020: 0001-glamor-make-current-in-prepare-paths.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -644,6 +646,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Jul 15 2015 Dave Airlie <airlied@redhat.com> 1.17.2-2
+- fix bug with glamor and PRIME where server would crash
+
 * Tue Jun 16 2015 Adam Jackson <ajax@redhat.com> 1.17.2-1
 - xserver 1.17.2
 
