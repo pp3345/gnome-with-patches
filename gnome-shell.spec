@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.17.3
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -182,6 +182,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Jul 22 2015 Milan Crha <mcrha@redhat.com> - 3.17.3-3
+- Rebuild for newer evolution-data-server
+
 * Sat Jul 04 2015 Kalev Lember <klember@redhat.com> - 3.17.3-2
 - Require gobject-introspection 1.45.3
 
