@@ -3,7 +3,7 @@
 
 Name:          mutter
 Version:       3.17.3
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -164,6 +164,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Jul 22 2015 David King <amigadave@amigadave.com> - 3.17.3-2
+- Bump for new gnome-desktop3
+
 * Thu Jul 02 2015 Florian Müllner <fmuellner@redhat.com> - 3.17.3-1
 - Update to 3.17.3
 
