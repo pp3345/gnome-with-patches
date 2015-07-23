@@ -1,4 +1,4 @@
-%global clutter_version 1.21.3
+%global clutter_version 1.23.4
 %global gsettings_desktop_schemas_version 3.15.92
 
 Name:          mutter
