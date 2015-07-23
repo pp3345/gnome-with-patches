@@ -2,8 +2,8 @@
 %global gsettings_desktop_schemas_version 3.15.92
 
 Name:          mutter
-Version:       3.17.3
-Release:       2%{?dist}
+Version:       3.17.4
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -164,6 +164,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu Jul 23 2015 Florian Müllner <fmuellner@redhat.com> - 3.17.4-1
+- Update to 3.17.4
+
 * Wed Jul 22 2015 David King <amigadave@amigadave.com> - 3.17.3-2
 - Bump for new gnome-desktop3
 
