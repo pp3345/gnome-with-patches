@@ -31,7 +31,7 @@ driverlist=$(grep ^Requires *.spec | awk '{ print $2 }')
 popd
 
 # Things not in -drivers for whatever reason...
-extradrivers="xorg-x11-glamor xorg-x11-drv-ivtv"
+extradrivers="xorg-x11-drv-ivtv"
 
 rm -rf xorg-x11-drivers
 echo $driverlist $extradrivers | xargs -n1 $pkg co $branch
@@ -45,10 +45,6 @@ for i in xorg-x11-drv-*/ ; do
     #$pkg srpm
     #mockchain -r fedora-20-x86_64 -l $OLDPWD
     #mockchain -r rhel-7.0-candidate-x86_64 -l $OLDPWD
-
-    if [ $i = "xorg-x11-glamor" ]; then
-        koji wait-repo f21-build --build $($pkg verrel)
-    fi
 
     popd
 done

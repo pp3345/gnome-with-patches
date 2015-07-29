@@ -11,7 +11,7 @@
 # X.org requires lazy relocations to work.
 %undefine _hardened_build
 
-#global gitdate 20140428
+%global gitdate 20150728
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -19,9 +19,9 @@
 # source because rpm is a terrible language.
 %global ansic_major 0
 %global ansic_minor 4
-%global videodrv_major 19
+%global videodrv_major 20
 %global videodrv_minor 0
-%global xinput_major 21
+%global xinput_major 22
 %global xinput_minor 1
 %global extension_major 9
 %global extension_minor 0
@@ -44,8 +44,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.17.2
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.18.0
+Release:   0.1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -77,12 +77,11 @@ Source31: xserver-sdk-abi-requires.git
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
 
+Patch4000: 0001-fix-Xdmx-link-harder.patch
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
 
-# ajax needs to upstream this
-Patch6030: xserver-1.6.99-right-of.patch
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
@@ -95,19 +94,6 @@ Patch9100: exa-only-draw-valid-trapezoids.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
-
-# rhbz1203780, submitted upstream
-Patch10004: 0001-linux-Add-linux_parse_vt_settings-and-linux_get_keep.patch
-Patch10005: 0002-linux-Add-a-may_fail-paramter-to-linux_parse_vt_sett.patch
-Patch10006: 0003-systemd-logind-Only-use-systemd-logind-integration-t.patch
-
-# rhbz1208992: Mouse cursor doesn't move when moving the physical mouse
-# slowly.
-# already upstream
-Patch10010: 0001-dix-Add-unaccelerated-valuators-to-the-ValuatorMask.patch
-Patch10011: 0002-dix-hook-up-the-unaccelerated-valuator-masks.patch
-
-Patch10020: 0001-glamor-make-current-in-prepare-paths.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -589,7 +575,6 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %{_mandir}/man5/xorg.conf.d.5*
 %dir %{_sysconfdir}/X11/xorg.conf.d
 %dir %{_datadir}/X11/xorg.conf.d
-%{_datadir}/X11/xorg.conf.d/10-evdev.conf
 %{_datadir}/X11/xorg.conf.d/10-quirks.conf
 %endif
 
@@ -646,6 +631,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Jul 29 2015 Dave Airlie <airlied@redhat.com> 1.18.0-0.1
+- git snapshot of what will be 1.18.0 (should be ABI stable)
+
 * Wed Jul 15 2015 Dave Airlie <airlied@redhat.com> 1.17.2-2
 - fix bug with glamor and PRIME where server would crash
 
