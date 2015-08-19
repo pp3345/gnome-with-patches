@@ -127,7 +127,7 @@ easy to use experience.
 make V=1 %{?_smp_mflags}
 
 %install
-make install DESTDIR=$RPM_BUILD_ROOT
+%make_install
 
 rm -rf %{buildroot}/%{_libdir}/mozilla/plugins/*.la
 
@@ -190,6 +190,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 * Wed Aug 19 2015 Kalev Lember <klember@redhat.com> - 3.17.4-2
 - Create empty directories for extensions and search providers
 - Move desktop file validation to %%check section
+- Use make_install macro
 
 * Thu Jul 23 2015 Florian Müllner <fmuellner@redhat.com> - 3.17.4-1
 - Update to 3.17.4
