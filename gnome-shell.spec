@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.17.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -131,6 +131,10 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 rm -rf %{buildroot}/%{_libdir}/mozilla/plugins/*.la
 
+# Create empty directories where other packages can drop extensions
+mkdir -p %{buildroot}%{_datadir}/gnome-shell/extensions
+mkdir -p %{buildroot}%{_datadir}/gnome-shell/search-providers
+
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-wayland.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-extension-prefs.desktop
@@ -182,6 +186,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Wed Aug 19 2015 Kalev Lember <klember@redhat.com> - 3.17.4-2
+- Create empty directories for extensions and search providers
+
 * Thu Jul 23 2015 Florian Müllner <fmuellner@redhat.com> - 3.17.4-1
 - Update to 3.17.4
 
