@@ -12,6 +12,8 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.17/%{name}-%{version}.tar.xz
 
+Patch1: 0001-launcher-Don-t-pass-variable-as-format-string.patch
+
 BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -94,6 +96,7 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q
+%patch1 -p1 -b fix-compiler-warning
 
 %build
 autoreconf -f -i
