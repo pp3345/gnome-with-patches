@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.0
-Release:   0.2%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,6 +76,9 @@ Source31: xserver-sdk-abi-requires.git
 
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
+
+# hack that isn't upstream - hopefully upstream fixes nicer
+Patch3000: 0001-glx-fix-regression-with-copy-sub-buffer-disappearing.patch
 
 Patch4000: 0001-fix-Xdmx-link-harder.patch
 # Trivial things to never merge upstream ever:
@@ -631,6 +634,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Sep 22 2015 Dave Airlie <airlied@redhat.com> 1.18.0-0.3
+- hack to fix GLX_MESA_copy_sub_buffer regression (#1265395)
+
 * Mon Sep 07 2015 Dave Airlie <airlied@redhat.com> 1.18.0-0.2
 - update to git snapshot of 1.7.99 (1.18.0 rc1)
 
