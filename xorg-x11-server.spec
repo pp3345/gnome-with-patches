@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.0
-Release:   0.3%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -94,6 +94,9 @@ Patch7027: xserver-autobind-hotplug.patch
 
 # submitted: http://lists.x.org/archives/xorg-devel/2013-October/037996.html
 Patch9100: exa-only-draw-valid-trapezoids.patch
+
+# http://lists.x.org/archives/xorg-devel/2015-September/047304.html
+Patch9200: 0001-present-Don-t-stash-the-MSC-value-when-present_get_u.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -634,6 +637,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Sep 24 2015 Rex Dieter <rdieter@fedoraproject.org> 1.18.0-0.4
+- pull in candidate fix for clients getting stuck waiting indefinitely
+  for an idle event when a CRTC is turned off (#1256082,#1258084)
+
 * Tue Sep 22 2015 Dave Airlie <airlied@redhat.com> 1.18.0-0.3
 - hack to fix GLX_MESA_copy_sub_buffer regression (#1265395)
 
