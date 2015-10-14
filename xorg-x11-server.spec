@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.0
-Release:   0.4%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,6 +97,10 @@ Patch9100: exa-only-draw-valid-trapezoids.patch
 
 # http://lists.x.org/archives/xorg-devel/2015-September/047304.html
 Patch9200: 0001-present-Don-t-stash-the-MSC-value-when-present_get_u.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1269210
+# http://lists.x.org/archives/xorg-devel/2015-October/047558.html
+Patch9300: 0001-linux-Do-not-call-FatalError-from-xf86CloseConsole.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -637,6 +641,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Oct 14 2015 Hans de Goede <hdegoede@redhat.com> - 1.18.0-0.5
+- Fix xorg sometimes crashing on machine poweroff/shutdown (#1269210)
+
 * Thu Sep 24 2015 Rex Dieter <rdieter@fedoraproject.org> 1.18.0-0.4
 - pull in candidate fix for clients getting stuck waiting indefinitely
   for an idle event when a CRTC is turned off (#1256082,#1258084)
