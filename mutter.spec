@@ -3,7 +3,7 @@
 
 Name:          mutter
 Version:       3.18.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -53,7 +53,7 @@ Obsoletes: mutter-wayland-devel < 3.13.0
 
 # Make sure yum updates gnome-shell as well; otherwise we might end up with
 # broken gnome-shell installations due to mutter ABI changes.
-Conflicts: gnome-shell < 3.16.1
+Conflicts: gnome-shell < 3.18.0
 
 Requires: clutter%{?_isa} >= %{clutter_version}
 Requires: control-center-filesystem
@@ -164,6 +164,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu Oct 15 2015 Kalev Lember <klember@redhat.com> - 3.18.1-2
+- Bump gnome-shell conflicts version
+
 * Thu Oct 15 2015 Florian Müllner <fmuellner@redhat.com> - 3.18.1-1
 - Update to 3.18.1
 
