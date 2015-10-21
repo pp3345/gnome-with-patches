@@ -1,4 +1,4 @@
-From 5c74b46e46f5e26e1915a1f85ba212770e5dc777 Mon Sep 17 00:00:00 2001
+From 3606227c07773c819d99fa8c135215a4a175d5f0 Mon Sep 17 00:00:00 2001
 From: Ray Strode <rstrode@redhat.com>
 Date: Mon, 11 May 2015 16:53:41 -0400
 Subject: [PATCH] Force cursor update after applying configuration
@@ -7,13 +7,143 @@ The qxl kms driver has a bug where the cursor gets hidden
 implicitly after a drmModeSetCrtc call.
 
 This commit works around the bug by forcing a drmModeSetCursor2
-call after the drmModeSetCrtc call.
+call after the drmModeSetCrtc calls.
+
+This is pretty hacky and won't ever go upstream.
 
 https://bugzilla.gnome.org/show_bug.cgi?id=746078
 ---
+ src/backends/native/meta-launcher.c            | 37 +++++++++++++++++++++++++
  src/backends/native/meta-monitor-manager-kms.c | 38 ++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ 2 files changed, 75 insertions(+)
 
+diff --git a/src/backends/native/meta-launcher.c b/src/backends/native/meta-launcher.c
+index d7da9e8..013f40e 100644
+--- a/src/backends/native/meta-launcher.c
++++ b/src/backends/native/meta-launcher.c
+@@ -83,85 +83,122 @@ get_session_proxy (GCancellable *cancellable)
+ 
+   session_proxy = login1_session_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                          G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                                          "org.freedesktop.login1",
+                                                          proxy_path,
+                                                          cancellable, &error);
+   if (!session_proxy)
+     report_error_and_die ("Failed getting session proxy", error);
+ 
+   free (proxy_path);
+ 
+   return session_proxy;
+ }
+ 
+ static Login1Seat *
+ get_seat_proxy (GCancellable *cancellable)
+ {
+   GError *error = NULL;
+   Login1Seat *seat = login1_seat_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                          G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                                          "org.freedesktop.login1",
+                                                          "/org/freedesktop/login1/seat/self",
+                                                          cancellable, &error);
+   if (!seat)
+     report_error_and_die ("Could not get seat proxy", error);
+ 
+   return seat;
+ }
+ 
+ static void
++frame_callback (CoglOnscreen  *onscreen,
++                CoglFrameEvent event,
++                CoglFrameInfo *frame_info,
++                void          *user_data)
++{
++  CoglFrameClosure **frame_closure = user_data;
++
++  MetaBackend *backend = meta_get_backend ();
++  MetaCursorRenderer *renderer = meta_backend_get_cursor_renderer (backend);
++  CoglOnscreen *cogl_onscreen;
++
++  if (event != COGL_FRAME_EVENT_COMPLETE)
++    return;
++
++  meta_cursor_renderer_native_force_update (META_CURSOR_RENDERER_NATIVE (renderer));
++
++  cogl_onscreen = COGL_ONSCREEN (cogl_get_draw_framebuffer ());
++  cogl_onscreen_remove_frame_callback (cogl_onscreen,
++                                       *frame_closure);
++
++  *frame_closure = NULL;
++}
++
++static void
+ session_unpause (void)
+ {
+   ClutterBackend *clutter_backend;
+   CoglContext *cogl_context;
+   CoglDisplay *cogl_display;
+ 
+   clutter_backend = clutter_get_default_backend ();
+   cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+   cogl_display = cogl_context_get_display (cogl_context);
+   cogl_kms_display_queue_modes_reset (cogl_display);
+ 
+   clutter_evdev_reclaim_devices ();
+   clutter_egl_thaw_master_clock ();
+ 
+   {
+     MetaBackend *backend = meta_get_backend ();
+     MetaCursorRenderer *renderer = meta_backend_get_cursor_renderer (backend);
+     ClutterActor *stage = meta_backend_get_stage (backend);
++    CoglOnscreen *cogl_onscreen;
++    static CoglFrameClosure *frame_closure = NULL;
+ 
+     /* When we mode-switch back, we need to immediately queue a redraw
+      * in case nothing else queued one for us, and force the cursor to
+      * update. */
+ 
+     clutter_actor_queue_redraw (stage);
+     meta_cursor_renderer_native_force_update (META_CURSOR_RENDERER_NATIVE (renderer));
++
++    cogl_onscreen = COGL_ONSCREEN (cogl_get_draw_framebuffer ());
++
++    if (frame_closure)
++        cogl_onscreen_remove_frame_callback (cogl_onscreen, frame_closure);
++
++    frame_closure = cogl_onscreen_add_frame_callback (cogl_onscreen,
++                                                      frame_callback,
++                                                      &frame_closure,
++                                                      NULL);
++
+     meta_idle_monitor_native_reset_idletime (meta_idle_monitor_get_core ());
+   }
+ }
+ 
+ static void
+ session_pause (void)
+ {
+   clutter_evdev_release_devices ();
+   clutter_egl_freeze_master_clock ();
+ }
+ 
+ static gboolean
+ take_device (Login1Session *session_proxy,
+              int            dev_major,
+              int            dev_minor,
+              int           *out_fd,
+              GCancellable  *cancellable,
+              GError       **error)
+ {
+   g_autoptr (GVariant) fd_variant = NULL;
+   g_autoptr (GUnixFDList) fd_list = NULL;
+   int fd = -1;
+ 
+   if (!login1_session_call_take_device_sync (session_proxy,
+                                              dev_major,
+                                              dev_minor,
+                                              NULL,
+                                              &fd_variant,
+                                              NULL, /* paused */
+                                              &fd_list,
 diff --git a/src/backends/native/meta-monitor-manager-kms.c b/src/backends/native/meta-monitor-manager-kms.c
 index cc2b18e..b56d6d3 100644
 --- a/src/backends/native/meta-monitor-manager-kms.c

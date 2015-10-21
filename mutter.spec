@@ -3,7 +3,7 @@
 
 Name:          mutter
 Version:       3.18.1
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -171,6 +171,12 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Oct 21 2015 Ray Strode <rstrode@redhat.com> 3.18.1-4
+- Force the cursor visible on vt switches after setting
+  the crtc to workaround that qxl bug from before in a
+  different situation
+  Related: #1273247
+
 * Wed Oct 21 2015 Kalev Lember <klember@redhat.com> - 3.18.1-3
 - Backport a fix for a common Wayland crash (#1266486)
 
