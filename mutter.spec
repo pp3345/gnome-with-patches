@@ -3,7 +3,7 @@
 
 Name:          mutter
 Version:       3.18.1
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -14,6 +14,8 @@ Source0:       http://download.gnome.org/sources/%{name}/3.18/%{name}-%{version}
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1200901
 Patch0:        0001-Force-cursor-update-after-applying-configuration.patch
+# Backported from upstream
+Patch1:        0001-wayland-surface-disconnect-signals-on-destroy.patch
 
 BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
@@ -98,6 +100,7 @@ the functionality of the installed %{name} package.
 %prep
 %setup -q
 %patch0 -p1 -b .fix-cursor
+%patch1 -p1
 
 %build
 autoreconf -f -i
@@ -168,6 +171,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Oct 21 2015 Kalev Lember <klember@redhat.com> - 3.18.1-3
+- Backport a fix for a common Wayland crash (#1266486)
+
 * Thu Oct 15 2015 Kalev Lember <klember@redhat.com> - 3.18.1-2
 - Bump gnome-shell conflicts version
 

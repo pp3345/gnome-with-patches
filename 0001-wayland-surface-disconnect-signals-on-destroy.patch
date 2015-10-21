@@ -1,0 +1,101 @@
+From a4f763ac3b0530fd602eb30396abe7147cc4c741 Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Tue, 13 Oct 2015 21:33:15 -0700
+Subject: [PATCH] wayland-surface: disconnect signals on destroy
+
+Otherwise signal handlers will be called on garbage
+
+https://bugzilla.gnome.org/show_bug.cgi?id=756548
+---
+ src/wayland/meta-wayland-surface.c | 33 ++++++++++++++++++++++-----------
+ src/wayland/meta-wayland-surface.h |  2 +-
+ 2 files changed, 23 insertions(+), 12 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
+index 9d15401..f8f6ffc 100644
+--- a/src/wayland/meta-wayland-surface.c
++++ b/src/wayland/meta-wayland-surface.c
+@@ -933,22 +933,26 @@ set_surface_is_on_output (MetaWaylandSurface *surface,
+                           MetaWaylandOutput *wayland_output,
+                           gboolean is_on_output)
+ {
+-  gboolean was_on_output = g_hash_table_contains (surface->outputs,
+-                                                  wayland_output);
++  gpointer orig_id;
++  gboolean was_on_output = g_hash_table_lookup_extended (surface->outputs_to_destroy_notify_id,
++                                                         wayland_output,
++                                                         NULL, &orig_id);
+ 
+   if (!was_on_output && is_on_output)
+     {
+-      g_signal_connect (wayland_output, "output-destroyed",
+-                        G_CALLBACK (surface_handle_output_destroy),
+-                        surface);
+-      g_hash_table_add (surface->outputs, wayland_output);
++      gulong id;
++
++      id = g_signal_connect (wayland_output, "output-destroyed",
++                             G_CALLBACK (surface_handle_output_destroy),
++                             surface);
++      g_hash_table_insert (surface->outputs_to_destroy_notify_id, wayland_output,
++                           GSIZE_TO_POINTER ((gsize)id));
+       surface_entered_output (surface, wayland_output);
+     }
+   else if (was_on_output && !is_on_output)
+     {
+-      g_hash_table_remove (surface->outputs, wayland_output);
+-      g_signal_handlers_disconnect_by_func  (
+-        wayland_output, (gpointer)surface_handle_output_destroy, surface);
++      g_hash_table_remove (surface->outputs_to_destroy_notify_id, wayland_output);
++      g_signal_handler_disconnect (wayland_output, (gulong) GPOINTER_TO_SIZE (orig_id));
+       surface_left_output (surface, wayland_output);
+     }
+ }
+@@ -986,6 +990,12 @@ update_surface_output_state (gpointer key, gpointer value, gpointer user_data)
+   set_surface_is_on_output (surface, wayland_output, is_on_output);
+ }
+ 
++static void
++surface_output_disconnect_signal (gpointer key, gpointer value, gpointer user_data)
++{
++  g_signal_handler_disconnect (key, (gulong) GPOINTER_TO_SIZE (value));
++}
++
+ void
+ meta_wayland_surface_update_outputs (MetaWaylandSurface *surface)
+ {
+@@ -1036,7 +1046,8 @@ wl_surface_destructor (struct wl_resource *resource)
+ 
+   meta_wayland_compositor_destroy_frame_callbacks (compositor, surface);
+ 
+-  g_hash_table_unref (surface->outputs);
++  g_hash_table_foreach (surface->outputs_to_destroy_notify_id, surface_output_disconnect_signal, surface);
++  g_hash_table_unref (surface->outputs_to_destroy_notify_id);
+ 
+   wl_list_for_each_safe (cb, next, &surface->pending_frame_callback_list, link)
+     wl_resource_destroy (cb->resource);
+@@ -1081,7 +1092,7 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
+ 
+   sync_drag_dest_funcs (surface);
+ 
+-  surface->outputs = g_hash_table_new (NULL, NULL);
++  surface->outputs_to_destroy_notify_id = g_hash_table_new (NULL, NULL);
+ 
+   pending_state_init (&surface->pending);
+   return surface;
+diff --git a/src/wayland/meta-wayland-surface.h b/src/wayland/meta-wayland-surface.h
+index c0ce8fd..94ba100 100644
+--- a/src/wayland/meta-wayland-surface.h
++++ b/src/wayland/meta-wayland-surface.h
+@@ -147,7 +147,7 @@ struct _MetaWaylandSurface
+   int scale;
+   int32_t offset_x, offset_y;
+   GList *subsurfaces;
+-  GHashTable *outputs;
++  GHashTable *outputs_to_destroy_notify_id;
+ 
+   /* List of pending frame callbacks that needs to stay queued longer than one
+    * commit sequence, such as when it has not yet been assigned a role.
+-- 
+2.5.0
+
