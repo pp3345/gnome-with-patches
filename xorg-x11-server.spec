@@ -11,7 +11,7 @@
 # X.org requires lazy relocations to work.
 %undefine _hardened_build
 
-%global gitdate 20150907
+%global gitdate 20151027
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.0
-Release:   0.5%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -77,10 +77,6 @@ Source31: xserver-sdk-abi-requires.git
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
 
-# hack that isn't upstream - hopefully upstream fixes nicer
-Patch3000: 0001-glx-fix-regression-with-copy-sub-buffer-disappearing.patch
-
-Patch4000: 0001-fix-Xdmx-link-harder.patch
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
 Patch5002: xserver-1.4.99-ssh-isnt-local.patch
@@ -94,13 +90,6 @@ Patch7027: xserver-autobind-hotplug.patch
 
 # submitted: http://lists.x.org/archives/xorg-devel/2013-October/037996.html
 Patch9100: exa-only-draw-valid-trapezoids.patch
-
-# http://lists.x.org/archives/xorg-devel/2015-September/047304.html
-Patch9200: 0001-present-Don-t-stash-the-MSC-value-when-present_get_u.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1269210
-# http://lists.x.org/archives/xorg-devel/2015-October/047558.html
-Patch9300: 0001-linux-Do-not-call-FatalError-from-xf86CloseConsole.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -641,6 +630,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Oct 27 2015 Dave Airlie <airlied@redhat.com> 1.18.0-0.6
+- update to git snapshot of 1.7.99.902 (1.18.0 rc2)
+
 * Wed Oct 14 2015 Hans de Goede <hdegoede@redhat.com> - 1.18.0-0.5
 - Fix xorg sometimes crashing on machine poweroff/shutdown (#1269210)
 
