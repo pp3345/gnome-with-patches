@@ -73,7 +73,8 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %postun -p /sbin/ldconfig
 
 %files
-%doc COPYING NEWS README
+%license COPYING
+%doc NEWS README
 %{_bindir}/gjs
 %{_bindir}/gjs-console
 %{_libdir}/*.so.*
@@ -93,6 +94,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %changelog
 * Wed Oct 28 2015 Kalev Lember <klember@redhat.com> - 1.44.0-1
 - Update to 1.44.0
+- Use license macro for COPYING
 
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.43.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
