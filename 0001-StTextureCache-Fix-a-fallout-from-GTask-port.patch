@@ -1,0 +1,27 @@
+From df0b465e76305e011c5106d78b6fd19891db900d Mon Sep 17 00:00:00 2001
+From: Kalev Lember <klember@redhat.com>
+Date: Sun, 1 Nov 2015 00:21:10 +0100
+Subject: [PATCH] StTextureCache: Fix a fallout from GTask port
+
+Set the task data that load_pixbuf_thread func expects.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=757418
+---
+ src/st/st-texture-cache.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/st/st-texture-cache.c b/src/st/st-texture-cache.c
+index d4a4ee9..88c6bf3 100644
+--- a/src/st/st-texture-cache.c
++++ b/src/st/st-texture-cache.c
+@@ -575,6 +575,7 @@ load_texture_async (StTextureCache       *cache,
+   if (data->file)
+     {
+       GTask *task = g_task_new (cache, NULL, on_pixbuf_loaded, data);
++      g_task_set_task_data (task, data, NULL);
+       g_task_run_in_thread (task, load_pixbuf_thread);
+       g_object_unref (task);
+     }
+-- 
+2.5.0
+
