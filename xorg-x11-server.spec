@@ -11,7 +11,7 @@
 # X.org requires lazy relocations to work.
 %undefine _hardened_build
 
-%global gitdate 20151027
+#global gitdate 20151027
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.0
-Release:   0.6%{?gitdate:.%{gitdate}}%{dist}
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -630,6 +630,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Nov 09 2015 Adam Jackson <ajax@redhat.com> 1.18.0-1
+- xserver 1.18.0
+
 * Tue Oct 27 2015 Dave Airlie <airlied@redhat.com> 1.18.0-0.6
 - update to git snapshot of 1.7.99.902 (1.18.0 rc2)
 
