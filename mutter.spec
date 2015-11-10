@@ -3,7 +3,7 @@
 
 Name:          mutter
 Version:       3.19.1
-Release:       4%{?dist}
+Release:       5.20151110git049f1556d%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -168,6 +168,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Nov 10 2015 Ray Strode <rstrode@redhat.com> 3.19.1-5.20151110git049f1556d
+- Update to git snapshot
+
 * Thu Oct 29 2015 Florian Müllner <fmuellner@redhat.com> - 3.19.1-1
 - Update to 3.19.1
 

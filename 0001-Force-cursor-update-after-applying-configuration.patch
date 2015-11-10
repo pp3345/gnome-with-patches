@@ -1,4 +1,4 @@
-From 3606227c07773c819d99fa8c135215a4a175d5f0 Mon Sep 17 00:00:00 2001
+From 3f681d71d1153db53ace8156ed0083a211419347 Mon Sep 17 00:00:00 2001
 From: Ray Strode <rstrode@redhat.com>
 Date: Mon, 11 May 2015 16:53:41 -0400
 Subject: [PATCH] Force cursor update after applying configuration
@@ -18,18 +18,18 @@ https://bugzilla.gnome.org/show_bug.cgi?id=746078
  2 files changed, 75 insertions(+)
 
 diff --git a/src/backends/native/meta-launcher.c b/src/backends/native/meta-launcher.c
-index d7da9e8..013f40e 100644
+index 54ab85c..5b124d8 100644
 --- a/src/backends/native/meta-launcher.c
 +++ b/src/backends/native/meta-launcher.c
-@@ -83,85 +83,122 @@ get_session_proxy (GCancellable *cancellable)
+@@ -75,85 +75,122 @@ get_session_proxy (GCancellable *cancellable,
  
    session_proxy = login1_session_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                                           G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
                                                           "org.freedesktop.login1",
                                                           proxy_path,
-                                                          cancellable, &error);
+                                                          cancellable, error);
    if (!session_proxy)
-     report_error_and_die ("Failed getting session proxy", error);
+     g_prefix_error(error, "Could not get session proxy: ");
  
    free (proxy_path);
  
@@ -37,16 +37,16 @@ index d7da9e8..013f40e 100644
  }
  
  static Login1Seat *
- get_seat_proxy (GCancellable *cancellable)
+ get_seat_proxy (GCancellable *cancellable,
+                 GError      **error)
  {
-   GError *error = NULL;
    Login1Seat *seat = login1_seat_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                                           G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
                                                           "org.freedesktop.login1",
                                                           "/org/freedesktop/login1/seat/self",
-                                                          cancellable, &error);
+                                                          cancellable, error);
    if (!seat)
-     report_error_and_die ("Could not get seat proxy", error);
+     g_prefix_error(error, "Could not get seat proxy: ");
  
    return seat;
  }
