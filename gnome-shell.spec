@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.19.1
-Release:        2%{?dist}
+Release:        3.20151110%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -13,8 +13,6 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.19/%{name}-%{ver
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-appFavorites-Add-gnome-terminal-to-the-rename-list.patch
-# https://bugzilla.gnome.org/show_bug.cgi?id=757418
-Patch3: 0001-StTextureCache-Fix-a-fallout-from-GTask-port.patch
 
 %define clutter_version 1.21.5
 %define gnome_bluetooth_version 1:3.9.0
@@ -122,7 +120,6 @@ easy to use experience.
 %setup -q
 %patch1 -p1 -b .firefox
 %patch2 -p1 -b .terminal-renamed-desktop-file
-%patch3 -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -141,8 +138,7 @@ mkdir -p %{buildroot}%{_datadir}/gnome-shell/search-providers
 %find_lang %{name}
 
 %check
-desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell.desktop
-desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-wayland.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/org.gnome.Shell.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-extension-prefs.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.desktop
 
@@ -160,8 +156,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_bindir}/gnome-shell-perf-tool
 %{_bindir}/gnome-shell-extension-prefs
 %{_datadir}/glib-2.0/schemas/*.xml
-%{_datadir}/applications/gnome-shell.desktop
-%{_datadir}/applications/gnome-shell-wayland.desktop
+%{_datadir}/applications/org.gnome.Shell.desktop
 %{_datadir}/applications/gnome-shell-extension-prefs.desktop
 %{_datadir}/applications/evolution-calendar.desktop
 %{_datadir}/applications/org.gnome.Shell.PortalHelper.desktop
@@ -190,6 +185,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Nov 10 2015 Ray Strode <rstrode@redhat.com> 3.19.1-3.20151110
+- Update to git snapshot
+
 * Sun Nov 01 2015 Kalev Lember <klember@redhat.com> - 3.19.1-2
 - Fix gnome-shell crashing in gdm mode (#1276833)
 
