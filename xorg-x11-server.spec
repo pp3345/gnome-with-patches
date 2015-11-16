@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.0
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -90,6 +90,9 @@ Patch7027: xserver-autobind-hotplug.patch
 
 # submitted: http://lists.x.org/archives/xorg-devel/2013-October/037996.html
 Patch9100: exa-only-draw-valid-trapezoids.patch
+
+# submitted: http://lists.freedesktop.org/archives/xorg-devel/2015-November/047811.html
+Patch9200: 0001-Xorg.wrap-activate-libdrm-based-detection-for-KMS-dr.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -630,6 +633,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Nov 16 2015 Hans de Goede <hdegoede@redhat.com> - 1.18.0-2
+- Fix Xorg.wrap kms detection to so that the server does not always run
+  as root
+
 * Mon Nov 09 2015 Adam Jackson <ajax@redhat.com> 1.18.0-1
 - xserver 1.18.0
 
