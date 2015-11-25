@@ -3,7 +3,7 @@
 
 Name:          mutter
 Version:       3.19.2
-Release:       1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
