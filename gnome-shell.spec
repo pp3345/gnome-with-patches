@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.19.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -22,7 +22,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define eds_version 3.13.90
 %define gnome_desktop_version 3.7.90
 %define json_glib_version 0.13.2
-%define gsettings_desktop_schemas_version 3.13.1
+%define gsettings_desktop_schemas_version 3.19.2
 %define caribou_version 0.4.8
 %define libcroco_version 0.6.8
 %define telepathy_logger_version 0.2.6
@@ -183,6 +183,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Dec 01 2015 Kalev Lember <klember@redhat.com> - 3.19.2-2
+- Bump gsettings-desktop-schemas dep to 3.19.2
+
 * Wed Nov 25 2015 Florian Müllner <fmuellner@redhat.com> - 3.19.2-1
 - Update to 3.19.2
 
