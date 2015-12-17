@@ -1,5 +1,6 @@
-%global clutter_version 1.23.4
+%global gtk3_version 3.19.1
 %global gsettings_desktop_schemas_version 3.19.3
+%global clutter_version 1.25.1
 
 Name:          mutter
 Version:       3.19.3
@@ -19,7 +20,7 @@ BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
 BuildRequires: gnome-desktop3-devel
-BuildRequires: gtk3-devel >= 3.9.11
+BuildRequires: gtk3-devel >= %{gtk3_version}
 BuildRequires: pkgconfig
 BuildRequires: gobject-introspection-devel >= 1.41.0
 BuildRequires: libSM-devel
@@ -61,6 +62,7 @@ Conflicts: gnome-shell < 3.18.0
 Requires: clutter%{?_isa} >= %{clutter_version}
 Requires: control-center-filesystem
 Requires: gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
+Requires: gtk3%{?_isa} >= %{gtk3_version}
 Requires: startup-notification
 Requires: dbus-x11
 Requires: zenity
