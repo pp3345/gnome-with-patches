@@ -15,9 +15,9 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 
 %define clutter_version 1.21.5
 %define gnome_bluetooth_version 1:3.9.0
-%define gobject_introspection_version 1.45.3
+%define gobject_introspection_version 1.45.4
 %define gjs_version 1.39.0
-%define mutter_version 3.19.1
+%define mutter_version 3.19.3
 %define gtk3_version 3.15.0
 %define eds_version 3.13.90
 %define gnome_desktop_version 3.7.90
