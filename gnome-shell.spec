@@ -328,7 +328,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 * Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.13.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
-* Thu May 27 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.2-1
+* Tue May 27 2014 Florian Müllner <fmuellner@redhat.com> - 3.13.2-1
 - Update to 3.13.2
 
 * Thu May 01 2014 Kalev Lember <kalevlember@gmail.com> - 3.13.1-2
@@ -628,7 +628,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 * Sat Mar 10 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.90-2
 - Rebuild for new cogl
 
-* Sat Feb 26 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.90-1
+* Sat Feb 25 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.90-1
 - Update to 3.3.90
 
 * Thu Feb  9 2012 Matthias Clasen <mclasen@redhat.com> - 3.3.5-2
@@ -661,7 +661,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 * Wed Nov 02 2011 Brian Pepple <bpepple@fedoraproject.org> - 3.2.1-4
 - Rebuld against tp-logger.
 
-* Sun Oct 26 2011 Bruno Wolff III <bruno@wolff.to> - 3.2.1-3
+* Sun Oct 30 2011 Bruno Wolff III <bruno@wolff.to> - 3.2.1-3
 - Rebuild for new evolution-data-server
 
 * Wed Oct 26 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.2.1-2
@@ -909,7 +909,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 * Tue Jan 12 2010 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20100112git-1
 - New git snapshot
 
-* Tue Dec 07 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-5
+* Mon Dec 07 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-5
 - Added libtool, glib-gettext for the libtoolize dep of git snapshot
 
 * Mon Dec 07 2009 Adam Miller <maxamillion@fedoraproject.org> - 2.28.0.20091206git-4
