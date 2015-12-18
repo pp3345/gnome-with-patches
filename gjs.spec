@@ -11,9 +11,9 @@ Group:         System Environment/Libraries
 # The console module (modules/console.c)
 # Stack printer (gjs/stack.c)
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
-URL:           http://live.gnome.org/Gjs/
+URL:           https://wiki.gnome.org/Projects/Gjs
 #VCS:          git://git.gnome.org/gjs
-Source0:       http://download.gnome.org/sources/%{name}/1.45/%{name}-%{version}.tar.xz
+Source0:       https://download.gnome.org/sources/%{name}/1.45/%{name}-%{version}.tar.xz
 
 BuildRequires: mozjs24-devel
 BuildRequires: cairo-gobject-devel
@@ -94,6 +94,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %changelog
 * Fri Dec 18 2015 Kalev Lember <klember@redhat.com> - 1.45.3-1
 - Update to 1.45.3
+- Update project URL
 
 * Wed Oct 28 2015 Kalev Lember <klember@redhat.com> - 1.44.0-1
 - Update to 1.44.0
