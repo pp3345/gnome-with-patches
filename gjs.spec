@@ -1,7 +1,7 @@
 %global gobject_introspection_version 1.41.4
 
 Name:          gjs
-Version:       1.44.0
+Version:       1.45.3
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -13,7 +13,7 @@ Group:         System Environment/Libraries
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           http://live.gnome.org/Gjs/
 #VCS:          git://git.gnome.org/gjs
-Source0:       http://download.gnome.org/sources/%{name}/1.44/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/1.45/%{name}-%{version}.tar.xz
 
 BuildRequires: mozjs24-devel
 BuildRequires: cairo-gobject-devel
@@ -92,6 +92,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Fri Dec 18 2015 Kalev Lember <klember@redhat.com> - 1.45.3-1
+- Update to 1.45.3
+
 * Wed Oct 28 2015 Kalev Lember <klember@redhat.com> - 1.44.0-1
 - Update to 1.44.0
 - Use license macro for COPYING
