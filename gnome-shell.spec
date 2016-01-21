@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.19.3
-Release:        2%{?dist}
+Version:        3.19.4
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -183,6 +183,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Jan 21 2016 Florian Müllner <fmuellner@redhat.com> - 3.19.4-1
+- Update to 3.19.4
+
 * Mon Jan 18 2016 David Tardon <dtardon@redhat.com> - 3.19.3-2
 - rebuild for libical 2.0.0
 
