@@ -170,7 +170,7 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
-* Thu Jan 21 2015 Florian Müllner <fmuellner@redhat.com> - 3.19.4-1
+* Thu Jan 21 2016 Florian Müllner <fmuellner@redhat.com> - 3.19.4-1
 - Update to 3.19.4
 
 * Thu Dec 17 2015 Florian Müllner <fmuellner@redhat.com> - 3.19.3-1
