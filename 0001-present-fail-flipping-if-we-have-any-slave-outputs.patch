@@ -1,0 +1,41 @@
+From b0c7318ecc3e3817f8cf3519d229640a1ff73712 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@gmail.com>
+Date: Tue, 9 Feb 2016 16:46:52 +1000
+Subject: [PATCH] present: fail flipping if we have any slave outputs.
+
+Due to the way present currently works, we don't ever
+check with the secondary adapters if we can flip at all.
+
+We shouldn't flip if the secondary adapters are attached
+to the pixmap currently, however using the current check_flip
+callback isn't possible as it passes the Window to the driver
+(something we shouldn't be doing), so the slave driver can never
+get it's own screen ptr back.
+
+For now to fix the problem just block flips if we have any
+slaves configured. We can fix the ABI up later, but this
+fix can be backported to stable.
+
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+---
+ present/present.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/present/present.c b/present/present.c
+index 8cf3b6f..cb3c7ea 100644
+--- a/present/present.c
++++ b/present/present.c
+@@ -122,6 +122,10 @@ present_check_flip(RRCrtcPtr    crtc,
+     if (!screen_priv->info->flip)
+         return FALSE;
+ 
++    /* Fail to flip if we have slave outputs */
++    if (!xorg_list_is_empty(&screen->output_slave_list))
++        return FALSE;
++
+     /* Make sure the window hasn't been redirected with Composite */
+     window_pixmap = screen->GetWindowPixmap(window);
+     if (window_pixmap != screen->GetScreenPixmap(screen) &&
+-- 
+2.5.0
+
