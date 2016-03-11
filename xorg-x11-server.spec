@@ -44,8 +44,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.18.1
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.18.2
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -90,8 +90,6 @@ Patch7027: xserver-autobind-hotplug.patch
 
 # submitted: http://lists.x.org/archives/xorg-devel/2013-October/037996.html
 Patch9100: exa-only-draw-valid-trapezoids.patch
-
-Patch9101: 0001-present-fail-flipping-if-we-have-any-slave-outputs.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1282252
 Patch9200: 0001-Xi-don-t-deliver-emulated-motion-events-for-non-emul.patch
@@ -433,6 +431,7 @@ autoreconf -f -v --install || exit 1
 # XXX without dtrace
 
 %configure %{xservers} \
+	--enable-dependency-tracking \
 	--disable-static \
 	--with-pic \
 	%{?no_int10} --with-int10=x86emu \
@@ -635,6 +634,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Mar 11 2016 Adam Jackson <ajax@redhat.com> 1.18.2-1
+- xserver 1.18.2
+
 * Wed Mar 09 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.18.1-3
 - Stop bug warnings on three-finger pinch gestures (#1282252)
 
