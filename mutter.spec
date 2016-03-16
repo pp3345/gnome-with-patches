@@ -3,8 +3,8 @@
 %global clutter_version 1.25.6
 
 Name:          mutter
-Version:       3.19.91
-Release:       2%{?dist}
+Version:       3.19.92
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -15,7 +15,6 @@ Source0:       http://download.gnome.org/sources/%{name}/3.19/%{name}-%{version}
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1200901
 Patch0:        0001-Force-cursor-update-after-applying-configuration.patch
-Patch1:        0001-wayland-Don-t-access-the-cursor-wl_buffer-when-updat.patch
 
 BuildRequires: clutter-devel >= %{clutter_version}
 BuildRequires: pango-devel
@@ -101,7 +100,6 @@ the functionality of the installed %{name} package.
 %prep
 %setup -q
 %patch0 -p1 -b .fix-cursor
-%patch1 -p1 -b .dont-access-cursor-buffer
 
 %build
 autoreconf -f -i
@@ -172,6 +170,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Mar 16 2016 Florian Müllner <fmuellner@redhat.com> - 3.19.92-1
+- Update to 3.19.92
+
 * Thu Mar 03 2016 Florian Müllner <fmuellner@redhat.com> - 3.19.91-2
 - Include fix for invalid cursor wl_buffer access
 
