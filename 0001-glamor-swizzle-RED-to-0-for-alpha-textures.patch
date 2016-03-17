@@ -1,0 +1,36 @@
+From a288cf58a0dc0f965a6f964c76bb86bb1989d797 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@redhat.com>
+Date: Wed, 16 Mar 2016 10:45:54 +1000
+Subject: [PATCH xserver] glamor: swizzle RED to 0 for alpha textures
+
+I'm pretty sure Eric suspected this could cause a problem, and we
+couldn't find a test. Well loading feedly in firefox seems to trigger
+badness that this solves.
+
+bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=94554
+Reviewed-by: Adam Jackson <ajax@redhat.com>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Tested-by: Timo Aaltonen <tjaalton@ubuntu.com>
+---
+ glamor/glamor_fbo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/glamor/glamor_fbo.c b/glamor/glamor_fbo.c
+index a531f60..f4f8749 100644
+--- a/glamor/glamor_fbo.c
++++ b/glamor/glamor_fbo.c
+@@ -352,8 +352,10 @@ _glamor_create_tex(glamor_screen_private *glamor_priv,
+     glBindTexture(GL_TEXTURE_2D, tex);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+-    if (format == glamor_priv->one_channel_format && format == GL_RED)
++    if (format == glamor_priv->one_channel_format && format == GL_RED) {
++        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_ZERO);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_RED);
++    }
+     glamor_priv->suppress_gl_out_of_memory_logging = true;
+     glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0,
+                  format, GL_UNSIGNED_BYTE, NULL);
+-- 
+2.5.0
+
