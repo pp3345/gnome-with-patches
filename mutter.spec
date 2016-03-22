@@ -3,7 +3,7 @@
 %global clutter_version 1.25.6
 
 Name:          mutter
-Version:       3.19.92
+Version:       3.20.0
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -11,7 +11,7 @@ Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.19/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.20/%{name}-%{version}.tar.xz
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1200901
 Patch0:        0001-Force-cursor-update-after-applying-configuration.patch
@@ -170,6 +170,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Mar 22 2016 Florian Müllner <fmuellner@redhat.com> - 3.20.0-1
+- Update to 3.20.0
+
 * Wed Mar 16 2016 Florian Müllner <fmuellner@redhat.com> - 3.19.92-1
 - Update to 3.19.92
 
