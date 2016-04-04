@@ -44,8 +44,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.18.2
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.18.3
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,10 +97,8 @@ Patch9200: 0001-Xi-don-t-deliver-emulated-motion-events-for-non-emul.patch
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
-Patch10001: 0001-glamor-swizzle-RED-to-0-for-alpha-textures.patch
 Patch10002: 0001-present-Improve-scaling-of-vblank-handler.patch
 Patch10003: 0002-present-Fix-presentation-of-flips-out-of-order.patch
-Patch10004: 0001-Xext-vidmode-Reduce-verbosity-of-GetModeLine-debug-m.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -639,6 +637,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Apr 04 2016 Adam Jackson <ajax@redhat.com> 1.18.3-1
+- xserver 1.18.3
+
 * Thu Mar 17 2016 Adam Jackson <ajax@redhat.com> 1.18.2-2
 - Fix red tint artifacts in glamor
 - Fix a performance cliff in present triggered by plasma
