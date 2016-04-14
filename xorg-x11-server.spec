@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.3
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -411,7 +411,7 @@ test `getminor extension` == %{extension_minor}
 %if %{with_hw_servers}
 %global dri_flags --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper --enable-glamor
 %else
-%global dri_flags --disable-dri
+%global dri_flags --disable-dri2
 %endif
 
 %if 0%{?fedora}
@@ -449,6 +449,7 @@ autoreconf -f -v --install || exit 1
 	--enable-config-udev \
 	--disable-unit-tests \
 	--enable-dmx \
+	--disable-dri \
 	%{?wayland} \
 	%{dri_flags} %{?bodhi_flags} \
 	${CONFIGURE}
@@ -637,6 +638,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Apr 14 2016 Adam Jackson <ajax@redhat.com> - 1.18.3-2
+- Stop building DRI1 support
+- Don't build DRI2 on s390{,x}
+
 * Mon Apr 04 2016 Adam Jackson <ajax@redhat.com> 1.18.3-1
 - xserver 1.18.3
 
