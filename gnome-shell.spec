@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.20.1
-Release:        2%{?dist}
+Version:        3.21.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -13,11 +13,10 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.20/%{name}-%{ver
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
-%define clutter_version 1.21.5
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.45.4
 %define gjs_version 1.39.0
-%define mutter_version 3.20.0
+%define mutter_version 3.21.1
 %define gtk3_version 3.15.0
 %define eds_version 3.13.90
 %define gnome_desktop_version 3.7.90
@@ -34,7 +33,6 @@ BuildRequires:  gnome-common >= 2.2.0
 BuildRequires:  libtool >= 1.4.3
 BuildRequires:  caribou-devel >= %{caribou_version}
 BuildRequires:  chrpath
-BuildRequires:  clutter-devel >= %{clutter_version}
 BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
 BuildRequires:  evolution-data-server-devel >= %{eds_version}
@@ -102,7 +100,6 @@ Requires:       caribou%{?_isa} >= %{caribou_version}
 # needed for the user menu
 Requires:       accountsservice-libs%{?_isa}
 Requires:       gdm-libs%{?_isa}
-Requires:       clutter%{?_isa} >= %{clutter_version}
 # needed for settings items in menus
 Requires:       control-center
 # needed by some utilities
@@ -183,6 +180,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Fri Apr 29 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.1-1
+- Update to 3.21.1
+
 * Fri Apr 15 2016 David Tardon <dtardon@redhat.com> - 3.20.1-2
 - rebuild for ICU 57.1
 
