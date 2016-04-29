@@ -1,9 +1,10 @@
 %global gtk3_version 3.19.8
 %global gsettings_desktop_schemas_version 3.19.3
-%global clutter_version 1.25.6
+%global json_glib_version 0.12.0
+%global libinput_version 0.8
 
 Name:          mutter
-Version:       3.20.1
+Version:       3.21.1
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -11,12 +12,12 @@ Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.20/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.21/%{name}-%{version}.tar.xz
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1200901
 Patch0:        0001-Force-cursor-update-after-applying-configuration.patch
 
-BuildRequires: clutter-devel >= %{clutter_version}
+BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
 BuildRequires: gnome-desktop3-devel
@@ -27,13 +28,18 @@ BuildRequires: libSM-devel
 BuildRequires: libX11-devel
 BuildRequires: libXdamage-devel
 BuildRequires: libXext-devel
+BuildRequires: libXfixes-devel
+BuildRequires: libXi-devel
 BuildRequires: libXrandr-devel
 BuildRequires: libXrender-devel
 BuildRequires: libXcursor-devel
 BuildRequires: libXcomposite-devel
 BuildRequires: libxcb-devel
+BuildRequires: libxkbcommon-devel
 BuildRequires: libxkbcommon-x11-devel
 BuildRequires: libxkbfile-devel
+BuildRequires: mesa-libGL-devel
+BuildRequires: mesa-libgbm-devel
 BuildRequires: pam-devel
 BuildRequires: upower-devel
 BuildRequires: xkeyboard-config-devel
@@ -45,27 +51,31 @@ BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel >= %{gsettings_desktop_schemas_version}
 BuildRequires: automake, autoconf, libtool
 BuildRequires: pkgconfig(gudev-1.0)
-BuildRequires: pkgconfig(clutter-egl-1.0)
 BuildRequires: pkgconfig(libdrm)
 BuildRequires: pkgconfig(gbm)
-BuildRequires: pkgconfig(clutter-wayland-1.0)
-BuildRequires: pkgconfig(clutter-wayland-compositor-1.0)
 BuildRequires: pkgconfig(wayland-server)
+
+BuildRequires: json-glib-devel >= %{json_glib_version}
+BuildRequires: libgudev1-devel
+BuildRequires: libwayland-server-devel
+BuildRequires: libinput-devel >= %{libinput_version}
 
 Obsoletes: mutter-wayland < 3.13.0
 Obsoletes: mutter-wayland-devel < 3.13.0
 
 # Make sure yum updates gnome-shell as well; otherwise we might end up with
 # broken gnome-shell installations due to mutter ABI changes.
-Conflicts: gnome-shell < 3.18.0
+Conflicts: gnome-shell < 3.21.1
 
-Requires: clutter%{?_isa} >= %{clutter_version}
 Requires: control-center-filesystem
 Requires: gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires: gtk3%{?_isa} >= %{gtk3_version}
 Requires: startup-notification
 Requires: dbus-x11
 Requires: zenity
+
+Requires:      json-glib%{?_isa} >= %{json_glib_version}
+Requires:      libinput%{?_isa} >= %{libinput_version}
 
 %description
 Mutter is a window and compositing manager that displays and manages
@@ -166,10 +176,17 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 
 %files tests
 %{_libexecdir}/installed-tests/mutter
+%{_libexecdir}/installed-tests/mutter-clutter
+%{_libexecdir}/installed-tests/mutter-cogl
 %{_datadir}/installed-tests/mutter
+%{_datadir}/installed-tests/mutter-clutter
+%{_datadir}/installed-tests/mutter-cogl
 %{_datadir}/mutter/tests
 
 %changelog
+* Fri Apr 29 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.1-1
+- Update to 3.21.1
+
 * Wed Apr 13 2016 Florian Müllner <fmuellner@redhat.com> - 3.20.1-1
 - Update to 3.20.1
 
