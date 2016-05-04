@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.3
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -99,6 +99,9 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 Patch10002: 0001-present-Improve-scaling-of-vblank-handler.patch
 Patch10003: 0002-present-Fix-presentation-of-flips-out-of-order.patch
+
+# Bug 1047151 - Numlock LED incorrect after keyboard map switch
+Patch10004: 0001-xkb-after-changing-the-keymap-force-an-indicator-upd.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -638,6 +641,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu May 05 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.18.3-3
+- Fix NumLock indicator light turning off after layout change (#1047151)
+
 * Thu Apr 14 2016 Adam Jackson <ajax@redhat.com> - 1.18.3-2
 - Stop building DRI1 support
 - Don't build DRI2 on s390{,x}
