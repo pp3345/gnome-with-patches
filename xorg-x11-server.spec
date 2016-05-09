@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.3
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,6 +76,8 @@ Source31: xserver-sdk-abi-requires.git
 
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
+
+Patch1000: 0001-dri-BC-hack-for-ati-and-openchrome.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -641,6 +643,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon May 09 2016 Adam Jackson <ajax@redhat.com> - 1.18.3-4
+- Move a symbol from DRI1 to DRI2 code to fix ati/openchrome
+
 * Thu May 05 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.18.3-3
 - Fix NumLock indicator light turning off after layout change (#1047151)
 

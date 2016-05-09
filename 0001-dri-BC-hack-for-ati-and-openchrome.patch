@@ -1,0 +1,59 @@
+From fbb5ac73cb51317bf395e4849e82837c39395bae Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Mon, 9 May 2016 10:58:47 -0400
+Subject: [PATCH] dri: BC hack for ati and openchrome
+
+DRICreatePCIBusID creates a string that is then passed into libdrm. It
+only lives in the dri1 code for some reason, so move it to the dri2
+code.
+---
+ hw/xfree86/dri/dri.c   | 12 ------------
+ hw/xfree86/dri2/dri2.c | 12 ++++++++++++
+ 2 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/hw/xfree86/dri/dri.c b/hw/xfree86/dri/dri.c
+index 0046e52..489f115 100644
+--- a/hw/xfree86/dri/dri.c
++++ b/hw/xfree86/dri/dri.c
+@@ -2367,18 +2367,6 @@ DRIMoveBuffersHelper(ScreenPtr pScreen,
+ 
+ }
+ 
+-char *
+-DRICreatePCIBusID(const struct pci_device *dev)
+-{
+-    char *busID;
+-
+-    if (asprintf(&busID, "pci:%04x:%02x:%02x.%d",
+-                 dev->domain, dev->bus, dev->dev, dev->func) == -1)
+-        return NULL;
+-
+-    return busID;
+-}
+-
+ static void
+ drmSIGIOHandler(int interrupt, void *closure)
+ {
+diff --git a/hw/xfree86/dri2/dri2.c b/hw/xfree86/dri2/dri2.c
+index d55be19..f5907f0 100644
+--- a/hw/xfree86/dri2/dri2.c
++++ b/hw/xfree86/dri2/dri2.c
+@@ -1712,3 +1712,15 @@ not_recognized:
+     *is_param_recognized = FALSE;
+     return Success;
+ }
++
++char *
++DRICreatePCIBusID(const struct pci_device *dev)
++{
++    char *busID;
++
++    if (asprintf(&busID, "pci:%04x:%02x:%02x.%d",
++                 dev->domain, dev->bus, dev->dev, dev->func) == -1)
++        return NULL;
++
++    return busID;
++}
+-- 
+2.7.4
+
