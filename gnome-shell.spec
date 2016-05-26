@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.21.1
+Version:        3.21.2
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -16,12 +16,12 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.45.4
 %define gjs_version 1.39.0
-%define mutter_version 3.21.1
+%define mutter_version 3.21.2
 %define gtk3_version 3.15.0
 %define eds_version 3.13.90
 %define gnome_desktop_version 3.7.90
 %define json_glib_version 0.13.2
-%define gsettings_desktop_schemas_version 3.19.2
+%define gsettings_desktop_schemas_version 3.21.2
 %define caribou_version 0.4.8
 %define libcroco_version 0.6.8
 %define telepathy_logger_version 0.2.6
@@ -180,6 +180,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu May 26 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.2-1
+- Update to 3.21.2
+
 * Fri Apr 29 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.1-1
 - Update to 3.21.1
 
