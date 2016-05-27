@@ -1,10 +1,10 @@
 %global gtk3_version 3.19.8
-%global gsettings_desktop_schemas_version 3.19.3
+%global gsettings_desktop_schemas_version 3.21.2
 %global json_glib_version 0.12.0
 %global libinput_version 0.8
 
 Name:          mutter
-Version:       3.21.1
+Version:       3.21.2
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -184,6 +184,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Fri May 27 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.2-1
+- Update to 3.21.2
+
 * Fri Apr 29 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.1-1
 - Update to 3.21.1
 
