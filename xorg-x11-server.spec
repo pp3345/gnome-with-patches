@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.3
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,8 +76,6 @@ Source31: xserver-sdk-abi-requires.git
 
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
-
-Patch1000: 0001-dri-BC-hack-for-ati-and-openchrome.patch
 
 # Trivial things to never merge upstream ever:
 # This really could be done prettier.
@@ -414,9 +412,9 @@ test `getminor extension` == %{extension_minor}
 %global default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
 
 %if %{with_hw_servers}
-%global dri_flags --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper --enable-glamor
+%global dri_flags --enable-dri --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper --enable-glamor
 %else
-%global dri_flags --disable-dri2
+%global dri_flags --disable-dri --disable-dri2
 %endif
 
 %if 0%{?fedora}
@@ -454,7 +452,6 @@ autoreconf -f -v --install || exit 1
 	--enable-config-udev \
 	--disable-unit-tests \
 	--enable-dmx \
-	--disable-dri \
 	%{?wayland} \
 	%{dri_flags} %{?bodhi_flags} \
 	${CONFIGURE}
@@ -643,6 +640,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Jun 13 2016 Adam Jackson <ajax@redhat.com> - 1.18.3-5
+- Restore DRI1 for now
+
 * Mon May 09 2016 Adam Jackson <ajax@redhat.com> - 1.18.3-4
 - Move a symbol from DRI1 to DRI2 code to fix ati/openchrome
 
