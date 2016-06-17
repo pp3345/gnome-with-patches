@@ -1,0 +1,30 @@
+From fc1f61b75c9712e24ff665f95d62771f39eba1c7 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@gmail.com>
+Date: Fri, 29 Apr 2016 14:01:30 +1000
+Subject: [PATCH 1/4] randr/provider: only allow slave gpu to be offload
+ sources.
+
+The other way around makes no sense.
+
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+---
+ randr/rrprovider.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/randr/rrprovider.c b/randr/rrprovider.c
+index bbb8e51..5329f41 100644
+--- a/randr/rrprovider.c
++++ b/randr/rrprovider.c
+@@ -325,6 +325,8 @@ ProcRRSetProviderOffloadSink(ClientPtr client)
+     VERIFY_RR_PROVIDER(stuff->provider, provider, DixReadAccess);
+     if (!(provider->capabilities & RR_Capability_SourceOffload))
+         return BadValue;
++    if (!provider->pScreen->isGPU)
++        return BadValue;
+ 
+     if (stuff->sink_provider) {
+         VERIFY_RR_PROVIDER(stuff->sink_provider, sink_provider, DixReadAccess);
+-- 
+2.5.5
+

@@ -1,0 +1,54 @@
+From 9b70aebc609c98719095229befd1a56532aaaa1c Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Wed, 1 Jun 2016 14:59:38 +0200
+Subject: [PATCH xserver 5/8] modesetting: Properly cleanup fb for
+ reverse-prime-offload
+
+drmmode_set_scanout_pixmap_gpu(pix) adds drmmod->fb_id through a call
+to drmmode_xf86crtc_resize(), but on a subsequent
+drmmode_set_scanout_pixmap_gpu(NULL) it would not remove the fb.
+
+This keeps the crtc marked as busy, which causes the dgpu to not
+being able to runtime suspend, after an output attached to the dgpu
+has been used once. Which causes burning through an additional 10W
+of power and the laptop to run quite hot.
+
+This commit adds the missing remove fb call, allowing the dgpu to runtime
+suspend after an external monitor has been plugged into the laptop.
+
+Note this also makes drmmode_set_scanout_pixmap_gpu(NULL) match the
+behavior of drmmode_set_scanout_pixmap_cpu(NULL) which was already
+removing the fb.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+---
+ hw/xfree86/drivers/modesetting/drmmode_display.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/hw/xfree86/drivers/modesetting/drmmode_display.c b/hw/xfree86/drivers/modesetting/drmmode_display.c
+index bb5f56e..bc2ca3d 100644
+--- a/hw/xfree86/drivers/modesetting/drmmode_display.c
++++ b/hw/xfree86/drivers/modesetting/drmmode_display.c
+@@ -577,11 +577,17 @@ drmmode_set_scanout_pixmap_gpu(xf86CrtcPtr crtc, PixmapPtr ppix)
+     PixmapPtr screenpix = screen->GetScreenPixmap(screen);
+     xf86CrtcConfigPtr xf86_config = XF86_CRTC_CONFIG_PTR(crtc->scrn);
+     drmmode_crtc_private_ptr drmmode_crtc = crtc->driver_private;
++    drmmode_ptr drmmode = drmmode_crtc->drmmode;
+     int c, total_width = 0, max_height = 0, this_x = 0;
+ 
+     if (!ppix) {
+-        if (crtc->randr_crtc->scanout_pixmap)
++        if (crtc->randr_crtc->scanout_pixmap) {
+             PixmapStopDirtyTracking(crtc->randr_crtc->scanout_pixmap, screenpix);
++            if (drmmode->fb_id) {
++                drmModeRmFB(drmmode->fd, drmmode->fb_id);
++                drmmode->fb_id = 0;
++            }
++        }
+         drmmode_crtc->prime_pixmap_x = 0;
+         return TRUE;
+     }
+-- 
+2.7.4
+

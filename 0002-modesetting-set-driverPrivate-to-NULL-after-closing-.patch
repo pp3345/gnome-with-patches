@@ -1,0 +1,36 @@
+From a41a171bcbae9aeafac2865faa904f15d9b59925 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@gmail.com>
+Date: Fri, 29 Apr 2016 14:01:31 +1000
+Subject: [PATCH 2/4] modesetting: set driverPrivate to NULL after closing fd.
+
+Otherwise ms_ent_priv will return NULL and things will fall apart.
+
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+---
+ hw/xfree86/drivers/modesetting/driver.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/xfree86/drivers/modesetting/driver.c b/hw/xfree86/drivers/modesetting/driver.c
+index c97f33a..abf7e1a 100644
+--- a/hw/xfree86/drivers/modesetting/driver.c
++++ b/hw/xfree86/drivers/modesetting/driver.c
+@@ -635,7 +635,6 @@ FreeRec(ScrnInfoPtr pScrn)
+     ms = modesettingPTR(pScrn);
+     if (!ms)
+         return;
+-    pScrn->driverPrivate = NULL;
+ 
+     if (ms->fd > 0) {
+         modesettingEntPtr ms_ent;
+@@ -656,6 +655,7 @@ FreeRec(ScrnInfoPtr pScrn)
+             ms_ent->fd = 0;
+         }
+     }
++    pScrn->driverPrivate = NULL;
+     free(ms->drmmode.Options);
+     free(ms);
+ 
+-- 
+2.5.5
+

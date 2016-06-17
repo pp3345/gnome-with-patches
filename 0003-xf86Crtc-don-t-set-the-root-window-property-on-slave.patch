@@ -1,0 +1,33 @@
+From 258588224d6b35de12f97d9092efa5cb3e426550 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@gmail.com>
+Date: Fri, 29 Apr 2016 14:01:32 +1000
+Subject: [PATCH 3/4] xf86Crtc: don't set the root window property on slave
+ GPUs.
+
+Slave GPUs don't have a root window to set this on, so don't.
+
+This fixes some crashes I saw just playing around.
+
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+---
+ hw/xfree86/modes/xf86Crtc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
+index 6091b5e..4a13c13 100644
+--- a/hw/xfree86/modes/xf86Crtc.c
++++ b/hw/xfree86/modes/xf86Crtc.c
+@@ -3285,7 +3285,8 @@ xf86OutputSetEDID(xf86OutputPtr output, xf86MonPtr edid_mon)
+     }
+ 
+     /* Set the DDC properties for the 'compat' output */
+-    if (output == xf86CompatOutput(scrn))
++    /* GPU screens don't have a root window */
++    if (output == xf86CompatOutput(scrn) && !scrn->is_gpu)
+         xf86SetDDCproperties(scrn, edid_mon);
+ 
+ #ifdef RANDR_12_INTERFACE
+-- 
+2.5.5
+
