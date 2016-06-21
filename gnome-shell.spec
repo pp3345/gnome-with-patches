@@ -21,7 +21,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define eds_version 3.13.90
 %define gnome_desktop_version 3.7.90
 %define json_glib_version 0.13.2
-%define gsettings_desktop_schemas_version 3.21.2
+%define gsettings_desktop_schemas_version 3.21.3
 %define caribou_version 0.4.8
 %define libcroco_version 0.6.8
 %define telepathy_logger_version 0.2.6
