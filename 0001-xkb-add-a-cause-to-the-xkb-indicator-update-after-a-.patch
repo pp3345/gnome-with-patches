@@ -1,0 +1,45 @@
+From ed4f5ebde487bda2b8bda4cb4a1455f41a7c2933 Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Tue, 28 Jun 2016 11:42:41 +1000
+Subject: [PATCH xserver] xkb: add a cause to the xkb indicator update after a
+ keymap change
+
+Regression introduce by ac164e58870d which calls
+XkbUpdateAllDeviceIndicators() with two NULL arguments. A few layers down into
+the stack and we triggered a NULL-pointer dereference. In theory a NULL cause
+is acceptable since we don't actually change modifier state here. Instead of
+updating all places to check for NULL just set the cause to the client
+request and go to the pub.
+
+https://bugs.freedesktop.org/show_bug.cgi?id=96384
+
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+---
+ xkb/xkb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/xkb/xkb.c b/xkb/xkb.c
+index 3a6ad65..678f823 100644
+--- a/xkb/xkb.c
++++ b/xkb/xkb.c
+@@ -5706,6 +5706,7 @@ ProcXkbGetKbdByName(ClientPtr client)
+     xkbGetGeometryReply grep = { 0 };
+     XkbComponentNamesRec names = { 0 };
+     XkbDescPtr xkb, new;
++    XkbEventCauseRec cause;
+     unsigned char *str;
+     char mapFile[PATH_MAX];
+     unsigned len;
+@@ -6016,7 +6017,8 @@ ProcXkbGetKbdByName(ClientPtr client)
+         new = NULL;
+     }
+     XkbFreeComponentNames(&names, FALSE);
+-    XkbUpdateAllDeviceIndicators(NULL, NULL);
++    XkbSetCauseXkbReq(&cause, X_kbGetKbdByName, client);
++    XkbUpdateAllDeviceIndicators(NULL, &cause);
+ 
+     return Success;
+ }
+-- 
+2.7.4
+
