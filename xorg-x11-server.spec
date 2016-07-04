@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.3
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -112,6 +112,9 @@ Patch10003: 0002-present-Fix-presentation-of-flips-out-of-order.patch
 # Bug 1047151 - Numlock LED incorrect after keyboard map switch
 Patch10004: 0001-xkb-after-changing-the-keymap-force-an-indicator-upd.patch
 Patch10005: 0001-xkb-add-a-cause-to-the-xkb-indicator-update-after-a-.patch
+
+# Bug 1338979 - Xwayland: Segmentation fault in cursor update after unrealize
+Patch10006: 0001-wayland-clear-resource-for-pixmap-on-unrealize.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -650,6 +653,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Jul 04 2016 Olivier Fourdan <ofourdan@redhat.com> 1.18.3-8
+- Fix segfault in Xwayland due to cursor update after unrealize (#1338979)
+
 * Tue Jun 28 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.18.3-7
 - Fix segfault caused by forced indicator update (#1335439)
 
