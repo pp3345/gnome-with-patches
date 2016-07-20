@@ -14,9 +14,6 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.21/%{name}-%{version}.tar.xz
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=1200901
-Patch0:        0001-Force-cursor-update-after-applying-configuration.patch
-
 BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -109,7 +106,6 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q
-%patch0 -p1 -b .fix-cursor
 
 %build
 autoreconf -f -i
@@ -186,6 +182,7 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %changelog
 * Wed Jul 20 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.4-1
 - Update to 3.21.4
+- Drop downstream patch
 
 * Tue Jun 21 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.3-1
 - Update to 3.21.3
