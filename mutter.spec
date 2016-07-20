@@ -14,6 +14,8 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.21/%{name}-%{version}.tar.xz
 
+Patch0:        0001-cogl-gles2-Don-t-leak-gles2-types-into-mutter.patch
+
 BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -106,6 +108,7 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q
+%patch0 -p1 -b .fix-type-error-on-i686
 
 %build
 autoreconf -f -i
@@ -183,6 +186,7 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 * Wed Jul 20 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.4-1
 - Update to 3.21.4
 - Drop downstream patch
+- Fix build error on 32-bit
 
 * Tue Jun 21 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.3-1
 - Update to 3.21.3
