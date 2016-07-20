@@ -164,6 +164,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Screenshot.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider2.xml
+%dir %{_datadir}/xdg-desktop-portal/portals/gnome-shell.portal
 %{_libdir}/gnome-shell/
 %{_libdir}/mozilla/plugins/*.so
 %{_libexecdir}/gnome-shell-calendar-server
