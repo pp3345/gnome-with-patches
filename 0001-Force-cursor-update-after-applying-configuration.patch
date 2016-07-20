@@ -1,4 +1,4 @@
-From c642a96d33d5cf2fe7f2950bf48b9bbb5e5c8c5f Mon Sep 17 00:00:00 2001
+From 8f958edcef4adfe4a2323da50e4aa53c3bd8e431 Mon Sep 17 00:00:00 2001
 From: Ray Strode <rstrode@redhat.com>
 Date: Mon, 11 May 2015 16:53:41 -0400
 Subject: [PATCH] Force cursor update after applying configuration
@@ -13,15 +13,15 @@ This is pretty hacky and won't ever go upstream.
 
 https://bugzilla.gnome.org/show_bug.cgi?id=746078
 ---
- src/backends/native/meta-launcher.c            | 37 +++++++++++++++++++++++++
- src/backends/native/meta-monitor-manager-kms.c | 38 ++++++++++++++++++++++++++
- 2 files changed, 75 insertions(+)
+ src/backends/native/meta-launcher.c            | 37 ++++++++++++++++++++++++++
+ src/backends/native/meta-monitor-manager-kms.c | 37 ++++++++++++++++++++++++++
+ 2 files changed, 74 insertions(+)
 
 diff --git a/src/backends/native/meta-launcher.c b/src/backends/native/meta-launcher.c
-index 7cd338b..8a6db23 100644
+index ea28e5a..5aabb3a 100644
 --- a/src/backends/native/meta-launcher.c
 +++ b/src/backends/native/meta-launcher.c
-@@ -102,6 +102,30 @@ get_seat_proxy (GCancellable *cancellable,
+@@ -107,6 +107,30 @@ get_seat_proxy (GCancellable *cancellable,
  }
  
  static void
@@ -51,20 +51,20 @@ index 7cd338b..8a6db23 100644
 +static void
  session_unpause (void)
  {
-   ClutterBackend *clutter_backend;
-@@ -120,6 +144,8 @@ session_unpause (void)
-     MetaBackend *backend = meta_get_backend ();
-     MetaCursorRenderer *renderer = meta_backend_get_cursor_renderer (backend);
+   MetaBackend *backend;
+@@ -124,6 +148,8 @@ session_unpause (void)
+     MetaCursorRendererNative *cursor_renderer_native =
+       META_CURSOR_RENDERER_NATIVE (meta_backend_get_cursor_renderer (backend));
      ClutterActor *stage = meta_backend_get_stage (backend);
 +    CoglOnscreen *cogl_onscreen;
 +    static CoglFrameClosure *frame_closure = NULL;
  
      /* When we mode-switch back, we need to immediately queue a redraw
       * in case nothing else queued one for us, and force the cursor to
-@@ -127,6 +153,17 @@ session_unpause (void)
+@@ -131,6 +157,17 @@ session_unpause (void)
  
      clutter_actor_queue_redraw (stage);
-     meta_cursor_renderer_native_force_update (META_CURSOR_RENDERER_NATIVE (renderer));
+     meta_cursor_renderer_native_force_update (cursor_renderer_native);
 +
 +    cogl_onscreen = COGL_ONSCREEN (cogl_get_draw_framebuffer ());
 +
@@ -80,19 +80,18 @@ index 7cd338b..8a6db23 100644
    }
  }
 diff --git a/src/backends/native/meta-monitor-manager-kms.c b/src/backends/native/meta-monitor-manager-kms.c
-index e1a6f5f..af92cd1 100644
+index 04d96aa..ad23859 100644
 --- a/src/backends/native/meta-monitor-manager-kms.c
 +++ b/src/backends/native/meta-monitor-manager-kms.c
-@@ -25,6 +25,8 @@
- 
- #include "meta-monitor-manager-kms.h"
+@@ -27,6 +27,7 @@
  #include "meta-monitor-config.h"
-+#include "backends/meta-backend-private.h"
+ #include "meta-backend-private.h"
+ #include "meta-renderer-native.h"
 +#include "meta-cursor-renderer-native.h"
  
  #include <string.h>
  #include <stdlib.h>
-@@ -82,6 +84,9 @@ struct _MetaMonitorManagerKms
+@@ -94,6 +95,9 @@ struct _MetaMonitorManagerKms
    drmModeConnector **connectors;
    unsigned int       n_connectors;
  
@@ -102,7 +101,7 @@ index e1a6f5f..af92cd1 100644
    GUdevClient *udev;
  
    GSettings *desktop_settings;
-@@ -1053,6 +1058,29 @@ set_underscan (MetaMonitorManagerKms *manager_kms,
+@@ -1050,6 +1054,29 @@ set_underscan (MetaMonitorManagerKms *manager_kms,
  }
  
  static void
@@ -132,16 +131,16 @@ index e1a6f5f..af92cd1 100644
  meta_monitor_manager_kms_apply_configuration (MetaMonitorManager *manager,
                                                MetaCRTCInfo       **crtcs,
                                                unsigned int         n_crtcs,
-@@ -1063,6 +1091,7 @@ meta_monitor_manager_kms_apply_configuration (MetaMonitorManager *manager,
-   ClutterBackend *backend;
-   CoglContext *cogl_context;
-   CoglDisplay *cogl_display;
+@@ -1057,6 +1084,7 @@ meta_monitor_manager_kms_apply_configuration (MetaMonitorManager *manager,
+                                               unsigned int         n_outputs)
+ {
+   MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (manager);
 +  CoglOnscreen *cogl_onscreen;
    unsigned i;
-   GPtrArray *cogl_crtcs;
    int screen_width, screen_height;
-@@ -1206,6 +1235,15 @@ meta_monitor_manager_kms_apply_configuration (MetaMonitorManager *manager,
-       return;
+ 
+@@ -1144,6 +1172,15 @@ meta_monitor_manager_kms_apply_configuration (MetaMonitorManager *manager,
+       crtc->current_mode = NULL;
      }
  
 +  cogl_onscreen = COGL_ONSCREEN (cogl_get_draw_framebuffer ());
@@ -157,5 +156,5 @@ index e1a6f5f..af92cd1 100644
      {
        MetaOutputInfo *output_info = outputs[i];
 -- 
-2.7.0
+2.7.4
 
