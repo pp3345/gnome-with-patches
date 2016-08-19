@@ -4,7 +4,7 @@
 %global libinput_version 0.8
 
 Name:          mutter
-Version:       3.21.4
+Version:       3.21.90
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -13,8 +13,6 @@ License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.21/%{name}-%{version}.tar.xz
-
-Patch0:        0001-cogl-gles2-Don-t-leak-gles2-types-into-mutter.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -108,7 +106,6 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q
-%patch0 -p1 -b .fix-type-error-on-i686
 
 %build
 autoreconf -f -i
@@ -183,6 +180,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Fri Aug 19 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.90-1
+- Update to 3.21.90
+
 * Wed Jul 20 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.4-1
 - Update to 3.21.4
 - Drop downstream patch
