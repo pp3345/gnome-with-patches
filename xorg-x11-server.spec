@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.4
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,6 +76,9 @@ Source31: xserver-sdk-abi-requires.git
 
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
+
+# xwayland backports from master
+Patch0: xorg-x11-server-xwayland-backports.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -624,6 +627,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Aug 19 2016 Kalev Lember <klember@redhat.com> - 1.18.4-2
+- Backport a number of XWayland fixes from master
+
 * Tue Jul 19 2016 Adam Jackson <ajax@redhat.com> - 1.18.4-1
 - xserver 1.18.4
 

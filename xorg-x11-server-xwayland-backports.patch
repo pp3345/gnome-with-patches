@@ -1,0 +1,713 @@
+From d264f82a7dd601278b1d7099b1eb066eb65cac23 Mon Sep 17 00:00:00 2001
+From: Daniel Stone <daniels@collabora.com>
+Date: Fri, 20 Nov 2015 15:37:31 +0000
+Subject: [PATCH 01/11] XWayland: Use FocusIn events for keyboard enter
+
+wl_keyboard::enter is the equivalent of FocusIn + KeymapNotify: it
+notifies us that the surface/window has now received the focus, and
+provides us a set of keys which are currently down.
+
+We should use these keys to update the current state, but not to send
+any events to clients.
+
+Signed-off-by: Daniel Stone <daniels@collabora.com>
+Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit fee0827a9a695600765f3d04376fc9babe497401)
+---
+ hw/xwayland/xwayland-input.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/hw/xwayland/xwayland-input.c b/hw/xwayland/xwayland-input.c
+index 23e138d..f9e3255 100644
+--- a/hw/xwayland/xwayland-input.c
++++ b/hw/xwayland/xwayland-input.c
+@@ -462,7 +462,7 @@ keyboard_handle_enter(void *data, struct wl_keyboard *keyboard,
+ 
+     wl_array_copy(&xwl_seat->keys, keys);
+     wl_array_for_each(k, &xwl_seat->keys)
+-        QueueKeyboardEvents(xwl_seat->keyboard, KeyPress, *k + 8);
++        QueueKeyboardEvents(xwl_seat->keyboard, KeymapNotify, *k + 8);
+ }
+ 
+ static void
+@@ -474,6 +474,10 @@ keyboard_handle_leave(void *data, struct wl_keyboard *keyboard,
+ 
+     xwl_seat->xwl_screen->serial = serial;
+ 
++    /* Unlike keymap_handle_enter above, this time we _do_ want to trigger
++     * full release, as we don't know how long we'll be out of focus for.
++     * Notify clients that the keys have been released, disable autorepeat,
++     * etc. */
+     wl_array_for_each(k, &xwl_seat->keys)
+         QueueKeyboardEvents(xwl_seat->keyboard, KeyRelease, *k + 8);
+ 
+-- 
+2.7.4
+
+
+From 640692be7d8f61af2da04fea16ba5a97c53993c5 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Wed, 11 May 2016 09:15:19 +0200
+Subject: [PATCH 02/11] xwayland: don't check events as early as InitInput
+
+If data is received during XWayland startup, it will be read early in
+InitInput() before the connection data is initialized, causing a crash.
+
+Remove the wayland rountrips from InitInput() as this is done again in
+xwl_screen_init() where it seems more appropriate.
+
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=95337
+Reviewed-by: Adam Jackson <ajax@redhat.com>
+(cherry picked from commit 984be789d5935bc7f695dc61234ef0251ed33679)
+---
+ hw/xwayland/xwayland-input.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/hw/xwayland/xwayland-input.c b/hw/xwayland/xwayland-input.c
+index f9e3255..cbc1bf2 100644
+--- a/hw/xwayland/xwayland-input.c
++++ b/hw/xwayland/xwayland-input.c
+@@ -899,11 +899,6 @@ InitInput(int argc, char *argv[])
+     xwl_screen->input_registry = wl_display_get_registry(xwl_screen->display);
+     wl_registry_add_listener(xwl_screen->input_registry, &input_listener,
+                              xwl_screen);
+-
+-    xwl_screen->expecting_event = 0;
+-    wl_display_roundtrip(xwl_screen->display);
+-    while (xwl_screen->expecting_event)
+-        wl_display_roundtrip(xwl_screen->display);
+ }
+ 
+ void
+-- 
+2.7.4
+
+
+From 9e19417ad6b78de4e6dede3713396b5030b1bf93 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 24 May 2016 18:46:42 +0800
+Subject: [PATCH 03/11] xwayland: Use the CLOCK_MONOTONIC clock
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+By default the X server will try CLOCK_MONOTONIC_COARSE before
+CLOCK_MONOTONIC, while A Wayland compositor may only support getting
+their timestamps from the CLOCK_MONOTONIC clock. This causes various
+issues since it may happen that a timestamp from CLOCK_MONOTONIC
+retrieved before a sending an X request will still be "later" than the
+timestamp the X server than gets after receiving the request, due to the
+fact that CLOCK_MONOTONIC_COARSE has a lower resolution.
+
+To avoid these issues, make Xwayland always use CLOCK_MONOTONIC, so
+that it becomes possible for Wayland compositor only supporting
+CLOCK_MONOTONIC and X server to use the same clock.
+
+Signed-off-by: Jonas Ådahl <jadahl@gmail.com>
+Acked-by: Daniel Stone <daniels@collabora.com>
+Tested-by: Olivier Fourdan <ofourdan@redhat.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit a779fda224bee0c4d27636503367e55ae93b33c2)
+---
+ configure.ac           |  4 ++++
+ hw/xwayland/xwayland.c |  2 ++
+ include/os.h           |  7 +++++++
+ os/utils.c             | 24 ++++++++++++++++++++++--
+ 4 files changed, 35 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 868e859..c865bfa 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2487,6 +2487,10 @@ if test "x$XWAYLAND" = xyes; then
+ 	AC_SUBST([XWAYLAND_LIBS])
+ 	AC_SUBST([XWAYLAND_SYS_LIBS])
+ 
++	if test "x$MONOTONIC_CLOCK" != xyes; then
++		AC_MSG_ERROR([Xwayland requires CLOCK_MONOTONIC support.])
++	fi
++
+ 	WAYLAND_PREFIX=`$PKG_CONFIG --variable=prefix wayland-client`
+ 	AC_PATH_PROG([WAYLAND_SCANNER], [wayland-scanner],,
+ 		     [${WAYLAND_PREFIX}/bin$PATH_SEPARATOR$PATH])
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index 2d44d07..28dea2f 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -32,6 +32,7 @@
+ #include <misyncshm.h>
+ #include <compositeext.h>
+ #include <glx_extinit.h>
++#include <os.h>
+ 
+ #ifdef XF86VIDMODE
+ #include <X11/extensions/xf86vmproto.h>
+@@ -52,6 +53,7 @@ AbortDDX(enum ExitCode error)
+ void
+ OsVendorInit(void)
+ {
++    ForceClockId(CLOCK_MONOTONIC);
+ }
+ 
+ void
+diff --git a/include/os.h b/include/os.h
+index 36074a4..11af73f 100644
+--- a/include/os.h
++++ b/include/os.h
+@@ -51,6 +51,9 @@ SOFTWARE.
+ #include <stdarg.h>
+ #include <stdint.h>
+ #include <string.h>
++#ifdef MONOTONIC_CLOCK
++#include <time.h>
++#endif
+ 
+ #define SCREEN_SAVER_ON   0
+ #define SCREEN_SAVER_OFF  1
+@@ -170,6 +173,10 @@ extern _X_EXPORT void ListenOnOpenFD(int /* fd */ , int /* noxauth */ );
+ 
+ extern _X_EXPORT Bool AddClientOnOpenFD(int /* fd */ );
+ 
++#ifdef MONOTONIC_CLOCK
++extern void ForceClockId(clockid_t /* forced_clockid */);
++#endif
++
+ extern _X_EXPORT CARD32 GetTimeInMillis(void);
+ extern _X_EXPORT CARD64 GetTimeInMicros(void);
+ 
+diff --git a/os/utils.c b/os/utils.c
+index b45719e..cc3bece 100644
+--- a/os/utils.c
++++ b/os/utils.c
+@@ -211,6 +211,10 @@ sig_atomic_t inSignalContext = FALSE;
+ #define HAS_SAVED_IDS_AND_SETEUID
+ #endif
+ 
++#ifdef MONOTONIC_CLOCK
++static clockid_t clockid;
++#endif
++
+ OsSigHandlerPtr
+ OsSignal(int sig, OsSigHandlerPtr handler)
+ {
+@@ -428,6 +432,24 @@ GiveUp(int sig)
+     errno = olderrno;
+ }
+ 
++#ifdef MONOTONIC_CLOCK
++void
++ForceClockId(clockid_t forced_clockid)
++{
++    struct timespec tp;
++
++    BUG_RETURN (clockid);
++
++    clockid = forced_clockid;
++
++    if (clock_gettime(clockid, &tp) != 0) {
++        FatalError("Forced clock id failed to retrieve current time: %s\n",
++                   strerror(errno));
++        return;
++    }
++}
++#endif
++
+ #if (defined WIN32 && defined __MINGW32__) || defined(__CYGWIN__)
+ CARD32
+ GetTimeInMillis(void)
+@@ -447,7 +469,6 @@ GetTimeInMillis(void)
+ 
+ #ifdef MONOTONIC_CLOCK
+     struct timespec tp;
+-    static clockid_t clockid;
+ 
+     if (!clockid) {
+ #ifdef CLOCK_MONOTONIC_COARSE
+@@ -476,7 +497,6 @@ GetTimeInMicros(void)
+     struct timeval tv;
+ #ifdef MONOTONIC_CLOCK
+     struct timespec tp;
+-    static clockid_t clockid;
+ 
+     if (!clockid) {
+         if (clock_gettime(CLOCK_MONOTONIC, &tp) == 0)
+-- 
+2.7.4
+
+
+From 619095a3d227f89ea938c3c55f34188ec3cd9e49 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Thu, 12 May 2016 14:51:51 +0200
+Subject: [PATCH 04/11] xwayland: Restore wl_display_roundtrip() in InitInput
+
+This partially revert commit 984be78
+
+The rountrip in Xwayland's InitInput() is unlikely the culprit for the
+crash reported in bug 95337, even though it's triggered from
+InitInput().
+
+Startup goes like this:
+
+  xwl_screen_init()
+    xwl_output_create()
+    wl_display_roundtrip()
+  InitInput()
+    wl_display_roundtrip()
+  ConnectionInfo initialized
+
+What happens in bug 95337 is that some output data is already available
+when we reach InitInput()'s wl_display_roundtrip() and therefore we end
+up trying to update the ConnectionInfo's data from RR routines before
+ConnectionInfo is actually initialized.
+
+Removing the wl_display_roundtrip() from InitInput() will not fix the
+issue (although it would make it less lileky to happen), because
+xwl_screen_init() also does a wl_display_roundtrip() after creating the
+output, so the race that led to bug 95337 remains.
+
+However, re-setting the xwl_screen->expecting_event to 0 again in
+InitInput() still doesn't seem right. so this part is not restored
+(thus a partial revert).
+
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+Reviewed-by: Adam Jackson <ajax@redhat.com>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=95337
+(cherry picked from commit 6a6bbc3b756706bdade01434f1ee8d8cbe7dd854)
+---
+ hw/xwayland/xwayland-input.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/hw/xwayland/xwayland-input.c b/hw/xwayland/xwayland-input.c
+index cbc1bf2..6e95d7e 100644
+--- a/hw/xwayland/xwayland-input.c
++++ b/hw/xwayland/xwayland-input.c
+@@ -899,6 +899,10 @@ InitInput(int argc, char *argv[])
+     xwl_screen->input_registry = wl_display_get_registry(xwl_screen->display);
+     wl_registry_add_listener(xwl_screen->input_registry, &input_listener,
+                              xwl_screen);
++
++    wl_display_roundtrip(xwl_screen->display);
++    while (xwl_screen->expecting_event)
++        wl_display_roundtrip(xwl_screen->display);
+ }
+ 
+ void
+-- 
+2.7.4
+
+
+From 173b3fb71e404a77402ed1c6884ef9cd184918e7 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Fri, 13 May 2016 08:58:58 +0200
+Subject: [PATCH 05/11] randr: Do not update ConnectionInfo if NULL
+
+RRScreenSizeNotify() will update the connection information block, but
+if this occurs during initialization before ConnectionInfo is even
+initialized, this will lead to a crash.
+
+Simply check for ConnectionInfo prior to update it to avoid the crash.
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=95337
+Reviewed-by: Adam Jackson <ajax@redhat.com>
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+(cherry picked from commit 941aeb3b92e644923bd112eef8023f033a140ee6)
+---
+ randr/rrscreen.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/randr/rrscreen.c b/randr/rrscreen.c
+index d0ca91e..b5e2090 100644
+--- a/randr/rrscreen.c
++++ b/randr/rrscreen.c
+@@ -41,6 +41,9 @@ RREditConnectionInfo(ScreenPtr pScreen)
+     int screen = 0;
+     int d;
+ 
++    if (ConnectionInfo == NULL)
++        return;
++
+     connSetup = (xConnSetup *) ConnectionInfo;
+     vendor = (char *) connSetup + sizeof(xConnSetup);
+     formats = (xPixmapFormat *) ((char *) vendor +
+-- 
+2.7.4
+
+
+From 813db111f5b41d07601f4e127b1fb3ce14744af6 Mon Sep 17 00:00:00 2001
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Fri, 17 Jun 2016 08:44:40 -0700
+Subject: [PATCH 06/11] xwayland: Use correct labels when initializing pointer
+ valuators
+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 72df6e2a3a5020696902b70fe940934ef0a681c4)
+---
+ hw/xwayland/xwayland-input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/xwayland/xwayland-input.c b/hw/xwayland/xwayland-input.c
+index 6e95d7e..3413248 100644
+--- a/hw/xwayland/xwayland-input.c
++++ b/hw/xwayland/xwayland-input.c
+@@ -78,7 +78,7 @@ xwl_pointer_proc(DeviceIntPtr device, int what)
+         axes_labels[2] = XIGetKnownProperty(AXIS_LABEL_PROP_REL_HWHEEL);
+         axes_labels[3] = XIGetKnownProperty(AXIS_LABEL_PROP_REL_WHEEL);
+ 
+-        if (!InitValuatorClassDeviceStruct(device, NAXES, btn_labels,
++        if (!InitValuatorClassDeviceStruct(device, NAXES, axes_labels,
+                                            GetMotionHistorySize(), Absolute))
+             return BadValue;
+ 
+-- 
+2.7.4
+
+
+From e73279c5dca705e3ee595d254cd1b9fa0df43062 Mon Sep 17 00:00:00 2001
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Fri, 17 Jun 2016 08:44:41 -0700
+Subject: [PATCH 07/11] xwayland: Expose all NBUTTONS buttons on the pointer
+
+The call to 'InitButtonClassDeviceStruct' which initializes the pointer
+buttons only results in the first three buttons being created due to a
+hardcoded '3'. In order to expose all the buttons defined in the
+btn_labels array, we subtitute 'NBUTTONS' in its place.
+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit 6f2a5b8cdf7b1e913a1e0581e65195dd10f04ca3)
+---
+ hw/xwayland/xwayland-input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/xwayland/xwayland-input.c b/hw/xwayland/xwayland-input.c
+index 3413248..433af9c 100644
+--- a/hw/xwayland/xwayland-input.c
++++ b/hw/xwayland/xwayland-input.c
+@@ -98,7 +98,7 @@ xwl_pointer_proc(DeviceIntPtr device, int what)
+         if (!InitPtrFeedbackClassDeviceStruct(device, xwl_pointer_control))
+             return BadValue;
+ 
+-        if (!InitButtonClassDeviceStruct(device, 3, btn_labels, map))
++        if (!InitButtonClassDeviceStruct(device, NBUTTONS, btn_labels, map))
+             return BadValue;
+ 
+         return Success;
+-- 
+2.7.4
+
+
+From f77be59aa6f1c4b773488981d6736e26f9083a11 Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Fri, 8 Jul 2016 15:17:05 -0400
+Subject: [PATCH 08/11] xwayland: Only force monotonic clock once
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Otherwise on regeneration we get:
+
+(EE) BUG: triggered 'if (clockid)'
+(EE) BUG: utils.c:440 in ForceClockId()
+(EE)
+(EE) Backtrace:
+(EE) 0: ./hw/xwayland/Xwayland (ForceClockId+0x5c) [0x47713c]
+(EE) 1: ./hw/xwayland/Xwayland (OsInit+0x25) [0x4763d5]
+(EE) 2: ./hw/xwayland/Xwayland (dix_main+0x11c) [0x43e60c]
+(EE) 3: /lib64/libc.so.6 (__libc_start_main+0xf1) [0x7f627b2f9731]
+(EE) 4: ./hw/xwayland/Xwayland (_start+0x29) [0x4238e9]
+(EE) 5: ? (?+0x29) [0x29]
+
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+Reviewed-by: Jonas Ådahl <jadahl@gmail.com>
+(cherry picked from commit 9fcb554e9bfdf3eed2c2250d89150e3e7b907f01)
+---
+ hw/xwayland/xwayland.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index 28dea2f..fdc0817 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -53,7 +53,8 @@ AbortDDX(enum ExitCode error)
+ void
+ OsVendorInit(void)
+ {
+-    ForceClockId(CLOCK_MONOTONIC);
++    if (serverGeneration == 1)
++        ForceClockId(CLOCK_MONOTONIC);
+ }
+ 
+ void
+-- 
+2.7.4
+
+
+From 8435f9e6dfbd7e07e694eb917e73aefec9a43207 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Tue, 2 Aug 2016 11:24:41 +0200
+Subject: [PATCH 09/11] xwayland: Plug memleak in frame callbacks
+
+The frame callback set up via wl_surface_frame() needs to be freed with
+wl_callback_destroy() or we'll leak memory.
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=97065
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+Reviewed-by: Daniel Stone <daniels@collabora.com>
+(cherry picked from commit 4d586118c113f3c0a6e95ed2d3fc7f9d03a4e362)
+---
+ hw/xwayland/xwayland-cursor.c | 2 ++
+ hw/xwayland/xwayland.c        | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/hw/xwayland/xwayland-cursor.c b/hw/xwayland/xwayland-cursor.c
+index 74dfe4e..7d14a3d 100644
+--- a/hw/xwayland/xwayland-cursor.c
++++ b/hw/xwayland/xwayland-cursor.c
+@@ -100,6 +100,8 @@ frame_callback(void *data,
+                uint32_t time)
+ {
+     struct xwl_seat *xwl_seat = data;
++
++    wl_callback_destroy (xwl_seat->cursor_frame_cb);
+     xwl_seat->cursor_frame_cb = NULL;
+     if (xwl_seat->cursor_needs_update) {
+         xwl_seat->cursor_needs_update = FALSE;
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index fdc0817..8143c4b 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -362,6 +362,8 @@ frame_callback(void *data,
+                uint32_t time)
+ {
+     struct xwl_window *xwl_window = data;
++
++    wl_callback_destroy (xwl_window->frame_callback);
+     xwl_window->frame_callback = NULL;
+ }
+ 
+-- 
+2.7.4
+
+
+From 93f07a4c033bb4da00c33104a1cbbc69dcd46134 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Mon, 8 Aug 2016 17:57:57 +0200
+Subject: [PATCH 10/11] xwayland: Avoid double free of RRCrtc and RROutput
+
+At shutdown, the Xserver will free all its resources which includes the
+RRCrtc and RROutput created.
+
+Xwayland would do the same in its xwl_output_destroy() called from
+xwl_close_screen(), leading to a double free of existing RRCrtc
+RROutput:
+
+ Invalid read of size 4
+    at 0x4CDA10: RRCrtcDestroy (rrcrtc.c:689)
+    by 0x426E75: xwl_output_destroy (xwayland-output.c:301)
+    by 0x424144: xwl_close_screen (xwayland.c:117)
+    by 0x460E17: CursorCloseScreen (cursor.c:187)
+    by 0x4EB5A3: AnimCurCloseScreen (animcur.c:106)
+    by 0x4EF431: present_close_screen (present_screen.c:64)
+    by 0x556D40: dix_main (main.c:354)
+    by 0x6F0D290: (below main) (in /usr/lib/libc-2.24.so)
+  Address 0xbb1fc30 is 0 bytes inside a block of size 728 free'd
+    at 0x4C2BDB0: free (in
+/usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+    by 0x4CCE5F: RRCrtcDestroyResource (rrcrtc.c:719)
+    by 0x577541: doFreeResource (resource.c:895)
+    by 0x5787B5: FreeClientResources (resource.c:1161)
+    by 0x578862: FreeAllResources (resource.c:1176)
+    by 0x556C54: dix_main (main.c:323)
+    by 0x6F0D290: (below main) (in /usr/lib/libc-2.24.so)
+  Block was alloc'd at
+    at 0x4C2CA6A: calloc (in
+/usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+    by 0x4CC6DB: RRCrtcCreate (rrcrtc.c:76)
+    by 0x426D1C: xwl_output_create (xwayland-output.c:264)
+    by 0x4232EC: registry_global (xwayland.c:431)
+    by 0x76CB1C7: ffi_call_unix64 (in /usr/lib/libffi.so.6.0.4)
+    by 0x76CAC29: ffi_call (in /usr/lib/libffi.so.6.0.4)
+    by 0x556CEFD: wl_closure_invoke (connection.c:935)
+    by 0x5569CBF: dispatch_event.isra.4 (wayland-client.c:1310)
+    by 0x556AF13: dispatch_queue (wayland-client.c:1456)
+    by 0x556AF13: wl_display_dispatch_queue_pending
+(wayland-client.c:1698)
+    by 0x556B33A: wl_display_roundtrip_queue (wayland-client.c:1121)
+    by 0x42371C: xwl_screen_init (xwayland.c:631)
+    by 0x552F60: AddScreen (dispatch.c:3864)
+
+And:
+
+ Invalid read of size 4
+    at 0x522890: RROutputDestroy (rroutput.c:348)
+    by 0x42684E: xwl_output_destroy (xwayland-output.c:302)
+    by 0x423CF4: xwl_close_screen (xwayland.c:118)
+    by 0x4B6377: CursorCloseScreen (cursor.c:187)
+    by 0x539503: AnimCurCloseScreen (animcur.c:106)
+    by 0x53D081: present_close_screen (present_screen.c:64)
+    by 0x43DBF0: dix_main (main.c:354)
+    by 0x7068730: (below main) (libc-start.c:289)
+  Address 0xc403190 is 0 bytes inside a block of size 154 free'd
+    at 0x4C2CD5A: free (vg_replace_malloc.c:530)
+    by 0x521DF3: RROutputDestroyResource (rroutput.c:389)
+    by 0x45DA61: doFreeResource (resource.c:895)
+    by 0x45ECFD: FreeClientResources (resource.c:1161)
+    by 0x45EDC2: FreeAllResources (resource.c:1176)
+    by 0x43DB04: dix_main (main.c:323)
+    by 0x7068730: (below main) (libc-start.c:289)
+  Block was alloc'd at
+    at 0x4C2BBAD: malloc (vg_replace_malloc.c:299)
+    by 0x52206B: RROutputCreate (rroutput.c:84)
+    by 0x426763: xwl_output_create (xwayland-output.c:270)
+    by 0x422EDC: registry_global (xwayland.c:432)
+    by 0x740FC57: ffi_call_unix64 (unix64.S:76)
+    by 0x740F6B9: ffi_call (ffi64.c:525)
+    by 0x5495A9D: wl_closure_invoke (connection.c:949)
+    by 0x549283F: dispatch_event.isra.4 (wayland-client.c:1274)
+    by 0x5493A13: dispatch_queue (wayland-client.c:1420)
+    by 0x5493A13: wl_display_dispatch_queue_pending
+(wayland-client.c:1662)
+    by 0x5493D2E: wl_display_roundtrip_queue (wayland-client.c:1085)
+    by 0x4232EC: xwl_screen_init (xwayland.c:632)
+    by 0x439F50: AddScreen (dispatch.c:3864)
+
+Split xwl_output_destroy() into xwl_output_destroy() which frees the
+wl_output and the xwl_output structure, and xwl_output_remove() which
+does the RRCrtcDestroy() and RROutputDestroy() and call the latter only
+when an output is effectively removed.
+
+An additional benefit, on top of avoiding a double free, is to avoid
+updating the screen size at shutdown.
+
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit 4cbf1fb1f978ecd975770cebbb330dc10f712b77)
+---
+ hw/xwayland/xwayland-output.c | 12 +++++++++---
+ hw/xwayland/xwayland.c        |  2 +-
+ hw/xwayland/xwayland.h        |  2 ++
+ 3 files changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/hw/xwayland/xwayland-output.c b/hw/xwayland/xwayland-output.c
+index b66da13..38c92a6 100644
+--- a/hw/xwayland/xwayland-output.c
++++ b/hw/xwayland/xwayland-output.c
+@@ -292,20 +292,26 @@ err:
+ void
+ xwl_output_destroy(struct xwl_output *xwl_output)
+ {
++    wl_output_destroy(xwl_output->output);
++    free(xwl_output);
++}
++
++void
++xwl_output_remove(struct xwl_output *xwl_output)
++{
+     struct xwl_output *it;
+     struct xwl_screen *xwl_screen = xwl_output->xwl_screen;
+     int width = 0, height = 0;
+ 
+-    wl_output_destroy(xwl_output->output);
+-    xorg_list_del(&xwl_output->link);
+     RRCrtcDestroy(xwl_output->randr_crtc);
+     RROutputDestroy(xwl_output->randr_output);
++    xorg_list_del(&xwl_output->link);
+ 
+     xorg_list_for_each_entry(it, &xwl_screen->output_list, link)
+         output_get_new_size(it, &height, &width);
+     update_screen_size(xwl_output, width, height);
+ 
+-    free(xwl_output);
++    xwl_output_destroy(xwl_output);
+ }
+ 
+ static Bool
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index 8143c4b..959f616 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -451,7 +451,7 @@ global_remove(void *data, struct wl_registry *registry, uint32_t name)
+     xorg_list_for_each_entry_safe(xwl_output, tmp_xwl_output,
+                                   &xwl_screen->output_list, link) {
+         if (xwl_output->server_output_id == name) {
+-            xwl_output_destroy(xwl_output);
++            xwl_output_remove(xwl_output);
+             break;
+         }
+     }
+diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
+index 232d9f4..4b97a2e 100644
+--- a/hw/xwayland/xwayland.h
++++ b/hw/xwayland/xwayland.h
+@@ -170,6 +170,8 @@ struct xwl_output *xwl_output_create(struct xwl_screen *xwl_screen,
+ 
+ void xwl_output_destroy(struct xwl_output *xwl_output);
+ 
++void xwl_output_remove(struct xwl_output *xwl_output);
++
+ RRModePtr xwayland_cvt(int HDisplay, int VDisplay,
+                        float VRefresh, Bool Reduced, Bool Interlaced);
+ 
+-- 
+2.7.4
+
+
+From fb96f3b1c5bace29193aeb44fcae2e4d1854f877 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Mon, 8 Aug 2016 17:25:35 +0200
+Subject: [PATCH 11/11] present: Free the fake_present OsTimerPtr
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Plug a leak in present_fake_queue_vblank() where the OsTimer would not
+be freed.
+
+ 492,608 (482,816 direct, 9,792 indirect) bytes in 15,088 blocks
+are definitely lost in loss record 3,954 of 3,954
+    at 0x4C2ABDE: malloc (in vgpreload_memcheck-amd64-linux.so)
+    by 0x586B19: TimerSet (WaitFor.c:433)
+    by 0x4F1AA9: present_fake_queue_vblank (present_fake.c:108)
+    by 0x4F15E0: present_pixmap (present.c:954)
+    by 0x4F23B4: proc_present_pixmap (present_request.c:138)
+    by 0x552BCE: Dispatch (dispatch.c:430)
+    by 0x556C22: dix_main (main.c:300)
+    by 0x6F0D290: (below main) (in /usr/lib/libc-2.24.so)
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=97065
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+Reviewed-by: Michel Dänzer <michel.daenzer@amd.com>
+(cherry picked from commit de5291c04b05772e6da599a475baa1b19dcae07a)
+---
+ present/present_fake.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/present/present_fake.c b/present/present_fake.c
+index 4985c81..2350638 100644
+--- a/present/present_fake.c
++++ b/present/present_fake.c
+@@ -64,6 +64,7 @@ present_fake_do_timer(OsTimerPtr timer,
+ 
+     present_fake_notify(fake_vblank->screen, fake_vblank->event_id);
+     xorg_list_del(&fake_vblank->list);
++    TimerFree(fake_vblank->timer);
+     free(fake_vblank);
+     return 0;
+ }
+@@ -75,7 +76,7 @@ present_fake_abort_vblank(ScreenPtr screen, uint64_t event_id, uint64_t msc)
+ 
+     xorg_list_for_each_entry_safe(fake_vblank, tmp, &fake_vblank_queue, list) {
+         if (fake_vblank->event_id == event_id) {
+-            TimerCancel(fake_vblank->timer);
++            TimerFree(fake_vblank->timer); /* TimerFree will call TimerCancel() */
+             xorg_list_del(&fake_vblank->list);
+             free (fake_vblank);
+             break;
+-- 
+2.7.4
+
