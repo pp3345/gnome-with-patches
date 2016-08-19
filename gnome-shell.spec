@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.21.4
+Version:        3.21.90
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -16,7 +16,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.45.4
 %define gjs_version 1.39.0
-%define mutter_version 3.21.2
+%define mutter_version 3.21.90
 %define gtk3_version 3.15.0
 %define eds_version 3.13.90
 %define gnome_desktop_version 3.7.90
@@ -52,7 +52,7 @@ BuildRequires:  telepathy-logger-devel >= %{telepathy_logger_version}
 # for screencast recorder functionality
 BuildRequires:  gstreamer1-devel
 BuildRequires:  gtk3-devel >= %{gtk3_version}
-BuildRequires:  intltool
+BuildRequires:  gettext >= 0.19.6
 BuildRequires:  libcanberra-devel
 BuildRequires:  libcroco-devel >= %{libcroco_version}
 BuildRequires:  python3
@@ -184,6 +184,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Fri Aug 19 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.90-1
+- Update to 3.21.90
+
 * Wed Jul 20 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.4-1
 - Update to 3.21.4
 
