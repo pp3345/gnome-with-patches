@@ -43,7 +43,7 @@ BuildRequires: xkeyboard-config-devel
 BuildRequires: zenity
 BuildRequires: desktop-file-utils
 # Bootstrap requirements
-BuildRequires: gtk-doc gnome-common gettext
+BuildRequires: gtk-doc gnome-common gettext-devel
 BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel >= %{gsettings_desktop_schemas_version}
 BuildRequires: automake, autoconf, libtool
