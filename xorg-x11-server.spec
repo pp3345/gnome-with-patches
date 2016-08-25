@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.4
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -79,6 +79,9 @@ Source40: driver-abi-rebuild.sh
 
 # xwayland backports from master
 Patch0: xorg-x11-server-xwayland-backports.patch
+
+# prime fixes from master (and pending upstream review)
+Patch1: xserver-prime-fixes.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -627,6 +630,11 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Aug 25 2016 Hans de Goede <hdegoede@redhat.com> - 1.18.4-3
+- Various switchable-graphics / prime fixes from upstream, mostly
+  related to using the modesetting driver in prime setups
+- Fix Xorg -configure not working (rhbz#1368502)
+
 * Fri Aug 19 2016 Kalev Lember <klember@redhat.com> - 1.18.4-2
 - Backport a number of XWayland fixes from master
 
