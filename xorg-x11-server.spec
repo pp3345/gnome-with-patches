@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.4
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -630,6 +630,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Aug 25 2016 Hans de Goede <hdegoede@redhat.com> - 1.18.4-4
+- Fix (undo) server ABI breakage from 1.18.4-3
+
 * Thu Aug 25 2016 Hans de Goede <hdegoede@redhat.com> - 1.18.4-3
 - Various switchable-graphics / prime fixes from upstream, mostly
   related to using the modesetting driver in prime setups

@@ -1,578 +1,7 @@
-From af52ce756cca18ebf00fadbf21a5617881beed09 Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Fri, 13 May 2016 15:58:10 +0200
-Subject: [PATCH v2 xserver 01/12] xrandrprovider: Do not use separate lists
- for unbound / source / offload slaves
-
-A single provider can be both a offload and source slave at the same time,
-the use of seperate lists breaks in this case e.g. :
-
-xrandr --listproviders
-Providers: number : 2
-Provider 0: id: 0x7b cap: 0xf, Source Output, Sink Output, Source Offload, Sink Offload crtcs: 3 outputs: 2 associated providers: 0 name:modesetting
-Provider 1: id: 0x46 cap: 0xf, Source Output, Sink Output, Source Offload, Sink Offload crtcs: 2 outputs: 5 associated providers: 0 name:modesetting
-
-xrandr --setprovideroutputsource 1 0x7b
-xrandr --listproviders
-Providers: number : 2
-Provider 0: id: 0x7b cap: 0xf, Source Output, Sink Output, Source Offload, Sink Offload crtcs: 3 outputs: 2 associated providers: 1 name:modesetting
-Provider 1: id: 0x46 cap: 0xf, Source Output, Sink Output, Source Offload, Sink Offload crtcs: 2 outputs: 5 associated providers: 1 name:modesetting
-
-xrandr --setprovideroffloadsink 1 0x7b
-xrandr --listproviders
-Providers: number : 3
-Provider 0: id: 0x7b cap: 0xf, Source Output, Sink Output, Source Offload, Sink Offload crtcs: 3 outputs: 2 associated providers: 2 name:modesetting
-Provider 1: id: 0x46 cap: 0xf, Source Output, Sink Output, Source Offload, Sink Offload crtcs: 2 outputs: 5 associated providers: 2 name:modesetting
-Provider 2: id: 0x46 cap: 0xf, Source Output, Sink Output, Source Offload, Sink Offload crtcs: 2 outputs: 5 associated providers: 2 name:modesetting
-
-Not good. The problem is that the provider with id 0x46 now is on both
-the output_slave_list and the offload_slave_list of the master screen.
-
-This commit fixes this by unifying all 3 lists into a single slaves list.
-
-Note that this does change the struct _Screen definition, so this is an ABI
-break. I do not expect any of the drivers to actually use the removed / changed
-fields so a recompile should suffice.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Dave Airlie <airlied@redhat.com>
-(cherry picked from commit 5c7af02b103790ac1fb6a71822788892c70290b6)
----
- dix/dispatch.c                 | 30 ++++++++++++++-----------
- hw/xfree86/dri2/dri2.c         |  7 ++++--
- hw/xfree86/modes/xf86RandR12.c | 11 ++--------
- include/scrnintstr.h           | 15 ++++++-------
- present/present.c              |  2 +-
- randr/randr.c                  | 42 ++++++++++++++---------------------
- randr/rrcrtc.c                 | 16 +++++++++++---
- randr/rrmonitor.c              | 17 +++++++++++---
- randr/rroutput.c               | 10 ++++-----
- randr/rrprovider.c             | 50 ++++++++++++++----------------------------
- randr/rrscreen.c               | 12 +++++++---
- 11 files changed, 104 insertions(+), 108 deletions(-)
-
-diff --git a/dix/dispatch.c b/dix/dispatch.c
-index 2c20124..b9af349 100644
---- a/dix/dispatch.c
-+++ b/dix/dispatch.c
-@@ -3790,9 +3790,7 @@ static int init_screen(ScreenPtr pScreen, int i, Bool gpu)
-     pScreen->CreateScreenResources = 0;
- 
-     xorg_list_init(&pScreen->pixmap_dirty_list);
--    xorg_list_init(&pScreen->unattached_list);
--    xorg_list_init(&pScreen->output_slave_list);
--    xorg_list_init(&pScreen->offload_slave_list);
-+    xorg_list_init(&pScreen->slave_list);
- 
-     /*
-      * This loop gets run once for every Screen that gets added,
-@@ -3951,7 +3949,7 @@ AttachUnboundGPU(ScreenPtr pScreen, ScreenPtr new)
- {
-     assert(new->isGPU);
-     assert(!new->current_master);
--    xorg_list_add(&new->unattached_head, &pScreen->unattached_list);
-+    xorg_list_add(&new->slave_head, &pScreen->slave_list);
-     new->current_master = pScreen;
- }
- 
-@@ -3959,7 +3957,9 @@ void
- DetachUnboundGPU(ScreenPtr slave)
- {
-     assert(slave->isGPU);
--    xorg_list_del(&slave->unattached_head);
-+    assert(!slave->is_output_slave);
-+    assert(!slave->is_offload_slave);
-+    xorg_list_del(&slave->slave_head);
-     slave->current_master = NULL;
- }
- 
-@@ -3967,31 +3967,35 @@ void
- AttachOutputGPU(ScreenPtr pScreen, ScreenPtr new)
- {
-     assert(new->isGPU);
--    xorg_list_add(&new->output_head, &pScreen->output_slave_list);
--    new->current_master = pScreen;
-+    assert(!new->is_output_slave);
-+    assert(new->current_master == pScreen);
-+    new->is_output_slave = TRUE;
-+    new->current_master->output_slaves++;
- }
- 
- void
- DetachOutputGPU(ScreenPtr slave)
- {
-     assert(slave->isGPU);
--    xorg_list_del(&slave->output_head);
--    slave->current_master = NULL;
-+    assert(slave->is_output_slave);
-+    slave->current_master->output_slaves--;
-+    slave->is_output_slave = FALSE;
- }
- 
- void
- AttachOffloadGPU(ScreenPtr pScreen, ScreenPtr new)
- {
-     assert(new->isGPU);
--    xorg_list_add(&new->offload_head, &pScreen->offload_slave_list);
--    new->current_master = pScreen;
-+    assert(!new->is_offload_slave);
-+    assert(new->current_master == pScreen);
-+    new->is_offload_slave = TRUE;
- }
- 
- void
- DetachOffloadGPU(ScreenPtr slave)
- {
-     assert(slave->isGPU);
--    xorg_list_del(&slave->offload_head);
--    slave->current_master = NULL;
-+    assert(slave->is_offload_slave);
-+    slave->is_offload_slave = FALSE;
- }
- 
-diff --git a/hw/xfree86/dri2/dri2.c b/hw/xfree86/dri2/dri2.c
-index d55be19..7e84ae3 100644
---- a/hw/xfree86/dri2/dri2.c
-+++ b/hw/xfree86/dri2/dri2.c
-@@ -186,12 +186,15 @@ static ScreenPtr
- GetScreenPrime(ScreenPtr master, int prime_id)
- {
-     ScreenPtr slave;
--    if (prime_id == 0 || xorg_list_is_empty(&master->offload_slave_list)) {
-+    if (prime_id == 0) {
-         return master;
-     }
--    xorg_list_for_each_entry(slave, &master->offload_slave_list, offload_head) {
-+    xorg_list_for_each_entry(slave, &master->slave_list, slave_head) {
-         DRI2ScreenPtr ds;
- 
-+        if (!slave->is_offload_slave)
-+            continue;
-+
-         ds = DRI2GetScreen(slave);
-         if (ds == NULL)
-             continue;
-diff --git a/hw/xfree86/modes/xf86RandR12.c b/hw/xfree86/modes/xf86RandR12.c
-index 60d2254..4a21766 100644
---- a/hw/xfree86/modes/xf86RandR12.c
-+++ b/hw/xfree86/modes/xf86RandR12.c
-@@ -1836,10 +1836,7 @@ xf86RandR14ProviderSetOutputSource(ScreenPtr pScreen,
- {
-     if (!source_provider) {
-         if (provider->output_source) {
--            ScreenPtr cmScreen = pScreen->current_master;
--
-             xf86DetachOutputGPU(pScreen);
--            AttachUnboundGPU(cmScreen, pScreen);
-         }
-         provider->output_source = NULL;
-         return TRUE;
-@@ -1850,7 +1847,6 @@ xf86RandR14ProviderSetOutputSource(ScreenPtr pScreen,
- 
-     SetRootClip(source_provider->pScreen, ROOT_CLIP_NONE);
- 
--    DetachUnboundGPU(pScreen);
-     AttachOutputGPU(source_provider->pScreen, pScreen);
- 
-     provider->output_source = source_provider;
-@@ -1865,9 +1861,7 @@ xf86RandR14ProviderSetOffloadSink(ScreenPtr pScreen,
- {
-     if (!sink_provider) {
-         if (provider->offload_sink) {
--            ScreenPtr cmScreen = pScreen->current_master;
-             xf86DetachOutputGPU(pScreen);
--            AttachUnboundGPU(cmScreen, pScreen);
-         }
- 
-         provider->offload_sink = NULL;
-@@ -1877,7 +1871,6 @@ xf86RandR14ProviderSetOffloadSink(ScreenPtr pScreen,
-     if (provider->offload_sink == sink_provider)
-         return TRUE;
- 
--    DetachUnboundGPU(pScreen);
-     AttachOffloadGPU(sink_provider->pScreen, pScreen);
- 
-     provider->offload_sink = sink_provider;
-@@ -1956,12 +1949,12 @@ xf86RandR14ProviderDestroy(ScreenPtr screen, RRProviderPtr provider)
-             config->randr_provider->offload_sink = NULL;
-             RRSetChanged(screen);
-         }
--        else if (config->randr_provider->output_source) {
-+        if (config->randr_provider->output_source) {
-             xf86DetachOutputGPU(screen);
-             config->randr_provider->output_source = NULL;
-             RRSetChanged(screen);
-         }
--        else if (screen->current_master)
-+        if (screen->current_master)
-             DetachUnboundGPU(screen);
-     }
-     config->randr_provider = NULL;
-diff --git a/include/scrnintstr.h b/include/scrnintstr.h
-index 2e617c4..63ef55c 100644
---- a/include/scrnintstr.h
-+++ b/include/scrnintstr.h
-@@ -590,13 +590,14 @@ typedef struct _Screen {
- 
-     Bool isGPU;
- 
--    struct xorg_list unattached_list;
--    struct xorg_list unattached_head;
--
-+    /* Info on this screen's slaves (if any) */
-+    struct xorg_list slave_list;
-+    struct xorg_list slave_head;
-+    int output_slaves;
-+    /* Info for when this screen is a slave */
-     ScreenPtr current_master;
--
--    struct xorg_list output_slave_list;
--    struct xorg_list output_head;
-+    Bool is_output_slave;
-+    Bool is_offload_slave;
- 
-     SharePixmapBackingProcPtr SharePixmapBacking;
-     SetSharedPixmapBackingProcPtr SetSharedPixmapBacking;
-@@ -605,8 +606,6 @@ typedef struct _Screen {
-     StopPixmapTrackingProcPtr StopPixmapTracking;
- 
-     struct xorg_list pixmap_dirty_list;
--    struct xorg_list offload_slave_list;
--    struct xorg_list offload_head;
- 
-     ReplaceScanoutPixmapProcPtr ReplaceScanoutPixmap;
-     XYToWindowProcPtr XYToWindow;
-diff --git a/present/present.c b/present/present.c
-index cebd2f7..5210832 100644
---- a/present/present.c
-+++ b/present/present.c
-@@ -145,7 +145,7 @@ present_check_flip(RRCrtcPtr    crtc,
-         return FALSE;
- 
-     /* Fail to flip if we have slave outputs */
--    if (!xorg_list_is_empty(&screen->output_slave_list))
-+    if (screen->output_slaves)
-         return FALSE;
- 
-     /* Make sure the window hasn't been redirected with Composite */
-diff --git a/randr/randr.c b/randr/randr.c
-index ad1dda2..1829a64 100644
---- a/randr/randr.c
-+++ b/randr/randr.c
-@@ -483,7 +483,10 @@ TellChanged(WindowPtr pWin, void *value)
-                     RRDeliverCrtcEvent(client, pWin, crtc);
-             }
- 
--            xorg_list_for_each_entry(iter, &pScreen->output_slave_list, output_head) {
-+            xorg_list_for_each_entry(iter, &pScreen->slave_list, slave_head) {
-+                if (!iter->is_output_slave)
-+                    continue;
-+
-                 pSlaveScrPriv = rrGetScrPriv(iter);
-                 for (i = 0; i < pSlaveScrPriv->numCrtcs; i++) {
-                     RRCrtcPtr crtc = pSlaveScrPriv->crtcs[i];
-@@ -502,7 +505,10 @@ TellChanged(WindowPtr pWin, void *value)
-                     RRDeliverOutputEvent(client, pWin, output);
-             }
- 
--            xorg_list_for_each_entry(iter, &pScreen->output_slave_list, output_head) {
-+            xorg_list_for_each_entry(iter, &pScreen->slave_list, slave_head) {
-+                if (!iter->is_output_slave)
-+                    continue;
-+
-                 pSlaveScrPriv = rrGetScrPriv(iter);
-                 for (i = 0; i < pSlaveScrPriv->numOutputs; i++) {
-                     RROutputPtr output = pSlaveScrPriv->outputs[i];
-@@ -514,17 +520,7 @@ TellChanged(WindowPtr pWin, void *value)
-         }
- 
-         if (pRREvent->mask & RRProviderChangeNotifyMask) {
--            xorg_list_for_each_entry(iter, &pScreen->output_slave_list, output_head) {
--                pSlaveScrPriv = rrGetScrPriv(iter);
--                if (pSlaveScrPriv->provider->changed)
--                    RRDeliverProviderEvent(client, pWin, pSlaveScrPriv->provider);
--            }
--            xorg_list_for_each_entry(iter, &pScreen->offload_slave_list, offload_head) {
--                pSlaveScrPriv = rrGetScrPriv(iter);
--                if (pSlaveScrPriv->provider->changed)
--                    RRDeliverProviderEvent(client, pWin, pSlaveScrPriv->provider);
--            }
--            xorg_list_for_each_entry(iter, &pScreen->unattached_list, unattached_head) {
-+            xorg_list_for_each_entry(iter, &pScreen->slave_list, slave_head) {
-                 pSlaveScrPriv = rrGetScrPriv(iter);
-                 if (pSlaveScrPriv->provider->changed)
-                     RRDeliverProviderEvent(client, pWin, pSlaveScrPriv->provider);
-@@ -602,21 +598,15 @@ RRTellChanged(ScreenPtr pScreen)
-         for (i = 0; i < pScrPriv->numCrtcs; i++)
-             pScrPriv->crtcs[i]->changed = FALSE;
- 
--        xorg_list_for_each_entry(iter, &master->output_slave_list, output_head) {
--            pSlaveScrPriv = rrGetScrPriv(iter);
--            pSlaveScrPriv->provider->changed = FALSE;
--            for (i = 0; i < pSlaveScrPriv->numOutputs; i++)
--                pSlaveScrPriv->outputs[i]->changed = FALSE;
--            for (i = 0; i < pSlaveScrPriv->numCrtcs; i++)
--                pSlaveScrPriv->crtcs[i]->changed = FALSE;
--        }
--        xorg_list_for_each_entry(iter, &master->offload_slave_list, offload_head) {
--            pSlaveScrPriv = rrGetScrPriv(iter);
--            pSlaveScrPriv->provider->changed = FALSE;
--        }
--        xorg_list_for_each_entry(iter, &master->unattached_list, unattached_head) {
-+        xorg_list_for_each_entry(iter, &master->slave_list, slave_head) {
-             pSlaveScrPriv = rrGetScrPriv(iter);
-             pSlaveScrPriv->provider->changed = FALSE;
-+            if (iter->is_output_slave) {
-+                for (i = 0; i < pSlaveScrPriv->numOutputs; i++)
-+                    pSlaveScrPriv->outputs[i]->changed = FALSE;
-+                for (i = 0; i < pSlaveScrPriv->numCrtcs; i++)
-+                    pSlaveScrPriv->crtcs[i]->changed = FALSE;
-+            }
-         }
- 
-         if (mastersp->layoutChanged) {
-diff --git a/randr/rrcrtc.c b/randr/rrcrtc.c
-index 9bc456b..91f7a20 100644
---- a/randr/rrcrtc.c
-+++ b/randr/rrcrtc.c
-@@ -499,8 +499,12 @@ rrCheckPixmapBounding(ScreenPtr pScreen,
-         RegionUnion(&total_region, &total_region, &new_crtc_region);
-     }
- 
--    xorg_list_for_each_entry(slave, &pScreen->output_slave_list, output_head) {
-+    xorg_list_for_each_entry(slave, &pScreen->slave_list, slave_head) {
-         rrScrPrivPtr    slave_priv = rrGetScrPriv(slave);
-+
-+        if (!slave->is_output_slave)
-+            continue;
-+
-         for (c = 0; c < slave_priv->numCrtcs; c++) {
-             RRCrtcPtr slave_crtc = slave_priv->crtcs[c];
- 
-@@ -1673,7 +1677,10 @@ RRConstrainCursorHarder(DeviceIntPtr pDev, ScreenPtr pScreen, int mode, int *x,
-     if (ret == TRUE)
-         return;
- 
--    xorg_list_for_each_entry(slave, &pScreen->output_slave_list, output_head) {
-+    xorg_list_for_each_entry(slave, &pScreen->slave_list, slave_head) {
-+        if (!slave->is_output_slave)
-+            continue;
-+
-         ret = check_all_screen_crtcs(slave, x, y);
-         if (ret == TRUE)
-             return;
-@@ -1684,7 +1691,10 @@ RRConstrainCursorHarder(DeviceIntPtr pDev, ScreenPtr pScreen, int mode, int *x,
-     if (ret == TRUE)
-         return;
- 
--    xorg_list_for_each_entry(slave, &pScreen->output_slave_list, output_head) {
-+    xorg_list_for_each_entry(slave, &pScreen->slave_list, slave_head) {
-+        if (!slave->is_output_slave)
-+            continue;
-+
-         ret = constrain_all_screen_crtcs(pDev, slave, x, y);
-         if (ret == TRUE)
-             return;
-diff --git a/randr/rrmonitor.c b/randr/rrmonitor.c
-index ba310ea..3f6e03e 100644
---- a/randr/rrmonitor.c
-+++ b/randr/rrmonitor.c
-@@ -202,8 +202,12 @@ RRMonitorInitList(ScreenPtr screen, RRMonitorListPtr mon_list, Bool get_active)
- 
-     /* Count the number of crtcs in this and any slave screens */
-     numCrtcs = pScrPriv->numCrtcs;
--    xorg_list_for_each_entry(slave, &screen->output_slave_list, output_head) {
-+    xorg_list_for_each_entry(slave, &screen->slave_list, slave_head) {
-         rrScrPrivPtr pSlavePriv;
-+
-+        if (!slave->is_output_slave)
-+            continue;
-+
-         pSlavePriv = rrGetScrPriv(slave);
-         numCrtcs += pSlavePriv->numCrtcs;
-     }
-@@ -220,8 +224,12 @@ RRMonitorInitList(ScreenPtr screen, RRMonitorListPtr mon_list, Bool get_active)
-             mon_list->server_crtc[c] = pScrPriv->crtcs[sc];
-     }
- 
--    xorg_list_for_each_entry(slave, &screen->output_slave_list, output_head) {
-+    xorg_list_for_each_entry(slave, &screen->slave_list, slave_head) {
-         rrScrPrivPtr pSlavePriv;
-+
-+        if (!slave->is_output_slave)
-+            continue;
-+
-         pSlavePriv = rrGetScrPriv(slave);
-         for (sc = 0; sc < pSlavePriv->numCrtcs; sc++, c++) {
-             if (pSlavePriv->crtcs[sc]->mode != NULL)
-@@ -471,7 +479,10 @@ RRMonitorAdd(ClientPtr client, ScreenPtr screen, RRMonitorPtr monitor)
-         return BadValue;
-     }
- 
--    xorg_list_for_each_entry(slave, &screen->output_slave_list, output_head) {
-+    xorg_list_for_each_entry(slave, &screen->slave_list, slave_head) {
-+        if (!slave->is_output_slave)
-+            continue;
-+
-         if (RRMonitorMatchesOutputName(slave, monitor->name)) {
-             client->errorValue = monitor->name;
-             return BadValue;
-diff --git a/randr/rroutput.c b/randr/rroutput.c
-index 686ae49..a8efec4 100644
---- a/randr/rroutput.c
-+++ b/randr/rroutput.c
-@@ -570,12 +570,10 @@ ProcRRSetOutputPrimary(ClientPtr client)
-         RRSetPrimaryOutput(pWin->drawable.pScreen, pScrPriv, output);
- 
-         xorg_list_for_each_entry(slave,
--                                 &pWin->drawable.pScreen->output_slave_list,
--                                 output_head) {
--            rrScrPrivPtr pSlavePriv;
--            pSlavePriv = rrGetScrPriv(slave);
--
--            RRSetPrimaryOutput(slave, pSlavePriv, output);
-+                                 &pWin->drawable.pScreen->slave_list,
-+                                 slave_head) {
-+            if (slave->is_output_slave)
-+                RRSetPrimaryOutput(slave, rrGetScrPriv(slave), output);
-         }
-     }
- 
-diff --git a/randr/rrprovider.c b/randr/rrprovider.c
-index 5329f41..8ef4726 100644
---- a/randr/rrprovider.c
-+++ b/randr/rrprovider.c
-@@ -72,15 +72,7 @@ ProcRRGetProviders (ClientPtr client)
- 
-     if (pScrPriv->provider)
-         total_providers++;
--    xorg_list_for_each_entry(iter, &pScreen->output_slave_list, output_head) {
--        pScrPriv = rrGetScrPriv(iter);
--        total_providers += pScrPriv->provider ? 1 : 0;
--    }
--    xorg_list_for_each_entry(iter, &pScreen->offload_slave_list, offload_head) {
--        pScrPriv = rrGetScrPriv(iter);
--        total_providers += pScrPriv->provider ? 1 : 0;
--    }
--    xorg_list_for_each_entry(iter, &pScreen->unattached_list, unattached_head) {
-+    xorg_list_for_each_entry(iter, &pScreen->slave_list, slave_head) {
-         pScrPriv = rrGetScrPriv(iter);
-         total_providers += pScrPriv->provider ? 1 : 0;
-     }
-@@ -116,13 +108,7 @@ ProcRRGetProviders (ClientPtr client)
- 
-         providers = (RRProvider *)extra;
-         ADD_PROVIDER(pScreen);
--        xorg_list_for_each_entry(iter, &pScreen->output_slave_list, output_head) {
--            ADD_PROVIDER(iter);
--        }
--        xorg_list_for_each_entry(iter, &pScreen->offload_slave_list, offload_head) {
--            ADD_PROVIDER(iter);
--        }
--        xorg_list_for_each_entry(iter, &pScreen->unattached_list, unattached_head) {
-+        xorg_list_for_each_entry(iter, &pScreen->slave_list, slave_head) {
-             ADD_PROVIDER(iter);
-         }
-     }
-@@ -182,12 +168,13 @@ ProcRRGetProviderInfo (ClientPtr client)
-     /* count associated providers */
-     if (provider->offload_sink)
-         rep.nAssociatedProviders++;
--    if (provider->output_source)
--        rep.nAssociatedProviders++;
--    xorg_list_for_each_entry(provscreen, &pScreen->output_slave_list, output_head)
--        rep.nAssociatedProviders++;
--    xorg_list_for_each_entry(provscreen, &pScreen->offload_slave_list, offload_head)
-+    if (provider->output_source &&
-+            provider->output_source != provider->offload_sink)
-         rep.nAssociatedProviders++;
-+    xorg_list_for_each_entry(provscreen, &pScreen->slave_list, slave_head) {
-+        if (provscreen->is_output_slave || provscreen->is_offload_slave)
-+            rep.nAssociatedProviders++;
-+    }
- 
-     rep.length = (pScrPriv->numCrtcs + pScrPriv->numOutputs +
-                   (rep.nAssociatedProviders * 2) + bytes_to_int32(rep.nameLength));
-@@ -237,27 +224,22 @@ ProcRRGetProviderInfo (ClientPtr client)
-             swapl(&prov_cap[i]);
-         i++;
-     }
--    xorg_list_for_each_entry(provscreen, &pScreen->output_slave_list, output_head) {
-+    xorg_list_for_each_entry(provscreen, &pScreen->slave_list, slave_head) {
-+        if (!provscreen->is_output_slave && !provscreen->is_offload_slave)
-+            continue;
-         pScrProvPriv = rrGetScrPriv(provscreen);
-         providers[i] = pScrProvPriv->provider->id;
-         if (client->swapped)
-             swapl(&providers[i]);
--        prov_cap[i] = RR_Capability_SinkOutput;
-+        prov_cap[i] = 0;
-+        if (provscreen->is_output_slave)
-+            prov_cap[i] |= RR_Capability_SinkOutput;
-+        if (provscreen->is_offload_slave)
-+            prov_cap[i] |= RR_Capability_SourceOffload;
-         if (client->swapped)
-             swapl(&prov_cap[i]);
-         i++;
-     }
--    xorg_list_for_each_entry(provscreen, &pScreen->offload_slave_list, offload_head) {
--        pScrProvPriv = rrGetScrPriv(provscreen);
--        providers[i] = pScrProvPriv->provider->id;
--        if (client->swapped)
--            swapl(&providers[i]);
--        prov_cap[i] = RR_Capability_SourceOffload;
--        if (client->swapped)
--            swapl(&prov_cap[i]);
--        i++;
--    }
--
- 
-     memcpy(name, provider->name, rep.nameLength);
-     if (client->swapped) {
-diff --git a/randr/rrscreen.c b/randr/rrscreen.c
-index d0ca91e..a69f0bc 100644
---- a/randr/rrscreen.c
-+++ b/randr/rrscreen.c
-@@ -391,7 +391,10 @@ rrGetMultiScreenResources(ClientPtr client, Bool query, ScreenPtr pScreen)
- 
-     update_totals(pScreen, pScrPriv);
- 
--    xorg_list_for_each_entry(iter, &pScreen->output_slave_list, output_head) {
-+    xorg_list_for_each_entry(iter, &pScreen->slave_list, slave_head) {
-+        if (!iter->is_output_slave)
-+            continue;
-+
-         pScrPriv = rrGetScrPriv(iter);
- 
-         if (query)
-@@ -447,7 +450,10 @@ rrGetMultiScreenResources(ClientPtr client, Bool query, ScreenPtr pScreen)
-     }
-     update_arrays(pScreen, pScrPriv, primary_crtc, has_primary);
- 
--    xorg_list_for_each_entry(iter, &pScreen->output_slave_list, output_head) {
-+    xorg_list_for_each_entry(iter, &pScreen->slave_list, slave_head) {
-+        if (!iter->is_output_slave)
-+            continue;
-+
-         pScrPriv = rrGetScrPriv(iter);
- 
-         update_arrays(iter, pScrPriv, primary_crtc, has_primary);
-@@ -500,7 +506,7 @@ rrGetScreenResources(ClientPtr client, Bool query)
-         if (!RRGetInfo(pScreen, query))
-             return BadAlloc;
- 
--    if (!xorg_list_is_empty(&pScreen->output_slave_list))
-+    if (pScreen->output_slaves)
-         return rrGetMultiScreenResources(client, query, pScreen);
- 
-     if (!pScrPriv) {
--- 
-2.9.3
-
-From 877f91e8a6f1600a112095bec789ce5d56277401 Mon Sep 17 00:00:00 2001
+From 94cc6e0424a08d007cc0a8cabcb7d2724ba0f740 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 14 Jun 2016 11:58:01 +0200
-Subject: [PATCH v2 xserver 02/12] modesetting: Load on GPU-s with 0 outputs
+Subject: [PATCH v2 xserver 01/11] modesetting: Load on GPU-s with 0 outputs
 
 In newer laptops with switchable graphics, the GPU may have 0 outputs,
 in this case the modesetting driver should still load if the GPU is
@@ -700,10 +129,10 @@ index 9c54310..cc78890 100644
 -- 
 2.9.3
 
-From 32aed4dbf891fbef391340ac0b6767d723b76d85 Mon Sep 17 00:00:00 2001
+From 228e0622ef654bb3918cb62da32a34ab910572cc Mon Sep 17 00:00:00 2001
 From: Hans De Goede <hdegoede@redhat.com>
 Date: Mon, 8 Aug 2016 14:53:59 +0200
-Subject: [PATCH v2 xserver 03/12] Fix Xorg -configure not working anymore
+Subject: [PATCH v2 xserver 02/11] Fix Xorg -configure not working anymore
 
 Xorg -configure relies on the bus implementation, e.g.
 xf86pciBus.c to call xf86AddBusDeviceToConfigure(). The new
@@ -754,10 +183,10 @@ index bd36fc5..5b93940 100644
 -- 
 2.9.3
 
-From cd62e7435c3fafe42c2b595a6c8fb525d8bce386 Mon Sep 17 00:00:00 2001
+From 18d9bb82a1ca97157bf9f6168c78c263f42df8cf Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 15 Aug 2016 10:44:57 +0200
-Subject: [PATCH v2 xserver 04/12] modesetting: ms_dri2_create_buffer: check
+Subject: [PATCH v2 xserver 03/11] modesetting: ms_dri2_create_buffer: check
  screen of existing front buffers
 
 If a frontbuffer drawable already has a pixmap, make sure it was created
@@ -809,10 +238,10 @@ index 83cb3e0..b810d59 100644
 -- 
 2.9.3
 
-From 05f67c4ba2b311a5fcd2f39a93fdcbd85f5d22fc Mon Sep 17 00:00:00 2001
+From 80327f92743e8456f229a833faff996d762b3e93 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 15 Aug 2016 11:10:15 +0200
-Subject: [PATCH v2 xserver 05/12] modesetting: Remove some dead code
+Subject: [PATCH v2 xserver 04/11] modesetting: Remove some dead code
 
 The "if (pixmap) ..." block this commit removes is inside an
 "if (pixmap == NULL) ..." block, so it will never execute.
@@ -838,10 +267,10 @@ index b810d59..9bc56c2 100644
 -- 
 2.9.3
 
-From b09d88a2b007e8e3738b1c263f4f9ef0fb1e7b89 Mon Sep 17 00:00:00 2001
+From 7a99b5d0110ce3553e8d94b78f6a1a737f93e1a7 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 15 Aug 2016 12:02:54 +0200
-Subject: [PATCH v2 xserver 06/12] modesetting: Implement DRI2InfoRec version 9
+Subject: [PATCH v2 xserver 05/11] modesetting: Implement DRI2InfoRec version 9
  callbacks
 
 Implement the CreateBuffer2 / DestroyBuffer2 / CopyRegion2 DRI2InfoRec
@@ -996,10 +425,10 @@ index 9bc56c2..ed94d63 100644
 -- 
 2.9.3
 
-From 11b3755d9ff88414483ab072cd6f7028d967c957 Mon Sep 17 00:00:00 2001
+From 39ce336a223f2cdbffb3c774be70c9655f0de024 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 23 Aug 2016 12:18:56 +0200
-Subject: [PATCH v2 xserver 07/12] glamor: Add
+Subject: [PATCH v2 xserver 06/11] glamor: Add
  glamor_shareable_fd_from_pixmap()
 
 Add glamor_shareable_fd_from_pixmap function to get dma-buf fds suitable
@@ -1080,10 +509,10 @@ index 250dc83..e984092 100644
 -- 
 2.9.3
 
-From ad87d5d52b6f1c4ed9eae0cd9e2ae1f23856ba5b Mon Sep 17 00:00:00 2001
+From 63df9a26e04063667ab3a0da2fb7097b03605644 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 17 Aug 2016 12:03:41 +0200
-Subject: [PATCH v2 xserver 08/12] modesetting: Fix msSharePixmapBacking
+Subject: [PATCH v2 xserver 07/11] modesetting: Fix msSharePixmapBacking
  returning a non-linear bo
 
 glamor_fd_from_pixmap() may return a tiled bo, which is not suitable
@@ -1117,10 +546,10 @@ index 718966b..1e98c80 100644
 -- 
 2.9.3
 
-From f432de42ff4133110b3382cb47b27f3943af8142 Mon Sep 17 00:00:00 2001
+From 4365b170822c8acefa36eb42378a9e87ae552042 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 24 Aug 2016 14:13:19 +0200
-Subject: [PATCH v2 xserver 09/12] modesetting: ms_covering_crtc: Remove unused
+Subject: [PATCH v2 xserver 08/11] modesetting: ms_covering_crtc: Remove unused
  arguments, make static
 
 Remove unused arguments from ms_covering_crtc, make it static as it is
@@ -1211,10 +640,10 @@ index 77e0848..c2cb70c 100644
 -- 
 2.9.3
 
-From 5a040c012624afe4999e08a834d9d3f410ce7c8a Mon Sep 17 00:00:00 2001
+From 2feea233731855cbb4ec6021a287145b25c45f6d Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 24 Aug 2016 14:55:27 +0200
-Subject: [PATCH v2 xserver 10/12] modesetting: ms_covering_crtc: Allow calling
+Subject: [PATCH v2 xserver 09/11] modesetting: ms_covering_crtc: Allow calling
  on non modesetting Screens
 
 99% of the code in ms_covering_crtc is video-driver agnostic. Add a
@@ -1273,10 +702,10 @@ index c2cb70c..0b1abb0 100644
 -- 
 2.9.3
 
-From 4ee861beba7d05a836be4aa55e0947a1d8c11d74 Mon Sep 17 00:00:00 2001
+From d5783818bc567a4d0645decb7352f0f8bbcf8d44 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 24 Aug 2016 15:00:13 +0200
-Subject: [PATCH v2 xserver 11/12] modesetting: Fall back to primary crtc for
+Subject: [PATCH v2 xserver 10/11] modesetting: Fall back to primary crtc for
  vblank for drawables on slave outputs
 
 This fixes glxgears running at 1 fps when fully covering a slave-output
@@ -1288,14 +717,14 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Changes in v2:
 -Only fallback to primary crtc if it is in DPMSModeOn
 ---
- hw/xfree86/drivers/modesetting/vblank.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ hw/xfree86/drivers/modesetting/vblank.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
 diff --git a/hw/xfree86/drivers/modesetting/vblank.c b/hw/xfree86/drivers/modesetting/vblank.c
-index 0b1abb0..bedef28 100644
+index 0b1abb0..99100ec 100644
 --- a/hw/xfree86/drivers/modesetting/vblank.c
 +++ b/hw/xfree86/drivers/modesetting/vblank.c
-@@ -130,6 +130,32 @@ ms_covering_crtc(ScreenPtr pScreen, BoxPtr box, Bool screen_is_ms)
+@@ -130,6 +130,29 @@ ms_covering_crtc(ScreenPtr pScreen, BoxPtr box, Bool screen_is_ms)
              best_coverage = coverage;
          }
      }
@@ -1314,10 +743,7 @@ index 0b1abb0..bedef28 100644
 +        if (!ms_crtc_on(crtc))
 +            return NULL;
 +
-+        xorg_list_for_each_entry(slave, &pScreen->slave_list, slave_head) {
-+            if (!slave->is_output_slave)
-+                continue;
-+
++        xorg_list_for_each_entry(slave, &pScreen->output_slave_list, output_head) {
 +            if (ms_covering_crtc(slave, box, FALSE)) {
 +                /* The drawable is on a slave output, return primary crtc */
 +                return crtc;

@@ -1,4 +1,4 @@
-From 2107057dc210fdbcdbdb8cf8e0b0b703cfb25767 Mon Sep 17 00:00:00 2001
+From cd6f931fb06f825f246222a4362fbf728f8dce73 Mon Sep 17 00:00:00 2001
 From: Dave Airlie <airlied@redhat.com>
 Date: Fri, 17 Aug 2012 09:49:24 +1000
 Subject: [PATCH] autobind GPUs to the screen, (v3)
@@ -13,27 +13,20 @@ DO NOT UPSTREAM.
 Signed-off-by: Dave Airlie <airlied@gmail.com>
 ---
  hw/xfree86/common/xf86Init.c        | 12 ++++++++++++
- hw/xfree86/common/xf86platformBus.c |  2 ++
- hw/xfree86/modes/xf86Crtc.c         | 25 +++++++++++++++++++++++++
- hw/xfree86/modes/xf86Crtc.h         |  3 +++
- 4 files changed, 42 insertions(+)
+ hw/xfree86/common/xf86platformBus.c |  3 +++
+ hw/xfree86/modes/xf86Crtc.c         | 32 ++++++++++++++++++++++++++++++++
+ 3 files changed, 47 insertions(+)
 
 diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
-index 9bade90..33a40a5 100644
+index 6282252..dc33ad1 100644
 --- a/hw/xfree86/common/xf86Init.c
 +++ b/hw/xfree86/common/xf86Init.c
-@@ -76,6 +76,7 @@
- #include "xf86DDC.h"
- #include "xf86Xinput.h"
- #include "xf86InPriv.h"
-+#include "xf86Crtc.h"
- #include "picturestr.h"
- 
- #include "xf86Bus.h"
-@@ -342,6 +343,15 @@ xf86CreateRootWindow(WindowPtr pWin)
+@@ -361,6 +361,16 @@ xf86CreateRootWindow(WindowPtr pWin)
+     return ret;
  }
  
- static void
++extern void xf86AutoConfigOutputDevice(ScrnInfoPtr pScrn, ScrnInfoPtr master);                              
++static void
 +xf86AutoConfigOutputDevices(void)
 +{
 +    int i;
@@ -42,11 +35,10 @@ index 9bade90..33a40a5 100644
 +        xf86AutoConfigOutputDevice(xf86GPUScreens[i], xf86Screens[0]);
 +}
 +
-+static void
+ static void
  InstallSignalHandlers(void)
  {
-     /*
-@@ -930,6 +940,8 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
+@@ -949,6 +959,8 @@ InitOutput(ScreenInfo * pScreenInfo, int argc, char **argv)
      for (i = 0; i < xf86NumGPUScreens; i++)
          AttachUnboundGPU(xf86Screens[0]->pScreen, xf86GPUScreens[i]->pScreen);
  
@@ -56,18 +48,19 @@ index 9bade90..33a40a5 100644
      if (sigio_blocked)
          OsReleaseSIGIO();
 diff --git a/hw/xfree86/common/xf86platformBus.c b/hw/xfree86/common/xf86platformBus.c
-index 96895a6..028db03 100644
+index 33b2b7d..be3bdd9 100644
 --- a/hw/xfree86/common/xf86platformBus.c
 +++ b/hw/xfree86/common/xf86platformBus.c
-@@ -48,6 +48,7 @@
- #include "Pci.h"
- #include "xf86platformBus.h"
- #include "xf86Config.h"
-+#include "xf86Crtc.h"
+@@ -393,6 +393,8 @@ xf86platformProbeDev(DriverPtr drvp)
+     return foundScreen;
+ }
  
- #include "randrstr.h"
- int platformSlotClaimed;
-@@ -540,6 +541,7 @@ xf86platformAddDevice(int index)
++extern void xf86AutoConfigOutputDevice(ScrnInfoPtr pScrn, ScrnInfoPtr master);
++
+ int
+ xf86platformAddDevice(int index)
+ {
+@@ -465,6 +467,7 @@ xf86platformAddDevice(int index)
     }
     /* attach unbound to 0 protocol screen */
     AttachUnboundGPU(xf86Screens[0]->pScreen, xf86GPUScreens[i]->pScreen);
@@ -76,19 +69,21 @@ index 96895a6..028db03 100644
     RRResourcesChanged(xf86Screens[0]->pScreen);
     RRTellChanged(xf86Screens[0]->pScreen);
 diff --git a/hw/xfree86/modes/xf86Crtc.c b/hw/xfree86/modes/xf86Crtc.c
-index 4a13c13..b926298 100644
+index 4726f2a..e83ea13 100644
 --- a/hw/xfree86/modes/xf86Crtc.c
 +++ b/hw/xfree86/modes/xf86Crtc.c
-@@ -3575,3 +3575,28 @@ xf86DetachAllCrtc(ScrnInfoPtr scrn)
+@@ -3440,3 +3440,35 @@ xf86DetachAllCrtc(ScrnInfoPtr scrn)
              crtc->x = crtc->y = 0;
          }
  }
++
 +
 +void xf86AutoConfigOutputDevice(ScrnInfoPtr pScrn, ScrnInfoPtr master)
 +{
 +    RRProviderPtr master_provider;
 +    xf86CrtcConfigPtr config = XF86_CRTC_CONFIG_PTR(master);
 +    xf86CrtcConfigPtr slave_config = XF86_CRTC_CONFIG_PTR(pScrn);
++    Bool unbound = FALSE;
 +
 +    if (!config || !slave_config)
 +        return;
@@ -96,30 +91,23 @@ index 4a13c13..b926298 100644
 +    master_provider = config->randr_provider;
 +
 +    if ((master->capabilities & RR_Capability_SinkOffload) &&
-+               pScrn->capabilities & RR_Capability_SourceOffload) {
-+        /* source offload */
++        pScrn->capabilities & RR_Capability_SourceOffload) {
++            /* source offload */
++            
++        DetachUnboundGPU(pScrn->pScreen);
++        unbound = TRUE;
 +        AttachOffloadGPU(master->pScreen, pScrn->pScreen);
 +        slave_config->randr_provider->offload_sink = master_provider;
 +    }
 +    if ((master->capabilities & RR_Capability_SourceOutput) &&
 +               pScrn->capabilities & RR_Capability_SinkOutput) {
 +        /* sink offload */
++        if (!unbound)
++            DetachUnboundGPU(pScrn->pScreen);
 +        AttachOutputGPU(master->pScreen, pScrn->pScreen);
 +        slave_config->randr_provider->output_source = master_provider;
 +    }
 +}
-diff --git a/hw/xfree86/modes/xf86Crtc.h b/hw/xfree86/modes/xf86Crtc.h
-index 8b01608..05ee338 100644
---- a/hw/xfree86/modes/xf86Crtc.h
-+++ b/hw/xfree86/modes/xf86Crtc.h
-@@ -1046,4 +1046,7 @@ xf86ProviderSetup(ScrnInfoPtr scrn,
- extern _X_EXPORT void
- xf86DetachAllCrtc(ScrnInfoPtr scrn);
- 
-+extern _X_EXPORT void
-+xf86AutoConfigOutputDevice(ScrnInfoPtr pScrn, ScrnInfoPtr master);
-+
- #endif                          /* _XF86CRTC_H_ */
 -- 
-2.9.3
+1.8.3.1
 
