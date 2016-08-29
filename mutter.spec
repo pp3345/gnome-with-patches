@@ -4,8 +4,8 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.21.90
-Release:       3%{?dist}
+Version:       3.21.91
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -183,6 +183,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Aug 30 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.91-1
+- Update to 3.21.91
+
 * Mon Aug 29 2016 Kalev Lember <klember@redhat.com> - 3.21.90-3
 - clutter/evdev: Fix absolute pointer motion events (#1369492)
 
