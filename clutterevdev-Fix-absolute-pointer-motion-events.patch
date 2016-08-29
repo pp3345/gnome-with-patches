@@ -1,0 +1,30 @@
+From fcc5c1e6c05f117497a71ffbb551a8f36d0b929b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 29 Aug 2016 23:10:17 +0800
+Subject: [PATCH] clutter/evdev: Fix absolute pointer motion events
+
+Absolute pointer events sent the X coordinate as both X and Y. This
+caused input issues when running as a virtual machine if the virtual
+machine used absolute pointer events instead of emulating a regular
+mouse type (i.e. relative) device.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=770557
+---
+ clutter/clutter/evdev/clutter-seat-evdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/clutter/clutter/evdev/clutter-seat-evdev.c b/clutter/clutter/evdev/clutter-seat-evdev.c
+index 5ef3ae4..f5ae1dd 100644
+--- a/clutter/clutter/evdev/clutter-seat-evdev.c
++++ b/clutter/clutter/evdev/clutter-seat-evdev.c
+@@ -421,7 +421,7 @@ void clutter_seat_evdev_notify_absolute_motion (ClutterSeatEvdev   *seat,
+ {
+   ClutterEvent *event;
+ 
+-  event = new_absolute_motion_event (seat, input_device, time_us, x, x, axes);
++  event = new_absolute_motion_event (seat, input_device, time_us, x, y, axes);
+ 
+   queue_event (event);
+ }
+-- 
+2.7.4

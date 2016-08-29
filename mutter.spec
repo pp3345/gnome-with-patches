@@ -5,7 +5,7 @@
 
 Name:          mutter
 Version:       3.21.90
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 Group:         User Interface/Desktops
@@ -13,6 +13,8 @@ License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.21/%{name}-%{version}.tar.xz
+# https://bugzilla.gnome.org/show_bug.cgi?id=770557
+Patch0:        clutterevdev-Fix-absolute-pointer-motion-events.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -106,6 +108,7 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 autoreconf -f -i
@@ -180,6 +183,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Mon Aug 29 2016 Kalev Lember <klember@redhat.com> - 3.21.90-3
+- clutter/evdev: Fix absolute pointer motion events (#1369492)
+
 * Sat Aug 20 2016 Kalev Lember <klember@redhat.com> - 3.21.90-2
 - Update minimum dep versions
 
