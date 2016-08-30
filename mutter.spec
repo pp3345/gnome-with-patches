@@ -8,7 +8,6 @@ Version:       3.21.91
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
-Group:         User Interface/Desktops
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
@@ -90,7 +89,6 @@ behaviors to meet the needs of the environment.
 
 %package devel
 Summary: Development package for %{name}
-Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
@@ -99,7 +97,6 @@ utilities for testing Metacity/Mutter themes.
 
 %package  tests
 Summary:  Tests for the %{name} package
-Group:    Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description tests
