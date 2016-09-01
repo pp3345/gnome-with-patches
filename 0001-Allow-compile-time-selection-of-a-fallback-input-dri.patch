@@ -1,0 +1,155 @@
+From a3922cf7f02feac88a80995cef5e843aafdd970b Mon Sep 17 00:00:00 2001
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Date: Wed, 1 Jun 2016 14:38:54 +1000
+Subject: [PATCH xserver] Allow compile-time selection of a fallback input
+ driver
+
+A new --with-fallback-input-driver=foo option allows selecting a
+fallback driver for the server if the driver configured for the device
+is not found.  Note that this only applies when the device has a driver
+assigned and that module fails to load, devices without a driver are
+ignored as usual.
+
+This avoids the situation where a configuration assigns e.g. the
+synaptics driver but that driver is not available on the system,
+resulting in a dead device. A fallback driver can at least provides some
+functionality.
+
+This becomes more important as we move towards making other driver true
+leaf nodes that can be installed/uninstalled as requested. Specifically,
+wacom and synaptics, a config that assigns either driver should be
+viable even when the driver itself is not (yet) installed on the system.
+
+It is up to the distributions to make sure that the fallback driver is
+always installed. The fallback driver can be disabled with
+--without-fallback-input-driver and is disabled by default on non-Linux
+systems because we don't have generic drivers on those platforms.
+Default driver on Linux is libinput, evdev is the only other serious
+candidate here.
+
+Sample log output:
+[  3274.421] (II) config/udev: Adding input device SynPS/2 Synaptics TouchPad (/dev/input/event4)
+[  3274.421] (**) SynPS/2 Synaptics TouchPad: Applying InputClass "touchpad weird driver"
+[  3274.421] (II) LoadModule: "banana"
+[  3274.422] (WW) Warning, couldn't open module banana
+[  3274.422] (II) UnloadModule: "banana"
+[  3274.422] (II) Unloading banana
+[  3274.422] (EE) Failed to load module "banana" (module does not exist, 0)
+[  3274.422] (EE) No input driver matching `banana'
+[  3274.422] (II) Falling back to input driver `libinput'
+.. server proceeds to assign libinput, init the device, world peace and rainbows
+everywhere, truly what a sight. Shame about the banana though.
+
+Reviewed-by: Adam Jackson <ajax@redhat.com>
+Signed-off-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit c69bd15e00aea2610834d05f63777f9bf20eca34)
+---
+ configure.ac                   | 19 +++++++++++++++++++
+ hw/xfree86/common/xf86Xinput.c | 39 +++++++++++++++++++++++++++++++--------
+ include/xorg-config.h.in       |  3 +++
+ 3 files changed, 53 insertions(+), 8 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 868e859..dea8edd 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -493,6 +493,25 @@ AC_ARG_ENABLE(listen-local,  AS_HELP_STRING([--disable-listen-local],
+                                             [Listen on local by default (default:enabled)]),
+                                 [LISTEN_LOCAL=$enableval], [LISTEN_LOCAL=yes])
+ 
++case $host_os in
++    linux*)
++        FALLBACK_INPUT_DRIVER="libinput"
++        ;;
++    *)
++        FALLBACK_INPUT_DRIVER=""
++        ;;
++esac
++AC_ARG_WITH(fallback-input-driver,
++            AC_HELP_STRING([--with-fallback-input-driver=$FALLBACK_INPUT_DRIVER],
++                           [Input driver fallback if the requested driver for a device is unavailable]),
++                           [ FALLBACK_INPUT_DRIVER=$withval ], [])
++if test "x$FALLBACK_INPUT_DRIVER" = "xno"; then
++    FALLBACK_INPUT_DRIVER=""
++fi
++AC_MSG_CHECKING([for fallback input driver])
++AC_MSG_RESULT([$FALLBACK_INPUT_DRIVER])
++AC_DEFINE_UNQUOTED(FALLBACK_INPUT_DRIVER, ["$FALLBACK_INPUT_DRIVER"], [ Fallback input driver ])
++
+ dnl Determine font path
+ XORG_FONTROOTDIR
+ XORG_FONTSUBDIR(FONTMISCDIR, fontmiscdir, misc)
+diff --git a/hw/xfree86/common/xf86Xinput.c b/hw/xfree86/common/xf86Xinput.c
+index c56a2b9..44f4818 100644
+--- a/hw/xfree86/common/xf86Xinput.c
++++ b/hw/xfree86/common/xf86Xinput.c
+@@ -819,6 +819,22 @@ xf86stat(const char *path, int *maj, int *min)
+     *min = minor(st.st_rdev);
+ }
+ 
++static inline InputDriverPtr
++xf86LoadInputDriver(const char *driver_name)
++{
++    InputDriverPtr drv = NULL;
++
++    /* Memory leak for every attached device if we don't
++     * test if the module is already loaded first */
++    drv = xf86LookupInputDriver(driver_name);
++    if (!drv) {
++        if (xf86LoadOneModule(driver_name, NULL))
++            drv = xf86LookupInputDriver(driver_name);
++    }
++
++    return drv;
++}
++
+ /**
+  * Create a new input device, activate and enable it.
+  *
+@@ -845,16 +861,23 @@ xf86NewInputDevice(InputInfoPtr pInfo, DeviceIntPtr *pdev, BOOL enable)
+     int rval;
+     char *path = NULL;
+ 
+-    /* Memory leak for every attached device if we don't
+-     * test if the module is already loaded first */
+-    drv = xf86LookupInputDriver(pInfo->driver);
+-    if (!drv)
+-        if (xf86LoadOneModule(pInfo->driver, NULL))
+-            drv = xf86LookupInputDriver(pInfo->driver);
++    drv = xf86LoadInputDriver(pInfo->driver);
+     if (!drv) {
+         xf86Msg(X_ERROR, "No input driver matching `%s'\n", pInfo->driver);
+-        rval = BadName;
+-        goto unwind;
++
++        if (strlen(FALLBACK_INPUT_DRIVER) > 0) {
++            xf86Msg(X_INFO, "Falling back to input driver `%s'\n",
++                    FALLBACK_INPUT_DRIVER);
++            drv = xf86LoadInputDriver(FALLBACK_INPUT_DRIVER);
++            if (drv) {
++                free(pInfo->driver);
++                pInfo->driver = strdup(FALLBACK_INPUT_DRIVER);
++            }
++        }
++        if (!drv) {
++            rval = BadName;
++            goto unwind;
++        }
+     }
+ 
+     path = xf86CheckStrOption(pInfo->options, "Device", NULL);
+diff --git a/include/xorg-config.h.in b/include/xorg-config.h.in
+index 7c03126..2e2da45 100644
+--- a/include/xorg-config.h.in
++++ b/include/xorg-config.h.in
+@@ -151,4 +151,7 @@
+ /* Support APM/ACPI power management in the server */
+ #undef XF86PM
+ 
++/* Fallback input driver if the assigned driver fails */
++#undef FALLBACK_INPUT_DRIVER
++
+ #endif /* _XORG_CONFIG_H_ */
+-- 
+2.7.4
+

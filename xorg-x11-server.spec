@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.4
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -90,8 +90,12 @@ Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 # do not upstream - do not even use here yet
 Patch7027: xserver-autobind-hotplug.patch
 
+# Pick libinput as driver when the assigned module is missing
+Patch7028: 0001-Allow-compile-time-selection-of-a-fallback-input-dri.patch
+
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
+
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -630,6 +634,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Sep 01 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.18.4-5
+- Fall back to libinput if the module is missing
+
 * Thu Aug 25 2016 Hans de Goede <hdegoede@redhat.com> - 1.18.4-4
 - Fix (undo) server ABI breakage from 1.18.4-3
 
