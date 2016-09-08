@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.18.4
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -82,6 +82,8 @@ Patch0: xorg-x11-server-xwayland-backports.patch
 
 # prime fixes from master (and pending upstream review)
 Patch1: xserver-prime-fixes.patch
+
+Patch10: 0001-glx-Implement-GLX_EXT_libglvnd-v2.1.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -634,6 +636,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Sep 08 2016 Adam Jackson <ajax@redhat.com> 1.18.4-6
+- Backport GLX_EXT_libglvnd support from 1.19
+
 * Thu Sep 01 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.18.4-5
 - Fall back to libinput if the module is missing
 
