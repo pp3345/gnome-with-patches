@@ -4,18 +4,14 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.21.91
-Release:       2%{?dist}
+Version:       3.21.92
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.21/%{name}-%{version}.tar.xz
-# Backported from upstream
-Patch0:        clutterevdev-Fix-absolute-pointer-motion-events.patch
-# Backported from upstream
-Patch1:        0001-wayland-cursor-role-Increase-buffer-use-count-on-con.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -107,8 +103,6 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
 
 %build
 autoreconf -f -i
@@ -183,6 +177,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Sep 13 2016 Florian Müllner <fmuellner@redhat.com> - 3.21.92-1
+- Update to 3.21.92
+
 * Thu Sep 08 2016 Kalev Lember <klember@redhat.com> - 3.21.91-2
 - wayland/cursor-role: Increase buffer use count on construction (#1373372)
 
