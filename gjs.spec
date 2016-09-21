@@ -5,7 +5,6 @@ Version:       1.46.0
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
-Group:         System Environment/Libraries
 # The following files contain code from Mozilla which
 # is triple licensed under MPL1.1/LGPLv2+/GPLv2+:
 # The console module (modules/console.c)
@@ -35,7 +34,6 @@ framework.
 
 %package devel
 Summary: Development package for %{name}
-Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
@@ -43,7 +41,6 @@ Files for development with %{name}.
 
 %package tests
 Summary: Tests for the gjs package
-Group: Development/Libraries
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description tests
@@ -94,6 +91,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %changelog
 * Wed Sep 21 2016 Kalev Lember <klember@redhat.com> - 1.46.0-1
 - Update to 1.46.0
+- Don't set group tags
 
 * Tue Jul 19 2016 Florian Müllner <fmuellner@redhat.com> - 3.1.45.4-1
 - Update to 1.45.4
