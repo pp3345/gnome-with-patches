@@ -57,7 +57,7 @@ the functionality of the installed gjs package.
 make %{?_smp_mflags} V=1
 
 %install
-make install DESTDIR=%{buildroot}
+%make_install
 
 #Remove libtool archives.
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
@@ -92,6 +92,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 * Wed Sep 21 2016 Kalev Lember <klember@redhat.com> - 1.46.0-1
 - Update to 1.46.0
 - Don't set group tags
+- Use make_install macro
 
 * Tue Jul 19 2016 Florian Müllner <fmuellner@redhat.com> - 3.1.45.4-1
 - Update to 1.45.4
