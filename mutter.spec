@@ -5,13 +5,15 @@
 
 Name:          mutter
 Version:       3.22.0
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.22/%{name}-%{version}.tar.xz
+
+Patch1:        0001-wayland-pointer-Unset-pointer-focus-when-disabled.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -103,6 +105,7 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q
+%patch1 -p1 -b .unset-pointer-focus-when-disabled
 
 %build
 autoreconf -f -i
@@ -177,6 +180,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Sep 28 2016 Florian Müllner <fmuellner@redhat.com> - 3.22.0-2
+- Include fix for crash on VT switch
+
 * Mon Sep 19 2016 Florian Müllner <fmuellner@redhat.com> - 3.22.0-1
 - Update to 3.22.0
 
