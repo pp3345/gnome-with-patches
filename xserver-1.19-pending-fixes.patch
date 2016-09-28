@@ -1,0 +1,827 @@
+From abe57372a111c27e6ca0865f9ad7c3d2d6022dfb Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Thu, 15 Sep 2016 14:28:35 +0200
+Subject: [PATCH xserver v2 01/14] modesetting: Fix reverse prime partial
+ update issues on secondary GPU outputs
+
+When using reverse prime we do 2 copies, 1 from the primary GPU's
+framebuffer to a shared pixmap and 1 from the shared pixmap to the
+secondary GPU's framebuffer.
+
+This means that on the primary GPU side the copy MUST be finished,
+before we start the second copy (before the secondary GPU's driver
+starts processing the damage on the shared pixmap).
+
+This fixes secondary outputs sometimes showning (some) old fb contents,
+because of the 2 copies racing with each other, for an example of
+what this looks like see:
+
+https://fedorapeople.org/~jwrdegoede/IMG_20160915_130555.jpg
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+Reviewed-by: Eric Anholt <eric@anholt.net>
+---
+ hw/xfree86/drivers/modesetting/driver.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/hw/xfree86/drivers/modesetting/driver.c b/hw/xfree86/drivers/modesetting/driver.c
+index a8e83b2..f98d6da 100644
+--- a/hw/xfree86/drivers/modesetting/driver.c
++++ b/hw/xfree86/drivers/modesetting/driver.c
+@@ -586,13 +586,24 @@ dispatch_slave_dirty(ScreenPtr pScreen)
+ static void
+ redisplay_dirty(ScreenPtr screen, PixmapDirtyUpdatePtr dirty)
+ {
+-
++    modesettingPtr ms = modesettingPTR(xf86ScreenToScrn(screen));
+     RegionRec pixregion;
+ 
+     PixmapRegionInit(&pixregion, dirty->slave_dst);
+     DamageRegionAppend(&dirty->slave_dst->drawable, &pixregion);
+     PixmapSyncDirtyHelper(dirty);
+ 
++    if (!screen->isGPU) {
++        /*
++         * When copying from the master framebuffer to the shared pixmap,
++         * we must ensure the copy is complete before the slave starts a
++         * copy to its own framebuffer (some slaves scanout directly from
++         * the shared pixmap, but not all).
++         */
++        if (ms->drmmode.glamor)
++            glamor_finish(screen);
++    }
++
+     DamageRegionProcessPending(&dirty->slave_dst->drawable);
+     RegionUninit(&pixregion);
+ }
+-- 
+2.9.3
+
+From d445d873d322f50da163d5e8902049169ee91f8a Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Thu, 15 Sep 2016 14:35:52 +0200
+Subject: [PATCH xserver v2 02/14] modesetting: Fix reverse prime update
+ lagging on secondary GPU outputs
+
+When using secondary GPU outputs the primary GPU's blockhandler
+will copy changes from its framebuffer to a pixmap shared with the
+secondary GPU.
+
+In reverse prime setups the secondary GPU's blockhandler will do another
+copy from the shared pixmap to its own framebuffer.
+
+Before this commit, if the primary GPU's blockhandler would run after
+the secondary GPU's blockhandler and no events were pending, then the
+secondary GPU's blockhandler would not run until some events came in
+(WaitForSomething() would block in the poll call), resulting in the
+secondary GPU output sometimes showing stale contents (e.g. a just closed
+window) for easily up to 10 seconds.
+
+This commit fixes this by setting the timeout passed into the
+blockhandler to 0 if any shared pixmaps were updated by the primary GPU,
+forcing an immediate re-run of all blockhandlers.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+---
+ hw/xfree86/drivers/modesetting/driver.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/hw/xfree86/drivers/modesetting/driver.c b/hw/xfree86/drivers/modesetting/driver.c
+index f98d6da..d37a42a 100644
+--- a/hw/xfree86/drivers/modesetting/driver.c
++++ b/hw/xfree86/drivers/modesetting/driver.c
+@@ -584,7 +584,7 @@ dispatch_slave_dirty(ScreenPtr pScreen)
+ }
+ 
+ static void
+-redisplay_dirty(ScreenPtr screen, PixmapDirtyUpdatePtr dirty)
++redisplay_dirty(ScreenPtr screen, PixmapDirtyUpdatePtr dirty, int *timeout)
+ {
+     modesettingPtr ms = modesettingPTR(xf86ScreenToScrn(screen));
+     RegionRec pixregion;
+@@ -602,6 +602,9 @@ redisplay_dirty(ScreenPtr screen, PixmapDirtyUpdatePtr dirty)
+          */
+         if (ms->drmmode.glamor)
+             glamor_finish(screen);
++        /* Ensure the slave processes the damage immediately */
++        if (timeout)
++            *timeout = 0;
+     }
+ 
+     DamageRegionProcessPending(&dirty->slave_dst->drawable);
+@@ -609,7 +612,7 @@ redisplay_dirty(ScreenPtr screen, PixmapDirtyUpdatePtr dirty)
+ }
+ 
+ static void
+-ms_dirty_update(ScreenPtr screen)
++ms_dirty_update(ScreenPtr screen, int *timeout)
+ {
+     modesettingPtr ms = modesettingPTR(xf86ScreenToScrn(screen));
+ 
+@@ -636,7 +639,7 @@ ms_dirty_update(ScreenPtr screen)
+             if (ppriv->defer_dirty_update)
+                 continue;
+ 
+-            redisplay_dirty(screen, ent);
++            redisplay_dirty(screen, ent, timeout);
+             DamageEmpty(ent->damage);
+         }
+     }
+@@ -672,7 +675,7 @@ msBlockHandler(ScreenPtr pScreen, void *timeout)
+     else if (ms->dirty_enabled)
+         dispatch_dirty(pScreen);
+ 
+-    ms_dirty_update(pScreen);
++    ms_dirty_update(pScreen, timeout);
+ }
+ 
+ static void
+@@ -1261,7 +1264,7 @@ msPresentSharedPixmap(PixmapPtr slave_dst)
+     RegionPtr region = DamageRegion(ppriv->dirty->damage);
+ 
+     if (RegionNotEmpty(region)) {
+-        redisplay_dirty(ppriv->slave_src->drawable.pScreen, ppriv->dirty);
++        redisplay_dirty(ppriv->slave_src->drawable.pScreen, ppriv->dirty, NULL);
+         DamageEmpty(ppriv->dirty->damage);
+ 
+         return TRUE;
+-- 
+2.9.3
+
+From 551f6497040b0b96ca4aaef49ef6de5287256763 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Sat, 17 Sep 2016 11:42:09 +0200
+Subject: [PATCH xserver v2 03/14] xf86RandR12: Move calculating of shift
+ inside init_one_component
+
+This is a preparation patch to allow easier usage of init_one_component
+outside of xf86RandR12CrtcInitGamma.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+---
+ hw/xfree86/modes/xf86RandR12.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/hw/xfree86/modes/xf86RandR12.c b/hw/xfree86/modes/xf86RandR12.c
+index d34bce2..b1ca8b4 100644
+--- a/hw/xfree86/modes/xf86RandR12.c
++++ b/hw/xfree86/modes/xf86RandR12.c
+@@ -1325,9 +1325,12 @@ xf86RandR12CrtcSetGamma(ScreenPtr pScreen, RRCrtcPtr randr_crtc)
+ }
+ 
+ static void
+-init_one_component(CARD16 *comp, unsigned size, unsigned shift, float gamma)
++init_one_component(CARD16 *comp, unsigned size, float gamma)
+ {
+     int i;
++    unsigned shift;
++
++    for (shift = 0; (size << shift) < (1 << 16); shift++);
+ 
+     if (gamma == 1.0) {
+         for (i = 0; i < size; i++)
+@@ -1344,7 +1347,7 @@ static Bool
+ xf86RandR12CrtcInitGamma(xf86CrtcPtr crtc, float gamma_red, float gamma_green,
+                          float gamma_blue)
+ {
+-    unsigned size = crtc->randr_crtc->gammaSize, shift;
++    unsigned size = crtc->randr_crtc->gammaSize;
+     CARD16 *red, *green, *blue;
+ 
+     if (!crtc->funcs->gamma_set &&
+@@ -1358,11 +1361,9 @@ xf86RandR12CrtcInitGamma(xf86CrtcPtr crtc, float gamma_red, float gamma_green,
+     green = red + size;
+     blue = green + size;
+ 
+-    for (shift = 0; (size << shift) < (1 << 16); shift++);
+-
+-    init_one_component(red, size, shift, gamma_red);
+-    init_one_component(green, size, shift, gamma_green);
+-    init_one_component(blue, size, shift, gamma_blue);
++    init_one_component(red, size, gamma_red);
++    init_one_component(green, size, gamma_green);
++    init_one_component(blue, size, gamma_blue);
+ 
+     RRCrtcGammaSet(crtc->randr_crtc, red, green, blue);
+     free(red);
+-- 
+2.9.3
+
+From 30679a8ec6a25604f1181bad5ebcb4b529b254c7 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Sat, 17 Sep 2016 11:33:13 +0200
+Subject: [PATCH xserver v2 04/14] xf86RandR12: Fix XF86VidModeSetGamma
+ triggering a BadImplementation error
+
+Commit b4e46c0444bb ("xfree86: Hook up colormaps and RandR 1.2 gamma code")
+dropped the providing of a pScrn->ChangeGamma callback from the xf86RandR12
+code. Leaving pScrn->ChangeGamma NULL in most cases.
+
+This triggers the BadImplementation error in xf86ChangeGamma() :
+
+    if (pScrn->ChangeGamma)
+        return (*pScrn->ChangeGamma) (pScrn, gamma);
+
+    return BadImplementation;
+
+Which causes X-apps using XF86VidModeSetGamma to crash with a
+X protocol error.
+
+This commit fixes this by re-introducing the xf86RandR12ChangeGamma
+helper removed by the commit and adjusting it to work with the new
+combined palette / gamma code.
+
+Fixes: b4e46c0444bb ("xfree86: Hook up colormaps and RandR 1.2 gamma code")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+---
+ hw/xfree86/modes/xf86RandR12.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/hw/xfree86/modes/xf86RandR12.c b/hw/xfree86/modes/xf86RandR12.c
+index b1ca8b4..d834619 100644
+--- a/hw/xfree86/modes/xf86RandR12.c
++++ b/hw/xfree86/modes/xf86RandR12.c
+@@ -1924,6 +1924,35 @@ xf86RandR12LoadPalette(ScrnInfoPtr pScrn, int numColors, int *indices,
+     }
+ }
+ 
++/*
++ * Compatibility pScrn->ChangeGamma provider for ddx drivers which do not call
++ * xf86HandleColormaps(). Note such drivers really should be fixed to call
++ * xf86HandleColormaps() as this clobbers the per-CRTC gamma ramp of the CRTC
++ * assigned to the RandR compatibility output.
++ */
++static int
++xf86RandR12ChangeGamma(ScrnInfoPtr pScrn, Gamma gamma)
++{
++    RRCrtcPtr randr_crtc = xf86CompatRRCrtc(pScrn);
++    int size;
++
++    if (!randr_crtc)
++        return Success;
++
++    size = max(0, randr_crtc->gammaSize);
++    if (!size)
++        return Success;
++
++    init_one_component(randr_crtc->gammaRed, size, gamma.red);
++    init_one_component(randr_crtc->gammaGreen, size, gamma.green);
++    init_one_component(randr_crtc->gammaBlue, size, gamma.blue);
++    xf86RandR12CrtcSetGamma(xf86ScrnToScreen(pScrn), randr_crtc);
++
++    pScrn->gamma = gamma;
++
++    return Success;
++}
++
+ static Bool
+ xf86RandR12EnterVT(ScrnInfoPtr pScrn)
+ {
+@@ -2123,6 +2152,7 @@ xf86RandR12Init12(ScreenPtr pScreen)
+     rp->rrProviderDestroy = xf86RandR14ProviderDestroy;
+ 
+     pScrn->PointerMoved = xf86RandR12PointerMoved;
++    pScrn->ChangeGamma = xf86RandR12ChangeGamma;
+ 
+     randrp->orig_EnterVT = pScrn->EnterVT;
+     pScrn->EnterVT = xf86RandR12EnterVT;
+-- 
+2.9.3
+
+From e5a9f1e6ea0b99462d8d305bf4836128f1b12562 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Fri, 1 Jul 2016 17:36:02 +0200
+Subject: [PATCH xserver v2 05/14] glx: Always enable EXT_texture_from_pixmap
+ for DRI swrast glx
+
+Prior to commit f95645c6f700 ("glx: Don't enable EXT_texture_from_pixmap
+unconditionally") DRI glx would always advertise EXT_texture_from_pixmap.
+
+That commit moved the setting of the extension in the extension bits from
+__glXInitExtensionEnableBits to its callers so that
+__glXInitExtensionEnableBits can be used more generally, but at the same
+time made the setting of EXT_texture_from_pixmap conditionally on
+__DRI_TEX_BUFFER being present.
+
+This has result in an unintended behavior change which breaks e.g.
+compositors running on llvmpipe. This commit makes the DRI swrast glx code
+advertise EXT_texture_from_pixmap unconditionally again fixing this.
+
+Fixes: f95645c6f700 ("glx: Don't enable EXT_texture_from_pixmap unconditionally")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+-Only add unconditional advertising of GLX_EXT_texture_from_pixmap
+ to glxdriswrast.c, do not also add it to glxdri2.c
+---
+ glx/glxdriswrast.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/glx/glxdriswrast.c b/glx/glxdriswrast.c
+index ac8bda8..f5c0c9f 100644
+--- a/glx/glxdriswrast.c
++++ b/glx/glxdriswrast.c
+@@ -396,6 +396,7 @@ initializeExtensions(__GLXscreen * screen)
+     __glXEnableExtension(screen->glx_enable_bits, "GLX_EXT_framebuffer_sRGB");
+     __glXEnableExtension(screen->glx_enable_bits, "GLX_ARB_fbconfig_float");
+     __glXEnableExtension(screen->glx_enable_bits, "GLX_EXT_fbconfig_packed_float");
++    __glXEnableExtension(screen->glx_enable_bits, "GLX_EXT_texture_from_pixmap");
+ 
+     extensions = dri->core->getExtensions(dri->driScreen);
+ 
+@@ -407,8 +408,6 @@ initializeExtensions(__GLXscreen * screen)
+ 
+         if (strcmp(extensions[i]->name, __DRI_TEX_BUFFER) == 0) {
+             dri->texBuffer = (const __DRItexBufferExtension *) extensions[i];
+-            __glXEnableExtension(screen->glx_enable_bits,
+-                                 "GLX_EXT_texture_from_pixmap\n");
+         }
+ 
+ #ifdef __DRI2_FLUSH_CONTROL
+-- 
+2.9.3
+
+From 42b9061808359916f8668d1247319246126c30db Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Tue, 5 Jul 2016 13:07:09 -0400
+Subject: [PATCH xserver v2 06/14] xephyr: Don't crash if the server advertises
+ zero xv adaptors
+
+Useless as an XVideo implementation with zero adaptors might be, it's
+apparently a thing in the wild. Catch this case and bail out of xv init
+if it happens.
+
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/kdrive/ephyr/ephyrvideo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/kdrive/ephyr/ephyrvideo.c b/hw/kdrive/ephyr/ephyrvideo.c
+index 56a5ff1..31b1eee 100644
+--- a/hw/kdrive/ephyr/ephyrvideo.c
++++ b/hw/kdrive/ephyr/ephyrvideo.c
+@@ -462,7 +462,7 @@ ephyrXVPrivQueryHostAdaptors(EphyrXVPriv * a_this)
+ 
+     if (a_this->host_adaptors)
+         a_this->num_adaptors = a_this->host_adaptors->num_adaptors;
+-    if (a_this->num_adaptors < 0) {
++    if (a_this->num_adaptors <= 0) {
+         EPHYR_LOG_ERROR("failed to get number of host adaptors\n");
+         goto out;
+     }
+-- 
+2.9.3
+
+From 6c232ba62aacaa7724faa8b2a0fc664bbe4d0c44 Mon Sep 17 00:00:00 2001
+From: David CARLIER <devnexen@gmail.com>
+Date: Fri, 23 Sep 2016 14:17:12 +0300
+Subject: [PATCH xserver v2 07/14] xfree86: small memory leaks fixes
+
+A couple of memory leaks fixes and avoiding bit shifting on an
+unitialized value.
+
+[hdegoede@redhat.com: Split out some non free fixes in separate patches]
+[hdegoede@redhat.com: Don't touch ancient (and weird) os/rpcauth.c code]
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/xfree86/ddc/ddc.c                    | 2 +-
+ hw/xfree86/drivers/modesetting/driver.c | 3 ++-
+ hw/xfree86/utils/gtf/gtf.c              | 2 ++
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/hw/xfree86/ddc/ddc.c b/hw/xfree86/ddc/ddc.c
+index ee533db..b82dfc1 100644
+--- a/hw/xfree86/ddc/ddc.c
++++ b/hw/xfree86/ddc/ddc.c
+@@ -149,7 +149,7 @@ GetEDID_DDC1(unsigned int *s_ptr)
+         return NULL;
+     s_end = s_ptr + NUM;
+     s_pos = s_ptr + s_start;
+-    d_block = malloc(EDID1_LEN);
++    d_block = calloc(1, EDID1_LEN);
+     if (!d_block)
+         return NULL;
+     d_pos = d_block;
+diff --git a/hw/xfree86/drivers/modesetting/driver.c b/hw/xfree86/drivers/modesetting/driver.c
+index d37a42a..216388f 100644
+--- a/hw/xfree86/drivers/modesetting/driver.c
++++ b/hw/xfree86/drivers/modesetting/driver.c
+@@ -847,7 +847,7 @@ ms_get_drm_master_fd(ScrnInfoPtr pScrn)
+     if (pEnt->location.type == BUS_PCI) {
+         ms->PciInfo = xf86GetPciInfoForEntity(ms->pEnt->index);
+         if (ms->PciInfo) {
+-            BusID = malloc(64);
++            BusID = XNFalloc(64);
+             sprintf(BusID, "PCI:%d:%d:%d",
+ #if XSERVER_LIBPCIACCESS
+                     ((ms->PciInfo->domain << 8) | ms->PciInfo->bus),
+@@ -860,6 +860,7 @@ ms_get_drm_master_fd(ScrnInfoPtr pScrn)
+                 );
+         }
+         ms->fd = drmOpen(NULL, BusID);
++        free(BusID);
+     }
+     else {
+         const char *devicename;
+diff --git a/hw/xfree86/utils/gtf/gtf.c b/hw/xfree86/utils/gtf/gtf.c
+index e88387d..c31bc8f 100644
+--- a/hw/xfree86/utils/gtf/gtf.c
++++ b/hw/xfree86/utils/gtf/gtf.c
+@@ -692,6 +692,8 @@ main(int argc, char *argv[])
+     if (o->fbmode)
+         print_fb_mode(m);
+ 
++    free(m);
++
+     return 0;
+ 
+ }
+-- 
+2.9.3
+
+From 74d881897119f84f8d1cd1333dd5496a6672e899 Mon Sep 17 00:00:00 2001
+From: Kyle Guinn <elyk03@gmail.com>
+Date: Fri, 23 Sep 2016 15:03:34 +0300
+Subject: [PATCH xserver v2 08/14] xfree86: Fix null pointer dereference
+
+Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=93675
+Signed-off-by: Kyle Guinn <elyk03@gmail.com>
+[hdegoede@redhat.com: Simplify by adding 2 if conds together with &&]
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/xfree86/i2c/xf86i2c.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/hw/xfree86/i2c/xf86i2c.c b/hw/xfree86/i2c/xf86i2c.c
+index 2a8b8df..22109cf 100644
+--- a/hw/xfree86/i2c/xf86i2c.c
++++ b/hw/xfree86/i2c/xf86i2c.c
+@@ -614,7 +614,7 @@ xf86CreateI2CDevRec(void)
+ void
+ xf86DestroyI2CDevRec(I2CDevPtr d, Bool unalloc)
+ {
+-    if (d) {
++    if (d && d->pI2CBus) {
+         I2CDevPtr *p;
+ 
+         /* Remove this from the list of active I2C devices. */
+@@ -628,10 +628,10 @@ xf86DestroyI2CDevRec(I2CDevPtr d, Bool unalloc)
+         xf86DrvMsg(d->pI2CBus->scrnIndex, X_INFO,
+                    "I2C device \"%s:%s\" removed.\n",
+                    d->pI2CBus->BusName, d->DevName);
+-
+-        if (unalloc)
+-            free(d);
+     }
++
++    if (unalloc)
++        free(d);
+ }
+ 
+ /* I2C transmissions are related to an I2CDevRec you must link to a
+-- 
+2.9.3
+
+From 5476dc2b99a7ed52281a39f9fbae4032e35e1923 Mon Sep 17 00:00:00 2001
+From: Laszlo Ersek <lersek@redhat.com>
+Date: Wed, 7 Sep 2016 15:08:06 +0200
+Subject: [PATCH xserver v2 09/14] xfree86: recognize primary BUS_PCI device in
+ xf86IsPrimaryPlatform()
+
+The new platform bus code and the old PCI bus code overlap. Platform bus
+can handle any type of device, including PCI devices, whereas the PCI code
+can only handle PCI devices. Some drivers only support the old style
+PCI-probe methods, but the primary device detection code is server based,
+not driver based; so we might end up with a primary device which only has
+a PCI bus-capable driver, but was detected as primary by the platform
+code, or the other way around.
+
+(The above paragraph was shamelessly stolen from Hans de Goede, and
+customized.)
+
+The latter case applies to QEMU's virtio-gpu-pci device: it is detected as
+a BUS_PCI primary device, but we actually probe it first (with the
+modesetting driver) through xf86platformProbeDev(). The
+xf86IsPrimaryPlatform() function doesn't recognize the device as primary
+(it bails out as soon as it sees BUS_PCI); instead, we add the device as a
+secondary graphics card under "autoAddGPU". In turn, the success of this
+automatic probing-as-GPU prevents xf86CallDriverProbe() from proceeding to
+the PCI probing.
+
+The result is that the server exits with no primary devices detected.
+
+Commit cf66471353ac ("xfree86: use udev to provide device enumeration for
+kms devices (v10)") added "cross-bus" matching to xf86IsPrimaryPci(). Port
+that now to xf86IsPrimaryPlatform(), so that we can probe virtio-gpu-pci
+as a primary card in platform bus code.
+
+Cc: Adam Jackson <ajax@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Keith Packard <keithp@keithp.com>
+Cc: Marcin Juszkiewicz <mjuszkiewicz@redhat.com>
+Signed-off-by: Laszlo Ersek <lersek@redhat.com>
+Tested-By: Marcin Juszkiewicz <mjuszkiewicz@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/xfree86/common/xf86platformBus.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/hw/xfree86/common/xf86platformBus.c b/hw/xfree86/common/xf86platformBus.c
+index 96895a6..71f8df1 100644
+--- a/hw/xfree86/common/xf86platformBus.c
++++ b/hw/xfree86/common/xf86platformBus.c
+@@ -114,7 +114,15 @@ xf86_find_platform_device_by_devnum(int major, int minor)
+ static Bool
+ xf86IsPrimaryPlatform(struct xf86_platform_device *plat)
+ {
+-    return ((primaryBus.type == BUS_PLATFORM) && (plat == primaryBus.id.plat));
++    if (primaryBus.type == BUS_PLATFORM)
++        return plat == primaryBus.id.plat;
++#ifdef XSERVER_LIBPCIACCESS
++    if (primaryBus.type == BUS_PCI)
++        if (plat->pdev)
++            if (MATCH_PCI_DEVICES(primaryBus.id.pci, plat->pdev))
++                return TRUE;
++#endif
++    return FALSE;
+ }
+ 
+ static void
+-- 
+2.9.3
+
+From 3790746a3135cb2dfcf3cb8a1b710c81821ae9dc Mon Sep 17 00:00:00 2001
+From: Qiang Yu <Qiang.Yu@amd.com>
+Date: Thu, 8 Sep 2016 21:24:58 +0800
+Subject: [PATCH xserver v2 10/14] config: fix GPUDevice fail when AutoAddGPU
+ off + BusID
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This fix is for the following xorg.conf can work:
+
+Section "ServerFlags"
+        Option  "AutoAddGPU" "off"
+EndSection
+
+Section "Device"
+        Identifier "Amd"
+        Driver "ati"
+        BusID "PCI:1:0:0"
+EndSection
+
+Section "Device"
+        Identifier "Intel"
+        Driver "modesetting"
+        BusID "pci:0:2:0"
+EndSection
+
+Section "Screen"
+        Identifier "Screen0"
+        Device "Intel"
+        GPUDevice "Amd"
+EndSection
+
+Without AutoAddGPU off, modesetting DDX will also be loaded
+for GPUDevice.
+
+Signed-off-by: Qiang Yu <Qiang.Yu@amd.com>
+Reviewed-by: Michel Dänzer <michel.daenzer@amd.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/xfree86/common/xf86platformBus.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/hw/xfree86/common/xf86platformBus.c b/hw/xfree86/common/xf86platformBus.c
+index 71f8df1..39fb1dd 100644
+--- a/hw/xfree86/common/xf86platformBus.c
++++ b/hw/xfree86/common/xf86platformBus.c
+@@ -426,6 +426,19 @@ probeSingleDevice(struct xf86_platform_device *dev, DriverPtr drvp, GDevPtr gdev
+     return foundScreen;
+ }
+ 
++static Bool
++isGPUDevice(GDevPtr gdev)
++{
++    int i;
++
++    for (i = 0; i < gdev->myScreenSection->num_gpu_devices; i++) {
++        if (gdev == gdev->myScreenSection->gpu_devices[i])
++            return TRUE;
++    }
++
++    return FALSE;
++}
++
+ int
+ xf86platformProbeDev(DriverPtr drvp)
+ {
+@@ -458,9 +471,8 @@ xf86platformProbeDev(DriverPtr drvp)
+         if (j == xf86_num_platform_devices)
+              continue;
+ 
+-        foundScreen = probeSingleDevice(&xf86_platform_devices[j], drvp, devList[i], 0);
+-        if (!foundScreen)
+-            continue;
++        foundScreen = probeSingleDevice(&xf86_platform_devices[j], drvp, devList[i],
++                                        isGPUDevice(devList[i]) ? PLATFORM_PROBE_GPU_SCREEN : 0);
+     }
+ 
+     /* if autoaddgpu devices is enabled then go find any unclaimed platform
+-- 
+2.9.3
+
+From 68fe9338a4c41863faa76357309cffd5805daeef Mon Sep 17 00:00:00 2001
+From: Daniel Martin <consume.noise@gmail.com>
+Date: Fri, 11 Dec 2015 12:05:22 +0100
+Subject: [PATCH xserver v2 11/14] modesetting: Consume all available udev
+ events at once
+
+We get multiple udev events for actions like docking a laptop into its
+station or plugging a monitor to the station. By consuming as much
+events as we can, we reduce the number of output re-evalutions.
+
+I.e. having a Lenovo X250 in a ThinkPad Ultra Dock and plugging a
+monitor to the station generates 5 udev events. Or having 2 monitors
+attached to the station and docking the laptop generates 7 events.
+
+It depends on the timing how many events can consumed at once.
+
+Signed-off-by: Daniel Martin <consume.noise@gmail.com>
+[hdegoede@redhat.com: Keep goto out so that we always call RRGetInfo()]
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/xfree86/drivers/modesetting/drmmode_display.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/hw/xfree86/drivers/modesetting/drmmode_display.c b/hw/xfree86/drivers/modesetting/drmmode_display.c
+index 6b933e4..b895d62 100644
+--- a/hw/xfree86/drivers/modesetting/drmmode_display.c
++++ b/hw/xfree86/drivers/modesetting/drmmode_display.c
+@@ -2269,11 +2269,14 @@ drmmode_handle_uevents(int fd, void *closure)
+     drmModeResPtr mode_res;
+     xf86CrtcConfigPtr  config = XF86_CRTC_CONFIG_PTR(scrn);
+     int i, j;
+-    Bool found;
++    Bool found = FALSE;
+     Bool changed = FALSE;
+ 
+-    dev = udev_monitor_receive_device(drmmode->uevent_monitor);
+-    if (!dev)
++    while ((dev = udev_monitor_receive_device(drmmode->uevent_monitor))) {
++        udev_device_unref(dev);
++        found = TRUE;
++    }
++    if (!found)
+         return;
+ 
+     mode_res = drmModeGetResources(drmmode->fd);
+@@ -2339,7 +2342,6 @@ out_free_res:
+     drmModeFreeResources(mode_res);
+ out:
+     RRGetInfo(xf86ScrnToScreen(scrn), TRUE);
+-    udev_device_unref(dev);
+ }
+ #endif
+ 
+-- 
+2.9.3
+
+From 351c9ed4f1720dc4789af272d1477e813732ce5a Mon Sep 17 00:00:00 2001
+From: Michael Thayer <michael.thayer@oracle.com>
+Date: Fri, 16 Sep 2016 17:51:25 +0200
+Subject: [PATCH xserver v2 12/14] modesetting: only fall back to
+ drmModeSetCursor() on -EINVAL
+
+This change effectively reverts commit 074cf58.  We were falling back from
+drmModeSetCursor2() to drmModeSetCursor() whenever the first failed.  This
+fall-back only makes sense on pre-mid-2013 kernels which implemented the
+cursor_set hook but not cursor_set2, and in this case the call to
+drmModeSetCursor2() will always return -EINVAL.  Specifically, a return
+value of -ENXIO usually means that neither are supported.
+
+Signed-off-by: Michael Thayer <michael.thayer@oracle.com>
+[hdegoede@redhat.com: initialize ret to -EINVAL]
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/xfree86/drivers/modesetting/drmmode_display.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/hw/xfree86/drivers/modesetting/drmmode_display.c b/hw/xfree86/drivers/modesetting/drmmode_display.c
+index b895d62..61a0e27 100644
+--- a/hw/xfree86/drivers/modesetting/drmmode_display.c
++++ b/hw/xfree86/drivers/modesetting/drmmode_display.c
+@@ -756,7 +756,7 @@ drmmode_set_cursor(xf86CrtcPtr crtc)
+     drmmode_ptr drmmode = drmmode_crtc->drmmode;
+     uint32_t handle = drmmode_crtc->cursor_bo->handle;
+     modesettingPtr ms = modesettingPTR(crtc->scrn);
+-    int ret;
++    int ret = -EINVAL;
+ 
+     if (!drmmode_crtc->set_cursor2_failed) {
+         CursorPtr cursor = xf86CurrentCursor(crtc->scrn->pScreen);
+@@ -768,11 +768,15 @@ drmmode_set_cursor(xf86CrtcPtr crtc)
+         if (!ret)
+             return TRUE;
+ 
+-        drmmode_crtc->set_cursor2_failed = TRUE;
++        /* -EINVAL can mean that an old kernel supports drmModeSetCursor but
++         * not drmModeSetCursor2, though it can mean other things too. */
++        if (ret == -EINVAL)
++            drmmode_crtc->set_cursor2_failed = TRUE;
+     }
+ 
+-    ret = drmModeSetCursor(drmmode->fd, drmmode_crtc->mode_crtc->crtc_id, handle,
+-                           ms->cursor_width, ms->cursor_height);
++    if (ret == -EINVAL)
++        ret = drmModeSetCursor(drmmode->fd, drmmode_crtc->mode_crtc->crtc_id,
++                               handle, ms->cursor_width, ms->cursor_height);
+ 
+     if (ret) {
+         xf86CrtcConfigPtr xf86_config = XF86_CRTC_CONFIG_PTR(crtc->scrn);
+-- 
+2.9.3
+
+From eeabe942ba61910dc28b83718aca309e0f99ec5a Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Fri, 23 Sep 2016 14:06:52 +0300
+Subject: [PATCH xserver v2 13/14] Xext: Fix a memory leak
+
+Based on: https://patchwork.freedesktop.org/patch/85636/
+
+Rewritten to also free the resources allocated by
+panoramix_setup_ids().
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Emi Velikov <emil.l.velikov@gmail.com>
+---
+ Xext/shm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Xext/shm.c b/Xext/shm.c
+index 125000f..1b622e3 100644
+--- a/Xext/shm.c
++++ b/Xext/shm.c
+@@ -991,7 +991,7 @@ ProcPanoramiXShmCreatePixmap(ClientPtr client)
+                               RT_PIXMAP, pMap, RT_NONE, NULL, DixCreateAccess);
+             if (result != Success) {
+                 pDraw->pScreen->DestroyPixmap(pMap);
+-                return result;
++                break;
+             }
+             dixSetPrivate(&pMap->devPrivates, shmPixmapPrivateKey, shmdesc);
+             shmdesc->refcnt++;
+@@ -1008,7 +1008,7 @@ ProcPanoramiXShmCreatePixmap(ClientPtr client)
+         }
+     }
+ 
+-    if (result == BadAlloc) {
++    if (result != Success) {
+         while (j--)
+             FreeResource(newPix->info[j].id, RT_NONE);
+         free(newPix);
+-- 
+2.9.3
+
+From b2a438f6548a032c77bc54f7b52e683737b6756e Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Fri, 23 Sep 2016 14:11:52 +0300
+Subject: [PATCH xserver v2 14/14] XF86VidMode: Fix free() on walked pointer
+
+Based on: https://patchwork.freedesktop.org/patch/85636/
+
+Rewritten to just not walk the pointer.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Emi Velikov <emil.l.velikov@gmail.com>
+---
+ Xext/vidmode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Xext/vidmode.c b/Xext/vidmode.c
+index 499a2a8..ea3ad13 100644
+--- a/Xext/vidmode.c
++++ b/Xext/vidmode.c
+@@ -1364,7 +1364,7 @@ ProcVidModeGetDotClocks(ClientPtr client)
+     WriteToClient(client, sizeof(xXF86VidModeGetDotClocksReply), &rep);
+     if (!ClockProg) {
+         for (n = 0; n < numClocks; n++) {
+-            dotclock = *Clocks++;
++            dotclock = Clocks[n];
+             if (client->swapped) {
+                 WriteSwappedDataToClient(client, 4, (char *) &dotclock);
+             }
+-- 
+2.9.3
+

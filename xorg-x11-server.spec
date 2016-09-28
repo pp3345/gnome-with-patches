@@ -11,7 +11,7 @@
 # X.org requires lazy relocations to work.
 %undefine _hardened_build
 
-#global gitdate 20151027
+%global gitdate 20160928
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -19,11 +19,11 @@
 # source because rpm is a terrible language.
 %global ansic_major 0
 %global ansic_minor 4
-%global videodrv_major 20
+%global videodrv_major 23
 %global videodrv_minor 0
-%global xinput_major 22
+%global xinput_major 24
 %global xinput_minor 1
-%global extension_major 9
+%global extension_major 10
 %global extension_minor 0
 %endif
 
@@ -77,23 +77,15 @@ Source31: xserver-sdk-abi-requires.git
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
 
-# xwayland backports from master
-Patch0: xorg-x11-server-xwayland-backports.patch
-
-# prime fixes from master (and pending upstream review)
-Patch1: xserver-prime-fixes.patch
-
-Patch10: 0001-glx-Implement-GLX_EXT_libglvnd-v2.1.patch
+# Misc fixes pending merge into master
+Patch0: xserver-1.19-pending-fixes.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
-# do not upstream - do not even use here yet
+# Submitted upstream, pending
 Patch7027: xserver-autobind-hotplug.patch
-
-# Pick libinput as driver when the assigned module is missing
-Patch7028: 0001-Allow-compile-time-selection-of-a-fallback-input-dri.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -132,7 +124,7 @@ BuildRequires: xorg-x11-font-utils >= 7.2-11
 
 BuildRequires: dbus-devel libepoxy-devel systemd-devel
 BuildRequires: xorg-x11-xtrans-devel >= 1.3.2
-BuildRequires: libXfont-devel libXau-devel libxkbfile-devel libXres-devel
+BuildRequires: libXfont2-devel libXau-devel libxkbfile-devel libXres-devel
 BuildRequires: libfontenc-devel libXtst-devel libXdmcp-devel
 BuildRequires: libX11-devel libXext-devel
 BuildRequires: libXinerama-devel libXi-devel
@@ -141,11 +133,9 @@ BuildRequires: libXinerama-devel libXi-devel
 BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
 BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
-%if 0%{?fedora} > 20
 BuildRequires: wayland-devel
 BuildRequires: pkgconfig(wayland-client) >= 1.3.0
 BuildRequires: pkgconfig(epoxy)
-%endif
 %if !0%{?rhel}
 BuildRequires: pkgconfig(xshmfence) >= 1.1
 %endif
@@ -213,30 +203,6 @@ Obsoletes: xorg-x11-glamor < %{version}-%{release}
 Provides: xorg-x11-glamor = %{version}-%{release}
 Obsoletes: xorg-x11-drv-modesetting < %{version}-%{release}
 Provides: xorg-x11-drv-modesetting = %{version}-%{release}
-
-%if 0%{?fedora} > 20
-# Dropped from F21
-Obsoletes: xorg-x11-drv-apm < 1.2.5-18
-Obsoletes: xorg-x11-drv-cirrus < 1.5.2-10
-Obsoletes: xorg-x11-drv-glint < 1.2.8-17
-Obsoletes: xorg-x11-drv-i128 < 1.3.6-18
-Obsoletes: xorg-x11-drv-i740 < 1.3.4-18
-Obsoletes: xorg-x11-drv-mach64 < 6.9.4-16
-Obsoletes: xorg-x11-drv-mga < 1.6.2-17
-Obsoletes: xorg-x11-drv-neomagic < 1.2.8-8
-Obsoletes: xorg-x11-drv-r128 < 6.9.2-2
-Obsoletes: xorg-x11-drv-rendition < 4.2.5-18
-Obsoletes: xorg-x11-drv-s3virge < 1.10.6-18
-Obsoletes: xorg-x11-drv-savage < 2.3.7-7
-Obsoletes: xorg-x11-drv-siliconmotion < 1.7.7-17
-Obsoletes: xorg-x11-drv-sis < 0.10.7-19
-Obsoletes: xorg-x11-drv-tdfx < 1.4.5-17
-Obsoletes: xorg-x11-drv-trident < 1.3.6-18
-%endif
-%if 0%{?fedora} > 21
-# Dropped from F22
-Obsoletes: xorg-x11-drv-void < 1.4.1-2
-%endif
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: system-setup-keyboard
@@ -315,7 +281,6 @@ X protocol, and therefore supports the newer X extensions like
 Render and Composite.
 
 
-%if 0%{?fedora} > 20
 %package Xwayland
 Summary: Wayland X Server
 Group: User Interface/X
@@ -323,7 +288,6 @@ Requires: xorg-x11-server-common >= %{version}-%{release}
 
 %description Xwayland
 Xwayland is an X server for running X clients under Wayland.
-%endif
 
 
 %if %{with_hw_servers}
@@ -415,11 +379,7 @@ test `getminor extension` == %{extension_minor}
 
 %if 0%{?fedora}
 %global bodhi_flags --with-vendor-name="Fedora Project"
-%if 0%{?fedora} > 20
 %global wayland --enable-xwayland
-%else
-%global wayland --disable-xwayland
-%endif
 %endif
 
 # ick
@@ -615,10 +575,8 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %{_bindir}/Xephyr
 %{_mandir}/man1/Xephyr.1*
 
-%if 0%{?fedora} > 20
 %files Xwayland
 %{_bindir}/Xwayland
-%endif
 
 %if %{with_hw_servers}
 %files devel
@@ -636,6 +594,11 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Sep 28 2016 Hans de Goede <hdegoede@redhat.com> - 1.18.99.901-1
+- Rebase to 1.18.99.901 (1.19-rc1) (+ git master patches uptill today)
+- Drop Obsoletes for the driver packages removed from F21 (its been 2
+  years since they have been removed now)
+
 * Thu Sep 08 2016 Adam Jackson <ajax@redhat.com> 1.18.4-6
 - Backport GLX_EXT_libglvnd support from 1.19
 
