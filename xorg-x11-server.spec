@@ -138,7 +138,7 @@ BuildRequires: pkgconfig(xshmfence) >= 1.1
 %endif
 BuildRequires: libXv-devel
 BuildRequires: pixman-devel >= 0.30.0
-BuildRequires: libpciaccess-devel >= 0.13.1 openssl-devel byacc flex
+BuildRequires: libpciaccess-devel >= 0.13.1 openssl-devel bison flex flex-devel
 BuildRequires: mesa-libGL-devel >= 9.2
 BuildRequires: mesa-libEGL-devel
 BuildRequires: mesa-libgbm-devel
