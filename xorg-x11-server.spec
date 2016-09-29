@@ -200,6 +200,10 @@ Obsoletes: xorg-x11-glamor < %{version}-%{release}
 Provides: xorg-x11-glamor = %{version}-%{release}
 Obsoletes: xorg-x11-drv-modesetting < %{version}-%{release}
 Provides: xorg-x11-drv-modesetting = %{version}-%{release}
+%if 0%{?fedora} > 24
+# Dropped from F25
+Obsoletes: xorg-x11-drv-vmmouse < 13.1.0-4
+%endif
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: system-setup-keyboard
