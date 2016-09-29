@@ -11,7 +11,7 @@
 # X.org requires lazy relocations to work.
 %undefine _hardened_build
 
-%global gitdate 20160928
+%global gitdate 20160929
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -44,8 +44,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.18.4
-Release:   6%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.19.0
+Release:   0.1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,9 +76,6 @@ Source31: xserver-sdk-abi-requires.git
 
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
-
-# Misc fixes pending merge into master
-Patch0: xserver-1.19-pending-fixes.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -594,8 +591,8 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
-* Wed Sep 28 2016 Hans de Goede <hdegoede@redhat.com> - 1.18.99.901-1
-- Rebase to 1.18.99.901 (1.19-rc1) (+ git master patches uptill today)
+* Thu Sep 29 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.1.20160929
+- Rebase to current git master (1.19-rc1+)
 - Drop Obsoletes for the driver packages removed from F21 (its been 2
   years since they have been removed now)
 
