@@ -1,0 +1,78 @@
+From c622887701c70dab7b39515e4d48b2ce70822f1a Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Tue, 4 Oct 2016 13:34:33 -0400
+Subject: [PATCH 1/7] glamor: Use eglGetPlatformDisplayEXT not eglGetDisplay
+
+eglGetDisplay forces the implementation to guess which kind of display
+it's been handed. glvnd does something different from Mesa, and in
+general it's impossible for the library to get this right. Instead use
+the API where you specify what kind of display it is.
+
+The explicit call to eglGetProcAddress is to work around a bug in
+libepoxy 1.3, which does not understand EGL client extensions and so its
+resolver code will crash.
+
+Signed-off-by: Adam Jackson <ajax@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ glamor/glamor_egl.c           | 9 ++++++++-
+ hw/xwayland/xwayland-glamor.c | 8 +++++++-
+ 2 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/glamor/glamor_egl.c b/glamor/glamor_egl.c
+index 2b9e0e1..51d8147 100644
+--- a/glamor/glamor_egl.c
++++ b/glamor/glamor_egl.c
+@@ -736,6 +736,7 @@ glamor_egl_init(ScrnInfoPtr scrn, int fd)
+ {
+     struct glamor_egl_screen_private *glamor_egl;
+     const char *version;
++    PFNEGLGETPLATFORMDISPLAYEXTPROC getPlatformDisplay;
+ 
+     EGLint config_attribs[] = {
+ #ifdef GLAMOR_GLES2
+@@ -768,7 +769,13 @@ glamor_egl_init(ScrnInfoPtr scrn, int fd)
+         ErrorF("couldn't get display device\n");
+         goto error;
+     }
+-    glamor_egl->display = eglGetDisplay(glamor_egl->gbm);
++
++    getPlatformDisplay = (PFNEGLGETPLATFORMDISPLAYEXTPROC)
++        eglGetProcAddress("eglGetPlatformDisplayEXT");
++
++    if (getPlatformDisplay)
++        glamor_egl->display = getPlatformDisplay (EGL_PLATFORM_GBM_MESA,
++                                                  glamor_egl->gbm, NULL);
+ #else
+     glamor_egl->display = eglGetDisplay((EGLNativeDisplayType) (intptr_t) fd);
+ #endif
+diff --git a/hw/xwayland/xwayland-glamor.c b/hw/xwayland/xwayland-glamor.c
+index 068c224..23402f9 100644
+--- a/hw/xwayland/xwayland-glamor.c
++++ b/hw/xwayland/xwayland-glamor.c
+@@ -280,6 +280,7 @@ xwl_drm_init_egl(struct xwl_screen *xwl_screen)
+         GLAMOR_GL_CORE_VER_MINOR,
+         EGL_NONE
+     };
++    PFNEGLGETPLATFORMDISPLAYEXTPROC getPlatformDisplay;
+ 
+     if (xwl_screen->egl_display)
+         return;
+@@ -292,7 +293,12 @@ xwl_drm_init_egl(struct xwl_screen *xwl_screen)
+         return;
+     }
+ 
+-    xwl_screen->egl_display = eglGetDisplay(xwl_screen->gbm);
++    getPlatformDisplay = (PFNEGLGETPLATFORMDISPLAYEXTPROC)
++        eglGetProcAddress("eglGetPlatformDisplayEXT");
++
++    if (getPlatformDisplay)
++        xwl_screen->egl_display = getPlatformDisplay(EGL_PLATFORM_GBM_MESA,
++                                                     xwl_screen->gbm, NULL);
+     if (xwl_screen->egl_display == EGL_NO_DISPLAY) {
+         ErrorF("eglGetDisplay() failed\n");
+         return;
+-- 
+2.9.3
+

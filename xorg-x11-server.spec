@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   0.1%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -76,6 +76,11 @@ Source31: xserver-sdk-abi-requires.git
 
 # maintainer convenience script
 Source40: driver-abi-rebuild.sh
+
+# Various fixes pending upstream
+Patch1: 0001-glamor-Use-eglGetPlatformDisplayEXT-not-eglGetDispla.patch
+Patch2: 0002-glamor-Fix-pixmap-offset-for-bitplane-in-glamor_copy.patch
+Patch3: 0003-inputthread-Fix-inputthread-not-listening-if-a-fd-ge.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -595,6 +600,12 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Oct  5 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.2.20160929
+- Add a fix from upstream to fix xterm crash under Xwayland (fdo#97974)
+- Add a fix from upstream to fix glamor / xwayland not working with glvnd
+- Add a fix from upstream to fix input devices no longer working
+  after a vt-switch
+
 * Thu Sep 29 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.1.20160929
 - Rebase to current git master (1.19-rc1+)
 - Drop Obsoletes for the driver packages removed from F21 (its been 2
