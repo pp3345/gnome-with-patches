@@ -5,13 +5,16 @@
 
 Name:          mutter
 Version:       3.22.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.22/%{name}-%{version}.tar.xz
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=772422
+Patch0:        0001-Use-eglGetPlatformDisplay.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -103,6 +106,7 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 autoreconf -f -i
@@ -177,6 +181,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Oct 11 2016 Adam Jackson <ajax@redhat.com> - 3.22.1-2
+- Prefer eglGetPlatformDisplay() to eglGetDisplay()
+
 * Tue Oct 11 2016 Florian Müllner <fmuellner@redhat.com> - 3.22.1-1
 - Update to 3.22.1
 
