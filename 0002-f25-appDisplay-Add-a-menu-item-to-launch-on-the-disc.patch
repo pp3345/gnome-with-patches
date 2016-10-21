@@ -1,0 +1,100 @@
+From ba3354d5c9713eeb03980427c32db3d8b9fea9c7 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 19 Oct 2016 15:58:16 +0200
+Subject: [PATCH 2/2] appDisplay: Add a menu item to launch on the discrete GPU
+
+It will only show up when a discrete GPU is available (detected through
+the switcheroo-control D-Bus service), and the application hasn't
+alreayd been launched.
+
+Note that this will not currently work for D-Bus activated applications,
+eg. the menu item will be not available, as we don't have a way to pass
+the environment variable through to D-Bus to use to launch the application.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=773117
+---
+ js/ui/appDisplay.js | 54 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+
+diff --git a/js/ui/appDisplay.js b/js/ui/appDisplay.js
+index cae1757..6b1d04f 100644
+--- a/js/ui/appDisplay.js
++++ b/js/ui/appDisplay.js
+@@ -60,6 +60,18 @@ const PAGE_SWITCH_TIME = 0.3;
+ const VIEWS_SWITCH_TIME = 0.4;
+ const VIEWS_SWITCH_ANIMATION_DELAY = 0.1;
+ 
++const SWITCHEROO_BUS_NAME = 'net.hadess.SwitcherooControl';
++const SWITCHEROO_OBJECT_PATH = '/net/hadess/SwitcherooControl';
++
++const SwitcherooProxyInterface = '<node> \
++<interface name="net.hadess.SwitcherooControl"> \
++  <property name="HasDualGpu" type="b" access="read"/> \
++</interface> \
++</node>';
++
++const SwitcherooProxy = Gio.DBusProxy.makeProxyWrapper(SwitcherooProxyInterface);
++let discreteGpuAvailable = false;
++
+ function _getCategories(info) {
+     let categoriesStr = info.get_categories();
+     if (!categoriesStr)
+@@ -969,6 +981,32 @@ const AppDisplay = new Lang.Class({
+             initialView = Views.ALL;
+         this._showView(initialView);
+         this._updateFrequentVisibility();
++
++        Gio.DBus.system.watch_name(SWITCHEROO_BUS_NAME,
++                                   Gio.BusNameWatcherFlags.NONE,
++                                   Lang.bind(this, this._switcherooProxyAppeared),
++                                   Lang.bind(this, function() {
++                                       this._switcherooProxy = null;
++                                       this._updateDiscreteGpuAvailable();
++                                   }));
++    },
++
++    _updateDiscreteGpuAvailable: function() {
++        if (!this._switcherooProxy)
++            discreteGpuAvailable = false;
++        else
++            discreteGpuAvailable = this._switcherooProxy.HasDualGpu;
++    },
++
++    _switcherooProxyAppeared: function() {
++        this._switcherooProxy = new SwitcherooProxy(Gio.DBus.system, SWITCHEROO_BUS_NAME, SWITCHEROO_OBJECT_PATH,
++            Lang.bind(this, function(proxy, error) {
++                if (error) {
++                    log(error.message);
++                    return;
++                }
++                this._updateDiscreteGpuAvailable();
++            }));
+     },
+ 
+     animate: function(animationDirection, onComplete) {
+@@ -1861,6 +1899,22 @@ const AppIconMenu = new Lang.Class({
+                 this._appendSeparator();
+             }
+ 
++            if (discreteGpuAvailable &&
++                this._source.app.state == Shell.AppState.STOPPED &&
++                !this._source.app.app_info.get_boolean('DBusActivatable')) {
++                this._onDiscreteGpuMenuItem = this._appendMenuItem(_("Launch using Dedicated Graphics Card"));
++                this._onDiscreteGpuMenuItem.connect('activate', Lang.bind(this, function() {
++                    if (this._source.app.state != Shell.AppState.STOPPED)
++                        return;
++
++                    let context = global.create_app_launch_context(0, -1);
++                    context.setenv('DRI_PRIME', '1');
++
++                    this._source.app.launch_context(context);
++                    this.emit('activate-window', null);
++                }));
++            }
++
+             for (let i = 0; i < actions.length; i++) {
+                 let action = actions[i];
+                 let item = this._appendMenuItem(appInfo.get_action_name(action));
+-- 
+2.9.3
+

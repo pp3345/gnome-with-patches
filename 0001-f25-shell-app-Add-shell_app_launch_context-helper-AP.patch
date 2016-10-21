@@ -1,0 +1,77 @@
+From 02bcc5fa3d3d3362594a2c68f9bf80556b93dd77 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 19 Oct 2016 15:43:37 +0200
+Subject: [PATCH 1/2] shell-app: Add shell_app_launch_context() helper API
+
+This will allow us to implement a way to launch applications
+on the discrete GPU for systems where an "Optimus" system exists,
+through the caller setting an environment variable.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=773117
+---
+ src/shell-app.c | 29 +++++++++++++++++++----------
+ src/shell-app.h |  4 ++++
+ 2 files changed, 23 insertions(+), 10 deletions(-)
+
+diff --git a/src/shell-app.c b/src/shell-app.c
+index 7f61dc3..7eec4ae 100644
+--- a/src/shell-app.c
++++ b/src/shell-app.c
+@@ -1227,20 +1227,29 @@ shell_app_launch (ShellApp     *app,
+ 
+   global = shell_global_get ();
+   context = shell_global_create_app_launch_context (global, timestamp, workspace);
++  ret = shell_app_launch_context (app, context, error);
++  g_object_unref (context);
++
++  return ret;
++}
++
++gboolean
++shell_app_launch_context (ShellApp           *app,
++                          GAppLaunchContext  *context,
++                          GError            **error)
++{
++  g_return_val_if_fail (app->info != NULL, FALSE);
+ 
+-  ret = g_desktop_app_info_launch_uris_as_manager (app->info, NULL,
+-                                                   context,
+-                                                   G_SPAWN_SEARCH_PATH,
++  return g_desktop_app_info_launch_uris_as_manager (app->info, NULL,
++                                                    context,
++                                                    G_SPAWN_SEARCH_PATH,
+ #ifdef HAVE_SYSTEMD
+-                                                   app_child_setup, (gpointer)shell_app_get_id (app),
++                                                    app_child_setup, (gpointer)shell_app_get_id (app),
+ #else
+-                                                   NULL, NULL,
++                                                    NULL, NULL,
+ #endif
+-                                                   NULL, NULL,
+-                                                   error);
+-  g_object_unref (context);
+-
+-  return ret;
++                                                    NULL, NULL,
++                                                    error);
+ }
+ 
+ /**
+diff --git a/src/shell-app.h b/src/shell-app.h
+index 7fc582a..2a7572a 100644
+--- a/src/shell-app.h
++++ b/src/shell-app.h
+@@ -56,6 +56,10 @@ gboolean shell_app_launch (ShellApp     *app,
+                            int           workspace,
+                            GError      **error);
+ 
++gboolean shell_app_launch_context (ShellApp           *app,
++                                   GAppLaunchContext  *context,
++                                   GError            **error);
++
+ void shell_app_launch_action (ShellApp        *app,
+                               const char      *action_name,
+                               guint            timestamp,
+-- 
+2.9.3
+
