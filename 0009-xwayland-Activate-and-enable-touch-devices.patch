@@ -1,0 +1,69 @@
+From e912742c1e26ef853064ddf672d990e1db254492 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Fri, 21 Oct 2016 10:11:45 +0200
+Subject: [PATCH xserver v2] xwayland: Activate and enable touch devices
+
+On some random condition, a touch event may trigger a crash in Xwayland
+in GetTouchEvents().
+
+The (simplified) backtrace goes as follow:
+
+ (gdb) bt
+ #0  GetTouchEvents() at getevents.c:1892
+ #1  QueueTouchEvents() at getevents.c:1866
+ #2  xwl_touch_send_event() at xwayland-input.c:652
+ #5  wl_closure_invoke() from libwayland-client.so.0
+ #6  dispatch_event() from libwayland-client.so.0
+ #7  wl_display_dispatch_queue_pending() from libwayland-client.so.0
+ #8  xwl_read_events() at xwayland.c:483
+ #9  ospoll_wait() at ospoll.c:412
+ #10 WaitForSomething() at WaitFor.c:222
+ #11 Dispatch() at dispatch.c:412
+ #12 dix_main() at main.c:287
+ #13 __libc_start_main() at libc-start.c:289
+ #14 _start ()
+
+The crash occurs when trying to access the sprite associated with the
+touch device, which appears to be NULL. Reason being the device itself
+is more a keyboard device than a touch device.
+
+Moreover, it appears the device is neither enabled nor activated
+(inited=0, enabled=0) which doesn't seem right, but matches the code in
+init_touch() from xwayland-input.c which would enable the device if it
+was previously existing and otherwise would create the device but not
+activate it.
+
+Make sure we do activate and enable touch devices just like we do for
+other input devices such as keyboard and pointer.
+
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/xwayland/xwayland-input.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/hw/xwayland/xwayland-input.c b/hw/xwayland/xwayland-input.c
+index 1991076..7ec3b1a 100644
+--- a/hw/xwayland/xwayland-input.c
++++ b/hw/xwayland/xwayland-input.c
+@@ -1059,12 +1059,13 @@ init_touch(struct xwl_seat *xwl_seat)
+     wl_touch_add_listener(xwl_seat->wl_touch,
+                           &touch_listener, xwl_seat);
+ 
+-    if (xwl_seat->touch)
+-        EnableDevice(xwl_seat->touch, TRUE);
+-    else {
++    if (xwl_seat->touch == NULL) {
+         xwl_seat->touch =
+             add_device(xwl_seat, "xwayland-touch", xwl_touch_proc);
++        ActivateDevice(xwl_seat->touch, TRUE);
+     }
++    EnableDevice(xwl_seat->touch, TRUE);
++
+ }
+ 
+ static void
+-- 
+2.9.3
+

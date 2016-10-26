@@ -86,6 +86,7 @@ Patch5: 0005-xfree86-Make-adding-unclaimed-devices-as-GPU-devices.patch
 Patch6: 0006-xfree86-Try-harder-to-find-atleast-1-non-GPU-Screen.patch
 Patch7: 0007-inputthread-On-Linux-leave-the-main-thread-s-name-as.patch
 Patch8: 0008-ramdac-Check-sPriv-NULL-in-xf86CheckHWCursor.patch
+Patch9: 0009-xwayland-Activate-and-enable-touch-devices.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
