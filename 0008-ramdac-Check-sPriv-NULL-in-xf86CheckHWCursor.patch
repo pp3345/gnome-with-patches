@@ -1,0 +1,34 @@
+From 675ba81ffe268fdfeb2ec2820369cfd2d4c768c9 Mon Sep 17 00:00:00 2001
+From: agoins <agoins@nvidia.com>
+Date: Mon, 24 Oct 2016 15:25:53 -0700
+Subject: [PATCH xserver v2] ramdac: Check sPriv != NULL in xf86CheckHWCursor()
+
+xf86CheckHWCursor() would dereference sPriv without NULL checking it. If Option
+"SWCursor" is specified, sPriv == NULL. In this case we should assume that HW
+cursors are not supported.
+
+Signed-off-by: Alex Goins <agoins@nvidia.com>
+Reviewed-by: Andy Ritger <aritger@nvidia.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/xfree86/ramdac/xf86HWCurs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/hw/xfree86/ramdac/xf86HWCurs.c b/hw/xfree86/ramdac/xf86HWCurs.c
+index da2b181..5e99526 100644
+--- a/hw/xfree86/ramdac/xf86HWCurs.c
++++ b/hw/xfree86/ramdac/xf86HWCurs.c
+@@ -148,7 +148,8 @@ xf86CheckHWCursor(ScreenPtr pScreen, CursorPtr cursor, xf86CursorInfoPtr infoPtr
+             continue;
+ 
+         sPriv = dixLookupPrivate(&pSlave->devPrivates, xf86CursorScreenKey);
+-        if (!xf86ScreenCheckHWCursor(pSlave, cursor, sPriv->CursorInfoPtr))
++        if (!sPriv ||
++            !xf86ScreenCheckHWCursor(pSlave, cursor, sPriv->CursorInfoPtr))
+             return FALSE;
+     }
+     return TRUE;
+-- 
+2.9.3
+
