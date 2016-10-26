@@ -141,6 +141,7 @@ BuildRequires: libXt-devel libdmx-devel libXmu-devel libXrender-devel
 BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
 BuildRequires: wayland-devel
+BuildRequires: wayland-protocols-devel
 BuildRequires: pkgconfig(wayland-client) >= 1.3.0
 BuildRequires: pkgconfig(epoxy)
 %if !0%{?rhel}
