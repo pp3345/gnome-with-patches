@@ -1,0 +1,40 @@
+From 227734be9cbd9934e51a345ccb6b28524c784584 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Tue, 18 Oct 2016 16:10:19 +0200
+Subject: [PATCH xserver v2 2/7] xfree86: Xorg.wrap: Do not require root rights
+ for cards with 0 outputs
+
+Prior to this commit the Xorg.wrap code to detect if root rights
+are necessary checked for DRM_IOCTL_MODE_GETRESOURCES succeeding *and*
+reporting more then 0 output connectors.
+
+DRM_IOCTL_MODE_GETRESOURCES succeeding alone is enough to differentiate
+between old drm only cards (which need ums and thus root) and kms capable
+cards.
+
+Some hybrid gfx laptops have 0 output connectors on one of their 2 GPUs,
+resulting in Xorg needlessly running as root. This commits removes the
+res.count_connectors > 0 check, fixing this.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Eric Engestrom <eric.engestrom@imgtec.com>
+---
+ hw/xfree86/xorg-wrapper.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/xfree86/xorg-wrapper.c b/hw/xfree86/xorg-wrapper.c
+index d930962..a25e6ff 100644
+--- a/hw/xfree86/xorg-wrapper.c
++++ b/hw/xfree86/xorg-wrapper.c
+@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
+ 
+             memset(&res, 0, sizeof(struct drm_mode_card_res));
+             r = ioctl(fd, DRM_IOCTL_MODE_GETRESOURCES, &res);
+-            if (r == 0 && res.count_connectors > 0)
++            if (r == 0)
+                 kms_cards++;
+ 
+             close(fd);
+-- 
+2.9.3
+

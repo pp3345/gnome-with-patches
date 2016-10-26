@@ -11,7 +11,7 @@
 # X.org requires lazy relocations to work.
 %undefine _hardened_build
 
-%global gitdate 20160929
+%global gitdate 20161026
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   0.2%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -78,9 +78,13 @@ Source31: xserver-sdk-abi-requires.git
 Source40: driver-abi-rebuild.sh
 
 # Various fixes pending upstream
-Patch1: 0001-glamor-Use-eglGetPlatformDisplayEXT-not-eglGetDispla.patch
-Patch2: 0002-glamor-Fix-pixmap-offset-for-bitplane-in-glamor_copy.patch
-Patch3: 0003-inputthread-Fix-inputthread-not-listening-if-a-fd-ge.patch
+Patch1: 0001-DRI2-Sync-radeonsi_pci_ids.h-from-Mesa.patch
+Patch2: 0002-xfree86-Xorg.wrap-Do-not-require-root-rights-for-car.patch
+Patch3: 0003-xwayland-Transform-pointer-enter-event-coordinates.patch
+Patch4: 0004-xfree86-Remove-redundant-ServerIsNotSeat0-check-from.patch
+Patch5: 0005-xfree86-Make-adding-unclaimed-devices-as-GPU-devices.patch
+Patch6: 0006-xfree86-Try-harder-to-find-atleast-1-non-GPU-Screen.patch
+Patch7: 0007-inputthread-On-Linux-leave-the-main-thread-s-name-as.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -600,6 +604,12 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Oct 26 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.3.20161026
+- Sync with upstream git, bringing in a bunch if bug-fixes
+- Add some extra fixes which are pending upstream
+- This also adds PointerWarping emulation to Xwayland, which should improve
+  compatiblity with many games
+
 * Wed Oct  5 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.2.20160929
 - Add a fix from upstream to fix xterm crash under Xwayland (fdo#97974)
 - Add a fix from upstream to fix glamor / xwayland not working with glvnd
