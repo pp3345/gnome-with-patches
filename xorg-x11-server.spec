@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   0.3%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -309,6 +309,7 @@ Summary: SDK for X server driver module development
 Group: User Interface/X
 Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
+Requires: libXfont2-devel
 Requires: pkgconfig pixman-devel libpciaccess-devel
 Provides: xorg-x11-server-static
 Obsoletes: xorg-x11-glamor-devel < %{version}-%{release}
@@ -607,6 +608,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Oct 28 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.4.20161026
+- Add missing Requires: libXfont2-devel to -devel sub-package (rhbz#1389711)
+
 * Wed Oct 26 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.3.20161026
 - Sync with upstream git, bringing in a bunch if bug-fixes
 - Add some extra fixes which are pending upstream
