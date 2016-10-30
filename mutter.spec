@@ -4,19 +4,17 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.22.1
-Release:       3%{?dist}
+Version:       3.23.1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.22/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.23/%{name}-%{version}.tar.xz
 
 # https://bugzilla.gnome.org/show_bug.cgi?id=772422
 Patch0:        0001-Use-eglGetPlatformDisplay.patch
-# Backported from upstream
-Patch1:        0001-clutter-stage-Fix-framebuffer-capture-origin-offset-.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -109,7 +107,6 @@ the functionality of the installed %{name} package.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
 
 %build
 autoreconf -f -i
@@ -184,6 +181,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Sun Oct 30 2016 Florian Müllner <fmuellner@redhat.com> - 3.23.1-1
+- Update to 3.23.1
+
 * Tue Oct 18 2016 Kalev Lember <klember@redhat.com> - 3.22.1-3
 - Backport a fix to make gnome-screenshot --area work
 
