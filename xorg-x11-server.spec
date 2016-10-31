@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   0.4%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -333,30 +333,13 @@ Xserver source code needed to build VNC server (Xvnc)
 
 
 %prep
-%setup -q -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
-#setup -q -n %{pkgname}-%{version}
-
-#if 0%{?gitdate}
-%if 0
-git checkout -b fedora
-sed -i 's/git/&+ssh/' .git/config
-if [ -z "$GIT_COMMITTER_NAME" ]; then
-    git config user.email "x@fedoraproject.org"
-    git config user.name "Fedora X Ninjas"
-fi
-%else
-git init
-if [ -z "$GIT_COMMITTER_NAME" ]; then
-    git config user.email "x@fedoraproject.org"
-    git config user.name "Fedora X Ninjas"
-fi
+%autosetup -N -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
+rm -rf .git
 cp %{SOURCE1} .gitignore
-git add .
-git commit -a -q -m "%{version} baseline."
-%endif
-
-# Apply all the patches.
-git am -p1 %{patches} < /dev/null
+# ick
+%global __scm git
+%{expand:%__scm_setup_git -q}
+%autopatch
 
 %if %{with_hw_servers} && 0%{?stable_abi}
 # check the ABI in the source against what we expect.
@@ -608,6 +591,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Oct 31 2016 Adam Jackson <ajax@redhat.com> - 1.19.0-0.5.20161026
+- Use %%autopatch instead of doing our own custom git-am trick
+
 * Fri Oct 28 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.4.20161026
 - Add missing Requires: libXfont2-devel to -devel sub-package (rhbz#1389711)
 
