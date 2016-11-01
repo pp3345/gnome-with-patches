@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   0.5%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -87,6 +87,7 @@ Patch6: 0006-xfree86-Try-harder-to-find-atleast-1-non-GPU-Screen.patch
 Patch7: 0007-inputthread-On-Linux-leave-the-main-thread-s-name-as.patch
 Patch8: 0008-ramdac-Check-sPriv-NULL-in-xf86CheckHWCursor.patch
 Patch9: 0009-xwayland-Activate-and-enable-touch-devices.patch
+Patch10: 0001-Fix-segfault-if-xorg.conf.d-is-absent.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -591,6 +592,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Nov  1 2016 Ben Crocker <bcrocker@redhat.com> - 1.19.0-0.6.20161028
+- Fix Config record allocation during startup: if xorg.conf.d directory
+- was absent, a segfault resulted.
+
 * Mon Oct 31 2016 Adam Jackson <ajax@redhat.com> - 1.19.0-0.5.20161026
 - Use %%autopatch instead of doing our own custom git-am trick
 
