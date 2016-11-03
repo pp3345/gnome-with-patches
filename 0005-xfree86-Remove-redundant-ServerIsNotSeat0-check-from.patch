@@ -1,7 +1,7 @@
-From 886a3a8bba89134c16661ba81256735d7933ec7b Mon Sep 17 00:00:00 2001
+From c17e544b271ced65483692103d39ed1188d4ca25 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 27 Sep 2016 14:30:10 +0200
-Subject: [PATCH xserver v2 4/7] xfree86: Remove redundant ServerIsNotSeat0
+Subject: [PATCH xserver v2 5/7] xfree86: Remove redundant ServerIsNotSeat0
  check from xf86CallDriverProbe
 
 If foundScreen is TRUE, then all the code below the removed if

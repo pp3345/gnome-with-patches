@@ -1,7 +1,7 @@
-From 5f6ac38e569369b39c34e7b0095f237cc30b51b5 Mon Sep 17 00:00:00 2001
+From 02bcb6f189c4ad8b2e73ce99cfa3c10f0c244a88 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Fri, 30 Sep 2016 12:29:09 +0200
-Subject: [PATCH xserver v2 6/7] xfree86: Try harder to find atleast 1 non GPU
+Subject: [PATCH xserver v2 7/7] xfree86: Try harder to find atleast 1 non GPU
  Screen
 
 If we did not find any non GPU Screens, try again ignoring the notion

@@ -11,7 +11,7 @@
 # X.org requires lazy relocations to work.
 %undefine _hardened_build
 
-%global gitdate 20161026
+#global gitdate 20161026
 %global stable_abi 1
 
 %if !0%{?gitdate} || %{stable_abi}
@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   0.6%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.7.rc2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -59,7 +59,8 @@ Source0:   xorg-server-%{gitdate}.tar.xz
 Source1:   make-git-snapshot.sh
 Source2:   commitid
 %else
-Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
+Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-1.18.99.902.tar.bz2
+#Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source1:   gitignore
 %endif
 
@@ -78,15 +79,13 @@ Source31: xserver-sdk-abi-requires.git
 Source40: driver-abi-rebuild.sh
 
 # Various fixes pending upstream
-Patch1: 0001-DRI2-Sync-radeonsi_pci_ids.h-from-Mesa.patch
-Patch2: 0002-xfree86-Xorg.wrap-Do-not-require-root-rights-for-car.patch
-Patch3: 0003-xwayland-Transform-pointer-enter-event-coordinates.patch
-Patch4: 0004-xfree86-Remove-redundant-ServerIsNotSeat0-check-from.patch
-Patch5: 0005-xfree86-Make-adding-unclaimed-devices-as-GPU-devices.patch
-Patch6: 0006-xfree86-Try-harder-to-find-atleast-1-non-GPU-Screen.patch
-Patch7: 0007-inputthread-On-Linux-leave-the-main-thread-s-name-as.patch
-Patch8: 0008-ramdac-Check-sPriv-NULL-in-xf86CheckHWCursor.patch
-Patch9: 0009-xwayland-Activate-and-enable-touch-devices.patch
+Patch1: 0001-xwayland-shm-block-signals-during-fallocate.patch
+Patch2: 0002-dri2-Sync-i965_pci_ids.h-from-mesa.patch
+Patch3: 0003-dix-Make-sure-client-is-not-in-output_pending-chain-.patch
+Patch4: 0004-glamor-restore-vfunc-handlers-on-init-failure.patch
+Patch5: 0005-xfree86-Remove-redundant-ServerIsNotSeat0-check-from.patch
+Patch6: 0006-xfree86-Make-adding-unclaimed-devices-as-GPU-devices.patch
+Patch7: 0007-xfree86-Try-harder-to-find-atleast-1-non-GPU-Screen.patch
 Patch10: 0001-Fix-segfault-if-xorg.conf.d-is-absent.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
@@ -334,7 +333,8 @@ Xserver source code needed to build VNC server (Xvnc)
 
 
 %prep
-%autosetup -N -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
+#autosetup -N -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
+%autosetup -N -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:1.18.99.902}
 rm -rf .git
 cp %{SOURCE1} .gitignore
 # ick
@@ -592,6 +592,11 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Nov  3 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.7.rc2
+- Update to 1.19.0-rc2
+- Fix (hopefully) various crashes in FlushAllOutput() (rhbz#1382444)
+- Fix Xwayland crashing in glamor on non glamor capable hw (rhbz#1390018)
+
 * Tue Nov  1 2016 Ben Crocker <bcrocker@redhat.com> - 1.19.0-0.6.20161028
 - Fix Config record allocation during startup: if xorg.conf.d directory
 - was absent, a segfault resulted.

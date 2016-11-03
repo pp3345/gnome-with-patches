@@ -1,7 +1,7 @@
-From 54fb5e9e6ed76ae4eef3ea61b1784ac9d52e1689 Mon Sep 17 00:00:00 2001
+From 74bc0fff3a6ca233e56b3fb2971bca97b5a4f8b5 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Fri, 30 Sep 2016 11:59:04 +0200
-Subject: [PATCH xserver v2 5/7] xfree86: Make adding unclaimed devices as GPU
+Subject: [PATCH xserver v2 6/7] xfree86: Make adding unclaimed devices as GPU
  devices a separate step
 
 This is primarily a preparation patch for fixing the xserver exiting with
