@@ -15,6 +15,7 @@ Source0:       http://download.gnome.org/sources/%{name}/3.23/%{name}-%{version}
 
 # https://bugzilla.gnome.org/show_bug.cgi?id=772422
 Patch0:        0001-Use-eglGetPlatformDisplay.patch
+Patch1:        startup-notification.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -107,6 +108,7 @@ the functionality of the installed %{name} package.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 autoreconf -f -i
@@ -181,6 +183,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Nov  8 2016 Matthias Clasen <mclasen@redhat.com> - 3.23.1-2
+- Fix 1376471
+
 * Sun Oct 30 2016 Florian Müllner <fmuellner@redhat.com> - 3.23.1-1
 - Update to 3.23.1
 
