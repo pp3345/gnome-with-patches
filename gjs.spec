@@ -1,7 +1,7 @@
 %global gobject_introspection_version 1.41.4
 
 Name:          gjs
-Version:       1.46.0
+Version:       1.47.0
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -12,7 +12,7 @@ Summary:       Javascript Bindings for GNOME
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
 #VCS:          git://git.gnome.org/gjs
-Source0:       https://download.gnome.org/sources/%{name}/1.46/%{name}-%{version}.tar.xz
+Source0:       https://download.gnome.org/sources/%{name}/1.47/%{name}-%{version}.tar.xz
 
 BuildRequires: mozjs24-devel
 BuildRequires: cairo-gobject-devel
@@ -89,6 +89,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Thu Nov 10 2016 Florian Müllner <fmuellner@redhat.com> - 3.47.0-1
+- Update to 1.47.0
+
 * Wed Sep 21 2016 Kalev Lember <klember@redhat.com> - 1.46.0-1
 - Update to 1.46.0
 - Don't set group tags
