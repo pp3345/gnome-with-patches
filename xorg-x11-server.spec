@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   0.7.rc2%{?gitdate:.%{gitdate}}%{dist}
+Release:   0.8.rc2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -94,6 +94,9 @@ Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
 # Submitted upstream, pending
 Patch7027: xserver-autobind-hotplug.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1384432
+Patch7028: 0001-Xi-when-creating-a-new-master-device-update-barries-.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -592,6 +595,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Nov 15 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.19.0-0.8.rc2
+- Update device barriers for new master devices (#1384432)
+
 * Thu Nov  3 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.7.rc2
 - Update to 1.19.0-rc2
 - Fix (hopefully) various crashes in FlushAllOutput() (rhbz#1382444)
