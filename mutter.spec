@@ -4,8 +4,8 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.23.1
-Release:       2%{?dist}
+Version:       3.23.2
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -183,6 +183,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Nov 23 2016 Florian Müllner <fmuellner@redhat.com> - 3.23.2-1
+- Update to 3.23.2
+
 * Tue Nov  8 2016 Matthias Clasen <mclasen@redhat.com> - 3.23.1-2
 - Fix 1376471
 
