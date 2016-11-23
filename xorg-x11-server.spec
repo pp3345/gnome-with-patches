@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   0.8.rc2%{?gitdate:.%{gitdate}}%{dist}
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -59,8 +59,7 @@ Source0:   xorg-server-%{gitdate}.tar.xz
 Source1:   make-git-snapshot.sh
 Source2:   commitid
 %else
-Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-1.18.99.902.tar.bz2
-#Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
+Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source1:   gitignore
 %endif
 
@@ -79,14 +78,14 @@ Source31: xserver-sdk-abi-requires.git
 Source40: driver-abi-rebuild.sh
 
 # Various fixes pending upstream
-Patch1: 0001-xwayland-shm-block-signals-during-fallocate.patch
-Patch2: 0002-dri2-Sync-i965_pci_ids.h-from-mesa.patch
-Patch3: 0003-dix-Make-sure-client-is-not-in-output_pending-chain-.patch
-Patch4: 0004-glamor-restore-vfunc-handlers-on-init-failure.patch
-Patch5: 0005-xfree86-Remove-redundant-ServerIsNotSeat0-check-from.patch
-Patch6: 0006-xfree86-Make-adding-unclaimed-devices-as-GPU-devices.patch
-Patch7: 0007-xfree86-Try-harder-to-find-atleast-1-non-GPU-Screen.patch
-Patch10: 0001-Fix-segfault-if-xorg.conf.d-is-absent.patch
+Patch1: 0004-glamor-restore-vfunc-handlers-on-init-failure.patch
+Patch2: 0005-xfree86-Remove-redundant-ServerIsNotSeat0-check-from.patch
+Patch3: 0006-xfree86-Make-adding-unclaimed-devices-as-GPU-devices.patch
+Patch4: 0007-xfree86-Try-harder-to-find-atleast-1-non-GPU-Screen.patch
+Patch5: 0001-Fix-segfault-if-xorg.conf.d-is-absent.patch
+Patch6: 0001-xwayland-Fix-use-after-free-of-cursors.patch
+Patch7: 0001-randr-rrCheckPixmapBounding-Do-not-substract-crtc-no.patch
+Patch8: 0002-randr-rrCheckPixmapBounding-do-not-shrink-the-screen.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -336,8 +335,7 @@ Xserver source code needed to build VNC server (Xvnc)
 
 
 %prep
-#autosetup -N -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
-%autosetup -N -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:1.18.99.902}
+%autosetup -N -n %{pkgname}-%{?gitdate:%{gitdate}}%{!?gitdate:%{version}}
 rm -rf .git
 cp %{SOURCE1} .gitignore
 # ick
@@ -595,6 +593,12 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Nov 23 2016 Olivier Fourdan <ofourdan@redhat.com> 1.19.0-1
+- xserver 1.19.0
+- Fix use after free of cursors in Xwayland (rhbz#1385258)
+- Fix an issue where some monitors would show only black, or
+  partially black when secondary GPU outputs are used
+
 * Tue Nov 15 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.19.0-0.8.rc2
 - Update device barriers for new master devices (#1384432)
 
