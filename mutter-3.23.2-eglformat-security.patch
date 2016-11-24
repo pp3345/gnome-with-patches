@@ -1,0 +1,12 @@
+diff -Nur mutter-3.32.2.orig/src/backends/meta-egl.c mutter-3.23.2/src/backends/meta-egl.c
+--- mutter-3.32.2.orig/src/backends/meta-egl.c	2016-11-22 08:27:46.000000000 -0700
++++ mutter-3.23.2/src/backends/meta-egl.c	2016-11-24 11:14:48.612133544 -0700
+@@ -141,7 +141,7 @@
+ 
+   error_str = get_egl_error_str ();
+   g_set_error (error, G_IO_ERROR,
+-               G_IO_ERROR_FAILED,
++               G_IO_ERROR_FAILED, "%s",
+                error_str);
+ }
+ 
