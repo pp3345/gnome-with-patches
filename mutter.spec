@@ -20,6 +20,7 @@ Patch1:        startup-notification.patch
 # Fix format security issue that prevents compiling under Fedora
 #
 Patch2:        mutter-3.23.2-eglformat-security.patch
+Patch3:        0001-cogl-Do-not-include-both-GLES2-and-GL-headers.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -116,6 +117,7 @@ the functionality of the installed %{name} package.
 #patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 autoreconf -f -i
@@ -190,6 +192,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Fri Dec 02 2016 Florian Müllner <fmuellner@redhat.com> - 3.23.2-2
+- Fix build error on 32-bit platforms
+
 * Thu Nov 24 2016 Kevin Fenzi <kevin@scrye.com> - 3.23.2-2
 - Some fixes to get building. Still needs patch1 rebased.
 
