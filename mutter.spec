@@ -4,8 +4,8 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.23.2
-Release:       2%{?dist}
+Version:       3.23.3
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -20,7 +20,6 @@ Patch1:        startup-notification.patch
 # Fix format security issue that prevents compiling under Fedora
 #
 Patch2:        mutter-3.23.2-eglformat-security.patch
-Patch3:        0001-cogl-Do-not-include-both-GLES2-and-GL-headers.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -117,7 +116,6 @@ the functionality of the installed %{name} package.
 #patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 
 %build
 autoreconf -f -i
@@ -192,6 +190,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu Dec 15 2016 Florian Müllner <fmuellner@redhat.com> - 3.23.3-1
+- Update to 3.23.3
+
 * Fri Dec 02 2016 Florian Müllner <fmuellner@redhat.com> - 3.23.2-2
 - Fix build error on 32-bit platforms
 
