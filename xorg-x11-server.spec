@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -87,11 +87,22 @@ Patch6: 0001-xwayland-Fix-use-after-free-of-cursors.patch
 Patch7: 0001-randr-rrCheckPixmapBounding-Do-not-substract-crtc-no.patch
 Patch8: 0002-randr-rrCheckPixmapBounding-do-not-shrink-the-screen.patch
 
+# Patches for better integration with the nvidia driver, pending upstream
+Patch11: 0001-xfree86-Free-devlist-returned-by-xf86MatchDevice.patch
+Patch12: 0002-xfree86-Make-OutputClassMatches-take-a-xf86_platform.patch
+Patch13: 0003-xfree86-Add-options-support-for-OutputClass-Options.patch
+Patch14: 0004-xfree86-xf86platformProbe-split-finding-pci-info-and.patch
+Patch15: 0005-xfree86-Allow-overriding-primary-GPU-detection-from-.patch
+Patch16: 0006-xfree86-Add-ModulePath-support-for-OutputClass-confi.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1389886
+Patch21: 0001-Revert-damage-Make-damageRegionProcessPending-take-a.patch
+
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
 Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
-# Submitted upstream, pending
+# Submitted upstream, but not going anywhere
 Patch7027: xserver-autobind-hotplug.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1384432
@@ -593,6 +604,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Dec 15 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-2
+- Add some patches for better integration with the nvidia binary driver
+- Add a patch from upstream fixing a crash (rhbz#1389886)
+
 * Wed Nov 23 2016 Olivier Fourdan <ofourdan@redhat.com> 1.19.0-1
 - xserver 1.19.0
 - Fix use after free of cursors in Xwayland (rhbz#1385258)
