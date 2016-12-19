@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.23.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -186,6 +186,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Mon Dec 19 2016 Miro Hrončok <mhroncok@redhat.com> - 3.23.2-3
+- Rebuild for Python 3.6
+
 * Tue Dec  6 2016 Rui Matos <rmatos@redhat.com> - 3.23.2-2
 - Tighten mutter version dependency for plugin API changes
   Resolves: #1401886
