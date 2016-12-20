@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -94,6 +94,7 @@ Patch13: 0003-xfree86-Add-options-support-for-OutputClass-Options.patch
 Patch14: 0004-xfree86-xf86platformProbe-split-finding-pci-info-and.patch
 Patch15: 0005-xfree86-Allow-overriding-primary-GPU-detection-from-.patch
 Patch16: 0006-xfree86-Add-ModulePath-support-for-OutputClass-confi.patch
+Patch17: 0001-glamor-glamor_egl_get_display-Return-NULL-if-eglGetP.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1389886
 Patch21: 0001-Revert-damage-Make-damageRegionProcessPending-take-a.patch
@@ -604,6 +605,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Dec 20 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-3
+- Add one more patch for better integration with the nvidia binary driver
+
 * Thu Dec 15 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-2
 - Add some patches for better integration with the nvidia binary driver
 - Add a patch from upstream fixing a crash (rhbz#1389886)
