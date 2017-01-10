@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.0
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -95,6 +95,9 @@ Patch14: 0004-xfree86-xf86platformProbe-split-finding-pci-info-and.patch
 Patch15: 0005-xfree86-Allow-overriding-primary-GPU-detection-from-.patch
 Patch16: 0006-xfree86-Add-ModulePath-support-for-OutputClass-confi.patch
 Patch17: 0001-glamor-glamor_egl_get_display-Return-NULL-if-eglGetP.patch
+
+# From Debian use intel ddx driver only for gen4 and older chipsets
+Patch20: 06_use-intel-only-on-pre-gen4.diff
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1389886
 Patch21: 0001-Revert-damage-Make-damageRegionProcessPending-take-a.patch
@@ -605,6 +608,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Jan 10 2017 Hans de Goede <hdegoede@redhat.com> - 1.19.0-4
+- Follow Debian and only default to the intel ddx on gen4 or older intel GPUs
+
 * Tue Dec 20 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-3
 - Add one more patch for better integration with the nvidia binary driver
 
