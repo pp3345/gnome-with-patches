@@ -44,8 +44,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.19.0
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.19.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -78,14 +78,9 @@ Source31: xserver-sdk-abi-requires.git
 Source40: driver-abi-rebuild.sh
 
 # Various fixes pending upstream
-Patch1: 0004-glamor-restore-vfunc-handlers-on-init-failure.patch
 Patch2: 0005-xfree86-Remove-redundant-ServerIsNotSeat0-check-from.patch
 Patch3: 0006-xfree86-Make-adding-unclaimed-devices-as-GPU-devices.patch
 Patch4: 0007-xfree86-Try-harder-to-find-atleast-1-non-GPU-Screen.patch
-Patch5: 0001-Fix-segfault-if-xorg.conf.d-is-absent.patch
-Patch6: 0001-xwayland-Fix-use-after-free-of-cursors.patch
-Patch7: 0001-randr-rrCheckPixmapBounding-Do-not-substract-crtc-no.patch
-Patch8: 0002-randr-rrCheckPixmapBounding-do-not-shrink-the-screen.patch
 
 # Patches for better integration with the nvidia driver, pending upstream
 Patch11: 0001-xfree86-Free-devlist-returned-by-xf86MatchDevice.patch
@@ -94,13 +89,9 @@ Patch13: 0003-xfree86-Add-options-support-for-OutputClass-Options.patch
 Patch14: 0004-xfree86-xf86platformProbe-split-finding-pci-info-and.patch
 Patch15: 0005-xfree86-Allow-overriding-primary-GPU-detection-from-.patch
 Patch16: 0006-xfree86-Add-ModulePath-support-for-OutputClass-confi.patch
-Patch17: 0001-glamor-glamor_egl_get_display-Return-NULL-if-eglGetP.patch
 
 # From Debian use intel ddx driver only for gen4 and older chipsets
 Patch20: 06_use-intel-only-on-pre-gen4.diff
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1389886
-Patch21: 0001-Revert-damage-Make-damageRegionProcessPending-take-a.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -108,9 +99,6 @@ Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
 # Submitted upstream, but not going anywhere
 Patch7027: xserver-autobind-hotplug.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1384432
-Patch7028: 0001-Xi-when-creating-a-new-master-device-update-barries-.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -608,6 +596,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Jan 11 2017 Adam Jackson <ajax@redhat.com> - 1.19.1-1
+- xserver 1.19.1
+
 * Tue Jan 10 2017 Hans de Goede <hdegoede@redhat.com> - 1.19.0-4
 - Follow Debian and only default to the intel ddx on gen4 or older intel GPUs
 
