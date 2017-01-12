@@ -2,7 +2,7 @@
 
 Name:          gjs
 Version:       1.47.0
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -88,6 +88,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Thu Jan 12 2017 Igor Gnatenko <ignatenko@redhat.com> - 1.47.0-2
+- Rebuild for readline 7.x
+
 * Thu Nov 10 2016 Florian Müllner <fmuellner@redhat.com> - 3.47.0-1
 - Update to 1.47.0
 
