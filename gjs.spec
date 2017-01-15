@@ -1,8 +1,8 @@
 %global gobject_introspection_version 1.41.4
 
 Name:          gjs
-Version:       1.47.0
-Release:       2%{?dist}
+Version:       1.47.4
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -14,13 +14,13 @@ URL:           https://wiki.gnome.org/Projects/Gjs
 #VCS:          git://git.gnome.org/gjs
 Source0:       https://download.gnome.org/sources/%{name}/1.47/%{name}-%{version}.tar.xz
 
-BuildRequires: mozjs24-devel
 BuildRequires: cairo-gobject-devel
 BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
 BuildRequires: gtk3-devel
 BuildRequires: intltool
+BuildRequires: mozjs31-devel
 BuildRequires: pkgconfig
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
@@ -88,6 +88,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Sun Jan 15 2017 Kalev Lember <klember@redhat.com> - 1.47.4-1
+- Update to 1.47.4
+
 * Thu Jan 12 2017 Igor Gnatenko <ignatenko@redhat.com> - 1.47.0-2
 - Rebuild for readline 7.x
 
