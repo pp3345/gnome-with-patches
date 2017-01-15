@@ -15,6 +15,7 @@ URL:           https://wiki.gnome.org/Projects/Gjs
 Source0:       https://download.gnome.org/sources/%{name}/1.47/%{name}-%{version}.tar.xz
 
 BuildRequires: cairo-gobject-devel
+BuildRequires: chrpath
 BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
@@ -59,6 +60,10 @@ make %{?_smp_mflags} V=1
 %install
 %make_install
 
+# Remove lib64 rpaths
+chrpath --delete %{buildroot}%{_bindir}/gjs-console
+chrpath --delete %{buildroot}%{_libexecdir}/gjs/installed-tests/minijasmine
+
 #Remove libtool archives.
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
@@ -90,6 +95,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %changelog
 * Sun Jan 15 2017 Kalev Lember <klember@redhat.com> - 1.47.4-1
 - Update to 1.47.4
+- Remove lib64 rpaths
 
 * Thu Jan 12 2017 Igor Gnatenko <ignatenko@redhat.com> - 1.47.0-2
 - Rebuild for readline 7.x
