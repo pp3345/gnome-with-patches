@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.1
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -91,7 +91,9 @@ Patch15: 0005-xfree86-Allow-overriding-primary-GPU-detection-from-.patch
 Patch16: 0006-xfree86-Add-ModulePath-support-for-OutputClass-confi.patch
 
 # From Debian use intel ddx driver only for gen4 and older chipsets
+%if 0%{?fedora} > 25
 Patch20: 06_use-intel-only-on-pre-gen4.diff
+%endif
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -596,6 +598,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Jan 16 2017 Adam Jackson <ajax@redhat.com> - 1.19.1-2
+- Limit the intel driver only on F26 and up
+
 * Wed Jan 11 2017 Adam Jackson <ajax@redhat.com> - 1.19.1-1
 - xserver 1.19.1
 
