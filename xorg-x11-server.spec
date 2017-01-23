@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.1
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -102,9 +102,13 @@ Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 # Submitted upstream, but not going anywhere
 Patch7027: xserver-autobind-hotplug.patch
 
+# https://bugzilla.redhat.com/show_bug.cgi?id=1384486
+Patch8000: 0001-xfree86-Take-input-lock-for-xf86TransparentCursor.patch
+Patch8001: 0001-xfree86-Take-the-input-lock-for-xf86RecolorCursor.patch
+Patch8002: 0001-xfree86-Take-input_lock-for-xf86ScreenCheckHWCursor.patch
+
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
-
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -598,6 +602,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Feb 01 2017 Peter Hutterer <peter.hutterer@redhat.com> 1.19.1-3
+- Fix a few input thread lock issues causing intel crashes (#1384486)
+
 * Mon Jan 16 2017 Adam Jackson <ajax@redhat.com> - 1.19.1-2
 - Limit the intel driver only on F26 and up
 

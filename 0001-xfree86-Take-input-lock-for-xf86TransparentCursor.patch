@@ -1,0 +1,34 @@
+From adccf461f12bc9f7df990e792659489d285890d4 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Mon, 16 Jan 2017 22:36:34 +0000
+Subject: [PATCH xserver] xfree86: Take input lock for xf86TransparentCursor
+
+---
+ hw/xfree86/ramdac/xf86HWCurs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/hw/xfree86/ramdac/xf86HWCurs.c b/hw/xfree86/ramdac/xf86HWCurs.c
+index 55d5861..26dc7e5 100644
+--- a/hw/xfree86/ramdac/xf86HWCurs.c
++++ b/hw/xfree86/ramdac/xf86HWCurs.c
+@@ -261,6 +261,8 @@ xf86SetTransparentCursor(ScreenPtr pScreen)
+                                                xf86CursorScreenKey);
+     xf86CursorInfoPtr infoPtr = ScreenPriv->CursorInfoPtr;
+ 
++    input_lock();
++
+     if (!ScreenPriv->transparentData)
+         ScreenPriv->transparentData =
+             (*infoPtr->RealizeCursor) (infoPtr, NullCursor);
+@@ -273,6 +275,8 @@ xf86SetTransparentCursor(ScreenPtr pScreen)
+                                    ScreenPriv->transparentData);
+ 
+     (*infoPtr->ShowCursor) (infoPtr->pScrn);
++
++    input_unlock();
+ }
+ 
+ static void
+-- 
+2.9.3
+
