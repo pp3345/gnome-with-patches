@@ -177,8 +177,6 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_includedir}/*
 %{_libdir}/lib*.so
 %{_libdir}/pkgconfig/*
-# exclude as these should be in a devel package (if packaged at all)
-%exclude %{_datadir}/gtk-doc
 
 %files tests
 %{_libexecdir}/installed-tests/mutter
