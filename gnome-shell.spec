@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.23.2
-Release:        4%{?dist}
+Version:        3.23.3
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -186,6 +186,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Tue Feb 14 2017 Richard Hughes <rhughes@redhat.com> - 3.23.3-1
+- Update to 3.23.3
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.23.2-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
