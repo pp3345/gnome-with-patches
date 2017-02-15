@@ -1,8 +1,8 @@
 %global gobject_introspection_version 1.41.4
 
 Name:          gjs
-Version:       1.47.4
-Release:       2%{?dist}
+Version:       1.47.90
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -21,7 +21,7 @@ BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
 BuildRequires: gtk3-devel
 BuildRequires: intltool
-BuildRequires: mozjs31-devel
+BuildRequires: mozjs38-devel
 BuildRequires: pkgconfig
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
@@ -93,6 +93,10 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Wed Feb 15 2017 Kalev Lember <klember@redhat.com> - 1.47.90-1
+- Update to 1.47.90
+- Switch to building with mozjs38
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.47.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
