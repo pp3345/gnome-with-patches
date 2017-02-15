@@ -1,4 +1,6 @@
+%global glib2_version 2.50.0
 %global gobject_introspection_version 1.41.4
+%global gtk3_version 3.20
 
 Name:          gjs
 Version:       1.47.90
@@ -19,14 +21,17 @@ BuildRequires: chrpath
 BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
-BuildRequires: gtk3-devel
+BuildRequires: glib2-devel >= %{glib2_version}
+BuildRequires: gtk3-devel >= %{gtk3_version}
 BuildRequires: intltool
 BuildRequires: mozjs38-devel
 BuildRequires: pkgconfig
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
 
+Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
+Requires: gtk3%{?_isa} >= %{gtk3_version}
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
@@ -96,6 +101,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 * Wed Feb 15 2017 Kalev Lember <klember@redhat.com> - 1.47.90-1
 - Update to 1.47.90
 - Switch to building with mozjs38
+- Set minimum required glib2 and gtk3 versions
 
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.47.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
