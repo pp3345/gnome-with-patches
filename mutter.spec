@@ -4,8 +4,8 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.23.3
-Release:       2%{?dist}
+Version:       3.23.90
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -13,13 +13,7 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.23/%{name}-%{version}.tar.xz
 
-# https://bugzilla.gnome.org/show_bug.cgi?id=772422
-Patch0:        0001-Use-eglGetPlatformDisplay.patch
-Patch1:        startup-notification.patch
-#
-# Fix format security issue that prevents compiling under Fedora
-#
-Patch2:        mutter-3.23.2-eglformat-security.patch
+Patch0:        startup-notification.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -114,8 +108,6 @@ the functionality of the installed %{name} package.
 %prep
 %setup -q
 #patch0 -p1
-%patch1 -p1
-%patch2 -p1
 
 %build
 autoreconf -f -i
@@ -188,6 +180,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu Feb 16 2017 Florian Müllner <fmuellner@redhat.com> - 3.23.90-1
+- Update to 3.23.90
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.23.3-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
