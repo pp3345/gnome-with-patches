@@ -1,6 +1,7 @@
 %global glib2_version 2.50.0
 %global gobject_introspection_version 1.41.4
 %global gtk3_version 3.20
+%global mozjs38_version 38.8.0-4
 
 Name:          gjs
 Version:       1.47.91
@@ -24,7 +25,7 @@ BuildRequires: dbus-glib-devel
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
 BuildRequires: intltool
-BuildRequires: mozjs38-devel
+BuildRequires: mozjs38-devel >= %{mozjs38_version}
 BuildRequires: pkgconfig
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
@@ -32,6 +33,7 @@ BuildRequires: gtk-doc gnome-common
 Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires: gtk3%{?_isa} >= %{gtk3_version}
+Requires: mozjs38%{?_isa} >= %{mozjs38_version}
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
