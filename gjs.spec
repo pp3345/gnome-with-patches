@@ -57,6 +57,9 @@ the functionality of the installed gjs package.
 %setup -q
 
 %build
+# Work around https://bugzilla.gnome.org/show_bug.cgi?id=779412
+export ac_cv_path_JS_INTERP=/usr/bin/true
+
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static --enable-installed-tests)
 
