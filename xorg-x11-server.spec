@@ -44,8 +44,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.19.1
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.19.2
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -59,7 +59,7 @@ Source0:   xorg-server-%{gitdate}.tar.xz
 Source1:   make-git-snapshot.sh
 Source2:   commitid
 %else
-Source0:   http://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
+Source0:   https://www.x.org/pub/individual/xserver/%{pkgname}-%{version}.tar.bz2
 Source1:   gitignore
 %endif
 
@@ -101,11 +101,6 @@ Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
 # Submitted upstream, but not going anywhere
 Patch7027: xserver-autobind-hotplug.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1384486
-Patch8000: 0001-xfree86-Take-input-lock-for-xf86TransparentCursor.patch
-Patch8001: 0001-xfree86-Take-the-input-lock-for-xf86RecolorCursor.patch
-Patch8002: 0001-xfree86-Take-input_lock-for-xf86ScreenCheckHWCursor.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
@@ -602,6 +597,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Mar 02 2017 Adam Jackson <ajax@redhat.com> - 1.19.2-1
+- xserver 1.19.2
+
 * Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.19.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
