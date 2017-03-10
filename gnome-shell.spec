@@ -47,8 +47,6 @@ BuildRequires:  libnm-gtk-devel
 BuildRequires:  NetworkManager-glib-devel
 BuildRequires:  polkit-devel
 BuildRequires:  startup-notification-devel
-BuildRequires:  telepathy-glib-devel
-BuildRequires:  telepathy-logger-devel >= %{telepathy_logger_version}
 # for screencast recorder functionality
 BuildRequires:  gstreamer1-devel
 BuildRequires:  gtk3-devel >= %{gtk3_version}
@@ -92,6 +90,7 @@ Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires:       libcroco%{?_isa} >= %{libcroco_version}
 Requires:       telepathy-logger%{?_isa} >= %{telepathy_logger_version}
+Requires:       telepathy-glib-devel
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
