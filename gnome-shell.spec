@@ -105,6 +105,9 @@ Requires:       control-center
 Requires:       python3%{_isa}
 # needed for the dual-GPU launch menu
 Requires:       switcheroo-control
+# needed for clocks/weather integration
+Requires:       geoclue2-libs
+Requires:       libgweather
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
