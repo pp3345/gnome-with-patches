@@ -5,7 +5,7 @@
 
 Name:          mutter
 Version:       3.23.91
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -114,7 +114,7 @@ the functionality of the installed %{name} package.
 
 %prep
 %setup -q
-#patch0 -p1
+%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -190,6 +190,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Fri Mar 10 2017 Florian Müllner <fmuellner@redhat.com> - 3.23.91-4
+- Apply startup-notification hack again
+
 * Tue Mar 07 2017 Adam Williamson <awilliam@redhat.com> - 3.23.91-3
 - Backport more color fixes, should really fix BGO #779234, RHBZ #1428559
 
