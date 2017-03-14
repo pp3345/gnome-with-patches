@@ -4,8 +4,8 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.23.91
-Release:       4%{?dist}
+Version:       3.23.92
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -14,13 +14,6 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.23/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
-# Backport of fixes for color issues in 3.23.91:
-# https://git.gnome.org/browse/mutter/commit/?id=95e9fa10ef20a23912186c0cc701ab8f5a97f1a0
-Patch1:        0001-cogl-Read-pixels-in-the-correct-32bit-format-as-per-.patch
-# https://git.gnome.org/browse/mutter/commit/?id=aa5738c777883f270ae9cb3b2988d194792fed75
-Patch2:        0001-cogl-Add-pixel_format_to_gl_with_target-driver-vfunc.patch
-# https://git.gnome.org/browse/mutter/commit/?id=35388fb33cb39a311b4ccc504ac15a6c5d226dab
-Patch3:        0002-cogl-Use-pixel_format_to_gl_with_target-on-bitmap-up.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -115,9 +108,6 @@ the functionality of the installed %{name} package.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 %build
 autoreconf -f -i
@@ -190,6 +180,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Mar 14 2017 Florian Müllner <fmuellner@redhat.com> - 3.23.92-1
+- Update to 3.23.92
+
 * Fri Mar 10 2017 Florian Müllner <fmuellner@redhat.com> - 3.23.91-4
 - Apply startup-notification hack again
 
