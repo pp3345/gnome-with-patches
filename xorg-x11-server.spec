@@ -44,7 +44,7 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.19.2
+Version:   1.19.3
 Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
@@ -597,6 +597,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Mar 15 2017 Adam Jackson <ajax@redhat.com> - 1.19.3-1
+- xserver 1.19.3
+
 * Thu Mar 02 2017 Adam Jackson <ajax@redhat.com> - 1.19.2-1
 - xserver 1.19.2
 
