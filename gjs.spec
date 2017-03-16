@@ -4,7 +4,7 @@
 %global mozjs38_version 38.8.0-4
 
 Name:          gjs
-Version:       1.47.91
+Version:       1.47.92
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -59,9 +59,6 @@ the functionality of the installed gjs package.
 %setup -q
 
 %build
-# Work around https://bugzilla.gnome.org/show_bug.cgi?id=779412
-export ac_cv_path_JS_INTERP=/usr/bin/true
-
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static --enable-installed-tests)
 
@@ -103,6 +100,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Thu Mar 16 2017 Kalev Lember <klember@redhat.com> - 1.47.92-1
+- Update to 1.47.92
+
 * Wed Mar 01 2017 Kalev Lember <klember@redhat.com> - 1.47.91-1
 - Update to 1.47.91
 
