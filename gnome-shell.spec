@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.23.92
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -90,7 +90,7 @@ Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires:       libcroco%{?_isa} >= %{libcroco_version}
 Requires:       telepathy-logger%{?_isa} >= %{telepathy_logger_version}
-Requires:       telepathy-glib-devel
+Requires:       telepathy-glib
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
@@ -188,6 +188,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Mar 16 2017 Igor Gnatenko <ignatenko@redhat.com> - 3.23.92-2
+- Fix wrong runtime requirements
+
 * Tue Mar 14 2017 Florian Müllner <fmuellner@redhat.com> - 3.23.92-1
 - Update to 3.23.92
 
