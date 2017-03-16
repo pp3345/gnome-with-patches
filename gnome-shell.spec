@@ -90,7 +90,7 @@ Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires:       libcroco%{?_isa} >= %{libcroco_version}
 Requires:       telepathy-logger%{?_isa} >= %{telepathy_logger_version}
-Requires:       telepathy-glib
+Requires:       telepathy-glib%{?_isa}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
@@ -105,8 +105,8 @@ Requires:       python3%{_isa}
 # needed for the dual-GPU launch menu
 Requires:       switcheroo-control
 # needed for clocks/weather integration
-Requires:       geoclue2-libs
-Requires:       libgweather
+Requires:       geoclue2-libs%{?_isa}
+Requires:       libgweather%{?_isa}
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
