@@ -4,14 +4,14 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.23.92
+Version:       3.24.0
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.23/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.24/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
 
@@ -180,6 +180,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Mon Mar 20 2017 Florian Müllner <fmuellner@redhat.com> - 3.24.0-1
+- Update to 3.24.0
+
 * Tue Mar 14 2017 Florian Müllner <fmuellner@redhat.com> - 3.23.92-1
 - Update to 3.23.92
 
