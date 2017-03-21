@@ -4,7 +4,7 @@
 %global mozjs38_version 38.8.0-4
 
 Name:          gjs
-Version:       1.47.92
+Version:       1.48.0
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -15,7 +15,7 @@ Summary:       Javascript Bindings for GNOME
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
 #VCS:          git://git.gnome.org/gjs
-Source0:       https://download.gnome.org/sources/%{name}/1.47/%{name}-%{version}.tar.xz
+Source0:       https://download.gnome.org/sources/%{name}/1.48/%{name}-%{version}.tar.xz
 
 BuildRequires: cairo-gobject-devel
 BuildRequires: chrpath
@@ -100,6 +100,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Tue Mar 21 2017 Kalev Lember <klember@redhat.com> - 1.48.0-1
+- Update to 1.48.0
+
 * Thu Mar 16 2017 Kalev Lember <klember@redhat.com> - 1.47.92-1
 - Update to 1.47.92
 
