@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.3
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -94,6 +94,9 @@ Patch16: 0006-xfree86-Add-ModulePath-support-for-OutputClass-confi.patch
 %if 0%{?fedora} > 25
 Patch20: 06_use-intel-only-on-pre-gen4.diff
 %endif
+
+# Submitted upstream
+Patch21: 0001-xf86-dri2-Use-va_gl-as-vdpau_driver-for-Intel-i965-G.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -597,6 +600,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Mar 23 2017 Hans de Goede <hdegoede@redhat.com> - 1.19.3-2
+- Use va_gl as vdpau driver on i965 GPUs (rhbz#1413733)
+
 * Wed Mar 15 2017 Adam Jackson <ajax@redhat.com> - 1.19.3-1
 - xserver 1.19.3
 
