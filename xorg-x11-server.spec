@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.3
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,6 +97,8 @@ Patch20: 06_use-intel-only-on-pre-gen4.diff
 
 # Submitted upstream
 Patch21: 0001-xf86-dri2-Use-va_gl-as-vdpau_driver-for-Intel-i965-G.patch
+
+Patch22: 0001-modesetting-Set-correct-DRM-event-context-version.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -600,6 +602,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Apr 07 2017 Adam Jackson <ajax@redhat.com> - 1.19.3-3
+- Inoculate against a versioning bug with libdrm 2.4.78
+
 * Thu Mar 23 2017 Hans de Goede <hdegoede@redhat.com> - 1.19.3-2
 - Use va_gl as vdpau driver on i965 GPUs (rhbz#1413733)
 
