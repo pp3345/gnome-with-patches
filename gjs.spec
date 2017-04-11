@@ -4,7 +4,7 @@
 %global mozjs38_version 38.8.0-4
 
 Name:          gjs
-Version:       1.48.0
+Version:       1.48.1
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -100,6 +100,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Tue Apr 11 2017 Kalev Lember <klember@redhat.com> - 1.48.1-1
+- Update to 1.48.1
+
 * Tue Mar 21 2017 Kalev Lember <klember@redhat.com> - 1.48.0-1
 - Update to 1.48.0
 
