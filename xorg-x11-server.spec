@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.3
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Release:   6%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -605,6 +605,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Sun Jul  2 2017 Ville Skyttä <ville.skytta@iki.fi> - 1.19.3-6
+- Use type instead of which in xvfb-run (rhbz#1443357)
+
 * Thu May 04 2017 Orion Poplawski <orion@cora.nwra.com> - 1.19.3-5
 - Enable full build for s390/x
 
