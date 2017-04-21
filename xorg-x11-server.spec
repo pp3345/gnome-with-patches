@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.3
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -109,6 +109,9 @@ Patch7027: xserver-autobind-hotplug.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
+
+# Default to xf86-video-modesetting on GeForce 8 and newer
+Patch10001: 0001-xfree86-use-modesetting-driver-by-default-on-GeForce.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -602,6 +605,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Apr 24 2017 Ben Skeggs <bskeggs@redhat.com> - 1.19.3-4
+- Default to xf86-video-modesetting on GeForce 8 and newer
+
 * Fri Apr 07 2017 Adam Jackson <ajax@redhat.com> - 1.19.3-3
 - Inoculate against a versioning bug with libdrm 2.4.78
 
