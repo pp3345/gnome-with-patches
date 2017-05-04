@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.3
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -117,11 +117,11 @@ Patch10001: 0001-xfree86-use-modesetting-driver-by-default-on-GeForce.patch
 %global drimoduledir	%{_libdir}/dri
 %global sdkdir		%{_includedir}/xorg
 
-%ifarch s390 s390x
-%global with_hw_servers 0
-%else
+#ifarch s390 s390x
+#global with_hw_servers 0
+#else
 %global with_hw_servers 1
-%endif
+#endif
 
 %if %{with_hw_servers}
 %global enable_xorg --enable-xorg
@@ -605,6 +605,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu May 04 2017 Orion Poplawski <orion@cora.nwra.com> - 1.19.3-5
+- Enable full build for s390/x
+
 * Mon Apr 24 2017 Ben Skeggs <bskeggs@redhat.com> - 1.19.3-4
 - Default to xf86-video-modesetting on GeForce 8 and newer
 
