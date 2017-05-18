@@ -5,7 +5,7 @@
 
 Name:          mutter
 Version:       3.25.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -14,6 +14,7 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.25/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
+Patch1:        0001-xwayland-Use-the-right-atom-type-for-further-selecti.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -108,6 +109,7 @@ the functionality of the installed %{name} package.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 autoreconf -f -i
@@ -180,6 +182,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu May 18 2017 Florian Müllner <fmuellner@redhat.com> - 3.25.1-2
+- Fix copy+paste of UTF8 strings between X11 and wayland
+
 * Thu Apr 27 2017 Florian Müllner <fmuellner@redhat.com> - 3.25.1-1
 - Update to 3.25.1
 
