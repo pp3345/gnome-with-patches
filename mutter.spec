@@ -1,4 +1,5 @@
 %global gtk3_version 3.19.8
+%global glib_version 2.53.2
 %global gsettings_desktop_schemas_version 3.21.4
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
@@ -19,6 +20,7 @@ BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
 BuildRequires: gnome-desktop3-devel
+BuildRequires: glib2-devel >= %{glib_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
 BuildRequires: pkgconfig
 BuildRequires: gobject-introspection-devel >= 1.41.0
