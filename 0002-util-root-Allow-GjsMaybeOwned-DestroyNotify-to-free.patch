@@ -1,0 +1,164 @@
+From 834eede633dff16910ca69f3d0b4876a99c65ba2 Mon Sep 17 00:00:00 2001
+From: Philip Chimento <philip.chimento@gmail.com>
+Date: Sun, 11 Jun 2017 12:59:12 -0700
+Subject: [PATCH 2/2] util-root: Allow GjsMaybeOwned::DestroyNotify to free
+
+In the case of a closure, the GjsMaybeOwned object is embedded as part of
+struct Closure. The context destroy notify callback will invalidate the
+closure, which frees the GjsMaybeOwned object, causing a use-after-free
+when the callback returns.
+
+This patch gives the callback a boolean return value; it should return
+true if it has freed the GjsMaybeOwned object and false if it does not.
+If the callback returns true, then the GjsMaybeOwned object will be
+considered invalid from then on.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=781799
+---
+ gi/closure.cpp            | 12 +++++++-----
+ gi/object.cpp             |  3 ++-
+ gjs/jsapi-util-root.h     | 10 ++++++----
+ test/gjs-test-rooting.cpp | 26 +++++++++++++++++++++++++-
+ 4 files changed, 40 insertions(+), 11 deletions(-)
+
+diff --git a/gi/closure.cpp b/gi/closure.cpp
+index e3ef0ba..d3d5b2f 100644
+--- a/gi/closure.cpp
++++ b/gi/closure.cpp
+@@ -98,7 +98,7 @@ invalidate_js_pointers(GjsClosure *gc)
+     g_closure_invalidate(&gc->base);
+ }
+ 
+-static void
++static bool
+ global_context_finalized(JS::HandleObject obj,
+                          void            *data)
+ {
+@@ -109,11 +109,13 @@ global_context_finalized(JS::HandleObject obj,
+                       "which calls object %p",
+                       c, c->obj.get());
+ 
+-    if (c->obj != NULL) {
+-        g_assert(c->obj == obj);
++    if (!c->obj)
++        return false;
+ 
+-        invalidate_js_pointers(gc);
+-    }
++    g_assert(c->obj == obj);
++
++    invalidate_js_pointers(gc);
++    return true;
+ }
+ 
+ /* Closures have to drop their references to their JS functions in an idle
+diff --git a/gi/object.cpp b/gi/object.cpp
+index db5338b..0e38bc3 100644
+--- a/gi/object.cpp
++++ b/gi/object.cpp
+@@ -915,7 +915,7 @@ wrapped_gobj_dispose_notify(gpointer      data,
+ #endif
+ }
+ 
+-static void
++static bool
+ gobj_no_longer_kept_alive_func(JS::HandleObject obj,
+                                void            *data)
+ {
+@@ -930,6 +930,7 @@ gobj_no_longer_kept_alive_func(JS::HandleObject obj,
+     priv->keep_alive.reset();
+     dissociate_list_remove(priv);
+     weak_pointer_list.erase(priv);
++    return false;
+ }
+ 
+ static void
+diff --git a/gjs/jsapi-util-root.h b/gjs/jsapi-util-root.h
+index 1bdf029..5e13177 100644
+--- a/gjs/jsapi-util-root.h
++++ b/gjs/jsapi-util-root.h
+@@ -110,7 +110,7 @@ struct GjsHeapOperation<JS::Value> {
+ template<typename T>
+ class GjsMaybeOwned {
+ public:
+-    typedef void (*DestroyNotify)(JS::Handle<T> thing, void *data);
++    using DestroyNotify = bool (*)(JS::Handle<T> thing, void *data);
+ 
+ private:
+     bool m_rooted;  /* wrapper is in rooted mode */
+@@ -170,9 +170,11 @@ private:
+          * to remove it. */
+         m_has_weakref = false;
+ 
+-        /* The object is still live across this callback. */
+-        if (m_notify)
+-            m_notify(handle(), m_data);
++        /* The object is still live entering this callback. The callback may
++         * destroy this wrapper if it's part of a larger struct, in which case
++         * it should return true so that we don't touch it */
++        if (m_notify && m_notify(handle(), m_data))
++            return;
+ 
+         reset();
+     }
+diff --git a/test/gjs-test-rooting.cpp b/test/gjs-test-rooting.cpp
+index 240455f..2c2dbdb 100644
+--- a/test/gjs-test-rooting.cpp
++++ b/test/gjs-test-rooting.cpp
+@@ -212,7 +212,7 @@ test_maybe_owned_switch_to_unrooted_allows_collection(GjsRootingFixture *fx,
+     delete obj;
+ }
+ 
+-static void
++static bool
+ context_destroyed(JS::HandleObject obj,
+                   void            *data)
+ {
+@@ -220,6 +220,16 @@ context_destroyed(JS::HandleObject obj,
+     g_assert_false(fx->notify_called);
+     g_assert_false(fx->finalized);
+     fx->notify_called = true;
++    return false;
++}
++
++static bool
++context_destroyed_trash_object(JS::HandleObject jsobj,
++                               void            *data)
++{
++    auto obj = static_cast<GjsMaybeOwned<JSObject *> *>(data);
++    memset(obj, -1, sizeof(GjsMaybeOwned<JSObject *>));
++    return true;
+ }
+ 
+ static void
+@@ -253,6 +263,18 @@ test_maybe_owned_object_destroyed_after_notify(GjsRootingFixture *fx,
+     delete obj;
+ }
+ 
++static void
++test_maybe_owned_notify_callback_trashes_object_and_returns_true(GjsRootingFixture *fx,
++                                                                 gconstpointer      unused)
++{
++    auto obj = new GjsMaybeOwned<JSObject *>();
++    obj->root(PARENT(fx)->cx, test_obj_new(fx), context_destroyed_trash_object,
++              obj);
++
++    gjs_unit_test_destroy_context(PARENT(fx));
++    /* No assertions, should crash if test fails */
++}
++
+ void
+ gjs_test_add_tests_for_rooting(void)
+ {
+@@ -288,6 +310,8 @@ gjs_test_add_tests_for_rooting(void)
+                              test_maybe_owned_notify_callback_called_on_context_destroy);
+     ADD_CONTEXT_DESTROY_TEST("maybe-owned/object-destroyed-after-notify",
+                              test_maybe_owned_object_destroyed_after_notify);
++    ADD_CONTEXT_DESTROY_TEST("maybe-owned/notify-callback-trashes-object-and-returns-true",
++                             test_maybe_owned_notify_callback_trashes_object_and_returns_true);
+ 
+ #undef ADD_CONTEXT_DESTROY_TEST
+ }
+-- 
+2.13.0
+

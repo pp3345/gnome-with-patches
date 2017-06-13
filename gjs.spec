@@ -5,7 +5,7 @@
 
 Name:          gjs
 Version:       1.49.2
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -28,12 +28,16 @@ BuildRequires: intltool
 BuildRequires: mozjs38-devel >= %{mozjs38_version}
 BuildRequires: pkgconfig
 # Bootstrap requirements
-BuildRequires: gtk-doc gnome-common
+BuildRequires: gtk-doc gnome-common git
 
 Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires: gtk3%{?_isa} >= %{gtk3_version}
 Requires: mozjs38%{?_isa} >= %{mozjs38_version}
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=781799
+Patch0: 0001-object-Prevent-use-after-free-in-signal-connections.patch
+Patch1: 0002-util-root-Allow-GjsMaybeOwned-DestroyNotify-to-free.patch
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
@@ -56,7 +60,7 @@ The gjs-tests package contains tests that can be used to verify
 the functionality of the installed gjs package.
 
 %prep
-%setup -q
+%autosetup -S git
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
@@ -100,6 +104,10 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Tue Jun 13 2017 Bastien Nocera <bnocera@redhat.com> - 1.49.2-2
++ gjs-1.49.2-2
+- Add fix for possible use-after-free crasher (bgo #781799)
+
 * Mon Jun 12 2017 Kalev Lember <klember@redhat.com> - 1.49.2-1
 - Update to 1.49.2
 
