@@ -28,7 +28,7 @@ BuildRequires: intltool
 BuildRequires: mozjs38-devel >= %{mozjs38_version}
 BuildRequires: pkgconfig
 # Bootstrap requirements
-BuildRequires: gtk-doc gnome-common git
+BuildRequires: gtk-doc gnome-common
 
 Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
@@ -60,7 +60,7 @@ The gjs-tests package contains tests that can be used to verify
 the functionality of the installed gjs package.
 
 %prep
-%autosetup -S git
+%autosetup -p1
 
 %build
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
