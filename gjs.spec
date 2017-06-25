@@ -4,8 +4,8 @@
 %global mozjs38_version 38.8.0-4
 
 Name:          gjs
-Version:       1.49.2
-Release:       2%{?dist}
+Version:       1.49.3
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -34,10 +34,6 @@ Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires: gtk3%{?_isa} >= %{gtk3_version}
 Requires: mozjs38%{?_isa} >= %{mozjs38_version}
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=781799
-Patch0: 0001-object-Prevent-use-after-free-in-signal-connections.patch
-Patch1: 0002-util-root-Allow-GjsMaybeOwned-DestroyNotify-to-free.patch
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
@@ -104,6 +100,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Sun Jun 25 2017 Kalev Lember <klember@redhat.com> - 1.49.3-1
+- Update to 1.49.3
+
 * Tue Jun 13 2017 Bastien Nocera <bnocera@redhat.com> - 1.49.2-2
 + gjs-1.49.2-2
 - Add fix for possible use-after-free crasher (bgo #781799)
