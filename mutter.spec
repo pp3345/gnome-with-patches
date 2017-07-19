@@ -182,6 +182,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Jul 19 2017 Florian Müllner <fmuellner@redhat.con> - 3.25.4-1
+- Update to 3.25.4
+
 * Wed Jun 21 2017 Florian Müllner <fmuellner@redhat.com> - 3.25.3-1
 - Update to 3.25.3
 
