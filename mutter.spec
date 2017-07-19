@@ -44,6 +44,7 @@ BuildRequires: mesa-libGLES-devel
 BuildRequires: mesa-libGL-devel
 BuildRequires: mesa-libgbm-devel
 BuildRequires: pam-devel
+BuildRequires: systemd-devel
 BuildRequires: upower-devel
 BuildRequires: xkeyboard-config-devel
 BuildRequires: zenity
