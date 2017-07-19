@@ -5,7 +5,7 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.25.3
+Version:       3.25.4
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
