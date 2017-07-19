@@ -1,0 +1,52 @@
+From ae0eeb0dcadcf5543d3cf2e8d2d1fa429d0af82c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Thu, 20 Jul 2017 01:43:38 +0200
+Subject: [PATCH] build: Fix portal installation with meson
+
+Gah, this fell through the cracks ...
+
+diff --git a/data/meson.build b/data/meson.build
+index 0fa87fbfc..6bc5ae08a 100644
+--- a/data/meson.build
++++ b/data/meson.build
+@@ -72,6 +72,7 @@ configure_file(
+ )
+ 
+ 
++install_data('gnome-shell.portal', install_dir: portaldir)
+ install_data('50-gnome-shell-system.xml', install_dir: keysdir)
+ 
+ 
+diff --git a/meson.build b/meson.build
+index 00a541da4..5f4c74700 100644
+--- a/meson.build
++++ b/meson.build
+@@ -53,6 +53,7 @@ desktopdir = join_paths(datadir, 'applications')
+ ifacedir = join_paths(datadir, 'dbus-1', 'interfaces')
+ localedir = join_paths(datadir, 'locale')
+ mozplugindir = join_paths(libdir, 'mozilla', 'plugins')
++portaldir = join_paths(datadir, 'xdg-desktop-portal', 'portals')
+ schemadir = join_paths(datadir, 'glib-2.0', 'schemas')
+ servicedir = join_paths(datadir, 'dbus-1', 'services')
+ 
+
+From 2aceeac7e0e5ddd1deddb35e6bc24265ccdc1465 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Thu, 20 Jul 2017 01:28:35 +0200
+Subject: [PATCH] build: Update gvc subproject
+
+
+Submodule subprojects/gvc 01e1fde6e..3f71aac04:
+diff --git a/subprojects/gvc/meson.build b/subprojects/gvc/meson.build
+index 7433f6e..238f608 100644
+--- a/subprojects/gvc/meson.build
++++ b/subprojects/gvc/meson.build
+@@ -21,7 +21,7 @@ libpulse_glib = dependency('libpulse-mainloop-glib')
+ cdata = configuration_data()
+ cdata.set_quoted('GETTEXT_PACKAGE', get_option('package-name'))
+ cdata.set_quoted('PACKAGE_VERSION', get_option('package-version'))
+-cdata.set10('HAVE_ALSA', alsa.found())
++cdata.set('HAVE_ALSA', alsa.found())
+ 
+ config = configure_file(
+   input: 'config.h.meson',

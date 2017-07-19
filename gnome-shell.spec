@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.25.3
+Version:        3.25.4
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -12,6 +12,7 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.25/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
+Patch2: meson-fixes.patch
 
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.45.4
@@ -26,11 +27,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define libcroco_version 0.6.8
 %define telepathy_logger_version 0.2.6
 
-## Needed when we re-autogen
-BuildRequires:  autoconf >= 2.53
-BuildRequires:  automake >= 1.10
-BuildRequires:  gnome-common >= 2.2.0
-BuildRequires:  libtool >= 1.4.3
+BuildRequires:  meson
 BuildRequires:  caribou-devel >= %{caribou_version}
 BuildRequires:  chrpath
 BuildRequires:  dbus-glib-devel
@@ -44,6 +41,7 @@ BuildRequires:  json-glib-devel >= %{json_glib_version}
 BuildRequires:  upower-devel
 BuildRequires:  libgnome-keyring-devel
 BuildRequires:  libnm-gtk-devel
+BuildRequires:  mesa-libGL-devel
 BuildRequires:  NetworkManager-glib-devel
 BuildRequires:  polkit-devel
 BuildRequires:  startup-notification-devel
@@ -66,7 +64,7 @@ BuildRequires:  gnome-bluetooth-libs-devel >= %{gnome_bluetooth_version}
 %endif
 BuildRequires:  control-center
 # Bootstrap requirements
-BuildRequires: gtk-doc gnome-common
+BuildRequires: gtk-doc
 %ifnarch s390 s390x
 Requires:       gnome-bluetooth%{?_isa} >= %{gnome_bluetooth_version}
 %endif
@@ -118,16 +116,14 @@ easy to use experience.
 %prep
 %setup -q
 %patch1 -p1 -b .firefox
+%patch2 -p1 -b .meson-fixes
 
 %build
-(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static --disable-compile-warnings)
-make V=1 %{?_smp_mflags}
+%meson
+%meson_build -v
 
 %install
-%make_install
-
-rm -rf %{buildroot}/%{_libdir}/mozilla/plugins/*.la
+%meson_install
 
 # Create empty directories where other packages can drop extensions
 mkdir -p %{buildroot}%{_datadir}/gnome-shell/extensions
@@ -184,10 +180,11 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %dir %{_datadir}/GConf/gsettings
 %{_datadir}/GConf/gsettings/gnome-shell-overrides.convert
 %{_mandir}/man1/%{name}.1.gz
-# exclude as these should be in a devel package for st etc
-%exclude %{_datadir}/gtk-doc
 
 %changelog
+* Thu Jul 20 2017 Florian Müllner <fmuellner@redhat.com> - 3.25.4-1
+- Update to 3.25.4
+
 * Wed Jun 21 2017 Florian Müllner <fmuellner@redhat.com> - 3.25.3-1
 - Update to 3.25.3
 
