@@ -39,6 +39,7 @@ BuildRequires: libxkbcommon-devel
 BuildRequires: libxkbcommon-x11-devel
 BuildRequires: libxkbfile-devel
 BuildRequires: libXtst-devel
+BuildRequires: mesa-libEGL-devel
 BuildRequires: mesa-libGLES-devel
 BuildRequires: mesa-libGL-devel
 BuildRequires: mesa-libgbm-devel
