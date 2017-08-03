@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.3
-Release:   7%{?gitdate:.%{gitdate}}%{dist}
+Release:   8%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -605,6 +605,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.19.3-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
 * Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.19.3-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
