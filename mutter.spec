@@ -5,8 +5,8 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.25.4
-Release:       3%{?dist}
+Version:       3.25.90
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -184,6 +184,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu Aug 10 2017 Florian Müllner <fmuellner@redhat.com> - 3.25.90-1
+- Update to 3.25.90
+
 * Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 3.25.4-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
