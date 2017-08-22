@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.25.90
-Release:        2%{?dist}
+Version:        3.25.91
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -180,6 +180,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Tue Aug 22 2017 Florian Müllner <fmuellner@redhat.com> - 3.25.91-1
+- Update to 3.25.91
+
 * Fri Aug 11 2017 Kevin Fenzi <kevin@scrye.com> - 3.25.90-2
 - Rebuild with older working rpm
 
