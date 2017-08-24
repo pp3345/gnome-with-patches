@@ -118,7 +118,7 @@ easy to use experience.
 
 %build
 %meson
-%meson_build -v
+%meson_build
 
 %install
 %meson_install
