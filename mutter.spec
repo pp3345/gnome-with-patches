@@ -6,7 +6,7 @@
 
 Name:          mutter
 Version:       3.25.91
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -15,6 +15,8 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.25/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
+# https://bugzilla.gnome.org/show_bug.cgi?id=786677
+Patch1:        0001-wayland-dma-buf-Fix-32bpp-channel-order-inversion.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -50,7 +52,7 @@ BuildRequires: xkeyboard-config-devel
 BuildRequires: zenity
 BuildRequires: desktop-file-utils
 # Bootstrap requirements
-BuildRequires: gtk-doc gnome-common gettext-devel
+BuildRequires: gtk-doc gnome-common gettext-devel git
 BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel >= %{gsettings_desktop_schemas_version}
 BuildRequires: automake, autoconf, libtool
@@ -110,8 +112,7 @@ The %{name}-tests package contains tests that can be used to verify
 the functionality of the installed %{name} package.
 
 %prep
-%setup -q
-%patch0 -p1
+%autosetup -S git
 
 %build
 autoreconf -f -i
@@ -184,6 +185,10 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu Aug 24 2017 Bastien Nocera <bnocera@redhat.com> - 3.25.91-2
++ mutter-3.25.91-2
+- Fix inverted red and blue channels with newer Mesa
+
 * Tue Aug 22 2017 Florian Müllner <fmuellner@redhat.com> - 3.25.91-1
 - Update to 3.25.91
 
