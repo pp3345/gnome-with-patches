@@ -5,8 +5,8 @@
 %global libinput_version 1.4
 
 Name:          mutter
-Version:       3.25.91
-Release:       2%{?dist}
+Version:       3.25.92
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -16,7 +16,6 @@ Source0:       http://download.gnome.org/sources/%{name}/3.25/%{name}-%{version}
 
 Patch0:        startup-notification.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=786677
-Patch1:        0001-wayland-dma-buf-Fix-32bpp-channel-order-inversion.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -185,6 +184,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu Sep 07 2017 Florian Müllner <fmuellner@redhat.com> - 3.25.92-1
+- Update to 3.25.92
+
 * Thu Aug 24 2017 Bastien Nocera <bnocera@redhat.com> - 3.25.91-2
 + mutter-3.25.91-2
 - Fix inverted red and blue channels with newer Mesa
