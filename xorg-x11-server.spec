@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.3
-Release:   8%{?gitdate:.%{gitdate}}%{dist}
+Release:   9%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -91,7 +91,7 @@ Patch15: 0005-xfree86-Allow-overriding-primary-GPU-detection-from-.patch
 Patch16: 0006-xfree86-Add-ModulePath-support-for-OutputClass-confi.patch
 
 # From Debian use intel ddx driver only for gen4 and older chipsets
-%if 0%{?fedora} > 25
+%if 0%{?fedora} > 25 || 0%{?rhel} > 7
 Patch20: 06_use-intel-only-on-pre-gen4.diff
 %endif
 
@@ -159,7 +159,7 @@ BuildRequires: wayland-devel
 BuildRequires: wayland-protocols-devel
 BuildRequires: pkgconfig(wayland-client) >= 1.3.0
 BuildRequires: pkgconfig(epoxy)
-%if !0%{?rhel}
+%if 0%{?fedora} > 24  || 0%{?rhel} > 7
 BuildRequires: pkgconfig(xshmfence) >= 1.1
 %endif
 BuildRequires: libXv-devel
@@ -173,7 +173,7 @@ BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.86-1
 BuildRequires: libudev-devel
-%if !0%{?rhel}
+%if 0%{?fedora} > 24  || 0%{?rhel} > 7
 # libunwind is Exclusive for the following arches
 %ifarch aarch64 %{arm} hppa ia64 mips ppc ppc64 %{ix86} x86_64
 BuildRequires: libunwind-devel
@@ -226,7 +226,7 @@ Obsoletes: xorg-x11-glamor < %{version}-%{release}
 Provides: xorg-x11-glamor = %{version}-%{release}
 Obsoletes: xorg-x11-drv-modesetting < %{version}-%{release}
 Provides: xorg-x11-drv-modesetting = %{version}-%{release}
-%if 0%{?fedora} > 24
+%if 0%{?fedora} > 24  || 0%{?rhel} > 7
 # Dropped from F25
 Obsoletes: xorg-x11-drv-vmmouse < 13.1.0-4
 %endif
@@ -388,13 +388,13 @@ test `getminor extension` == %{extension_minor}
 %global dri_flags --disable-dri --disable-dri2
 %endif
 
-%if 0%{?fedora}
+%if 0%{?fedora} > 24  || 0%{?rhel} > 7
 %global bodhi_flags --with-vendor-name="Fedora Project"
 %global wayland --enable-xwayland
 %endif
 
 # ick
-%if 0%{?rhel}
+%if 0%{?fedora} < 20  || 0%{?rhel} <= 7
 sed -i 's/WAYLAND_SCANNER_RULES.*//g' configure.ac
 %endif
 
@@ -605,6 +605,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Sep 08 2017 Troy Dawson <tdawson@redhat.com> - 1.19.3-9
+- Cleanup spec file conditionals
+
 * Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.19.3-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
