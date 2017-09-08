@@ -3,10 +3,11 @@
 %global gsettings_desktop_schemas_version 3.21.4
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
+%global pipewire_version 0.1.4
 
 Name:          mutter
 Version:       3.26.0
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -45,6 +46,7 @@ BuildRequires: mesa-libGLES-devel
 BuildRequires: mesa-libGL-devel
 BuildRequires: mesa-libgbm-devel
 BuildRequires: pam-devel
+BuildRequires: pipewire-devel
 BuildRequires: systemd-devel
 BuildRequires: upower-devel
 BuildRequires: xkeyboard-config-devel
@@ -75,6 +77,7 @@ Conflicts: gnome-shell < 3.21.1
 Requires: control-center-filesystem
 Requires: gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires: gtk3%{?_isa} >= %{gtk3_version}
+Requires: pipewire%{_isa} >= %{pipewire_version}
 Requires: startup-notification
 Requires: dbus-x11
 Requires: zenity
@@ -116,7 +119,7 @@ the functionality of the installed %{name} package.
 %build
 autoreconf -f -i
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static --enable-compile-warnings=maximum --enable-installed-tests)
+ %configure --disable-static --enable-compile-warnings=maximum --enable-remote-desktop --enable-installed-tests)
 
 SHOULD_HAVE_DEFINED="HAVE_SM HAVE_RANDR HAVE_STARTUP_NOTIFICATION"
 
@@ -184,6 +187,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Sep 12 2017 Florian Müllner <fmuellner@redhat.com> -3 .26.0-2
+- Enable remote desktop support
+
 * Tue Sep 12 2017 Florian Müllner <fmuellner@redhat.com> -3 .26.0-1
 - Update to 3.26.0
 
