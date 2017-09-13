@@ -1,0 +1,109 @@
+From 40487bdd84da71bd3dc31810594b524e55b63049 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Tue, 12 Sep 2017 09:39:24 +0200
+Subject: [PATCH] wayland: Keep the inhibit shortcut dialog
+
+On Wayland, the grab()/ungrab() in gtk+/gdk are wired to the shortcut
+inhibitor mechanism, which in turn shows the dialog, which can take
+focus away from the client window when the dialog is shown.
+
+If the client issues an ungrab() when the keyboard focus is lost, we
+would hide the dialog, causing the keyboard focus to be returned to the
+client surface, which in turn would issue a new grab(), so forth and so
+on, causing a continuous show/hide of the shortcut inhibitor dialog.
+
+To avoid this issue, keep the dialog around even if the shortcut inhibit
+is canceled by the client, so that the user is forced to make a choice
+that we can reuse on the next request without showing the dialog again.
+
+Instead of hiding the dialog when the shortcut inhibitor is destroyed by
+the client, we simply mark the request as canceled and do not apply the
+user's choice.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=787568
+---
+ src/wayland/meta-wayland-inhibit-shortcuts-dialog.c | 15 +++++++++++----
+ src/wayland/meta-wayland-inhibit-shortcuts-dialog.h |  2 +-
+ src/wayland/meta-wayland-inhibit-shortcuts.c        |  2 +-
+ 3 files changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-inhibit-shortcuts-dialog.c b/src/wayland/meta-wayland-inhibit-shortcuts-dialog.c
+index 5f883f765..a432a4103 100644
+--- a/src/wayland/meta-wayland-inhibit-shortcuts-dialog.c
++++ b/src/wayland/meta-wayland-inhibit-shortcuts-dialog.c
+@@ -32,6 +32,7 @@ typedef struct _InhibitShortcutsData
+   MetaInhibitShortcutsDialog        *dialog;
+   gulong                             response_handler_id;
+   gboolean                           has_last_response;
++  gboolean                           request_canceled;
+   MetaInhibitShortcutsDialogResponse last_response;
+ } InhibitShortcutsData;
+ 
+@@ -93,7 +94,10 @@ inhibit_shortcuts_dialog_response_cb (MetaInhibitShortcutsDialog        *dialog,
+ {
+   data->last_response = response;
+   data->has_last_response = TRUE;
+-  inhibit_shortcuts_dialog_response_apply (data);
++
++  /* If the request was canceled, we don't need to apply the choice made */
++  if (!data->request_canceled)
++    inhibit_shortcuts_dialog_response_apply (data);
+ 
+   meta_inhibit_shortcuts_dialog_hide (data->dialog);
+   surface_inhibit_shortcuts_data_destroy_dialog (data);
+@@ -154,11 +158,14 @@ meta_wayland_surface_show_inhibit_shortcuts_dialog (MetaWaylandSurface *surface,
+     }
+ 
+   data = meta_wayland_surface_ensure_inhibit_shortcuts_dialog (surface, seat);
++  /* This is a new request */
++  data->request_canceled = FALSE;
++
+   meta_inhibit_shortcuts_dialog_show (data->dialog);
+ }
+ 
+ void
+-meta_wayland_surface_hide_inhibit_shortcuts_dialog (MetaWaylandSurface *surface)
++meta_wayland_surface_cancel_inhibit_shortcuts_dialog (MetaWaylandSurface *surface)
+ {
+   InhibitShortcutsData *data;
+ 
+@@ -168,8 +175,8 @@ meta_wayland_surface_hide_inhibit_shortcuts_dialog (MetaWaylandSurface *surface)
+   data = surface_inhibit_shortcuts_data_get (surface);
+   g_return_if_fail (data);
+ 
+-  if (data->dialog)
+-    meta_inhibit_shortcuts_dialog_hide (data->dialog);
++  /* Keep the dialog on screen, but mark the request as canceled */
++  data->request_canceled = TRUE;
+ }
+ 
+ void
+diff --git a/src/wayland/meta-wayland-inhibit-shortcuts-dialog.h b/src/wayland/meta-wayland-inhibit-shortcuts-dialog.h
+index bd3fc42b0..a7d60cfc3 100644
+--- a/src/wayland/meta-wayland-inhibit-shortcuts-dialog.h
++++ b/src/wayland/meta-wayland-inhibit-shortcuts-dialog.h
+@@ -24,7 +24,7 @@
+ void     meta_wayland_surface_show_inhibit_shortcuts_dialog (MetaWaylandSurface *surface,
+                                                              MetaWaylandSeat    *seat);
+ 
+-void     meta_wayland_surface_hide_inhibit_shortcuts_dialog (MetaWaylandSurface *surface);
++void     meta_wayland_surface_cancel_inhibit_shortcuts_dialog (MetaWaylandSurface *surface);
+ 
+ void     meta_wayland_surface_inhibit_shortcuts_dialog_init (void);
+ 
+diff --git a/src/wayland/meta-wayland-inhibit-shortcuts.c b/src/wayland/meta-wayland-inhibit-shortcuts.c
+index cd078917d..a7ba3c211 100644
+--- a/src/wayland/meta-wayland-inhibit-shortcuts.c
++++ b/src/wayland/meta-wayland-inhibit-shortcuts.c
+@@ -49,7 +49,7 @@ zwp_keyboard_shortcuts_inhibit_destroy (struct wl_client   *client,
+   shortcut_inhibit = wl_resource_get_user_data (resource);
+   if (shortcut_inhibit->surface)
+     {
+-      meta_wayland_surface_hide_inhibit_shortcuts_dialog (shortcut_inhibit->surface);
++      meta_wayland_surface_cancel_inhibit_shortcuts_dialog (shortcut_inhibit->surface);
+ 
+       g_signal_handler_disconnect (shortcut_inhibit->surface,
+                                    shortcut_inhibit->surface_destroyed_handler);
+-- 
+2.13.5
+

@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.26.0
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -17,6 +17,10 @@ Source0:       http://download.gnome.org/sources/%{name}/3.26/%{name}-%{version}
 
 Patch0:        startup-notification.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=786677
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=787568
+Patch1:        mutter-3.26.0-keep-inhibit-shortcut-dialog.patch
+Patch2:        mutter-3.26.0-do-not-leak-shortcut-inhibit-data.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -187,10 +191,13 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
-* Tue Sep 12 2017 Florian Müllner <fmuellner@redhat.com> -3 .26.0-2
+* Tue Sep 12 2017 Adam Williamson <awilliam@redhat.com> - 3.26.0-3
+- Backport upstream fixes for crasher bug BGO #787568
+
+* Tue Sep 12 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.0-2
 - Enable remote desktop support
 
-* Tue Sep 12 2017 Florian Müllner <fmuellner@redhat.com> -3 .26.0-1
+* Tue Sep 12 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.0-1
 - Update to 3.26.0
 
 * Thu Sep 07 2017 Florian Müllner <fmuellner@redhat.com> - 3.25.92-1
