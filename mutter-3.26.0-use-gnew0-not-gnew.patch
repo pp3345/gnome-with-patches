@@ -1,0 +1,28 @@
+From 21609ac6655ea7bee5cba9b37ec470375bcaf5d6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 12 Sep 2017 12:20:31 +0800
+Subject: [PATCH] wayland/inhibit-shortcuts-dialog: Use g_new0 instead of g_new
+
+The code assumed the newly allocated blocked was initialized to 0, but
+it wasn't since g_new was used. Fix that by using g_new0.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=787570
+---
+ src/wayland/meta-wayland-inhibit-shortcuts-dialog.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/wayland/meta-wayland-inhibit-shortcuts-dialog.c b/src/wayland/meta-wayland-inhibit-shortcuts-dialog.c
+index da897b9b3..5f883f765 100644
+--- a/src/wayland/meta-wayland-inhibit-shortcuts-dialog.c
++++ b/src/wayland/meta-wayland-inhibit-shortcuts-dialog.c
+@@ -112,7 +112,7 @@ meta_wayland_surface_ensure_inhibit_shortcuts_dialog (MetaWaylandSurface *surfac
+   if (data)
+     return data;
+ 
+-  data = g_new (InhibitShortcutsData, 1);
++  data = g_new0 (InhibitShortcutsData, 1);
+   surface_inhibit_shortcuts_data_set (surface, data);
+   g_signal_connect (surface, "destroy",
+                     G_CALLBACK (on_surface_destroyed),
+-- 
+2.13.5

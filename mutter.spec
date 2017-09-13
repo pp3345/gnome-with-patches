@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.26.0
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -21,6 +21,9 @@ Patch0:        startup-notification.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=787568
 Patch1:        mutter-3.26.0-keep-inhibit-shortcut-dialog.patch
 Patch2:        mutter-3.26.0-do-not-leak-shortcut-inhibit-data.patch
+
+# https://bugzilla.gnome.org/show_bug.cgi?id=787570
+Patch3:        mutter-3.26.0-use-gnew0-not-gnew.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -191,6 +194,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Sep 12 2017 Adam Williamson <awilliam@redhat.com> - 3.26.0-4
+- Also backport BGO #787570 fix from upstream
+
 * Tue Sep 12 2017 Adam Williamson <awilliam@redhat.com> - 3.26.0-3
 - Backport upstream fixes for crasher bug BGO #787568
 
