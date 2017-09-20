@@ -13,7 +13,6 @@ Summary:       Javascript Bindings for GNOME
 # Stack printer (gjs/stack.c)
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
-#VCS:          git://git.gnome.org/gjs
 Source0:       https://download.gnome.org/sources/%{name}/1.50/%{name}-%{version}.tar.xz
 
 BuildRequires: cairo-gobject-devel
@@ -26,8 +25,6 @@ BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
 BuildRequires: mozjs52-devel
 BuildRequires: pkgconfig
-# Bootstrap requirements
-BuildRequires: gtk-doc gnome-common
 
 Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
@@ -57,8 +54,7 @@ the functionality of the installed gjs package.
 %autosetup -p1
 
 %build
-(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static --enable-installed-tests)
+%configure --disable-static --enable-installed-tests
 
 make %{?_smp_mflags} V=1
 
@@ -69,7 +65,6 @@ make %{?_smp_mflags} V=1
 chrpath --delete %{buildroot}%{_bindir}/gjs-console
 chrpath --delete %{buildroot}%{_libexecdir}/gjs/installed-tests/minijasmine
 
-#Remove libtool archives.
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
 %check
