@@ -1,11 +1,10 @@
 %global glib2_version 2.50.0
 %global gobject_introspection_version 1.41.4
 %global gtk3_version 3.20
-%global mozjs38_version 38.8.0-4
 
 Name:          gjs
-Version:       1.49.3
-Release:       3%{?dist}
+Version:       1.50.0
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -15,17 +14,17 @@ Summary:       Javascript Bindings for GNOME
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
 #VCS:          git://git.gnome.org/gjs
-Source0:       https://download.gnome.org/sources/%{name}/1.49/%{name}-%{version}.tar.xz
+Source0:       https://download.gnome.org/sources/%{name}/1.50/%{name}-%{version}.tar.xz
 
 BuildRequires: cairo-gobject-devel
 BuildRequires: chrpath
 BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
 BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
+BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
-BuildRequires: intltool
-BuildRequires: mozjs38-devel >= %{mozjs38_version}
+BuildRequires: mozjs52-devel
 BuildRequires: pkgconfig
 # Bootstrap requirements
 BuildRequires: gtk-doc gnome-common
@@ -33,7 +32,6 @@ BuildRequires: gtk-doc gnome-common
 Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires: gtk3%{?_isa} >= %{gtk3_version}
-Requires: mozjs38%{?_isa} >= %{mozjs38_version}
 
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
@@ -100,6 +98,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Wed Sep 20 2017 Kalev Lember <klember@redhat.com> - 1.50.0-1
+- Update to 1.50.0
+
 * Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.49.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
