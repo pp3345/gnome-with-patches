@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.26.0
-Release:       4%{?dist}
+Release:       5%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -34,6 +34,7 @@ BuildRequires: gtk3-devel >= %{gtk3_version}
 BuildRequires: pkgconfig
 BuildRequires: gobject-introspection-devel >= 1.41.0
 BuildRequires: libSM-devel
+BuildRequires: libwacom-devel
 BuildRequires: libX11-devel
 BuildRequires: libXdamage-devel
 BuildRequires: libXext-devel
@@ -126,7 +127,7 @@ the functionality of the installed %{name} package.
 %build
 autoreconf -f -i
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static --enable-compile-warnings=maximum --enable-remote-desktop --enable-installed-tests)
+ %configure --disable-static --enable-compile-warnings=maximum --enable-remote-desktop --enable-installed-tests --with-libwacom)
 
 SHOULD_HAVE_DEFINED="HAVE_SM HAVE_RANDR HAVE_STARTUP_NOTIFICATION"
 
@@ -194,6 +195,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Sep 20 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.0-5
+- Enable tablet support
+
 * Tue Sep 12 2017 Adam Williamson <awilliam@redhat.com> - 3.26.0-4
 - Also backport BGO #787570 fix from upstream
 
