@@ -1,0 +1,48 @@
+From b39b84c683e29086b999b835c09ac4ee5a960852 Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Thu, 14 Sep 2017 14:46:13 -0400
+Subject: [PATCH] gtk-embed: ensure we only listen for window-created events
+ once
+
+If a tray icon gets a mapped and unmapped and the mapped again
+in quick succession, we can end up with multiple handlers
+listening for window creation events.
+
+This commit tries to guard against that by only listening for
+window-created events when we don't  know the actor associated
+with the icon.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=787361
+---
+ src/shell-gtk-embed.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/src/shell-gtk-embed.c b/src/shell-gtk-embed.c
+index 176b41320..54061046b 100644
+--- a/src/shell-gtk-embed.c
++++ b/src/shell-gtk-embed.c
+@@ -124,13 +124,14 @@ shell_gtk_embed_on_window_mapped (GtkWidget     *object,
+   ShellGtkEmbedPrivate *priv = shell_gtk_embed_get_instance_private (embed);
+   MetaDisplay *display = shell_global_get_display (shell_global_get ());
+ 
+-  /* Listen for new windows so we can detect when Mutter has
+-     created a MutterWindow for this window */
+-  priv->window_created_handler =
+-    g_signal_connect (display,
+-                      "window-created",
+-                      G_CALLBACK (shell_gtk_embed_window_created_cb),
+-                      embed);
++  if (priv->window_created_handler == 0 && priv->window_actor == NULL)
++    /* Listen for new windows so we can detect when Mutter has
++       created a MutterWindow for this window */
++    priv->window_created_handler =
++      g_signal_connect (display,
++                        "window-created",
++                        G_CALLBACK (shell_gtk_embed_window_created_cb),
++                        embed);
+ }
+ 
+ static void
+-- 
+2.13.5
+
