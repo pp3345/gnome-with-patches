@@ -6,8 +6,8 @@
 %global pipewire_version 0.1.4
 
 Name:          mutter
-Version:       3.26.0
-Release:       6%{?dist}
+Version:       3.26.1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -17,15 +17,6 @@ Source0:       http://download.gnome.org/sources/%{name}/3.26/%{name}-%{version}
 
 Patch0:        startup-notification.patch
 # https://bugzilla.gnome.org/show_bug.cgi?id=786677
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=787568
-Patch1:        mutter-3.26.0-keep-inhibit-shortcut-dialog.patch
-Patch2:        mutter-3.26.0-do-not-leak-shortcut-inhibit-data.patch
-
-# https://bugzilla.gnome.org/show_bug.cgi?id=787570
-Patch3:        mutter-3.26.0-use-gnew0-not-gnew.patch
-
-Patch4:        0001-screen-cast-stream-src-Adjust-to-pipewire-API-break.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -197,6 +188,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Oct 04 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.1-1
+- Update to 3.26.1
+
 * Wed Sep 21 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.0-5
 - Adjust to pipewire API break
 
