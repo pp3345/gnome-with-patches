@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.26.0
-Release:        2%{?dist}
+Version:        3.26.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -12,8 +12,6 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.26/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
-
-Patch2: 0001-gtk-embed-ensure-we-only-listen-for-window-created-e.patch
 
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.45.4
@@ -117,7 +115,6 @@ easy to use experience.
 %prep
 %setup -q
 %patch1 -p1 -b .firefox
-%patch2 -p1
 
 %build
 %meson
@@ -183,6 +180,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Wed Oct 04 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.1-1
+- Update to 3.26.1
+
 * Thu Sep 21 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.0-2
 - Fix crash on fast status icon remapping
 
