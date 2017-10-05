@@ -44,8 +44,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.19.3
-Release:   9%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.19.4
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -90,6 +90,20 @@ Patch14: 0004-xfree86-xf86platformProbe-split-finding-pci-info-and.patch
 Patch15: 0005-xfree86-Allow-overriding-primary-GPU-detection-from-.patch
 Patch16: 0006-xfree86-Add-ModulePath-support-for-OutputClass-confi.patch
 
+# Backport tablet support for Xwayland - *NOT* in server-1.19-branch
+Patch9901: 0001-xwayland-Depend-on-wayland-protocols-to-build-tablet.patch
+Patch9902: 0002-xwayland-Bind-to-wp_tablet_manager-if-available-and-.patch
+Patch9903: 0003-xwayland-Listen-for-wp_tablet_seat-events.patch
+Patch9904: 0004-xwayland-Handle-wp_tablet-events.patch
+Patch9905: 0005-xwayland-Handle-tablet_tool-events.patch
+Patch9906: 0006-xwayland-handle-button-events-after-motion-events.patch
+Patch9907: 0007-xwayland-Refactor-cursor-management-into-xwl_cursor.patch
+Patch9908: 0008-xwayland-update-cursor-on-tablet-tools-in-proximity.patch
+Patch9909: 0009-xwayland-add-tablet-pad-support.patch
+Patch9910: 0010-xwayland-Unconditionally-initialize-lists-in-init_ta.patch
+Patch9911: 0011-xwayland-Correct-off-by-one-error-in-tablet-button-n.patch
+Patch9912: 0012-xwayland-Implement-tablet_tool_wheel-for-scrolling.patch
+
 # From Debian use intel ddx driver only for gen4 and older chipsets
 %if 0%{?fedora} > 25 || 0%{?rhel} > 7
 Patch20: 06_use-intel-only-on-pre-gen4.diff
@@ -97,8 +111,6 @@ Patch20: 06_use-intel-only-on-pre-gen4.diff
 
 # Submitted upstream
 Patch21: 0001-xf86-dri2-Use-va_gl-as-vdpau_driver-for-Intel-i965-G.patch
-
-Patch22: 0001-modesetting-Set-correct-DRM-event-context-version.patch
 
 #Patch6044: xserver-1.6.99-hush-prerelease-warning.patch
 
@@ -605,6 +617,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Oct 05 2017 Olivier Fourdan <ofourdan@redhat.com> - 1.19.4-1
+- xserver-1.19.4
+- Backport tablet support for Xwayland
+
 * Fri Sep 08 2017 Troy Dawson <tdawson@redhat.com> - 1.19.3-9
 - Cleanup spec file conditionals
 
