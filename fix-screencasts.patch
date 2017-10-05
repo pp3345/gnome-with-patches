@@ -1,0 +1,67 @@
+From 18c41aefc982864225ea993a0d0213e22e07e62e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Thu, 5 Oct 2017 21:38:25 +0200
+Subject: [PATCH 1/2] build: Fetch pipewire micro version
+
+Pipewire doesn't export its version defines, so the API checks added
+in commit f0c6c4eb1fa2b21e38 effectively disable screencasting, whoops.
+Breaking changes like this should disappear once the library stabilizes,
+so simply define the version ourselves instead of writing a "proper"
+test with AC_COMPILE_IFELSE() ...
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788572
+---
+ configure.ac | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index 89c15e23b..a5870e6ab 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -245,6 +245,10 @@ AC_ARG_ENABLE(remote-desktop,
+ )
+ AS_IF([test "$enable_remote_desktop" = "yes"], [
+   MUTTER_PC_MODULES="$MUTTER_PC_MODULES libpipewire-0.1 >= 0.1.4"
++  PKG_CHECK_EXISTS([libpipewire-0.1], [
++    pw_micro=`$PKG_CONFIG --modversion libpipewire-0.1 | cut -d. -f3`
++    AC_DEFINE_UNQUOTED([PIPEWIRE_VERSION_MICRO],[$pw_micro], [Pipewire micro version used])
++  ])
+   AC_DEFINE([HAVE_REMOTE_DESKTOP],[1], [Defined if screen cast and remote desktop support is enabled])
+ ])
+ AM_CONDITIONAL([HAVE_REMOTE_DESKTOP],[test "$enable_remote_desktop" = "yes"])
+-- 
+2.14.2
+
+
+From 8185373bd4d23b7090dab6e4507ecad153f07099 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Thu, 5 Oct 2017 14:16:35 -0400
+Subject: [PATCH 2/2] screen-cast-stream-src: Only clean up pipewire
+ remote/core if they exist
+
+They can could fail to create, so lets deal better with that
+possibility.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788569
+---
+ src/backends/meta-screen-cast-stream-src.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/backends/meta-screen-cast-stream-src.c b/src/backends/meta-screen-cast-stream-src.c
+index e6d99d592..0343ea458 100644
+--- a/src/backends/meta-screen-cast-stream-src.c
++++ b/src/backends/meta-screen-cast-stream-src.c
+@@ -593,8 +593,8 @@ meta_screen_cast_stream_src_finalize (GObject *object)
+     meta_screen_cast_stream_src_disable (src);
+ 
+   g_clear_pointer (&priv->pipewire_stream, (GDestroyNotify) pw_stream_destroy);
+-  pw_remote_destroy (priv->pipewire_remote);
+-  pw_core_destroy (priv->pipewire_core);
++  g_clear_pointer (&priv->pipewire_remote, (GDestroyNotify) pw_remote_destroy);
++  g_clear_pointer (&priv->pipewire_core, (GDestroyNotify) pw_core_destroy);
+   g_source_destroy (&priv->pipewire_source->base);
+ 
+   G_OBJECT_CLASS (meta_screen_cast_stream_src_parent_class)->finalize (object);
+-- 
+2.14.2
+
