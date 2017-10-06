@@ -16,7 +16,6 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.26/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
-# https://bugzilla.gnome.org/show_bug.cgi?id=786677
 
 Patch1:        fix-screencasts.patch
 
