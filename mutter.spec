@@ -6,18 +6,16 @@
 %global pipewire_version 0.1.4
 
 Name:          mutter
-Version:       3.26.1
-Release:       2%{?dist}
+Version:       3.27.1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.26/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.27/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
-
-Patch1:        fix-screencasts.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -189,6 +187,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Oct 17 2017 Florian Müllner <fmuellner@redhat.com> - 3.27.1-1
+- Update to 3.27.1
+
 * Fri Oct 06 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.1-2
 - Fix screencasts
 
