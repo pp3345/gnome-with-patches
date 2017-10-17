@@ -17,6 +17,8 @@ Source0:       http://download.gnome.org/sources/%{name}/3.27/%{name}-%{version}
 
 Patch0:        startup-notification.patch
 
+Patch1:        fix-gl-includes.patch
+
 BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -187,6 +189,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Mon Oct 30 2017 Florian Müllner <fmuellner@redhat.com> - 3.27.1-1
+- Include 32-bit build fixes
+
 * Tue Oct 17 2017 Florian Müllner <fmuellner@redhat.com> - 3.27.1-1
 - Update to 3.27.1
 

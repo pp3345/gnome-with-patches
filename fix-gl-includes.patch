@@ -1,0 +1,131 @@
+From f5cd787a70efd0c4389a784d5aa1ab3de4b526dc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 30 Oct 2017 16:07:30 +0800
+Subject: [PATCH 1/3] renderer-native-gles3: Don't pass GPU when rendering
+
+It wasn't used for anything, so don't pass it.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788695
+---
+ src/backends/native/meta-renderer-native-gles3.c | 1 -
+ src/backends/native/meta-renderer-native-gles3.h | 2 --
+ src/backends/native/meta-renderer-native.c       | 1 -
+ 3 files changed, 4 deletions(-)
+
+diff --git a/src/backends/native/meta-renderer-native-gles3.c b/src/backends/native/meta-renderer-native-gles3.c
+index daab1fcba..40237be01 100644
+--- a/src/backends/native/meta-renderer-native-gles3.c
++++ b/src/backends/native/meta-renderer-native-gles3.c
+@@ -103,7 +103,6 @@ paint_egl_image (MetaGles3   *gles3,
+ gboolean
+ meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
+                                            MetaGles3      *gles3,
+-                                           MetaGpuKms     *gpu_kms,
+                                            EGLDisplay      egl_display,
+                                            EGLContext      egl_context,
+                                            EGLSurface      egl_surface,
+diff --git a/src/backends/native/meta-renderer-native-gles3.h b/src/backends/native/meta-renderer-native-gles3.h
+index 51893636a..b4ca19285 100644
+--- a/src/backends/native/meta-renderer-native-gles3.h
++++ b/src/backends/native/meta-renderer-native-gles3.h
+@@ -27,11 +27,9 @@
+ 
+ #include "backends/meta-egl.h"
+ #include "backends/meta-gles3.h"
+-#include "backends/native/meta-gpu-kms.h"
+ 
+ gboolean meta_renderer_native_gles3_blit_shared_bo (MetaEgl       *egl,
+                                                     MetaGles3     *gles3,
+-                                                    MetaGpuKms    *gpu_kms,
+                                                     EGLDisplay     egl_display,
+                                                     EGLContext     egl_context,
+                                                     EGLSurface     egl_surface,
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index 66c254f06..613790848 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -1356,7 +1356,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
+ 
+   if (!meta_renderer_native_gles3_blit_shared_bo (egl,
+                                                   renderer_native->gles3,
+-                                                  secondary_gpu_state->gpu_kms,
+                                                   renderer_gpu_data->egl_display,
+                                                   renderer_gpu_data->secondary.egl_context,
+                                                   secondary_gpu_state->egl_surface,
+-- 
+2.14.2
+
+
+From fdbc72431c916f8aa67391a1d2147136a8eeca94 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 30 Oct 2017 16:08:12 +0800
+Subject: [PATCH 2/3] renderer-native-gles3: Remove unnecessary includes
+
+They caused conflicts on i686 as GL/gl.h was included by cogl.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788695
+---
+ src/backends/native/meta-renderer-native-gles3.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/backends/native/meta-renderer-native-gles3.c b/src/backends/native/meta-renderer-native-gles3.c
+index 40237be01..2aaae7619 100644
+--- a/src/backends/native/meta-renderer-native-gles3.c
++++ b/src/backends/native/meta-renderer-native-gles3.c
+@@ -27,12 +27,12 @@
+ #include "backends/native/meta-renderer-native-gles3.h"
+ 
+ #include <errno.h>
++#include <gio/gio.h>
+ #include <GLES3/gl3.h>
++#include <string.h>
+ 
+-#include "backends/meta-backend-private.h"
+ #include "backends/meta-gles3.h"
+ #include "backends/meta-gles3-table.h"
+-#include "backends/native/meta-renderer-native.h"
+ 
+ static EGLImageKHR
+ create_egl_image (MetaEgl       *egl,
+-- 
+2.14.2
+
+
+From 5e192c970c513e1c6a7459f0acb33a47cf0bed25 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 30 Oct 2017 16:08:46 +0800
+Subject: [PATCH 3/3] renderer-native-gles3: Add cpp error out if gl.h was
+ included
+
+On some architectures, including both GLES3/gl3.h GL/gl.h will cause
+compilation issues due to incompatible type definitions. To avoid
+running into that issue while building on other architectures, make
+sure we haven't included GL/gl.h by accident.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788695
+---
+ src/backends/native/meta-renderer-native-gles3.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/backends/native/meta-renderer-native-gles3.c b/src/backends/native/meta-renderer-native-gles3.c
+index 2aaae7619..0914dfe1d 100644
+--- a/src/backends/native/meta-renderer-native-gles3.c
++++ b/src/backends/native/meta-renderer-native-gles3.c
+@@ -34,6 +34,14 @@
+ #include "backends/meta-gles3.h"
+ #include "backends/meta-gles3-table.h"
+ 
++/*
++ * GL/gl.h being included may conflit with gl3.h on some architectures.
++ * Make sure that hasn't happened on any architecture.
++ */
++#ifdef GL_VERSION_1_1
++#error "Somehow included OpenGL headers when we shouldn't have"
++#endif
++
+ static EGLImageKHR
+ create_egl_image (MetaEgl       *egl,
+                   EGLDisplay     egl_display,
+-- 
+2.14.2
+
