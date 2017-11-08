@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.27.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -180,6 +180,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Wed Nov 08 2017 Milan Crha <mcrha@redhat.com> - 3.27.1-2
+- Rebuild for newer libical
+
 * Tue Oct 17 2017 Florian Müllner <fmuellner@redhat.com> - 3.27.1-1
 - Update to 3.27.1
 
