@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.27.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -74,6 +74,7 @@ Requires:       gnome-session-xsession
 Requires:       gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires:       gjs%{?_isa} >= %{gjs_version}
 Requires:       gtk3%{?_isa} >= %{gtk3_version}
+Requires:       libnm-gtk%{?_isa}
 # needed for loading SVG's via gdk-pixbuf
 Requires:       librsvg2%{?_isa}
 # needed as it is now split from Clutter
@@ -180,6 +181,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Tue Dec 19 2017 Kalev Lember <klember@redhat.com> - 3.27.1-3
+- Explicitly require libnm-gtk (#1509496)
+
 * Wed Nov 08 2017 Milan Crha <mcrha@redhat.com> - 3.27.1-2
 - Rebuild for newer libical
 
