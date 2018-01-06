@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.27.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -151,14 +151,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 
 %post -p /sbin/ldconfig
 
-%postun
-/sbin/ldconfig
-if [ $1 -eq 0 ]; then
-  glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
-fi
-
-%posttrans
-glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
+%postun -p /sbin/ldconfig
 
 %files -f %{name}.lang
 %license COPYING
@@ -189,6 +182,9 @@ glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
 %{_datadir}/mutter/tests
 
 %changelog
+* Sat Jan 06 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 3.27.1-2
+- Remove obsolete scriptlets
+
 * Mon Oct 30 2017 Florian Müllner <fmuellner@redhat.com> - 3.27.1-1
 - Include 32-bit build fixes
 
