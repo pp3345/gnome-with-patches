@@ -45,7 +45,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.6
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -124,6 +124,9 @@ Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 # Default to xf86-video-modesetting on GeForce 8 and newer
 Patch10001: 0001-xfree86-use-modesetting-driver-by-default-on-GeForce.patch
+
+# Upstream commit a309323328d9d6e0bf
+Patch10002: 0001-config-fix-NULL-value-detection-for-ID_INPUT-being-u.patch
 
 %global moduledir	%{_libdir}/xorg/modules
 %global drimoduledir	%{_libdir}/dri
@@ -617,6 +620,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Jan 11 2018 Peter Hutterer <peter.hutterer@redhat.com> 1.19.6-2
+- Fix handling of devices with ID_INPUT=null
+
 * Wed Dec 20 2017 Adam Jackson <ajax@redhat.com> - 1.19.6-1
 - xserver 1.19.6
 
