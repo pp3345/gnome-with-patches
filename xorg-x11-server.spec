@@ -10,6 +10,7 @@
 
 # X.org requires lazy relocations to work.
 %undefine _hardened_build
+%undefine _strict_symbol_defs_build
 
 #global gitdate 20161026
 %global stable_abi 1
