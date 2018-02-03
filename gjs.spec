@@ -4,7 +4,7 @@
 
 Name:          gjs
 Version:       1.50.4
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -70,9 +70,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %check
 #make check
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
+%ldconfig_scriptlets
 
 %files
 %license COPYING
@@ -93,6 +91,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Sat Feb 03 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.50.4-2
+- Switch to %%ldconfig_scriptlets
+
 * Sun Jan 28 2018 Kalev Lember <klember@redhat.com> - 1.50.4-1
 - Update to 1.50.4
 
