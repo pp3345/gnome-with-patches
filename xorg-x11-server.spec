@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.6
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -104,6 +104,9 @@ Patch9909: 0009-xwayland-add-tablet-pad-support.patch
 Patch9910: 0010-xwayland-Unconditionally-initialize-lists-in-init_ta.patch
 Patch9911: 0011-xwayland-Correct-off-by-one-error-in-tablet-button-n.patch
 Patch9912: 0012-xwayland-Implement-tablet_tool_wheel-for-scrolling.patch
+
+# Upstream commit fe46cbe for Xwayland - Not in server-1.19-branch
+Patch9950: 0001-xwayland-Give-up-cleanly-on-Wayland-socket-errors.patch
 
 # From Debian use intel ddx driver only for gen4 and older chipsets
 %if 0%{?fedora} > 25 || 0%{?rhel} > 7
@@ -621,6 +624,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Jan 30 2018 Olivier Fourdan <ofourdan@redhat.com> 1.19.6-3
+- Avoid generating a core file when the Wayland compositor is gone.
+
 * Thu Jan 11 2018 Peter Hutterer <peter.hutterer@redhat.com> 1.19.6-2
 - Fix handling of devices with ID_INPUT=null
 
