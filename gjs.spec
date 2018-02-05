@@ -70,8 +70,6 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %check
 #make check
 
-%ldconfig_scriptlets
-
 %files
 %license COPYING
 %doc NEWS README
@@ -96,6 +94,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %changelog
 * Mon Feb 05 2018 Kalev Lember <klember@redhat.com> - 1.51.90-1
 - Update to 1.51.90
+- Drop ldconfig scriptlets
 
 * Sat Feb 03 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.50.4-2
 - Switch to %%ldconfig_scriptlets
