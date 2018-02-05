@@ -3,8 +3,8 @@
 %global gtk3_version 3.20
 
 Name:          gjs
-Version:       1.50.4
-Release:       2%{?dist}
+Version:       1.51.90
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -13,7 +13,7 @@ Summary:       Javascript Bindings for GNOME
 # Stack printer (gjs/stack.c)
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
-Source0:       https://download.gnome.org/sources/%{name}/1.50/%{name}-%{version}.tar.xz
+Source0:       https://download.gnome.org/sources/%{name}/1.51/%{name}-%{version}.tar.xz
 
 BuildRequires: cairo-gobject-devel
 BuildRequires: chrpath
@@ -85,12 +85,18 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_includedir}/gjs-1.0
 %{_libdir}/pkgconfig/gjs-1.0.pc
 %{_libdir}/*.so
+%dir %{_datadir}/gjs-1.0
+%{_datadir}/gjs-1.0/lsan/
+%{_datadir}/gjs-1.0/valgrind/
 
 %files tests
 %{_libexecdir}/gjs/installed-tests
 %{_datadir}/installed-tests
 
 %changelog
+* Mon Feb 05 2018 Kalev Lember <klember@redhat.com> - 1.51.90-1
+- Update to 1.51.90
+
 * Sat Feb 03 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.50.4-2
 - Switch to %%ldconfig_scriptlets
 
