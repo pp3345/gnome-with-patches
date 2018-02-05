@@ -30,6 +30,9 @@ Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires: gtk3%{?_isa} >= %{gtk3_version}
 
+# Filter provides for private libraries
+%global __provides_exclude_from ^%{_libdir}/gjs/
+
 %description
 Gjs allows using GNOME libraries from Javascript. It's based on the
 Spidermonkey Javascript engine from Mozilla and the GObject introspection
@@ -95,6 +98,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 * Mon Feb 05 2018 Kalev Lember <klember@redhat.com> - 1.51.90-1
 - Update to 1.51.90
 - Drop ldconfig scriptlets
+- Filter provides for private libraries
 
 * Sat Feb 03 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.50.4-2
 - Switch to %%ldconfig_scriptlets
