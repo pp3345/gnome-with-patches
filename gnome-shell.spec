@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.27.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -185,6 +185,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Wed Feb 07 2018 Kalev Lember <klember@redhat.com> - 3.27.1-5
+- Rebuilt for evolution-data-server soname bump
+
 * Mon Jan 22 2018 Adam Williamson <awilliam@redhat.com> - 3.27.1-4
 - Backport fix for crasher bug BGO #788931 (#1469129)
 
