@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.6
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Release:   5%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -107,6 +107,10 @@ Patch9912: 0012-xwayland-Implement-tablet_tool_wheel-for-scrolling.patch
 
 # Upstream commit fe46cbe for Xwayland - Not in server-1.19-branch
 Patch9950: 0001-xwayland-Give-up-cleanly-on-Wayland-socket-errors.patch
+# Upstream commit 60f4646a for Xwayland - Not in xorg-server-1.19.6
+Patch9951: 0001-xwayland-Keep-separate-variables-for-pointer-and-tab.patch
+# Upstream commit 16fd1847 for Xwayland - Not in xorg-server-1.19.6
+Patch9952: 0001-xwayland-avoid-race-condition-on-new-keymap.patch
 
 # From Debian use intel ddx driver only for gen4 and older chipsets
 %if 0%{?fedora} > 25 || 0%{?rhel} > 7
@@ -624,6 +628,11 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Feb 13 2018 Olivier Fourdan <ofourdan@redhat.com> 1.19.6-5
+- xwayland: avoid race condition on new keymap
+- xwayland: Keep separate variables for pointer and tablet foci (rhbz#1519961)
+- xvfb-run now support command line option “--auto-display”
+
 * Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.19.6-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 

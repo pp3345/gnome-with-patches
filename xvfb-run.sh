@@ -64,7 +64,10 @@ Usage: $PROGNAME [OPTION ...] COMMAND
 Run COMMAND (usually an X client) in a virtual X server environment.
 Options:
 -a        --auto-servernum          try to get a free server number, starting at
-                                    --server-num
+                                    --server-num (deprecated, use --auto-display
+                                    instead)
+-d        --auto-display            use the X server to find a display number
+                                    automatically
 -e FILE   --error-file=FILE         file used to store xauth errors and Xvfb
                                     output (default: $ERRORFILE)
 -f FILE   --auth-file=FILE          file used to store auth cookie
@@ -97,7 +100,7 @@ find_free_servernum() {
 }
 
 # Parse the command line.
-ARGS=$(getopt --options +ae:f:hn:lp:s:w: \
+ARGS=$(getopt --options +ade:f:hn:lp:s:w: \
        --long auto-servernum,error-file:auth-file:,help,server-num:,listen-tcp,xauth-protocol:,server-args:,wait: \
        --name "$PROGNAME" -- "$@")
 GETOPT_STATUS=$?
@@ -112,6 +115,7 @@ eval set -- "$ARGS"
 while :; do
     case "$1" in
         -a|--auto-servernum) SERVERNUM=$(find_free_servernum) ;;
+        -d|--auto-display) AUTO_DISPLAY=1 ;;
         -e|--error-file) ERRORFILE="$2"; shift ;;
         -f|--auth-file) AUTHFILE="$2"; shift ;;
         -h|--help) SHOWHELP="yes" ;;
@@ -138,28 +142,39 @@ if [ -z "$*" ]; then
     exit 2
 fi
 
-if ! type xauth >/dev/null; then
+if ! which xauth >/dev/null; then
     error "xauth command not found"
     exit 3
 fi
 
+# Set up the temp dir for the pid and X authorization file
+XVFB_RUN_TMPDIR="$(mktemp --directory --tmpdir $PROGNAME.XXXXXX)"
 # If the user did not specify an X authorization file to use, set up a temporary
 # directory to house one.
 if [ -z "$AUTHFILE" ]; then
-    XVFB_RUN_TMPDIR="$(mktemp --directory --tmpdir $PROGNAME.XXXXXX)"
     AUTHFILE=$(mktemp -p "$XVFB_RUN_TMPDIR" Xauthority.XXXXXX)
 fi
 
 # Start Xvfb.
 MCOOKIE=$(mcookie)
 
+if [ -z "$AUTO_DISPLAY" ]; then
+  # Old style using a pre-computed SERVERNUM
+  XAUTHORITY=$AUTHFILE Xvfb ":$SERVERNUM" $XVFBARGS $LISTENTCP >>"$ERRORFILE" \
+  2>&1 &
+  XVFBPID=$!
+else
+  # New style using Xvfb to provide a free display
+  PIDFILE=$(mktemp -p "$XVFB_RUN_TMPDIR" pid.XXXXXX)
+  SERVERNUM=$(XAUTHORITY=$AUTHFILE Xvfb -displayfd 1 $XVFBARGS $LISTENTCP \
+  2>"$ERRORFILE" & echo $! > $PIDFILE)
+  XVFBPID=$(cat $PIDFILE)
+fi
+sleep "$STARTWAIT"
+
 XAUTHORITY=$AUTHFILE xauth source - << EOF >>"$ERRORFILE" 2>&1
 add :$SERVERNUM $XAUTHPROTO $MCOOKIE
 EOF
-XAUTHORITY=$AUTHFILE Xvfb ":$SERVERNUM" $XVFBARGS $LISTENTCP >>"$ERRORFILE" \
-  2>&1 &
-XVFBPID=$!
-sleep "$STARTWAIT"
 
 # Start the command and save its exit status.
 set +e
