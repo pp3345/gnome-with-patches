@@ -19,6 +19,10 @@ Patch0:        startup-notification.patch
 
 Patch1:        fix-gl-includes.patch
 
+# https://github.com/GNOME/mutter/commit/c063d43be84dd445a02700c7bb1bf77aea65bb61
+# https://bugzilla.gnome.org/show_bug.cgi?id=792854
+Patch2:        screen-cast-pipewire-0.1.8-API.patch
+
 BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -184,6 +188,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %changelog
 * Tue Feb 13 2018 Björn Esser <besser82@fedoraproject.org> - 3.27.1-4
 - Rebuild against newer gnome-desktop3 package
+- Add patch for adjustments to pipewire 0.1.8 API
 
 * Thu Feb 08 2018 Fedora Release Engineering <releng@fedoraproject.org> - 3.27.1-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
