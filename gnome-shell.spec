@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.27.1
-Release:        5%{?dist}
+Version:        3.27.91
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -13,24 +13,21 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.27/%{name}-%{ver
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
-# Backported fix for BGO #788931 / RHBZ #1469129
-Patch2: 0001-status-keyboard-Reset-menuItems-and-Label-objects-on.patch
-
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.45.4
-%define gjs_version 1.47.0
-%define mutter_version 3.25.90
+%define gjs_version 1.51.90
+%define mutter_version 3.27.91
 %define gtk3_version 3.15.0
 %define eds_version 3.13.90
 %define gnome_desktop_version 3.7.90
 %define json_glib_version 0.13.2
 %define gsettings_desktop_schemas_version 3.21.3
-%define caribou_version 0.4.8
+%define ibus_version 1.5.2
 %define libcroco_version 0.6.8
 %define telepathy_logger_version 0.2.6
 
 BuildRequires:  meson
-BuildRequires:  caribou-devel >= %{caribou_version}
+BuildRequires:  ibus-devel >= %{ibus_version}
 BuildRequires:  chrpath
 BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
@@ -42,11 +39,12 @@ BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  json-glib-devel >= %{json_glib_version}
 BuildRequires:  upower-devel
 BuildRequires:  libgnome-keyring-devel
-BuildRequires:  libnm-gtk-devel
 BuildRequires:  mesa-libGL-devel
-BuildRequires:  NetworkManager-glib-devel
+BuildRequires:  NetworkManager-libnm-devel
 BuildRequires:  polkit-devel
 BuildRequires:  startup-notification-devel
+# for theme generation
+BuildRequires:  sassc
 # for screencast recorder functionality
 BuildRequires:  gstreamer1-devel
 BuildRequires:  gtk3-devel >= %{gtk3_version}
@@ -95,7 +93,7 @@ Requires:       telepathy-glib%{?_isa}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
-Requires:       caribou%{?_isa} >= %{caribou_version}
+Requires:       ibus%{?_isa} >= %{ibus_version}
 # needed for the user menu
 Requires:       accountsservice-libs%{?_isa}
 Requires:       gdm-libs%{?_isa}
@@ -119,7 +117,6 @@ easy to use experience.
 %prep
 %setup -q
 %patch1 -p1 -b .firefox
-%patch2 -p1 -b .788931
 
 %build
 %meson
@@ -185,6 +182,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Wed Feb 21 2018 Florian Müllner <fmuellner@redhat.com> - 3.27.91-1
+- Update to 3.27.91
+
 * Wed Feb 07 2018 Kalev Lember <klember@redhat.com> - 3.27.1-5
 - Rebuilt for evolution-data-server soname bump
 
