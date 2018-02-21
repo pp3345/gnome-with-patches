@@ -6,8 +6,8 @@
 %global pipewire_version 0.1.4
 
 Name:          mutter
-Version:       3.27.1
-Release:       4%{?dist}
+Version:       3.27.91
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -16,12 +16,6 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.27/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
-
-Patch1:        fix-gl-includes.patch
-
-# https://github.com/GNOME/mutter/commit/c063d43be84dd445a02700c7bb1bf77aea65bb61
-# https://bugzilla.gnome.org/show_bug.cgi?id=792854
-Patch2:        screen-cast-pipewire-0.1.8-API.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -186,6 +180,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Feb 21 2018 Florian Müllner <fmuellner@redhat.com> - 3.27.91-1
+- Update to 3.27.91
+
 * Tue Feb 13 2018 Björn Esser <besser82@fedoraproject.org> - 3.27.1-4
 - Rebuild against newer gnome-desktop3 package
 - Add patch for adjustments to pipewire 0.1.8 API
