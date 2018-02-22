@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.27.91
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -75,7 +75,7 @@ Requires:       gnome-session-xsession
 Requires:       gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires:       gjs%{?_isa} >= %{gjs_version}
 Requires:       gtk3%{?_isa} >= %{gtk3_version}
-Requires:       libnm-gtk%{?_isa}
+Requires:       libnma%{?_isa}
 # needed for loading SVG's via gdk-pixbuf
 Requires:       librsvg2%{?_isa}
 # needed as it is now split from Clutter
@@ -182,8 +182,8 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
-* Wed Feb 21 2018 Florian Müllner <fmuellner@redhat.com> - 3.27.91-1
-- Update to 3.27.91
+* Thu Feb 22 2018 Lubomir Rintel <lkundrak@v3.sk> - 3.27.91-2
+- Replace libnm-gtk with libnma
 
 * Wed Feb 07 2018 Kalev Lember <klember@redhat.com> - 3.27.1-5
 - Rebuilt for evolution-data-server soname bump
