@@ -212,7 +212,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 * Wed Oct 04 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.1-1
 - Update to 3.26.1
 
-* Wed Sep 21 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.0-5
+* Thu Sep 21 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.0-5
 - Adjust to pipewire API break
 
 * Wed Sep 20 2017 Florian Müllner <fmuellner@redhat.com> - 3.26.0-5
