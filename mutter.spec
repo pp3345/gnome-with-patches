@@ -16,10 +16,6 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.27/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/36
-# Fixes https://gitlab.gnome.org/GNOME/mutter/issues/2 , aka
-# https://bugzilla.redhat.com/show_bug.cgi?id=1547691
-Patch1:        36.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
