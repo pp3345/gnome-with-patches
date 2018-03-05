@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.27.91
-Release:        2%{?dist}
+Version:        3.27.92
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -16,7 +16,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.45.4
 %define gjs_version 1.51.90
-%define mutter_version 3.27.91
+%define mutter_version 3.27.92
 %define gtk3_version 3.15.0
 %define eds_version 3.13.90
 %define gnome_desktop_version 3.7.90
@@ -182,8 +182,14 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Mon Mar 05 2018 Florian Müllner <fmuellner@redhat.com> - 3.27.92-1
+- Update to 3.27.92
+
 * Thu Feb 22 2018 Lubomir Rintel <lkundrak@v3.sk> - 3.27.91-2
 - Replace libnm-gtk with libnma
+
+* Wed Feb 21 2018 Florian Müllner <fmuellner@redhat.com> - 3.27.91-1
+- Update to 3.27.91
 
 * Wed Feb 07 2018 Kalev Lember <klember@redhat.com> - 3.27.1-5
 - Rebuilt for evolution-data-server soname bump
