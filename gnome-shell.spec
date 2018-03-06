@@ -106,6 +106,8 @@ Requires:       switcheroo-control
 # needed for clocks/weather integration
 Requires:       geoclue2-libs%{?_isa}
 Requires:       libgweather%{?_isa}
+# needed for thunderbolt support
+Requires:       bolt%{?_isa}
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
