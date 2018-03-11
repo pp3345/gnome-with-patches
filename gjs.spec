@@ -3,7 +3,7 @@
 %global gtk3_version 3.20
 
 Name:          gjs
-Version:       1.51.91
+Version:       1.51.92
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -95,6 +95,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Sun Mar 11 2018 Kalev Lember <klember@redhat.com> - 1.51.92-1
+- Update to 1.51.92
+
 * Wed Feb 21 2018 Kalev Lember <klember@redhat.com> - 1.51.91-1
 - Update to 1.51.91
 
