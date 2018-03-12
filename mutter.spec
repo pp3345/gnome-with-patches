@@ -6,14 +6,14 @@
 %global pipewire_version 0.1.4
 
 Name:          mutter
-Version:       3.27.92
+Version:       3.28.0
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.27/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.28/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
 
@@ -180,6 +180,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Mon Mar 12 2018 Florian Müllner <fmuellner@redhat.com> - 3.28.0-1
+- Update to 3.28.0
+
 * Mon Mar 05 2018 Florian Müllner <fmuellner@redhat.com> - 3.27.92-1
 - Update to 3.27.92
 
