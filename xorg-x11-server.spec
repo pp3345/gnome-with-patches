@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.19.99.904
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -589,6 +589,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Apr 12 2018 Olivier Fourdan <ofourdan@redhat.com> - 1.19.99.904-2
+- Re-fix "use type instead of which in xvfb-run (rhbz#1443357)" which
+  was overridden inadvertently
+
 * Tue Apr 10 2018 Adam Jackson <ajax@redhat.com> - 1.19.99.904-1
 - xserver 1.20 RC4
 
