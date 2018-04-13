@@ -157,7 +157,7 @@ BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.86-1
 BuildRequires: libudev-devel
-%if 0%{?fedora} > 24  || 0%{?rhel} > 7
+%if 0%{?fedora} > 24
 # libunwind is Exclusive for the following arches
 %ifarch aarch64 %{arm} hppa ia64 mips ppc ppc64 %{ix86} x86_64
 BuildRequires: libunwind-devel
