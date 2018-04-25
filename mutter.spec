@@ -6,7 +6,7 @@
 %global pipewire_version 0.1.4
 
 Name:          mutter
-Version:       3.28.1
+Version:       3.29.1
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -180,6 +180,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Apr 25 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.1-1
+- Update to 3.29.1
+
 * Fri Apr 13 2018 Florian Müllner <fmuellner@redhat.com> - 3.28.1-1
 - Update to 3.28.1
 
