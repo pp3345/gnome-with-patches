@@ -13,7 +13,7 @@ Summary:       Window and compositing manager based on Clutter
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.28/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.29/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
 
