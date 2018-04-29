@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.29.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -12,6 +12,10 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.29/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
+
+# Fix problems when first character in password entry uses a modifier
+# key - GGO#240, RHBZ #1569211, backported from upstream master
+Patch2: 0001-keyboardManager-Preserve-current-keymap-across-reloa.patch
 
 %define gnome_bluetooth_version 1:3.9.0
 %define gobject_introspection_version 1.45.4
@@ -119,6 +123,7 @@ easy to use experience.
 %prep
 %setup -q
 %patch1 -p1 -b .firefox
+%patch2 -p1 -b .preserve-keymap
 
 %build
 %meson
@@ -184,6 +189,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Sun Apr 29 2018 Adam Williamson <awilliam@redhat.com> - 3.29.1-2
+- Backport fix for password entry modifier key issues (#1569211)
+
 * Wed Apr 25 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.1-1
 - Update to 3.29.1
 

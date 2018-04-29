@@ -1,0 +1,52 @@
+From 642107a28f9616b5836d6da3b57d9bfc33acc8d0 Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Sun, 29 Apr 2018 16:28:04 +0200
+Subject: [PATCH] keyboardManager: Preserve current keymap across reloads
+
+The IM can pretty much update the input sources anytime (even if
+to set the same ones). That ends up triggering rebuilding all user
+defined keymaps, and losing modifier state if we are unfortunate
+enough that this caught us while pressing one.
+
+One common situation seems to be password entries, resulting in
+the wrong character being printed if the first character happens
+to require the shift key.
+
+If the current keymap is not found in the newly loaded list,
+this._current will end up null, with the same behavior as we get
+currently (immediate keymap reload).
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1569211
+
+https://gitlab.gnome.org/GNOME/gnome-shell/issues/240
+
+Closes: #240
+---
+ js/misc/keyboardManager.js | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/js/misc/keyboardManager.js b/js/misc/keyboardManager.js
+index b8984fe98..3f0bad282 100644
+--- a/js/misc/keyboardManager.js
++++ b/js/misc/keyboardManager.js
+@@ -89,6 +89,7 @@ var KeyboardManager = new Lang.Class({
+     },
+ 
+     setUserLayouts(ids) {
++        let currentId = this._current ? this._current.id : null;
+         this._current = null;
+         this._layoutInfos = {};
+ 
+@@ -115,6 +116,9 @@ var KeyboardManager = new Lang.Class({
+             info.group = group;
+             info.groupIndex = groupIndex;
+ 
++            if (id == currentId)
++                this._current = info;
++
+             i += 1;
+         }
+     },
+-- 
+2.17.0
+
