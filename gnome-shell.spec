@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.29.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -33,6 +33,7 @@ Patch3: 0001-networkAgent-Fix-fallout-from-libnm-port.patch
 %define telepathy_logger_version 0.2.6
 
 BuildRequires:  meson
+BuildRequires:  git
 BuildRequires:  ibus-devel >= %{ibus_version}
 BuildRequires:  chrpath
 BuildRequires:  dbus-glib-devel
@@ -123,9 +124,7 @@ innovative user interface concepts to provide a visually attractive and
 easy to use experience.
 
 %prep
-%setup -q
-%patch1 -p1 -b .firefox
-%patch2 -p1 -b .preserve-keymap
+%autosetup -S git
 
 %build
 %meson
