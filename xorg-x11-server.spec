@@ -79,46 +79,20 @@ Source31: xserver-sdk-abi-requires.git
 Source40: driver-abi-rebuild.sh
 
 # From Debian use intel ddx driver only for gen4 and older chipsets
-%if 0%{?fedora} > 25 || 0%{?rhel} > 7
-Patch20: 06_use-intel-only-on-pre-gen4.diff
-%endif
+Patch1: 06_use-intel-only-on-pre-gen4.diff
+# Default to xf86-video-modesetting on GeForce 8 and newer
+Patch2: 0001-xfree86-use-modesetting-driver-by-default-on-GeForce.patch
 
 # XXX needs rebase, but also va_gl should probably just be the default
-# Patch21: 0001-xf86-dri2-Use-va_gl-as-vdpau_driver-for-Intel-i965-G.patch
+# Patch3: 0001-xf86-dri2-Use-va_gl-as-vdpau_driver-for-Intel-i965-G.patch
 
-Patch7025: 0001-Always-install-vbe-and-int10-sdk-headers.patch
+Patch4: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
 # Submitted upstream, but not going anywhere
-Patch7027: 0001-autobind-GPUs-to-the-screen.patch
+Patch5: 0001-autobind-GPUs-to-the-screen.patch
 
 # because the display-managers are not ready yet, do not upstream
-Patch10000: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
-
-# Default to xf86-video-modesetting on GeForce 8 and newer
-Patch10001: 0001-xfree86-use-modesetting-driver-by-default-on-GeForce.patch
-
-%global moduledir	%{_libdir}/xorg/modules
-%global drimoduledir	%{_libdir}/dri
-%global sdkdir		%{_includedir}/xorg
-
-#ifarch s390 s390x
-#global with_hw_servers 0
-#else
-%global with_hw_servers 1
-#endif
-
-%if %{with_hw_servers}
-%global enable_xorg --enable-xorg
-%else
-%global enable_xorg --disable-xorg
-%endif
-
-%ifnarch %{ix86} x86_64
-%global no_int10 --disable-vbe --disable-int10-module
-%endif
-
-%global kdrive --enable-kdrive --enable-xephyr --disable-xfake --disable-xfbdev
-%global xservers --enable-xvfb --enable-xnest %{kdrive} %{enable_xorg}
+Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -144,9 +118,7 @@ BuildRequires: wayland-protocols-devel
 BuildRequires: pkgconfig(wayland-eglstream-protocols)
 BuildRequires: pkgconfig(wayland-client) >= 1.3.0
 BuildRequires: pkgconfig(epoxy)
-%if 0%{?fedora} > 24  || 0%{?rhel} > 7
 BuildRequires: pkgconfig(xshmfence) >= 1.1
-%endif
 BuildRequires: libXv-devel
 BuildRequires: pixman-devel >= 0.30.0
 BuildRequires: libpciaccess-devel >= 0.13.1 openssl-devel bison flex flex-devel
@@ -158,19 +130,13 @@ BuildRequires: libdrm-devel >= 2.4.0 kernel-headers
 
 BuildRequires: audit-libs-devel libselinux-devel >= 2.0.86-1
 BuildRequires: libudev-devel
-%if 0%{?fedora} > 24
 # libunwind is Exclusive for the following arches
 %ifarch aarch64 %{arm} hppa ia64 mips ppc ppc64 %{ix86} x86_64
 BuildRequires: libunwind-devel
 %endif
-%endif
 
 BuildRequires: pkgconfig(xcb-aux) pkgconfig(xcb-image) pkgconfig(xcb-icccm)
 BuildRequires: pkgconfig(xcb-keysyms) pkgconfig(xcb-renderutil)
-
-# All server subpackages have a virtual provide for the name of the server
-# they deliver.  The Xorg one is versioned, the others are intentionally
-# unversioned.
 
 %description
 X.Org X11 X server
@@ -186,7 +152,6 @@ Requires: xkeyboard-config xkbcomp
 Common files shared among all X servers.
 
 
-%if %{with_hw_servers}
 %package Xorg
 Summary: Xorg X server
 Group: User Interface/X
@@ -211,10 +176,8 @@ Obsoletes: xorg-x11-glamor < %{version}-%{release}
 Provides: xorg-x11-glamor = %{version}-%{release}
 Obsoletes: xorg-x11-drv-modesetting < %{version}-%{release}
 Provides: xorg-x11-drv-modesetting = %{version}-%{release}
-%if 0%{?fedora} > 24  || 0%{?rhel} > 7
 # Dropped from F25
 Obsoletes: xorg-x11-drv-vmmouse < 13.1.0-4
-%endif
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: system-setup-keyboard
@@ -224,7 +187,6 @@ X.org X11 is an open source implementation of the X Window System.  It
 provides the basic low level functionality which full fledged
 graphical user interfaces (GUIs) such as GNOME and KDE are designed
 upon.
-%endif
 
 
 %package Xnest
@@ -302,7 +264,6 @@ Requires: xorg-x11-server-common >= %{version}-%{release}
 Xwayland is an X server for running X clients under Wayland.
 
 
-%if %{with_hw_servers}
 %package devel
 Summary: SDK for X server driver module development
 Group: User Interface/X
@@ -319,7 +280,6 @@ The SDK package provides the developmental files which are necessary for
 developing X server driver modules, and for compiling driver modules
 outside of the standard X11 source code tree.  Developers writing video
 drivers, input drivers, or other X modules should install this package.
-%endif
 
 
 %package source
@@ -340,7 +300,7 @@ cp %{SOURCE1} .gitignore
 %{expand:%__scm_setup_git -q}
 %autopatch
 
-%if %{with_hw_servers} && 0%{?stable_abi}
+%if 0%{?stable_abi}
 # check the ABI in the source against what we expect.
 getmajor() {
     grep -i ^#define.ABI.$1_VERSION hw/xfree86/common/xf86Module.h |
@@ -365,28 +325,17 @@ test `getminor extension` == %{extension_minor}
 
 %build
 
+%ifnarch %{ix86} x86_64
+%global no_int10 --disable-vbe --disable-int10-module
+%endif
+
+%global kdrive --enable-kdrive --enable-xephyr --disable-xfake --disable-xfbdev
+%global xservers --enable-xvfb --enable-xnest %{kdrive} --enable-xorg
 %global default_font_path "catalogue:/etc/X11/fontpath.d,built-ins"
-
-%if %{with_hw_servers}
 %global dri_flags --enable-dri --enable-dri2 %{?!rhel:--enable-dri3} --enable-suid-wrapper --enable-glamor
-%else
-%global dri_flags --disable-dri --disable-dri2
-%endif
-
-%if 0%{?fedora} > 24  || 0%{?rhel} > 7
 %global bodhi_flags --with-vendor-name="Fedora Project"
-%global wayland --enable-xwayland
-%endif
 
-# ick
-%if 0%{?fedora} < 20  || 0%{?rhel} <= 7
-sed -i 's/WAYLAND_SCANNER_RULES.*//g' configure.ac
-%endif
-
-# --with-pie ?
 autoreconf -f -v --install || exit 1
-# export CFLAGS="${RPM_OPT_FLAGS}"
-# XXX without dtrace
 
 %configure %{xservers} \
 	--enable-dependency-tracking \
@@ -395,7 +344,7 @@ autoreconf -f -v --install || exit 1
 	--with-pic \
 	%{?no_int10} --with-int10=x86emu \
 	--with-default-font-path=%{default_font_path} \
-	--with-module-dir=%{moduledir} \
+	--with-module-dir=%{_libdir}/xorg/modules \
 	--with-builderstring="Build ID: %{name} %{version}-%{release}" \
 	--with-os-name="$(hostname -s) $(uname -r)" \
 	--with-xkb-output=%{_localstatedir}/lib/xkb \
@@ -405,7 +354,7 @@ autoreconf -f -v --install || exit 1
 	--enable-config-udev \
 	--disable-unit-tests \
 	--enable-dmx \
-	%{?wayland} \
+	--enable-xwayland \
 	%{dri_flags} %{?bodhi_flags} \
 	${CONFIGURE}
         
@@ -413,10 +362,8 @@ make V=1 %{?_smp_mflags}
 
 
 %install
-%make_install moduledir=%{moduledir}
+%make_install
 
-%if %{with_hw_servers}
-rm -rf $RPM_BUILD_ROOT%{_libdir}/xorg/modules/multimedia/
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/xorg/modules/{drivers,input}
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
@@ -429,8 +376,6 @@ install -m 644 %{SOURCE4} $RPM_BUILD_ROOT%{_datadir}/X11/xorg.conf.d
 # relies on it more or less.
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/X11/xorg.conf.d
 
-mkdir -p $RPM_BUILD_ROOT%{_bindir}
-
 %if %{stable_abi}
 install -m 755 %{SOURCE30} $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
 %else
@@ -439,11 +384,12 @@ sed -e s/@MAJOR@/%{gitdate}/g -e s/@MINOR@/%{minor_serial}/g %{SOURCE31} > \
 chmod 755 $RPM_BUILD_ROOT%{_bindir}/xserver-sdk-abi-requires
 %endif
 
-%endif
+install -m 0755 %{SOURCE20} $RPM_BUILD_ROOT%{_bindir}/xvfb-run
 
 # Make the source package
 %global xserver_source_dir %{_datadir}/xorg-x11-server-source
 %global inst_srcdir %{buildroot}/%{xserver_source_dir}
+
 mkdir -p %{inst_srcdir}/{Xext,xkb,GL,hw/{xquartz/bundle,xfree86/common}}
 mkdir -p %{inst_srcdir}/{hw/dmx/doc,man,doc,hw/dmx/doxygen}
 cp {,%{inst_srcdir}/}hw/xquartz/bundle/cpprules.in
@@ -455,27 +401,13 @@ cp {,%{inst_srcdir}/}hw/xfree86/Xorg.sh.in
 cp xkb/README.compiled %{inst_srcdir}/xkb
 cp hw/xfree86/xorgconf.cpp %{inst_srcdir}/hw/xfree86
 
-install -m 0755 %{SOURCE20} $RPM_BUILD_ROOT%{_bindir}/xvfb-run
-
 find . -type f | egrep '.*\.(c|h|am|ac|inc|m4|h.in|pc.in|man.pre|pl|txt)$' |
 xargs tar cf - | (cd %{inst_srcdir} && tar xf -)
-# SLEDGEHAMMER
 find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 # Remove unwanted files/dirs
 {
-    rm -f $RPM_BUILD_ROOT%{_libdir}/X11/Options
-    rm -f $RPM_BUILD_ROOT%{_bindir}/in?
-    rm -f $RPM_BUILD_ROOT%{_bindir}/ioport
-    rm -f $RPM_BUILD_ROOT%{_bindir}/out?
-    rm -f $RPM_BUILD_ROOT%{_bindir}/pcitweak
-    rm -f $RPM_BUILD_ROOT%{_mandir}/man1/pcitweak.1*
     find $RPM_BUILD_ROOT -type f -name '*.la' | xargs rm -f -- || :
-%if !%{with_hw_servers}
-    rm -f $RPM_BUILD_ROOT%{_libdir}/pkgconfig/xorg-server.pc
-    rm -f $RPM_BUILD_ROOT%{_datadir}/aclocal/xorg-server.m4
-    rm -rf $RPM_BUILD_ROOT%{_defaultdocdir}/xorg-server
-%endif
 # wtf
 %ifnarch %{ix86} x86_64
     rm -f $RPM_BUILD_ROOT%{_libdir}/xorg/modules/lib{int10,vbe}.so
@@ -497,7 +429,6 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %global Xorgperms %attr(0711,root,root) %caps(cap_sys_admin,cap_sys_rawio,cap_dac_override=pe)
 %endif
 
-%if %{with_hw_servers}
 %files Xorg
 %config %attr(0644,root,root) %{_sysconfdir}/pam.d/xserver
 %{_bindir}/X
@@ -538,8 +469,6 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %dir %{_sysconfdir}/X11/xorg.conf.d
 %dir %{_datadir}/X11/xorg.conf.d
 %{_datadir}/X11/xorg.conf.d/10-quirks.conf
-%endif
-
 
 %files Xnest
 %{_bindir}/Xnest
@@ -575,16 +504,14 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 %files Xwayland
 %{_bindir}/Xwayland
 
-%if %{with_hw_servers}
 %files devel
 %doc COPYING
 #{_docdir}/xorg-server
 %{_bindir}/xserver-sdk-abi-requires
 %{_libdir}/pkgconfig/xorg-server.pc
 %dir %{_includedir}/xorg
-%{sdkdir}/*.h
+%{_includedir}/xorg/*.h
 %{_datadir}/aclocal/xorg-server.m4
-%endif
 
 %files source
 %{xserver_source_dir}
@@ -715,403 +642,3 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 - Add some extra fixes which are pending upstream
 - This also adds PointerWarping emulation to Xwayland, which should improve
   compatiblity with many games
-
-* Wed Oct  5 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.2.20160929
-- Add a fix from upstream to fix xterm crash under Xwayland (fdo#97974)
-- Add a fix from upstream to fix glamor / xwayland not working with glvnd
-- Add a fix from upstream to fix input devices no longer working
-  after a vt-switch
-
-* Thu Sep 29 2016 Hans de Goede <hdegoede@redhat.com> - 1.19.0-0.1.20160929
-- Rebase to current git master (1.19-rc1+)
-- Drop Obsoletes for the driver packages removed from F21 (its been 2
-  years since they have been removed now)
-
-* Thu Sep 08 2016 Adam Jackson <ajax@redhat.com> 1.18.4-6
-- Backport GLX_EXT_libglvnd support from 1.19
-
-* Thu Sep 01 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.18.4-5
-- Fall back to libinput if the module is missing
-
-* Thu Aug 25 2016 Hans de Goede <hdegoede@redhat.com> - 1.18.4-4
-- Fix (undo) server ABI breakage from 1.18.4-3
-
-* Thu Aug 25 2016 Hans de Goede <hdegoede@redhat.com> - 1.18.4-3
-- Various switchable-graphics / prime fixes from upstream, mostly
-  related to using the modesetting driver in prime setups
-- Fix Xorg -configure not working (rhbz#1368502)
-
-* Fri Aug 19 2016 Kalev Lember <klember@redhat.com> - 1.18.4-2
-- Backport a number of XWayland fixes from master
-
-* Tue Jul 19 2016 Adam Jackson <ajax@redhat.com> - 1.18.4-1
-- xserver 1.18.4
-
-* Mon Jul 04 2016 Olivier Fourdan <ofourdan@redhat.com> 1.18.3-8
-- Fix segfault in Xwayland due to cursor update after unrealize (#1338979)
-
-* Tue Jun 28 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.18.3-7
-- Fix segfault caused by forced indicator update (#1335439)
-
-* Fri Jun 17 2016 Hans de Goede <hdegoede@redhat.com> - 1.18.3-6
-- Add switchable-graphics / prime fixes from f24 branch
-- Add some more switchable-graphics / prime fixes from upstream
-
-* Mon Jun 13 2016 Adam Jackson <ajax@redhat.com> - 1.18.3-5
-- Restore DRI1 for now
-
-* Mon May 09 2016 Adam Jackson <ajax@redhat.com> - 1.18.3-4
-- Move a symbol from DRI1 to DRI2 code to fix ati/openchrome
-
-* Thu May 05 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.18.3-3
-- Fix NumLock indicator light turning off after layout change (#1047151)
-
-* Thu Apr 14 2016 Adam Jackson <ajax@redhat.com> - 1.18.3-2
-- Stop building DRI1 support
-- Don't build DRI2 on s390{,x}
-
-* Mon Apr 04 2016 Adam Jackson <ajax@redhat.com> 1.18.3-1
-- xserver 1.18.3
-
-* Thu Mar 17 2016 Adam Jackson <ajax@redhat.com> 1.18.2-2
-- Fix red tint artifacts in glamor
-- Fix a performance cliff in present triggered by plasma
-- Silence some xf86vidmode log spam
-
-* Fri Mar 11 2016 Adam Jackson <ajax@redhat.com> 1.18.2-1
-- xserver 1.18.2
-
-* Wed Mar 09 2016 Peter Hutterer <peter.hutterer@redhat.com> 1.18.1-3
-- Stop bug warnings on three-finger pinch gestures (#1282252)
-
-* Mon Feb 15 2016 Dave Airlie <airlied@redhat.com> 1.18.1-2
-- fix issues with reverse prime and present.
-
-* Mon Feb 08 2016 Adam Jackson <ajax@redhat.com> 1.18.1-1
-- xserver 1.18.1
-
-* Fri Feb 05 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.18.0-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
-
-* Mon Nov 16 2015 Hans de Goede <hdegoede@redhat.com> - 1.18.0-2
-- Fix Xorg.wrap kms detection to so that the server does not always run
-  as root
-
-* Mon Nov 09 2015 Adam Jackson <ajax@redhat.com> 1.18.0-1
-- xserver 1.18.0
-
-* Tue Oct 27 2015 Dave Airlie <airlied@redhat.com> 1.18.0-0.6
-- update to git snapshot of 1.7.99.902 (1.18.0 rc2)
-
-* Wed Oct 14 2015 Hans de Goede <hdegoede@redhat.com> - 1.18.0-0.5
-- Fix xorg sometimes crashing on machine poweroff/shutdown (#1269210)
-
-* Thu Sep 24 2015 Rex Dieter <rdieter@fedoraproject.org> 1.18.0-0.4
-- pull in candidate fix for clients getting stuck waiting indefinitely
-  for an idle event when a CRTC is turned off (#1256082,#1258084)
-
-* Tue Sep 22 2015 Dave Airlie <airlied@redhat.com> 1.18.0-0.3
-- hack to fix GLX_MESA_copy_sub_buffer regression (#1265395)
-
-* Mon Sep 07 2015 Dave Airlie <airlied@redhat.com> 1.18.0-0.2
-- update to git snapshot of 1.7.99 (1.18.0 rc1)
-
-* Wed Jul 29 2015 Dave Airlie <airlied@redhat.com> 1.18.0-0.1
-- git snapshot of what will be 1.18.0 (should be ABI stable)
-
-* Wed Jul 15 2015 Dave Airlie <airlied@redhat.com> 1.17.2-2
-- fix bug with glamor and PRIME where server would crash
-
-* Tue Jun 16 2015 Adam Jackson <ajax@redhat.com> 1.17.2-1
-- xserver 1.17.2
-
-* Tue Jun 16 2015 Dave Airlie <airlied@redhat.com> 1.17.1-16
-- fix bug with glamor and overlapping copies
-
-* Wed Jun 10 2015 Ray Strode <rstrode@redhat.com> 1.17.1-15
-- CVE-2015-3164
-
-* Tue May 26 2015 Peter Hutterer <peter.hutterer@redhat.com> 1.17.1-14
-- Add the unaccelerated valuator masks, fixes nonmoving mouse in SDL
-  (#1208992)
-
-* Wed May 20 2015 Kalev Lember <kalevlember@gmail.com> - 1.17.1-13
-- Obsolete xorg-x11-drv-void
-
-* Tue May 19 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-12
-- Fix "start -- vt7" not working fix breaking headless setups (#1203780)
-
-* Sat May 02 2015 Adel Gadllah <adel.gadllah@gmail.com> - 1.17.1-11
-- modesetting: Fix software cursor fallback (#1205725)
-
-* Thu Apr 30 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-10
-- Fix "start -- vt7" not working (#1203780)
-
-* Sat Apr 11 2015 Ray Strode <rstrode@redhat.com> 1.17.1-9
-- Handle logind timeouts more gracefuly.
-- Bump timeouts so they don't happen in practice
-  Fixes X on some old optimus and other hybrid hardware
-  Related: #1209347
-
-* Thu Apr 09 2015 Adam Jackson <ajax@redhat.com> 1.17.1-8
-- Fix endian detection code (#1206060)
-
-* Wed Mar 18 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-7
-- Modify the server wrapper to not always start the server as root.
-  Callers of the server which start it in a way which is compatible with the
-  server running without root rights can now set a XORG_RUN_AS_USER_OK env
-  variable and then the wrapper will behave as if needs_root_rights = auto
-  is specified, unless overriden from Xwrapper.config
-
-* Wed Mar 04 2015 Adam Jackson <ajax@redhat.com> 1.17.1-6
-- Fix int10 interrupt vector setup
-
-* Mon Mar 02 2015 Dave Airlie <airlied@redhat.com> 1.17.1-5
-- omg, define something to 0 makes it work, security.
-
-* Mon Mar 02 2015 Dave Airlie <airlied@redhat.com> 1.17.1-4
-- require lazy relocations to work, remove cement
-
-* Sat Feb 21 2015 Till Maas <opensource@till.name> - 1.17.1-3
-- Rebuilt for Fedora 23 Change
-  https://fedoraproject.org/wiki/Changes/Harden_all_packages_with_position-independent_code
-
-* Tue Feb 17 2015 Dave Airlie <airlied@redhat.com> 1.17.1-2
-- fix regression in SI:localuser handling
-
-* Wed Feb 11 2015 Hans de Goede <hdegoede@redhat.com> - 1.17.1-1
-- New upstream release 1.17.1 (rhbz#1144404)
-- xorg-x11-drv-modesetting is now included in xorg-x11-server-Xorg,
-  obsolete it
-- Fix xorg-x11-drv-r128 obsoletes (rhbz#1176791)
-
-* Fri Feb 06 2015 Peter Hutterer <peter.hutterer@redhat.com> 1.16.2.901-3
-- CVE-2015-0255: unchecked XKB string lengths
-
-* Thu Feb 05 2015 Ray Strode <rstrode@redhat.com> 1.16.2.901-2
-- Add patch from ickle to fix flicker on login / durin vt switch
-  see https://bugzilla.gnome.org/show_bug.cgi?id=737226
-
-* Wed Dec 10 2014 Dave Airlie <airlied@redhat.com> 1.16.2.901-1
-- upstream security release. 1.16.2.901
-
-* Fri Nov 21 2014 Dave Airlie <airlied@redhat.com> 1.16.2-1
-- New upstream bugfix release 1.16.2
-
-* Fri Nov 21 2014 Dave Airlie <airlied@redhat.com> 1.16.1-2
-- backport glamor DRI3 sync integration from upstream
-
-* Fri Oct  3 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.1-1
-- New upstream bugfix release 1.16.1 (rhbz#1144404)
-
-* Thu Sep 11 2014 Adam Jackson <ajax@redhat.com> 1.16.0-10
-- Only send GLX_BufferSwapComplete for PresentCompleteKindPixmap
-
-* Wed Sep 10 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-9
-- Fixup Xwayland summary, remove . at end of summaries (rhbz#1140225)
-
-* Tue Sep 09 2014 Kalev Lember <kalevlember@gmail.com> - 1.16.0-8
-- Update the versions of obsoletes for dropped drivers
-
-* Tue Sep  2 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-7
-- Drop Fedora specific xorg-non-pci.patch, replace with solution from
-  upstream
-
-* Thu Aug 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-6
-- drop no longer valid configure arguments (rhbz#1133350)
-
-* Mon Aug 25 2014 Peter Robinson <pbrobinson@fedoraproject.org> 1.16.0-5
-- re-add support for non pci platform devices
-
-* Mon Aug 18 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.16.0-4
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
-
-* Fri Aug  8 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-3
-- Really fix conditionals to allow building on F-20 (rhbz#1127351)
-
-* Thu Aug  7 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-2
-- Fix xwayland conditionals to allow building on F-20 (rhbz#1127351)
-
-* Mon Jul 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.16.0-1
-- Update to 1.16.0
-
-* Thu Jul 17 2014 Adam Jackson <ajax@redhat.com> 1.15.99.904-4
-- Add Obsoletes for video drivers dropped in F21+
-
-* Fri Jul 11 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.904-3
-- Fix startx crash introduced by 1.15.99.904 (rhbz#1118540)
-
-* Fri Jul 11 2014 Peter Hutterer <peter.hutterer@redhat.com> 1.15.99.904-2
-- Don't force the screensaver off on DPMS unblank
-
-* Tue Jul  8 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.904-1
-- Update to 1.15.99.904
-
-* Wed Jul  2 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.903-5
-- Fix code including glamor.h not compiling due to strndup re-definition
-
-* Wed Jul 02 2014 Adam Jackson <ajax@redhat.com> 1.15.99.903-4
-- Snap xwayland damage reports to the bounding box
-
-* Wed Jul  2 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.903-3
-- Fix xvfb crash on client disconnect (rhbz#1113128)
-
-* Thu Jun 19 2014 Dennis Gilmore <dennis@ausil.us> - 1.15.99.903-2
-- add support for non pci platform devices
-
-* Wed Jun 11 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.903-1
-- Update to 1.15.99.903
-- This bumps the videodrv ABI once more, so all drivers must be rebuild
-
-* Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.15.99.902-8.20140428
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
-
-* Wed May 21 2014 Adam Jackson <ajax@redhat.com> 1.15.99.902-7
-- Don't try to build Xwayland in F20
-- Fix shadowfb initialization to, er, work
-
-* Wed May 14 2014 Peter Hutterer <peter.hutterer@redhat.com> - 1.15.99.902-6.20140428
-- Revert button mapping for Evoluent Vertical mouse, the default mapping
-  matches the manufacturer's documentation (#612140)
-
-* Mon Apr 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-5.20140428
-- Add hw/xfree86/Xorg.sh.in to xorg-x11-server-source
-
-* Mon Apr 28 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-4.20140428
-- Git snapshot 20140428
-- This fixes the silent hardware cursor API break in 1.15.99.902 (#1090897)
-
-* Fri Apr 25 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-3
-- Add missing BuildRequires for dbus-devel, libepoxy-devel, mesa-libEGL-devel,
-  mesa-libgbm-devel and systemd-devel
-- Fix compilation of int10 module on arm
-
-* Wed Apr 23 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-2
-- Add --enable-glamor to configure flags
-
-* Thu Apr 17 2014 Hans de Goede <hdegoede@redhat.com> - 1.15.99.902-1
-- Update to 1.15.99.902
-- Drop the Xwayland as extension patch-set
-- Add a new xorg-x11-server-Xwayland package with the new standalone Xwayland
-  server
-
-* Fri Feb 28 2014 Peter Hutterer <peter.hutterer@redhat.com> 1.15.0-5
-- Search all parent devices for a PnPID.
-
-* Mon Feb 17 2014 Adam Williamson <awilliam@redhat.com> - 1.15.0-4
-- fix xwayland crash under mutter (RH #1065109 , BGO #724443)
-
-* Wed Feb 05 2014 Peter Hutterer <peter.hutterer@redhat.com> 1.15.0-3
-- Prevent out-of-bounds access in check_butmap_change (#1061466)
-
-* Tue Jan 14 2014 Adam Jackson <ajax@redhat.com> 1.15.0-2
-- exa-only-draw-valid-trapezoids.patch: Fix crash in exa.
-
-* Mon Jan 13 2014 Adam Jackson <ajax@redhat.com> 1.15.0-1
-- xserver 1.15.0
-
-* Tue Dec 17 2013 Adam Jackson <ajax@redhat.com> 1.14.99.904-1
-- 1.15RC4
-- Re-disable int10 on arm
-
-* Mon Dec  2 2013 Peter Robinson <pbrobinson@fedoraproject.org> 1.14.99.902-2
-- Add aarch64 to platforms that have libunwind
-
-* Wed Nov 20 2013 Adam Jackson <ajax@redhat.com> 1.14.99.902-1
-- 1.15RC2
-
-* Mon Nov 18 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-6
-- Prefer fbdev to vesa, fixes fallback path on UEFI
-
-* Fri Nov 08 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-5
-- Restore XkbCopyDeviceKeymap for (older) tigervnc
-
-* Fri Nov 08 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-4
-- Explicitly enable DRI2
-
-* Thu Nov 07 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-3
-- Merge Xinerama+{Damage,Render,Composite} fix series
-
-* Thu Nov 07 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-2
-- Fix build with --disable-present
-
-* Thu Nov 07 2013 Adam Jackson <ajax@redhat.com
-- Don't bother trying to build the unit tests for now
-
-* Wed Nov 06 2013 Adam Jackson <ajax@redhat.com> 1.14.99.901-1
-- 1.15RC1
-
-* Mon Oct 28 2013 Adam Jackson <ajax@redhat.com> 1.14.99.3-2
-- Don't build xwayland in RHEL
-
-* Fri Oct 25 2013 Adam Jackson <ajax@redhat.com> 1.14.99.3-1
-- xserver 1.14.99.3
-- xwayland branch refresh
-- Drop some F17-era Obsoletes
-- Update BuildReqs to match reality
-
-* Wed Oct 23 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.3-6
-- Fix Xdmx cursor jumps (#1019821)
-
-* Tue Oct 08 2013 Adam Jackson <ajax@redhat.com> 1.14.3-5
-- Snap wayland damage reports to the bounding box
-
-* Thu Oct 03 2013 Adam Jackson <ajax@redhat.com> 1.14.3-4
-- Fix up fixing up the driver list after filtering out non-wayland
-
-* Wed Oct 02 2013 Adam Jackson <ajax@redhat.com> 1.14.3-3
-- Only look at wayland-capable drivers when run with -wayland
-
-* Mon Sep 23 2013 Adam Jackson <ajax@redhat.com> 1.14.3-2
-- xwayland support
-
-* Mon Sep 16 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.3-1
-- xserver 1.14.3
-
-* Tue Jul 30 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-9
-- Fix active touch grabs, second touchpoint didn't get sent to client
-- Fix version mismatch for XI 2.2+ clients (where a library supports > 2.2
-  but another version than the originally requested one).
-
-* Tue Jul 30 2013 Dave Airlie <airlied@redhat.com> 1.14.2-8
-- fixes for multi-monitor reverse optimus
-
-* Mon Jul 22 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-7
-- Fix erroneous valuator 1 coordinate when an absolute device in relative
-  mode doesn't send y coordinates.
-
-* Fri Jul 19 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-6
-- Add new version of the resolution-based scaling patch - scale y down
-  instead of x up. That gives almost the same behaviour as current
-  synaptics. Drop the synaptics quirk, this needs to be now removed from the
-  driver.
-
-* Mon Jul 15 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-5
-- Fix logspam when trying to free a non-existant grab.
-- Update touch patch to upstream version (from fdo #66720)
-- re-add xephyr resizable patch, got lost in rebase (#976995)
-
-* Fri Jul 12 2013 Dave Airlie <airlied@redhat.com> 1.14.2-4
-- reapply dropped patch to fix regression (#981953)
-
-* Tue Jul 09 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-3
-- Fix crash on 32-bit with virtual box guest additions (#972095)
-
-* Tue Jul 09 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-2
-- Fix crash in gnome-shell when tapping a menu twice (fdo #66720)
-
-* Thu Jul 04 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.2-1
-- xorg-server 1.4.2
-- drop merged patches
-- Add a quirk to set the synaptics resolution to 0 by default. The pre-scale
-  patch in the server clashes with synaptics inaccurate resolution numbers,
-  causing the touchpad movement to be stunted.
-
-* Thu Jun 06 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.1.901-2
-- Backport the touch grab race condition patches from fdo #56578
-
-* Thu Jun 06 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.1.901-1
-- xserver 1.14.2RC1
-
-* Tue Jun 04 2013 Peter Hutterer <peter.hutterer@redhat.com> 1.14.1-4
-- Update quirks for trackballs and the La-VIEW Technology Naos 5000 mouse
