@@ -45,8 +45,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.19.99.905
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.20.0
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -141,6 +141,7 @@ BuildRequires: libXi-devel libXpm-devel libXaw-devel libXfixes-devel
 
 BuildRequires: wayland-devel
 BuildRequires: wayland-protocols-devel
+BuildRequires: pkgconfig(wayland-eglstream-protocols)
 BuildRequires: pkgconfig(wayland-client) >= 1.3.0
 BuildRequires: pkgconfig(epoxy)
 %if 0%{?fedora} > 24  || 0%{?rhel} > 7
@@ -389,6 +390,7 @@ autoreconf -f -v --install || exit 1
 
 %configure %{xservers} \
 	--enable-dependency-tracking \
+        --enable-xwayland-eglstream \
 	--disable-static \
 	--with-pic \
 	%{?no_int10} --with-int10=x86emu \
@@ -589,6 +591,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu May 10 2018 Adam Jackson <ajax@redhat.com> - 1.20.0-1
+- xserver 1.20
+
 * Wed Apr 25 2018 Adam Jackson <ajax@redhat.com> - 1.19.99.905-2
 - Fix xvfb-run's default depth to be 24
 
