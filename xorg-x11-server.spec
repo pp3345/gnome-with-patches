@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.0
-Release:   1%{?gitdate:.%{gitdate}}%{dist}
+Release:   2%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -181,6 +181,7 @@ Obsoletes: xorg-x11-drv-vmmouse < 13.1.0-4
 
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: system-setup-keyboard
+Requires: xorg-x11-drv-libinput
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -518,6 +519,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed May 16 2018 Adam Jackson <ajax@redhat.com> - 1.20.0-2
+- Xorg Requires: xorg-x11-drv-libinput
+
 * Thu May 10 2018 Adam Jackson <ajax@redhat.com> - 1.20.0-1
 - xserver 1.20
 
