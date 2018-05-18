@@ -19,18 +19,19 @@ Patch2: 0001-keyboardManager-Preserve-current-keymap-across-reloa.patch
 
 Patch3: 0001-networkAgent-Fix-fallout-from-libnm-port.patch
 
-%define gnome_bluetooth_version 1:3.9.0
-%define gobject_introspection_version 1.45.4
-%define gjs_version 1.51.90
-%define mutter_version 3.29.1
-%define gtk3_version 3.15.0
-%define eds_version 3.13.90
+%define libcroco_version 0.6.8
+%define eds_version 3.17.2
 %define gnome_desktop_version 3.7.90
+%define glib2_version 2.56.0
+%define gobject_introspection_version 1.49.1
+%define gjs_version 1.51.90
+%define gtk3_version 3.15.0
 %define json_glib_version 0.13.2
+%define mutter_version 3.29.1
+%define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.21.3
 %define ibus_version 1.5.2
-%define libcroco_version 0.6.8
-%define telepathy_logger_version 0.2.6
+%define gnome_bluetooth_version 1:3.9.0
 
 BuildRequires:  meson
 BuildRequires:  git
@@ -41,14 +42,14 @@ BuildRequires:  desktop-file-utils
 BuildRequires:  evolution-data-server-devel >= %{eds_version}
 BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= %{gjs_version}
-BuildRequires:  glib2-devel
+BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  json-glib-devel >= %{json_glib_version}
 BuildRequires:  upower-devel
 BuildRequires:  libgnome-keyring-devel
 BuildRequires:  mesa-libGL-devel
 BuildRequires:  NetworkManager-libnm-devel
-BuildRequires:  polkit-devel
+BuildRequires:  polkit-devel >= %{polkit_version}
 BuildRequires:  startup-notification-devel
 # for theme generation
 BuildRequires:  sassc
@@ -91,11 +92,12 @@ Requires:       json-glib%{?_isa} >= %{json_glib_version}
 Requires:       mozilla-filesystem%{?_isa}
 Requires:       mutter%{?_isa} >= %{mutter_version}
 Requires:       upower%{?_isa}
-Requires:       polkit%{?_isa} >= 0.100
+Requires:       polkit%{?_isa} >= %{polkit_version}
 Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
+Requires:       glib2%{?_isa} >= %{glib2_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires:       libcroco%{?_isa} >= %{libcroco_version}
-Requires:       telepathy-logger%{?_isa} >= %{telepathy_logger_version}
+Requires:       telepathy-logger%{?_isa}
 Requires:       telepathy-glib%{?_isa}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
