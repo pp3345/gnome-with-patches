@@ -153,7 +153,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 
 %files -f %{name}.lang
 %license COPYING
-%doc README
+%doc README.md
 %{_bindir}/gnome-shell
 %{_bindir}/gnome-shell-extension-tool
 %{_bindir}/gnome-shell-perf-tool
