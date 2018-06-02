@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.29.2
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -16,6 +16,10 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.29/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
+# https://gitlab.gnome.org/GNOME/mutter/issues/160
+# https://bugzilla.redhat.com/show_bug.cgi?id=1585360
+# https://gitlab.gnome.org/GNOME/mutter/commit/473bf38753221dc0002fae309d2f3f217e96c5f5
+Patch1:        0001-frames-Allow-for-unknown-mouse-buttons.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -180,6 +184,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Fri Jun 01 2018 Adam Williamson <awilliam@redhat.com> - 3.29.2-2
+- Backport crasher fix from upstream master (#1585360)
+
 * Thu May 24 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.2-1
 - Update to 3.29.2
 
