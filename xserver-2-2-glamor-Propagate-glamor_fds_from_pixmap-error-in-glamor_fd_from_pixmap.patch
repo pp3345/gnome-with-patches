@@ -1,0 +1,58 @@
+From patchwork Wed May 23 09:43:33 2018
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: [xserver, 2/2] glamor: Propagate glamor_fds_from_pixmap error in
+ glamor_fd_from_pixmap
+From: =?utf-8?q?Michel_D=C3=A4nzer?= <michel@daenzer.net>
+X-Patchwork-Id: 224910
+Message-Id: <20180523094333.11076-2-michel@daenzer.net>
+To: =?UTF-8?q?Louis-Francis=20Ratt=C3=A9-Boulianne?= <lfrb@collabora.com>,
+ Daniel Stone <daniels@collabora.com>
+Cc: xorg-devel@lists.x.org
+Date: Wed, 23 May 2018 11:43:33 +0200
+
+From: Michel Dänzer <michel.daenzer@amd.com>
+
+glamor_fds_from_pixmap returns 0 on error, but we were treating that as
+success, continuing with uninitialized stride and fd values.
+
+Also bail if the offset isn't 0, same as in dri3_fd_from_pixmap.
+
+Fixes: c8c276c9569b "glamor: Implement PixmapFromBuffers and
+                     BuffersFromPixmap"
+Signed-off-by: Michel Dänzer <michel.daenzer@amd.com>
+Reviewed-by: Emil Velikov <emil.velikov@collabora.com>
+---
+ glamor/glamor.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
+
+diff --git a/glamor/glamor.c b/glamor/glamor.c
+index e2c74d17a..63f0947fa 100644
+--- a/glamor/glamor.c
++++ b/glamor/glamor.c
+@@ -865,17 +865,15 @@ glamor_fd_from_pixmap(ScreenPtr screen,
+                                  &modifier);
+ 
+     /* Pixmaps with multi-planes/modifier are not supported in this interface */
+-    if (ret > 1) {
+-        while (ret > 0)
+-            close(fds[--ret]);
+-        return -1;
++    if (ret == 1 && offsets[0] == 0) {
++        *stride = strides[0];
++        *size = pixmap->drawable.height * *stride;
++        return fds[0];
+     }
+ 
+-    ret = fds[0];
+-    *stride = strides[0];
+-    *size = pixmap->drawable.height * *stride;
+-
+-    return ret;
++    while (ret > 0)
++        close(fds[--ret]);
++    return -1;
+ }
+ 
+ _X_EXPORT int

@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.0
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -93,6 +93,10 @@ Patch5: 0001-autobind-GPUs-to-the-screen.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
+
+# new test fixes for RHBZ#1579067
+Patch7: xserver-1-2-glamor-Always-return-0-from-glamor_fds_from_pixmap-on-error.patch
+Patch8: xserver-2-2-glamor-Propagate-glamor_fds_from_pixmap-error-in-glamor_fd_from_pixmap.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -519,6 +523,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Jun 01 2018 Adam Williamson <awilliam@redhat.com> - 1.20.0-3
+- Backport fixes for RHBZ#1579067
+
 * Wed May 16 2018 Adam Jackson <ajax@redhat.com> - 1.20.0-2
 - Xorg Requires: xorg-x11-drv-libinput
 
