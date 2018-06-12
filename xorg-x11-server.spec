@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.0
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -186,6 +186,7 @@ Obsoletes: xorg-x11-drv-vmmouse < 13.1.0-4
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: system-setup-keyboard
 Requires: xorg-x11-drv-libinput
+Requires: libEGL
 
 %description Xorg
 X.org X11 is an open source implementation of the X Window System.  It
@@ -264,6 +265,7 @@ Render and Composite.
 Summary: Wayland X Server
 Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
+Requires: libEGL
 
 %description Xwayland
 Xwayland is an X server for running X clients under Wayland.
@@ -523,6 +525,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Jun 12 2018 Adam Jackson <ajax@redhat.com> - 1.20.0-4
+- Xorg and Xwayland Requires: libEGL
+
 * Fri Jun 01 2018 Adam Williamson <awilliam@redhat.com> - 1.20.0-3
 - Backport fixes for RHBZ#1579067
 
