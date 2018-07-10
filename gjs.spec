@@ -15,6 +15,7 @@ License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
 Source0:       https://download.gnome.org/sources/%{name}/1.52/%{name}-%{version}.tar.xz
 
+BuildRequires:  gcc-c++
 BuildRequires: cairo-gobject-devel
 BuildRequires: chrpath
 BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
