@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.29.2
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -184,6 +184,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 3.29.2-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Fri Jun 01 2018 Adam Williamson <awilliam@redhat.com> - 3.29.2-2
 - Backport crasher fix from upstream master (#1585360)
 
