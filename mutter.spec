@@ -6,8 +6,8 @@
 %global pipewire_version 0.1.4
 
 Name:          mutter
-Version:       3.29.2
-Release:       3%{?dist}
+Version:       3.29.4
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -16,10 +16,6 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.29/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
-# https://gitlab.gnome.org/GNOME/mutter/issues/160
-# https://bugzilla.redhat.com/show_bug.cgi?id=1585360
-# https://gitlab.gnome.org/GNOME/mutter/commit/473bf38753221dc0002fae309d2f3f217e96c5f5
-Patch1:        0001-frames-Allow-for-unknown-mouse-buttons.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -184,6 +180,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Jul 18 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.4-1
+- Update to 3.29.4
+
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 3.29.2-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
