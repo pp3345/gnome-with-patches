@@ -13,6 +13,8 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.29/%{name}-%{ver
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
+Patch2: 0001-build-Don-t-use-libdir-for-systemd-unit-path.patch
+
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
 %define gnome_desktop_version 3.7.90
@@ -173,6 +175,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Screenshot.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider2.xml
+%{_userunitdir}/gnome-shell.service
+%{_userunitdir}/gnome-shell-wayland.target
+%{_userunitdir}/gnome-shell-x11.target
 # Co own directory instead of pulling in xdg-desktop-portal - we
 # are providing a backend to the portal, not depending on it
 %dir %{_datadir}/xdg-desktop-portal/portals/
