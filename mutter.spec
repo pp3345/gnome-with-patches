@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.29.4
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -16,6 +16,9 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.29/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
+# Backport https://gitlab.gnome.org/GNOME/mutter/merge_requests/175
+# fix 90/270 degree screen rotation
+Patch1:        175.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -180,6 +183,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Tue Jul 24 2018 Adam Williamson <awilliam@redhat.com> - 3.29.4-2
+- Backport MR#175 to fix 90/270 degree screen rotation
+
 * Wed Jul 18 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.4-1
 - Update to 3.29.4
 
