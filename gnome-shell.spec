@@ -12,6 +12,8 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.29/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
+# fix typo
+Patch2: 9f436ce3734b889afcff1880f6fed884196b92c5.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -177,6 +179,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_userunitdir}/gnome-shell.service
 %{_userunitdir}/gnome-shell-wayland.target
 %{_userunitdir}/gnome-shell-x11.target
+%{_sysconfdir}/xdg/autostart/gnome-shell-overrides-migration.desktop
 # Co own directory instead of pulling in xdg-desktop-portal - we
 # are providing a backend to the portal, not depending on it
 %dir %{_datadir}/xdg-desktop-portal/portals/
@@ -187,6 +190,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_libexecdir}/gnome-shell-perf-helper
 %{_libexecdir}/gnome-shell-hotplug-sniffer
 %{_libexecdir}/gnome-shell-portal-helper
+%{_libexecdir}/gnome-shell-overrides-migration.sh
 # Co own these directories instead of pulling in GConf
 # after all, we are trying to get rid of GConf with these files
 %dir %{_datadir}/GConf
