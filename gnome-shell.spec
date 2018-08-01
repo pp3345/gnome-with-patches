@@ -43,7 +43,6 @@ BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  json-glib-devel >= %{json_glib_version}
 BuildRequires:  upower-devel
-BuildRequires:  libgnome-keyring-devel
 BuildRequires:  mesa-libGL-devel
 BuildRequires:  NetworkManager-libnm-devel
 BuildRequires:  polkit-devel >= %{polkit_version}
