@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.29.4
+Version:        3.29.90
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -13,8 +13,6 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.29/%{name}-%{ver
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
-Patch2: 0001-build-Don-t-use-libdir-for-systemd-unit-path.patch
-
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
 %define gnome_desktop_version 3.7.90
@@ -23,7 +21,7 @@ Patch2: 0001-build-Don-t-use-libdir-for-systemd-unit-path.patch
 %define gjs_version 1.51.90
 %define gtk3_version 3.15.0
 %define json_glib_version 0.13.2
-%define mutter_version 3.29.2
+%define mutter_version 3.29.90
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.21.3
 %define ibus_version 1.5.2
@@ -196,6 +194,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Wed Aug 01 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.90-1
+- Update to 3.29.90
+
 * Wed Jul 18 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.4-1
 - Update to 3.29.4
 
