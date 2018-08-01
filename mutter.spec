@@ -6,8 +6,8 @@
 %global pipewire_version 0.2.0
 
 Name:          mutter
-Version:       3.29.4
-Release:       2%{?dist}
+Version:       3.29.90
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -183,6 +183,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Wed Aug 01 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.90-1
+- Update to 3.29.90
+
 * Tue Jul 24 2018 Adam Williamson <awilliam@redhat.com> - 3.29.4-2
 - Backport MR#175 to fix 90/270 degree screen rotation
 
