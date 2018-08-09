@@ -45,8 +45,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.20.0
-Release:   5%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.20.1
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -94,10 +94,6 @@ Patch5: 0001-autobind-GPUs-to-the-screen.patch
 # because the display-managers are not ready yet, do not upstream
 Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
-# new test fixes for RHBZ#1579067
-Patch7: xserver-1-2-glamor-Always-return-0-from-glamor_fds_from_pixmap-on-error.patch
-Patch8: xserver-2-2-glamor-Propagate-glamor_fds_from_pixmap-error-in-glamor_fd_from_pixmap.patch
-
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
 BuildRequires: automake autoconf libtool pkgconfig
@@ -136,7 +132,9 @@ BuildRequires: audit-libs-devel libselinux-devel >= 2.0.86-1
 BuildRequires: libudev-devel
 # libunwind is Exclusive for the following arches
 %ifarch aarch64 %{arm} hppa ia64 mips ppc ppc64 %{ix86} x86_64
+%if !0%{?rhel}
 BuildRequires: libunwind-devel
+%endif
 %endif
 
 BuildRequires: pkgconfig(xcb-aux) pkgconfig(xcb-image) pkgconfig(xcb-icccm)
@@ -525,6 +523,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Aug 09 2018 Adam Jackson <ajax@redhat.com> - 1.20.1-1
+- xserver 1.20.1
+
 * Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.20.0-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
