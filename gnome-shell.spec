@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.29.90
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -97,8 +97,6 @@ Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       glib2%{?_isa} >= %{glib2_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires:       libcroco%{?_isa} >= %{libcroco_version}
-Requires:       telepathy-logger%{?_isa}
-Requires:       telepathy-glib%{?_isa}
 Requires:       gstreamer1%{?_isa} >= %{gstreamer_version}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
@@ -199,6 +197,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Thu Aug 09 2018 Debarshi Ray <rishi@fedoraproject.org> - 3.29.90-2
+- Remove telepathy-logger and telepathy-glib runtime dependencies
+
 * Wed Aug 01 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.90-1
 - Update to 3.29.90
 
