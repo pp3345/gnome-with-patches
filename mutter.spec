@@ -3,7 +3,7 @@
 %global gsettings_desktop_schemas_version 3.21.4
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
-%global pipewire_version 0.2.0
+%global pipewire_version 0.2.2
 
 Name:          mutter
 Version:       3.29.90
@@ -51,7 +51,7 @@ BuildRequires: mesa-libGLES-devel
 BuildRequires: mesa-libGL-devel
 BuildRequires: mesa-libgbm-devel
 BuildRequires: pam-devel
-BuildRequires: pipewire-devel
+BuildRequires: pipewire-devel >= %{pipewire_version}
 BuildRequires: systemd-devel
 BuildRequires: upower-devel
 BuildRequires: xkeyboard-config-devel
