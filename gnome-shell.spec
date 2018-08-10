@@ -73,8 +73,8 @@ BuildRequires: gtk-doc
 Requires:       gnome-bluetooth%{?_isa} >= %{gnome_bluetooth_version}
 %endif
 Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
-%if 0%{?fedora}
-# Disabled on RHEL to allow logging into KDE session by default
+%if 0%{?rhel} != 7
+# Disabled on RHEL 7 to allow logging into KDE session by default
 Requires:       gnome-session-xsession
 %endif
 # wrapper script uses to restart old GNOME session if run --replace
