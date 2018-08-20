@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.29.90
-Release:        2%{?dist}
+Version:        3.29.91
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -12,8 +12,6 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.29/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
-# fix typo
-Patch2: 9f436ce3734b889afcff1880f6fed884196b92c5.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -23,7 +21,7 @@ Patch2: 9f436ce3734b889afcff1880f6fed884196b92c5.patch
 %define gjs_version 1.51.90
 %define gtk3_version 3.15.0
 %define json_glib_version 0.13.2
-%define mutter_version 3.29.90
+%define mutter_version 3.29.91
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.21.3
 %define ibus_version 1.5.2
@@ -196,6 +194,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Mon Aug 20 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.91-1
+- Update to 3.29.91
+
 * Thu Aug 09 2018 Debarshi Ray <rishi@fedoraproject.org> - 3.29.90-2
 - Remove telepathy-logger and telepathy-glib runtime dependencies
 
