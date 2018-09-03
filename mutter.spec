@@ -180,7 +180,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
-* Mon Sep 04 2018 Florian Müllner <fmuellner@redhat.com> - 3.30.0-1
+* Tue Sep 04 2018 Florian Müllner <fmuellner@redhat.com> - 3.30.0-1
 - Update to 3.30.0
 
 * Wed Aug 29 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.92-1
