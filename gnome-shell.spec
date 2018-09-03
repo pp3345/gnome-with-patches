@@ -194,7 +194,7 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
-* Mon Sep 04 2018 Florian Müllner <fmuellner@redhat.com> - 3.30.0-1
+* Tue Sep 04 2018 Florian Müllner <fmuellner@redhat.com> - 3.30.0-1
 - Update to 3.30.0
 
 * Wed Aug 29 2018 Florian Müllner <fmuellner@redhat.com> - 3.29.92-1
