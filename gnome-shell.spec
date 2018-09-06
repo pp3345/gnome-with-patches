@@ -114,6 +114,8 @@ Requires:       libgweather%{?_isa}
 # needed for thunderbolt support
 Requires:       bolt%{?_isa}
 
+Obsoletes:      caribou
+
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
 like switching to windows and launching applications. GNOME Shell takes
