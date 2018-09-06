@@ -1,10 +1,10 @@
-%global glib2_version 2.50.0
+%global glib2_version 2.54.0
 %global gobject_introspection_version 1.41.4
 %global gtk3_version 3.20
 
 Name:          gjs
-Version:       1.52.3
-Release:       2%{?dist}
+Version:       1.54.0
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -13,7 +13,7 @@ Summary:       Javascript Bindings for GNOME
 # Stack printer (gjs/stack.c)
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
-Source0:       https://download.gnome.org/sources/%{name}/1.52/%{name}-%{version}.tar.xz
+Source0:       https://download.gnome.org/sources/%{name}/1.54/%{name}-%{version}.tar.xz
 
 BuildRequires:  gcc-c++
 BuildRequires: cairo-gobject-devel
@@ -24,7 +24,7 @@ BuildRequires: dbus-glib-devel
 BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
-BuildRequires: mozjs52-devel
+BuildRequires: mozjs60-devel
 BuildRequires: pkgconfig
 
 Requires: glib2%{?_isa} >= %{glib2_version}
@@ -96,6 +96,10 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Thu Sep 06 2018 Kalev Lember <klember@redhat.com> - 1.54.0-1
+- Update to 1.54.0
+- Switch to building with mozjs60
+
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.52.3-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
