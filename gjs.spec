@@ -15,17 +15,17 @@ License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
 Source0:       https://download.gnome.org/sources/%{name}/1.54/%{name}-%{version}.tar.xz
 
-BuildRequires:  gcc-c++
 BuildRequires: cairo-gobject-devel
 BuildRequires: chrpath
-BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
-BuildRequires: readline-devel
 BuildRequires: dbus-glib-devel
+BuildRequires: gcc-c++
 BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
+BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
 BuildRequires: mozjs60-devel
 BuildRequires: pkgconfig
+BuildRequires: readline-devel
 
 Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
