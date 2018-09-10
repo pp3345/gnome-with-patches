@@ -1,0 +1,80 @@
+From 259f838af4aae2c240d0ea9c05073a86718990d7 Mon Sep 17 00:00:00 2001
+From: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Date: Mon, 27 Aug 2018 01:04:45 +0100
+Subject: [PATCH xserver] present: fix freed pointer access
+
+When a vblank has been marked as aborted, it's going to be free in the
+flip_notify function when stopped. We can't notify it after it's
+stopped because the pointer is invalid.
+
+Valgrind backtrace:
+
+==5331== Invalid read of size 8
+==5331==    at 0x212B4D: present_vblank_notify (present_vblank.c:34)
+==5331==    by 0x21439B: present_wnmd_flip_notify (present_wnmd.c:194)
+==5331==    by 0x21439B: present_wnmd_event_notify (present_wnmd.c:228)
+==5331==    by 0x156216: xwl_present_sync_callback (xwayland-present.c:282)
+==5331==    by 0x6570FCD: ffi_call_unix64 (in /usr/lib/x86_64-linux-gnu/libffi.so.6.0.4)
+==5331==    by 0x657093E: ffi_call (in /usr/lib/x86_64-linux-gnu/libffi.so.6.0.4)
+==5331==    by 0x4DDB183: ??? (in /usr/lib/x86_64-linux-gnu/libwayland-client.so.0.3.0)
+==5331==    by 0x4DD79D8: ??? (in /usr/lib/x86_64-linux-gnu/libwayland-client.so.0.3.0)
+==5331==    by 0x4DD8EA3: wl_display_dispatch_queue_pending (in /usr/lib/x86_64-linux-gnu/libwayland-client.so.0.3.0)
+==5331==    by 0x14BCCA: xwl_read_events (xwayland.c:814)
+==5331==    by 0x2AC0D0: ospoll_wait (ospoll.c:651)
+==5331==    by 0x2A5322: WaitForSomething (WaitFor.c:208)
+==5331==    by 0x27574B: Dispatch (dispatch.c:421)
+==5331==  Address 0x1b44dc98 is 40 bytes inside a block of size 184 free'd
+==5331==    at 0x48369EB: free (vg_replace_malloc.c:530)
+==5331==    by 0x213B0A: present_wnmd_free_idle_vblanks (present_wnmd.c:118)
+==5331==    by 0x213B0A: present_wnmd_flips_stop (present_wnmd.c:161)
+==5331==    by 0x2143EF: present_wnmd_flip_notify (present_wnmd.c:192)
+==5331==    by 0x2143EF: present_wnmd_event_notify (present_wnmd.c:228)
+==5331==    by 0x156216: xwl_present_sync_callback (xwayland-present.c:282)
+==5331==    by 0x6570FCD: ffi_call_unix64 (in /usr/lib/x86_64-linux-gnu/libffi.so.6.0.4)
+==5331==    by 0x657093E: ffi_call (in /usr/lib/x86_64-linux-gnu/libffi.so.6.0.4)
+==5331==    by 0x4DDB183: ??? (in /usr/lib/x86_64-linux-gnu/libwayland-client.so.0.3.0)
+==5331==    by 0x4DD79D8: ??? (in /usr/lib/x86_64-linux-gnu/libwayland-client.so.0.3.0)
+==5331==    by 0x4DD8EA3: wl_display_dispatch_queue_pending (in /usr/lib/x86_64-linux-gnu/libwayland-client.so.0.3.0)
+==5331==    by 0x14BCCA: xwl_read_events (xwayland.c:814)
+==5331==    by 0x2AC0D0: ospoll_wait (ospoll.c:651)
+==5331==    by 0x2A5322: WaitForSomething (WaitFor.c:208)
+==5331==  Block was alloc'd at
+==5331==    at 0x48377D5: calloc (vg_replace_malloc.c:711)
+==5331==    by 0x212D9F: present_vblank_create (present_vblank.c:69)
+==5331==    by 0x214014: present_wnmd_pixmap (present_wnmd.c:610)
+==5331==    by 0x21576C: proc_present_pixmap (present_request.c:150)
+==5331==    by 0x27599D: Dispatch (dispatch.c:479)
+==5331==    by 0x279945: dix_main (main.c:276)
+==5331==    by 0x633AB16: (below main) (libc-start.c:310)
+
+v2: Still notify aborted flips (Roman)
+
+Signed-off-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Reviewed-by: Daniel Stone <daniels@collabora.com>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=107314
+Reviewed-by: Roman Gilg <subdiff@gmail.com>
+Tested-by: Roman Gilg <subdiff@gmail.com>
+---
+ present/present_wnmd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/present/present_wnmd.c b/present/present_wnmd.c
+index 035ae8ffe..8f3836440 100644
+--- a/present/present_wnmd.c
++++ b/present/present_wnmd.c
+@@ -188,10 +188,11 @@ present_wnmd_flip_notify(present_vblank_ptr vblank, uint64_t ust, uint64_t crtc_
+     window_priv->flip_active = vblank;
+     window_priv->flip_pending = NULL;
+ 
++    present_vblank_notify(vblank, PresentCompleteKindPixmap, PresentCompleteModeFlip, ust, crtc_msc);
++
+     if (vblank->abort_flip)
+         present_wnmd_flips_stop(window);
+ 
+-    present_vblank_notify(vblank, PresentCompleteKindPixmap, PresentCompleteModeFlip, ust, crtc_msc);
+     present_wnmd_flip_try_ready(window);
+ }
+ 
+-- 
+2.19.0.rc1
+
