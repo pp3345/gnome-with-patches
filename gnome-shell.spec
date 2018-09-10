@@ -121,6 +121,7 @@ Obsoletes:      caribou-antler < 0.4.21-10
 Obsoletes:      caribou-devel < 0.4.21-10
 Obsoletes:      caribou-gtk2-module < 0.4.21-10
 Obsoletes:      caribou-gtk3-module < 0.4.21-10
+Obsoletes:      python-caribou < 0.4.21-10
 Obsoletes:      python2-caribou < 0.4.21-10
 Obsoletes:      python3-caribou < 0.4.21-10
 %endif
