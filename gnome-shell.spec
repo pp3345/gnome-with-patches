@@ -114,7 +114,16 @@ Requires:       libgweather%{?_isa}
 # needed for thunderbolt support
 Requires:       bolt%{?_isa}
 
-Obsoletes:      caribou
+%if 0%{?rhel}
+# In Fedora, fedora-obsolete-packages obsoletes caribou
+Obsoletes:      caribou < 0.4.21-10
+Obsoletes:      caribou-antler < 0.4.21-10
+Obsoletes:      caribou-devel < 0.4.21-10
+Obsoletes:      caribou-gtk2-module < 0.4.21-10
+Obsoletes:      caribou-gtk3-module < 0.4.21-10
+Obsoletes:      python2-caribou < 0.4.21-10
+Obsoletes:      python3-caribou < 0.4.21-10
+%endif
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
