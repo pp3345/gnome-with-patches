@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.30.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -113,6 +113,8 @@ Requires:       geoclue2-libs%{?_isa}
 Requires:       libgweather%{?_isa}
 # needed for thunderbolt support
 Requires:       bolt%{?_isa}
+# Needed for launching flatpak apps etc
+Requires:       xdg-desktop-portal-gtk
 
 %if 0%{?rhel}
 # In Fedora, fedora-obsolete-packages obsoletes caribou
@@ -206,6 +208,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Thu Sep 13 2018 Kalev Lember <klember@redhat.com> - 3.30.0-2
+- Require xdg-desktop-portal-gtk
+
 * Tue Sep 04 2018 Florian Müllner <fmuellner@redhat.com> - 3.30.0-1
 - Update to 3.30.0
 
