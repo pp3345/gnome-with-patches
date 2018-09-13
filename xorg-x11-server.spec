@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.1
-Release:   2%{?gitdate:.%{gitdate}}%{dist}
+Release:   3%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -336,6 +336,10 @@ test `getminor extension` == %{extension_minor}
 
 %build
 
+export CFLAGS="$RPM_OPT_FLAGS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1"
+export CXXFLAGS="$RPM_OPT_FLAGS -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1"
+export LDFLAGS="$RPM_LD_FLAGS -specs=/usr/lib/rpm/redhat/redhat-hardened-ld"
+
 %ifnarch %{ix86} x86_64
 %global no_int10 --disable-vbe --disable-int10-module
 %endif
@@ -529,6 +533,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Sep 13 2018 Dave Airlie <airlied@redhat.com> - 1.20.1-3
+- Build with PIE enabled (this doesn't enable bind now)
+
 * Mon Sep 10 2018 Olivier Fourdan <ofourdan@redhat.com> - 1.20.1-2
 - Include patches from upstream to fix Xwayland crashes
 
