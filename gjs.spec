@@ -1,10 +1,11 @@
 %global glib2_version 2.54.0
 %global gobject_introspection_version 1.41.4
 %global gtk3_version 3.20
+%global mozjs60_version 60.2.0
 
 Name:          gjs
 Version:       1.54.0
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -23,13 +24,14 @@ BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
-BuildRequires: mozjs60-devel
+BuildRequires: mozjs60-devel >= %{mozjs60_version}
 BuildRequires: pkgconfig
 BuildRequires: readline-devel
 
 Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires: gtk3%{?_isa} >= %{gtk3_version}
+Requires: mozjs60%{?_isa} >= %{mozjs60_version}
 
 # Filter provides for private libraries
 %global __provides_exclude_from ^%{_libdir}/gjs/
@@ -96,6 +98,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Thu Sep 13 2018 Kalev Lember <klember@redhat.com> - 1.54.0-3
+- Rebuilt against mozjs60 60.2.0 that broke ABI (#1628438)
+
 * Mon Sep 10 2018 Kalev Lember <klember@redhat.com> - 1.54.0-2
 - Rebuilt against fixed atk (#1626575)
 
