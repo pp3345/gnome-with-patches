@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.30.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -12,6 +12,9 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.30/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
+
+# Backport fix for https://gitlab.gnome.org/GNOME/gnome-shell/issues/140
+Patch2: 0001-network-Don-t-assume-the-active-connection-has-been-.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -208,6 +211,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Sat Sep 15 2018 Adam Williamson <awilliam@redhat.com> - 3.30.0-3
+- Backport fix for GGO #140 from upstream master
+
 * Thu Sep 13 2018 Kalev Lember <klember@redhat.com> - 3.30.0-2
 - Require xdg-desktop-portal-gtk
 
