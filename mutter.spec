@@ -61,6 +61,7 @@ BuildRequires: pkgconfig(gudev-1.0)
 BuildRequires: pkgconfig(libdrm)
 BuildRequires: pkgconfig(gbm)
 BuildRequires: pkgconfig(wayland-server)
+BuildRequires: pkgconfig(wayland-eglstream)
 
 BuildRequires: json-glib-devel >= %{json_glib_version}
 BuildRequires: libgudev1-devel
