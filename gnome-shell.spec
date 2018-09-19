@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.30.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -19,6 +19,8 @@ Patch2: 0001-network-Don-t-assume-the-active-connection-has-been-.patch
 # Fixes connecting to wifi from user menu
 # https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/240
 Patch3: 0001-Fix-connection-to-wifi-APs-from-user-menu-RH-1628263.patch
+
+Patch4: 0001-dnd-don-t-try-to-access-destroyed-dragActor.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -215,6 +217,10 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Wed Sep 19 2018 Ray Strode <rstrode@redhat.com> - 3.30.0-5
+- Fix lock up when dropping icon on dash
+  Resolves: #1630134
+
 * Tue Sep 18 2018 Adam Williamson <awilliam@redhat.com> - 3.30.0-4
 - Fix connecting to wifi from user menu (RHBZ #1628263)
 

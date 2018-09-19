@@ -1,0 +1,227 @@
+From 82c72f377a91cfa75fed1102f92ff4685c7e74da Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Wed, 19 Sep 2018 11:47:35 -0400
+Subject: [PATCH] dnd: don't try to access destroyed dragActor
+
+The dragComplete handler incorrectly checks
+this._actorDestroyed to see if the drag actor
+is destroyed.  The drag actor may not be the same
+as the main actor.
+
+The end result is an exception in drop handling,
+leading to a shell lockup.
+
+This commit changes the code to always set
+this._dragActor to undefined when it's destroyed,
+and check for that condition instead of
+this._actorDestroyed in the dragComplete handler.
+
+Closes https://gitlab.gnome.org/GNOME/gnome-shell/issues/577
+---
+ js/ui/dnd.js | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/js/ui/dnd.js b/js/ui/dnd.js
+index 634a7d6d7..6c563a3ba 100644
+--- a/js/ui/dnd.js
++++ b/js/ui/dnd.js
+@@ -479,121 +479,124 @@ var _Draggable = new Lang.Class({
+                 switch (dropFunc(dropEvent)) {
+                     case DragDropResult.FAILURE:
+                     case DragDropResult.SUCCESS:
+                         return true;
+                     case DragDropResult.CONTINUE:
+                         continue;
+                 }
+         }
+ 
+         // At this point it is too late to cancel a drag by destroying
+         // the actor, the fate of which is decided by acceptDrop and its
+         // side-effects
+         this._dragCancellable = false;
+ 
+         while (target) {
+             if (target._delegate && target._delegate.acceptDrop) {
+                 let [r, targX, targY] = target.transform_stage_point(dropX, dropY);
+                 if (target._delegate.acceptDrop(this.actor._delegate,
+                                                 this._dragActor,
+                                                 targX,
+                                                 targY,
+                                                 event.get_time())) {
+                     // If it accepted the drop without taking the actor,
+                     // handle it ourselves.
+                     if (this._dragActor.get_parent() == Main.uiGroup) {
+                         if (this._restoreOnSuccess) {
+                             this._restoreDragActor(event.get_time());
+                             return true;
+                         } else
+                             this._dragActor.destroy();
++                            this._dragActor = undefined;
+                     }
+ 
+                     this._dragInProgress = false;
+                     global.display.set_cursor(Meta.Cursor.DEFAULT);
+                     this.emit('drag-end', event.get_time(), true);
+                     this._dragComplete();
+                     return true;
+                 }
+             }
+             target = target.get_parent();
+         }
+ 
+         this._cancelDrag(event.get_time());
+ 
+         return true;
+     },
+ 
+     _getRestoreLocation() {
+         let x, y, scale;
+ 
+         if (this._dragActorSource && this._dragActorSource.visible) {
+             // Snap the clone back to its source
+             [x, y] = this._dragActorSource.get_transformed_position();
+             let [sourceScaledWidth, sourceScaledHeight] = this._dragActorSource.get_transformed_size();
+             scale = sourceScaledWidth ? this._dragActor.width / sourceScaledWidth : 0;
+         } else if (this._dragOrigParent) {
+             // Snap the actor back to its original position within
+             // its parent, adjusting for the fact that the parent
+             // may have been moved or scaled
+             let [parentX, parentY] = this._dragOrigParent.get_transformed_position();
+             let [parentWidth, parentHeight] = this._dragOrigParent.get_size();
+             let [parentScaledWidth, parentScaledHeight] = this._dragOrigParent.get_transformed_size();
+             let parentScale = 1.0;
+             if (parentWidth != 0)
+                 parentScale = parentScaledWidth / parentWidth;
+ 
+             x = parentX + parentScale * this._dragOrigX;
+             y = parentY + parentScale * this._dragOrigY;
+             scale = this._dragOrigScale * parentScale;
+         } else {
+             // Snap back actor to its original stage position
+             x = this._snapBackX;
+             y = this._snapBackY;
+             scale = this._snapBackScale;
+         }
+ 
+         return [x, y, scale];
+     },
+ 
+     _cancelDrag(eventTime) {
+         this.emit('drag-cancelled', eventTime);
+         this._dragInProgress = false;
+         let [snapBackX, snapBackY, snapBackScale] = this._getRestoreLocation();
+ 
+         if (this._actorDestroyed) {
+             global.display.set_cursor(Meta.Cursor.DEFAULT);
+             if (!this._buttonDown)
+                 this._dragComplete();
+             this.emit('drag-end', eventTime, false);
+-            if (!this._dragOrigParent)
++            if (!this._dragOrigParent) {
+                 this._dragActor.destroy();
++                this._dragActor = undefined;
++            }
+ 
+             return;
+         }
+ 
+         this._animateDragEnd(eventTime,
+                              { x: snapBackX,
+                                y: snapBackY,
+                                scale_x: snapBackScale,
+                                scale_y: snapBackScale,
+                                time: SNAP_BACK_ANIMATION_TIME,
+                              });
+     },
+ 
+     _restoreDragActor(eventTime) {
+         this._dragInProgress = false;
+         let [restoreX, restoreY, restoreScale] = this._getRestoreLocation();
+ 
+         // fade the actor back in at its original location
+         this._dragActor.set_position(restoreX, restoreY);
+         this._dragActor.set_scale(restoreScale, restoreScale);
+         this._dragActor.opacity = 0;
+ 
+         this._animateDragEnd(eventTime,
+                              { time: REVERT_ANIMATION_TIME });
+     },
+ 
+     _animateDragEnd(eventTime, params) {
+         this._animationInProgress = true;
+ 
+         // finish animation if the actor gets destroyed
+@@ -607,68 +610,69 @@ var _Draggable = new Lang.Class({
+         params['onComplete']       = this._onAnimationComplete;
+         params['onCompleteScope']  = this;
+         params['onCompleteParams'] = [this._dragActor, eventTime];
+ 
+         // start the animation
+         Tweener.addTween(this._dragActor, params)
+     },
+ 
+     _finishAnimation() {
+         if (!this._animationInProgress)
+             return
+ 
+         this._animationInProgress = false;
+         if (!this._buttonDown)
+             this._dragComplete();
+ 
+         global.display.set_cursor(Meta.Cursor.DEFAULT);
+     },
+ 
+     _onAnimationComplete(dragActor, eventTime) {
+         dragActor.disconnect(this._dragActorDestroyId);
+         this._dragActorDestroyId = 0;
+ 
+         if (this._dragOrigParent) {
+             Main.uiGroup.remove_child(this._dragActor);
+             this._dragOrigParent.add_actor(this._dragActor);
+             dragActor.set_scale(this._dragOrigScale, this._dragOrigScale);
+             dragActor.set_position(this._dragOrigX, this._dragOrigY);
+         } else {
+             dragActor.destroy();
++            this._dragActor = undefined;
+         }
+ 
+         this.emit('drag-end', eventTime, false);
+         this._finishAnimation();
+     },
+ 
+     _dragComplete() {
+-        if (!this._actorDestroyed)
++        if (this._dragActor)
+             Shell.util_set_hidden_from_pick(this._dragActor, false);
+ 
+         this._ungrabEvents();
+         global.sync_pointer();
+ 
+         if (this._updateHoverId) {
+             GLib.source_remove(this._updateHoverId);
+             this._updateHoverId = 0;
+         }
+ 
+         this._dragActor = undefined;
+         currentDraggable = null;
+     }
+ });
+ 
+ Signals.addSignalMethods(_Draggable.prototype);
+ 
+ /**
+  * makeDraggable:
+  * @actor: Source actor
+  * @params: (optional) Additional parameters
+  *
+  * Create an object which controls drag and drop for the given actor.
+  *
+  * If %manualMode is %true in @params, do not automatically start
+  * drag and drop on click
+  *
+  * If %dragActorMaxSize is present in @params, the drag actor will
+  * be scaled down to be no larger than that size in pixels.
+  *
+-- 
+2.17.1
+
