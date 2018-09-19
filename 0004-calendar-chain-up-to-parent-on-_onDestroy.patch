@@ -1,0 +1,25 @@
+From 5bca4a884e8f02441a89d7b44490339d869e5966 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Mon, 9 Jul 2018 13:31:26 +0200
+Subject: [PATCH 4/4] calendar: chain up to parent on _onDestroy
+
+---
+ js/ui/calendar.js | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/js/ui/calendar.js b/js/ui/calendar.js
+index 990cac243..815c9f9c9 100644
+--- a/js/ui/calendar.js
++++ b/js/ui/calendar.js
+@@ -803,6 +803,8 @@ var NotificationMessage = new Lang.Class({
+     },
+ 
+     _onDestroy() {
++        this.parent();
++
+         if (this._updatedId)
+             this.notification.disconnect(this._updatedId);
+         this._updatedId = 0;
+-- 
+2.19.0
+

@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.30.0
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -20,16 +20,33 @@ Patch2: 0001-network-Don-t-assume-the-active-connection-has-been-.patch
 # https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/240
 Patch3: 0001-Fix-connection-to-wifi-APs-from-user-menu-RH-1628263.patch
 
-# Fixes crash on Overview app icon drag-and-drop
+# Fixes crash on Overview app icon drag-and-drop, along with some other
+# JS invalid access fixes
 # https://gitlab.gnome.org/GNOME/gnome-shell/issues/577
 # https://bugzilla.redhat.com/show_bug.cgi?id=1630134
-# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/241
-Patch4: 0001-dnd-don-t-try-to-access-destroyed-dragActor.patch
+# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/209
+Patch4: 0001-dnd-Nullify-_dragActor-after-we-ve-destroyed-it-and-.patch
+Patch5: 0002-messageList-stop-syncing-if-closeButton-has-been-des.patch
+Patch6: 0003-automountManager-remove-allowAutorun-expire-timeout-.patch
+Patch7: 0004-calendar-chain-up-to-parent-on-_onDestroy.patch
 
 # Fixes lack of text identifying the key on ssh key unlock prompt
 # https://gitlab.gnome.org/GNOME/gnome-shell/issues/574
 # https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/234
-Patch5: 234.patch
+Patch8: 234.patch
+
+# Fixes a workspace switch / window destroy crash with gjs 1.54.0
+# https://gitlab.gnome.org/GNOME/gnome-shell/issues/539
+Patch9: 0001-windowManager-listen-actively-to-windows-being-destr.patch
+
+# Fixes an issue with window menus on multi-monitor systems
+# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/227
+Patch10: 0001-windowMenu-Port-from-Meta.ScreenDirection-to-Meta.Di.patch
+
+# Fixes hover and active state for some buttons (e.g. Power Off dialog)
+# https://gitlab.gnome.org/GNOME/gnome-shell/issues/523
+# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/221
+Patch11: 0001-theme-define-proper-hover-and-active-states.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -226,6 +243,12 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Wed Sep 19 2018 Adam Williamson <awilliam@redhat.com> - 3.30.0-7
+- Replace dnd fix from -5 with upstream version (GGO MR #209)
+- Fix a window destroy crash which can occur with new gjs (GGO #539)
+- Fix a window menu issue on multi-monitor systems (GGO MR #227)
+- Fix hover and active states for some buttons (GGO #523)
+
 * Wed Sep 19 2018 Adam Williamson <awilliam@redhat.com> - 3.30.0-6
 - Fix missing key description in ssh key unlock prompt (GGO #574)
 
