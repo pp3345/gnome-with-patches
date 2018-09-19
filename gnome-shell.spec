@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.30.0
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -20,7 +20,16 @@ Patch2: 0001-network-Don-t-assume-the-active-connection-has-been-.patch
 # https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/240
 Patch3: 0001-Fix-connection-to-wifi-APs-from-user-menu-RH-1628263.patch
 
+# Fixes crash on Overview app icon drag-and-drop
+# https://gitlab.gnome.org/GNOME/gnome-shell/issues/577
+# https://bugzilla.redhat.com/show_bug.cgi?id=1630134
+# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/241
 Patch4: 0001-dnd-don-t-try-to-access-destroyed-dragActor.patch
+
+# Fixes lack of text identifying the key on ssh key unlock prompt
+# https://gitlab.gnome.org/GNOME/gnome-shell/issues/574
+# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/234
+Patch5: 234.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -217,6 +226,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Wed Sep 19 2018 Adam Williamson <awilliam@redhat.com> - 3.30.0-6
+- Fix missing key description in ssh key unlock prompt (GGO #574)
+
 * Wed Sep 19 2018 Ray Strode <rstrode@redhat.com> - 3.30.0-5
 - Fix lock up when dropping icon on dash
   Resolves: #1630134
