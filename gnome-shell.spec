@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.30.0
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -47,6 +47,13 @@ Patch10: 0001-windowMenu-Port-from-Meta.ScreenDirection-to-Meta.Di.patch
 # https://gitlab.gnome.org/GNOME/gnome-shell/issues/523
 # https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/221
 Patch11: 0001-theme-define-proper-hover-and-active-states.patch
+
+# Add a null check and fix an IBus type error that affect input
+# methods (and causes log spam when they're not enabled)
+# https://gitlab.gnome.org/GNOME/gnome-shell/commit/0cf2d396b0d584f59402a6a0c42376639bd314ef
+# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/228
+Patch12: 0001-inputMethod-Add-a-null-check-for-text-in-vfunc_set_s.patch
+Patch13: 228.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -243,6 +250,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Sat Sep 22 2018 Adam Williamson <awilliam@redhat.com> - 3.30.0-8
+- Backport fix for IBus type issue (GGO MR #228)
+
 * Wed Sep 19 2018 Adam Williamson <awilliam@redhat.com> - 3.30.0-7
 - Replace dnd fix from -5 with upstream version (GGO MR #209)
 - Fix a window destroy crash which can occur with new gjs (GGO #539)
