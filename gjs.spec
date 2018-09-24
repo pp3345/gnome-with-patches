@@ -4,8 +4,8 @@
 %global mozjs60_version 60.2.0
 
 Name:          gjs
-Version:       1.54.0
-Release:       3%{?dist}
+Version:       1.54.1
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -98,6 +98,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Mon Sep 24 2018 Kalev Lember <klember@redhat.com> - 1.54.1-1
+- Update to 1.54.1
+
 * Thu Sep 13 2018 Kalev Lember <klember@redhat.com> - 1.54.0-3
 - Rebuilt against mozjs60 60.2.0 that broke ABI (#1628438)
 
