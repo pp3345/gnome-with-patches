@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.30.0
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -54,6 +54,11 @@ Patch11: 0001-theme-define-proper-hover-and-active-states.patch
 # https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/228
 Patch12: 0001-inputMethod-Add-a-null-check-for-text-in-vfunc_set_s.patch
 Patch13: 228.patch
+
+# Implement https://wiki.gnome.org/Design/OS/BootOptions
+# This should go upstream once systemd has a generic interface for this
+Patch14: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
+Patch15: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -250,6 +255,10 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Thu Sep 27 2018 Hans de Goede <hdegoede@redhat.com> - 3.30.0-9
+- Add downstream patches implementing the "Boot Options" menu from:
+  https://wiki.gnome.org/Design/OS/BootOptions
+
 * Sat Sep 22 2018 Adam Williamson <awilliam@redhat.com> - 3.30.0-8
 - Backport fix for IBus type issue (GGO MR #228)
 
