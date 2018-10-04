@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.1
-Release:   3%{?gitdate:.%{gitdate}}%{dist}
+Release:   4%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -83,8 +83,9 @@ Patch1: 06_use-intel-only-on-pre-gen4.diff
 # Default to xf86-video-modesetting on GeForce 8 and newer
 Patch2: 0001-xfree86-use-modesetting-driver-by-default-on-GeForce.patch
 
-# XXX needs rebase, but also va_gl should probably just be the default
-# Patch3: 0001-xf86-dri2-Use-va_gl-as-vdpau_driver-for-Intel-i965-G.patch
+# Default to va_gl on intel i965 as we use the modesetting drv there
+# va_gl should probably just be the default everywhere ?
+Patch3: 0001-xf86-dri2-Use-va_gl-as-vdpau_driver-for-Intel-i965-G.patch
 
 Patch4: 0001-Always-install-vbe-and-int10-sdk-headers.patch
 
@@ -533,6 +534,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Oct  4 2018 Hans de Goede <hdegoede@redhat.com> - 1.20.1-4
+- Rebase patch to use va_gl as vdpau driver on i965 GPUs, re-fix rhbz#1413733
+
 * Thu Sep 13 2018 Dave Airlie <airlied@redhat.com> - 1.20.1-3
 - Build with PIE enabled (this doesn't enable bind now)
 
