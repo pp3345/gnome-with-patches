@@ -6,8 +6,8 @@
 %global pipewire_version 0.2.2
 
 Name:          mutter
-Version:       3.30.0
-Release:       3%{?dist}
+Version:       3.30.1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -16,9 +16,6 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.30/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
-# Backport of https://gitlab.gnome.org/GNOME/mutter/commit/68ec9ac017157def9b7c25dd8141dc0e93d9f918
-# Fixes https://bugzilla.redhat.com/show_bug.cgi?id=1630943
-Patch1:        0001-wayland-No-xdg-output-events-without-a-logical-monit.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -184,6 +181,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Mon Oct 08 2018 Florian Müllner <fmuellner@redhat.com> - 3.30.1-1
+- Update to 3.30.1
+
 * Wed Oct 03 2018 Adam Williamson <awilliam@redhat.com> - 3.30.0-3
 - Backport fix for #1630943 from upstream master
 
