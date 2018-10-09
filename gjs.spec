@@ -4,8 +4,8 @@
 %global mozjs60_version 60.2.2
 
 Name:          gjs
-Version:       1.54.1
-Release:       2%{?dist}
+Version:       1.55.1
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -14,7 +14,7 @@ Summary:       Javascript Bindings for GNOME
 # Stack printer (gjs/stack.c)
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
-Source0:       https://download.gnome.org/sources/%{name}/1.54/%{name}-%{version}.tar.xz
+Source0:       https://download.gnome.org/sources/%{name}/1.55/%{name}-%{version}.tar.xz
 
 BuildRequires: cairo-gobject-devel
 BuildRequires: chrpath
@@ -98,6 +98,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Tue Oct 09 2018 Kalev Lember <klember@redhat.com> - 1.55.1-1
+- Update to 1.55.1
+
 * Fri Oct 05 2018 Kalev Lember <klember@redhat.com> - 1.54.1-2
 - Rebuilt against mozjs60 60.2.2
 
