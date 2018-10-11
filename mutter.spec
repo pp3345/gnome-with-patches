@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.30.1
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -16,6 +16,9 @@ URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.30/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
+
+# Fix disabled monitor when laptop lid is closed (rhbz#1638444)
+Patch1:        0001-monitor-manager-Don-t-use-switch-config-when-ensurin.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -181,6 +184,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu Oct 11 2018 Jonas Ådahl <jadahl@redhat.com> - 3.30.1-3
+- Fix disabled monitor when laptop lid is closed (rhbz#1638444)
+
 * Thu Oct 11 2018 David Herrmann <dh.herrmann@gmail.com> - 3.30.1-2
 - Reduce 'dbus-x11' dependency to 'dbus'. The xinit script are no longer the
   canonical way to start dbus, but the 'dbus' package is nowadays required to

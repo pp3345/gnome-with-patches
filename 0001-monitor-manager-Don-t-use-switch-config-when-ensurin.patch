@@ -1,0 +1,34 @@
+From 5e1e1fa78af7c91a9ba209c3abe71fff4e6a25d7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Thu, 11 Oct 2018 15:16:26 +0200
+Subject: [PATCH] monitor-manager: Don't use switch-config when ensuring
+ configuration
+
+Switch-configs are only to be used in certain circumstances (see
+meta_monitor_manager_can_switch_config()) so when ensuring
+configuration and attempting to create a linear configuration, use the
+linear configuration constructor function directly without going via the
+switch config method, otherwise we might incorrectly fall back to the
+fallback configuration (only enable primary monitor).
+---
+ src/backends/meta-monitor-manager.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/src/backends/meta-monitor-manager.c b/src/backends/meta-monitor-manager.c
+index baed7521dd..d9236b928b 100644
+--- a/src/backends/meta-monitor-manager.c
++++ b/src/backends/meta-monitor-manager.c
+@@ -561,9 +561,7 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
+       g_clear_object (&config);
+     }
+ 
+-  config =
+-    meta_monitor_config_manager_create_for_switch_config (manager->config_manager,
+-                                                          META_MONITOR_SWITCH_CONFIG_ALL_LINEAR);
++  config = meta_monitor_config_manager_create_linear (manager->config_manager);
+   if (config)
+     {
+       if (!meta_monitor_manager_apply_monitors_config (manager,
+-- 
+2.17.1
+
