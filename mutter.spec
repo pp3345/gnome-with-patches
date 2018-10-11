@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.30.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -80,7 +80,7 @@ Requires: gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_versi
 Requires: gtk3%{?_isa} >= %{gtk3_version}
 Requires: pipewire%{_isa} >= %{pipewire_version}
 Requires: startup-notification
-Requires: dbus-x11
+Requires: dbus
 Requires: zenity
 
 Requires:      json-glib%{?_isa} >= %{json_glib_version}
@@ -181,6 +181,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Thu Oct 11 2018 David Herrmann <dh.herrmann@gmail.com> - 3.30.1-2
+- Reduce 'dbus-x11' dependency to 'dbus'. The xinit script are no longer the
+  canonical way to start dbus, but the 'dbus' package is nowadays required to
+  provide a user and system bus to its dependents.
+
 * Mon Oct 08 2018 Florian Müllner <fmuellner@redhat.com> - 3.30.1-1
 - Update to 3.30.1
 
