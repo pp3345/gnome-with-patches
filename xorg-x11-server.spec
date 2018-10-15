@@ -45,8 +45,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.20.1
-Release:   4%{?gitdate:.%{gitdate}}%{dist}
+Version:   1.20.2
+Release:   1%{?gitdate:.%{gitdate}}%{dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -94,12 +94,6 @@ Patch5: 0001-autobind-GPUs-to-the-screen.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
-
-# Submitted upstream
-Patch7:  0001-xwayland-Remove-xwl_present_window-from-privates-on-.patch
-Patch8:  0001-xwayland-fix-access-to-invalid-pointer.patch
-Patch9:  0001-present-fix-freed-pointer-access.patch
-Patch10: 0001-glx-check-for-indirect-context-in-CreateContextAttri.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -534,6 +528,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Oct 15 2018 Adam Jackson <ajax@redhat.com> - 1.20.2-1
+- xserver 1.20.2
+
 * Thu Oct  4 2018 Hans de Goede <hdegoede@redhat.com> - 1.20.1-4
 - Rebase patch to use va_gl as vdpau driver on i965 GPUs, re-fix rhbz#1413733
 
