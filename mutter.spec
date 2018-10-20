@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.30.1
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -19,6 +19,10 @@ Patch0:        startup-notification.patch
 
 # Fix disabled monitor when laptop lid is closed (rhbz#1638444)
 Patch1:        0001-monitor-manager-Don-t-use-switch-config-when-ensurin.patch
+
+# Backport memory leak fixes (rhbz#1641254)
+Patch2:        0001-constraints-Make-current-placement-rule-stack-alloca.patch
+Patch3:        0002-shaped-texture-Clean-up-texture-regions.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -184,6 +188,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Sat Oct 20 2018 Jonas Ådahl <jadahl@redhat.com> - 3.30.1-4
+- Backport a couple of memory leak fixes (rhbz#1641254)
+
 * Thu Oct 11 2018 Jonas Ådahl <jadahl@redhat.com> - 3.30.1-3
 - Fix disabled monitor when laptop lid is closed (rhbz#1638444)
 
