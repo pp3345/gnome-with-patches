@@ -7,7 +7,7 @@
 
 Name:          mutter
 Version:       3.30.1
-Release:       4%{?dist}
+Release:       5%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -23,6 +23,9 @@ Patch1:        0001-monitor-manager-Don-t-use-switch-config-when-ensurin.patch
 # Backport memory leak fixes (rhbz#1641254)
 Patch2:        0001-constraints-Make-current-placement-rule-stack-alloca.patch
 Patch3:        0002-shaped-texture-Clean-up-texture-regions.patch
+
+# Backport work-around for hangul text input bug (rhbz#1632981)
+Patch4:        0001-wayland-Defer-text_input.done-on-an-idle.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -188,6 +191,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter/tests
 
 %changelog
+* Mon Oct 22 2018 Jonas Ådahl <jadahl@redhat.com> - 3.30.1-5
+- Backport work-around for hangul text input bug (rhbz#1632981)
+
 * Sat Oct 20 2018 Jonas Ådahl <jadahl@redhat.com> - 3.30.1-4
 - Backport a couple of memory leak fixes (rhbz#1641254)
 
