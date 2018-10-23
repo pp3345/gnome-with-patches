@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.30.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -17,6 +17,9 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
+
+# Backport keyboard layout change fixes (rhbz#1637418)
+Patch4: 0001-keyboardManager-Avoid-idempotent-calls-to-meta_backe.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -214,6 +217,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Tue Oct 23 2018 Jonas Ådahl <jadahl@redhat.com> - 3.30.1-2
+- Backport keyboard layout change fixes (rhbz#1637418)
+
 * Mon Oct 08 2018 Florian Müllner <fmuellner@redhat.com> - 3.30.1-1
 - Update to 3.30.1
 
