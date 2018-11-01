@@ -45,7 +45,7 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.20.2
+Version:   1.20.3
 Release:   1%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
@@ -94,6 +94,9 @@ Patch5: 0001-autobind-GPUs-to-the-screen.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
+
+# https://gitlab.freedesktop.org/ajax/xserver/tree/server-1.20-branch
+Patch7: 0001-xwayland-do-not-crash-if-gbm_bo_create-fails.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -528,6 +531,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Nov 01 2018 Adam Jackson <ajax@redhat.com> - 1.20.3-1
+- xserver 1.20.3
+
 * Mon Oct 15 2018 Adam Jackson <ajax@redhat.com> - 1.20.2-1
 - xserver 1.20.2
 
