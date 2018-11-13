@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.30.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -217,6 +217,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Mon Nov 12 2018 Mohan Boddu <mboddu@bhujji.com> - 3.30.1-3
+- Rebuilt for evolution-data-server soname bump
+
 * Tue Oct 23 2018 Jonas Ådahl <jadahl@redhat.com> - 3.30.1-2
 - Backport keyboard layout change fixes (rhbz#1637418)
 
