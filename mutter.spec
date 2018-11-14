@@ -4,28 +4,25 @@
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
 %global pipewire_version 0.2.2
+%global mutter_api_version 3
 
 Name:          mutter
-Version:       3.30.1
-Release:       5%{?dist}
+Version:       3.31.2
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.30/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.31/%{name}-%{version}.tar.xz
 
 Patch0:        startup-notification.patch
 
+# Work-around for OpenJDK's compliance test
+Patch1:        0001-window-actor-Special-case-shaped-Java-windows.patch
+
 # Fix disabled monitor when laptop lid is closed (rhbz#1638444)
-Patch1:        0001-monitor-manager-Don-t-use-switch-config-when-ensurin.patch
-
-# Backport memory leak fixes (rhbz#1641254)
-Patch2:        0001-constraints-Make-current-placement-rule-stack-alloca.patch
-Patch3:        0002-shaped-texture-Clean-up-texture-regions.patch
-
-# Backport work-around for hangul text input bug (rhbz#1632981)
-Patch4:        0001-wayland-Defer-text_input.done-on-an-idle.patch
+Patch2:        0001-monitor-manager-Don-t-use-switch-config-when-ensurin.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -59,6 +56,7 @@ BuildRequires: pam-devel
 BuildRequires: pipewire-devel >= %{pipewire_version}
 BuildRequires: systemd-devel
 BuildRequires: upower-devel
+BuildRequires: xorg-x11-server-Xorg
 BuildRequires: xkeyboard-config-devel
 BuildRequires: zenity
 BuildRequires: desktop-file-utils
@@ -132,7 +130,7 @@ autoreconf -f -i
 (if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
  %configure --disable-static --enable-compile-warnings=maximum --enable-remote-desktop --enable-installed-tests --with-libwacom --enable-egl-device)
 
-SHOULD_HAVE_DEFINED="HAVE_SM HAVE_RANDR HAVE_STARTUP_NOTIFICATION"
+SHOULD_HAVE_DEFINED="HAVE_SM HAVE_STARTUP_NOTIFICATION"
 
 for I in $SHOULD_HAVE_DEFINED; do
   if ! grep -q "define $I" config.h; then
@@ -168,7 +166,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_bindir}/mutter
 %{_datadir}/applications/*.desktop
 %{_libdir}/lib*.so.*
-%{_libdir}/mutter/
+%{_libdir}/mutter-%{mutter_api_version}/
 %{_libexecdir}/mutter-restart-helper
 %{_datadir}/GConf/gsettings/mutter-schemas.convert
 %{_datadir}/glib-2.0/schemas/org.gnome.mutter.gschema.xml
@@ -188,9 +186,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/installed-tests/mutter
 %{_datadir}/installed-tests/mutter-clutter
 %{_datadir}/installed-tests/mutter-cogl
-%{_datadir}/mutter/tests
+%{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Nov 14 2018 Florian Müllner <fmuellner@redhat.com> - 3.31.2-1
+- Update to 3.31.2
+
 * Mon Oct 22 2018 Jonas Ådahl <jadahl@redhat.com> - 3.30.1-5
 - Backport work-around for hangul text input bug (rhbz#1632981)
 
