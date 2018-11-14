@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.30.1
-Release:        3%{?dist}
+Version:        3.31.2
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -8,7 +8,7 @@ License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.30/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.31/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -18,9 +18,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
-# Backport keyboard layout change fixes (rhbz#1637418)
-Patch4: 0001-keyboardManager-Avoid-idempotent-calls-to-meta_backe.patch
-
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
 %define gnome_desktop_version 3.7.90
@@ -29,7 +26,7 @@ Patch4: 0001-keyboardManager-Avoid-idempotent-calls-to-meta_backe.patch
 %define gjs_version 1.51.90
 %define gtk3_version 3.15.0
 %define json_glib_version 0.13.2
-%define mutter_version 3.30.1
+%define mutter_version 3.31.2
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.21.3
 %define ibus_version 1.5.2
@@ -217,6 +214,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Wed Nov 14 2018 Florian Müllner <fmuellner@redhat.com> - 3.31.2-1
+- Update to 3.31.2
+
 * Mon Nov 12 2018 Mohan Boddu <mboddu@bhujji.com> - 3.30.1-3
 - Rebuilt for evolution-data-server soname bump
 
