@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.31.2
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -148,8 +148,8 @@ make %{?_smp_mflags} V=1
 %install
 %make_install
 
-#Remove libtool archives.
-rm -rf %{buildroot}/%{_libdir}/*.la
+# Remove libtool archives
+find %{buildroot} -name "*.la" -print -delete
 
 %find_lang %{name}
 
@@ -189,6 +189,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Nov 17 2018 Kalev Lember <klember@redhat.com> - 3.31.2-2
+- Remove libtool .la files from private libs (#1622944)
+
 * Wed Nov 14 2018 Florian Müllner <fmuellner@redhat.com> - 3.31.2-1
 - Update to 3.31.2
 
