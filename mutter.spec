@@ -4,11 +4,11 @@
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
 %global pipewire_version 0.2.2
-%global mutter_api_version 3
+%global mutter_api_version 4
 
 Name:          mutter
-Version:       3.31.2
-Release:       2%{?dist}
+Version:       3.31.4
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -16,13 +16,8 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       http://download.gnome.org/sources/%{name}/3.31/%{name}-%{version}.tar.xz
 
-Patch0:        startup-notification.patch
-
 # Work-around for OpenJDK's compliance test
-Patch1:        0001-window-actor-Special-case-shaped-Java-windows.patch
-
-# Fix disabled monitor when laptop lid is closed (rhbz#1638444)
-Patch2:        0001-monitor-manager-Don-t-use-switch-config-when-ensurin.patch
+Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -64,7 +59,8 @@ BuildRequires: desktop-file-utils
 BuildRequires: gtk-doc gnome-common gettext-devel git
 BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel >= %{gsettings_desktop_schemas_version}
-BuildRequires: automake, autoconf, libtool
+BuildRequires: gnome-settings-daemon-devel
+BuildRequires: meson
 BuildRequires: pkgconfig(gudev-1.0)
 BuildRequires: pkgconfig(libdrm)
 BuildRequires: pkgconfig(gbm)
@@ -75,6 +71,7 @@ BuildRequires: json-glib-devel >= %{json_glib_version}
 BuildRequires: libgudev1-devel
 BuildRequires: libwayland-server-devel
 BuildRequires: libinput-devel >= %{libinput_version}
+BuildRequires: xorg-x11-server-Xwayland
 
 Obsoletes: mutter-wayland < 3.13.0
 Obsoletes: mutter-wayland-devel < 3.13.0
@@ -126,30 +123,11 @@ the functionality of the installed %{name} package.
 %autosetup -S git
 
 %build
-autoreconf -f -i
-(if ! test -x configure; then NOCONFIGURE=1 ./autogen.sh; fi;
- %configure --disable-static --enable-compile-warnings=maximum --enable-remote-desktop --enable-installed-tests --with-libwacom --enable-egl-device)
-
-SHOULD_HAVE_DEFINED="HAVE_SM HAVE_STARTUP_NOTIFICATION"
-
-for I in $SHOULD_HAVE_DEFINED; do
-  if ! grep -q "define $I" config.h; then
-    echo "$I was not defined in config.h"
-    grep "$I" config.h
-    exit 1
-  else
-    echo "$I was defined as it should have been"
-    grep "$I" config.h
-  fi
-done
-
-make %{?_smp_mflags} V=1
+%meson -Degl_device=true -Dwayland_eglstream=true
+%meson_build
 
 %install
-%make_install
-
-# Remove libtool archives
-find %{buildroot} -name "*.la" -print -delete
+%meson_install
 
 %find_lang %{name}
 
@@ -180,15 +158,14 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_libdir}/pkgconfig/*
 
 %files tests
-%{_libexecdir}/installed-tests/mutter
-%{_libexecdir}/installed-tests/mutter-clutter
-%{_libexecdir}/installed-tests/mutter-cogl
-%{_datadir}/installed-tests/mutter
-%{_datadir}/installed-tests/mutter-clutter
-%{_datadir}/installed-tests/mutter-cogl
+%{_libexecdir}/installed-tests/mutter-%{mutter_api_version}
+%{_datadir}/installed-tests/mutter-%{mutter_api_version}
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Jan 10 2019 Florian Müllner <fmuellner@redhat.com> - 3.31.4-1
+- Update to 3.31.4
+
 * Sat Nov 17 2018 Kalev Lember <klember@redhat.com> - 3.31.2-2
 - Remove libtool .la files from private libs (#1622944)
 
