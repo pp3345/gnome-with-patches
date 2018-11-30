@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.31.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -17,6 +17,10 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
+
+# Fix empty input method indicator
+# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/293
+Patch4: 0001-ibusManager-Don-t-pass-undefined-callback-to-ibus.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -214,6 +218,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Fri Nov 30 2018 Adam Williamson <awilliam@redhat.com> - 3.31.2-2
+- Backport PR #293 to fix 'empty input method indicator' bug
+
 * Wed Nov 14 2018 Florian Müllner <fmuellner@redhat.com> - 3.31.2-1
 - Update to 3.31.2
 
