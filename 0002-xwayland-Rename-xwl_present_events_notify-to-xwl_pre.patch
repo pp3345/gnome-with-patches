@@ -1,0 +1,61 @@
+From bd4b3eb727b14133929d7bf04fed3829a632fc5b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>
+Date: Thu, 18 Oct 2018 17:36:24 +0200
+Subject: [PATCH xserver 2/7] xwayland: Rename xwl_present_events_notify to
+ xwl_present_msc_bump
+
+And consolidate more code from xwl_present_timer_callback and
+xwl_present_frame_callback in it.
+
+(cherry picked from commit 2bfc46d4147dc0bec4cdbb80431a0f4cc1d3b030)
+---
+ hw/xwayland/xwayland-present.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
+
+diff --git a/hw/xwayland/xwayland-present.c b/hw/xwayland/xwayland-present.c
+index 7539c1636..117ce781d 100644
+--- a/hw/xwayland/xwayland-present.c
++++ b/hw/xwayland/xwayland-present.c
+@@ -192,11 +192,13 @@ static const struct wl_buffer_listener xwl_present_release_listener = {
+ };
+ 
+ static void
+-xwl_present_events_notify(struct xwl_present_window *xwl_present_window)
++xwl_present_msc_bump(struct xwl_present_window *xwl_present_window)
+ {
+-    uint64_t                    msc = xwl_present_window->msc;
++    uint64_t msc = ++xwl_present_window->msc;
+     struct xwl_present_event    *event, *tmp;
+ 
++    xwl_present_window->ust = GetTimeInMicros();
++
+     xorg_list_for_each_entry_safe(event, tmp,
+                                   &xwl_present_window->event_list,
+                                   list) {
+@@ -218,10 +220,8 @@ xwl_present_timer_callback(OsTimerPtr timer,
+     struct xwl_present_window *xwl_present_window = arg;
+ 
+     xwl_present_window->frame_timer_firing = TRUE;
+-    xwl_present_window->msc++;
+-    xwl_present_window->ust = GetTimeInMicros();
+ 
+-    xwl_present_events_notify(xwl_present_window);
++    xwl_present_msc_bump(xwl_present_window);
+     xwl_present_reset_timer(xwl_present_window);
+ 
+     return 0;
+@@ -242,10 +242,7 @@ xwl_present_frame_callback(void *data,
+         return;
+     }
+ 
+-    xwl_present_window->msc++;
+-    xwl_present_window->ust = GetTimeInMicros();
+-
+-    xwl_present_events_notify(xwl_present_window);
++    xwl_present_msc_bump(xwl_present_window);
+ 
+     /* we do not need the timer anymore for this frame,
+      * reset it for potentially the next one
+-- 
+2.19.2
+

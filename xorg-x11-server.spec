@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.3
-Release:   1%{?gitdate:.%{gitdate}}%{?dist}
+Release:   2%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -97,6 +97,15 @@ Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 # https://gitlab.freedesktop.org/ajax/xserver/tree/server-1.20-branch
 Patch7: 0001-xwayland-do-not-crash-if-gbm_bo_create-fails.patch
+
+# Xwayland/Present fixes from master upstream
+Patch11: 0001-xwayland-Use-xwl_present_reset_timer-in-xwl_present_.patch
+Patch12: 0002-xwayland-Rename-xwl_present_events_notify-to-xwl_pre.patch
+Patch13: 0003-xwayland-Complete-synchronous-Present-flips-from-xwl.patch
+Patch14: 0004-xwayland-Replace-xwl_window-present_window-with-pres.patch
+Patch15: 0005-xwayland-Add-xwl_present_unrealize_window.patch
+Patch16: 0006-xwayland-Don-t-need-xwl_window-anymore-in-xwl_presen.patch
+Patch17: 0007-xwayland-Don-t-take-buffer-release-queue-into-accoun.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -531,6 +540,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Dec 06 2018 Olivier Fourdan <ofourdan@redhat.com> - 1.20.3-2
+- Xwayland/Present fixes from master upstream
+
 * Thu Nov 01 2018 Adam Jackson <ajax@redhat.com> - 1.20.3-1
 - xserver 1.20.3
 

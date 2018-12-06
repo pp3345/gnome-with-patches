@@ -1,0 +1,139 @@
+From 908c3b4c291e62e63677a75e125f6fd7706493aa Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>
+Date: Thu, 18 Oct 2018 17:42:01 +0200
+Subject: [PATCH xserver 3/7] xwayland: Complete "synchronous" Present flips
+ from xwl_present_msc_bump
+
+Completing them from xwl_present_sync_callback had at least two issues:
+
+* It was before the MSC was incremented in xwl_present_frame_callback,
+  so the MSC value in the completion event could be lower than the
+  target specified by the client. This could cause hangs with the Mesa
+  Vulkan drivers.
+* It allowed clients to run at a frame-rate higher than the Wayland
+  compositor's frame-rate, wasting energy on generating frames which
+  were never displayed. This isn't expected to happen unless the client
+  specified PresentOptionAsync (in which case flips are still completed
+  from xwl_present_sync_callback, allowing higher frame-rates).
+
+v2:
+* Make xwl_present_has_events return true when there's a pending
+  "synchronous" flip, so those complete after at most ~1 second even if
+  the Wayland server doesn't send a frame event.
+
+Bugzilla: https://bugs.freedesktop.org/106713
+(cherry picked from commit ace551d8a2603e37b18237a52f62d627c75d9e2a)
+---
+ hw/xwayland/xwayland-present.c | 51 +++++++++++++++++++++++++++++-----
+ hw/xwayland/xwayland.h         |  1 +
+ 2 files changed, 45 insertions(+), 7 deletions(-)
+
+diff --git a/hw/xwayland/xwayland-present.c b/hw/xwayland/xwayland-present.c
+index 117ce781d..4f517d46b 100644
+--- a/hw/xwayland/xwayland-present.c
++++ b/hw/xwayland/xwayland-present.c
+@@ -85,7 +85,8 @@ xwl_present_timer_callback(OsTimerPtr timer,
+ static inline Bool
+ xwl_present_has_events(struct xwl_present_window *xwl_present_window)
+ {
+-    return !xorg_list_is_empty(&xwl_present_window->event_list) ||
++    return !!xwl_present_window->sync_flip ||
++           !xorg_list_is_empty(&xwl_present_window->event_list) ||
+            !xorg_list_is_empty(&xwl_present_window->release_queue);
+ }
+ 
+@@ -139,6 +140,16 @@ xwl_present_cleanup(WindowPtr window)
+     }
+ 
+     /* Clear remaining buffer releases and inform Present about free ressources */
++    event = xwl_present_window->sync_flip;
++    xwl_present_window->sync_flip = NULL;
++    if (event) {
++        if (event->buffer_released) {
++            free(event);
++        } else {
++            event->pending = FALSE;
++            event->abort = TRUE;
++        }
++    }
+     xorg_list_for_each_entry_safe(event, tmp, &xwl_present_window->release_queue, list) {
+         xorg_list_del(&event->list);
+         event->abort = TRUE;
+@@ -199,6 +210,24 @@ xwl_present_msc_bump(struct xwl_present_window *xwl_present_window)
+ 
+     xwl_present_window->ust = GetTimeInMicros();
+ 
++    event = xwl_present_window->sync_flip;
++    xwl_present_window->sync_flip = NULL;
++    if (event) {
++        event->pending = FALSE;
++
++        present_wnmd_event_notify(xwl_present_window->window, event->event_id,
++                                  xwl_present_window->ust, msc);
++
++        if (event->buffer_released) {
++            /* If the buffer was already released, clean up now */
++            present_wnmd_event_notify(xwl_present_window->window, event->event_id,
++                                      xwl_present_window->ust, msc);
++            free(event);
++        } else {
++            xorg_list_add(&event->list, &xwl_present_window->release_queue);
++        }
++    }
++
+     xorg_list_for_each_entry_safe(event, tmp,
+                                   &xwl_present_window->event_list,
+                                   list) {
+@@ -454,12 +483,17 @@ xwl_present_flip(WindowPtr present_window,
+     event->event_id = event_id;
+     event->xwl_present_window = xwl_present_window;
+     event->buffer = buffer;
+-    event->target_msc = xwl_present_window->msc;
++    event->target_msc = target_msc;
+     event->pending = TRUE;
+     event->abort = FALSE;
+     event->buffer_released = FALSE;
+ 
+-    xorg_list_add(&event->list, &xwl_present_window->release_queue);
++    if (sync_flip) {
++        xorg_list_init(&event->list);
++        xwl_present_window->sync_flip = event;
++    } else {
++        xorg_list_add(&event->list, &xwl_present_window->release_queue);
++    }
+ 
+     if (buffer_created)
+         wl_buffer_add_listener(buffer, &xwl_present_release_listener, NULL);
+@@ -488,10 +522,13 @@ xwl_present_flip(WindowPtr present_window,
+ 
+     wl_surface_commit(xwl_window->surface);
+ 
+-    xwl_present_window->sync_callback = wl_display_sync(xwl_window->xwl_screen->display);
+-    wl_callback_add_listener(xwl_present_window->sync_callback,
+-                             &xwl_present_sync_listener,
+-                             event);
++    if (!sync_flip) {
++        xwl_present_window->sync_callback =
++            wl_display_sync(xwl_window->xwl_screen->display);
++        wl_callback_add_listener(xwl_present_window->sync_callback,
++                                 &xwl_present_sync_listener,
++                                 event);
++    }
+ 
+     wl_display_flush(xwl_window->xwl_screen->display);
+     return TRUE;
+diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
+index 67819e178..3f4a601fe 100644
+--- a/hw/xwayland/xwayland.h
++++ b/hw/xwayland/xwayland.h
+@@ -188,6 +188,7 @@ struct xwl_window {
+ #ifdef GLAMOR_HAS_GBM
+ struct xwl_present_window {
+     struct xwl_screen *xwl_screen;
++    struct xwl_present_event *sync_flip;
+     WindowPtr window;
+     struct xorg_list link;
+ 
+-- 
+2.19.2
+

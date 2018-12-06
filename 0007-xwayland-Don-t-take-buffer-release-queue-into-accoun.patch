@@ -1,0 +1,37 @@
+From 354ed9fa48118026456ec2bc64136993f3c53606 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>
+Date: Thu, 15 Nov 2018 17:16:59 +0100
+Subject: [PATCH xserver 7/7] xwayland: Don't take buffer release queue into
+ account for frame timer
+
+The buffer release queue has two kinds of entries:
+
+* Pending async flips.
+* Completed flips waiting for their buffer to be released by the Wayland
+  compositor.
+
+xwl_present_timer_callback neither completes async flips nor releases
+buffers, so the timer isn't needed for the buffer release queue.
+
+(cherry picked from commit e6cd1c9bdefe83e7d99b703a68d26eebb451f889)
+---
+ hw/xwayland/xwayland-present.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/hw/xwayland/xwayland-present.c b/hw/xwayland/xwayland-present.c
+index eea7415f3..594e2e822 100644
+--- a/hw/xwayland/xwayland-present.c
++++ b/hw/xwayland/xwayland-present.c
+@@ -86,8 +86,7 @@ static inline Bool
+ xwl_present_has_events(struct xwl_present_window *xwl_present_window)
+ {
+     return !!xwl_present_window->sync_flip ||
+-           !xorg_list_is_empty(&xwl_present_window->event_list) ||
+-           !xorg_list_is_empty(&xwl_present_window->release_queue);
++           !xorg_list_is_empty(&xwl_present_window->event_list);
+ }
+ 
+ static void
+-- 
+2.19.2
+

@@ -1,0 +1,36 @@
+From 679aa2a629e09aba00f26c819431e7d3a9113834 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>
+Date: Fri, 9 Nov 2018 17:18:53 +0100
+Subject: [PATCH xserver 6/7] xwayland: Don't need xwl_window anymore in
+ xwl_present_queue_vblank
+
+Fixes issue #12. Presumably the problem was that Present operations on
+unmapped windows were executed immediately instead of only when reaching
+the target MSC.
+
+(cherry picked from commit f541615342ce6bfb0e6d4e68deb3a924a87e8ba9)
+---
+ hw/xwayland/xwayland-present.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/hw/xwayland/xwayland-present.c b/hw/xwayland/xwayland-present.c
+index 7e49cb366..eea7415f3 100644
+--- a/hw/xwayland/xwayland-present.c
++++ b/hw/xwayland/xwayland-present.c
+@@ -345,13 +345,9 @@ xwl_present_queue_vblank(WindowPtr present_window,
+                          uint64_t event_id,
+                          uint64_t msc)
+ {
+-    struct xwl_window *xwl_window = xwl_window_from_window(present_window);
+     struct xwl_present_window *xwl_present_window = xwl_present_window_get_priv(present_window);
+     struct xwl_present_event *event;
+ 
+-    if (!xwl_window)
+-        return BadMatch;
+-
+     event = malloc(sizeof *event);
+     if (!event)
+         return BadAlloc;
+-- 
+2.19.2
+
