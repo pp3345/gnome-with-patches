@@ -1,0 +1,172 @@
+From 8e7c90b930fd6bd52bfc0976d6e0750a48219cb4 Mon Sep 17 00:00:00 2001
+From: Sam Hewitt <sam@snwh.org>
+Date: Fri, 16 Nov 2018 14:05:05 -0500
+Subject: [PATCH 10/25] theme: Replace corner ripple png assets with css
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/298
+---
+ data/gnome-shell-theme.gresource.xml     |   2 --
+ data/theme/corner-ripple-ltr.png         | Bin 2493 -> 0 bytes
+ data/theme/corner-ripple-rtl.png         | Bin 2386 -> 0 bytes
+ data/theme/gnome-shell-sass/_common.scss |  11 +++++------
+ 4 files changed, 5 insertions(+), 8 deletions(-)
+ delete mode 100644 data/theme/corner-ripple-ltr.png
+ delete mode 100644 data/theme/corner-ripple-rtl.png
+
+diff --git a/data/gnome-shell-theme.gresource.xml b/data/gnome-shell-theme.gresource.xml
+index c99b71ddf..e292d33a3 100644
+--- a/data/gnome-shell-theme.gresource.xml
++++ b/data/gnome-shell-theme.gresource.xml
+@@ -11,8 +11,6 @@
+     <file>close-window.svg</file>
+     <file>close-window-active.svg</file>
+     <file>close-window-hover.svg</file>
+-    <file>corner-ripple-ltr.png</file>
+-    <file>corner-ripple-rtl.png</file>
+     <file>dash-placeholder.svg</file>
+     <file>gnome-shell.css</file>
+     <file>gnome-shell-high-contrast.css</file>
+diff --git a/data/theme/corner-ripple-ltr.png b/data/theme/corner-ripple-ltr.png
+deleted file mode 100644
+index 326ecaa52e4adc662c8c83f26c79640944eb6def..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 2493
+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
+Hu0mjfFmu>C
+
+diff --git a/data/theme/corner-ripple-rtl.png b/data/theme/corner-ripple-rtl.png
+deleted file mode 100644
+index 26cf965f63064f996d5a2e6199bfc154f56fe24c..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 2386
+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
+Ef{zodu>b%7
+
+diff --git a/data/theme/gnome-shell-sass/_common.scss b/data/theme/gnome-shell-sass/_common.scss
+index 06c50d1d9..829791419 100644
+--- a/data/theme/gnome-shell-sass/_common.scss
++++ b/data/theme/gnome-shell-sass/_common.scss
+@@ -1142,17 +1142,16 @@ StScrollBar {
+     & > StIcon { icon-size: 16px; }
+   }
+ 
+-//Activities Ripples
++// Activities Ripples
+ .ripple-box {
+   width: 52px;
+   height: 52px;
+-  background-image: url("resource:///org/gnome/shell/theme/corner-ripple-ltr.png");
+-  background-size: contain;
++  border-radius: 0 0 52px 0; // radius the size of the box give us the curve
++  background-color: lighten(transparentize($selected_bg_color, 0.7), 40%);
++  box-shadow: 0 0 2px 2px lighten($selected_bg_color, 20%);
+ }
+ 
+-.ripple-box:rtl {
+-  background-image: url("resource:///org/gnome/shell/theme/corner-ripple-rtl.png");
+-}
++.ripple-box:rtl { border-radius: 0 0 0 52px; } // just a simple change to the border radius position
+ 
+ // not really top bar only
+ .popup-menu-arrow { width: 16px; height: 16px; }
+-- 
+2.20.0
+

@@ -1,0 +1,89 @@
+From 5c0eba7d3be5997d973c3f0a06f2ecd4aa3e5db5 Mon Sep 17 00:00:00 2001
+From: Cosimo Cecchi <cosimo@endlessm.com>
+Date: Wed, 25 May 2016 11:54:33 -0700
+Subject: [PATCH 3/4] keyboard: add an interactive argument to input source
+ activation
+
+This is useful to differentiate between a change due to user interaction
+or automatic loading.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=766826
+---
+ js/ui/status/keyboard.js | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+diff --git a/js/ui/status/keyboard.js b/js/ui/status/keyboard.js
+index 8f45b0d..1020994 100644
+--- a/js/ui/status/keyboard.js
++++ b/js/ui/status/keyboard.js
+@@ -61,8 +61,8 @@ const InputSource = new Lang.Class({
+         this.emit('changed');
+     },
+ 
+-    activate: function() {
+-        this.emit('activate');
++    activate: function(interactive) {
++        this.emit('activate', !!interactive);
+     },
+ 
+     _getXkbId: function() {
+@@ -109,7 +109,7 @@ const InputSourcePopup = new Lang.Class({
+     _finish : function() {
+         this.parent();
+ 
+-        this._items[this._selectedIndex].activate();
++        this._items[this._selectedIndex].activate(true);
+     },
+ });
+ 
+@@ -376,7 +376,7 @@ const InputSourceManager = new Lang.Class({
+         while (!(is = this._inputSources[nextIndex]))
+             nextIndex += 1;
+ 
+-        is.activate();
++        is.activate(true);
+         return true;
+     },
+ 
+@@ -420,7 +420,7 @@ const InputSourceManager = new Lang.Class({
+         this._changePerWindowSource();
+     },
+ 
+-    _activateInputSource: function(is) {
++    _activateInputSource: function(is, interactive) {
+         KeyboardManager.holdKeyboard();
+         this._keyboardManager.apply(is.xkbId);
+ 
+@@ -541,7 +541,7 @@ const InputSourceManager = new Lang.Class({
+         this._updateMruSources();
+ 
+         if (this._mruSources.length > 0)
+-            this._mruSources[0].activate();
++            this._mruSources[0].activate(false);
+ 
+         // All ibus engines are preloaded here to reduce the launching time
+         // when users switch the input sources.
+@@ -650,7 +650,7 @@ const InputSourceManager = new Lang.Class({
+         }
+ 
+         if (window._currentSource)
+-            window._currentSource.activate();
++            window._currentSource.activate(false);
+     },
+ 
+     _sourcesPerWindowChanged: function() {
+@@ -771,7 +771,10 @@ const InputSourceIndicator = new Lang.Class({
+             let is = this._inputSourceManager.inputSources[i];
+ 
+             let menuItem = new LayoutMenuItem(is.displayName, is.shortName);
+-            menuItem.connect('activate', Lang.bind(is, is.activate));
++            menuItem.connect('activate', function() {
++                is.activate(true);
++            });
++
+             let indicatorLabel = new St.Label({ text: is.shortName,
+                                                 visible: false });
+ 
+-- 
+2.7.4
+

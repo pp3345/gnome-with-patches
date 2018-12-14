@@ -1,0 +1,36 @@
+From 925a25da17986bf60f61bb4e06ec22e2c59fa14f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Thu, 22 Nov 2018 20:41:44 +0100
+Subject: [PATCH 23/25] st: Avoid integer overflow on unpremultiply
+
+When computing the effective border color, we operate on colors with
+premultiplied alpha to simplify the calculations, then unpremultiply
+the result. However we miss a bounds check in the last check, so any
+color component can overflow the allowed maximum of 0xff and shift the
+result in unexpected ways.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/305
+---
+ src/st/st-theme-node-drawing.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/st/st-theme-node-drawing.c b/src/st/st-theme-node-drawing.c
+index 9f7e6b6ca..a7fb24ab8 100644
+--- a/src/st/st-theme-node-drawing.c
++++ b/src/st/st-theme-node-drawing.c
+@@ -229,9 +229,9 @@ unpremultiply (ClutterColor *color)
+ {
+   if (color->alpha != 0)
+     {
+-      color->red = (color->red * 255 + 127) / color->alpha;
+-      color->green = (color->green * 255 + 127) / color->alpha;
+-      color->blue = (color->blue * 255 + 127) / color->alpha;
++      color->red = MIN((color->red * 255 + 127) / color->alpha, 255);
++      color->green = MIN((color->green * 255 + 127) / color->alpha, 255);
++      color->blue = MIN((color->blue * 255 + 127) / color->alpha, 255);
+     }
+ }
+ 
+-- 
+2.20.0
+

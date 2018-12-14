@@ -1,0 +1,53 @@
+From 284978757ee6b13dc9678700e2b1972507dbaaa5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 13 Jul 2018 19:16:14 +0200
+Subject: [PATCH 01/25] windowAttentionHandler: Handle XUrgencyHint as well
+
+While it's not commonly used, it is easy enough to handle it the
+same as the demands-attention hint, so do just that.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=643595
+---
+ js/ui/windowAttentionHandler.js | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/js/ui/windowAttentionHandler.js b/js/ui/windowAttentionHandler.js
+index 524e47c0f..a8c688ef3 100644
+--- a/js/ui/windowAttentionHandler.js
++++ b/js/ui/windowAttentionHandler.js
+@@ -13,6 +13,8 @@ var WindowAttentionHandler = new Lang.Class({
+         this._tracker = Shell.WindowTracker.get_default();
+         this._windowDemandsAttentionId = global.display.connect('window-demands-attention',
+                                                                 this._onWindowDemandsAttention.bind(this));
++        this._windowMarkedUrgentId = global.display.connect('window-marked-urgent',
++                                                                this._onWindowDemandsAttention.bind(this));
+     },
+ 
+     _getTitleAndBanner(app, window) {
+@@ -66,7 +68,9 @@ var Source = new Lang.Class({
+ 
+         this.signalIDs = [];
+         this.signalIDs.push(this._window.connect('notify::demands-attention',
+-                                                 () => { this.destroy(); }));
++                                                 this._sync.bind(this));
++        this.signalIDs.push(this._window.connect('notify::urgent',
++                                                 this._sync.bind(this));
+         this.signalIDs.push(this._window.connect('focus',
+                                                  () => { this.destroy(); }));
+         this.signalIDs.push(this._window.connect('unmanaged',
+@@ -75,6 +79,12 @@ var Source = new Lang.Class({
+         this.connect('destroy', this._onDestroy.bind(this));
+     },
+ 
++    _sync() {
++        if (this._window.demands_attention || this._window.urgent)
++            return;
++        this.destroy();
++    },
++
+     _onDestroy() {
+         for(let i = 0; i < this.signalIDs.length; i++) {
+            this._window.disconnect(this.signalIDs[i]);
+-- 
+2.20.0
+

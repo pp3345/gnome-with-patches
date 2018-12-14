@@ -1,7 +1,7 @@
 From 74bb9e62492bacda372904d30891eb97685e9b0c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
 Date: Thu, 15 Nov 2018 18:47:55 +0100
-Subject: [PATCH] ibusManager: Don't pass undefined callback to ibus
+Subject: [PATCH 07/25] ibusManager: Don't pass undefined callback to ibus
 
 Since commit 551e8278416, we don't always pass a callback parameter.
 However passing it on as undefined to ibus doesn't work, as gjs doesn't
@@ -29,5 +29,5 @@ index 34f198c35..33ad8777e 100644
  
      preloadEngines(ids) {
 -- 
-2.19.1
+2.20.0
 
