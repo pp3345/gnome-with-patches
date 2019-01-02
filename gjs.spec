@@ -5,7 +5,7 @@
 
 Name:          gjs
 Version:       1.55.1
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -19,6 +19,7 @@ Source0:       https://download.gnome.org/sources/%{name}/1.55/%{name}-%{version
 BuildRequires: cairo-gobject-devel
 BuildRequires: chrpath
 BuildRequires: dbus-glib-devel
+BuildRequires: dbus-daemon
 BuildRequires: gcc-c++
 BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
@@ -98,6 +99,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Wed Jan 02 2019 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.55.1-3
+- Add BR dbus-daemon to fix running tests on F30
+
 * Wed Jan 02 2019 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.55.1-2
 - Rebuilt against mozjs60 60.4.0
 
