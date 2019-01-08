@@ -4,8 +4,8 @@
 %global mozjs60_version 60.4.0
 
 Name:          gjs
-Version:       1.55.1
-Release:       3%{?dist}
+Version:       1.55.4
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -99,6 +99,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Tue Jan 08 2019 Kalev Lember <klember@redhat.com> - 1.55.4-1
+- Update to 1.55.4
+
 * Wed Jan 02 2019 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.55.1-3
 - Add BR dbus-daemon to fix running tests on F30
 
