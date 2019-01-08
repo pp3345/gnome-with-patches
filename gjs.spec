@@ -18,8 +18,8 @@ Source0:       https://download.gnome.org/sources/%{name}/1.55/%{name}-%{version
 
 BuildRequires: cairo-gobject-devel
 BuildRequires: chrpath
-BuildRequires: dbus-glib-devel
 BuildRequires: dbus-daemon
+BuildRequires: dbus-glib-devel
 BuildRequires: gcc-c++
 BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
