@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.31.2
-Release:        3%{?dist}
+Version:        3.31.4
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 Group:          User Interface/Desktops
@@ -18,24 +18,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
-# Various bugfixes from current git master
-Patch4: 0001-windowAttentionHandler-Handle-XUrgencyHint-as-well.patch
-Patch5: 0002-windowAttentionHandler-Fix-syntax-errors.patch
-Patch6: 0003-power-Label-the-PENDING_CHARGE-state-as-Not-Charging.patch
-Patch7: 0007-ibusManager-Don-t-pass-undefined-callback-to-ibus.patch
-Patch8: 0008-altSwitcher-Fix-error-when-all-alternatives-are-disa.patch
-Patch9: 0009-dash-destroy-items-s-child-before-tooltip.patch
-Patch10: 0010-theme-Replace-corner-ripple-png-assets-with-css.patch
-Patch11: 0011-theme-Replace-page-indicator-assets-with-css.patch
-Patch12: 0012-theme-Drop-custom-assets-for-window-close-buttons-in.patch
-Patch13: 0016-theme-Replace-calendar-arrow-images-with-symbolic-ic.patch
-Patch14: 0017-st-button-Ignore-pointer-emulated-touch-events.patch
-Patch15: 0018-iconGrid-Eliminate-JavaScript-for-painting-picking.patch
-Patch16: 0022-StWidget-don-t-forget-to-invalidate-the-paint-state-.patch
-Patch17: 0023-st-Avoid-integer-overflow-on-unpremultiply.patch
-Patch18: 0024-messageTray-Re-enable-unredirection-when-banner-is-d.patch
-Patch19: 0025-thunderbolt-fix-missing-variable-underscore-for-enro.patch
-
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
 %define gnome_desktop_version 3.7.90
@@ -44,7 +26,7 @@ Patch19: 0025-thunderbolt-fix-missing-variable-underscore-for-enro.patch
 %define gjs_version 1.51.90
 %define gtk3_version 3.15.0
 %define json_glib_version 0.13.2
-%define mutter_version 3.31.2
+%define mutter_version 3.31.4
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.21.3
 %define ibus_version 1.5.2
@@ -232,6 +214,9 @@ glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null 
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Thu Jan 10 2019 Florian Müllner <fmuellner@redhat.com> - 3.31.4-1
+- Update to 3.31.4
+
 * Fri Dec 14 2018 Adam Williamson <awilliam@redhat.com> - 3.31.2-3
 - Backport several bugfix commits from current git master
 
