@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.3
-Release:   2%{?gitdate:.%{gitdate}}%{?dist}
+Release:   3%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 Group:     User Interface/X
@@ -106,6 +106,11 @@ Patch14: 0004-xwayland-Replace-xwl_window-present_window-with-pres.patch
 Patch15: 0005-xwayland-Add-xwl_present_unrealize_window.patch
 Patch16: 0006-xwayland-Don-t-need-xwl_window-anymore-in-xwl_presen.patch
 Patch17: 0007-xwayland-Don-t-take-buffer-release-queue-into-accoun.patch
+Patch18: 0001-xwayland-Plug-leaks-in-xwl_present_sync_callback.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1609181
+Patch19: 0001-xwayland-handle-case-without-any-crtc.patch
+# https://bugzilla.redhat.com/show_bug.cgi?id=1661748
+Patch20: 0001-present-wnmd-Fix-use-after-free-on-CRTC-removal.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -540,6 +545,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Jan 11 2019 Olivier Fourdan <ofourdan@redhat.com> - 1.20.3-3
+- More Xwayland/Present fixes from upstream (rhbz#1609181, rhbz#1661748)
+
 * Thu Dec 06 2018 Olivier Fourdan <ofourdan@redhat.com> - 1.20.3-2
 - Xwayland/Present fixes from master upstream
 

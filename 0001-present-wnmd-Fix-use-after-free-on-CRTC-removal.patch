@@ -1,0 +1,69 @@
+From f89518e17f7d507734af212785e0b3e47954f603 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Mon, 22 Oct 2018 11:48:25 +0200
+Subject: [PATCH xserver] present/wnmd: Fix use after free on CRTC removal
+
+Xwayland will add and remove CRTCs as Wayland outputs are added or
+removed.
+
+If there is a pending flip when this occurs, the
+`xwl_present_sync_callback()` will be triggered after the Xwayland
+output's RRCtrcPtr has been destroyed, hence causing a crash in Xwayland
+while trying to use freed memory:
+
+  #1  abort ()
+  #2  OsAbort () at utils.c:1350
+  #3  AbortServer () at log.c:877
+  #4  FatalError () at log.c:1015
+  #5  OsSigHandler () at osinit.c:156
+  #6  <signal handler called>
+  #7  dixGetPrivate () at ../include/privates.h:122
+  #8  dixLookupPrivate () at ../include/privates.h:166
+  #9  present_screen_priv () at present_priv.h:198
+  #10 present_wnmd_flip () at present_wnmd.c:358
+  #11 present_wnmd_execute () at present_wnmd.c:466
+  #12 present_wnmd_re_execute () at present_wnmd.c:80
+  #13 xwl_present_sync_callback () at xwayland-present.c:287
+  #14 ffi_call_unix64 () from /lib64/libffi.so.6
+  #15 ffi_call () from /lib64/libffi.so.6
+  #16 wl_closure_invoke () at src/connection.c:1006
+  #17 dispatch_event () at src/wayland-client.c:1427
+  #18 dispatch_queue () at src/wayland-client.c:1573
+  #19 wl_display_dispatch_queue_pending () at src/wayland-client.c:1815
+  #20 wl_display_dispatch_pending () at src/wayland-client.c:1878
+  #21 xwl_read_events () at xwayland.c:814
+  #22 ospoll_wait () at ospoll.c:651
+  #23 WaitForSomething () at WaitFor.c:208
+  #24 Dispatch () at ../include/list.h:220
+  #25 dix_main () at main.c:276
+
+To avoid the issue, get the `ScreenPtr` from the window instead of the
+CRTC that might have been just freed, `xwl_present_flip()` has no use
+for the CRTC anyway.
+
+Bugzilla: https://bugs.freedesktop.org/108249
+Suggested-by: Michel Daenzer <michel.daenzer@amd.com>
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+Reviewed-by: Michel Daenzer <michel.daenzer@amd.com>
+Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+(cherry picked from commit b768b7d6cec41b8b320c468ec41aab5a8b49b27b)
+---
+ present/present_wnmd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/present/present_wnmd.c b/present/present_wnmd.c
+index 8f3836440..2c6412a72 100644
+--- a/present/present_wnmd.c
++++ b/present/present_wnmd.c
+@@ -354,7 +354,7 @@ present_wnmd_flip(WindowPtr window,
+                   Bool sync_flip,
+                   RegionPtr damage)
+ {
+-    ScreenPtr                   screen = crtc->pScreen;
++    ScreenPtr                   screen = window->drawable.pScreen;
+     present_screen_priv_ptr     screen_priv = present_screen_priv(screen);
+ 
+     return (*screen_priv->wnmd_info->flip) (window,
+-- 
+2.20.1
+

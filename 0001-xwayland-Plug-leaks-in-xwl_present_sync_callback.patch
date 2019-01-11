@@ -1,0 +1,48 @@
+From 64f5e6ec2d297f90e9b9785a1cb7285d609a1877 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel.daenzer@amd.com>
+Date: Fri, 19 Oct 2018 18:27:37 +0200
+Subject: [PATCH xserver] xwayland: Plug leaks in xwl_present_sync_callback
+
+xwl_present_window->sync_callback was leaked.
+
+The event memory was leaked if the corresponding buffer had already been
+released.
+
+(cherry picked from commit cb0de153bf0c486da7e968ab0f258c9c0c9ed34a)
+---
+ hw/xwayland/xwayland-present.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/hw/xwayland/xwayland-present.c b/hw/xwayland/xwayland-present.c
+index 316e04443..fb5c6499e 100644
+--- a/hw/xwayland/xwayland-present.c
++++ b/hw/xwayland/xwayland-present.c
+@@ -274,6 +274,9 @@ xwl_present_sync_callback(void *data,
+     struct xwl_present_event *event = data;
+     struct xwl_present_window *xwl_present_window = event->xwl_present_window;
+ 
++    wl_callback_destroy(xwl_present_window->sync_callback);
++    xwl_present_window->sync_callback = NULL;
++
+     event->pending = FALSE;
+ 
+     if (event->abort) {
+@@ -289,12 +292,14 @@ xwl_present_sync_callback(void *data,
+                               xwl_present_window->ust,
+                               xwl_present_window->msc);
+ 
+-    if (event->buffer_released)
++    if (event->buffer_released) {
+         /* If the buffer was already released, send the event now again */
+         present_wnmd_event_notify(xwl_present_window->window,
+                                   event->event_id,
+                                   xwl_present_window->ust,
+                                   xwl_present_window->msc);
++        xwl_present_free_event(event);
++    }
+ }
+ 
+ static const struct wl_callback_listener xwl_present_sync_listener = {
+-- 
+2.20.1
+
