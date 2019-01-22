@@ -134,9 +134,7 @@ the functionality of the installed %{name} package.
 # Mutter contains a .desktop file so we just need to validate it
 desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 
-%post -p /sbin/ldconfig
-
-%postun -p /sbin/ldconfig
+%ldconfig_scriptlets
 
 %files -f %{name}.lang
 %license COPYING
