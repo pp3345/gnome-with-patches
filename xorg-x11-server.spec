@@ -49,7 +49,6 @@ Version:   1.20.3
 Release:   3%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
-Group:     User Interface/X
 
 #VCS:      git:git://git.freedesktop.org/git/xorg/xserver
 %if 0%{?gitdate}
@@ -164,7 +163,6 @@ X.Org X11 X server
 
 %package common
 Summary: Xorg server common files
-Group: User Interface/X
 Requires: pixman >= 0.30.0
 Requires: xkeyboard-config xkbcomp
 
@@ -174,7 +172,6 @@ Common files shared among all X servers.
 
 %package Xorg
 Summary: Xorg X server
-Group: User Interface/X
 Provides: Xorg = %{version}-%{release}
 Provides: Xserver
 # HdG: This should be moved to the wrapper package once the wrapper gets
@@ -213,7 +210,6 @@ upon.
 
 %package Xnest
 Summary: A nested server
-Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xnest
 
@@ -227,7 +223,6 @@ applications without running them on their real X server.
 
 %package Xdmx
 Summary: Distributed Multihead X Server and utilities
-Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xdmx
 
@@ -244,7 +239,6 @@ application for Xdmx would be to unify a 4 by 4 grid of 1280x1024 displays
 
 %package Xvfb
 Summary: A X Windows System virtual framebuffer X server
-Group: User Interface/X
 # xvfb-run is GPLv2, rest is MIT
 License: MIT and GPLv2
 Requires: xorg-x11-server-common >= %{version}-%{release}
@@ -262,7 +256,6 @@ is normally used for testing servers.
 
 %package Xephyr
 Summary: A nested server
-Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Provides: Xephyr
 
@@ -279,7 +272,6 @@ Render and Composite.
 
 %package Xwayland
 Summary: Wayland X Server
-Group: User Interface/X
 Requires: xorg-x11-server-common >= %{version}-%{release}
 Requires: libEGL
 
@@ -289,7 +281,6 @@ Xwayland is an X server for running X clients under Wayland.
 
 %package devel
 Summary: SDK for X server driver module development
-Group: User Interface/X
 Requires: xorg-x11-util-macros
 Requires: xorg-x11-proto-devel
 Requires: libXfont2-devel
@@ -307,7 +298,6 @@ drivers, input drivers, or other X modules should install this package.
 
 %package source
 Summary: Xserver source code required to build VNC server (Xvnc)
-Group: Development/Libraries
 BuildArch: noarch
 
 %description source
