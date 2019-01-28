@@ -3,7 +3,6 @@ Version:        3.31.4
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
-Group:          User Interface/Desktops
 License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
