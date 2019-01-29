@@ -158,12 +158,6 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/org.gnome.Shell.deskt
 desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-extension-prefs.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.desktop
 
-%preun
-glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null ||:
-
-%posttrans
-glib-compile-schemas --allow-any-name %{_datadir}/glib-2.0/schemas &> /dev/null ||:
-
 %files -f %{name}.lang
 %license COPYING
 %doc README.md
