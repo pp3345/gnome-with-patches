@@ -1,4 +1,4 @@
-From 345278af9b7139d12e393d6b18abfe055172dedd Mon Sep 17 00:00:00 2001
+From 7dae43a3ebb8972199da8ce272a3ff5c4ecc5805 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 15 Aug 2018 15:03:56 +0200
 Subject: [PATCH 2/2] endSessionDialog: Support rebooting into the bootloader
@@ -12,7 +12,7 @@ to gnome-session instead of the normal ConfirmedReboot signal, actually
 telling the boot-loader that it should show its menu the next boot is left
 up to gnome-session.
 
-Note I've tried implementing this with the AltSwitcher class from
+Note I've tried implemeting this with the AltSwitcher class from
 js/ui/status/system.js first, but that puts the button in a St.Bin()
 which causes the button to think it is the only button on the dialog
 and makes it have rounded corners on both of its bottom corners.
@@ -21,10 +21,10 @@ and makes it have rounded corners on both of its bottom corners.
  1 file changed, 50 insertions(+)
 
 diff --git a/js/ui/endSessionDialog.js b/js/ui/endSessionDialog.js
-index 5657cbffd..bfc64a7d6 100644
+index d107c87d9..a02cd7c23 100644
 --- a/js/ui/endSessionDialog.js
 +++ b/js/ui/endSessionDialog.js
-@@ -271,6 +271,9 @@ var EndSessionDialog = new Lang.Class({
+@@ -266,6 +266,9 @@ var EndSessionDialog = class EndSessionDialog extends ModalDialog.ModalDialog {
          this._totalSecondsToStayOpen = 0;
          this._applications = [];
          this._sessions = [];
@@ -34,9 +34,9 @@ index 5657cbffd..bfc64a7d6 100644
  
          this.connect('destroy',
                       this._onDestroy.bind(this));
-@@ -436,6 +439,26 @@ var EndSessionDialog = new Lang.Class({
+@@ -431,6 +434,26 @@ var EndSessionDialog = class EndSessionDialog extends ModalDialog.ModalDialog {
          this._sessionHeader.visible = hasSessions;
-     },
+     }
  
 +    _onCapturedEvent(actor, event) {
 +        let altEnabled = false;
@@ -56,12 +56,12 @@ index 5657cbffd..bfc64a7d6 100644
 +        this._rebootButtonAlt.visible = altEnabled;
 +
 +        return Clutter.EVENT_PROPAGATE;
-+    },
++    }
 +
      _updateButtons() {
          this.clearButtons();
  
-@@ -456,7 +479,32 @@ var EndSessionDialog = new Lang.Class({
+@@ -451,7 +474,32 @@ var EndSessionDialog = class EndSessionDialog extends ModalDialog.ModalDialog {
                                 });
                              },
                              label: label });
@@ -82,7 +82,7 @@ index 5657cbffd..bfc64a7d6 100644
 +                this._capturedEventId = global.stage.connect('captured-event', this._onCapturedEvent.bind(this));
 +            }
 +        }
-+    },
++    }
 +
 +    _stopAltCapture() {
 +        if (this._capturedEventId > 0) {
@@ -91,18 +91,18 @@ index 5657cbffd..bfc64a7d6 100644
          }
 +        this._rebootButton = null;
 +        this._rebootButtonAlt = null;
-     },
+     }
  
      close(skipSignal) {
-@@ -468,6 +516,7 @@ var EndSessionDialog = new Lang.Class({
+@@ -463,6 +511,7 @@ var EndSessionDialog = class EndSessionDialog extends ModalDialog.ModalDialog {
  
      cancel() {
          this._stopTimer();
 +        this._stopAltCapture();
          this._dbusImpl.emit_signal('Canceled', null);
          this.close();
-     },
-@@ -476,6 +525,7 @@ var EndSessionDialog = new Lang.Class({
+     }
+@@ -471,6 +520,7 @@ var EndSessionDialog = class EndSessionDialog extends ModalDialog.ModalDialog {
          let callback = () => {
              this._fadeOutDialog();
              this._stopTimer();
@@ -111,5 +111,5 @@ index 5657cbffd..bfc64a7d6 100644
          };
  
 -- 
-2.19.0
+2.20.1
 

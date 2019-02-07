@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.31.4
-Release:        2%{?dist}
+Version:        3.31.90
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -205,6 +205,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Thu Feb 07 2019 Florian Müllner <fmuellner@redhat.com> - 3.31.90-1
+- Update to 3.31.90
+
 * Thu Jan 31 2019 Fedora Release Engineering <releng@fedoraproject.org> - 3.31.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
