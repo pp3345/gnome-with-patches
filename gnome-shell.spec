@@ -25,9 +25,9 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 %define gjs_version 1.51.90
 %define gtk3_version 3.15.0
 %define json_glib_version 0.13.2
-%define mutter_version 3.31.4
+%define mutter_version 3.31.90
 %define polkit_version 0.100
-%define gsettings_desktop_schemas_version 3.21.3
+%define gsettings_desktop_schemas_version 3.27.90
 %define ibus_version 1.5.2
 %define gnome_bluetooth_version 1:3.9.0
 %define gstreamer_version 1.4.5
@@ -49,6 +49,7 @@ BuildRequires:  mesa-libGL-devel
 BuildRequires:  NetworkManager-libnm-devel
 BuildRequires:  polkit-devel >= %{polkit_version}
 BuildRequires:  startup-notification-devel
+BuildRequires:  systemd-devel
 # for theme generation
 BuildRequires:  sassc
 # for screencast recorder functionality
