@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.31.90
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -16,6 +16,10 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
+
+# Backport https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/402
+# to fix (hopefully) missing Fedora logo on login screen
+Patch4: 0001-texture-cache-Use-content-size-for-returned-images.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -206,6 +210,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Mon Feb 11 2019 Adam Williamson <awilliam@redhat.com> - 3.31.90-2
+- Backport MR #402 to fix missing logo on login screen
+
 * Thu Feb 07 2019 Florian Müllner <fmuellner@redhat.com> - 3.31.90-1
 - Update to 3.31.90
 
