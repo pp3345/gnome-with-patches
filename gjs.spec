@@ -5,7 +5,7 @@
 
 Name:          gjs
 Version:       1.55.90
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -99,6 +99,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Thu Feb 14 2019 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.55.90-2
+- Rebuild against mozjs60 built by GCC9: ABI change detected by Taskotron/abicheck
+
 * Tue Feb 05 2019 Kalev Lember <klember@redhat.com> - 1.55.90-1
 - Update to 1.55.90
 
