@@ -28,7 +28,6 @@ Patch4: 0001-texture-cache-Use-content-size-for-returned-images.patch
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.51.90
 %define gtk3_version 3.15.0
-%define json_glib_version 0.13.2
 %define mutter_version 3.31.90
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.27.90
@@ -40,15 +39,12 @@ BuildRequires:  meson
 BuildRequires:  git
 BuildRequires:  ibus-devel >= %{ibus_version}
 BuildRequires:  chrpath
-BuildRequires:  dbus-glib-devel
 BuildRequires:  desktop-file-utils
 BuildRequires:  evolution-data-server-devel >= %{eds_version}
 BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
-BuildRequires:  json-glib-devel >= %{json_glib_version}
-BuildRequires:  upower-devel
 BuildRequires:  mesa-libGL-devel
 BuildRequires:  NetworkManager-libnm-devel
 BuildRequires:  polkit-devel >= %{polkit_version}
@@ -62,7 +58,7 @@ BuildRequires:  gtk3-devel >= %{gtk3_version}
 BuildRequires:  gettext >= 0.19.6
 BuildRequires:  libcanberra-devel
 BuildRequires:  libcroco-devel >= %{libcroco_version}
-BuildRequires:  python3-devel
+BuildRequires:  python3%{_isa}
 
 # for barriers
 BuildRequires:  libXfixes-devel >= 5.0
@@ -92,8 +88,6 @@ Requires:       gtk3%{?_isa} >= %{gtk3_version}
 Requires:       libnma%{?_isa}
 # needed for loading SVG's via gdk-pixbuf
 Requires:       librsvg2%{?_isa}
-# needed as it is now split from Clutter
-Requires:       json-glib%{?_isa} >= %{json_glib_version}
 Requires:       mutter%{?_isa} >= %{mutter_version}
 Requires:       upower%{?_isa}
 Requires:       polkit%{?_isa} >= %{polkit_version}
