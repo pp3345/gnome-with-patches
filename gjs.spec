@@ -4,8 +4,8 @@
 %global mozjs60_version 60.4.0
 
 Name:          gjs
-Version:       1.55.90
-Release:       3%{?dist}
+Version:       1.55.91
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -99,6 +99,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Mon Feb 18 2019 Kalev Lember <klember@redhat.com> - 1.55.91-1
+- Update to 1.55.91
+
 * Sun Feb 17 2019 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.55.90-3
 - Rebuild for readline 8.0
 
