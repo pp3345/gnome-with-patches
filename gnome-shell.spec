@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.31.90
-Release:        2%{?dist}
+Version:        3.31.91
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -17,10 +17,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
-# Backport https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/402
-# to fix (hopefully) missing Fedora logo on login screen
-Patch4: 0001-texture-cache-Use-content-size-for-returned-images.patch
-
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
 %define gnome_desktop_version 3.7.90
@@ -28,7 +24,7 @@ Patch4: 0001-texture-cache-Use-content-size-for-returned-images.patch
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.51.90
 %define gtk3_version 3.15.0
-%define mutter_version 3.31.90
+%define mutter_version 3.31.91
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.27.90
 %define ibus_version 1.5.2
@@ -204,6 +200,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Thu Feb 21 2019 Florian Müllner <fmuellner@redhat.com> - 3.31.91-1
+- Update to 3.31.91
+
 * Mon Feb 11 2019 Adam Williamson <awilliam@redhat.com> - 3.31.90-2
 - Backport MR #402 to fix missing logo on login screen
 
