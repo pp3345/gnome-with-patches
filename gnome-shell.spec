@@ -54,7 +54,7 @@ BuildRequires:  gtk3-devel >= %{gtk3_version}
 BuildRequires:  gettext >= 0.19.6
 BuildRequires:  libcanberra-devel
 BuildRequires:  libcroco-devel >= %{libcroco_version}
-BuildRequires:  python3%{_isa}
+BuildRequires:  python3
 
 # for barriers
 BuildRequires:  libXfixes-devel >= 5.0
