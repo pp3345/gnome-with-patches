@@ -45,8 +45,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.20.3
-Release:   4%{?gitdate:.%{gitdate}}%{?dist}
+Version:   1.20.4
+Release:   1%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -93,23 +93,6 @@ Patch5: 0001-autobind-GPUs-to-the-screen.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
-
-# https://gitlab.freedesktop.org/ajax/xserver/tree/server-1.20-branch
-Patch7: 0001-xwayland-do-not-crash-if-gbm_bo_create-fails.patch
-
-# Xwayland/Present fixes from master upstream
-Patch11: 0001-xwayland-Use-xwl_present_reset_timer-in-xwl_present_.patch
-Patch12: 0002-xwayland-Rename-xwl_present_events_notify-to-xwl_pre.patch
-Patch13: 0003-xwayland-Complete-synchronous-Present-flips-from-xwl.patch
-Patch14: 0004-xwayland-Replace-xwl_window-present_window-with-pres.patch
-Patch15: 0005-xwayland-Add-xwl_present_unrealize_window.patch
-Patch16: 0006-xwayland-Don-t-need-xwl_window-anymore-in-xwl_presen.patch
-Patch17: 0007-xwayland-Don-t-take-buffer-release-queue-into-accoun.patch
-Patch18: 0001-xwayland-Plug-leaks-in-xwl_present_sync_callback.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1609181
-Patch19: 0001-xwayland-handle-case-without-any-crtc.patch
-# https://bugzilla.redhat.com/show_bug.cgi?id=1661748
-Patch20: 0001-present-wnmd-Fix-use-after-free-on-CRTC-removal.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -535,6 +518,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Feb 26 2019 Adam Jackson <ajax@redhat.com> - 1.20.4-1
+- xserver 1.20.4
+
 * Sun Feb 03 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.20.3-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
