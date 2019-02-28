@@ -69,7 +69,6 @@ BuildRequires: pkgconfig(wayland-eglstream)
 
 BuildRequires: json-glib-devel >= %{json_glib_version}
 BuildRequires: libgudev1-devel
-BuildRequires: libwayland-server-devel
 BuildRequires: libinput-devel >= %{libinput_version}
 BuildRequires: xorg-x11-server-Xwayland
 
