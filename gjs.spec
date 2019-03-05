@@ -4,7 +4,7 @@
 %global mozjs60_version 60.4.0
 
 Name:          gjs
-Version:       1.55.91
+Version:       1.55.92
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -99,6 +99,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Tue Mar 05 2019 Kalev Lember <klember@redhat.com> - 1.55.92-1
+- Update to 1.55.92
+
 * Mon Feb 18 2019 Kalev Lember <klember@redhat.com> - 1.55.91-1
 - Update to 1.55.91
 
