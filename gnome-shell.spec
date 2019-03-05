@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.31.91
+Version:        3.31.92
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -24,7 +24,7 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.51.90
 %define gtk3_version 3.15.0
-%define mutter_version 3.31.91
+%define mutter_version 3.31.92
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.27.90
 %define ibus_version 1.5.2
@@ -200,6 +200,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Tue Mar 05 2019 Florian Müllner <fmuellner@redhat.com> - 3.31.92-1
+- Update to 3.31.92
+
 * Thu Feb 21 2019 Florian Müllner <fmuellner@redhat.com> - 3.31.91-1
 - Update to 3.31.91
 
