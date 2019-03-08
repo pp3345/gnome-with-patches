@@ -1,0 +1,352 @@
+From d83a325f98c8a6fa346a924192e65cf7a3c87c81 Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Thu, 7 Mar 2019 22:56:35 +0100
+Subject: [PATCH 1/2] Revert "Revert "cogl: Pick glReadPixels format by target,
+ not source""
+
+This reverts commit 4f72099023bc5bb142a782a1924797729329cc9a.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/486
+---
+ cogl/cogl/driver/gl/cogl-framebuffer-gl.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/cogl/cogl/driver/gl/cogl-framebuffer-gl.c b/cogl/cogl/driver/gl/cogl-framebuffer-gl.c
+index 84c2f314a..c2bf92882 100644
+--- a/cogl/cogl/driver/gl/cogl-framebuffer-gl.c
++++ b/cogl/cogl/driver/gl/cogl-framebuffer-gl.c
+@@ -4,6 +4,7 @@
+  * A Low Level GPU Graphics and Utilities API
+  *
+  * Copyright (C) 2007,2008,2009,2012 Intel Corporation.
++ * Copyright (C) 2018 DisplayLink (UK) Ltd.
+  *
+  * Permission is hereby granted, free of charge, to any person
+  * obtaining a copy of this software and associated documentation
+@@ -1273,9 +1274,12 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
+   if (!cogl_is_offscreen (framebuffer))
+     y = framebuffer_height - y - height;
+ 
++  /* Use target format ANY, because GL texture_swizzle extension cannot
++   * ever apply for glReadPixels.
++   */
+   required_format = ctx->driver_vtable->pixel_format_to_gl_with_target (ctx,
+-                                                                        framebuffer->internal_format,
+                                                                         format,
++                                                                        COGL_PIXEL_FORMAT_ANY,
+                                                                         &gl_intformat,
+                                                                         &gl_format,
+                                                                         &gl_type);
+-- 
+2.18.1
+
+
+From 8c5c033d5b728ecfb5136c549bfbea9da4e10b02 Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Thu, 7 Mar 2019 21:35:54 +0100
+Subject: [PATCH 2/2] cogl: Revert swizzling for BGRA buffers
+
+As it was originally reported on
+https://bugzilla.gnome.org/show_bug.cgi?id=779234#c0, the hottest path was
+convert_ubyte() in mesa. Reverting this shows no trace of those hot paths,
+nor any higher than usual CPU activity.
+
+As the improvements at the time were real, I can only conclude that pixel
+conversion was happening somewhere further the pipeline, and swizzling just
+helped indirectly. That got eventually fixed, so swizzling just stayed to
+cause grief. And lots it caused.
+
+Time to bin this, it seems.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/486
+---
+ cogl/cogl/cogl-driver.h                       |  7 ----
+ cogl/cogl/cogl-texture-driver.h               |  1 -
+ cogl/cogl/cogl-texture.c                      |  1 -
+ cogl/cogl/driver/gl/cogl-framebuffer-gl.c     | 11 +++---
+ cogl/cogl/driver/gl/cogl-texture-2d-gl.c      | 11 +++---
+ cogl/cogl/driver/gl/gl/cogl-driver-gl.c       | 37 +++----------------
+ .../driver/gl/gl/cogl-texture-driver-gl.c     | 24 +++---------
+ cogl/cogl/driver/gl/gles/cogl-driver-gles.c   | 26 +++----------
+ .../driver/gl/gles/cogl-texture-driver-gles.c |  1 -
+ cogl/cogl/driver/nop/cogl-driver-nop.c        |  1 -
+ 10 files changed, 26 insertions(+), 94 deletions(-)
+
+diff --git a/cogl/cogl/cogl-driver.h b/cogl/cogl/cogl-driver.h
+index 0e2d8ca79..86682d8a7 100644
+--- a/cogl/cogl/cogl-driver.h
++++ b/cogl/cogl/cogl-driver.h
+@@ -55,13 +55,6 @@ struct _CoglDriverVtable
+                           GLenum *out_glintformat,
+                           GLenum *out_glformat,
+                           GLenum *out_gltype);
+-  CoglPixelFormat
+-  (* pixel_format_to_gl_with_target) (CoglContext *context,
+-                                      CoglPixelFormat format,
+-                                      CoglPixelFormat target_format,
+-                                      GLenum *out_glintformat,
+-                                      GLenum *out_glformat,
+-                                      GLenum *out_gltype);
+ 
+   gboolean
+   (* update_features) (CoglContext *context,
+diff --git a/cogl/cogl/cogl-texture-driver.h b/cogl/cogl/cogl-texture-driver.h
+index ee98c22ed..f77c54880 100644
+--- a/cogl/cogl/cogl-texture-driver.h
++++ b/cogl/cogl/cogl-texture-driver.h
+@@ -198,7 +198,6 @@ struct _CoglTextureDriver
+   CoglPixelFormat
+   (* find_best_gl_get_data_format) (CoglContext     *context,
+                                     CoglPixelFormat format,
+-                                    CoglPixelFormat target_format,
+                                     GLenum *closest_gl_format,
+                                     GLenum *closest_gl_type);
+ };
+diff --git a/cogl/cogl/cogl-texture.c b/cogl/cogl/cogl-texture.c
+index 52165ab65..695b9bea4 100644
+--- a/cogl/cogl/cogl-texture.c
++++ b/cogl/cogl/cogl-texture.c
+@@ -787,7 +787,6 @@ cogl_texture_get_data (CoglTexture *texture,
+ 
+   closest_format =
+     ctx->texture_driver->find_best_gl_get_data_format (ctx,
+-                                                       texture_format,
+                                                        format,
+                                                        &closest_gl_format,
+                                                        &closest_gl_type);
+diff --git a/cogl/cogl/driver/gl/cogl-framebuffer-gl.c b/cogl/cogl/driver/gl/cogl-framebuffer-gl.c
+index c2bf92882..a29a0d234 100644
+--- a/cogl/cogl/driver/gl/cogl-framebuffer-gl.c
++++ b/cogl/cogl/driver/gl/cogl-framebuffer-gl.c
+@@ -1277,12 +1277,11 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
+   /* Use target format ANY, because GL texture_swizzle extension cannot
+    * ever apply for glReadPixels.
+    */
+-  required_format = ctx->driver_vtable->pixel_format_to_gl_with_target (ctx,
+-                                                                        format,
+-                                                                        COGL_PIXEL_FORMAT_ANY,
+-                                                                        &gl_intformat,
+-                                                                        &gl_format,
+-                                                                        &gl_type);
++  required_format = ctx->driver_vtable->pixel_format_to_gl (ctx,
++                                                            format,
++                                                            &gl_intformat,
++                                                            &gl_format,
++                                                            &gl_type);
+ 
+   /* NB: All offscreen rendering is done upside down so there is no need
+    * to flip in this case... */
+diff --git a/cogl/cogl/driver/gl/cogl-texture-2d-gl.c b/cogl/cogl/driver/gl/cogl-texture-2d-gl.c
+index 6692c9403..e36c3523e 100644
+--- a/cogl/cogl/driver/gl/cogl-texture-2d-gl.c
++++ b/cogl/cogl/driver/gl/cogl-texture-2d-gl.c
+@@ -781,12 +781,11 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
+ 
+   upload_format = cogl_bitmap_get_format (upload_bmp);
+ 
+-  ctx->driver_vtable->pixel_format_to_gl_with_target (ctx,
+-                                                      upload_format,
+-                                                      _cogl_texture_get_format (tex),
+-                                                      NULL, /* internal gl format */
+-                                                      &gl_format,
+-                                                      &gl_type);
++  ctx->driver_vtable->pixel_format_to_gl (ctx,
++                                          upload_format,
++                                          NULL, /* internal gl format */
++                                          &gl_format,
++                                          &gl_type);
+ 
+   /* If this touches the first pixel then we'll update our copy */
+   if (dst_x == 0 && dst_y == 0 &&
+diff --git a/cogl/cogl/driver/gl/gl/cogl-driver-gl.c b/cogl/cogl/driver/gl/gl/cogl-driver-gl.c
+index 84252e169..4d46844d5 100644
+--- a/cogl/cogl/driver/gl/gl/cogl-driver-gl.c
++++ b/cogl/cogl/driver/gl/gl/cogl-driver-gl.c
+@@ -94,12 +94,11 @@ _cogl_driver_pixel_format_from_gl_internal (CoglContext *context,
+ }
+ 
+ static CoglPixelFormat
+-_cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
+-                                             CoglPixelFormat format,
+-                                             CoglPixelFormat target_format,
+-                                             GLenum *out_glintformat,
+-                                             GLenum *out_glformat,
+-                                             GLenum *out_gltype)
++_cogl_driver_pixel_format_to_gl (CoglContext     *context,
++                                 CoglPixelFormat  format,
++                                 GLenum          *out_glintformat,
++                                 GLenum          *out_glformat,
++                                 GLenum          *out_gltype)
+ {
+   CoglPixelFormat required_format;
+   GLenum glintformat = 0;
+@@ -173,16 +172,7 @@ _cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
+     case COGL_PIXEL_FORMAT_BGRA_8888:
+     case COGL_PIXEL_FORMAT_BGRA_8888_PRE:
+       glintformat = GL_RGBA;
+-      /* If the driver has texture_swizzle, pretend internal
+-       * and buffer format are the same here, the pixels
+-       * will be flipped through this extension.
+-       */
+-      if (target_format == format &&
+-          _cogl_has_private_feature
+-          (context, COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE))
+-        glformat = GL_RGBA;
+-      else
+-        glformat = GL_BGRA;
++      glformat = GL_BGRA;
+       gltype = GL_UNSIGNED_BYTE;
+       break;
+ 
+@@ -297,20 +287,6 @@ _cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
+   return required_format;
+ }
+ 
+-static CoglPixelFormat
+-_cogl_driver_pixel_format_to_gl (CoglContext *context,
+-                                 CoglPixelFormat  format,
+-                                 GLenum *out_glintformat,
+-                                 GLenum *out_glformat,
+-                                 GLenum *out_gltype)
+-{
+-  return _cogl_driver_pixel_format_to_gl_with_target (context,
+-                                                      format, format,
+-                                                      out_glintformat,
+-                                                      out_glformat,
+-                                                      out_gltype);
+-}
+-
+ static gboolean
+ _cogl_get_gl_version (CoglContext *ctx,
+                       int *major_out,
+@@ -685,7 +661,6 @@ _cogl_driver_gl =
+   {
+     _cogl_driver_pixel_format_from_gl_internal,
+     _cogl_driver_pixel_format_to_gl,
+-    _cogl_driver_pixel_format_to_gl_with_target,
+     _cogl_driver_update_features,
+     _cogl_offscreen_gl_allocate,
+     _cogl_offscreen_gl_free,
+diff --git a/cogl/cogl/driver/gl/gl/cogl-texture-driver-gl.c b/cogl/cogl/driver/gl/gl/cogl-texture-driver-gl.c
+index 96d6a6da3..fbb55def5 100644
+--- a/cogl/cogl/driver/gl/gl/cogl-texture-driver-gl.c
++++ b/cogl/cogl/driver/gl/gl/cogl-texture-driver-gl.c
+@@ -112,18 +112,6 @@ _cogl_texture_driver_gen (CoglContext *ctx,
+                                  red_swizzle) );
+     }
+ 
+-  /* If swizzle extension is available, prefer it to flip bgra buffers to rgba */
+-  if ((internal_format == COGL_PIXEL_FORMAT_BGRA_8888 ||
+-       internal_format == COGL_PIXEL_FORMAT_BGRA_8888_PRE) &&
+-      _cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE))
+-    {
+-      static const GLint bgra_swizzle[] = { GL_BLUE, GL_GREEN, GL_RED, GL_ALPHA };
+-
+-      GE( ctx, glTexParameteriv (gl_target,
+-                                 GL_TEXTURE_SWIZZLE_RGBA,
+-                                 bgra_swizzle) );
+-    }
+-
+   return tex;
+ }
+ 
+@@ -531,16 +519,14 @@ static CoglPixelFormat
+ _cogl_texture_driver_find_best_gl_get_data_format
+                                             (CoglContext *context,
+                                              CoglPixelFormat format,
+-                                             CoglPixelFormat target_format,
+                                              GLenum *closest_gl_format,
+                                              GLenum *closest_gl_type)
+ {
+-  return context->driver_vtable->pixel_format_to_gl_with_target (context,
+-                                                                 format,
+-                                                                 target_format,
+-                                                                 NULL, /* don't need */
+-                                                                 closest_gl_format,
+-                                                                 closest_gl_type);
++  return context->driver_vtable->pixel_format_to_gl (context,
++                                                     format,
++                                                     NULL, /* don't need */
++                                                     closest_gl_format,
++                                                     closest_gl_type);
+ }
+ 
+ const CoglTextureDriver
+diff --git a/cogl/cogl/driver/gl/gles/cogl-driver-gles.c b/cogl/cogl/driver/gl/gles/cogl-driver-gles.c
+index 2e75345b1..6f2cf6e59 100644
+--- a/cogl/cogl/driver/gl/gles/cogl-driver-gles.c
++++ b/cogl/cogl/driver/gl/gles/cogl-driver-gles.c
+@@ -65,12 +65,11 @@ _cogl_driver_pixel_format_from_gl_internal (CoglContext *context,
+ }
+ 
+ static CoglPixelFormat
+-_cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
+-                                             CoglPixelFormat format,
+-                                             CoglPixelFormat target_format,
+-                                             GLenum *out_glintformat,
+-                                             GLenum *out_glformat,
+-                                             GLenum *out_gltype)
++_cogl_driver_pixel_format_to_gl (CoglContext     *context,
++                                 CoglPixelFormat  format,
++                                 GLenum          *out_glintformat,
++                                 GLenum          *out_glformat,
++                                 GLenum          *out_gltype)
+ {
+   CoglPixelFormat required_format;
+   GLenum glintformat;
+@@ -218,20 +217,6 @@ _cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
+   return required_format;
+ }
+ 
+-static CoglPixelFormat
+-_cogl_driver_pixel_format_to_gl (CoglContext *context,
+-                                 CoglPixelFormat  format,
+-                                 GLenum *out_glintformat,
+-                                 GLenum *out_glformat,
+-                                 GLenum *out_gltype)
+-{
+-  return _cogl_driver_pixel_format_to_gl_with_target (context,
+-                                                      format, format,
+-                                                      out_glintformat,
+-                                                      out_glformat,
+-                                                      out_gltype);
+-}
+-
+ static gboolean
+ _cogl_get_gl_version (CoglContext *ctx,
+                       int *major_out,
+@@ -449,7 +434,6 @@ _cogl_driver_gles =
+   {
+     _cogl_driver_pixel_format_from_gl_internal,
+     _cogl_driver_pixel_format_to_gl,
+-    _cogl_driver_pixel_format_to_gl_with_target,
+     _cogl_driver_update_features,
+     _cogl_offscreen_gl_allocate,
+     _cogl_offscreen_gl_free,
+diff --git a/cogl/cogl/driver/gl/gles/cogl-texture-driver-gles.c b/cogl/cogl/driver/gl/gles/cogl-texture-driver-gles.c
+index 9ecfd2b4c..17f529e32 100644
+--- a/cogl/cogl/driver/gl/gles/cogl-texture-driver-gles.c
++++ b/cogl/cogl/driver/gl/gles/cogl-texture-driver-gles.c
+@@ -613,7 +613,6 @@ static CoglPixelFormat
+ _cogl_texture_driver_find_best_gl_get_data_format
+                                             (CoglContext *context,
+                                              CoglPixelFormat format,
+-                                             CoglPixelFormat target_format,
+                                              GLenum *closest_gl_format,
+                                              GLenum *closest_gl_type)
+ {
+diff --git a/cogl/cogl/driver/nop/cogl-driver-nop.c b/cogl/cogl/driver/nop/cogl-driver-nop.c
+index bedad2b13..b41a2bcc5 100644
+--- a/cogl/cogl/driver/nop/cogl-driver-nop.c
++++ b/cogl/cogl/driver/nop/cogl-driver-nop.c
+@@ -59,7 +59,6 @@ _cogl_driver_nop =
+   {
+     NULL, /* pixel_format_from_gl_internal */
+     NULL, /* pixel_format_to_gl */
+-    NULL, /* pixel_format_to_gl_with_target */
+     _cogl_driver_update_features,
+     _cogl_offscreen_nop_allocate,
+     _cogl_offscreen_nop_free,
+-- 
+2.18.1
+

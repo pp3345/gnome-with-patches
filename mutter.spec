@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.31.92
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -23,6 +23,9 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 # https://gitlab.gnome.org/GNOME/mutter/merge_requests/479
 # https://gitlab.gnome.org/GNOME/mutter/issues/418
 Patch1:        479.patch
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/486
+# https://bugzilla.redhat.com/show_bug.cgi?id=1686649
+Patch2:        486.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -165,6 +168,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Fri Mar 08 2019 Kalev Lember <klember@redhat.com> - 3.31.92-3
+- Backport more inverted colour fixes (#1686649)
+
 * Wed Mar 06 2019 Kalev Lember <klember@redhat.com> - 3.31.92-2
 - Backport a patch to fix inverted colours
 
