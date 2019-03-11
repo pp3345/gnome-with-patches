@@ -7,25 +7,17 @@
 %global mutter_api_version 4
 
 Name:          mutter
-Version:       3.31.92
-Release:       3%{?dist}
+Version:       3.32.0
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.31/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.32/%{name}-%{version}.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-
-# Fix inverted colours
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/479
-# https://gitlab.gnome.org/GNOME/mutter/issues/418
-Patch1:        479.patch
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/486
-# https://bugzilla.redhat.com/show_bug.cgi?id=1686649
-Patch2:        486.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -168,6 +160,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Mar 12 2019 Florian Müllner <fmuellner@redhat.com> - 3.32.0-1
+- Update to 3.32.0
+
 * Fri Mar 08 2019 Kalev Lember <klember@redhat.com> - 3.31.92-3
 - Backport more inverted colour fixes (#1686649)
 
