@@ -19,6 +19,9 @@ Source0:       http://download.gnome.org/sources/%{name}/3.32/%{name}-%{version}
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 
+# Fix building with meson >= 0.50.0
+Patch1:        0001-build-Don-t-use-absolute-paths-with-subdir-keyword.patch
+
 BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
