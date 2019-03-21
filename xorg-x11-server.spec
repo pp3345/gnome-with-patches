@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.4
-Release:   1%{?gitdate:.%{gitdate}}%{?dist}
+Release:   2%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -93,6 +93,8 @@ Patch5: 0001-autobind-GPUs-to-the-screen.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
+
+Patch10: 0001-xwayland-present-Destroy-sync_callback-in-xwl_presen.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -518,6 +520,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Mar 21 2019 Adam Jackson <ajax@redhat.com> - 1.20.4-2
+- Backport an Xwayland crash fix in the Present code
+
 * Tue Feb 26 2019 Adam Jackson <ajax@redhat.com> - 1.20.4-1
 - xserver 1.20.4
 
