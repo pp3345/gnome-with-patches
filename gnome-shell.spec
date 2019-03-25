@@ -1,13 +1,13 @@
 Name:           gnome-shell
 Version:        3.32.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.31/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.32/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -22,15 +22,16 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 %define gnome_desktop_version 3.7.90
 %define glib2_version 2.56.0
 %define gobject_introspection_version 1.49.1
-%define gjs_version 1.51.90
+%define gjs_version 1.54.0
 %define gtk3_version 3.15.0
-%define mutter_version 3.31.92
+%define mutter_version 3.32
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.27.90
 %define ibus_version 1.5.2
 %define gnome_bluetooth_version 1:3.9.0
 %define gstreamer_version 1.4.5
 
+BuildRequires:  gcc
 BuildRequires:  meson
 BuildRequires:  git
 BuildRequires:  ibus-devel >= %{ibus_version}
@@ -200,6 +201,11 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Sat Mar 23 2019 Phil Wyett <philwyett@kathenas.org> - 3.32.0-2
+- Update source URL
+- Add gcc BuildRequires
+- Update versions required for gjs and mutter
+
 * Tue Mar 12 2019 Florian Müllner <fmuellner@redhat.com> - 3.32.0-1
 - Update to 3.32.0
 
