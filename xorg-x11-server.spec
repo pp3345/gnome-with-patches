@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.4
-Release:   2%{?gitdate:.%{gitdate}}%{?dist}
+Release:   3%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -95,6 +95,9 @@ Patch5: 0001-autobind-GPUs-to-the-screen.patch
 Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 Patch10: 0001-xwayland-present-Destroy-sync_callback-in-xwl_presen.patch
+
+# https://gitlab.freedesktop.org/xorg/xserver/merge_requests/152
+Patch11: 0001-dix-leave-last.valuators-alone-on-slave-switch.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -520,6 +523,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Mar 27 2019 Peter Hutterer <peter.hutterer@redhat.com> 1.20.4-3
+- Fix a Qt scrolling bug, don't reset the valuator on slave switch
+
 * Thu Mar 21 2019 Adam Jackson <ajax@redhat.com> - 1.20.4-2
 - Backport an Xwayland crash fix in the Present code
 
