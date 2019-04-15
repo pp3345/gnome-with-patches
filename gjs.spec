@@ -5,7 +5,7 @@
 
 Name:          gjs
 Version:       1.56.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -99,6 +99,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Mon Apr 15 2019 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.56.1-2
+- Rebuild against mozjs60-60.6.1
+
 * Mon Apr 08 2019 Kalev Lember <klember@redhat.com> - 1.56.1-1
 - Update to 1.56.1
 
