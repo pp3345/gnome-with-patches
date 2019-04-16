@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.32.0
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -166,6 +166,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Apr 16 2019 Adam Williamson <awilliam@redhat.com> - 3.32.0-3
+- Rebuild with Meson fix for #1699099
+
 * Mon Mar 25 2019 Adam Williamson <awilliam@redhat.com> - 3.32.0-2
 - Backport work-around for hangul text input bug (rhbz#1632981)
 
