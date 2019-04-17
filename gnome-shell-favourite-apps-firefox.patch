@@ -1,4 +1,4 @@
-From 3d72064154ed59abac2448dab8c279ed99baeb77 Mon Sep 17 00:00:00 2001
+From 9c8751994655c589943f04f90e6e85fe9e0d18a0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
 Date: Wed, 17 Sep 2014 07:11:12 +0200
 Subject: [PATCH] Replace Web with Firefox in default favorites
@@ -22,17 +22,17 @@ index 24e2a75b0..2f50036d0 100644
        <description>
          The applications corresponding to these identifiers
 diff --git a/js/ui/appFavorites.js b/js/ui/appFavorites.js
-index a80504c31..79123913d 100644
+index 657e15965..1e44a1655 100644
 --- a/js/ui/appFavorites.js
 +++ b/js/ui/appFavorites.js
-@@ -42,6 +42,7 @@ const RENAMED_DESKTOP_IDS = {
-     'gnotski.desktop': 'gnome-klotski.desktop',
-     'gtali.desktop': 'tali.desktop',
+@@ -49,6 +49,7 @@ const RENAMED_DESKTOP_IDS = {
+     'gnotski.desktop': 'org.gnome.Klotski.desktop',
+     'gtali.desktop': 'org.gnome.Tali.desktop',
      'iagno.desktop': 'org.gnome.Reversi.desktop',
 +    'mozilla-firefox.desktop': 'firefox.desktop',
      'nautilus.desktop': 'org.gnome.Nautilus.desktop',
      'org.gnome.gnome-2048.desktop': 'org.gnome.TwentyFortyEight.desktop',
      'org.gnome.taquin.desktop': 'org.gnome.Taquin.desktop',
 -- 
-2.20.1
+2.21.0
 
