@@ -7,8 +7,8 @@
 %global mutter_api_version 4
 
 Name:          mutter
-Version:       3.32.0
-Release:       4%{?dist}
+Version:       3.32.1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,24 +18,6 @@ Source0:       http://download.gnome.org/sources/%{name}/3.32/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-
-# Fix building with meson >= 0.50.0
-Patch1:        0001-build-Don-t-use-absolute-paths-with-subdir-keyword.patch
-
-# Backport work-around for hangul text input bug (rhbz#1632981)
-Patch2:        0001-wayland-Defer-text_input.done-on-an-idle.patch
-
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/498 fixes
-# https://gitlab.gnome.org/GNOME/mutter/issues/501 /
-# https://bugzilla.redhat.com/show_bug.cgi?id=1692135
-Patch3:        0001-core-Remove-startup-sequences-after-timeout.patch
-
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/521 fixes
-# https://gitlab.gnome.org/GNOME/mutter/issues/542 (crasher)
-Patch4:        0002-renderer-native-Make-EGL-initialization-failure-not-.patch
-
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/538 (crash fix)
-Patch5:        0003-wayland-output-Set-user-data-of-xdg_output-resource.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -178,6 +160,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Apr 17 2019 Florian Müllner <fmuellner@redhat.com> - 3.32.1-1
+- Update to 3.32.1
+
 * Wed Apr 17 2019 Adam Williamson <awilliam@redhat.com> - 3.32.0-4
 - Backport MR #498 for spinner bug, plus two crasher fixes
   Resolves: #1692135
