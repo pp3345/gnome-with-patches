@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.4
-Release:   3%{?gitdate:.%{gitdate}}%{?dist}
+Release:   4%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -98,6 +98,14 @@ Patch10: 0001-xwayland-present-Destroy-sync_callback-in-xwl_presen.patch
 
 # https://gitlab.freedesktop.org/xorg/xserver/merge_requests/152
 Patch11: 0001-dix-leave-last.valuators-alone-on-slave-switch.patch
+
+# test for https://bugzilla.redhat.com/show_bug.cgi?id=1697591
+# see also https://gitlab.freedesktop.org/xorg/xserver/merge_requests/36
+#Patch21: 0001-modesetting-Weaksauce-atomic-property-debugging.patch
+Patch22: 0002-modesetting-Propagate-more-failure-in-drmmode_set_mo.patch
+Patch23: 0003-modesetting-Factor-out-drmmode_target_output.patch
+Patch24: 0004-modesetting-Use-atomic-instead-of-per-crtc-walks-whe.patch
+
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -523,6 +531,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Apr 23 2019 Adam Jackson <ajax@redhat.com> - 1.20.4-4
+- Fix some non-atomic modesetting calls to be atomic
+
 * Wed Mar 27 2019 Peter Hutterer <peter.hutterer@redhat.com> 1.20.4-3
 - Fix a Qt scrolling bug, don't reset the valuator on slave switch
 
