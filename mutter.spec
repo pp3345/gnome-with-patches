@@ -47,6 +47,7 @@ BuildRequires: mesa-libEGL-devel
 BuildRequires: mesa-libGLES-devel
 BuildRequires: mesa-libGL-devel
 BuildRequires: mesa-libgbm-devel
+BuildRequires: pkgconfig(glesv2)
 BuildRequires: pam-devel
 BuildRequires: pipewire-devel >= %{pipewire_version}
 BuildRequires: systemd-devel
