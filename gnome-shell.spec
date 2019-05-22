@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.33.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -16,6 +16,9 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
+
+# Backported from upstream
+Patch4: 0001-calendar-server-Port-to-libecal-2.0.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.17.2
@@ -201,6 +204,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Wed May 22 2019 Kalev Lember <klember@redhat.com> - 3.33.1-2
+- Rebuild for libecal-2.0
+
 * Tue May 14 2019 Florian Müllner <fmuellner@redhat.com> - 3.33.1-1
 - Update to 3.33.1
 
