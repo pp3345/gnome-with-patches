@@ -45,8 +45,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.20.4
-Release:   4%{?gitdate:.%{gitdate}}%{?dist}
+Version:   1.20.5
+Release:   1%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -93,11 +93,6 @@ Patch5: 0001-autobind-GPUs-to-the-screen.patch
 
 # because the display-managers are not ready yet, do not upstream
 Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
-
-Patch10: 0001-xwayland-present-Destroy-sync_callback-in-xwl_presen.patch
-
-# https://gitlab.freedesktop.org/xorg/xserver/merge_requests/152
-Patch11: 0001-dix-leave-last.valuators-alone-on-slave-switch.patch
 
 # test for https://bugzilla.redhat.com/show_bug.cgi?id=1697591
 # see also https://gitlab.freedesktop.org/xorg/xserver/merge_requests/36
@@ -531,6 +526,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu May 30 2019 Adam Jackson <ajax@redhat.com> - 1.20.5-1
+- xserver 1.20.5
+
 * Tue Apr 23 2019 Adam Jackson <ajax@redhat.com> - 1.20.4-4
 - Fix some non-atomic modesetting calls to be atomic
 
