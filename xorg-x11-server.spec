@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.5
-Release:   1%{?gitdate:.%{gitdate}}%{?dist}
+Release:   2%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -101,6 +101,8 @@ Patch22: 0002-modesetting-Propagate-more-failure-in-drmmode_set_mo.patch
 Patch23: 0003-modesetting-Factor-out-drmmode_target_output.patch
 Patch24: 0004-modesetting-Use-atomic-instead-of-per-crtc-walks-whe.patch
 
+# https://bugzilla.redhat.com/show_bug.cgi?id=1697804
+Patch25: 0001-Xi-return-AlreadyGrabbed-for-key-grabs-255.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -526,6 +528,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Jun 06 2019 Peter Hutterer <peter.hutterer@redhat.com> 1.20.5-2
+- Return AlreadyGrabbed for keycodes > 255 (#1697804)
+
 * Thu May 30 2019 Adam Jackson <ajax@redhat.com> - 1.20.5-1
 - xserver 1.20.5
 
