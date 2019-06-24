@@ -50,7 +50,7 @@ BuildRequires: mesa-libgbm-devel
 BuildRequires: pkgconfig(glesv2)
 BuildRequires: pam-devel
 BuildRequires: pipewire-devel >= %{pipewire_version}
-BuildRequires: pkgconfig(sysprof-capture-3)
+#BuildRequires: pkgconfig(sysprof-capture-3)
 BuildRequires: systemd-devel
 BuildRequires: upower-devel
 BuildRequires: xorg-x11-server-Xorg
@@ -124,7 +124,7 @@ the functionality of the installed %{name} package.
 %autosetup -S git
 
 %build
-%meson -Degl_device=true -Dwayland_eglstream=true
+%meson -Degl_device=true -Dwayland_eglstream=true -Dprofiler=false
 %meson_build
 
 %install
