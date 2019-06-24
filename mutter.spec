@@ -1,13 +1,13 @@
 %global gtk3_version 3.19.8
 %global glib_version 2.53.2
-%global gsettings_desktop_schemas_version 3.21.4
+%global gsettings_desktop_schemas_version 3.33.0
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
 %global pipewire_version 0.2.2
 %global mutter_api_version 4
 
 Name:          mutter
-Version:       3.33.2
+Version:       3.33.3
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -161,6 +161,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Jun 24 2019 Florian Müllner <fmuellner@redhat.com> - 3.33.3-1
+- Update to 3.33.3
+
 * Wed May 22 2019 Florian Müllner <fmuellner@redhat.com> - 3.33.2-1
 - Update to 3.33.2
 
