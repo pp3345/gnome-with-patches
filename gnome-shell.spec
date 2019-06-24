@@ -157,7 +157,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %files -f %{name}.lang
 %license COPYING
 %doc README.md
-%{_bindir}/gnome-shell
+%caps(cap_sys_nice+ep) %{_bindir}/gnome-shell
 %{_bindir}/gnome-shell-extension-tool
 %{_bindir}/gnome-shell-perf-tool
 %{_bindir}/gnome-shell-extension-prefs
