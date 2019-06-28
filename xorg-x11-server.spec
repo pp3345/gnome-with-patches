@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.5
-Release:   2%{?gitdate:.%{gitdate}}%{?dist}
+Release:   3%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -96,13 +96,23 @@ Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 # test for https://bugzilla.redhat.com/show_bug.cgi?id=1697591
 # see also https://gitlab.freedesktop.org/xorg/xserver/merge_requests/36
+# ofourdan> Disabling those for now, causing regressions (#1714981, #1723715)
 #Patch21: 0001-modesetting-Weaksauce-atomic-property-debugging.patch
-Patch22: 0002-modesetting-Propagate-more-failure-in-drmmode_set_mo.patch
-Patch23: 0003-modesetting-Factor-out-drmmode_target_output.patch
-Patch24: 0004-modesetting-Use-atomic-instead-of-per-crtc-walks-whe.patch
+#Patch22: 0002-modesetting-Propagate-more-failure-in-drmmode_set_mo.patch
+#Patch23: 0003-modesetting-Factor-out-drmmode_target_output.patch
+#Patch24: 0004-modesetting-Use-atomic-instead-of-per-crtc-walks-whe.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1697804
 Patch25: 0001-Xi-return-AlreadyGrabbed-for-key-grabs-255.patch
+
+# From current server-1.20-branch:
+# https://bugzilla.redhat.com/1708119
+Patch26: 0001-xwayland-Avoid-a-crash-on-pointer-enter-with-a-grab.patch
+# https://bugzilla.redhat.com/1691745
+Patch27: 0001-xwayland-Check-status-in-GBM-pixmap-creation.patch
+# https://bugzilla.redhat.com/1645553
+Patch28: 0001-glamor-Make-pixmap-exportable-from-gbm_bo_from_pixma.patch
+Patch29: 0001-xwayland-Reset-scheduled-frames-after-hiding-tablet-.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -528,6 +538,12 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Jun 28 2019 Olivier Fourdan <ofourdan@redhat.com> 1.20.5-3
+- Remove atomic downstream patches causing regressions (#1714981, #1723715)
+- Xwayland crashes (#1708119, #1691745)
+- Cursor issue with tablet on Xwayland
+- Xorg/modesetting issue with flipping pixmaps with Present (#1645553)
+
 * Thu Jun 06 2019 Peter Hutterer <peter.hutterer@redhat.com> 1.20.5-2
 - Return AlreadyGrabbed for keycodes > 255 (#1697804)
 

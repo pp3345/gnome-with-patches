@@ -1,0 +1,53 @@
+From 6711b5c6fdf0581c77150306fff909d7bc63b8a4 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Thu, 9 May 2019 10:36:19 +0200
+Subject: [PATCH xserver] xwayland: Avoid a crash on pointer enter with a grab
+
+On pointer enter notification, Xwayland checks for an existing pointer
+warp with a `NULL` sprite.
+
+In turn, `xwl_pointer_warp_emulator_maybe_lock()` checks for an existing
+grab and the destination window using `XYToWindow()` which does not
+check for the actual sprite not being `NULL`.
+
+So, in some cases, when the pointer enters the surface and there is an
+existing X11 grab which is not an ownerEvents grab, Xwayland would crash
+trying to dereference the `NULL` sprite pointer:
+
+  #0  __GI_raise ()
+  #1  __GI_abort () at abort.c:79
+  #2  OsAbort () at utils.c:1351
+  #3  AbortServer () at log.c:879
+  #4  FatalError () at log.c:1017
+  #5  OsSigHandler () at osinit.c:156
+  #6  OsSigHandler () at osinit.c:110
+  #7  <signal handler called>
+  #8  XYToWindow (pSprite=0x0, x=0, y=0) at events.c:2880
+  #9  xwl_pointer_warp_emulator_maybe_lock () at xwayland-input.c:2673
+  #10 pointer_handle_enter () at xwayland-input.c:434
+
+Avoid the crash by simply checking for the sprite being not `NULL` in
+`xwl_pointer_warp_emulator_maybe_lock()`
+
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+Bugzilla: https://bugzilla.redhat.com/1708119
+(cherry picked from commit 0a07446318f248b65fcbc8ab8a73ead51153f09e)
+---
+ hw/xwayland/xwayland-input.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/hw/xwayland/xwayland-input.c b/hw/xwayland/xwayland-input.c
+index fbbcb39cc..fa46ac3e7 100644
+--- a/hw/xwayland/xwayland-input.c
++++ b/hw/xwayland/xwayland-input.c
+@@ -2667,6 +2667,7 @@ xwl_pointer_warp_emulator_maybe_lock(struct xwl_pointer_warp_emulator *warp_emul
+      */
+     if (pointer_grab &&
+         !pointer_grab->ownerEvents &&
++        sprite &&
+         XYToWindow(sprite, x, y) != xwl_seat->focus_window->window)
+         return;
+ 
+-- 
+2.21.0
+
