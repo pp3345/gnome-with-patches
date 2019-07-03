@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.5
-Release:   4%{?gitdate:.%{gitdate}}%{?dist}
+Release:   5%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -86,8 +86,6 @@ Patch2: 0001-xfree86-use-modesetting-driver-by-default-on-GeForce.patch
 # va_gl should probably just be the default everywhere ?
 Patch3: 0001-xf86-dri2-Use-va_gl-as-vdpau_driver-for-Intel-i965-G.patch
 
-Patch4: 0001-Always-install-vbe-and-int10-sdk-headers.patch
-
 # Submitted upstream, but not going anywhere
 Patch5: 0001-autobind-GPUs-to-the-screen.patch
 
@@ -117,6 +115,10 @@ Patch29: 0001-xwayland-Reset-scheduled-frames-after-hiding-tablet-.patch
 # https://gitlab.freedesktop.org/xorg/xserver/issues/839
 # https://bugzilla.redhat.com/1726419
 Patch30: 0001-Revert-present-scmd-Check-that-the-flip-and-screen-p.patch
+
+# Build failure with recent glibc
+# https://gitlab.freedesktop.org/xorg/xserver/issues/840
+Patch31: 0001-compiler.h-Do-not-include-sys-io.h-on-ARM-with-glibc.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -542,6 +544,11 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Jul  8 2019 Olivier Fourdan <ofourdan@redhat.com> 1.20.5-5
+- Do not include <sys/io.h> on ARM with glibc to avoid compilation failure.
+- Do not force vbe and int10 sdk headers as this enables int10 which does
+  not build on ARM without <sys/io.h>
+
 * Mon Jul  8 2019 Olivier Fourdan <ofourdan@redhat.com> 1.20.5-4
 - Fix regression causing screen tearing with upstream xserver 1.20.5
   (rhbz#1726419)
