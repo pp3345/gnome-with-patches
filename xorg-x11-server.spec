@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.5
-Release:   3%{?gitdate:.%{gitdate}}%{?dist}
+Release:   4%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -113,6 +113,10 @@ Patch27: 0001-xwayland-Check-status-in-GBM-pixmap-creation.patch
 # https://bugzilla.redhat.com/1645553
 Patch28: 0001-glamor-Make-pixmap-exportable-from-gbm_bo_from_pixma.patch
 Patch29: 0001-xwayland-Reset-scheduled-frames-after-hiding-tablet-.patch
+
+# https://gitlab.freedesktop.org/xorg/xserver/issues/839
+# https://bugzilla.redhat.com/1726419
+Patch30: 0001-Revert-present-scmd-Check-that-the-flip-and-screen-p.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -538,6 +542,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Jul  8 2019 Olivier Fourdan <ofourdan@redhat.com> 1.20.5-4
+- Fix regression causing screen tearing with upstream xserver 1.20.5
+  (rhbz#1726419)
+
 * Fri Jun 28 2019 Olivier Fourdan <ofourdan@redhat.com> 1.20.5-3
 - Remove atomic downstream patches causing regressions (#1714981, #1723715)
 - Xwayland crashes (#1708119, #1691745)
