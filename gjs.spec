@@ -1,11 +1,11 @@
 %global glib2_version 2.58.0
 %global gobject_introspection_version 1.41.4
 %global gtk3_version 3.20
-%global mozjs60_version 60.7.2
+%global mozjs60_version 60.8.0
 
 Name:          gjs
 Version:       1.57.3
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -100,6 +100,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Tue Jul 09 2019 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.57.3-3
+- Rebuild against mozjs60 60.8.0
+
 * Sat Jun 22 2019 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.57.3-2
 - Rebuild against mozjs60 60.7.2
 
