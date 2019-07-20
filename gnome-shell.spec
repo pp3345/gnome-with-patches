@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.33.3
+Version:        3.33.4
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -19,14 +19,14 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
-%define gnome_desktop_version 3.7.90
+%define gnome_desktop_version 3.33.4
 %define glib2_version 2.56.0
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.54.0
 %define gtk3_version 3.15.0
-%define mutter_version 3.33.2
+%define mutter_version 3.33.4
 %define polkit_version 0.100
-%define gsettings_desktop_schemas_version 3.27.90
+%define gsettings_desktop_schemas_version 3.33.1
 %define ibus_version 1.5.2
 %define gnome_bluetooth_version 1:3.9.0
 %define gstreamer_version 1.4.5
@@ -201,6 +201,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Sat Jul 20 2019 Florian Müllner <fmuellner@redhat.com> - 3.33.4-1
+- Update to 3.33.4
+
 * Mon Jun 24 2019 Florian Mülllner <fmuellner@redhat.com> - 3.33.3-1
 - Update to 3.33.3
 
