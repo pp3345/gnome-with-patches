@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.33.4
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -162,6 +162,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sun Jul 21 2019 Kalev Lember <klember@redhat.com> - 3.33.4-2
+- Rebuilt for libgnome-desktop soname bump
+
 * Sat Jul 20 2019 Florian Müllner <fmuellner@redhat.com> - 3.33.4-1
 - Update to 3.33.4
 
