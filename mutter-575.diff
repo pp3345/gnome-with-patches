@@ -71,7 +71,7 @@ index b4255a47538d43e3e2fb4990a37038a4a37e760b..b6b5a3a94d868a78a202041ae4dd741a
  
  #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
 diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
-index e81614eeeffb57b627fcd59d4b231a5f88e8dba8..3eda33300e9f17dad9faf09ddac3cb04128d1efa 100644
+index e81614eeeffb57b627fcd59d4b231a5f88e8dba8..5e3dbcaa238ba5b53fe7c1fb5bd276edb1fead08 100644
 --- a/clutter/clutter/clutter-stage.c
 +++ b/clutter/clutter/clutter-stage.c
 @@ -129,6 +129,7 @@ struct _ClutterStagePrivate
@@ -123,7 +123,7 @@ index e81614eeeffb57b627fcd59d4b231a5f88e8dba8..3eda33300e9f17dad9faf09ddac3cb04
  }
  
  void
-@@ -1041,41 +1070,47 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
+@@ -1041,41 +1070,51 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
  {
    ClutterStage *stage = CLUTTER_STAGE (actor);
    ClutterStagePrivate *priv = stage->priv;
@@ -139,20 +139,23 @@ index e81614eeeffb57b627fcd59d4b231a5f88e8dba8..3eda33300e9f17dad9faf09ddac3cb04
  
 -  /* avoid reentrancy */
 -  if (!CLUTTER_ACTOR_IN_RELAYOUT (stage))
--    {
++  pending_queue_relayouts = g_steal_pointer (&priv->pending_queue_relayouts);
++
++  CLUTTER_NOTE (ACTOR, ">>> Recomputing layout");
++
++  for (l = pending_queue_relayouts; l != NULL; l = l->next)
+     {
 -      priv->relayout_pending = FALSE;
 -      priv->stage_was_relayout = TRUE;
-+  pending_queue_relayouts = g_steal_pointer (&priv->pending_queue_relayouts);
++      ClutterActor *queued_actor = CLUTTER_ACTOR (l->data);
  
 -      CLUTTER_NOTE (ACTOR, "Recomputing layout");
-+  CLUTTER_NOTE (ACTOR, ">>> Recomputing layout");
++      if (CLUTTER_ACTOR_IN_RELAYOUT (queued_actor))  /* avoid reentrancy */
++        continue;
  
 -      CLUTTER_SET_PRIVATE_FLAGS (stage, CLUTTER_IN_RELAYOUT);
-+  for (l = pending_queue_relayouts; l != NULL; l = l->next)
-+    {
-+      ClutterActor *queued_actor = CLUTTER_ACTOR (l->data);
-+
-+      if (CLUTTER_ACTOR_IN_RELAYOUT (queued_actor))  /* avoid reentrancy */
++      /* An actor may have been destroyed or hidden between queuing and now */
++      if (clutter_actor_get_stage (queued_actor) != actor)
 +        continue;
  
 -      natural_width = natural_height = 0;
@@ -195,7 +198,7 @@ index e81614eeeffb57b627fcd59d4b231a5f88e8dba8..3eda33300e9f17dad9faf09ddac3cb04
  }
  
  static void
-@@ -1256,14 +1291,9 @@ static void
+@@ -1256,14 +1295,9 @@ static void
  clutter_stage_real_queue_relayout (ClutterActor *self)
  {
    ClutterStage *stage = CLUTTER_STAGE (self);
@@ -211,7 +214,7 @@ index e81614eeeffb57b627fcd59d4b231a5f88e8dba8..3eda33300e9f17dad9faf09ddac3cb04
  
    /* chain up */
    parent_class = CLUTTER_ACTOR_CLASS (clutter_stage_parent_class);
-@@ -1831,6 +1861,9 @@ clutter_stage_dispose (GObject *object)
+@@ -1831,6 +1865,9 @@ clutter_stage_dispose (GObject *object)
                      (GDestroyNotify) free_queue_redraw_entry);
    priv->pending_queue_redraws = NULL;
  
@@ -221,7 +224,7 @@ index e81614eeeffb57b627fcd59d4b231a5f88e8dba8..3eda33300e9f17dad9faf09ddac3cb04
    /* this will release the reference on the stage */
    stage_manager = clutter_stage_manager_get_default ();
    _clutter_stage_manager_remove_stage (stage_manager, stage);
-@@ -2272,7 +2305,7 @@ clutter_stage_init (ClutterStage *self)
+@@ -2272,7 +2309,7 @@ clutter_stage_init (ClutterStage *self)
    priv->fog.z_near = 1.0;
    priv->fog.z_far  = 2.0;
  
@@ -230,7 +233,7 @@ index e81614eeeffb57b627fcd59d4b231a5f88e8dba8..3eda33300e9f17dad9faf09ddac3cb04
  
    clutter_actor_set_reactive (CLUTTER_ACTOR (self), TRUE);
    clutter_stage_set_title (self, g_get_prgname ());
-@@ -3497,10 +3530,9 @@ clutter_stage_ensure_redraw (ClutterStage *stage)
+@@ -3497,10 +3534,9 @@ clutter_stage_ensure_redraw (ClutterStage *stage)
  
    priv = stage->priv;
  
@@ -242,49 +245,3 @@ index e81614eeeffb57b627fcd59d4b231a5f88e8dba8..3eda33300e9f17dad9faf09ddac3cb04
    priv->redraw_pending = TRUE;
  
    master_clock = _clutter_master_clock_get_default ();
-diff --git a/src/compositor/meta-window-group.c b/src/compositor/meta-window-group.c
-index 29ec1e74223ce2b86167378a7879306e7b0dcc21..2a95d73116130df9bb47739fcbeb1f3ef9969e8b 100644
---- a/src/compositor/meta-window-group.c
-+++ b/src/compositor/meta-window-group.c
-@@ -196,9 +196,41 @@ meta_window_group_class_init (MetaWindowGroupClass *klass)
-   actor_class->get_preferred_height = meta_window_group_get_preferred_height;
- }
- 
-+static void
-+on_monitors_changed (MetaMonitorManager *monitor_manager,
-+                     MetaWindowGroup    *window_group)
-+{
-+  ClutterActor *actor = CLUTTER_ACTOR (window_group);
-+
-+  clutter_actor_queue_relayout (actor);
-+}
-+
- static void
- meta_window_group_init (MetaWindowGroup *window_group)
- {
-+  ClutterActor *actor = CLUTTER_ACTOR (window_group);
-+  MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
-+
-+  clutter_actor_set_flags (actor, CLUTTER_ACTOR_NO_LAYOUT);
-+
-+  /* Hotplugging monitors causes background actors (children of the window
-+   * group) to change and trigger relayouts. Without CLUTTER_ACTOR_NO_LAYOUT
-+   * this would automatically trickle up to the stage and then reallocate
-+   * everything including all windows and backgrounds.
-+   *
-+   * After introducing CLUTTER_ACTOR_NO_LAYOUT however, we need to ensure that
-+   * relayout of the whole window group happens manually. Otherwise you get
-+   * backgrounds left unallocated (totally clipped so not rendering), and
-+   * window actors that have been moved to the remaining monitors might not
-+   * know their scaling factors need to change. So this is more explicit than
-+   * it was prior to CLUTTER_ACTOR_NO_LAYOUT but the performance benefits are
-+   * worth it.
-+   */
-+  g_signal_connect_object (monitor_manager,
-+                           "monitors-changed",
-+                           G_CALLBACK (on_monitors_changed),
-+                           window_group,
-+                           G_CONNECT_AFTER);
- }
- 
- ClutterActor *
