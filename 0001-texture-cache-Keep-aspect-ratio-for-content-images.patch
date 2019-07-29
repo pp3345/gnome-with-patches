@@ -1,0 +1,74 @@
+From 24cb1c1aabe36b905ce009c2c786f4d70d6184d7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Tue, 30 Apr 2019 20:37:34 +0200
+Subject: [PATCH] texture-cache: Keep aspect ratio for content images
+
+Images are loaded either with a supplied fixed size, or using the "native"
+dimensions of the file. When creating a content image from the loaded data,
+we currently simply apply this directly to the preferred size.
+
+This works usually fine: GdkPixbuf will always keep the aspect ratio, so
+if only one dimension is provided, the other will be adjusted accordingly:
+
+Loading a 200x200 image with a requested size of (100, -1) will result in
+a 100x100 content image.
+
+There is a catch though: GdkPixbuf will only scale *down* to the requested
+size, no up. That is, loading a 100x100 image with a requested size of
+(200, -1) will result in a 100x100 pixbuf. But as we assume that the pixbuf
+size matches the requested size, the image content ends up with 200x100.
+
+Fix this by explicitly handling the case where only one size was supplied,
+and make the other dimension take the aspect ratio into account
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/525
+---
+ src/st/st-texture-cache.c | 30 +++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
+
+diff --git a/src/st/st-texture-cache.c b/src/st/st-texture-cache.c
+index cbe3afaba..eec28007b 100644
+--- a/src/st/st-texture-cache.c
++++ b/src/st/st-texture-cache.c
+@@ -496,15 +496,31 @@ pixbuf_to_st_content_image (GdkPixbuf *pixbuf,
+   ClutterContent *image;
+   g_autoptr(GError) error = NULL;
+ 
+-  if (width < 0)
+-    width = ceilf (gdk_pixbuf_get_width (pixbuf) / resource_scale);
+-  else
+-    width *= paint_scale;
++  float native_width, native_height;
++
++  native_width = ceilf (gdk_pixbuf_get_width (pixbuf) / resource_scale);
++  native_height = ceilf (gdk_pixbuf_get_height (pixbuf) / resource_scale);
+ 
+-  if (height < 0)
+-    height = ceilf (gdk_pixbuf_get_height (pixbuf) / resource_scale);
++  if (width < 0 && height < 0)
++    {
++      width = native_width;
++      height = native_height;
++    }
++  else if (width < 0)
++    {
++      height *= paint_scale;
++      width = native_width * (height / native_height);
++    }
++  else if (height < 0)
++    {
++      width *= paint_scale;
++      height = native_height * (width / native_width);
++    }
+   else
+-    height *= paint_scale;
++    {
++      width *= paint_scale;
++      height *= paint_scale;
++    }
+ 
+   image = st_image_content_new_with_preferred_size (width, height);
+   clutter_image_set_data (CLUTTER_IMAGE (image),
+-- 
+2.21.0
+

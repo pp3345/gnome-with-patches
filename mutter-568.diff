@@ -1,0 +1,120 @@
+diff --git a/src/compositor/compositor.c b/src/compositor/compositor.c
+index e4ffd1e8424fa86bc53fe140a399cdba4705eaa9..d5bf14b1556b5bdee3a4d6922ad2ec19a86057e4 100644
+--- a/src/compositor/compositor.c
++++ b/src/compositor/compositor.c
+@@ -1136,8 +1136,10 @@ meta_compositor_sync_window_geometry (MetaCompositor *compositor,
+                                       gboolean did_placement)
+ {
+   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+-  meta_window_actor_sync_actor_geometry (window_actor, did_placement);
+-  meta_plugin_manager_event_size_changed (compositor->plugin_mgr, window_actor);
++  MetaWindowActorChanges changes = meta_window_actor_sync_actor_geometry (window_actor, did_placement);
++
++  if (changes & META_WINDOW_ACTOR_CHANGE_SIZE)
++    meta_plugin_manager_event_size_changed (compositor->plugin_mgr, window_actor);
+ }
+ 
+ static void
+diff --git a/src/compositor/meta-window-actor-private.h b/src/compositor/meta-window-actor-private.h
+index 6333f43db0618bd3355bb97d9acb8bf5e2769260..80b11d00bee9b10d1d5ae7d8daebe253c37831ce 100644
+--- a/src/compositor/meta-window-actor-private.h
++++ b/src/compositor/meta-window-actor-private.h
+@@ -28,6 +28,14 @@ struct _MetaWindowActorClass
+   void (*queue_destroy) (MetaWindowActor *actor);
+ };
+ 
++typedef enum
++{
++  META_WINDOW_ACTOR_CHANGE_SIZE = 1,
++  META_WINDOW_ACTOR_CHANGE_POSITION = 2
++} MetaWindowActorChange;
++
++typedef unsigned int MetaWindowActorChanges;
++
+ void meta_window_actor_queue_destroy   (MetaWindowActor *self);
+ 
+ void meta_window_actor_show (MetaWindowActor *self,
+@@ -59,8 +67,10 @@ void     meta_window_actor_set_unredirected    (MetaWindowActor *self,
+                                                 gboolean         unredirected);
+ 
+ gboolean meta_window_actor_effect_in_progress  (MetaWindowActor *self);
+-void     meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
+-                                                gboolean         did_placement);
++
++MetaWindowActorChanges meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
++                                                              gboolean         did_placement);
++
+ void     meta_window_actor_update_shape        (MetaWindowActor *self);
+ void     meta_window_actor_update_opacity      (MetaWindowActor *self);
+ void     meta_window_actor_mapped              (MetaWindowActor *self);
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index 837a4c3e902df243f07a71b15742aea34c330b33..d19907acfd96aed3c33966999d249aa55fb22882 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -1120,13 +1120,15 @@ meta_window_actor_queue_destroy (MetaWindowActor *self)
+     clutter_actor_destroy (CLUTTER_ACTOR (self));
+ }
+ 
+-void
++MetaWindowActorChanges
+ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
+                                        gboolean         did_placement)
+ {
+   MetaWindowActorPrivate *priv =
+     meta_window_actor_get_instance_private (self);
+   MetaRectangle window_rect;
++  MetaWindowActorChanges changes = META_WINDOW_ACTOR_CHANGE_POSITION |
++                                   META_WINDOW_ACTOR_CHANGE_SIZE;
+ 
+   meta_window_get_buffer_rect (priv->window, &window_rect);
+ 
+@@ -1144,15 +1146,43 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
+    * updates.
+    */
+   if (is_frozen (self) && !did_placement)
+-    return;
++    return changes;
+ 
+   if (meta_window_actor_effect_in_progress (self))
+-    return;
++    return changes;
++
++  if (clutter_actor_has_allocation (CLUTTER_ACTOR (self)))
++    {
++      ClutterActorBox box;
++      gfloat old_x, old_y, old_width, old_height;
++
++      clutter_actor_get_allocation_box (CLUTTER_ACTOR (self), &box);
++
++      old_x = box.x1;
++      old_y = box.y1;
++      old_width = box.x2 - box.x1;
++      old_height = box.y2 - box.y1;
++
++      changes = 0;
++
++      if (old_x != window_rect.x || old_y != window_rect.y)
++        changes |= META_WINDOW_ACTOR_CHANGE_POSITION;
++
++      if (old_width != window_rect.width || old_height != window_rect.height)
++        changes |= META_WINDOW_ACTOR_CHANGE_SIZE;
++    }
++
++  if (changes & META_WINDOW_ACTOR_CHANGE_POSITION)
++    clutter_actor_set_position (CLUTTER_ACTOR (self),
++                                window_rect.x,
++                                window_rect.y);
++
++  if (changes & META_WINDOW_ACTOR_CHANGE_SIZE)
++    clutter_actor_set_size (CLUTTER_ACTOR (self),
++                            window_rect.width,
++                            window_rect.height);
+ 
+-  clutter_actor_set_position (CLUTTER_ACTOR (self),
+-                              window_rect.x, window_rect.y);
+-  clutter_actor_set_size (CLUTTER_ACTOR (self),
+-                          window_rect.width, window_rect.height);
++  return changes;
+ }
+ 
+ void

@@ -1,0 +1,66 @@
+diff --git a/js/ui/padOsd.js b/js/ui/padOsd.js
+index 2cc449d9fdc547c62cf3f299d2221edc91d39207..63e158cc37d19768682a4dcd6a2e10ccd7b7e12d 100644
+--- a/js/ui/padOsd.js
++++ b/js/ui/padOsd.js
+@@ -625,7 +625,7 @@ var PadOsd = class {
+         this._settings = settings;
+         this._imagePath = imagePath;
+         this._editionMode = editionMode;
+-        this._capturedEventId = global.stage.connect('captured-event', this._onCapturedEvent.bind(this));
++        this._capturedEventId = global.stage.connect('captured-event::nonmotion', this._onCapturedEvent.bind(this));
+         this._padChooser = null;
+ 
+         let deviceManager = Clutter.DeviceManager.get_default();
+diff --git a/js/ui/panel.js b/js/ui/panel.js
+index 3e3f4d4d84df00546a0e098818668b98d048e89f..2457a516bd941b94eb5216fcc142d83f202cf66c 100644
+--- a/js/ui/panel.js
++++ b/js/ui/panel.js
+@@ -413,7 +413,7 @@ class ActivitiesButton extends PanelMenu.Button {
+ 
+         this.actor.label_actor = this._label;
+ 
+-        this.actor.connect('captured-event', this._onCapturedEvent.bind(this));
++        this.actor.connect('captured-event::nonmotion', this._onCapturedEvent.bind(this));
+         this.actor.connect_after('key-release-event', this._onKeyRelease.bind(this));
+ 
+         Main.overview.connect('showing', () => {
+diff --git a/js/ui/status/system.js b/js/ui/status/system.js
+index bbbc44ea10a654eb2b475db731c9cb446334e692..84673bbaa839e9f1a7a4c744b70c50e9f2976102 100644
+--- a/js/ui/status/system.js
++++ b/js/ui/status/system.js
+@@ -29,7 +29,7 @@ var AltSwitcher = class {
+             this._alternate.connect('clicked',
+                                     () => { this._clickAction.release(); });
+ 
+-        this._capturedEventId = global.stage.connect('captured-event', this._onCapturedEvent.bind(this));
++        this._capturedEventId = global.stage.connect('captured-event::nonmotion', this._onCapturedEvent.bind(this));
+ 
+         this._flipped = false;
+ 
+diff --git a/js/ui/viewSelector.js b/js/ui/viewSelector.js
+index b902eb36467c6e11d63d27c207c8d6309d3d1f3a..70bce0edc732ed620d7c25681ecfa6b321f7ee33 100644
+--- a/js/ui/viewSelector.js
++++ b/js/ui/viewSelector.js
+@@ -52,7 +52,7 @@ function getTermsForSearchString(searchString) {
+ 
+ var TouchpadShowOverviewAction = class {
+     constructor(actor) {
+-        actor.connect('captured-event', this._handleEvent.bind(this));
++        actor.connect('captured-event::nonmotion', this._handleEvent.bind(this));
+     }
+ 
+     _handleEvent(actor, event) {
+diff --git a/js/ui/windowManager.js b/js/ui/windowManager.js
+index 8c4cb36d873f5ddd8f01c7a38a9f6a504536810f..199df7de89f1b3fb71864ba907889266a330d914 100644
+--- a/js/ui/windowManager.js
++++ b/js/ui/windowManager.js
+@@ -465,8 +465,8 @@ var TouchpadWorkspaceSwitchAction = class {
+         this._allowedModes = allowedModes;
+         this._dx = 0;
+         this._dy = 0;
+         this._enabled = true;
+-        actor.connect('captured-event', this._handleEvent.bind(this));
++        actor.connect('captured-event::nonmotion', this._handleEvent.bind(this));
+ 	this._touchpadSettings = new Gio.Settings({schema_id: 'org.gnome.desktop.peripherals.touchpad'});
+     }
+ 

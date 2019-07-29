@@ -1,0 +1,53 @@
+From a3a97621bea451878b8997bc1befc282584521fa Mon Sep 17 00:00:00 2001
+From: Emil Velikov <emil.velikov@collabora.com>
+Date: Wed, 12 Jun 2019 16:58:54 +0000
+Subject: [PATCH] renderer/native: add missing eglTerminate in EGLDevice error
+ path
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Currently the EGLDevice code gets the display and calls eglInitialize.
+As a follow-up it checks the required EGL extensions - technically it
+could check the EGL device extensions earlier.
+
+In either case, eglTerminate is missing. Thus the connection to the
+display was still bound.
+
+This was highlighted with Mesa commit d6edccee8da ("egl: add
+EGL_platform_device support") + amdgpu.
+
+In that case, since the eglTerminate is missing, we end up reusing the
+underlying amdgpu_device due to some caching in libdrm_amdgpu. The
+latter in itself being a good solution since it allows buffer sharing
+across primary and render node of the same device.
+
+Note: we should really get this in branches all the way back to 3.30.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/619
+
+Fixes: 934184e23 ("MetaRendererNative: Add EGLDevice based rendering support")
+Cc: Jonas Ådahl <jadahl@gmail.com>
+Signed-off-by: Emil Velikov <emil.velikov@collabora.com>
+
+
+(cherry picked from commit 9213574870faee7fe40609791fc48f4b44f861c0)
+---
+ src/backends/native/meta-renderer-native.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index dbfc97aae..207b654fa 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -4038,6 +4038,7 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
+                    G_IO_ERROR_FAILED,
+                    "Missing EGL extensions required for EGLDevice renderer: %s",
+                    missing_extensions_str);
++      meta_egl_terminate (egl, egl_display, NULL);
+       g_free (missing_extensions_str);
+       g_free (missing_extensions);
+       return NULL;
+-- 
+2.21.0
+

@@ -1,0 +1,642 @@
+diff --git a/clutter/clutter/clutter-master-clock-default.c b/clutter/clutter/clutter-master-clock-default.c
+index 6779eb70b7404519b4ce4c251bd51040ea5d34e1..3197a32e3e4d1606847933c6229c88f2c414bee0 100644
+--- a/clutter/clutter/clutter-master-clock-default.c
++++ b/clutter/clutter/clutter-master-clock-default.c
+@@ -64,9 +64,6 @@ struct _ClutterMasterClockDefault
+   /* the current state of the clock, in usecs */
+   gint64 cur_tick;
+ 
+-  /* the previous state of the clock, in usecs, used to compute the delta */
+-  gint64 prev_tick;
+-
+ #ifdef CLUTTER_ENABLE_DEBUG
+   gint64 frame_budget;
+   gint64 remaining_budget;
+@@ -77,12 +74,6 @@ struct _ClutterMasterClockDefault
+    */
+   GSource *source;
+ 
+-  /* If the master clock is idle that means it has
+-   * fallen back to idle polling for timeline
+-   * progressions and it may have been some time since
+-   * the last real stage update.
+-   */
+-  guint idle : 1;
+   guint ensure_next_iteration : 1;
+ 
+   guint paused : 1;
+@@ -275,78 +266,12 @@ master_clock_reschedule_stage_updates (ClutterMasterClockDefault *master_clock,
+ static gint
+ master_clock_next_frame_delay (ClutterMasterClockDefault *master_clock)
+ {
+-  gint64 now, next;
+-  gint swap_delay;
+-
+   if (!master_clock_is_running (master_clock))
+     return -1;
+ 
+   /* If all of the stages are busy waiting for a swap-buffers to complete
+    * then we wait for one to be ready.. */
+-  swap_delay = master_clock_get_swap_wait_time (master_clock);
+-  if (swap_delay != 0)
+-    return swap_delay;
+-
+-  /* When we have sync-to-vblank, we count on swap-buffer requests (or
+-   * swap-buffer-complete events if supported in the backend) to throttle our
+-   * frame rate so no additional delay is needed to start the next frame.
+-   *
+-   * If the master-clock has become idle due to no timeline progression causing
+-   * redraws then we can no longer rely on vblank synchronization because the
+-   * last real stage update/redraw may have happened a long time ago and so we
+-   * fallback to polling for timeline progressions every 1/frame_rate seconds.
+-   *
+-   * (NB: if there aren't even any timelines running then the master clock will
+-   * be completely stopped in master_clock_is_running())
+-   */
+-  if (clutter_feature_available (CLUTTER_FEATURE_SWAP_THROTTLE) &&
+-      !master_clock->idle)
+-    {
+-      CLUTTER_NOTE (SCHEDULER, "swap throttling available and updated stages");
+-      return 0;
+-    }
+-
+-  if (master_clock->prev_tick == 0)
+-    {
+-      /* If we weren't previously running, then draw the next frame
+-       * immediately
+-       */
+-      CLUTTER_NOTE (SCHEDULER, "draw the first frame immediately");
+-      return 0;
+-    }
+-
+-  /* Otherwise, wait at least 1/frame_rate seconds since we last
+-   * started a frame
+-   */
+-  now = g_source_get_time (master_clock->source);
+-
+-  next = master_clock->prev_tick;
+-
+-  /* If time has gone backwards then there's no way of knowing how
+-     long we should wait so let's just dispatch immediately */
+-  if (now <= next)
+-    {
+-      CLUTTER_NOTE (SCHEDULER, "Time has gone backwards");
+-
+-      return 0;
+-    }
+-
+-  next += (1000000L / clutter_get_default_frame_rate ());
+-
+-  if (next <= now)
+-    {
+-      CLUTTER_NOTE (SCHEDULER, "Less than %lu microsecs",
+-                    1000000L / (gulong) clutter_get_default_frame_rate ());
+-
+-      return 0;
+-    }
+-  else
+-    {
+-      CLUTTER_NOTE (SCHEDULER, "Waiting %" G_GINT64_FORMAT " msecs",
+-                   (next - now) / 1000);
+-
+-      return (next - now) / 1000;
+-    }
++  return master_clock_get_swap_wait_time (master_clock);
+ }
+ 
+ static void
+@@ -530,7 +455,6 @@ clutter_clock_dispatch (GSource     *source,
+ {
+   ClutterClockSource *clock_source = (ClutterClockSource *) source;
+   ClutterMasterClockDefault *master_clock = clock_source->master_clock;
+-  gboolean stages_updated = FALSE;
+   GSList *stages;
+ 
+   CLUTTER_NOTE (SCHEDULER, "Master clock [tick]");
+@@ -550,8 +474,6 @@ clutter_clock_dispatch (GSource     *source,
+    */
+   stages = master_clock_list_ready_stages (master_clock);
+ 
+-  master_clock->idle = FALSE;
+-
+   /* Each frame is split into three separate phases: */
+ 
+   /* 1. process all the events; each stage goes through its events queue
+@@ -564,19 +486,12 @@ clutter_clock_dispatch (GSource     *source,
+   master_clock_advance_timelines (master_clock);
+ 
+   /* 3. relayout and redraw the stages */
+-  stages_updated = master_clock_update_stages (master_clock, stages);
+-
+-  /* The master clock goes idle if no stages were updated and falls back
+-   * to polling for timeline progressions... */
+-  if (!stages_updated)
+-    master_clock->idle = TRUE;
++  master_clock_update_stages (master_clock, stages);
+ 
+   master_clock_reschedule_stage_updates (master_clock, stages);
+ 
+   g_slist_free_full (stages, g_object_unref);
+ 
+-  master_clock->prev_tick = master_clock->cur_tick;
+-
+   _clutter_threads_release_lock ();
+ 
+   return TRUE;
+@@ -608,7 +523,6 @@ clutter_master_clock_default_init (ClutterMasterClockDefault *self)
+   source = clutter_clock_source_new (self);
+   self->source = source;
+ 
+-  self->idle = FALSE;
+   self->ensure_next_iteration = FALSE;
+   self->paused = FALSE;
+ 
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index 973272f9c6797a7a73cde19b335d72f7b4229db1..857296510318d0a04bb02657b3c580edd2ee06e8 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -183,26 +183,17 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
+       return;
+     }
+ 
+-  /* We only extrapolate presentation times for 150ms  - this is somewhat
+-   * arbitrary. The reasons it might not be accurate for larger times are
+-   * that the refresh interval might be wrong or the vertical refresh
+-   * might be downclocked if nothing is going on onscreen.
+-   */
+-  if (stage_cogl->last_presentation_time == 0||
+-      stage_cogl->last_presentation_time < now - 150000)
++  refresh_rate = stage_cogl->refresh_rate;
++  if (refresh_rate <= 0.0)
++    refresh_rate = clutter_get_default_frame_rate ();
++
++  refresh_interval = (gint64) (0.5 + G_USEC_PER_SEC / refresh_rate);
++  if (refresh_interval == 0)
+     {
+       stage_cogl->update_time = now;
+       return;
+     }
+ 
+-  refresh_rate = stage_cogl->refresh_rate;
+-  if (refresh_rate == 0.0)
+-    refresh_rate = 60.0;
+-
+-  refresh_interval = (gint64) (0.5 + 1000000 / refresh_rate);
+-  if (refresh_interval == 0)
+-    refresh_interval = 16667; /* 1/60th second */
+-
+   min_render_time_allowed = refresh_interval / 2;
+   max_render_time_allowed = refresh_interval - 1000 * sync_delay;
+ 
+@@ -211,10 +202,34 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
+ 
+   next_presentation_time = stage_cogl->last_presentation_time + refresh_interval;
+ 
++  if (next_presentation_time < now)
++    {
++      /* If last_presentation_time is zero (unsupported) or just very old
++       * (system was idle) then we would like to avoid that triggering a large
++       * number of loop interations below. This will get us closer to the
++       * right answer without iterating:
++       */
++      int64_t last_virtual_presentation_time = now - now % refresh_interval;
++      int64_t hardware_clock_phase = stage_cogl->last_presentation_time %
++                                     refresh_interval;
++
++      next_presentation_time = last_virtual_presentation_time +
++                               hardware_clock_phase;
++    }
++
+   while (next_presentation_time < now + min_render_time_allowed)
+     next_presentation_time += refresh_interval;
+ 
+   stage_cogl->update_time = next_presentation_time - max_render_time_allowed;
++
++  /* Sanity check: If we've just calculated the same update_time as the last
++   * then throttle it to be the frame after that. This can happen now that
++   * we support old (or zero) values for last_presentation_time, when input
++   * events arrive without needing a stage redraw (e.g. moving the hardware
++   * cursor).
++   */
++  if (stage_cogl->update_time == stage_cogl->last_update_time)
++    stage_cogl->update_time = stage_cogl->last_update_time + refresh_interval;
+ }
+ 
+ static gint64
+@@ -233,6 +248,7 @@ clutter_stage_cogl_clear_update_time (ClutterStageWindow *stage_window)
+ {
+   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+ 
++  stage_cogl->last_update_time = stage_cogl->update_time;
+   stage_cogl->update_time = -1;
+ }
+ 
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.h b/clutter/clutter/cogl/clutter-stage-cogl.h
+index aead9785e0be6b05b2b00d966115ed9dc00648c4..a69c424eb02f6f88aa2c114c24d326dbc4d1a963 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.h
++++ b/clutter/clutter/cogl/clutter-stage-cogl.h
+@@ -53,6 +53,7 @@ struct _ClutterStageCogl
+ 
+   gint64 last_presentation_time;
+   gint64 update_time;
++  int64_t last_update_time;
+ 
+   /* We only enable clipped redraws after 2 frames, since we've seen
+    * a lot of drivers can struggle to get going and may output some
+diff --git a/cogl/cogl/cogl-private.h b/cogl/cogl/cogl-private.h
+index d74f297e106f3f05e42bc319f2a5b3a9ffd74a77..af7bc3cd88e6b5770d4d4806aaaa6d1595780f36 100644
+--- a/cogl/cogl/cogl-private.h
++++ b/cogl/cogl/cogl-private.h
+@@ -76,9 +76,6 @@ typedef enum
+   COGL_PRIVATE_FEATURE_GL_PROGRAMMABLE,
+   COGL_PRIVATE_FEATURE_GL_EMBEDDED,
+   COGL_PRIVATE_FEATURE_GL_WEB,
+-  /* This is currently only implemented for GLX, but isn't actually
+-   * that winsys dependent */
+-  COGL_PRIVATE_FEATURE_THREADED_SWAP_WAIT,
+ 
+   COGL_N_PRIVATE_FEATURES
+ } CoglPrivateFeature;
+diff --git a/cogl/cogl/cogl-renderer-private.h b/cogl/cogl/cogl-renderer-private.h
+index a308801a7b788495e0a4446b8de787bad8f2c705..cc8f94bf12fd5daa9a8ee726fbafbfe5e0b5fba9 100644
+--- a/cogl/cogl/cogl-renderer-private.h
++++ b/cogl/cogl/cogl-renderer-private.h
+@@ -71,7 +71,6 @@ struct _CoglRenderer
+   Display *foreign_xdpy;
+   gboolean xlib_enable_event_retrieval;
+   gboolean xlib_want_reset_on_video_memory_purge;
+-  gboolean xlib_enable_threaded_swap_wait;
+ #endif
+ 
+   CoglDriver driver;
+diff --git a/cogl/cogl/cogl-renderer.c b/cogl/cogl/cogl-renderer.c
+index 035c68418b8ff668b2cce11ae93a3aa27d6dad34..7288f706e35dc0d847ccdc0784e61b576c96198a 100644
+--- a/cogl/cogl/cogl-renderer.c
++++ b/cogl/cogl/cogl-renderer.c
+@@ -268,17 +268,6 @@ cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
+ 
+   renderer->xlib_want_reset_on_video_memory_purge = enable;
+ }
+-
+-void
+-cogl_xlib_renderer_set_threaded_swap_wait_enabled (CoglRenderer *renderer,
+-						   gboolean enable)
+-{
+-  _COGL_RETURN_IF_FAIL (cogl_is_renderer (renderer));
+-  /* NB: Renderers are considered immutable once connected */
+-  _COGL_RETURN_IF_FAIL (!renderer->connected);
+-
+-  renderer->xlib_enable_threaded_swap_wait = enable;
+-}
+ #endif /* COGL_HAS_XLIB_SUPPORT */
+ 
+ gboolean
+diff --git a/cogl/cogl/cogl-xlib-renderer.h b/cogl/cogl/cogl-xlib-renderer.h
+index 3a3c08d64c2179e8a56c8d5f6eb1387e1956c23c..e8fe43a5138e2c5f5eb8661376b8c247269d84d0 100644
+--- a/cogl/cogl/cogl-xlib-renderer.h
++++ b/cogl/cogl/cogl-xlib-renderer.h
+@@ -167,36 +167,6 @@ void
+ cogl_xlib_renderer_set_event_retrieval_enabled (CoglRenderer *renderer,
+                                                 gboolean enable);
+ 
+-/**
+- * cogl_xlib_renderer_set_threaded_swap_wait_enabled: (skip)
+- * @renderer: a #CoglRenderer
+- * @enable: The new value
+- *
+- * Sets whether Cogl is allowed to use a separate threaded to wait for the
+- * completion of glXSwapBuffers() and call the frame callback for the
+- * corresponding #CoglOnscreen. This is a way of emulating the
+- * INTEL_swap_event extension, and will only ever be used if
+- * INTEL_swap_event is not present; it will also only be used for
+- * specific white-listed drivers that are known to work correctly with
+- * multiple contexts sharing state between threads.
+- *
+- * The advantage of enabling this is that it will allow your main loop
+- * to do other work while waiting for the system to be ready to draw
+- * the next frame, instead of blocking in glXSwapBuffers(). A disadvantage
+- * is that the driver will be prevented from buffering up multiple frames
+- * even if it thinks that it would be advantageous. In general, this
+- * will work best for something like a system compositor that is doing
+- * simple drawing but handling lots of other complex tasks.
+- * 
+- * If you enable this, you must call XInitThreads() before any other
+- * X11 calls in your program. (See the documentation for XInitThreads())
+- *
+- * Stability: unstable
+- */
+-void
+-cogl_xlib_renderer_set_threaded_swap_wait_enabled (CoglRenderer *renderer,
+-						   gboolean enable);
+-
+ /**
+  * cogl_xlib_renderer_get_display: (skip)
+  */
+diff --git a/cogl/cogl/winsys/cogl-winsys-glx.c b/cogl/cogl/winsys/cogl-winsys-glx.c
+index 4b9e0582696af68b527376ea2937a243b9985e8f..3d6982bf8d5c3270169b8386c91b312bb38262ea 100644
+--- a/cogl/cogl/winsys/cogl-winsys-glx.c
++++ b/cogl/cogl/winsys/cogl-winsys-glx.c
+@@ -894,29 +894,6 @@ update_winsys_features (CoglContext *context, CoglError **error)
+                       COGL_FEATURE_ID_PRESENTATION_TIME,
+                       TRUE);
+     }
+-  else
+-    {
+-      CoglGpuInfo *info = &context->gpu;
+-      if (glx_display->have_vblank_counter &&
+-	  context->display->renderer->xlib_enable_threaded_swap_wait &&
+-	  info->vendor == COGL_GPU_INFO_VENDOR_NVIDIA)
+-        {
+-          COGL_FLAGS_SET (context->winsys_features,
+-                          COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT, TRUE);
+-          COGL_FLAGS_SET (context->winsys_features,
+-                          COGL_WINSYS_FEATURE_SWAP_BUFFERS_EVENT, TRUE);
+-          /* TODO: remove this deprecated feature */
+-          COGL_FLAGS_SET (context->features,
+-                          COGL_FEATURE_ID_SWAP_BUFFERS_EVENT,
+-                          TRUE);
+-          COGL_FLAGS_SET (context->features,
+-                          COGL_FEATURE_ID_PRESENTATION_TIME,
+-                          TRUE);
+-          COGL_FLAGS_SET (context->private_features,
+-                          COGL_PRIVATE_FEATURE_THREADED_SWAP_WAIT,
+-                          TRUE);
+-        }
+-    }
+ 
+   /* We'll manually handle queueing dirty events in response to
+    * Expose events from X */
+@@ -1513,8 +1490,7 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
+     }
+ 
+ #ifdef GLX_INTEL_swap_event
+-  if (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT) &&
+-      !_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_THREADED_SWAP_WAIT))
++  if (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
+     {
+       GLXDrawable drawable =
+         glx_onscreen->glxwin ? glx_onscreen->glxwin : xlib_onscreen->xwin;
+@@ -1809,199 +1785,6 @@ set_frame_info_output (CoglOnscreen *onscreen,
+     }
+ }
+ 
+-static gpointer
+-threaded_swap_wait (gpointer data)
+-{
+-  CoglOnscreen *onscreen = data;
+-
+-  CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+-
+-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+-  CoglContext *context = framebuffer->context;
+-  CoglDisplay *display = context->display;
+-  CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (display->renderer);
+-  CoglGLXDisplay *glx_display = display->winsys;
+-  CoglGLXRenderer *glx_renderer = display->renderer->winsys;
+-  GLXDrawable dummy_drawable;
+-
+-  if (glx_display->dummy_glxwin)
+-    dummy_drawable = glx_display->dummy_glxwin;
+-  else
+-    dummy_drawable = glx_display->dummy_xwin;
+-
+-  glx_renderer->glXMakeContextCurrent (xlib_renderer->xdpy,
+-                                       dummy_drawable,
+-                                       dummy_drawable,
+-                                       glx_onscreen->swap_wait_context);
+-
+-  g_mutex_lock (&glx_onscreen->swap_wait_mutex);
+-
+-  while (TRUE)
+-    {
+-      gpointer queue_element;
+-      uint32_t vblank_counter;
+-
+-      while (!glx_onscreen->closing_down && glx_onscreen->swap_wait_queue->length == 0)
+-         g_cond_wait (&glx_onscreen->swap_wait_cond, &glx_onscreen->swap_wait_mutex);
+-
+-      if (glx_onscreen->closing_down)
+-         break;
+-
+-      queue_element = g_queue_pop_tail (glx_onscreen->swap_wait_queue);
+-      vblank_counter = GPOINTER_TO_UINT(queue_element);
+-
+-      g_mutex_unlock (&glx_onscreen->swap_wait_mutex);
+-      glx_renderer->glXWaitVideoSync (2,
+-                                      (vblank_counter + 1) % 2,
+-                                      &vblank_counter);
+-      g_mutex_lock (&glx_onscreen->swap_wait_mutex);
+-
+-      if (!glx_onscreen->closing_down)
+-         {
+-           int bytes_written = 0;
+-
+-           union {
+-             char bytes[8];
+-             int64_t presentation_time;
+-           } u;
+-
+-           u.presentation_time = get_monotonic_time_ns ();
+-
+-           while (bytes_written < 8)
+-             {
+-               int res = write (glx_onscreen->swap_wait_pipe[1], u.bytes + bytes_written, 8 - bytes_written);
+-               if (res == -1)
+-                 {
+-                   if (errno != EINTR)
+-                     g_error ("Error writing to swap notification pipe: %s\n",
+-                              g_strerror (errno));
+-                 }
+-               else
+-                 {
+-                   bytes_written += res;
+-                 }
+-             }
+-         }
+-    }
+-
+-  g_mutex_unlock (&glx_onscreen->swap_wait_mutex);
+-
+-  glx_renderer->glXMakeContextCurrent (xlib_renderer->xdpy,
+-                                       None,
+-                                       None,
+-                                       NULL);
+-
+-  return NULL;
+-}
+-
+-static int64_t
+-threaded_swap_wait_pipe_prepare (void *user_data)
+-{
+-  return -1;
+-}
+-
+-static void
+-threaded_swap_wait_pipe_dispatch (void *user_data, int revents)
+-{
+-  CoglOnscreen *onscreen = user_data;
+-  CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+-
+-  CoglFrameInfo *info;
+-
+-  if ((revents & COGL_POLL_FD_EVENT_IN))
+-    {
+-      int bytes_read = 0;
+-
+-      union {
+-         char bytes[8];
+-         int64_t presentation_time;
+-      } u;
+-
+-      while (bytes_read < 8)
+-         {
+-           int res = read (glx_onscreen->swap_wait_pipe[0], u.bytes + bytes_read, 8 - bytes_read);
+-           if (res == -1)
+-             {
+-               if (errno != EINTR)
+-                 g_error ("Error reading from swap notification pipe: %s\n",
+-                          g_strerror (errno));
+-             }
+-           else
+-             {
+-               bytes_read += res;
+-             }
+-         }
+-
+-      set_sync_pending (onscreen);
+-      set_complete_pending (onscreen);
+-
+-      info = g_queue_peek_head (&onscreen->pending_frame_infos);
+-      info->presentation_time = u.presentation_time;
+-    }
+-}
+-
+-static void
+-start_threaded_swap_wait (CoglOnscreen *onscreen,
+-                           uint32_t      vblank_counter)
+-{
+-  CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+-  CoglContext *context = framebuffer->context;
+-
+-  if (glx_onscreen->swap_wait_thread == NULL)
+-    {
+-      CoglDisplay *display = context->display;
+-      CoglGLXRenderer *glx_renderer = display->renderer->winsys;
+-      CoglGLXDisplay *glx_display = display->winsys;
+-      CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
+-      CoglXlibRenderer *xlib_renderer =
+-        _cogl_xlib_renderer_get_data (display->renderer);
+-
+-      GLXDrawable drawable =
+-        glx_onscreen->glxwin ? glx_onscreen->glxwin : xlib_onscreen->xwin;
+-      int i;
+-
+-      ensure_ust_type (display->renderer, drawable);
+-      
+-      if ((pipe (glx_onscreen->swap_wait_pipe) == -1))
+-        g_error ("Couldn't create pipe for swap notification: %s\n",
+-                 g_strerror (errno));
+-
+-      for (i = 0; i < 2; i++)
+-	{
+-	  if (fcntl(glx_onscreen->swap_wait_pipe[i], F_SETFD,
+-		    fcntl(glx_onscreen->swap_wait_pipe[i], F_GETFD, 0) | FD_CLOEXEC) == -1)
+-	    g_error ("Couldn't set swap notification pipe CLOEXEC: %s\n",
+-		     g_strerror (errno));
+-	}
+-
+-      _cogl_poll_renderer_add_fd (display->renderer,
+-                                  glx_onscreen->swap_wait_pipe[0],
+-                                  COGL_POLL_FD_EVENT_IN,
+-                                  threaded_swap_wait_pipe_prepare,
+-                                  threaded_swap_wait_pipe_dispatch,
+-                                  onscreen);
+-
+-      glx_onscreen->swap_wait_queue = g_queue_new ();
+-      g_mutex_init (&glx_onscreen->swap_wait_mutex);
+-      g_cond_init (&glx_onscreen->swap_wait_cond);
+-      glx_onscreen->swap_wait_context =
+-         glx_renderer->glXCreateNewContext (xlib_renderer->xdpy,
+-                                            glx_display->fbconfig,
+-                                            GLX_RGBA_TYPE,
+-                                            glx_display->glx_context,
+-                                            True);
+-      glx_onscreen->swap_wait_thread = g_thread_new ("cogl_glx_swap_wait",
+-                                                     threaded_swap_wait,
+-                                                     onscreen);
+-    }
+-
+-  g_mutex_lock (&glx_onscreen->swap_wait_mutex);
+-  g_queue_push_head (glx_onscreen->swap_wait_queue, GUINT_TO_POINTER(vblank_counter));
+-  g_cond_signal (&glx_onscreen->swap_wait_cond);
+-  g_mutex_unlock (&glx_onscreen->swap_wait_mutex);
+-}
+-
+ static void
+ _cogl_winsys_onscreen_swap_region (CoglOnscreen *onscreen,
+                                    const int *user_rectangles,
+@@ -2237,26 +2020,7 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
+ 
+   have_counter = glx_display->have_vblank_counter;
+ 
+-  if (glx_renderer->glXSwapInterval)
+-    {
+-      if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_THREADED_SWAP_WAIT))
+-        {
+-          /* If we didn't wait for the GPU here, then it's easy to get the case
+-           * where there is a VBlank between the point where we get the vsync counter
+-           * and the point where the GPU is ready to actually perform the glXSwapBuffers(),
+-           * and the swap wait terminates at the first VBlank rather than the one
+-           * where the swap buffers happens. Calling glFinish() here makes this a
+-           * rare race since the GPU is already ready to swap when we call glXSwapBuffers().
+-           * The glFinish() also prevents any serious damage if the rare race happens,
+-           * since it will wait for the preceding glXSwapBuffers() and prevent us from
+-           * getting premanently ahead. (For NVIDIA drivers, glFinish() after glXSwapBuffers()
+-           * waits for the buffer swap to happen.)
+-           */
+-          _cogl_winsys_wait_for_gpu (onscreen);
+-          start_threaded_swap_wait (onscreen, _cogl_winsys_get_vsync_counter (context));
+-        }
+-    }
+-  else
++  if (!glx_renderer->glXSwapInterval)
+     {
+       gboolean can_wait = have_counter || glx_display->can_vblank_wait;
+ 
+diff --git a/src/backends/x11/meta-backend-x11.c b/src/backends/x11/meta-backend-x11.c
+index c5794b20f7aa9ce51f4a0ac4b4ddd7bfec3896a0..685b286a5f4cbac7ffea3a265a7e43e6c5b275fb 100644
+--- a/src/backends/x11/meta-backend-x11.c
++++ b/src/backends/x11/meta-backend-x11.c
+@@ -785,12 +785,6 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
+ static void
+ meta_backend_x11_init (MetaBackendX11 *x11)
+ {
+-  /* XInitThreads() is needed to use the "threaded swap wait" functionality
+-   * in Cogl - see meta_renderer_x11_create_cogl_renderer(). We call it here
+-   * to hopefully call it before any other use of XLib.
+-   */
+-  XInitThreads();
+-
+   /* We do X11 event retrieval ourselves */
+   clutter_x11_disable_event_retrieval ();
+ }
+diff --git a/src/backends/x11/meta-renderer-x11.c b/src/backends/x11/meta-renderer-x11.c
+index a501416e7b98a8c7b79c2a21aadb94785b31451a..96beb4eb86573257d381e136a2c893a47f1a852b 100644
+--- a/src/backends/x11/meta-renderer-x11.c
++++ b/src/backends/x11/meta-renderer-x11.c
+@@ -85,14 +85,6 @@ meta_renderer_x11_create_cogl_renderer (MetaRenderer *renderer)
+   cogl_xlib_renderer_set_foreign_display (cogl_renderer, xdisplay);
+   cogl_xlib_renderer_request_reset_on_video_memory_purge (cogl_renderer, TRUE);
+ 
+-  /* Set up things so that if the INTEL_swap_event extension is not present,
+-   * but the driver is known to have good thread support, we use an extra
+-   * thread and call glXWaitVideoSync() in the thread. This allows idles
+-   * to work properly, even when Mutter is constantly redrawing new frames;
+-   * otherwise, without INTEL_swap_event, we'll just block in glXSwapBuffers().
+-   */
+-  cogl_xlib_renderer_set_threaded_swap_wait_enabled (cogl_renderer, TRUE);
+-
+   return cogl_renderer;
+ }
+ 

@@ -1,0 +1,81 @@
+diff --git a/data/org.gnome.mutter.gschema.xml.in b/data/org.gnome.mutter.gschema.xml.in
+index 6cbd9c1b50d5c63b32b14b1f699725abfaf6698b..7bea9d66ad2b944cf58ebcaa3d4987841a0e1061 100644
+--- a/data/org.gnome.mutter.gschema.xml.in
++++ b/data/org.gnome.mutter.gschema.xml.in
+@@ -120,6 +120,10 @@
+                                         framebuffers instead of window content,
+                                         to manage HiDPI monitors. Does not
+                                         require a restart.
++        • “rt-scheduler”              — makes mutter request a low priority
++                                        real-time scheduling. The executable
++                                        or user must have CAP_SYS_NICE.
++                                        Requires a restart.
+       </description>
+     </key>
+ 
+diff --git a/src/backends/meta-settings-private.h b/src/backends/meta-settings-private.h
+index 619de171067e5c9ba79cadcaa8443c840f3477c5..9f07940b7a054059ef328652aedcd1a16f9d8775 100644
+--- a/src/backends/meta-settings-private.h
++++ b/src/backends/meta-settings-private.h
+@@ -33,6 +33,7 @@ typedef enum _MetaExperimentalFeature
+   META_EXPERIMENTAL_FEATURE_NONE = 0,
+   META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER = (1 << 0),
+   META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS  = (1 << 1),
++  META_EXPERIMENTAL_FEATURE_RT_SCHEDULER = (1 << 2),
+ } MetaExperimentalFeature;
+ 
+ #define META_TYPE_SETTINGS (meta_settings_get_type ())
+diff --git a/src/backends/meta-settings.c b/src/backends/meta-settings.c
+index 34d49b3ed237cb50ad36cea09e26b59f7a53e781..bc17969da8a06de93b123e97c25d3d3e9a5b1e12 100644
+--- a/src/backends/meta-settings.c
++++ b/src/backends/meta-settings.c
+@@ -264,6 +264,8 @@ experimental_features_handler (GVariant *features_variant,
+         features |= META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER;
+       else if (g_str_equal (feature, "kms-modifiers"))
+         features |= META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
++      else if (g_str_equal (feature, "rt-scheduler"))
++        features |= META_EXPERIMENTAL_FEATURE_RT_SCHEDULER;
+       else
+         g_info ("Unknown experimental feature '%s'\n", feature);
+     }
+diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
+index c473681cb082cb29765f97e6b2d50d36eec72e3d..c913cd6d326ef4c4bcf8b7057af64517db1e9918 100644
+--- a/src/backends/native/meta-backend-native.c
++++ b/src/backends/native/meta-backend-native.c
+@@ -44,6 +44,7 @@
+ #include "backends/meta-logical-monitor.h"
+ #include "backends/meta-monitor-manager-private.h"
+ #include "backends/meta-pointer-constraint.h"
++#include "backends/meta-settings-private.h"
+ #include "backends/meta-stage-private.h"
+ #include "backends/native/meta-barrier-native.h"
+ #include "backends/native/meta-clutter-backend-native.h"
+@@ -331,6 +332,7 @@ static void
+ meta_backend_native_post_init (MetaBackend *backend)
+ {
+   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
++  MetaSettings *settings = meta_backend_get_settings (backend);
+ 
+   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
+ 
+@@ -338,6 +340,20 @@ meta_backend_native_post_init (MetaBackend *backend)
+                                                 NULL, NULL);
+   clutter_evdev_set_relative_motion_filter (manager, relative_motion_filter,
+                                             meta_backend_get_monitor_manager (backend));
++
++  if (meta_settings_is_experimental_feature_enabled (settings,
++                                                     META_EXPERIMENTAL_FEATURE_RT_SCHEDULER))
++    {
++      int retval;
++      struct sched_param sp = {
++        .sched_priority = sched_get_priority_min (SCHED_RR)
++      };
++
++      retval = sched_setscheduler (0, SCHED_RR | SCHED_RESET_ON_FORK, &sp);
++
++      if (retval != 0)
++        g_warning ("Failed to set RT scheduler: %m");
++    }
+ }
+ 
+ static MetaMonitorManager *

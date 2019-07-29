@@ -1,0 +1,530 @@
+From cded69da6137bd1fbf03cb907078ef7959290845 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 17 Jun 2019 18:18:12 +0200
+Subject: [PATCH 1/6] renderer/native: Use g_set_error() instead of
+ _cogl_set_error()
+
+It's even a GError, so lets use the proper API.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/622
+(cherry picked from commit 1efb32d3000ca06ee3cfcc146dc812866d243619)
+---
+ src/backends/native/meta-renderer-native.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index 207b654fa..e7aa6f389 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -1277,7 +1277,7 @@ meta_renderer_native_egl_context_created (CoglDisplay *cogl_display,
+                                       cogl_display_egl->dummy_surface,
+                                       cogl_display_egl->egl_context))
+     {
+-      _cogl_set_error (error, COGL_WINSYS_ERROR,
++      g_set_error (error, COGL_WINSYS_ERROR,
+                    COGL_WINSYS_ERROR_CREATE_CONTEXT,
+                    "Failed to make context current");
+       return FALSE;
+-- 
+2.21.0
+
+
+From 8307c0f7ab60760de53f764e6636893733543be8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 17 Jun 2019 18:18:42 +0200
+Subject: [PATCH 2/6] renderer/native: Make sure we're not destroying an active
+ EGLSurface
+
+When making a new surface/context pair current, mesa may want to flush
+the old context. Make sure we don't try to flush any freed memory by
+unmaking a surface/context pair current before freeing it.
+
+Not doing this results in the following valgrind warnings:
+
+==15986== Invalid read of size 8
+==15986==    at 0x69A6D80: dri_flush_front_buffer (gbm_dri.c:92)
+==15986==    by 0x1750D458: intel_flush_front (brw_context.c:251)
+==15986==    by 0x1750D4BB: intel_glFlush (brw_context.c:296)
+==15986==    by 0x1739D8DD: dri2_make_current (egl_dri2.c:1461)
+==15986==    by 0x17393A3A: eglMakeCurrent (eglapi.c:869)
+==15986==    by 0x54381FB: InternalMakeCurrentVendor (in /home/jonas/Dev/gnome/install/lib/libEGL.so.1.1.0)
+==15986==    by 0x5438515: eglMakeCurrent (in /home/jonas/Dev/gnome/install/lib/libEGL.so.1.1.0)
+==15986==    by 0x522A782: _cogl_winsys_egl_make_current (cogl-winsys-egl.c:303)
+==15986==    by 0x49B64C8: meta_renderer_native_create_view (meta-renderer-native.c:3076)
+==15986==    by 0x48D26E7: meta_renderer_create_view (meta-renderer.c:78)
+==15986==    by 0x48D277A: meta_renderer_rebuild_views (meta-renderer.c:111)
+==15986==    by 0x49BF46E: meta_stage_native_rebuild_views (meta-stage-native.c:142)
+==15986==  Address 0x1b076600 is 0 bytes inside a block of size 48 free'd
+==15986==    at 0x4839A0C: free (vg_replace_malloc.c:540)
+==15986==    by 0x49B59F3: meta_renderer_native_release_onscreen (meta-renderer-native.c:2651)
+==15986==    by 0x5211441: _cogl_onscreen_free (cogl-onscreen.c:167)
+==15986==    by 0x5210D81: _cogl_object_onscreen_indirect_free (cogl-onscreen.c:51)
+==15986==    by 0x51D0066: _cogl_object_default_unref (cogl-object.c:103)
+==15986==    by 0x520F989: _cogl_framebuffer_unref (cogl-framebuffer.c:1814)
+==15986==    by 0x51D00B1: cogl_object_unref (cogl-object.c:115)
+==15986==    by 0x536F3C7: clutter_stage_view_dispose (clutter-stage-view.c:304)
+==15986==    by 0x4B7DAF2: g_object_unref (gobject.c:3309)
+==15986==    by 0x4A9596C: g_list_foreach (glist.c:1013)
+==15986==    by 0x4A9599A: g_list_free_full (glist.c:223)
+==15986==    by 0x48D2737: meta_renderer_rebuild_views (meta-renderer.c:100)
+==15986==  Block was alloc'd at
+==15986==    at 0x483AB1A: calloc (vg_replace_malloc.c:762)
+==15986==    by 0x69A76B2: gbm_dri_surface_create (gbm_dri.c:1252)
+==15986==    by 0x69A6BFE: gbm_surface_create (gbm.c:600)
+==15986==    by 0x49B4E29: meta_renderer_native_create_surface_gbm (meta-renderer-native.c:2221)
+==15986==    by 0x49B57DB: meta_onscreen_native_allocate (meta-renderer-native.c:2569)
+==15986==    by 0x49B6423: meta_renderer_native_create_view (meta-renderer-native.c:3062)
+==15986==    by 0x48D26E7: meta_renderer_create_view (meta-renderer.c:78)
+==15986==    by 0x48D277A: meta_renderer_rebuild_views (meta-renderer.c:111)
+==15986==    by 0x49BF46E: meta_stage_native_rebuild_views (meta-stage-native.c:142)
+==15986==    by 0x49A75B5: meta_backend_native_update_screen_size (meta-backend-native.c:520)
+==15986==    by 0x48B01BB: meta_backend_sync_screen_size (meta-backend.c:224)
+==15986==    by 0x48B09B7: meta_backend_real_post_init (meta-backend.c:501)
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/622
+(cherry picked from commit 56ddaaa3809240a357b5e19b5789d1aa49aaecc3)
+---
+ src/backends/native/meta-renderer-native.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index e7aa6f389..b7bc3121a 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -3040,6 +3040,8 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
+ {
+   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+   CoglContext *cogl_context = framebuffer->context;
++  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
++  CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
+   CoglRenderer *cogl_renderer = cogl_context->display->renderer;
+   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
+   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+@@ -3052,6 +3054,17 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
+ 
+   onscreen_native = onscreen_egl->platform;
+ 
++  if (onscreen_egl->egl_surface != EGL_NO_SURFACE &&
++      (cogl_display_egl->current_draw_surface == onscreen_egl->egl_surface ||
++       cogl_display_egl->current_read_surface == onscreen_egl->egl_surface))
++    {
++      if (!_cogl_winsys_egl_make_current (cogl_display,
++                                          cogl_display_egl->dummy_surface,
++                                          cogl_display_egl->dummy_surface,
++                                          cogl_display_egl->egl_context))
++        g_warning ("Failed to clear current context");
++    }
++
+   g_list_free_full (onscreen_native->pending_page_flip_retries,
+                     (GDestroyNotify) retry_page_flip_data_free);
+   if (onscreen_native->retry_page_flips_source)
+-- 
+2.21.0
+
+
+From e0922bffea44ed201dd0adf38bf3180b4a574fe2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 17 Jun 2019 19:16:12 +0200
+Subject: [PATCH 3/6] renderer/native: Fix EGLSurface destruction order
+
+Make sure to destroy the EGL surface after releasing held buffers,
+otherwise we'll get the following valgrind warnings:
+
+==24016== Invalid read of size 8
+==24016==    at 0x1739943F: release_buffer (platform_drm.c:73)
+==24016==    by 0x49AC355: meta_drm_buffer_gbm_finalize (meta-drm-buffer-gbm.c:213)
+==24016==    by 0x4B75B61: g_object_unref (gobject.c:3346)
+==24016==    by 0x49B4B41: free_current_bo (meta-renderer-native.c:991)
+==24016==    by 0x49B816F: meta_renderer_native_release_onscreen (meta-renderer-native.c:2971)
+==24016==    by 0x5209441: _cogl_onscreen_free (cogl-onscreen.c:167)
+==24016==    by 0x5208D81: _cogl_object_onscreen_indirect_free (cogl-onscreen.c:51)
+==24016==    by 0x51C8066: _cogl_object_default_unref (cogl-object.c:103)
+==24016==    by 0x5207989: _cogl_framebuffer_unref (cogl-framebuffer.c:1814)
+==24016==    by 0x51C80B1: cogl_object_unref (cogl-object.c:115)
+==24016==    by 0x53673C7: clutter_stage_view_dispose (clutter-stage-view.c:304)
+==24016==    by 0x4B75AF2: g_object_unref (gobject.c:3309)
+==24016==  Address 0x18e742a8 is 536 bytes inside a block of size 784 free'd
+==24016==    at 0x4839A0C: free (vg_replace_malloc.c:540)
+==24016==    by 0x17399764: dri2_drm_destroy_surface (platform_drm.c:231)
+==24016==    by 0x1738550A: eglDestroySurface (eglapi.c:1145)
+==24016==    by 0x5440286: eglDestroySurface (in /home/jonas/Dev/gnome/install/lib/libEGL.so.1.1.0)
+==24016==    by 0x49613A5: meta_egl_destroy_surface (meta-egl.c:432)
+==24016==    by 0x49B80F9: meta_renderer_native_release_onscreen (meta-renderer-native.c:2954)
+==24016==    by 0x5209441: _cogl_onscreen_free (cogl-onscreen.c:167)
+==24016==    by 0x5208D81: _cogl_object_onscreen_indirect_free (cogl-onscreen.c:51)
+==24016==    by 0x51C8066: _cogl_object_default_unref (cogl-object.c:103)
+==24016==    by 0x5207989: _cogl_framebuffer_unref (cogl-framebuffer.c:1814)
+==24016==    by 0x51C80B1: cogl_object_unref (cogl-object.c:115)
+==24016==    by 0x53673C7: clutter_stage_view_dispose (clutter-stage-view.c:304)
+==24016==  Block was alloc'd at
+==24016==    at 0x483AB1A: calloc (vg_replace_malloc.c:762)
+==24016==    by 0x173997AE: dri2_drm_create_window_surface (platform_drm.c:145)
+==24016==    by 0x17388906: _eglCreateWindowSurfaceCommon (eglapi.c:929)
+==24016==    by 0x5440197: eglCreateWindowSurface (in /home/jonas/Dev/gnome/install/lib/libEGL.so.1.1.0)
+==24016==    by 0x49612FF: meta_egl_create_window_surface (meta-egl.c:396)
+==24016==    by 0x49B752E: meta_renderer_native_create_surface_gbm (meta-renderer-native.c:2538)
+==24016==    by 0x49B7E6C: meta_onscreen_native_allocate (meta-renderer-native.c:2870)
+==24016==    by 0x49B8BCF: meta_renderer_native_create_view (meta-renderer-native.c:3387)
+==24016==    by 0x48D274B: meta_renderer_create_view (meta-renderer.c:78)
+==24016==    by 0x48D27DE: meta_renderer_rebuild_views (meta-renderer.c:111)
+==24016==    by 0x49BB4FB: meta_stage_native_rebuild_views (meta-stage-native.c:142)
+==24016==    by 0x49A733C: meta_backend_native_update_screen_size (meta-backend-native.c:517)
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/622
+(cherry picked from commit d9fb11b04319c00fd89715dd9207fe54e1d18c2d)
+---
+ src/backends/native/meta-renderer-native.c | 38 +++++++++++++++-------
+ 1 file changed, 27 insertions(+), 11 deletions(-)
+
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index b7bc3121a..62c27c191 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -3035,6 +3035,28 @@ meta_onscreen_native_allocate (CoglOnscreen *onscreen,
+   return TRUE;
+ }
+ 
++static void
++destroy_egl_surface (CoglOnscreen *onscreen)
++{
++  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
++
++  if (onscreen_egl->egl_surface != EGL_NO_SURFACE)
++    {
++      MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
++      MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
++      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
++      CoglContext *cogl_context = framebuffer->context;
++      CoglRenderer *cogl_renderer = cogl_context->display->renderer;
++      CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
++
++      meta_egl_destroy_surface (egl,
++                                cogl_renderer_egl->edpy,
++                                onscreen_egl->egl_surface,
++                                NULL);
++      onscreen_egl->egl_surface = EGL_NO_SURFACE;
++    }
++}
++
+ static void
+ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
+ {
+@@ -3077,17 +3099,6 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
+                        g_source_destroy);
+     }
+ 
+-  if (onscreen_egl->egl_surface != EGL_NO_SURFACE)
+-    {
+-      MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+-
+-      meta_egl_destroy_surface (egl,
+-                                cogl_renderer_egl->edpy,
+-                                onscreen_egl->egl_surface,
+-                                NULL);
+-      onscreen_egl->egl_surface = EGL_NO_SURFACE;
+-    }
+-
+   renderer_gpu_data =
+     meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
+                                        onscreen_native->render_gpu);
+@@ -3100,6 +3111,8 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
+ 
+       free_current_bo (onscreen);
+ 
++      destroy_egl_surface (onscreen);
++
+       if (onscreen_native->gbm.surface)
+         {
+           gbm_surface_destroy (onscreen_native->gbm.surface);
+@@ -3110,6 +3123,9 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
+     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
+       release_dumb_fb (&onscreen_native->egl.dumb_fb,
+                        onscreen_native->render_gpu);
++
++      destroy_egl_surface (onscreen);
++
+       if (onscreen_native->egl.stream != EGL_NO_STREAM_KHR)
+         {
+           MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+-- 
+2.21.0
+
+
+From 5b34193361bd16ae8065174b2e0896b97f6144ea Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 19 Jun 2019 20:55:48 +0200
+Subject: [PATCH 4/6] renderer/native: Remove left-over function declarations
+
+There are no callers and no definitions of these.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/630
+(cherry picked from commit 28ea76fc7fc606680403e9f3a6cebac0c5e75a09)
+---
+ src/backends/native/meta-renderer-native.h | 12 ------------
+ 1 file changed, 12 deletions(-)
+
+diff --git a/src/backends/native/meta-renderer-native.h b/src/backends/native/meta-renderer-native.h
+index a006dcbe7..8468208e1 100644
+--- a/src/backends/native/meta-renderer-native.h
++++ b/src/backends/native/meta-renderer-native.h
+@@ -55,18 +55,6 @@ gboolean meta_renderer_native_supports_mirroring (MetaRendererNative *renderer_n
+ 
+ void meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
+ 
+-gboolean meta_renderer_native_set_legacy_view_size (MetaRendererNative *renderer_native,
+-                                                    MetaRendererView   *view,
+-                                                    int                 width,
+-                                                    int                 height,
+-                                                    GError            **error);
+-
+-void meta_renderer_native_set_ignore_crtc (MetaRendererNative *renderer_native,
+-                                           uint32_t            id,
+-                                           gboolean            ignore);
+-
+-MetaRendererView * meta_renderer_native_create_legacy_view (MetaRendererNative *renderer_native);
+-
+ void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native);
+ 
+ int64_t meta_renderer_native_get_frame_counter (MetaRendererNative *renderer_native);
+-- 
+2.21.0
+
+
+From f222ec106f080997b2bbda118847612bc9d2d957 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 19 Jun 2019 20:57:14 +0200
+Subject: [PATCH 5/6] renderer/native: Queue mode reset from new rebuild_views
+ vfunc
+
+Simplify the call site a bit and make the native renderer know it should
+queue mode reset itself when views have been rebuilt. This is done
+partly due to more things needing to be dealt with after views have been
+rebuilt.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/630
+(cherry picked from commit a95d60a97c55e629b026fc62ff321a129eba1509)
+---
+ src/backends/meta-renderer.c               |  8 ++++++++
+ src/backends/meta-renderer.h               |  1 +
+ src/backends/native/meta-renderer-native.c | 17 ++++++++++++++++-
+ src/backends/native/meta-renderer-native.h |  2 --
+ src/backends/native/meta-stage-native.c    |  1 -
+ 5 files changed, 25 insertions(+), 4 deletions(-)
+
+diff --git a/src/backends/meta-renderer.c b/src/backends/meta-renderer.c
+index 28637437b..87ba9f9f0 100644
+--- a/src/backends/meta-renderer.c
++++ b/src/backends/meta-renderer.c
+@@ -90,6 +90,12 @@ meta_renderer_create_view (MetaRenderer       *renderer,
+  */
+ void
+ meta_renderer_rebuild_views (MetaRenderer *renderer)
++{
++  return META_RENDERER_GET_CLASS (renderer)->rebuild_views (renderer);
++}
++
++static void
++meta_renderer_real_rebuild_views (MetaRenderer *renderer)
+ {
+   MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+   MetaBackend *backend = meta_get_backend ();
+@@ -181,4 +187,6 @@ meta_renderer_class_init (MetaRendererClass *klass)
+   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+ 
+   object_class->finalize = meta_renderer_finalize;
++
++  klass->rebuild_views = meta_renderer_real_rebuild_views;
+ }
+diff --git a/src/backends/meta-renderer.h b/src/backends/meta-renderer.h
+index dae52cb9a..478baee91 100644
+--- a/src/backends/meta-renderer.h
++++ b/src/backends/meta-renderer.h
+@@ -43,6 +43,7 @@ struct _MetaRendererClass
+   CoglRenderer * (* create_cogl_renderer) (MetaRenderer *renderer);
+   MetaRendererView * (* create_view) (MetaRenderer       *renderer,
+                                       MetaLogicalMonitor *logical_monitor);
++  void (* rebuild_views) (MetaRenderer *renderer);
+ };
+ 
+ CoglRenderer * meta_renderer_create_cogl_renderer (MetaRenderer *renderer);
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index 62c27c191..70e1c4f9d 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -258,6 +258,9 @@ cogl_pixel_format_from_drm_format (uint32_t               drm_format,
+                                    CoglPixelFormat       *out_format,
+                                    CoglTextureComponents *out_components);
+ 
++static void
++meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
++
+ static MetaBackend *
+ backend_from_renderer_native (MetaRendererNative *renderer_native)
+ {
+@@ -3186,7 +3189,7 @@ meta_renderer_native_supports_mirroring (MetaRendererNative *renderer_native)
+   return TRUE;
+ }
+ 
+-void
++static void
+ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
+ {
+   MetaRenderer *renderer = META_RENDERER (renderer_native);
+@@ -3552,6 +3555,17 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
+   return view;
+ }
+ 
++static void
++meta_renderer_native_rebuild_views (MetaRenderer *renderer)
++{
++  MetaRendererClass *parent_renderer_class =
++    META_RENDERER_CLASS (meta_renderer_native_parent_class);
++
++  parent_renderer_class->rebuild_views (renderer);
++
++  meta_renderer_native_queue_modes_reset (META_RENDERER_NATIVE (renderer));
++}
++
+ void
+ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
+ {
+@@ -4350,6 +4364,7 @@ meta_renderer_native_class_init (MetaRendererNativeClass *klass)
+ 
+   renderer_class->create_cogl_renderer = meta_renderer_native_create_cogl_renderer;
+   renderer_class->create_view = meta_renderer_native_create_view;
++  renderer_class->rebuild_views = meta_renderer_native_rebuild_views;
+ 
+   obj_props[PROP_MONITOR_MANAGER] =
+     g_param_spec_object ("monitor-manager",
+diff --git a/src/backends/native/meta-renderer-native.h b/src/backends/native/meta-renderer-native.h
+index 8468208e1..9eecdead1 100644
+--- a/src/backends/native/meta-renderer-native.h
++++ b/src/backends/native/meta-renderer-native.h
+@@ -53,8 +53,6 @@ struct gbm_device * meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms);
+ 
+ gboolean meta_renderer_native_supports_mirroring (MetaRendererNative *renderer_native);
+ 
+-void meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
+-
+ void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native);
+ 
+ int64_t meta_renderer_native_get_frame_counter (MetaRendererNative *renderer_native);
+diff --git a/src/backends/native/meta-stage-native.c b/src/backends/native/meta-stage-native.c
+index add3e81fd..9b9c45ef3 100644
+--- a/src/backends/native/meta-stage-native.c
++++ b/src/backends/native/meta-stage-native.c
+@@ -140,7 +140,6 @@ meta_stage_native_rebuild_views (MetaStageNative *stage_native)
+   ClutterActor *stage = meta_backend_get_stage (backend);
+ 
+   meta_renderer_rebuild_views (renderer);
+-  meta_renderer_native_queue_modes_reset (META_RENDERER_NATIVE (renderer));
+   clutter_stage_update_resource_scales (CLUTTER_STAGE (stage));
+   ensure_frame_callbacks (stage_native);
+ }
+-- 
+2.21.0
+
+
+From 542d024770fbd9116669996ace9edda2c7b52a82 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 19 Jun 2019 21:14:05 +0200
+Subject: [PATCH 6/6] renderer/native: Discard page flip retries when
+ rebuilding views
+
+Rebuilding views means we don't care to retry page flip attempts for
+previous views, especially since connectors may have been disconnected,
+making a page flip retry hit an assert a flipped CRTC has connectors
+associated with it.
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/issues/619
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/630
+(cherry picked from commit 7b60a092fba13628a1e1e94a2a871e72a5e4913a)
+---
+ src/backends/native/meta-renderer-native.c | 50 +++++++++++++++++-----
+ 1 file changed, 39 insertions(+), 11 deletions(-)
+
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index 70e1c4f9d..3cd01bcb7 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -3060,6 +3060,24 @@ destroy_egl_surface (CoglOnscreen *onscreen)
+     }
+ }
+ 
++static void
++discard_onscreen_page_flip_retries (MetaOnscreenNative *onscreen_native)
++{
++  g_list_free_full (onscreen_native->pending_page_flip_retries,
++                    (GDestroyNotify) retry_page_flip_data_free);
++  onscreen_native->pending_page_flip_retries = NULL;
++
++  if (onscreen_native->retry_page_flips_source)
++    {
++      MetaBackend *backend =
++        backend_from_renderer_native (onscreen_native->renderer_native);
++
++      meta_backend_thaw_updates (backend);
++      g_clear_pointer (&onscreen_native->retry_page_flips_source,
++                       g_source_destroy);
++    }
++}
++
+ static void
+ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
+ {
+@@ -3090,17 +3108,7 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
+         g_warning ("Failed to clear current context");
+     }
+ 
+-  g_list_free_full (onscreen_native->pending_page_flip_retries,
+-                    (GDestroyNotify) retry_page_flip_data_free);
+-  if (onscreen_native->retry_page_flips_source)
+-    {
+-      MetaBackend *backend =
+-        backend_from_renderer_native (onscreen_native->renderer_native);
+-
+-      meta_backend_thaw_updates (backend);
+-      g_clear_pointer (&onscreen_native->retry_page_flips_source,
+-                       g_source_destroy);
+-    }
++  discard_onscreen_page_flip_retries (onscreen_native);
+ 
+   renderer_gpu_data =
+     meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
+@@ -3555,12 +3563,32 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
+   return view;
+ }
+ 
++static void
++discard_page_flip_retries (MetaRenderer *renderer)
++{
++  GList *l;
++
++  for (l = meta_renderer_get_views (renderer); l; l = l->next)
++    {
++      ClutterStageView *stage_view = l->data;
++      CoglFramebuffer *framebuffer =
++        clutter_stage_view_get_onscreen (stage_view);
++      CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
++      CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
++      MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
++
++      discard_onscreen_page_flip_retries (onscreen_native);
++    }
++}
++
+ static void
+ meta_renderer_native_rebuild_views (MetaRenderer *renderer)
+ {
+   MetaRendererClass *parent_renderer_class =
+     META_RENDERER_CLASS (meta_renderer_native_parent_class);
+ 
++  discard_page_flip_retries (renderer);
++
+   parent_renderer_class->rebuild_views (renderer);
+ 
+   meta_renderer_native_queue_modes_reset (META_RENDERER_NATIVE (renderer));
+-- 
+2.21.0
+

@@ -1,0 +1,14 @@
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 1fd6663b207f53476a28e8776626417ea45393bf..9546f76c34a94a6454da9438df15a37c8a5c5618 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -10107,6 +10107,9 @@ clutter_actor_allocate (ClutterActor           *self,
+       return;
+     }
+ 
++  if (!clutter_actor_is_visible (self))
++    return;
++
+   priv = self->priv;
+ 
+   old_allocation = priv->allocation;

@@ -1,0 +1,443 @@
+diff --git a/clutter/clutter/cally/cally-actor.c b/clutter/clutter/cally/cally-actor.c
+index 548615f48ccc439e03b2f874ec24e854bebcc201..1c2137807bc63e3d5fc70381be4555c2cb27320f 100644
+--- a/clutter/clutter/cally/cally-actor.c
++++ b/clutter/clutter/cally/cally-actor.c
+@@ -1044,10 +1044,8 @@ _cally_actor_clean_action_list (CallyActor *cally_actor)
+ 
+   if (priv->action_list)
+     {
+-      g_list_foreach (priv->action_list,
+-                      (GFunc) _cally_actor_destroy_action_info,
+-                      NULL);
+-      g_list_free (priv->action_list);
++      g_list_free_full (priv->action_list,
++                        (GDestroyNotify) _cally_actor_destroy_action_info);
+       priv->action_list = NULL;
+     }
+ }
+diff --git a/clutter/clutter/clutter-actor-meta.c b/clutter/clutter/clutter-actor-meta.c
+index 4650d90a1fe8ab3dbae0e5f72762ec890fb9d8bc..d7f4fd7851c89fb9768394b3d555003c84c75020 100644
+--- a/clutter/clutter/clutter-actor-meta.c
++++ b/clutter/clutter/clutter-actor-meta.c
+@@ -577,8 +577,7 @@ _clutter_meta_group_clear_metas (ClutterMetaGroup *group)
+ {
+   g_list_foreach (group->meta, (GFunc) _clutter_actor_meta_set_actor, NULL);
+ 
+-  g_list_foreach (group->meta, (GFunc) g_object_unref, NULL);
+-  g_list_free (group->meta);
++  g_list_free_full (group->meta, g_object_unref);
+   group->meta = NULL;
+ }
+ 
+diff --git a/clutter/clutter/clutter-binding-pool.c b/clutter/clutter/clutter-binding-pool.c
+index f0ec29a72a6534cae28155ed68ae76945c481520..60144baf974048b4f7303ca790eb2d1bcbf71588 100644
+--- a/clutter/clutter/clutter-binding-pool.c
++++ b/clutter/clutter/clutter-binding-pool.c
+@@ -235,8 +235,7 @@ clutter_binding_pool_finalize (GObject *gobject)
+ 
+   g_hash_table_destroy (pool->entries_hash);
+ 
+-  g_slist_foreach (pool->entries, (GFunc) binding_entry_free, NULL);
+-  g_slist_free (pool->entries);
++  g_slist_free_full (pool->entries, (GDestroyNotify) binding_entry_free);
+ 
+   G_OBJECT_CLASS (clutter_binding_pool_parent_class)->finalize (gobject);
+ }
+diff --git a/clutter/clutter/clutter-master-clock-default.c b/clutter/clutter/clutter-master-clock-default.c
+index 0647c3a7fdb80fb4c6b276477887e5ed7ef19b1d..6779eb70b7404519b4ce4c251bd51040ea5d34e1 100644
+--- a/clutter/clutter/clutter-master-clock-default.c
++++ b/clutter/clutter/clutter-master-clock-default.c
+@@ -412,8 +412,7 @@ master_clock_advance_timelines (ClutterMasterClockDefault *master_clock)
+   for (l = timelines; l != NULL; l = l->next)
+     _clutter_timeline_do_tick (l->data, master_clock->cur_tick / 1000);
+ 
+-  g_slist_foreach (timelines, (GFunc) g_object_unref, NULL);
+-  g_slist_free (timelines);
++  g_slist_free_full (timelines, g_object_unref);
+ 
+ #ifdef CLUTTER_ENABLE_DEBUG
+   if (_clutter_diagnostic_enabled ())
+@@ -574,8 +573,7 @@ clutter_clock_dispatch (GSource     *source,
+ 
+   master_clock_reschedule_stage_updates (master_clock, stages);
+ 
+-  g_slist_foreach (stages, (GFunc) g_object_unref, NULL);
+-  g_slist_free (stages);
++  g_slist_free_full (stages, g_object_unref);
+ 
+   master_clock->prev_tick = master_clock->cur_tick;
+ 
+diff --git a/clutter/clutter/clutter-path.c b/clutter/clutter/clutter-path.c
+index 6ea433bb5c8e04b1f18aaa20401077104a187884..d80ddbeb6f096c07d2df1d6acb43d92c55ea49f1 100644
+--- a/clutter/clutter/clutter-path.c
++++ b/clutter/clutter/clutter-path.c
+@@ -295,8 +295,7 @@ clutter_path_clear (ClutterPath *path)
+ {
+   ClutterPathPrivate *priv = path->priv;
+ 
+-  g_slist_foreach (priv->nodes, (GFunc) clutter_path_node_full_free, NULL);
+-  g_slist_free (priv->nodes);
++  g_slist_free_full (priv->nodes, (GDestroyNotify) clutter_path_node_full_free);
+ 
+   priv->nodes = priv->nodes_tail = NULL;
+   priv->nodes_dirty = TRUE;
+@@ -659,8 +658,7 @@ clutter_path_parse_description (const gchar  *p,
+   return TRUE;
+ 
+  fail:
+-  g_slist_foreach (nodes, (GFunc) clutter_path_node_full_free, NULL);
+-  g_slist_free (nodes);
++  g_slist_free_full (nodes, (GDestroyNotify) clutter_path_node_full_free);
+   return FALSE;
+ }
+ 
+diff --git a/clutter/clutter/clutter-script-parser.c b/clutter/clutter/clutter-script-parser.c
+index 55e70dac9ac6638c89897db69e7ef36cca19f61f..9c6dfca32db21441d3584fdf12247e2e8855ca3a 100644
+--- a/clutter/clutter/clutter-script-parser.c
++++ b/clutter/clutter/clutter-script-parser.c
+@@ -2021,8 +2021,7 @@ add_children (ClutterScript *script,
+       clutter_container_add_actor (container, CLUTTER_ACTOR (object));
+     }
+ 
+-  g_list_foreach (oinfo->children, (GFunc) g_free, NULL);
+-  g_list_free (oinfo->children);
++  g_list_free_full (oinfo->children, g_free);
+ 
+   oinfo->children = unresolved;
+ }
+diff --git a/clutter/clutter/clutter-script.c b/clutter/clutter/clutter-script.c
+index 7a58cd0fbb6bb8582d4ded60e0b82fed1c94e653..516b515e13af185232116044963b11179284a3b1 100644
+--- a/clutter/clutter/clutter-script.c
++++ b/clutter/clutter/clutter-script.c
+@@ -346,15 +346,12 @@ object_info_free (gpointer data)
+       g_free (oinfo->class_name);
+       g_free (oinfo->type_func);
+ 
+-      g_list_foreach (oinfo->properties, (GFunc) property_info_free, NULL);
+-      g_list_free (oinfo->properties);
++      g_list_free_full (oinfo->properties, property_info_free);
+ 
+-      g_list_foreach (oinfo->signals, (GFunc) signal_info_free, NULL);
+-      g_list_free (oinfo->signals);
++      g_list_free_full (oinfo->signals, signal_info_free);
+ 
+       /* these are ids */
+-      g_list_foreach (oinfo->children, (GFunc) g_free, NULL);
+-      g_list_free (oinfo->children);
++      g_list_free_full (oinfo->children, g_free);
+ 
+       /* we unref top-level objects and leave the actors alone,
+        * unless we are unmerging in which case we have to destroy
+@@ -846,8 +843,7 @@ clutter_script_unmerge_objects (ClutterScript *script,
+   for (l = data.ids; l != NULL; l = l->next)
+     g_hash_table_remove (priv->objects, l->data);
+ 
+-  g_slist_foreach (data.ids, (GFunc) g_free, NULL);
+-  g_slist_free (data.ids);
++  g_slist_free_full (data.ids, g_free);
+ 
+   clutter_script_ensure_objects (script);
+ }
+diff --git a/clutter/clutter/clutter-stage-manager.c b/clutter/clutter/clutter-stage-manager.c
+index 7955a895fbef3646aafc5ff2379ea23d19212f82..31b3a2be189a9e0460c732ab5bef84eda1422a9d 100644
+--- a/clutter/clutter/clutter-stage-manager.c
++++ b/clutter/clutter/clutter-stage-manager.c
+@@ -89,8 +89,8 @@ clutter_stage_manager_dispose (GObject *gobject)
+ 
+   stage_manager = CLUTTER_STAGE_MANAGER (gobject);
+ 
+-  g_slist_foreach (stage_manager->stages, (GFunc) clutter_actor_destroy, NULL);
+-  g_slist_free (stage_manager->stages);
++  g_slist_free_full (stage_manager->stages,
++                     (GDestroyNotify) clutter_actor_destroy);
+   stage_manager->stages = NULL;
+ 
+   G_OBJECT_CLASS (clutter_stage_manager_parent_class)->dispose (gobject);
+diff --git a/clutter/tests/conform/actor-destroy.c b/clutter/tests/conform/actor-destroy.c
+index 03092a010812265366d0811932c74c4879f40249..4677c9537acdb3c5c3fce76dc8189506712f78c6 100644
+--- a/clutter/tests/conform/actor-destroy.c
++++ b/clutter/tests/conform/actor-destroy.c
+@@ -114,8 +114,7 @@ test_destroy_destroy (ClutterActor *self)
+       test->tex = NULL;
+     }
+ 
+-  g_list_foreach (test->children, (GFunc) clutter_actor_destroy, NULL);
+-  g_list_free (test->children);
++  g_list_free_full (test->children, (GDestroyNotify) clutter_actor_destroy);
+   test->children = NULL;
+ 
+   if (CLUTTER_ACTOR_CLASS (test_destroy_parent_class)->destroy)
+diff --git a/clutter/tests/conform/timeline.c b/clutter/tests/conform/timeline.c
+index 55822ff4040da7813a0b789fa2220e2c078f7cb8..96bd0927733545ccf6650d8604a5a24597db046f 100644
+--- a/clutter/tests/conform/timeline.c
++++ b/clutter/tests/conform/timeline.c
+@@ -38,8 +38,7 @@ timeline_data_init (TimelineData *data, int timeline_num)
+ static void
+ timeline_data_destroy (TimelineData *data)
+ {
+-  g_slist_foreach (data->markers_hit, (GFunc) g_free, NULL);
+-  g_slist_free (data->markers_hit);
++  g_slist_free_full (data->markers_hit, g_free);
+ }
+ 
+ static void
+diff --git a/cogl/cogl-pango/cogl-pango-display-list.c b/cogl/cogl-pango/cogl-pango-display-list.c
+index 6a99a4c1b1e8123712304d3c38ec6b0ad683d93c..72e3817618011283d5ca9b29ad287eab607f474d 100644
+--- a/cogl/cogl-pango/cogl-pango-display-list.c
++++ b/cogl/cogl-pango/cogl-pango-display-list.c
+@@ -483,8 +483,8 @@ _cogl_pango_display_list_node_free (CoglPangoDisplayListNode *node)
+ void
+ _cogl_pango_display_list_clear (CoglPangoDisplayList *dl)
+ {
+-  g_slist_foreach (dl->nodes, (GFunc) _cogl_pango_display_list_node_free, NULL);
+-  g_slist_free (dl->nodes);
++  g_slist_free_full (dl->nodes, (GDestroyNotify)
++                     _cogl_pango_display_list_node_free);
+   dl->nodes = NULL;
+   dl->last_node = NULL;
+ }
+diff --git a/cogl/cogl/cogl-pipeline.c b/cogl/cogl/cogl-pipeline.c
+index 6d88c44f60397098a662b3e1c4ba360004650dc2..61487e11b7295efd1e777e9e0917babf3aa995f5 100644
+--- a/cogl/cogl/cogl-pipeline.c
++++ b/cogl/cogl/cogl-pipeline.c
+@@ -456,11 +456,7 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
+     g_slice_free (CoglPipelineBigState, pipeline->big_state);
+ 
+   if (pipeline->differences & COGL_PIPELINE_STATE_LAYERS)
+-    {
+-      g_list_foreach (pipeline->layer_differences,
+-                      (GFunc)cogl_object_unref, NULL);
+-      g_list_free (pipeline->layer_differences);
+-    }
++    g_list_free_full (pipeline->layer_differences, cogl_object_unref);
+ 
+   if (pipeline->differences & COGL_PIPELINE_STATE_VERTEX_SNIPPETS)
+     _cogl_pipeline_snippet_list_free (&pipeline->big_state->vertex_snippets);
+@@ -937,12 +933,7 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
+ 
+       if (dest->differences & COGL_PIPELINE_STATE_LAYERS &&
+           dest->layer_differences)
+-        {
+-          g_list_foreach (dest->layer_differences,
+-                          (GFunc)cogl_object_unref,
+-                          NULL);
+-          g_list_free (dest->layer_differences);
+-        }
++        g_list_free_full (dest->layer_differences, cogl_object_unref);
+ 
+       for (l = src->layer_differences; l; l = l->next)
+         {
+diff --git a/cogl/cogl/cogl-renderer.c b/cogl/cogl/cogl-renderer.c
+index 7b39e439d2a0854429bbb9ebfc114419fd188f1b..035c68418b8ff668b2cce11ae93a3aa27d6dad34 100644
+--- a/cogl/cogl/cogl-renderer.c
++++ b/cogl/cogl/cogl-renderer.c
+@@ -194,10 +194,8 @@ _cogl_renderer_free (CoglRenderer *renderer)
+   if (renderer->libgl_module)
+     g_module_close (renderer->libgl_module);
+ 
+-  g_slist_foreach (renderer->event_filters,
+-                   (GFunc) native_filter_closure_free,
+-                   NULL);
+-  g_slist_free (renderer->event_filters);
++  g_slist_free_full (renderer->event_filters,
++                     (GDestroyNotify) native_filter_closure_free);
+ 
+   g_array_free (renderer->poll_fds, TRUE);
+ 
+diff --git a/cogl/cogl/deprecated/cogl-program.c b/cogl/cogl/deprecated/cogl-program.c
+index 1cd2f7a508722ad7c62a3ec08a44757b64b0f30c..56fd895ba2756ee3229d319f56e9aa6e0290b702 100644
+--- a/cogl/cogl/deprecated/cogl-program.c
++++ b/cogl/cogl/deprecated/cogl-program.c
+@@ -59,10 +59,8 @@ _cogl_program_free (CoglProgram *program)
+ 
+   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+ 
+-  /* Unref all of the attached shaders */
+-  g_slist_foreach (program->attached_shaders, (GFunc) cogl_handle_unref, NULL);
+-  /* Destroy the list */
+-  g_slist_free (program->attached_shaders);
++  /* Unref all of the attached shaders and destroy the list */
++  g_slist_free_full (program->attached_shaders, cogl_handle_unref);
+ 
+   for (i = 0; i < program->custom_uniforms->len; i++)
+     {
+diff --git a/src/core/boxes.c b/src/core/boxes.c
+index 4bb961c5e74abf3e14f6610a5ecb4c67c04dbf6c..400febea1918b30bf9d1812727e7179fb45c5538 100644
+--- a/src/core/boxes.c
++++ b/src/core/boxes.c
+@@ -851,10 +851,7 @@ meta_rectangle_expand_to_avoiding_struts (MetaRectangle       *rect,
+ void
+ meta_rectangle_free_list_and_elements (GList *filled_list)
+ {
+-  g_list_foreach (filled_list,
+-                  (void (*)(gpointer,gpointer))&g_free, /* ew, for ugly */
+-                  NULL);
+-  g_list_free (filled_list);
++  g_list_free_full (filled_list, g_free);
+ }
+ 
+ gboolean
+diff --git a/src/core/edge-resistance.c b/src/core/edge-resistance.c
+index 4f24c6de710841a6f323c79200535cfd83172b8d..65ff47408b15b50cf6eccd6f33cb721e0615595f 100644
+--- a/src/core/edge-resistance.c
++++ b/src/core/edge-resistance.c
+@@ -1157,13 +1157,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
+   g_list_free (stacked_windows);
+   /* Free the memory used by the obscuring windows/docks lists */
+   g_slist_free (window_stacking);
+-  /* FIXME: Shouldn't there be a helper function to make this one line of code
+-   * to free a list instead of four ugly ones?
+-   */
+-  g_slist_foreach (obscuring_windows,
+-                   (void (*)(gpointer,gpointer))&g_free, /* ew, for ugly */
+-                   NULL);
+-  g_slist_free (obscuring_windows);
++  g_slist_free_full (obscuring_windows, g_free);
+ 
+   /* Sort the list.  FIXME: Should I bother with this sorting?  I just
+    * sort again later in cache_edges() anyway...
+diff --git a/src/core/startup-notification.c b/src/core/startup-notification.c
+index 4cd51aca6b8c0183b87eeb57a3b2a2dd1685411e..1d4446439dee315e369959eb56114532404395a3 100644
+--- a/src/core/startup-notification.c
++++ b/src/core/startup-notification.c
+@@ -575,8 +575,7 @@ meta_startup_notification_finalize (GObject *object)
+   if (sn->startup_sequence_timeout)
+     g_source_remove (sn->startup_sequence_timeout);
+ 
+-  g_slist_foreach (sn->startup_sequences, (GFunc) g_object_unref, NULL);
+-  g_slist_free (sn->startup_sequences);
++  g_slist_free_full (sn->startup_sequences, g_object_unref);
+   sn->startup_sequences = NULL;
+ 
+   G_OBJECT_CLASS (meta_startup_notification_parent_class)->finalize (object);
+diff --git a/src/core/util.c b/src/core/util.c
+index 57b73747d132eddb921ea53a111e6a5c37387b61..5e37c45aa427b52e7e8a6ad305e34d4951f12574 100644
+--- a/src/core/util.c
++++ b/src/core/util.c
+@@ -241,20 +241,6 @@ utf8_fputs (const char *str,
+   return retval;
+ }
+ 
+-/**
+- * meta_free_gslist_and_elements: (skip)
+- * @list_to_deep_free: list to deep free
+- *
+- */
+-void
+-meta_free_gslist_and_elements (GSList *list_to_deep_free)
+-{
+-  g_slist_foreach (list_to_deep_free,
+-                   (void (*)(gpointer,gpointer))&g_free, /* ew, for ugly */
+-                   NULL);
+-  g_slist_free (list_to_deep_free);
+-}
+-
+ #ifdef WITH_VERBOSE_MODE
+ void
+ meta_debug_spew_real (const char *format, ...)
+diff --git a/src/core/window.c b/src/core/window.c
+index 8219e6b35f2b623c30c9f091ba70fd27d35b6fea..ff564250e5ec603a47f5482ca98b27fa082df370 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -1525,7 +1525,7 @@ meta_window_unmanage (MetaWindow  *window,
+ 
+   if (window->struts)
+     {
+-      meta_free_gslist_and_elements (window->struts);
++      g_slist_free_full (window->struts, g_free);
+       window->struts = NULL;
+ 
+       meta_topic (META_DEBUG_WORKAREA,
+diff --git a/src/core/workspace.c b/src/core/workspace.c
+index 5dbc863243fa6a37b81afa680a04b7625c8c6c5c..b4fd836c9a790cdf27a094a28c93a3a67f8b36be 100644
+--- a/src/core/workspace.c
++++ b/src/core/workspace.c
+@@ -52,8 +52,6 @@ void meta_workspace_queue_calc_showing   (MetaWorkspace *workspace);
+ static void focus_ancestor_or_top_window (MetaWorkspace *workspace,
+                                           MetaWindow    *not_this_one,
+                                           guint32        timestamp);
+-static void free_this                    (gpointer candidate,
+-                                          gpointer dummy);
+ 
+ G_DEFINE_TYPE (MetaWorkspace, meta_workspace, G_TYPE_OBJECT);
+ 
+@@ -265,13 +263,6 @@ meta_workspace_new (MetaWorkspaceManager *workspace_manager)
+   return workspace;
+ }
+ 
+-/* Foreach function for workspace_free_struts() */
+-static void
+-free_this (gpointer candidate, gpointer dummy)
+-{
+-  g_free (candidate);
+-}
+-
+ /**
+  * workspace_free_all_struts:
+  * @workspace: The workspace.
+@@ -284,8 +275,7 @@ workspace_free_all_struts (MetaWorkspace *workspace)
+   if (workspace->all_struts == NULL)
+     return;
+ 
+-  g_slist_foreach (workspace->all_struts, free_this, NULL);
+-  g_slist_free (workspace->all_struts);
++  g_slist_free_full (workspace->all_struts, g_free);
+   workspace->all_struts = NULL;
+ }
+ 
+@@ -301,8 +291,7 @@ workspace_free_builtin_struts (MetaWorkspace *workspace)
+   if (workspace->builtin_struts == NULL)
+     return;
+ 
+-  g_slist_foreach (workspace->builtin_struts, free_this, NULL);
+-  g_slist_free (workspace->builtin_struts);
++  g_slist_free_full (workspace->builtin_struts, g_free);
+   workspace->builtin_struts = NULL;
+ }
+ 
+diff --git a/src/meta/util.h b/src/meta/util.h
+index 497cea99b6822540fb0f7e35e9453d866980e315..6f3a987999c535d0c3935a72729b03d14c7dd39e 100644
+--- a/src/meta/util.h
++++ b/src/meta/util.h
+@@ -149,9 +149,6 @@ char* meta_external_binding_name_for_action (guint keybinding_action);
+ META_EXPORT
+ char* meta_g_utf8_strndup (const gchar *src, gsize n);
+ 
+-META_EXPORT
+-void  meta_free_gslist_and_elements (GSList *list_to_deep_free);
+-
+ META_EXPORT
+ GPid meta_show_dialog (const char *type,
+                        const char *message,
+diff --git a/src/tests/boxes-tests.c b/src/tests/boxes-tests.c
+index 4f648a344d17b259d617b7d94e1d89e2b1228ff4..7b5bb3e7acef8a41616b023902c2a7ec839aa2b7 100644
+--- a/src/tests/boxes-tests.c
++++ b/src/tests/boxes-tests.c
+@@ -221,13 +221,7 @@ test_basic_fitting (void)
+ static void
+ free_strut_list (GSList *struts)
+ {
+-  GSList *tmp = struts;
+-  while (tmp)
+-    {
+-      g_free (tmp->data);
+-      tmp = tmp->next;
+-    }
+-  g_slist_free (struts);
++  g_slist_free_full (struts, g_free);
+ }
+ 
+ static GSList*
+diff --git a/src/x11/window-x11.c b/src/x11/window-x11.c
+index 6f3675cbc650ce6501a1452a8de1f257e6bd0ced..edb378ae9ca9aa3370609796617758e674b2392b 100644
+--- a/src/x11/window-x11.c
++++ b/src/x11/window-x11.c
+@@ -1559,7 +1559,7 @@ meta_window_x11_update_struts (MetaWindow *window)
+   changed = (old_iter != NULL || new_iter != NULL);
+ 
+   /* Update appropriately */
+-  meta_free_gslist_and_elements (old_struts);
++  g_slist_free_full (old_struts, g_free);
+   window->struts = new_struts;
+   return changed;
+ }
