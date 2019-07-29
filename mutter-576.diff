@@ -200,8 +200,7 @@ diff --git a/cogl/cogl/cogl-pipeline.c b/cogl/cogl/cogl-pipeline.c
 index 6d88c44f60397098a662b3e1c4ba360004650dc2..61487e11b7295efd1e777e9e0917babf3aa995f5 100644
 --- a/cogl/cogl/cogl-pipeline.c
 +++ b/cogl/cogl/cogl-pipeline.c
-@@ -456,11 +456,7 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
-     g_slice_free (CoglPipelineBigState, pipeline->big_state);
+@@ -457,10 +457,6 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
  
    if (pipeline->differences & COGL_PIPELINE_STATE_LAYERS)
 -    {

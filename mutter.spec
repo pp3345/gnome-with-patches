@@ -14,18 +14,11 @@ Summary:       Window and compositing manager based on Clutter
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.32/%{name}-%{version}.tar.xz
+#Source0:       http://download.gnome.org/sources/%{name}/3.32/%{name}-%{version}.tar.xz
+Source0:       mutter-gnome-3-32-b7f15881.tar.gz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-
-Patch1:        0001-renderer-native-add-missing-eglTerminate-in-EGLDevic.patch
-
-# Backport EGL surface destruction order fix:
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/622
-# Backport hot plug abort fix:
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/655
-Patch2:        egl-surface-destruction-and-hotplug-abort-fix.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
