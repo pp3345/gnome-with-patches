@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.32.2
-Release:        2.2%{?dist}.pp3345
+Release:        2.3%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -210,6 +210,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Mon Jul 29 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-2.3
+- Rebase to gnome-3-32 @1c6abf37
+
 * Thu Jun 06 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-2.2
 - Add !276 "js/ui: Use captured-event::nonmotion" @297a18f2 (manually rebased)
 
