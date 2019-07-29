@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.32.2
-Release:       3.3%{?dist}.pp3345
+Release:       3.4%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -181,6 +181,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Jul 29 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-3.4
+- Rebase to gnome-3-32 @b7f15881
+- Update !575 "Honour `CLUTTER_ACTOR_NO_LAYOUT` more efficiently" @1e3acd0e (manually rebased)
+- Add !698 "Make MetaCullable implementations more thorough wrt painted areas" @53eca1c4
+
 * Thu Jul 11 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-3.3
 - Update !575 "Honour `CLUTTER_ACTOR_NO_LAYOUT` more efficiently" @aa8ba193 (manually rebased)
 
