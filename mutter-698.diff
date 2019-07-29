@@ -1,0 +1,191 @@
+diff --git a/src/compositor/meta-background-actor.c b/src/compositor/meta-background-actor.c
+index 7c0f82d1a1702149c0a8c26b22bb624117b21312..48f745b38113bc8842bf4f053c0ef381b606fbf1 100644
+--- a/src/compositor/meta-background-actor.c
++++ b/src/compositor/meta-background-actor.c
+@@ -179,6 +179,7 @@ struct _MetaBackgroundActor
+   gboolean force_bilinear;
+ 
+   cairo_region_t *clip_region;
++  cairo_region_t *unobscured_region;
+ };
+ 
+ static void cullable_iface_init (MetaCullableInterface *iface);
+@@ -195,12 +196,22 @@ set_clip_region (MetaBackgroundActor *self,
+     self->clip_region = cairo_region_copy (clip_region);
+ }
+ 
++static void
++set_unobscured_region (MetaBackgroundActor *self,
++                       cairo_region_t      *unobscured_region)
++{
++  g_clear_pointer (&self->unobscured_region, cairo_region_destroy);
++  if (unobscured_region)
++    self->unobscured_region = cairo_region_copy (unobscured_region);
++}
++
+ static void
+ meta_background_actor_dispose (GObject *object)
+ {
+   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (object);
+ 
+   set_clip_region (self, NULL);
++  set_unobscured_region (self, NULL);
+   meta_background_actor_set_background (self, NULL);
+   if (self->pipeline)
+     {
+@@ -502,7 +513,8 @@ meta_background_actor_paint (ClutterActor *actor)
+   ClutterActorBox actor_box;
+   cairo_rectangle_int_t actor_pixel_rect;
+   CoglFramebuffer *fb;
+-  int i;
++  cairo_region_t *region;
++  int i, n_rects;
+ 
+   if ((self->clip_region && cairo_region_is_empty (self->clip_region)))
+     return;
+@@ -524,27 +536,43 @@ meta_background_actor_paint (ClutterActor *actor)
+ 
+   /* Now figure out what to actually paint.
+    */
+-  if (self->clip_region != NULL)
++  if (self->clip_region)
+     {
+-      int n_rects = cairo_region_num_rectangles (self->clip_region);
+-      if (n_rects <= MAX_RECTS)
+-        {
+-           for (i = 0; i < n_rects; i++)
+-             {
+-               cairo_rectangle_int_t rect;
+-               cairo_region_get_rectangle (self->clip_region, i, &rect);
++      region = cairo_region_copy (self->clip_region);
++      cairo_region_intersect_rectangle (region, &actor_pixel_rect);
++    }
++  else
++    {
++      region = cairo_region_create_rectangle (&actor_pixel_rect);
++    }
+ 
+-               if (!gdk_rectangle_intersect (&actor_pixel_rect, &rect, &rect))
+-                 continue;
++  if (self->unobscured_region)
++    cairo_region_intersect (region, self->unobscured_region);
+ 
+-               paint_clipped_rectangle (fb, self->pipeline, &rect, &self->texture_area);
+-             }
++  if (cairo_region_is_empty (region))
++    {
++      cairo_region_destroy (region);
++      return;
++    }
+ 
+-           return;
++  n_rects = cairo_region_num_rectangles (region);
++  if (n_rects <= MAX_RECTS)
++    {
++      for (i = 0; i < n_rects; i++)
++        {
++          cairo_rectangle_int_t rect;
++          cairo_region_get_rectangle (region, i, &rect);
++          paint_clipped_rectangle (fb, self->pipeline, &rect,
++                                   &self->texture_area);
+         }
+     }
+-
+-  paint_clipped_rectangle (fb, self->pipeline, &actor_pixel_rect, &self->texture_area);
++  else
++    {
++      cairo_rectangle_int_t rect;
++      cairo_region_get_extents (region, &rect);
++      paint_clipped_rectangle (fb, self->pipeline, &rect,
++                               &self->texture_area);
++    }
+ }
+ 
+ static void
+@@ -798,6 +826,8 @@ meta_background_actor_cull_out (MetaCullable   *cullable,
+                                 cairo_region_t *clip_region)
+ {
+   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (cullable);
++
++  set_unobscured_region (self, unobscured_region);
+   set_clip_region (self, clip_region);
+ }
+ 
+@@ -805,6 +835,8 @@ static void
+ meta_background_actor_reset_culling (MetaCullable *cullable)
+ {
+   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (cullable);
++
++  set_unobscured_region (self, NULL);
+   set_clip_region (self, NULL);
+ }
+ 
+diff --git a/src/compositor/meta-shadow-factory.c b/src/compositor/meta-shadow-factory.c
+index aa83b86295937e6ffe8a61aa401096a8ea46b814..ee94e2b4cb36105637758344c22cc0d58b5d225b 100644
+--- a/src/compositor/meta-shadow-factory.c
++++ b/src/compositor/meta-shadow-factory.c
+@@ -218,6 +218,9 @@ meta_shadow_paint (MetaShadow      *shadow,
+   int n_x, n_y;
+   gboolean source_updated = FALSE;
+ 
++  if (clip && cairo_region_is_empty (clip))
++    return;
++
+   if (shadow->scale_width)
+     {
+       n_x = 3;
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index 84c282e18ff6d7f2ba5f1724de7754514f00bdaf..7bf0febb06c8f28b2ec377fca3931cbb73765768 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -647,7 +647,10 @@ clip_shadow_under_window (MetaWindowActor *self)
+   MetaWindowActorPrivate *priv =
+     meta_window_actor_get_instance_private (self);
+ 
+-  return is_non_opaque (self) && priv->window->frame;
++  if (priv->window->frame)
++    return TRUE;
++
++  return !is_non_opaque (self);
+ }
+ 
+ static void
+@@ -683,7 +686,8 @@ meta_window_actor_paint (ClutterActor *actor)
+           meta_window_actor_get_shadow_bounds (self, appears_focused, &bounds);
+           clip = cairo_region_create_rectangle (&bounds);
+ 
+-          cairo_region_subtract (clip, frame_bounds);
++          if (frame_bounds)
++            cairo_region_subtract (clip, frame_bounds);
+         }
+ 
+       meta_shadow_paint (shadow,
+@@ -1351,7 +1355,8 @@ meta_window_actor_set_clip_region_beneath (MetaWindowActor *self,
+           if (clip_shadow_under_window (self))
+             {
+               cairo_region_t *frame_bounds = meta_window_get_frame_bounds (priv->window);
+-              cairo_region_subtract (priv->shadow_clip, frame_bounds);
++              if (frame_bounds)
++                cairo_region_subtract (priv->shadow_clip, frame_bounds);
+             }
+         }
+       else
+@@ -1365,9 +1370,18 @@ meta_window_actor_cull_out (MetaCullable   *cullable,
+                             cairo_region_t *clip_region)
+ {
+   MetaWindowActor *self = META_WINDOW_ACTOR (cullable);
++  MetaWindowActorPrivate *priv =
++    meta_window_actor_get_instance_private (self);
+ 
+   meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
+   meta_window_actor_set_clip_region_beneath (self, clip_region);
++
++  if (unobscured_region && !is_non_opaque (self) && priv->window->frame)
++    {
++      cairo_region_t *frame_bounds = meta_window_get_frame_bounds (priv->window);
++      if (frame_bounds)
++        cairo_region_subtract (unobscured_region, frame_bounds);
++    }
+ }
+ 
+ static void
