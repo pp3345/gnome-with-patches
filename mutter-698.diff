@@ -135,9 +135,25 @@ index aa83b86295937e6ffe8a61aa401096a8ea46b814..ee94e2b4cb36105637758344c22cc0d5
      {
        n_x = 3;
 diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
-index 84c282e18ff6d7f2ba5f1724de7754514f00bdaf..7bf0febb06c8f28b2ec377fca3931cbb73765768 100644
+index 84c282e18ff6d7f2ba5f1724de7754514f00bdaf..d518fec7c3359ddc3c6488ebbcac048bf59e499b 100644
 --- a/src/compositor/meta-window-actor.c
 +++ b/src/compositor/meta-window-actor.c
+@@ -288,13 +288,13 @@ is_argb32 (MetaWindowActor *self)
+ }
+ 
+ static gboolean
+-is_non_opaque (MetaWindowActor *self)
++is_opaque (MetaWindowActor *self)
+ {
+   MetaWindowActorPrivate *priv =
+     meta_window_actor_get_instance_private (self);
+   MetaWindow *window = priv->window;
+ 
+-  return is_argb32 (self) || (window->opacity != 0xFF);
++  return !is_argb32 (self) && (window->opacity == 0xFF);
+ }
+ 
+ static gboolean
 @@ -647,7 +647,10 @@ clip_shadow_under_window (MetaWindowActor *self)
    MetaWindowActorPrivate *priv =
      meta_window_actor_get_instance_private (self);
@@ -146,7 +162,7 @@ index 84c282e18ff6d7f2ba5f1724de7754514f00bdaf..7bf0febb06c8f28b2ec377fca3931cbb
 +  if (priv->window->frame)
 +    return TRUE;
 +
-+  return !is_non_opaque (self);
++  return is_opaque (self);
  }
  
  static void
@@ -160,6 +176,15 @@ index 84c282e18ff6d7f2ba5f1724de7754514f00bdaf..7bf0febb06c8f28b2ec377fca3931cbb
          }
  
        meta_shadow_paint (shadow,
+@@ -787,7 +791,7 @@ meta_window_actor_has_shadow (MetaWindowActor *self)
+    * Do not add shadows to non-opaque (ARGB32) windows, as we can't easily
+    * generate shadows for them.
+    */
+-  if (is_non_opaque (self))
++  if (!is_opaque (self))
+     return FALSE;
+ 
+   /*
 @@ -1351,7 +1355,8 @@ meta_window_actor_set_clip_region_beneath (MetaWindowActor *self,
            if (clip_shadow_under_window (self))
              {
@@ -170,7 +195,7 @@ index 84c282e18ff6d7f2ba5f1724de7754514f00bdaf..7bf0febb06c8f28b2ec377fca3931cbb
              }
          }
        else
-@@ -1365,9 +1370,18 @@ meta_window_actor_cull_out (MetaCullable   *cullable,
+@@ -1365,9 +1370,27 @@ meta_window_actor_cull_out (MetaCullable   *cullable,
                              cairo_region_t *clip_region)
  {
    MetaWindowActor *self = META_WINDOW_ACTOR (cullable);
@@ -180,11 +205,20 @@ index 84c282e18ff6d7f2ba5f1724de7754514f00bdaf..7bf0febb06c8f28b2ec377fca3931cbb
    meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
    meta_window_actor_set_clip_region_beneath (self, clip_region);
 +
-+  if (unobscured_region && !is_non_opaque (self) && priv->window->frame)
++  if (unobscured_region && is_opaque (self))
 +    {
-+      cairo_region_t *frame_bounds = meta_window_get_frame_bounds (priv->window);
-+      if (frame_bounds)
-+        cairo_region_subtract (unobscured_region, frame_bounds);
++      cairo_region_t *region = meta_window_get_frame_bounds (priv->window);
++
++      if (region)
++        {
++          cairo_region_subtract (unobscured_region, region);
++        }
++      else
++        {
++          cairo_rectangle_int_t rect;
++          meta_window_get_frame_rect (priv->window, &rect);
++          cairo_region_subtract_rectangle (unobscured_region, &rect);
++        }
 +    }
  }
  
