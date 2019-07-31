@@ -1,0 +1,12 @@
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index d518fec7c3359ddc3c6488ebbcac048bf59e499b..b7261c96fac24c0404459047d199fabbed26e90a 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -1388,6 +1388,7 @@ meta_window_actor_cull_out (MetaCullable   *cullable,
+         {
+           cairo_rectangle_int_t rect;
+           meta_window_get_frame_rect (priv->window, &rect);
++          rect.x = rect.y = 0;
+           cairo_region_subtract_rectangle (unobscured_region, &rect);
+         }
+     }
