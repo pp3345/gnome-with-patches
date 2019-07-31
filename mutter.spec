@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.32.2
-Release:       3.5%{?dist}.pp3345
+Release:       3.6%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -183,6 +183,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Jul 31 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-3.6
+- Add !693 "clutter: Force an allocation on clone source if necessary" @08a3cbfc
+
 * Wed Jul 31 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-3.5
 - Add !707 "window-actor: Fix rectangle coordinates in culling" @aae9f3a3
 - Update !698 "Make MetaCullable implementations more thorough wrt painted areas" @f501fdcc
