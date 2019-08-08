@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.32.2
-Release:       3.7%{?dist}.pp3345
+Release:       3.8%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -185,6 +185,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Aug 08 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-3.8
+- Add !119 "renderer-native: Reference count front buffers" @fecc57dd
+
 * Thu Aug 08 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-3.7
 - Add !719 "Stop using pending_swaps" @d2989eb8 (manually rebased)
 
