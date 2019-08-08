@@ -1,0 +1,80 @@
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index 8f97a5fa6f41cb1a870a5d3c32e27bcd3523f248..d6176865b24b37000f79a81556b739ab26d741e3 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -95,22 +95,7 @@ _clutter_stage_cogl_presented (ClutterStageCogl *stage_cogl,
+                                CoglFrameEvent    frame_event,
+                                ClutterFrameInfo *frame_info)
+ {
+-
+-  if (frame_event == COGL_FRAME_EVENT_SYNC)
+-    {
+-      /* Early versions of the swap_event implementation in Mesa
+-       * deliver BufferSwapComplete event when not selected for,
+-       * so if we get a swap event we aren't expecting, just ignore it.
+-       *
+-       * https://bugs.freedesktop.org/show_bug.cgi?id=27962
+-       *
+-       * FIXME: This issue can be hidden inside Cogl so we shouldn't
+-       * need to care about this bug here.
+-       */
+-      if (stage_cogl->pending_swaps > 0)
+-        stage_cogl->pending_swaps--;
+-    }
+-  else if (frame_event == COGL_FRAME_EVENT_COMPLETE)
++  if (frame_event == COGL_FRAME_EVENT_COMPLETE)
+     {
+       gint64 presentation_time_cogl = frame_info->presentation_time;
+ 
+@@ -243,9 +228,6 @@ clutter_stage_cogl_get_update_time (ClutterStageWindow *stage_window)
+ {
+   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+ 
+-  if (stage_cogl->pending_swaps)
+-    return -1; /* in the future, indefinite */
+-
+   return stage_cogl->update_time;
+ }
+ 
+@@ -970,6 +952,5 @@ static void
+ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
+ {
+   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+-  gboolean swap_event = FALSE;
+   GList *l;
+ 
+@@ -979,21 +960,11 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
+     {
+       ClutterStageView *view = l->data;
+ 
+-      swap_event =
+-        clutter_stage_cogl_redraw_view (stage_window, view) || swap_event;
++      clutter_stage_cogl_redraw_view (stage_window, view);
+     }
+ 
+   _clutter_stage_window_finish_frame (stage_window);
+ 
+-  if (swap_event)
+-    {
+-      /* If we have swap buffer events then cogl_onscreen_swap_buffers
+-       * will return immediately and we need to track that there is a
+-       * swap in progress... */
+-      if (clutter_feature_available (CLUTTER_FEATURE_SWAP_EVENTS))
+-        stage_cogl->pending_swaps++;
+-    }
+-
+   /* reset the redraw clipping for the next paint... */
+   stage_cogl->initialized_redraw_clip = FALSE;
+ 
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.h b/clutter/clutter/cogl/clutter-stage-cogl.h
+index a69c424eb02f6f88aa2c114c24d326dbc4d1a963..53d0267de67bc9a2d6ae8d262aa19304979a3edb 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.h
++++ b/clutter/clutter/cogl/clutter-stage-cogl.h
+@@ -49,7 +49,6 @@ struct _ClutterStageCogl
+   ClutterBackend *backend;
+ 
+   float refresh_rate;
+-  int pending_swaps;
+ 
+   gint64 last_presentation_time;
+   gint64 update_time;
