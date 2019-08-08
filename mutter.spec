@@ -112,6 +112,7 @@ Patch16: mutter-698.diff
 Patch17: mutter-707.diff
 Patch18: mutter-693.diff
 Patch19: mutter-719.diff
+Patch20: mutter-119.diff
 ### end downstream changes
 
 %description
