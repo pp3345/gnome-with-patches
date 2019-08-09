@@ -182,7 +182,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_userunitdir}/gnome-shell-disable-extensions.service
 %{_userunitdir}/gnome-shell-wayland.service
 %{_userunitdir}/gnome-shell-wayland.target
-%{_userunitdir}/ gnome-shell-x11.service
+%{_userunitdir}/gnome-shell-x11.service
 %{_userunitdir}/gnome-shell-x11.target
 %{_sysconfdir}/xdg/autostart/gnome-shell-overrides-migration.desktop
 # Co own directory instead of pulling in xdg-desktop-portal - we
