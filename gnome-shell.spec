@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.33.4
-Release:        2%{?dist}
+Version:        3.33.90
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -22,9 +22,9 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 %define gnome_desktop_version 3.33.4
 %define glib2_version 2.56.0
 %define gobject_introspection_version 1.49.1
-%define gjs_version 1.54.0
+%define gjs_version 1.57.3
 %define gtk3_version 3.15.0
-%define mutter_version 3.33.4
+%define mutter_version 3.33.90
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.33.1
 %define ibus_version 1.5.2
@@ -179,8 +179,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Screenshot.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider2.xml
-%{_userunitdir}/gnome-shell.service
+%{_userunitdir}/gnome-shell-disable-extensions.service
+%{_userunitdir}/gnome-shell-wayland.service
 %{_userunitdir}/gnome-shell-wayland.target
+%{_userunitdir}/ gnome-shell-x11.service
 %{_userunitdir}/gnome-shell-x11.target
 %{_sysconfdir}/xdg/autostart/gnome-shell-overrides-migration.desktop
 # Co own directory instead of pulling in xdg-desktop-portal - we
@@ -201,6 +203,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Sat Aug 10 2019 Florian Müllner <fmuellner@redhat.com> - 3.33.90-1
+- Update to 3.33.90
+
 * Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 3.33.4-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 

@@ -1,4 +1,4 @@
-From 552fcb1cb7b6d41a54dbd01375bb289934581192 Mon Sep 17 00:00:00 2001
+From 6263d5e115a726dcd75a5368afdd2798236fb1de Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 15 Aug 2018 15:03:56 +0200
 Subject: [PATCH 2/2] endSessionDialog: Support rebooting into the bootloader
@@ -17,14 +17,14 @@ js/ui/status/system.js first, but that puts the button in a St.Bin()
 which causes the button to think it is the only button on the dialog
 and makes it have rounded corners on both of its bottom corners.
 ---
- js/ui/endSessionDialog.js | 50 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+ js/ui/endSessionDialog.js | 51 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 51 insertions(+)
 
 diff --git a/js/ui/endSessionDialog.js b/js/ui/endSessionDialog.js
-index faeefe276..43aa3d632 100644
+index 301d8c9bf..0dc717241 100644
 --- a/js/ui/endSessionDialog.js
 +++ b/js/ui/endSessionDialog.js
-@@ -255,6 +255,9 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -256,6 +256,9 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
          this._totalSecondsToStayOpen = 0;
          this._applications = [];
          this._sessions = [];
@@ -34,7 +34,7 @@ index faeefe276..43aa3d632 100644
  
          this.connect('destroy',
                       this._onDestroy.bind(this));
-@@ -438,6 +441,26 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -439,6 +442,26 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
          this._sessionHeader.visible = hasSessions;
      }
  
@@ -61,23 +61,24 @@ index faeefe276..43aa3d632 100644
      _updateButtons() {
          this.clearButtons();
  
-@@ -458,7 +481,32 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
-                                });
-                             },
-                             label: label });
+@@ -460,7 +483,33 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+                 },
+                 label
+             });
 +
 +            // Add Alt "Boot Options" option to the Reboot button
 +            if (signal == 'ConfirmedReboot') {
 +                this._rebootButton = button;
-+                this._rebootButtonAlt = this.addButton(
-+                               { action: () => {
-+                                 this.close(true);
-+                                   let signalId = this.connect('closed', () => {
-+                                   this.disconnect(signalId);
-+                                   this._confirm('ConfirmedRebootToBootOptions');
-+                                 });
-+                               },
-+                               label: C_("button", "Boot Options") });
++                this._rebootButtonAlt = this.addButton({
++                    action: () => {
++                        this.close(true);
++                        let signalId = this.connect('closed', () => {
++                            this.disconnect(signalId);
++                            this._confirm('ConfirmedRebootToBootOptions');
++                        });
++                    },
++                    label: C_("button", "Boot Options")
++                });
 +                this._rebootButtonAlt.visible = false;
 +                this._capturedEventId = global.stage.connect('captured-event', this._onCapturedEvent.bind(this));
 +            }
@@ -94,7 +95,7 @@ index faeefe276..43aa3d632 100644
      }
  
      close(skipSignal) {
-@@ -470,6 +518,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -472,6 +521,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
  
      cancel() {
          this._stopTimer();
@@ -102,7 +103,7 @@ index faeefe276..43aa3d632 100644
          this._dbusImpl.emit_signal('Canceled', null);
          this.close();
      }
-@@ -478,6 +527,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -480,6 +530,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
          let callback = () => {
              this._fadeOutDialog();
              this._stopTimer();
