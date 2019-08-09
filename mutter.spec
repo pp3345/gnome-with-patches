@@ -4,7 +4,7 @@
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
 %global pipewire_version 0.2.2
-%global mutter_api_version 4
+%global mutter_api_version 5
 
 Name:          mutter
 Version:       3.33.90
