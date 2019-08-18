@@ -1,0 +1,191 @@
+diff --git a/clutter/clutter/clutter-master-clock-default.c b/clutter/clutter/clutter-master-clock-default.c
+index 3197a32e3e4d1606847933c6229c88f2c414bee0..b4c89d6c07d1b3a22dc51c43729e279a1c002a41 100644
+--- a/clutter/clutter/clutter-master-clock-default.c
++++ b/clutter/clutter/clutter-master-clock-default.c
+@@ -188,6 +188,26 @@ master_clock_get_swap_wait_time (ClutterMasterClockDefault *master_clock)
+     }
+ }
+ 
++static int64_t
++master_clock_get_next_presentation_time (ClutterMasterClockDefault *master_clock)
++{
++  ClutterStageManager *stage_manager = clutter_stage_manager_get_default ();
++  const GSList *stages, *l;
++  int64_t earliest = -1;
++
++  stages = clutter_stage_manager_peek_stages (stage_manager);
++
++  for (l = stages; l != NULL; l = l->next)
++    {
++      gint64 t = _clutter_stage_get_next_presentation_time (l->data);
++
++      if (earliest == -1 || (t != -1 && t < earliest))
++        earliest = t;
++    }
++
++  return earliest;
++}
++
+ static void
+ master_clock_schedule_stage_updates (ClutterMasterClockDefault *master_clock)
+ {
+@@ -462,7 +482,11 @@ clutter_clock_dispatch (GSource     *source,
+   _clutter_threads_acquire_lock ();
+ 
+   /* Get the time to use for this frame */
+-  master_clock->cur_tick = g_source_get_time (source);
++  master_clock->cur_tick = master_clock_get_next_presentation_time (master_clock);
++
++  /* On the first frame the backend might not have an answer */
++  if (master_clock->cur_tick <= 0)
++    master_clock->cur_tick = g_source_get_time (source);
+ 
+ #ifdef CLUTTER_ENABLE_DEBUG
+   master_clock->remaining_budget = master_clock->frame_budget;
+diff --git a/clutter/clutter/clutter-stage-private.h b/clutter/clutter/clutter-stage-private.h
+index b4255a47538d43e3e2fb4990a37038a4a37e760b..b094ceef89869e408e94248fdec7614c04038579 100644
+--- a/clutter/clutter/clutter-stage-private.h
++++ b/clutter/clutter/clutter-stage-private.h
+@@ -78,3 +78,5 @@ gint64    _clutter_stage_get_update_time                  (ClutterStage *stage);
++int64_t  _clutter_stage_get_next_presentation_time        (ClutterStage *stage);
++
+ ClutterActor *_clutter_stage_do_pick (ClutterStage    *stage,
+                                       gint             x,
+                                       gint             y,
+diff --git a/clutter/clutter/clutter-stage-window.c b/clutter/clutter/clutter-stage-window.c
+index 76421d6a0ceca3b40ee45b0acde55eba7cfab99b..51c66a3e19688e8ba14e2f463f655ed65d52e3fd 100644
+--- a/clutter/clutter/clutter-stage-window.c
++++ b/clutter/clutter/clutter-stage-window.c
+@@ -178,6 +178,22 @@ _clutter_stage_window_clear_update_time (ClutterStageWindow *window)
+   iface->clear_update_time (window);
+ }
+ 
++int64_t
++_clutter_stage_window_get_next_presentation_time (ClutterStageWindow *window)
++{
++  ClutterStageWindowInterface *iface;
++
++  g_return_val_if_fail (CLUTTER_IS_STAGE_WINDOW (window), 0);
++
++  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
++
++  /* If not implemented then just revert to the old behaviour... */
++  if (iface->get_next_presentation_time == NULL)
++    return _clutter_stage_window_get_update_time (window);
++
++  return iface->get_next_presentation_time (window);
++}
++
+ void
+ _clutter_stage_window_add_redraw_clip (ClutterStageWindow    *window,
+                                        cairo_rectangle_int_t *stage_clip)
+diff --git a/clutter/clutter/clutter-stage-window.h b/clutter/clutter/clutter-stage-window.h
+index 389ed0596a650b5f2ab9ce39aecbe376b6b00a35..a814cbf74442a59881124d9eeccf133071252e63 100644
+--- a/clutter/clutter/clutter-stage-window.h
++++ b/clutter/clutter/clutter-stage-window.h
+@@ -73,6 +73,8 @@ struct _ClutterStageWindowInterface
+   GList            *(* get_views)               (ClutterStageWindow *stage_window);
+   int64_t           (* get_frame_counter)       (ClutterStageWindow *stage_window);
+   void              (* finish_frame)            (ClutterStageWindow *stage_window);
++
++  int64_t           (* get_next_presentation_time) (ClutterStageWindow *stage_window);
+ };
+ 
+ ClutterActor *    _clutter_stage_window_get_wrapper        (ClutterStageWindow *window);
+@@ -123,6 +125,8 @@ void              _clutter_stage_window_finish_frame            (ClutterStageWin
+ 
+ int64_t           _clutter_stage_window_get_frame_counter       (ClutterStageWindow *window);
+ 
++int64_t           _clutter_stage_window_get_next_presentation_time (ClutterStageWindow *window);
++
+ G_END_DECLS
+ 
+ #endif /* __CLUTTER_STAGE_WINDOW_H__ */
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index 3a4e56f5ac2daf2f1eea902bc7e55c11a5cb4874..55aa16ffe162e6b7a97363e1bacf47c031a3bfeb 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -3845,6 +3845,21 @@ _clutter_stage_clear_update_time (ClutterStage *stage)
+     _clutter_stage_window_clear_update_time (stage_window);
+ }
+ 
++int64_t
++_clutter_stage_get_next_presentation_time (ClutterStage *stage)
++{
++  ClutterStageWindow *stage_window;
++
++  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
++    return 0;
++
++  stage_window = _clutter_stage_get_window (stage);
++  if (stage_window == NULL)
++    return 0;
++
++  return _clutter_stage_window_get_next_presentation_time (stage_window);
++}
++
+ /**
+  * clutter_stage_set_no_clear_hint:
+  * @stage: a #ClutterStage
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index 8f97a5fa6f41cb1a870a5d3c32e27bcd3523f248..99e2bb9c7d62e44c987df1a1ee54f7ad6e600ac4 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -235,7 +235,12 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
+   stage_cogl->update_time = next_presentation_time - max_render_time_allowed;
+ 
+   if (stage_cogl->update_time == stage_cogl->last_update_time)
+-    stage_cogl->update_time = stage_cogl->last_update_time + refresh_interval;
++    {
++      stage_cogl->update_time += refresh_interval;
++      next_presentation_time += refresh_interval;
++    }
++
++  stage_cogl->next_presentation_time = next_presentation_time;
+ }
+ 
+ static gint64
+@@ -256,6 +261,15 @@ clutter_stage_cogl_clear_update_time (ClutterStageWindow *stage_window)
+ 
+   stage_cogl->last_update_time = stage_cogl->update_time;
+   stage_cogl->update_time = -1;
++  stage_cogl->next_presentation_time = -1;
++}
++
++static int64_t
++clutter_stage_cogl_get_next_presentation_time (ClutterStageWindow *stage_window)
++{
++  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
++
++  return stage_cogl->next_presentation_time;
+ }
+ 
+ static ClutterActor *
+@@ -1065,6 +1079,7 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
+   iface->schedule_update = clutter_stage_cogl_schedule_update;
+   iface->get_update_time = clutter_stage_cogl_get_update_time;
+   iface->clear_update_time = clutter_stage_cogl_clear_update_time;
++  iface->get_next_presentation_time = clutter_stage_cogl_get_next_presentation_time;
+   iface->add_redraw_clip = clutter_stage_cogl_add_redraw_clip;
+   iface->has_redraw_clips = clutter_stage_cogl_has_redraw_clips;
+   iface->ignoring_redraw_clips = clutter_stage_cogl_ignoring_redraw_clips;
+@@ -1115,6 +1130,7 @@ _clutter_stage_cogl_init (ClutterStageCogl *stage)
+   stage->refresh_rate = 0.0;
+ 
+   stage->update_time = -1;
++  stage->next_presentation_time = -1;
+ }
+ 
+ static void
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.h b/clutter/clutter/cogl/clutter-stage-cogl.h
+index a69c424eb02f6f88aa2c114c24d326dbc4d1a963..9dd0f60673198e870dbf695952963052bc4490d3 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.h
++++ b/clutter/clutter/cogl/clutter-stage-cogl.h
+@@ -54,6 +54,7 @@ struct _ClutterStageCogl
+   gint64 last_presentation_time;
+   gint64 update_time;
+   int64_t last_update_time;
++  int64_t next_presentation_time;
+ 
+   /* We only enable clipped redraws after 2 frames, since we've seen
+    * a lot of drivers can struggle to get going and may output some
