@@ -105,14 +105,15 @@ Patch9: mutter-520.diff
 Patch10: mutter-568.diff
 Patch11: mutter-576.diff
 Patch12: mutter-600.diff
-Patch13: mutter-602.diff
-Patch14: mutter-575.diff
-Patch15: mutter-677.diff
-Patch16: mutter-698.diff
-Patch17: mutter-707.diff
-Patch18: mutter-693.diff
-Patch19: mutter-719.diff
-Patch20: mutter-119.diff
+Patch13: mutter-363.diff
+Patch14: mutter-602.diff
+Patch15: mutter-575.diff
+Patch16: mutter-677.diff
+Patch17: mutter-698.diff
+Patch18: mutter-707.diff
+Patch19: mutter-693.diff
+Patch20: mutter-719.diff
+Patch21: mutter-119.diff
 ### end downstream changes
 
 %description
