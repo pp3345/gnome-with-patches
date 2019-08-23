@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.33.90
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -16,6 +16,9 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
+# Revert fffe7bdf9c to avoid
+# https://bugzilla.redhat.com/show_bug.cgi?id=1740897
+Patch4: 0001-Revert-js-Ease-non-animatable-actor-properties.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
@@ -203,6 +206,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Fri Aug 23 2019 Adam Williamson <awilliam@redhat.com> - 3.33.90-2
+- Revert commit that causes #1740897 (overview type-to-search bug)
+  Resolves: #1740897
+
 * Sat Aug 10 2019 Florian Müllner <fmuellner@redhat.com> - 3.33.90-1
 - Update to 3.33.90
 
