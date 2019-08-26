@@ -1,13 +1,13 @@
 Name:           gnome-shell
-Version:        3.33.90
-Release:        2%{?dist}
+Version:        3.33.91
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.32/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.33/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -27,13 +27,15 @@ Patch4: 0001-Revert-js-Ease-non-animatable-actor-properties.patch
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.57.3
 %define gtk3_version 3.15.0
-%define mutter_version 3.33.90
+%define mutter_version 3.33.91
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.33.1
 %define ibus_version 1.5.2
 %define gnome_bluetooth_version 1:3.9.0
 %define gstreamer_version 1.4.5
 
+BuildRequires:  asciidoc
+BuildRequires:  bash-completion
 BuildRequires:  gcc
 BuildRequires:  meson
 BuildRequires:  git
@@ -44,6 +46,7 @@ BuildRequires:  evolution-data-server-devel >= %{eds_version}
 BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel >= %{glib2_version}
+BuildRequires:  gnome-autoar-devel
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  mesa-libGL-devel
 BuildRequires:  NetworkManager-libnm-devel
@@ -161,6 +164,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %license COPYING
 %doc README.md
 %caps(cap_sys_nice+ep) %{_bindir}/gnome-shell
+%{_bindir}/gnome-extensions
 %{_bindir}/gnome-shell-extension-tool
 %{_bindir}/gnome-shell-perf-tool
 %{_bindir}/gnome-shell-extension-prefs
@@ -170,6 +174,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/applications/gnome-shell-extension-prefs.desktop
 %{_datadir}/applications/evolution-calendar.desktop
 %{_datadir}/applications/org.gnome.Shell.PortalHelper.desktop
+%{_datadir}/bash-completion/completions/gnome-extensions
 %{_datadir}/gnome-control-center/keybindings/50-gnome-shell-system.xml
 %{_datadir}/gnome-shell/
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
@@ -203,9 +208,13 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %dir %{_datadir}/GConf
 %dir %{_datadir}/GConf/gsettings
 %{_datadir}/GConf/gsettings/gnome-shell-overrides.convert
-%{_mandir}/man1/%{name}.1.gz
+%{_mandir}/man1/gnome-extensions.1*
+%{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Aug 26 2019 Kalev Lember <klember@redhat.com> - 3.33.91-1
+- Update to 3.33.91
+
 * Fri Aug 23 2019 Adam Williamson <awilliam@redhat.com> - 3.33.90-2
 - Revert commit that causes #1740897 (overview type-to-search bug)
   Resolves: #1740897
