@@ -72,7 +72,6 @@ BuildRequires:  pulseaudio-libs-devel
 %ifnarch s390 s390x ppc ppc64 ppc64p7
 BuildRequires:  gnome-bluetooth-libs-devel >= %{gnome_bluetooth_version}
 %endif
-BuildRequires:  control-center
 # Bootstrap requirements
 BuildRequires: gtk-doc
 %ifnarch s390 s390x
