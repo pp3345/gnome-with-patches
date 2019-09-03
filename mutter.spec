@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.32.2
-Release:       3.9%{?dist}.pp3345
+Release:       3.10%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -186,6 +186,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Sep 03 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-3.10
+- Revert !719 "Stop using pending_swaps" (regression)
+
 * Sun Aug 18 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-3.9
 - Add !363 "Consolidate all frame throttling into clutter-stage-cogl" @1dbf25af
 - Update !602 "cogl: Remove GLX "threaded swap wait" used on Nvidia" @df38ad3c (manually rebased)
