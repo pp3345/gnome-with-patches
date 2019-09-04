@@ -7,8 +7,8 @@
 %global mutter_api_version 5
 
 Name:          mutter
-Version:       3.33.91
-Release:       2%{?dist}
+Version:       3.33.92
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,9 +18,6 @@ Source0:       http://download.gnome.org/sources/%{name}/3.32/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-
-# Fix crash dealing with powersaving
-Patch1:        97140ab6346bd29208e99c9c9aab892c2eec0e52.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -165,6 +162,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Sep 04 2019 Florian Müllner <fmuellner@redhat.com> - 3.33.92-1
+- Update to 3.33.92
+
 * Tue Sep 03 2019 Ray Strode <rstrode@redhat.com> - 3.33.91-2
 - Fix crash dealing with powersaving
   Resolves: #1747845
