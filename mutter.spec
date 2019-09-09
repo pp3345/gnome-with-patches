@@ -7,14 +7,14 @@
 %global mutter_api_version 5
 
 Name:          mutter
-Version:       3.33.92
+Version:       3.34.0
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.32/%{name}-%{version}.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.34/%{name}-%{version}.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
@@ -162,6 +162,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Sep 09 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.0-1
+- Update to 3.34.0
+
 * Wed Sep 04 2019 Florian Müllner <fmuellner@redhat.com> - 3.33.92-1
 - Update to 3.33.92
 
