@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.5
-Release:   6%{?gitdate:.%{gitdate}}%{?dist}
+Release:   7%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -119,6 +119,23 @@ Patch30: 0001-Revert-present-scmd-Check-that-the-flip-and-screen-p.patch
 # Build failure with recent glibc
 # https://gitlab.freedesktop.org/xorg/xserver/issues/840
 Patch31: 0001-compiler.h-Do-not-include-sys-io.h-on-ARM-with-glibc.patch
+
+Patch32: 0001-Xi-Use-current-device-active-grab-to-deliver-touch-e.patch
+Patch33: 0002-dri2-Sync-i965_pci_ids.h-from-mesa.patch
+Patch34: 0003-xwayland-Update-screen-pixmap-on-output-resize.patch
+Patch35: 0004-xwayland-Expand-the-RANDR-screen-size-limits.patch
+# https://bugzilla.redhat.com/1729925
+Patch36: 0005-xwayland-Do-not-free-a-NULL-GBM-bo.patch
+Patch37: 0006-xsync-Add-resource-inside-of-SyncCreate-export-SyncC.patch
+Patch38: 0007-GLX-Add-a-per-client-vendor-mapping.patch
+Patch39: 0008-GLX-Use-the-sending-client-for-looking-up-XID-s.patch
+Patch40: 0009-GLX-Add-a-function-to-change-a-clients-vendor-list.patch
+Patch41: 0010-GLX-Set-GlxServerExports-major-minor-Version.patch
+Patch42: 0011-miext-sync-Fix-needless-ABI-change.patch
+Patch43: 0012-glx-Fix-previous-context-validation-in-xorgGlxMakeCu.patch
+Patch44: 0013-xwayland-Separate-DamagePtr-into-separate-window-dat.patch
+Patch45: 0014-xwayland-Refactor-surface-creation-into-a-separate-f.patch
+Patch46: 0015-xwayland-Handle-the-case-of-windows-being-realized-b.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -544,6 +561,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Aug 29 2019 Olivier Fourdan <ofourdan@redhat.com> 1.20.5-7
+- Pick latest fixes from xserver stable branch upstream (rhbz#1729925)
+
 * Sat Jul 27 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.20.5-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 

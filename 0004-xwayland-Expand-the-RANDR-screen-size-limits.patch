@@ -1,0 +1,36 @@
+From df7ee10d9812897b297c67fde29f0b134ffba3ec Mon Sep 17 00:00:00 2001
+From: Adam Jackson <ajax@redhat.com>
+Date: Mon, 15 Jul 2019 11:38:44 -0400
+Subject: [PATCH xserver 04/15] xwayland: Expand the RANDR screen size limits
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+There's not really a good way to query this from the wayland server, so
+just set the maximum to the X11 protocol limits. While we're at it,
+lower the minimum screen size to something implausibly small too, just
+in case.
+
+Fixes: xorg/xserver#850
+Reviewed-by: Michel Dänzer <michel.daenzer@amd.com>
+(cherry picked from commit d0850241c6218f61127c45c2f95d6e791c3fea44)
+---
+ hw/xwayland/xwayland-output.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/xwayland/xwayland-output.c b/hw/xwayland/xwayland-output.c
+index 9d33ed862..aa6f37864 100644
+--- a/hw/xwayland/xwayland-output.c
++++ b/hw/xwayland/xwayland-output.c
+@@ -476,7 +476,7 @@ xwl_screen_init_output(struct xwl_screen *xwl_screen)
+     if (!RRScreenInit(xwl_screen->screen))
+         return FALSE;
+ 
+-    RRScreenSetSizeRange(xwl_screen->screen, 320, 200, 8192, 8192);
++    RRScreenSetSizeRange(xwl_screen->screen, 16, 16, 32767, 32767);
+ 
+     rp = rrGetScrPriv(xwl_screen->screen);
+     rp->rrGetInfo = xwl_randr_get_info;
+-- 
+2.21.0
+
