@@ -1,0 +1,49 @@
+From 09fbeec5bb7a848add737c5313e8e035fc24bad1 Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Wed, 11 Sep 2019 15:27:48 +0200
+Subject: [PATCH] display: Ensure ::x11-display-opened is emitted at a time
+ there are handlers
+
+During display initialization, the MetaX11Display would be opened at a time
+when we didn't initialize yet the compositor/plugin. The plugin is certainly
+interested in ::x11-display-opened happening, so make sure the signal
+happens late enough that the upper layers are able to connect to the signal
+in advance.
+
+Fixes xsettings/ibus-x11 initialization on the still default "initialize
+Xwayland on startup" wayland compositor behavior.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/issues/771
+---
+ src/core/display.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/display.c b/src/core/display.c
+index e803f5557..01a5974f4 100644
+--- a/src/core/display.c
++++ b/src/core/display.c
+@@ -657,12 +657,12 @@ meta_display_init_x11 (MetaDisplay  *display,
+     return FALSE;
+ 
+   display->x11_display = x11_display;
+-  g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
+ 
+   meta_x11_display_create_guard_window (x11_display);
+ 
+   if (!display->display_opening)
+     {
++      g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
+       meta_display_manage_all_xwindows (display);
+       meta_compositor_redirect_x11_windows (display->compositor);
+     }
+@@ -803,6 +803,7 @@ meta_display_open (void)
+ 
+   if (display->x11_display)
+     {
++      g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
+       meta_x11_display_restore_active_workspace (display->x11_display);
+       meta_x11_display_create_guard_window (display->x11_display);
+     }
+-- 
+2.22.0
+
