@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.0
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -165,6 +165,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Sep 12 2019 Kalev Lember <klember@redhat.com> - 3.34.0-3
+- Update previous patch to final upstream version
+
 * Wed Sep 11 2019 Kalev Lember <klember@redhat.com> - 3.34.0-2
 - Backport a patch to fix xsettings/ibus-x11 initialization (#1750512)
 
