@@ -93,6 +93,7 @@ Requires:      json-glib%{?_isa} >= %{json_glib_version}
 Requires:      libinput%{?_isa} >= %{libinput_version}
 
 Patch100: 575.patch
+Patch110: 724.patch
 
 %description
 Mutter is a window and compositing manager that displays and manages
