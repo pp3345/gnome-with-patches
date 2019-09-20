@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.34.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -16,6 +16,9 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1753337
+Patch4: fix-disappearing-icons.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
@@ -211,6 +214,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Fri Sep 20 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.0-2
+- Fix disappearing icons in frequent view
+
 * Mon Sep 09 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.0-1
 - Update to 3.34.0
 
