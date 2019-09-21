@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.0
-Release:       3%{?dist}
+Release:       300%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -166,6 +166,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Sep 21 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.0-300
+- Enable real-time scheduling by default
+- Add !724 "Sync timelines to hardware vsync" @e335d349
+- Add !575 "Honour `CLUTTER_ACTOR_NO_LAYOUT` more efficiently" @1e3acd0e
+- Rebase to master@b5775e3d
+
 * Thu Sep 12 2019 Kalev Lember <klember@redhat.com> - 3.34.0-3
 - Update previous patch to final upstream version
 
