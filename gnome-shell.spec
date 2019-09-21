@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.34.0
-Release:        2%{?dist}
+Release:        200%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -211,6 +211,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sat Sep 21 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.0-200
+- Rebase to master@506b75fc
+
 * Fri Sep 20 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.0-2
 - Fix disappearing icons in frequent view
 
