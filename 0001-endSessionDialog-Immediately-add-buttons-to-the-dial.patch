@@ -16,7 +16,7 @@ diff --git a/js/ui/endSessionDialog.js b/js/ui/endSessionDialog.js
 index 0b475b6f9..301d8c9bf 100644
 --- a/js/ui/endSessionDialog.js
 +++ b/js/ui/endSessionDialog.js
-@@ -440,25 +440,27 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -440,27 +440,27 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
      }
  
      _updateButtons() {
@@ -33,14 +33,16 @@ index 0b475b6f9..301d8c9bf 100644
          for (let i = 0; i < dialogContent.confirmButtons.length; i++) {
              let signal = dialogContent.confirmButtons[i].signal;
              let label = dialogContent.confirmButtons[i].label;
--            buttons.push({ action: () => {
--                               this.close(true);
--                               let signalId = this.connect('closed', () => {
--                                   this.disconnect(signalId);
--                                   this._confirm(signal);
--                               });
--                           },
--                           label: label });
+-            buttons.push({
+-                action: () => {
+-                    this.close(true);
+-                    let signalId = this.connect('closed', () => {
+-                        this.disconnect(signalId);
+-                        this._confirm(signal);
+-                    });
+-                },
+-                label: label,
+-            });
 +            let button = this.addButton({
 +                action: () => {
 +                    this.close(true);

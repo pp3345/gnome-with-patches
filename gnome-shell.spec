@@ -7,7 +7,7 @@ License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.34/%{name}-%{version}.tar.xz
+Source0:        gnome-shell-3.34.0-506b75fc.tar.gz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -16,9 +16,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1753337
-Patch4: fix-disappearing-icons.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
