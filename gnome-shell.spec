@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.34.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -19,6 +19,9 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1753337
 Patch4: fix-disappearing-icons.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1753328
+Patch5: gnome-shell-main-Remove-NOTIFY_SOCKET-from-environment.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
@@ -214,6 +217,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Tue Sep 24 2019 Debarshi Ray <rishi@fedorapeople.org> - 3.34.0-3
+- Stop NOTIFY_SOCKET from leaking into the GNOME environment
+
 * Fri Sep 20 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.0-2
 - Fix disappearing icons in frequent view
 
