@@ -169,7 +169,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
-* Thu Sep 27 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-4
+* Fri Sep 27 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-4
 - Backport a patch to prevent crash during animations
 - See upstream issue https://gitlab.gnome.org/GNOME/mutter/issues/815
 
