@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.0
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -21,6 +21,10 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 # Fix xsettings/ibus-x11 initialization
 # https://gitlab.gnome.org/GNOME/mutter/merge_requests/792
 Patch1:        792.patch
+Patch2:        clutter-timeline-Use-a-function-to-cancel-the-delay-timeo.patch
+Patch3:        clutter-timeline-Don-t-emit-paused-signal-on-delayed-time.patch
+Patch4:        clutter-actor-Cancel-delayed-timelines-on-removal.patch
+
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -165,6 +169,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Sep 27 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-4
+- Backport a patch to prevent crash during animations
+- See upstream issue https://gitlab.gnome.org/GNOME/mutter/issues/815
+
 * Thu Sep 12 2019 Kalev Lember <klember@redhat.com> - 3.34.0-3
 - Update previous patch to final upstream version
 
