@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.0
-Release:       300%{?dist}.pp3345
+Release:       400%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -167,6 +167,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Sep 28 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.0-400
+- Add !798 "Wayland surface fullscreen unredirect" @7377cf85 (manually rebased)
+- Rebase to master@437f6b3d
+
 * Fri Sep 27 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-4
 - Backport a patch to prevent crash during animations
 - See upstream issue https://gitlab.gnome.org/GNOME/mutter/issues/815
