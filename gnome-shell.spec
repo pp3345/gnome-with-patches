@@ -211,6 +211,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Tue Sep 24 2019 Debarshi Ray <rishi@fedorapeople.org> - 3.34.0-3
+- Stop NOTIFY_SOCKET from leaking into the GNOME environment
+
 * Sat Sep 21 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.0-200
 - Rebase to master@506b75fc
 
