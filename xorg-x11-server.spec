@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.5
-Release:   7%{?gitdate:.%{gitdate}}%{?dist}
+Release:   700%{?gitdate:.%{gitdate}}%{?dist}.pp3345
 URL:       http://www.x.org
 License:   MIT
 
@@ -563,6 +563,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Sat Sep 28 2019 Yussuf Khalil <dev@pp3345.net> 1.20.5-700
+- Add !282 "xwayland/glamour-gbm: Handle DRM_FORMAT_MOD_INVALID gracefully" @edf96443
+
 * Thu Aug 29 2019 Olivier Fourdan <ofourdan@redhat.com> 1.20.5-7
 - Pick latest fixes from xserver stable branch upstream (rhbz#1729925)
 
