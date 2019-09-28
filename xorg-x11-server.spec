@@ -137,6 +137,8 @@ Patch44: 0013-xwayland-Separate-DamagePtr-into-separate-window-dat.patch
 Patch45: 0014-xwayland-Refactor-surface-creation-into-a-separate-f.patch
 Patch46: 0015-xwayland-Handle-the-case-of-windows-being-realized-b.patch
 
+Patch100: 282.patch
+
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
 BuildRequires: automake autoconf libtool pkgconfig
