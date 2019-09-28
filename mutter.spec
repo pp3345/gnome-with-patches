@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.0
-Release:       4%{?dist}
+Release:       5%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -24,6 +24,7 @@ Patch1:        792.patch
 Patch2:        clutter-timeline-Use-a-function-to-cancel-the-delay-timeo.patch
 Patch3:        clutter-timeline-Don-t-emit-paused-signal-on-delayed-time.patch
 Patch4:        clutter-actor-Cancel-delayed-timelines-on-removal.patch
+Patch5:        806.patch
 
 
 BuildRequires: chrpath
@@ -169,6 +170,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Sep 28 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-5
+- Backport fix for dual special modifier keys bug (#1754867)
+
 * Fri Sep 27 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-4
 - Backport a patch to prevent crash during animations
 - See upstream issue https://gitlab.gnome.org/GNOME/mutter/issues/815
