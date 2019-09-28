@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.34.0
-Release:        200%{?dist}.pp3345
+Release:        300%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -211,6 +211,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sat Sep 28 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.0-300
+- Rebase to master@2dbdf792
+
 * Tue Sep 24 2019 Debarshi Ray <rishi@fedorapeople.org> - 3.34.0-3
 - Stop NOTIFY_SOCKET from leaking into the GNOME environment
 
