@@ -24,7 +24,8 @@ Patch1:        792.patch
 Patch2:        clutter-timeline-Use-a-function-to-cancel-the-delay-timeo.patch
 Patch3:        clutter-timeline-Don-t-emit-paused-signal-on-delayed-time.patch
 Patch4:        clutter-actor-Cancel-delayed-timelines-on-removal.patch
-Patch5:        806.patch
+Patch5:        0005-keybinding-handle-no-handler-functions.patch
+Patch6:        0006-add-PR_SET_DUMPABLE-to-allow-coredumps.patch
 
 
 BuildRequires: chrpath
@@ -172,6 +173,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %changelog
 * Sat Sep 28 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-5
 - Backport fix for dual special modifier keys bug (#1754867)
+- Backport fix that enables core dumps (#1748145)
 
 * Fri Sep 27 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-4
 - Backport a patch to prevent crash during animations
