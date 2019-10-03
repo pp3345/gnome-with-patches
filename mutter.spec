@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.32.2
-Release:       3.10%{?dist}.pp3345
+Release:       4.1%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -186,6 +186,13 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Oct 03 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-4.1
+- Rebase to 3.32.2-4.fc30
+
+* Fri Sep 27 2019 Jonas Ådahl <jadahl@redhat.com> - 3.32.2-4
+- Backport crash resiliance for late activation
+  Resolves: #1754148
+
 * Tue Sep 03 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-3.10
 - Revert !719 "Stop using pending_swaps" (regression)
 
