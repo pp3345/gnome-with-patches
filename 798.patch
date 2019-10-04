@@ -2985,13 +2985,14 @@ diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-act
 index 53f46db7b2cb5d3b12eb93f5b5ed94969de57c0e..3cf8ac7bf2770f515a03ddb2b31b802319314516 100644
 --- a/src/compositor/meta-window-actor.c
 +++ b/src/compositor/meta-window-actor.c
-@@ -26,15 +26,12 @@
+@@ -26,16 +26,13 @@
  #include <string.h>
  
  #include "backends/meta-screen-cast-window.h"
 -#include "core/frame.h"
  #include "compositor/compositor-private.h"
  #include "compositor/meta-cullable.h"
+ #include "compositor/meta-shaped-texture-private.h"
  #include "compositor/meta-surface-actor-x11.h"
  #include "compositor/meta-surface-actor.h"
  #include "compositor/meta-window-actor-private.h"
@@ -4248,10 +4249,12 @@ index 182f7f5f530a1e1eeb262c243ace0b86f347e251..d1f60b1ad5e89e4eda7d079cb68ae33b
    'compositor/meta-compositor-x11.c',
    'compositor/meta-compositor-x11.h',
    'compositor/meta-cullable.c',
-@@ -475,8 +477,6 @@ if have_wayland
+@@ -475,10 +477,8 @@ if have_wayland
    mutter_sources += [
      'compositor/meta-surface-actor-wayland.c',
      'compositor/meta-surface-actor-wayland.h',
+     'compositor/meta-window-actor-wayland.c',
+     'compositor/meta-window-actor-wayland.h',
 -    'compositor/meta-compositor-server.c',
 -    'compositor/meta-compositor-server.h',
      'wayland/meta-cursor-sprite-wayland.c',
