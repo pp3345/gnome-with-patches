@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.0
-Release:       400%{?dist}.pp3345
+Release:       500%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -169,6 +169,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Fri Oct 04 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.0-500
+- Add !526 "Implement scaled/transformed hardware cursors" @b99f08c6
+- Add !828 "clutter/actor: Mark implicit transitions as remove-on-complete" @f74812d3
+- Rebase to master@ca318c15
+
 * Sat Sep 28 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-5
 - Backport fix for dual special modifier keys bug (#1754867)
 - Backport fix that enables core dumps (#1748145)
