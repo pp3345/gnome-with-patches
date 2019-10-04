@@ -167,6 +167,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Sep 28 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-5
+- Backport fix for dual special modifier keys bug (#1754867)
+- Backport fix that enables core dumps (#1748145)
+
 * Sat Sep 28 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.0-400
 - Add !798 "Wayland surface fullscreen unredirect" @7377cf85 (manually rebased)
 - Rebase to master@437f6b3d

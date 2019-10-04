@@ -1,0 +1,109 @@
+From 0706e021f5bd82cf4c9b2c0d2916d272f3cba406 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Tue, 24 Sep 2019 16:55:25 +0200
+Subject: [PATCH 1/2] keybindings: Check for a handler before using it
+
+The `process_event()` would check for a existing keybinding handler and
+abort if there is none, however the test is done after the handler had
+been accessed, hence defeating the purpose of the check.
+
+Move the check to verify there is an existing keybinding handler before
+actually using it.
+
+https://gitlab.gnome.org/GNOME/mutter/issues/823
+---
+ src/core/keybindings.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/core/keybindings.c b/src/core/keybindings.c
+index a5a60e8cd..b9377bfff 100644
+--- a/src/core/keybindings.c
++++ b/src/core/keybindings.c
+@@ -1955,6 +1955,9 @@ process_event (MetaDisplay          *display,
+       (!window && binding->flags & META_KEY_BINDING_PER_WINDOW))
+     goto not_found;
+ 
++  if (binding->handler == NULL)
++    meta_bug ("Binding %s has no handler\n", binding->name);
++
+   if (display->focus_window &&
+       !(binding->handler->flags & META_KEY_BINDING_NON_MASKABLE))
+     {
+@@ -1980,12 +1983,9 @@ process_event (MetaDisplay          *display,
+       return TRUE;
+     }
+ 
+-  if (binding->handler == NULL)
+-    meta_bug ("Binding %s has no handler\n", binding->name);
+-  else
+-    meta_topic (META_DEBUG_KEYBINDINGS,
+-                "Running handler for %s\n",
+-                binding->name);
++  meta_topic (META_DEBUG_KEYBINDINGS,
++              "Running handler for %s\n",
++              binding->name);
+ 
+   /* Global keybindings count as a let-the-terminal-lose-focus
+    * due to new window mapping until the user starts
+-- 
+2.22.0
+
+
+From 76f2579e442d8ad0a3b8b644daab7c72a585506b Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Tue, 24 Sep 2019 16:58:32 +0200
+Subject: [PATCH 2/2] keybinding: Check for handler functions as well
+
+With the addition of the locate-pointer special keybinding (defaults to
+the [Control] key), we have now two separate special modifier keys which
+can be triggered separately, one for the locate-pointer action and
+another one for overlay.
+
+When processing those special modifier keys, mutter must ensure that the
+key was pressed alone, being a modifier, the key could otherwise be part
+of another key combo.
+
+As result, if both special modifiers keys are pressed simultaneously,
+mutter will try to trigger the function for the second key being
+pressed, and since those special modifier keys have no default handler
+function set, that will crash mutter.
+
+Check if the handler has a function associated and treat the keybinding
+as not found if no handler function is set, as with the special modifier
+keys.
+
+https://gitlab.gnome.org/GNOME/mutter/issues/823
+---
+ src/core/keybindings.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/core/keybindings.c b/src/core/keybindings.c
+index b9377bfff..b86272541 100644
+--- a/src/core/keybindings.c
++++ b/src/core/keybindings.c
+@@ -1933,6 +1933,12 @@ invoke_handler (MetaDisplay     *display,
+                                NULL);
+ }
+ 
++static gboolean
++meta_key_binding_has_handler_func (MetaKeyBinding *binding)
++{
++  return (!!binding->handler->func || !!binding->handler->default_func);
++}
++
+ static gboolean
+ process_event (MetaDisplay          *display,
+                MetaWindow           *window,
+@@ -1958,6 +1964,9 @@ process_event (MetaDisplay          *display,
+   if (binding->handler == NULL)
+     meta_bug ("Binding %s has no handler\n", binding->name);
+ 
++  if (!meta_key_binding_has_handler_func (binding))
++    goto not_found;
++
+   if (display->focus_window &&
+       !(binding->handler->flags & META_KEY_BINDING_NON_MASKABLE))
+     {
+-- 
+2.22.0
+
