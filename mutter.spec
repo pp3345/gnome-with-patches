@@ -7,8 +7,8 @@
 %global mutter_api_version 5
 
 Name:          mutter
-Version:       3.34.0
-Release:       5%{?dist}
+Version:       3.34.1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,14 +18,6 @@ Source0:       http://download.gnome.org/sources/%{name}/3.34/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-# Fix xsettings/ibus-x11 initialization
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/792
-Patch1:        792.patch
-Patch2:        clutter-timeline-Use-a-function-to-cancel-the-delay-timeo.patch
-Patch3:        clutter-timeline-Don-t-emit-paused-signal-on-delayed-time.patch
-Patch4:        clutter-actor-Cancel-delayed-timelines-on-removal.patch
-Patch5:        0005-keybinding-handle-no-handler-functions.patch
-Patch6:        0006-add-PR_SET_DUMPABLE-to-allow-coredumps.patch
 
 
 BuildRequires: chrpath
@@ -171,6 +163,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Oct 09 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.1-1
+- Update to 3.34.1
+
 * Sat Sep 28 2019 Kenneth Topp <toppk@bllue.org> - 3.34.0-5
 - Backport fix for dual special modifier keys bug (#1754867)
 - Backport fix that enables core dumps (#1748145)
