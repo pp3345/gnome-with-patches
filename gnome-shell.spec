@@ -1,13 +1,13 @@
 Name:           gnome-shell
-Version:        3.34.1
-Release:        2%{?dist}
+Version:        3.35.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.34/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.35/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -32,7 +32,7 @@ Patch5: 0002-magnifier-Use-new-cursor-tracker-API-to-keep-wayland.patch
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.57.3
 %define gtk3_version 3.15.0
-%define mutter_version 3.34.0
+%define mutter_version 3.35.1
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.33.1
 %define ibus_version 1.5.2
@@ -219,6 +219,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sat Oct 12 2019 Florian Müllner <fmuellner@redhat.com> - 3.35.1-1
+- Update to 3.35.1
+
 * Sat Oct 12 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-2
 - Backport MR #754 to fix #1749433
 
