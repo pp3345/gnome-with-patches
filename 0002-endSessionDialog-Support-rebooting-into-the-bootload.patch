@@ -1,4 +1,4 @@
-From 6263d5e115a726dcd75a5368afdd2798236fb1de Mon Sep 17 00:00:00 2001
+From 27736261bdb626e0c30884edc1b699c9fe5ed256 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 15 Aug 2018 15:03:56 +0200
 Subject: [PATCH 2/2] endSessionDialog: Support rebooting into the bootloader
@@ -21,10 +21,10 @@ and makes it have rounded corners on both of its bottom corners.
  1 file changed, 51 insertions(+)
 
 diff --git a/js/ui/endSessionDialog.js b/js/ui/endSessionDialog.js
-index 301d8c9bf..0dc717241 100644
+index 4ce797527..c18a008eb 100644
 --- a/js/ui/endSessionDialog.js
 +++ b/js/ui/endSessionDialog.js
-@@ -256,6 +256,9 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -254,6 +254,9 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
          this._totalSecondsToStayOpen = 0;
          this._applications = [];
          this._sessions = [];
@@ -34,7 +34,7 @@ index 301d8c9bf..0dc717241 100644
  
          this.connect('destroy',
                       this._onDestroy.bind(this));
-@@ -439,6 +442,26 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -440,6 +443,26 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
          this._sessionHeader.visible = hasSessions;
      }
  
@@ -61,9 +61,9 @@ index 301d8c9bf..0dc717241 100644
      _updateButtons() {
          this.clearButtons();
  
-@@ -460,7 +483,33 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -461,7 +484,33 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
                  },
-                 label
+                 label: label,
              });
 +
 +            // Add Alt "Boot Options" option to the Reboot button
@@ -95,7 +95,7 @@ index 301d8c9bf..0dc717241 100644
      }
  
      close(skipSignal) {
-@@ -472,6 +521,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -473,6 +522,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
  
      cancel() {
          this._stopTimer();
@@ -103,7 +103,7 @@ index 301d8c9bf..0dc717241 100644
          this._dbusImpl.emit_signal('Canceled', null);
          this.close();
      }
-@@ -480,6 +530,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -481,6 +531,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
          let callback = () => {
              this._fadeOutDialog();
              this._stopTimer();
@@ -112,5 +112,5 @@ index 301d8c9bf..0dc717241 100644
          };
  
 -- 
-2.21.0
+2.23.0
 
