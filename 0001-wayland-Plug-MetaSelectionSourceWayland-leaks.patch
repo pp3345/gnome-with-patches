@@ -1,0 +1,43 @@
+From dfd44ff9713760ba051c20b9b5cab58d183c069e Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Fri, 11 Oct 2019 13:25:35 +0200
+Subject: [PATCH 1/8] wayland: Plug MetaSelectionSourceWayland leaks
+
+There was a dangling ref left on all of them, oops.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/848
+---
+ src/wayland/meta-wayland-data-device.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/wayland/meta-wayland-data-device.c b/src/wayland/meta-wayland-data-device.c
+index 2ca77e8ea..e063a9a0c 100644
+--- a/src/wayland/meta-wayland-data-device.c
++++ b/src/wayland/meta-wayland-data-device.c
+@@ -1309,6 +1309,7 @@ data_device_start_drag (struct wl_client *client,
+   g_list_free_full (mimetypes, g_free);
+   set_selection_source (data_device, META_SELECTION_DND,
+                         selection_source);
++  g_object_unref (selection_source);
+ 
+   meta_wayland_pointer_set_focus (seat->pointer, NULL);
+   meta_wayland_data_device_start_drag (data_device, client,
+@@ -1694,6 +1695,7 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
+ 
+       set_selection_source (data_device, META_SELECTION_CLIPBOARD,
+                             selection_source);
++      g_object_unref (selection_source);
+     }
+   else
+     {
+@@ -1831,6 +1833,7 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
+ 
+       set_selection_source (data_device, META_SELECTION_PRIMARY,
+                             selection_source);
++      g_object_unref (selection_source);
+     }
+   else
+     {
+-- 
+2.23.0
+
