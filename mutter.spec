@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,7 +18,34 @@ Source0:       http://download.gnome.org/sources/%{name}/3.34/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/832
+# Provides some bits necessary for a gnome-shell patch to fix
+# accessibility cursor zoom bug:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1749433
+# https://gitlab.gnome.org/GNOME/mutter/issues/826
+Patch1:        0001-cursor-tracker-Add-API-to-keep-the-wayland-pointer-f.patch
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/840
+# Fixes night light breakage in 3.34.1:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1760254
+Patch2:        0001-kms-Always-predict-state-after-processing-update.patch
+Patch3:        0002-kms-crtc-Read-gamma-state-when-prediction-failed.patch
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/848
+# Fixes several issues with selections, including copy/paste and
+# drag/drop bugs:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1751646
+# https://bugzilla.redhat.com/show_bug.cgi?id=1759644
+Patch4:        0001-wayland-Plug-MetaSelectionSourceWayland-leaks.patch
+Patch5:        0002-wayland-Drop-field-from-MetaWaylandDataSourcePrimary.patch
+Patch6:        0003-wayland-Chain-up-to-the-right-finalize-on-MetaWaylan.patch
+Patch7:        0004-wayland-Emit-wl-primary-offer-after-changing-selecti.patch
+Patch8:        0005-wayland-Check-resource-before-emitting-cancelled-eve.patch
+Patch9:        0006-wayland-Simplify-MetaSelectionSourceWayland.patch
+Patch10:       0007-wayland-Set-dummy-selection-source-on-.set_selection.patch
+Patch11:       0008-wayland-Figure-out-better-the-right-selection-source.patch
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/842
+# Fixes issue with X selection buffers in Qt applications:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1758873
+Patch12:       0001-x11-Translate-well-known-selection-atoms-to-mimetype.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -163,6 +190,13 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Oct 12 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-2
+- Backport multiple fixes for F31 FE/blocker bugs:
+  MR #832 for #1749433 (also needs change in gnome-shell)
+  MR #840 for #1760254
+  MR #848 for #1751646 and #1759644
+  MR #842 for #1758873
+
 * Wed Oct 09 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.1-1
 - Update to 3.34.1
 
