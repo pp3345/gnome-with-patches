@@ -96,7 +96,6 @@ Patch100: 575.patch
 Patch110: 724.patch
 Patch120: rt-default.patch
 Patch130: 798.patch
-Patch140: 828.patch
 Patch150: 526.patch
 
 %description
