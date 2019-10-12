@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       101%{?dist}.pp3345
+Release:       102%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -169,6 +169,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Oct 12 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-102
+- Unrevert !842 "x11: Translate well known selection atoms to mimetypes"
+- Add !849 "x11: Map mimetypes back to selection atoms" @5c1be223
+
 * Sat Oct 12 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-101
 - Revert !842 "x11: Translate well known selection atoms to mimetypes" (regression)
 
