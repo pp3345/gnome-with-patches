@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       1%{?dist}
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -168,6 +168,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Oct 12 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-100
+- Remove !828 "clutter/actor: Mark implicit transitions as remove-on-complete" (merged)
+- Rebase to master@e1751ad9
+
 * Wed Oct 09 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.1-1
 - Update to 3.34.1
 
