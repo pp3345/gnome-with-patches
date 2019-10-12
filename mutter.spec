@@ -7,8 +7,8 @@
 %global mutter_api_version 5
 
 Name:          mutter
-Version:       3.34.0
-Release:       500%{?dist}.pp3345
+Version:       3.34.1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -169,6 +169,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Oct 09 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.1-1
+- Update to 3.34.1
+
 * Fri Oct 04 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.0-500
 - Add !526 "Implement scaled/transformed hardware cursors" @b99f08c6
 - Add !828 "clutter/actor: Mark implicit transitions as remove-on-complete" @f74812d3
