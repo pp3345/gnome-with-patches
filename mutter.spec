@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -46,6 +46,11 @@ Patch11:       0008-wayland-Figure-out-better-the-right-selection-source.patch
 # Fixes issue with X selection buffers in Qt applications:
 # https://bugzilla.redhat.com/show_bug.cgi?id=1758873
 Patch12:       0001-x11-Translate-well-known-selection-atoms-to-mimetype.patch
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/849
+# Fixes a bug introduced by MR #842 above:
+# https://gitlab.gnome.org/GNOME/mutter/issues/854
+# https://bugzilla.redhat.com/show_bug.cgi?id=1758873#c28
+Patch13:       0001-x11-Map-mimetypes-back-to-selection-atoms.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -190,6 +195,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sun Oct 13 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-3
+- Backport MR #849 to fix bug introduced by MR #842
+
 * Sat Oct 12 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-2
 - Backport multiple fixes for F31 FE/blocker bugs:
   MR #832 for #1749433 (also needs change in gnome-shell)
