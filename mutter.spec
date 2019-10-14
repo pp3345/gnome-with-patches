@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -195,6 +195,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Oct 14 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-4
+- Update MR #832 backport to fully fix cursor zoom bug (#1749433)
+
 * Sun Oct 13 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-3
 - Backport MR #849 to fix bug introduced by MR #842
 

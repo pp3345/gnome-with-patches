@@ -1,4 +1,4 @@
-From 6925ba5427d9e13847798d36b59631c1b03af5a7 Mon Sep 17 00:00:00 2001
+From bc8e1d76cd40e7797a05df39cfc524247e1d7f7a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
 Date: Mon, 7 Oct 2019 14:32:11 +0200
 Subject: [PATCH] cursor-tracker: Add API to keep the wayland pointer focus
@@ -22,8 +22,8 @@ https://gitlab.gnome.org/GNOME/mutter/merge_requests/832
  src/backends/meta-cursor-tracker-private.h |  1 +
  src/backends/meta-cursor-tracker.c         | 39 ++++++++++++++++++++++
  src/meta/meta-cursor-tracker.h             |  7 ++++
- src/wayland/meta-wayland-pointer.c         |  3 +-
- 4 files changed, 49 insertions(+), 1 deletion(-)
+ src/wayland/meta-wayland-pointer.c         |  9 +++--
+ 4 files changed, 53 insertions(+), 3 deletions(-)
 
 diff --git a/src/backends/meta-cursor-tracker-private.h b/src/backends/meta-cursor-tracker-private.h
 index 29ee94044..0923337fb 100644
@@ -38,7 +38,7 @@ index 29ee94044..0923337fb 100644
    MetaCursorSprite *effective_cursor; /* May be NULL when hidden */
    MetaCursorSprite *displayed_cursor;
 diff --git a/src/backends/meta-cursor-tracker.c b/src/backends/meta-cursor-tracker.c
-index 45291e286..60eade409 100644
+index 45291e286..346e3faae 100644
 --- a/src/backends/meta-cursor-tracker.c
 +++ b/src/backends/meta-cursor-tracker.c
 @@ -136,6 +136,7 @@ static void
@@ -88,7 +88,7 @@ index 45291e286..60eade409 100644
 +
 +  sync_cursor (tracker);
 +
-+  g_signal_emit (tracker, signals[VISIBILITY_CHANGED], tracker->is_showing);
++  g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
 +}
 +
  MetaCursorSprite *
@@ -111,7 +111,7 @@ index 2f51115e4..6aef2745d 100644
 +
  #endif
 diff --git a/src/wayland/meta-wayland-pointer.c b/src/wayland/meta-wayland-pointer.c
-index 751f6b9b9..8ca021d2c 100644
+index 751f6b9b9..b69f43ab3 100644
 --- a/src/wayland/meta-wayland-pointer.c
 +++ b/src/wayland/meta-wayland-pointer.c
 @@ -228,7 +228,8 @@ sync_focus_surface (MetaWaylandPointer *pointer)
@@ -124,6 +124,26 @@ index 751f6b9b9..8ca021d2c 100644
      {
        meta_wayland_pointer_set_focus (pointer, NULL);
        return;
+@@ -433,7 +434,8 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
+   if (!meta_wayland_seat_has_pointer (seat))
+     return;
+ 
+-  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker))
++  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
++      !meta_cursor_tracker_get_keep_focus_while_hidden (cursor_tracker))
+     return;
+ 
+   if (pointer->button_count > 0)
+@@ -898,7 +900,8 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
+   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+ 
+   g_return_if_fail (meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
+-		    surface == NULL);
++                    meta_cursor_tracker_get_keep_focus_while_hidden (cursor_tracker) ||
++                    surface == NULL);
+ 
+   if (pointer->focus_surface == surface)
+     return;
 -- 
 2.23.0
 
