@@ -139,6 +139,8 @@ Obsoletes:      python3-caribou < 0.4.21-10
 # https://bugzilla.redhat.com/show_bug.cgi?id=1740897
 Conflicts:      gnome-shell-extension-background-logo < 3.34.0
 
+Patch100: 605.patch
+
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
 like switching to windows and launching applications. GNOME Shell takes
