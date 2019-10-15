@@ -17,6 +17,14 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
+# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/754
+# Fixes accessibility cursor zoom bug:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1749433
+# https://gitlab.gnome.org/GNOME/mutter/issues/826
+# Depends on a corresponding patch in mutter 3.34.1-2+
+Patch4: 0001-magnifier-Use-own-showSystemCursor-instead-of-set_po.patch
+Patch5: 0002-magnifier-Use-new-cursor-tracker-API-to-keep-wayland.patch
+
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.33.4
@@ -211,6 +219,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sat Oct 12 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-2
+- Backport MR #754 to fix #1749433
+
 * Sat Oct 12 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-100
 - Rebase to master@279024af
 
