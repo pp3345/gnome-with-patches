@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       102%{?dist}.pp3345
+Release:       400%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -175,6 +175,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Oct 15 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-400
+- Revert !843 "clutter/actor: Save key-focus state and unset it before destruction" (regression)
+- Remove !849 "x11: Map mimetypes back to selection atoms" (merged)
+- Rebase to gnome-3-34@a22731e2
+
 * Mon Oct 14 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-4
 - Update MR #832 backport to fully fix cursor zoom bug (#1749433)
 
