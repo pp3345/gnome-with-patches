@@ -1,0 +1,114 @@
+From 1b4709794ea3602f5573fee164c880a14f049d3b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Thu, 10 Oct 2019 10:47:05 +0200
+Subject: [PATCH 2/2] kms/crtc: Read gamma state when prediction failed
+
+If we did a mode set, the gamma may have been changed by the kernel, and
+if we didn't also update the gamma in the same transaction, we have no
+way to predict the current gamma ramp state. In this case, read the
+gamma state directly from KMS.
+
+This should be relatively harmless regarding the race conditions the
+state prediction was meant to solve, as the worst case is we get none or
+out of date gamma ramps; and since this is for when gamma ramps are not
+updated at mode setting time, we'd get intermediate gamma state to begin
+with, so it's not worse than what we currently do anyway.
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/issues/851
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/840
+---
+ src/backends/native/meta-kms-crtc.c | 46 +++++++++++++++++++++++++++--
+ 1 file changed, 43 insertions(+), 3 deletions(-)
+
+diff --git a/src/backends/native/meta-kms-crtc.c b/src/backends/native/meta-kms-crtc.c
+index 3610df903..da99a58cd 100644
+--- a/src/backends/native/meta-kms-crtc.c
++++ b/src/backends/native/meta-kms-crtc.c
+@@ -143,14 +143,26 @@ meta_kms_crtc_update_state (MetaKmsCrtc *crtc)
+   drmModeFreeCrtc (drm_crtc);
+ }
+ 
++static void
++clear_gamma_state (MetaKmsCrtc *crtc)
++{
++  crtc->current_state.gamma.size = 0;
++  g_clear_pointer (&crtc->current_state.gamma.red, g_free);
++  g_clear_pointer (&crtc->current_state.gamma.green, g_free);
++  g_clear_pointer (&crtc->current_state.gamma.blue, g_free);
++}
++
+ void
+ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
+                              MetaKmsUpdate *update)
+ {
++  gboolean is_gamma_valid;
+   GList *mode_sets;
+   GList *crtc_gammas;
+   GList *l;
+ 
++  is_gamma_valid = TRUE;
++
+   mode_sets = meta_kms_update_get_mode_sets (update);
+   for (l = mode_sets; l; l = l->next)
+     {
+@@ -178,6 +190,8 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
+           crtc->current_state.drm_mode = (drmModeModeInfo) { 0 };
+         }
+ 
++      is_gamma_valid = FALSE;
++
+       break;
+     }
+ 
+@@ -196,8 +210,36 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
+         g_memdup (gamma->green, gamma->size * sizeof (uint16_t));
+       crtc->current_state.gamma.blue =
+         g_memdup (gamma->blue, gamma->size * sizeof (uint16_t));
++
++      is_gamma_valid = TRUE;
+       break;
+     }
++
++  if (!is_gamma_valid)
++    {
++      if (crtc->current_state.is_drm_mode_valid)
++        {
++          MetaKmsImplDevice *impl_device;
++          drmModeCrtc *drm_crtc;
++
++          impl_device = meta_kms_device_get_impl_device (crtc->device);
++          drm_crtc = drmModeGetCrtc (meta_kms_impl_device_get_fd (impl_device),
++                                     crtc->id);
++          if (drm_crtc)
++            {
++              read_gamma_state (crtc, impl_device, drm_crtc);
++              drmModeFreeCrtc (drm_crtc);
++            }
++          else
++            {
++              clear_gamma_state (crtc);
++            }
++        }
++      else
++        {
++          clear_gamma_state (crtc);
++        }
++    }
+ }
+ 
+ MetaKmsCrtc *
+@@ -220,9 +262,7 @@ meta_kms_crtc_finalize (GObject *object)
+ {
+   MetaKmsCrtc *crtc = META_KMS_CRTC (object);
+ 
+-  g_clear_pointer (&crtc->current_state.gamma.red, g_free);
+-  g_clear_pointer (&crtc->current_state.gamma.green, g_free);
+-  g_clear_pointer (&crtc->current_state.gamma.blue, g_free);
++  clear_gamma_state (crtc);
+ 
+   G_OBJECT_CLASS (meta_kms_crtc_parent_class)->finalize (object);
+ }
+-- 
+2.23.0
+

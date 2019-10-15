@@ -1,0 +1,149 @@
+From bc8e1d76cd40e7797a05df39cfc524247e1d7f7a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Mon, 7 Oct 2019 14:32:11 +0200
+Subject: [PATCH] cursor-tracker: Add API to keep the wayland pointer focus
+ while hidden
+
+Since commit a2a8f0cda we force the focus surface of the
+meta-wayland-pointer to NULL while the pointer is invisible. This
+introduced an issue with the a11y magnifier of the shell, which uses
+`meta_cursor_tracker_set_pointer_visible` to hide the real cursor and
+show its own magnified cursor at the correct position: Because the
+meta-wayland-pointer is still used to communicate with Wayland clients,
+the UI of the windows will not respond to mouse movement anymore as
+soon as the real cursor is hidden.
+
+Fix this issue for now by adding an additional method to the
+cursor-tracker which allows disabling the behavior commit a2a8f0cda
+introduced.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/832
+---
+ src/backends/meta-cursor-tracker-private.h |  1 +
+ src/backends/meta-cursor-tracker.c         | 39 ++++++++++++++++++++++
+ src/meta/meta-cursor-tracker.h             |  7 ++++
+ src/wayland/meta-wayland-pointer.c         |  9 +++--
+ 4 files changed, 53 insertions(+), 3 deletions(-)
+
+diff --git a/src/backends/meta-cursor-tracker-private.h b/src/backends/meta-cursor-tracker-private.h
+index 29ee94044..0923337fb 100644
+--- a/src/backends/meta-cursor-tracker-private.h
++++ b/src/backends/meta-cursor-tracker-private.h
+@@ -31,6 +31,7 @@ struct _MetaCursorTracker {
+   GObject parent_instance;
+ 
+   gboolean is_showing;
++  gboolean keep_focus_while_hidden;
+ 
+   MetaCursorSprite *effective_cursor; /* May be NULL when hidden */
+   MetaCursorSprite *displayed_cursor;
+diff --git a/src/backends/meta-cursor-tracker.c b/src/backends/meta-cursor-tracker.c
+index 45291e286..346e3faae 100644
+--- a/src/backends/meta-cursor-tracker.c
++++ b/src/backends/meta-cursor-tracker.c
+@@ -136,6 +136,7 @@ static void
+ meta_cursor_tracker_init (MetaCursorTracker *self)
+ {
+   self->is_showing = TRUE;
++  self->keep_focus_while_hidden = FALSE;
+ }
+ 
+ static void
+@@ -457,6 +458,44 @@ meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
+   g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
+ }
+ 
++/**
++ * meta_cursor_tracker_get_keep_focus_while_hidden:
++ * @tracker: a #MetaCursorTracker object.
++ *
++ * Returns: %FALSE if the Wayland focus surface of the pointer will
++ * be forced to NULL while the pointer is hidden, %TRUE otherwise.
++ * This function is only meant to be used by the magnifier of the shell
++ * and will be removed in a future release.
++ */
++gboolean
++meta_cursor_tracker_get_keep_focus_while_hidden (MetaCursorTracker *tracker)
++{
++  return tracker->keep_focus_while_hidden;
++}
++
++/**
++ * meta_cursor_tracker_set_keep_focus_while_hidden:
++ * @tracker: a #MetaCursorTracker object.
++ * @keep_focus: whether to keep the cursor focus while hidden
++ *
++ * If this is set to %TRUE, the Wayland focus surface of the pointer will
++ * not be forced to NULL while the pointer is hidden.
++ * This function is only meant to be used by the magnifier of the shell
++ * and will be removed in a future release.
++ */
++void
++meta_cursor_tracker_set_keep_focus_while_hidden (MetaCursorTracker *tracker,
++                                                 gboolean           keep_focus)
++{
++  if (keep_focus == tracker->keep_focus_while_hidden)
++    return;
++  tracker->keep_focus_while_hidden = keep_focus;
++
++  sync_cursor (tracker);
++
++  g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
++}
++
+ MetaCursorSprite *
+ meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker)
+ {
+diff --git a/src/meta/meta-cursor-tracker.h b/src/meta/meta-cursor-tracker.h
+index 2f51115e4..6aef2745d 100644
+--- a/src/meta/meta-cursor-tracker.h
++++ b/src/meta/meta-cursor-tracker.h
+@@ -62,4 +62,11 @@ META_EXPORT
+ void           meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
+                                                         gboolean           visible);
+ 
++META_EXPORT
++gboolean       meta_cursor_tracker_get_keep_focus_while_hidden (MetaCursorTracker *tracker);
++
++META_EXPORT
++void           meta_cursor_tracker_set_keep_focus_while_hidden (MetaCursorTracker *tracker,
++                                                                gboolean           keep_focus);
++
+ #endif
+diff --git a/src/wayland/meta-wayland-pointer.c b/src/wayland/meta-wayland-pointer.c
+index 751f6b9b9..b69f43ab3 100644
+--- a/src/wayland/meta-wayland-pointer.c
++++ b/src/wayland/meta-wayland-pointer.c
+@@ -228,7 +228,8 @@ sync_focus_surface (MetaWaylandPointer *pointer)
+   MetaBackend *backend = meta_get_backend ();
+   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+ 
+-  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker))
++  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
++      !meta_cursor_tracker_get_keep_focus_while_hidden (cursor_tracker))
+     {
+       meta_wayland_pointer_set_focus (pointer, NULL);
+       return;
+@@ -433,7 +434,8 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
+   if (!meta_wayland_seat_has_pointer (seat))
+     return;
+ 
+-  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker))
++  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
++      !meta_cursor_tracker_get_keep_focus_while_hidden (cursor_tracker))
+     return;
+ 
+   if (pointer->button_count > 0)
+@@ -898,7 +900,8 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
+   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+ 
+   g_return_if_fail (meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
+-		    surface == NULL);
++                    meta_cursor_tracker_get_keep_focus_while_hidden (cursor_tracker) ||
++                    surface == NULL);
+ 
+   if (pointer->focus_surface == surface)
+     return;
+-- 
+2.23.0
+

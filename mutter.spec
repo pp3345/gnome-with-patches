@@ -18,6 +18,12 @@ Source0:       mutter-3.34.1-e1751ad9.tar.gz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/832
+# Provides some bits necessary for a gnome-shell patch to fix
+# accessibility cursor zoom bug:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1749433
+# https://gitlab.gnome.org/GNOME/mutter/issues/826
+Patch1:        0001-cursor-tracker-Add-API-to-keep-the-wayland-pointer-f.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -169,6 +175,19 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Oct 14 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-4
+- Update MR #832 backport to fully fix cursor zoom bug (#1749433)
+
+* Sun Oct 13 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-3
+- Backport MR #849 to fix bug introduced by MR #842
+
+* Sat Oct 12 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-2
+- Backport multiple fixes for F31 FE/blocker bugs:
+  MR #832 for #1749433 (also needs change in gnome-shell)
+  MR #840 for #1760254
+  MR #848 for #1751646 and #1759644
+  MR #842 for #1758873
+
 * Sat Oct 12 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-102
 - Unrevert !842 "x11: Translate well known selection atoms to mimetypes"
 - Add !849 "x11: Map mimetypes back to selection atoms" @5c1be223

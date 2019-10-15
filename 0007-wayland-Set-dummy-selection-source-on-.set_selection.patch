@@ -1,0 +1,138 @@
+From 84cc89e19a2765f9d011c39ed6cc37689a7cc34e Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Fri, 11 Oct 2019 18:43:00 +0200
+Subject: [PATCH 7/8] wayland: Set dummy selection source on
+ .set_selection(null)
+
+Requesting a selection with a NULL data source means "unset the clipboard",
+but internally we use an unset clipboard as the indication that the
+clipboard manager should take over.
+
+Moreover, this unset request may go unheard if the current owner is someone
+else than the MetaWaylandDataDevice.
+
+Instead, set a dummy data source with no mimetypes nor data, this both
+prevents the clipboard manager from taking over and ensures the selection
+is replaced with it.
+
+The MetaSelectionSourceMemory was also added some checks to allow for this
+dummy mode.
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/issues/793
+---
+ src/core/meta-selection-source-memory.c |  5 ++++-
+ src/wayland/meta-wayland-data-device.c  | 25 +++++++++++++------------
+ 2 files changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/src/core/meta-selection-source-memory.c b/src/core/meta-selection-source-memory.c
+index 04b7f39a3..c8b0c83f5 100644
+--- a/src/core/meta-selection-source-memory.c
++++ b/src/core/meta-selection-source-memory.c
+@@ -76,6 +76,9 @@ meta_selection_source_memory_get_mimetypes (MetaSelectionSource *source)
+ {
+   MetaSelectionSourceMemory *source_mem = META_SELECTION_SOURCE_MEMORY (source);
+ 
++  if (!source_mem->mimetype)
++    return NULL;
++
+   return g_list_prepend (NULL, g_strdup (source_mem->mimetype));
+ }
+ 
+@@ -84,7 +87,7 @@ meta_selection_source_memory_finalize (GObject *object)
+ {
+   MetaSelectionSourceMemory *source_mem = META_SELECTION_SOURCE_MEMORY (object);
+ 
+-  g_bytes_unref (source_mem->content);
++  g_clear_pointer (&source_mem->content, g_bytes_unref);
+   g_free (source_mem->mimetype);
+ 
+   G_OBJECT_CLASS (meta_selection_source_memory_parent_class)->finalize (object);
+diff --git a/src/wayland/meta-wayland-data-device.c b/src/wayland/meta-wayland-data-device.c
+index 0044a80b8..f95be0bf8 100644
+--- a/src/wayland/meta-wayland-data-device.c
++++ b/src/wayland/meta-wayland-data-device.c
+@@ -36,6 +36,7 @@
+ #include <unistd.h>
+ 
+ #include "compositor/meta-dnd-actor-private.h"
++#include "meta/meta-selection-source-memory.h"
+ #include "wayland/meta-selection-source-wayland-private.h"
+ #include "wayland/meta-wayland-dnd-surface.h"
+ #include "wayland/meta-wayland-pointer.h"
+@@ -1627,6 +1628,7 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
+   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
+   struct wl_resource *data_device_resource;
+   struct wl_client *focus_client;
++  MetaSelectionSource *selection_source;
+ 
+   if (data_device->selection_data_source &&
+       data_device->selection_serial - serial < UINT32_MAX / 2)
+@@ -1646,23 +1648,22 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
+ 
+   if (source)
+     {
+-      MetaSelectionSource *selection_source;
+-
+       meta_wayland_data_source_set_seat (source, seat);
+       g_object_weak_ref (G_OBJECT (source),
+                          selection_data_source_destroyed,
+                          data_device);
+ 
+       selection_source = meta_selection_source_wayland_new (source);
+-      set_selection_source (data_device, META_SELECTION_CLIPBOARD,
+-                            selection_source);
+-      g_object_unref (selection_source);
+     }
+   else
+     {
+-      unset_selection_source (data_device, META_SELECTION_CLIPBOARD);
++      selection_source = g_object_new (META_TYPE_SELECTION_SOURCE_MEMORY, NULL);
+     }
+ 
++  set_selection_source (data_device, META_SELECTION_CLIPBOARD,
++                        selection_source);
++  g_object_unref (selection_source);
++
+   focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
+   if (focus_client)
+     {
+@@ -1748,6 +1749,7 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
+   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
+   struct wl_resource *data_device_resource;
+   struct wl_client *focus_client;
++  MetaSelectionSource *selection_source;
+ 
+   if (META_IS_WAYLAND_DATA_SOURCE_PRIMARY (source))
+     {
+@@ -1777,23 +1779,22 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
+ 
+   if (source)
+     {
+-      MetaSelectionSource *selection_source;
+-
+       meta_wayland_data_source_set_seat (source, seat);
+       g_object_weak_ref (G_OBJECT (source),
+                          primary_source_destroyed,
+                          data_device);
+ 
+       selection_source = meta_selection_source_wayland_new (source);
+-      set_selection_source (data_device, META_SELECTION_PRIMARY,
+-                            selection_source);
+-      g_object_unref (selection_source);
+     }
+   else
+     {
+-      unset_selection_source (data_device, META_SELECTION_PRIMARY);
++      selection_source = g_object_new (META_TYPE_SELECTION_SOURCE_MEMORY, NULL);
+     }
+ 
++  set_selection_source (data_device, META_SELECTION_PRIMARY,
++                        selection_source);
++  g_object_unref (selection_source);
++
+   focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
+   if (focus_client)
+     {
+-- 
+2.23.0
+
