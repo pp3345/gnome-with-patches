@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       400%{?dist}.pp3345
+Release:       401%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -175,6 +175,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Oct 15 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-401
+- Add !860 "clutter/stage: Actually set key focus to an actor on key focus" @553211dd
+- Unrevert !843 "clutter/actor: Save key-focus state and unset it before destruction"
+
 * Tue Oct 15 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-400
 - Revert !843 "clutter/actor: Save key-focus state and unset it before destruction" (regression)
 - Remove !849 "x11: Map mimetypes back to selection atoms" (merged)
