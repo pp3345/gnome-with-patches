@@ -7,7 +7,7 @@ License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        gnome-shell-3.34.1-6c2a8225.tar.gz
+Source0:        gnome-shell-3.34.1-246150d8.tar.gz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
