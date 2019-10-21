@@ -1,0 +1,33 @@
+diff --git a/src/backends/native/meta-kms-impl-simple.c b/src/backends/native/meta-kms-impl-simple.c
+index 19c4b2b33565c8d1435611d92c3aa4a8b64fa10d..571dccf12c04bc73975a3d1093b4b22b1a63fd75 100644
+--- a/src/backends/native/meta-kms-impl-simple.c
++++ b/src/backends/native/meta-kms-impl-simple.c
+@@ -772,12 +772,14 @@ meta_kms_impl_simple_handle_page_flip_callback (MetaKmsImpl         *impl,
+     {
+       impl_simple->postponed_page_flip_datas =
+         g_list_append (impl_simple->postponed_page_flip_datas,
+-                       page_flip_data);
++                       meta_kms_page_flip_data_ref (page_flip_data));
+     }
+   else
+     {
+       meta_kms_page_flip_data_flipped_in_impl (page_flip_data);
+     }
++
++  meta_kms_page_flip_data_unref (page_flip_data);
+ }
+ 
+ static void
+diff --git a/src/compositor/meta-background-actor.c b/src/compositor/meta-background-actor.c
+index 48f745b38113bc8842bf4f053c0ef381b606fbf1..961f6721bd08c2bb79d1d9264dc70de773053e11 100644
+--- a/src/compositor/meta-background-actor.c
++++ b/src/compositor/meta-background-actor.c
+@@ -573,6 +573,8 @@ meta_background_actor_paint (ClutterActor *actor)
+       paint_clipped_rectangle (fb, self->pipeline, &rect,
+                                &self->texture_area);
+     }
++
++  cairo_region_destroy (region);
+ }
+ 
+ static void
