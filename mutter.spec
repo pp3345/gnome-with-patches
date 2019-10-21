@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       402%{?dist}.pp3345
+Release:       403%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -175,6 +175,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Oct 21 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-403
+- Add !873 "fix The Memory Leak (2019-10-21T19:00:24+02:00 edition)" @40e6aa7d
+
 * Mon Oct 21 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-402
 - Remove !860 "clutter/stage: Actually set key focus to an actor on key focus" (merged)
 - Rebase to gnome-3-34@85f5db7e
