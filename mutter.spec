@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.35.1
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -56,7 +56,7 @@ BuildRequires: mesa-libgbm-devel
 BuildRequires: pkgconfig(glesv2)
 BuildRequires: pam-devel
 BuildRequires: pipewire-devel >= %{pipewire_version}
-#BuildRequires: pkgconfig(sysprof-capture-3)
+BuildRequires: pkgconfig(sysprof-capture-3)
 BuildRequires: systemd-devel
 BuildRequires: upower-devel
 BuildRequires: xorg-x11-server-Xorg
@@ -130,7 +130,7 @@ the functionality of the installed %{name} package.
 %autosetup -S git
 
 %build
-%meson -Degl_device=true -Dwayland_eglstream=true -Dprofiler=false
+%meson -Degl_device=true -Dwayland_eglstream=true
 %meson_build
 
 %install
@@ -168,6 +168,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Oct 29 2019 Florian Müllner <fmuellner@redhat.com> - 3.35.1-3
+- Enable sysprof support
+  The required dependency was missing from rawhide when the feature
+  landed, but there's no reason for keeping it disabled nowadays
+
 * Mon Oct 14 2019 Adam Williamson <awilliam@redhat.com> - 3.35.1-2
 - Update MR #832 backport to fully fix cursor zoom bug (#1749433)
 
