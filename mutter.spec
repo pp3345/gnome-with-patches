@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       6%{?dist}
+Release:       7%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -56,6 +56,10 @@ Patch13:       0001-x11-Map-mimetypes-back-to-selection-atoms.patch
 # necessary for SDL2 apps to work correctly
 Patch14:       0001-window-Add-adjust_fullscreen_monitor_rect-virtual-me.patch
 Patch15:       0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/884
+# Fixes issue with X11 cursor focus after '<application>” is not responding' dialog shows up:
+# https://gitlab.gnome.org/GNOME/gnome-shell/issues/1607
+Patch16:       0001-x11-Update-X11-focus-before-updating-MetaDisplay-foc.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -200,6 +204,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Nov 06 2019 LuK1337 <priv.luk@gmail.com> - 3.34.1-7
+- Backport MR #884
+
 * Mon Nov  4 2019 Hans de Goede <hdegoede@redhat.com> - 3.34.1-6
 - Backport 2 patches which complement the backported Xwayland randr
   resolution change emulation support (necessary for SDL2 apps)
