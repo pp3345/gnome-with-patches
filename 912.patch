@@ -1,0 +1,458 @@
+diff --git a/src/compositor/plugins/default.c b/src/compositor/plugins/default.c
+index e7203ee113958843fbbb1cdd27695f211060ddf9..7ae5d3904057319e66173cf58f24bed7366dbad9 100644
+--- a/src/compositor/plugins/default.c
++++ b/src/compositor/plugins/default.c
+@@ -737,9 +737,8 @@ destroy (MetaPlugin *plugin, MetaWindowActor *window_actor)
+  * Tile preview private data accessor
+  */
+ static void
+-free_display_tile_preview (gpointer data)
++free_display_tile_preview (DisplayTilePreview *preview)
+ {
+-  DisplayTilePreview *preview = data;
+ 
+   if (G_LIKELY (preview != NULL)) {
+     clutter_actor_destroy (preview->actor);
+@@ -747,13 +746,25 @@ free_display_tile_preview (gpointer data)
+   }
+ }
+ 
++static void
++on_display_closing (MetaDisplay        *display,
++                    DisplayTilePreview *preview)
++{
++  free_display_tile_preview (preview);
++}
++
+ static DisplayTilePreview *
+ get_display_tile_preview (MetaDisplay *display)
+ {
+-  DisplayTilePreview *preview = g_object_get_qdata (G_OBJECT (display), display_tile_preview_data_quark);
++  DisplayTilePreview *preview;
+ 
++  preview = g_object_get_qdata (G_OBJECT (display),
++                                display_tile_preview_data_quark);
+   if (G_UNLIKELY (display_tile_preview_data_quark == 0))
+-    display_tile_preview_data_quark = g_quark_from_static_string (DISPLAY_TILE_PREVIEW_DATA_KEY);
++    {
++      display_tile_preview_data_quark =
++        g_quark_from_static_string (DISPLAY_TILE_PREVIEW_DATA_KEY);
++    }
+ 
+   if (G_UNLIKELY (!preview))
+     {
+@@ -764,9 +775,11 @@ get_display_tile_preview (MetaDisplay *display)
+       clutter_actor_set_opacity (preview->actor, 100);
+ 
+       clutter_actor_add_child (meta_get_window_group_for_display (display), preview->actor);
+-      g_object_set_qdata_full (G_OBJECT (display),
+-                               display_tile_preview_data_quark, preview,
+-                               free_display_tile_preview);
++      g_signal_connect (display, "closing", G_CALLBACK (on_display_closing),
++                        preview);
++      g_object_set_qdata (G_OBJECT (display),
++                          display_tile_preview_data_quark,
++                          preview);
+     }
+ 
+   return preview;
+diff --git a/src/core/display.c b/src/core/display.c
+index 4ee61a8a1729003b721ca46615c15b4d6a8d7888..b18f5a55815cafd3dbdcff7789fa0d154f7b0139 100644
+--- a/src/core/display.c
++++ b/src/core/display.c
+@@ -156,6 +156,7 @@ enum
+   SHOWING_DESKTOP_CHANGED,
+   RESTACKED,
+   WORKAREAS_CHANGED,
++  CLOSING,
+   LAST_SIGNAL
+ };
+ 
+@@ -493,6 +494,12 @@ meta_display_class_init (MetaDisplayClass *klass)
+                   G_SIGNAL_RUN_LAST,
+                   0, NULL, NULL, NULL,
+                   G_TYPE_NONE, 0);
++  display_signals[CLOSING] =
++    g_signal_new ("closing",
++                  G_TYPE_FROM_CLASS (klass),
++                  G_SIGNAL_RUN_LAST,
++                  0, NULL, NULL, NULL,
++                  G_TYPE_NONE, 0);
+ 
+   g_object_class_install_property (object_class,
+                                    PROP_FOCUS_WINDOW,
+@@ -971,6 +978,8 @@ meta_display_close (MetaDisplay *display,
+ 
+   display->closing += 1;
+ 
++  g_signal_emit (display, display_signals[CLOSING], 0);
++
+   meta_compositor_unmanage (display->compositor);
+ 
+   meta_display_unmanage_windows (display, timestamp);
+diff --git a/src/core/window-private.h b/src/core/window-private.h
+index dd89fdc90964d3ec27ecad04da067ed3d58e74eb..62f97fba2e3d0d784ac391cfd47359b14d6ab22c 100644
+--- a/src/core/window-private.h
++++ b/src/core/window-private.h
+@@ -629,6 +629,7 @@ void        meta_window_unmanage           (MetaWindow  *window,
+ void        meta_window_unmanage_on_idle   (MetaWindow *window);
+ void        meta_window_queue              (MetaWindow  *window,
+                                             guint queuebits);
++META_EXPORT_TEST
+ void        meta_window_tile               (MetaWindow        *window,
+                                             MetaTileMode       mode);
+ MetaTileMode meta_window_get_tile_mode     (MetaWindow        *window);
+diff --git a/src/core/window.c b/src/core/window.c
+index 850ee21cc1539472e6b0187cc5731c8fe83c381b..ffd58a6302f5e173cae1d1d62d9a2fb106e004ec 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -3191,7 +3191,10 @@ meta_window_tile (MetaWindow   *window,
+ 
+   /* Don't do anything if no tiling is requested */
+   if (window->tile_mode == META_TILE_NONE)
+-    return;
++    {
++      window->tile_monitor_number = -1;
++      return;
++    }
+ 
+   if (window->tile_mode == META_TILE_MAXIMIZED)
+     directions = META_MAXIMIZE_BOTH;
+@@ -3922,11 +3925,16 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
+   if (!new)
+     new = meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
+ 
+-  if (new && old)
++  if (window->tile_mode != META_TILE_NONE)
+     {
+-      if (window->tile_mode != META_TILE_NONE)
++      if (new)
+         window->tile_monitor_number = new->number;
++      else
++        window->tile_monitor_number = -1;
++    }
+ 
++  if (new && old)
++    {
+       /* This will eventually reach meta_window_update_monitor that
+        * will send leave/enter-monitor events. The old != new monitor
+        * check will always fail (due to the new logical_monitors set) so
+diff --git a/src/tests/monitor-unit-tests.c b/src/tests/monitor-unit-tests.c
+index 83102c3a5aa54427dfefa3acb4105a115e85bf24..1b873ccb9616cc3f90deb4d6e4868a597432e148 100644
+--- a/src/tests/monitor-unit-tests.c
++++ b/src/tests/monitor-unit-tests.c
+@@ -28,6 +28,7 @@
+ #include "backends/meta-monitor-config-migration.h"
+ #include "backends/meta-monitor-config-store.h"
+ #include "backends/meta-output.h"
++#include "core/window-private.h"
+ #include "meta-backend-test.h"
+ #include "tests/meta-monitor-manager-test.h"
+ #include "tests/monitor-test-utils.h"
+@@ -378,15 +379,22 @@ create_monitor_test_clients (void)
+ }
+ 
+ static void
+-check_monitor_test_clients_state (void)
++check_test_client_state (TestClient *test_client)
+ {
+   GError *error = NULL;
+ 
+-  if (!test_client_wait (wayland_monitor_test_client, &error))
+-    g_error ("Failed to sync Wayland test client: %s", error->message);
++  if (!test_client_wait (test_client, &error))
++    {
++      g_error ("Failed to sync test client '%s': %s",
++               test_client_get_id (test_client), error->message);
++    }
++}
+ 
+-  if (!test_client_wait (x11_monitor_test_client, &error))
+-    g_error ("Failed to sync X11 test client: %s", error->message);
++static void
++check_monitor_test_clients_state (void)
++{
++  check_test_client_state (wayland_monitor_test_client);
++  check_test_client_state (x11_monitor_test_client);
+ }
+ 
+ static void
+@@ -5753,6 +5761,128 @@ meta_test_monitor_migrated_wiggle_discard (void)
+     g_error ("Failed to remove test data output file: %s", error->message);
+ }
+ 
++static gboolean
++quit_main_loop (gpointer data)
++{
++  GMainLoop *loop = data;
++
++  g_main_loop_quit (loop);
++
++  return FALSE;
++}
++
++static void
++dispatch (void)
++{
++  GMainLoop *loop;
++
++  loop = g_main_loop_new (NULL, FALSE);
++  meta_later_add (META_LATER_BEFORE_REDRAW,
++                  quit_main_loop,
++                  loop,
++                  NULL);
++  g_main_loop_run (loop);
++}
++
++static TestClient *
++create_test_window (const char *window_name)
++{
++  TestClient *test_client;
++  static int client_count = 0;
++  g_autofree char *client_name = NULL;
++  g_autoptr (GError) error = NULL;
++
++  client_name = g_strdup_printf ("test_client_%d", client_count++);
++  test_client = test_client_new (client_name, META_WINDOW_CLIENT_TYPE_WAYLAND,
++                                 &error);
++  if (!test_client)
++    g_error ("Failed to launch test client: %s", error->message);
++
++  if (!test_client_do (test_client, &error,
++                       "create", window_name,
++                       NULL))
++    g_error ("Failed to create window: %s", error->message);
++
++  return test_client;
++}
++
++static void
++meta_test_monitor_wm_tiling (void)
++{
++  MonitorTestCase test_case = initial_test_case;
++  MetaMonitorTestSetup *test_setup;
++  g_autoptr (GError) error = NULL;
++
++  test_setup = create_monitor_test_setup (&test_case,
++                                          MONITOR_TEST_FLAG_NO_STORED);
++  emulate_hotplug (test_setup);
++
++  /*
++   * 1) Start with two monitors connected.
++   * 2) Tile it on the second monitor.
++   * 3) Unplug both monitors.
++   * 4) Replug in first monitor.
++   */
++
++  const char *test_window_name= "window1";
++  TestClient *test_client = create_test_window (test_window_name);
++
++  if (!test_client_do (test_client, &error,
++                       "show", test_window_name,
++                       NULL))
++    g_error ("Failed to show the window: %s", error->message);
++
++  MetaWindow *test_window =
++    test_client_find_window (test_client,
++                             test_window_name,
++                             &error);
++  if (!test_window)
++    g_error ("Failed to find the window: %s", error->message);
++  test_client_wait_for_window_shown (test_client, test_window);
++
++  meta_window_tile (test_window, META_TILE_MAXIMIZED);
++  meta_window_move_to_monitor (test_window, 1);
++  check_test_client_state (test_client);
++
++  fprintf(stderr, ":::: %s:%d %s() - UNPLUGGING\n", __FILE__, __LINE__, __func__);
++
++  test_case.setup.n_outputs = 0;
++  test_setup = create_monitor_test_setup (&test_case,
++                                          MONITOR_TEST_FLAG_NO_STORED);
++  emulate_hotplug (test_setup);
++  test_case.setup.n_outputs = 1;
++  test_setup = create_monitor_test_setup (&test_case,
++                                          MONITOR_TEST_FLAG_NO_STORED);
++  emulate_hotplug (test_setup);
++
++  dispatch ();
++
++  /*
++   * 1) Start with two monitors connected.
++   * 2) Tile a window on the second monitor.
++   * 3) Untile window.
++   * 4) Unplug monitor.
++   * 5) Tile window again.
++   */
++
++  test_case.setup.n_outputs = 2;
++  test_setup = create_monitor_test_setup (&test_case,
++                                          MONITOR_TEST_FLAG_NO_STORED);
++  emulate_hotplug (test_setup);
++
++  meta_window_move_to_monitor (test_window, 1);
++  meta_window_tile (test_window, META_TILE_NONE);
++
++  test_case.setup.n_outputs = 1;
++  test_setup = create_monitor_test_setup (&test_case,
++                                          MONITOR_TEST_FLAG_NO_STORED);
++  emulate_hotplug (test_setup);
++
++  meta_window_tile (test_window, META_TILE_MAXIMIZED);
++
++  test_client_destroy (test_client);
++}
++
+ static void
+ meta_test_monitor_migrated_wiggle (void)
+ {
+@@ -6008,6 +6138,9 @@ init_monitor_tests (void)
+                     meta_test_monitor_migrated_wiggle);
+   add_monitor_test ("/backends/monitor/migrated/wiggle-discard",
+                     meta_test_monitor_migrated_wiggle_discard);
++
++  add_monitor_test ("/backends/monitor/wm/tiling",
++                    meta_test_monitor_wm_tiling);
+ }
+ 
+ void
+diff --git a/src/tests/test-runner.c b/src/tests/test-runner.c
+index 377b256c20a8d004ba8a6a7f68cc8de885b16048..7560c957edb2064c46bf9553c746c735259fad2d 100644
+--- a/src/tests/test-runner.c
++++ b/src/tests/test-runner.c
+@@ -342,39 +342,6 @@ test_case_check_xserver_stacking (TestCase *test,
+   return *error == NULL;
+ }
+ 
+-typedef struct _WaitForShownData
+-{
+-  GMainLoop *loop;
+-  MetaWindow *window;
+-  guint shown_handler_id;
+-} WaitForShownData;
+-
+-static void
+-on_window_shown (MetaWindow       *window,
+-                 WaitForShownData *data)
+-{
+-  g_main_loop_quit (data->loop);
+-}
+-
+-static gboolean
+-test_case_wait_for_showing_before_redraw (gpointer user_data)
+-{
+-  WaitForShownData *data = user_data;
+-
+-  if (meta_window_is_hidden (data->window))
+-    {
+-      data->shown_handler_id = g_signal_connect (data->window, "shown",
+-                                                 G_CALLBACK (on_window_shown),
+-                                                 data);
+-    }
+-  else
+-    {
+-      g_main_loop_quit (data->loop);
+-    }
+-
+-  return FALSE;
+-}
+-
+ static gboolean
+ test_case_do (TestCase *test,
+               int       argc,
+@@ -533,18 +500,7 @@ test_case_do (TestCase *test,
+       if (!window)
+         return FALSE;
+ 
+-      WaitForShownData data = {
+-        .loop = g_main_loop_new (NULL, FALSE),
+-        .window = window,
+-      };
+-      meta_later_add (META_LATER_BEFORE_REDRAW,
+-                      test_case_wait_for_showing_before_redraw,
+-                      &data,
+-                      NULL);
+-      g_main_loop_run (data.loop);
+-      if (data.shown_handler_id)
+-        g_signal_handler_disconnect (window, data.shown_handler_id);
+-      g_main_loop_unref (data.loop);
++      test_client_wait_for_window_shown (client, window);
+     }
+   else if (strcmp (argv[0], "hide") == 0 ||
+            strcmp (argv[0], "activate") == 0 ||
+diff --git a/src/tests/test-utils.c b/src/tests/test-utils.c
+index a4200545171d93a2c6b34a8b32a90a487dbf353a..c16ccf8b244261dd0b585f8238c0e5e453cfe904 100644
+--- a/src/tests/test-utils.c
++++ b/src/tests/test-utils.c
+@@ -359,6 +359,57 @@ test_client_find_window (TestClient *client,
+   return result;
+ }
+ 
++typedef struct _WaitForShownData
++{
++  GMainLoop *loop;
++  MetaWindow *window;
++  guint shown_handler_id;
++} WaitForShownData;
++
++static void
++on_window_shown (MetaWindow       *window,
++                 WaitForShownData *data)
++{
++  g_main_loop_quit (data->loop);
++}
++
++static gboolean
++wait_for_showing_before_redraw (gpointer user_data)
++{
++  WaitForShownData *data = user_data;
++
++  if (meta_window_is_hidden (data->window))
++    {
++      data->shown_handler_id = g_signal_connect (data->window, "shown",
++                                                 G_CALLBACK (on_window_shown),
++                                                 data);
++    }
++  else
++    {
++      g_main_loop_quit (data->loop);
++    }
++
++  return FALSE;
++}
++
++void
++test_client_wait_for_window_shown (TestClient *client,
++                                   MetaWindow *window)
++{
++  WaitForShownData data = {
++    .loop = g_main_loop_new (NULL, FALSE),
++    .window = window,
++  };
++  meta_later_add (META_LATER_BEFORE_REDRAW,
++                  wait_for_showing_before_redraw,
++                  &data,
++                  NULL);
++  g_main_loop_run (data.loop);
++  if (data.shown_handler_id)
++    g_signal_handler_disconnect (window, data.shown_handler_id);
++  g_main_loop_unref (data.loop);
++}
++
+ gboolean
+ test_client_alarm_filter (MetaX11Display        *x11_display,
+                           XSyncAlarmNotifyEvent *event,
+diff --git a/src/tests/test-utils.h b/src/tests/test-utils.h
+index e11f25353a5b691cad3b3eb0c43e02c587c07db3..2f1a73116afd4d72f7fed4278bbd1ba40e800973 100644
+--- a/src/tests/test-utils.h
++++ b/src/tests/test-utils.h
+@@ -70,6 +70,9 @@ MetaWindow * test_client_find_window (TestClient *client,
+                                       const char *window_id,
+                                       GError    **error);
+ 
++void test_client_wait_for_window_shown (TestClient *client,
++                                        MetaWindow *window);
++
+ gboolean test_client_quit (TestClient *client,
+                            GError    **error);
+ 
