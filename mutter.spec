@@ -56,7 +56,7 @@ BuildRequires: mesa-libgbm-devel
 BuildRequires: pkgconfig(glesv2)
 BuildRequires: pam-devel
 BuildRequires: pipewire-devel >= %{pipewire_version}
-#BuildRequires: pkgconfig(sysprof-capture-3)
+BuildRequires: pkgconfig(sysprof-capture-3)
 BuildRequires: systemd-devel
 BuildRequires: upower-devel
 BuildRequires: xorg-x11-server-Xorg
@@ -137,7 +137,7 @@ the functionality of the installed %{name} package.
 %autosetup -S git
 
 %build
-%meson -Degl_device=true -Dwayland_eglstream=true -Dprofiler=false
+%meson -Degl_device=true -Dwayland_eglstream=true
 %meson_build
 
 %install
@@ -175,6 +175,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Oct 29 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.1-5
+- Enable sysprof support
+  The required dependency was missing from rawhide when the feature
+  landed, but there's no reason for keeping it disabled nowadays
+
 * Mon Oct 21 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-403
 - Add !873 "fix The Memory Leak (2019-10-21T19:00:24+02:00 edition)" @40e6aa7d
 
