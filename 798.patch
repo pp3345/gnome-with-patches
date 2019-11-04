@@ -88,10 +88,7 @@ index a12261f449df4ff111e5bb436213a1d2c7681e4f..fca0fe42d015616e443192d5af7880f9
  enum
  {
    PROP_0,
-@@ -46,6 +49,8 @@ typedef struct _ClutterStageViewPrivate
-   CoglOffscreen *offscreen;
-   CoglPipeline *pipeline;
- 
+@@ -49,3 +49,5 @@ typedef struct _ClutterStageViewPrivate
 +  CoglScanout *next_scanout;
 +
    guint dirty_viewport   : 1;
