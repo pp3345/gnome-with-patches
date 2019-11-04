@@ -1,0 +1,505 @@
+diff --git a/clutter/clutter/clutter-stage-window.c b/clutter/clutter/clutter-stage-window.c
+index c859264b3ea18ab297f347fe3179e69d654c3185..68a763d445aabd4b92dbcdb4c9f3b4695591109d 100644
+--- a/clutter/clutter/clutter-stage-window.c
++++ b/clutter/clutter/clutter-stage-window.c
+@@ -249,23 +249,6 @@ _clutter_stage_window_get_redraw_clip (ClutterStageWindow *window)
+   return NULL;
+ }
+ 
+-gboolean
+-_clutter_stage_window_get_redraw_clip_bounds (ClutterStageWindow    *window,
+-                                              cairo_rectangle_int_t *stage_clip)
+-{
+-  cairo_region_t *redraw_clip;
+-
+-  g_return_val_if_fail (CLUTTER_IS_STAGE_WINDOW (window), FALSE);
+-
+-  redraw_clip = _clutter_stage_window_get_redraw_clip (window);
+-  if (!redraw_clip)
+-    return FALSE;
+-
+-  cairo_region_get_extents (redraw_clip, stage_clip);
+-  cairo_region_destroy (redraw_clip);
+-  return TRUE;
+-}
+-
+ void
+ _clutter_stage_window_set_accept_focus (ClutterStageWindow *window,
+                                         gboolean            accept_focus)
+diff --git a/clutter/clutter/clutter-stage-window.h b/clutter/clutter/clutter-stage-window.h
+index a06c5190d5199244b5bc2f46f0e3b672d07e277d..c99e9594d583b53f5d45d3cfc9a609b2b56cf231 100644
+--- a/clutter/clutter/clutter-stage-window.h
++++ b/clutter/clutter/clutter-stage-window.h
+@@ -98,8 +98,6 @@ void              _clutter_stage_window_add_redraw_clip         (ClutterStageWin
+                                                                  cairo_rectangle_int_t *stage_clip);
+ gboolean          _clutter_stage_window_has_redraw_clips        (ClutterStageWindow    *window);
+ gboolean          _clutter_stage_window_ignoring_redraw_clips   (ClutterStageWindow    *window);
+-gboolean          _clutter_stage_window_get_redraw_clip_bounds  (ClutterStageWindow    *window,
+-                                                                 cairo_rectangle_int_t *clip);
+ cairo_region_t *  _clutter_stage_window_get_redraw_clip         (ClutterStageWindow    *window);
+ 
+ void              _clutter_stage_window_set_accept_focus        (ClutterStageWindow *window,
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index f1f75bd0ac7c69b0179eafeb4b14f6020075df95..5e0276c6703c6b5c5cd94e88b1b4368b41042a4f 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -1415,11 +1415,10 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
+   ClutterDeviceManager *device_manager;
+   GSList *updating = NULL;
+   const GSList *devices;
+-  cairo_rectangle_int_t clip;
++  cairo_region_t *clip;
+   ClutterPoint point;
+-  gboolean has_clip;
+ 
+-  has_clip = _clutter_stage_window_get_redraw_clip_bounds (priv->impl, &clip);
++  clip = _clutter_stage_window_get_redraw_clip (priv->impl);
+ 
+   device_manager = clutter_device_manager_get_default ();
+   devices = clutter_device_manager_peek_devices (device_manager);
+@@ -1442,9 +1441,7 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
+           if (!clutter_input_device_get_coords (dev, NULL, &point))
+             continue;
+ 
+-          if (!has_clip ||
+-              (point.x >= clip.x && point.x < clip.x + clip.width &&
+-               point.y >= clip.y && point.y < clip.y + clip.height))
++          if (!clip || cairo_region_contains_point (clip, point.x, point.y))
+             updating = g_slist_prepend (updating, dev);
+           break;
+         default:
+@@ -1653,38 +1650,3 @@ clutter_stage_get_redraw_clip (ClutterStage *stage)
+-/**
+- * clutter_stage_get_redraw_clip_bounds:
+- * @stage: A #ClutterStage
+- * @clip: (out caller-allocates): Return location for the clip bounds
+- *
+- * Gets the bounds of the current redraw for @stage in stage pixel
+- * coordinates. E.g., if only a single actor has queued a redraw then
+- * Clutter may redraw the stage with a clip so that it doesn't have to
+- * paint every pixel in the stage. This function would then return the
+- * bounds of that clip. An application can use this information to
+- * avoid some extra work if it knows that some regions of the stage
+- * aren't going to be painted. This should only be called while the
+- * stage is being painted. If there is no current redraw clip then
+- * this function will set @clip to the full extents of the stage.
+- *
+- * Since: 1.8
+- */
+-void
+-clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
+-                                      cairo_rectangle_int_t *clip)
+-{
+-  ClutterStagePrivate *priv;
+-
+-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
+-  g_return_if_fail (clip != NULL);
+-
+-  priv = stage->priv;
+-
+-  if (!_clutter_stage_window_get_redraw_clip_bounds (priv->impl, clip))
+-    {
+-      /* Set clip to the full extents of the stage */
+-      _clutter_stage_window_get_geometry (priv->impl, clip);
+-    }
+-}
+-
+ static ClutterActor *
+ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
+                                 gint              x,
+diff --git a/clutter/clutter/clutter-stage.h b/clutter/clutter/clutter-stage.h
+index f40ce8164a2334e72f2a550124e7c70ed965ef1a..dd8de9187cef7fb48b03f37fb2339ef118d26e3d 100644
+--- a/clutter/clutter/clutter-stage.h
++++ b/clutter/clutter/clutter-stage.h
+@@ -211,9 +211,6 @@ guchar *        clutter_stage_read_pixels                       (ClutterStage
+                                                                  gint                   height);
+ 
+ CLUTTER_EXPORT
+-void            clutter_stage_get_redraw_clip_bounds            (ClutterStage          *stage,
+-                                                                 cairo_rectangle_int_t *clip);
+-CLUTTER_EXPORT
+ cairo_region_t * clutter_stage_get_redraw_clip                  (ClutterStage          *stage);
+ CLUTTER_EXPORT
+ void            clutter_stage_ensure_viewport                   (ClutterStage          *stage);
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index fdc22476af3a214cb72caf96030e998f2744fb52..7d679cf610b5854130330c18cbc47937558ae0ad 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -883,27 +883,34 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+       cairo_rectangle_int_t clip_rect;
+       cairo_rectangle_int_t scissor_rect;
+ 
+-      cairo_region_get_extents (fb_clip_region, &clip_rect);
++      stage_cogl->using_clipped_redraw = TRUE;
+ 
+-      calculate_scissor_region (&clip_rect,
+-                                subpixel_compensation,
+-                                fb_width, fb_height,
+-                                &scissor_rect);
++      if (cairo_region_num_rectangles (fb_clip_region) == 1)
++        {
++          cairo_region_get_extents (fb_clip_region, &clip_rect);
+ 
+-      CLUTTER_NOTE (CLIPPING,
+-                    "Stage clip pushed: x=%d, y=%d, width=%d, height=%d\n",
+-                    scissor_rect.x,
+-                    scissor_rect.y,
+-                    scissor_rect.width,
+-                    scissor_rect.height);
++          calculate_scissor_region (&clip_rect,
++                                    subpixel_compensation,
++                                    fb_width, fb_height,
++                                    &scissor_rect);
+ 
+-      stage_cogl->using_clipped_redraw = TRUE;
++          CLUTTER_NOTE (CLIPPING,
++                        "Stage clip pushed: x=%d, y=%d, width=%d, height=%d\n",
++                        scissor_rect.x,
++                        scissor_rect.y,
++                        scissor_rect.width,
++                        scissor_rect.height);
+ 
+-      cogl_framebuffer_push_scissor_clip (fb,
+-                                          scissor_rect.x,
+-                                          scissor_rect.y,
+-                                          scissor_rect.width,
+-                                          scissor_rect.height);
++          cogl_framebuffer_push_scissor_clip (fb,
++                                              scissor_rect.x,
++                                              scissor_rect.y,
++                                              scissor_rect.width,
++                                              scissor_rect.height);
++        }
++      else
++        {
++          cogl_framebuffer_push_region_clip (fb, fb_clip_region);
++        }
+ 
+       paint_stage (stage_cogl, view, fb_clip_region);
+ 
+diff --git a/cogl/cogl/cogl-clip-stack.c b/cogl/cogl/cogl-clip-stack.c
+index 092510714e8b09319cf7197e4d39b97baa7895eb..8c2100a44e2c2a250bedd7015354992786e50b77 100644
+--- a/cogl/cogl/cogl-clip-stack.c
++++ b/cogl/cogl/cogl-clip-stack.c
+@@ -295,6 +295,30 @@ _cogl_clip_stack_push_primitive (CoglClipStack *stack,
+   return (CoglClipStack *) entry;
+ }
+ 
++CoglClipStack *
++_cogl_clip_stack_push_region (CoglClipStack   *stack,
++                              cairo_region_t  *region)
++{
++  CoglClipStack *entry;
++  CoglClipStackRegion *entry_region;
++  cairo_rectangle_int_t bounds;
++
++  entry_region = _cogl_clip_stack_push_entry (stack,
++                                              sizeof (CoglClipStackRegion),
++                                              COGL_CLIP_STACK_REGION);
++  entry = (CoglClipStack *) entry_region;
++
++  cairo_region_get_extents (region, &bounds);
++  entry->bounds_x0 = bounds.x;
++  entry->bounds_x1 = bounds.x + bounds.width;
++  entry->bounds_y0 = bounds.y;
++  entry->bounds_y1 = bounds.y + bounds.height;
++
++  entry_region->region = cairo_region_reference (region);
++
++  return entry;
++}
++
+ CoglClipStack *
+ _cogl_clip_stack_ref (CoglClipStack *entry)
+ {
+@@ -336,6 +360,13 @@ _cogl_clip_stack_unref (CoglClipStack *entry)
+             g_slice_free1 (sizeof (CoglClipStackPrimitive), entry);
+             break;
+           }
++        case COGL_CLIP_STACK_REGION:
++          {
++            CoglClipStackRegion *region = (CoglClipStackRegion *) entry;
++            cairo_region_destroy (region->region);
++            g_slice_free1 (sizeof (CoglClipStackRegion), entry);
++            break;
++          }
+         default:
+           g_assert_not_reached ();
+         }
+diff --git a/cogl/cogl/cogl-clip-stack.h b/cogl/cogl/cogl-clip-stack.h
+index eb2c4328217a2f85cdcd0c7962f0767af27bcba6..095cf25736ce1f91a57d27502bb41c0ab890b99a 100644
+--- a/cogl/cogl/cogl-clip-stack.h
++++ b/cogl/cogl/cogl-clip-stack.h
+@@ -48,12 +48,14 @@ typedef struct _CoglClipStack CoglClipStack;
+ typedef struct _CoglClipStackRect CoglClipStackRect;
+ typedef struct _CoglClipStackWindowRect CoglClipStackWindowRect;
+ typedef struct _CoglClipStackPrimitive CoglClipStackPrimitive;
++typedef struct _CoglClipStackRegion CoglClipStackRegion;
+ 
+ typedef enum
+   {
+     COGL_CLIP_STACK_RECT,
+     COGL_CLIP_STACK_WINDOW_RECT,
+-    COGL_CLIP_STACK_PRIMITIVE
++    COGL_CLIP_STACK_PRIMITIVE,
++    COGL_CLIP_STACK_REGION,
+   } CoglClipStackType;
+ 
+ /* A clip stack consists a list of entries. Each entry has a reference
+@@ -162,6 +164,13 @@ struct _CoglClipStackPrimitive
+   float bounds_y2;
+ };
+ 
++struct _CoglClipStackRegion
++{
++  CoglClipStack _parent_data;
++
++  cairo_region_t *region;
++};
++
+ CoglClipStack *
+ _cogl_clip_stack_push_window_rectangle (CoglClipStack *stack,
+                                         int x_offset,
+@@ -189,6 +198,9 @@ _cogl_clip_stack_push_primitive (CoglClipStack *stack,
+                                  CoglMatrixEntry *modelview_entry,
+                                  CoglMatrixEntry *projection_entry,
+                                  const float *viewport);
++CoglClipStack *
++_cogl_clip_stack_push_region (CoglClipStack   *stack,
++                              cairo_region_t  *region);
+ 
+ CoglClipStack *
+ _cogl_clip_stack_pop (CoglClipStack *stack);
+diff --git a/cogl/cogl/cogl-context-private.h b/cogl/cogl/cogl-context-private.h
+index 04040ce8c8330ccc20aa619b9ab8872d80304188..d767abcf6db0ba439d6ce1e1ecae538700735a8a 100644
+--- a/cogl/cogl/cogl-context-private.h
++++ b/cogl/cogl/cogl-context-private.h
+@@ -272,11 +272,6 @@ struct _CoglContext
+      same state multiple times. When the clip state is flushed this
+      will hold a reference */
+   CoglClipStack    *current_clip_stack;
+-  /* Whether the stencil buffer was used as part of the current clip
+-     state. If TRUE then any further use of the stencil buffer (such
+-     as for drawing paths) would need to be merged with the existing
+-     stencil buffer */
+-  gboolean          current_clip_stack_uses_stencil;
+ 
+   /* This is used as a temporary buffer to fill a CoglBuffer when
+      cogl_buffer_map fails and we only want to map to fill it with new
+diff --git a/cogl/cogl/cogl-framebuffer.c b/cogl/cogl/cogl-framebuffer.c
+index 8164e5760c222cdd9032e79a29cecdff98ab7541..9fe1b31f8be1ae4be8676e4e4352ef5b8bd7ca5a 100644
+--- a/cogl/cogl/cogl-framebuffer.c
++++ b/cogl/cogl/cogl-framebuffer.c
+@@ -1762,6 +1762,19 @@ cogl_framebuffer_push_primitive_clip (CoglFramebuffer *framebuffer,
+       COGL_FRAMEBUFFER_STATE_CLIP;
+ }
+ 
++void
++cogl_framebuffer_push_region_clip (CoglFramebuffer *framebuffer,
++                                   cairo_region_t  *region)
++{
++  framebuffer->clip_stack =
++    _cogl_clip_stack_push_region (framebuffer->clip_stack,
++                                  region);
++
++  if (framebuffer->context->current_draw_buffer == framebuffer)
++    framebuffer->context->current_draw_buffer_changes |=
++      COGL_FRAMEBUFFER_STATE_CLIP;
++}
++
+ void
+ cogl_framebuffer_pop_clip (CoglFramebuffer *framebuffer)
+ {
+diff --git a/cogl/cogl/cogl-framebuffer.h b/cogl/cogl/cogl-framebuffer.h
+index b582dac7172c1d1db4753cdf93ac31564aa807c7..1df6731f7d6b4287c596c18a9fb14514c08d86af 100644
+--- a/cogl/cogl/cogl-framebuffer.h
++++ b/cogl/cogl/cogl-framebuffer.h
+@@ -54,3 +54,4 @@ typedef struct _CoglFramebuffer CoglFramebuffer;
+ #include <cogl/cogl-texture.h>
+ #include <glib-object.h>
++#include <cairo.h>
+ 
+@@ -624,6 +625,10 @@ cogl_framebuffer_push_primitive_clip (CoglFramebuffer *framebuffer,
+                                       float bounds_x2,
+                                       float bounds_y2);
+ 
++void
++cogl_framebuffer_push_region_clip (CoglFramebuffer *framebuffer,
++                                   cairo_region_t  *region);
++
+ /**
+  * cogl_framebuffer_pop_clip:
+  * @framebuffer: A #CoglFramebuffer pointer
+diff --git a/cogl/cogl/driver/gl/cogl-clip-stack-gl.c b/cogl/cogl/driver/gl/cogl-clip-stack-gl.c
+index 34f809a867c1020bcd1a03357241392ba8ee3820..2f13f5d1194cdf41772940bb8f35d2c16f5661c8 100644
+--- a/cogl/cogl/driver/gl/cogl-clip-stack-gl.c
++++ b/cogl/cogl/driver/gl/cogl-clip-stack-gl.c
+@@ -115,6 +115,94 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
+   GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
+ }
+ 
++static void
++add_stencil_clip_region (CoglFramebuffer *framebuffer,
++                         cairo_region_t  *region,
++                         gboolean         merge)
++{
++  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
++  CoglMatrix matrix;
++  int num_rectangles = cairo_region_num_rectangles (region);
++  int i, width, height;
++
++  width = cogl_framebuffer_get_width (framebuffer);
++  height = cogl_framebuffer_get_height (framebuffer);
++
++  /* NB: This can be called while flushing the journal so we need
++   * to be very conservative with what state we change.
++   */
++  _cogl_context_set_current_projection_entry (ctx, &ctx->identity_entry);
++  _cogl_context_set_current_modelview_entry (ctx, &ctx->identity_entry);
++
++  cogl_matrix_init_identity (&matrix);
++  cogl_matrix_translate (&matrix, -1, 1, 0);
++  cogl_matrix_scale (&matrix, 2.0 / width, - 2.0 / height, 1);
++
++  GE( ctx, glEnable (GL_STENCIL_TEST) );
++
++  GE( ctx, glColorMask (FALSE, FALSE, FALSE, FALSE) );
++  GE( ctx, glDepthMask (FALSE) );
++
++  if (merge)
++    {
++      GE( ctx, glStencilFunc (GL_ALWAYS, 0x1, 0x3) );
++      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_INCR) );
++    }
++  else
++    {
++      /* Initially disallow everything */
++      GE( ctx, glClearStencil (0) );
++      GE( ctx, glClear (GL_STENCIL_BUFFER_BIT) );
++
++      /* Punch out holes to allow the rectangles */
++      GE( ctx, glStencilFunc (GL_ALWAYS, 0x1, 0x1) );
++      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE) );
++    }
++
++  for (i = 0; i < num_rectangles; i++)
++    {
++      cairo_rectangle_int_t rect;
++      float tl[4], br[4];
++
++      cairo_region_get_rectangle (region, i, &rect);
++
++      tl[0] = rect.x;
++      tl[1] = rect.y;
++      tl[2] = 0.;
++      tl[3] = 1.;
++
++      br[0] = rect.x + rect.width;
++      br[1] = rect.y + rect.height;
++      br[2] = 0.;
++      br[3] = 1.;
++
++      cogl_matrix_transform_point (&matrix, &tl[0], &tl[1], &tl[2], &tl[3]);
++      cogl_matrix_transform_point (&matrix, &br[0], &br[1], &br[2], &br[3]);
++
++      _cogl_rectangle_immediate (framebuffer,
++                                 ctx->stencil_pipeline,
++                                 tl[0], tl[1], br[0], br[1]);
++    }
++
++  if (merge)
++    {
++      /* Subtract one from all pixels in the stencil buffer so that
++       * only pixels where both the original stencil buffer and the
++       * region are set will be valid
++       */
++      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_DECR) );
++      _cogl_rectangle_immediate (framebuffer,
++                                 ctx->stencil_pipeline,
++                                 -1.0, -1.0, 1.0, 1.0);
++    }
++
++  /* Restore the stencil mode */
++  GE (ctx, glDepthMask (TRUE));
++  GE (ctx, glColorMask (TRUE, TRUE, TRUE, TRUE));
++  GE( ctx, glStencilFunc (GL_EQUAL, 0x1, 0x1) );
++  GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
++}
++
+ typedef void (*SilhouettePaintCallback) (CoglFramebuffer *framebuffer,
+                                          CoglPipeline *pipeline,
+                                          void *user_data);
+@@ -287,7 +375,6 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
+     {
+       COGL_NOTE (CLIPPING, "Flushed empty clip stack");
+ 
+-      ctx->current_clip_stack_uses_stencil = FALSE;
+       GE (ctx, glDisable (GL_SCISSOR_TEST));
+       return;
+     }
+@@ -382,6 +469,23 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
+                 }
+               break;
+             }
++        case COGL_CLIP_STACK_REGION:
++            {
++              CoglClipStackRegion *region = (CoglClipStackRegion *) entry;
++
++              /* If nrectangles <= 1, it can be fully represented with the
++               * scissor clip.
++               */
++              if (cairo_region_num_rectangles (region->region) > 1)
++                {
++                  COGL_NOTE (CLIPPING, "Adding stencil clip for region");
++
++                  add_stencil_clip_region (framebuffer, region->region,
++                                           using_stencil_buffer);
++                  using_stencil_buffer = TRUE;
++                }
++              break;
++            }
+         case COGL_CLIP_STACK_WINDOW_RECT:
+           break;
+           /* We don't need to do anything for window space rectangles because
+@@ -392,3 +496,1 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
+-
+-  ctx->current_clip_stack_uses_stencil = using_stencil_buffer;
+ }
+diff --git a/cogl/cogl/meson.build b/cogl/cogl/meson.build
+index c2fea5e96856c0020c09bfd9f94353732c3ae5e2..e62adbd57920e7f6483e65de2acae1f24a386ec7 100644
+--- a/cogl/cogl/meson.build
++++ b/cogl/cogl/meson.build
+@@ -479,7 +479,7 @@ if have_introspection
+     sources: cogl_introspected_headers,
+     nsversion: libmutter_api_version,
+     namespace: 'Cogl',
+-    includes: ['GL-1.0', 'GObject-2.0'],
++    includes: ['cairo-1.0', 'GL-1.0', 'GObject-2.0'],
+     dependencies: [cogl_deps],
+     extra_args: introspection_args + [
+       '-UCOGL_COMPILATION',
+diff --git a/src/compositor/meta-window-group.c b/src/compositor/meta-window-group.c
+index 29ec1e74223ce2b86167378a7879306e7b0dcc21..b8a33cc30fa8cea34622d49cdd1a0cfff7a3605b 100644
+--- a/src/compositor/meta-window-group.c
++++ b/src/compositor/meta-window-group.c
+@@ -56,7 +56,7 @@ meta_window_group_paint (ClutterActor *actor)
+ {
+   cairo_region_t *clip_region;
+   cairo_region_t *unobscured_region;
+-  cairo_rectangle_int_t visible_rect, clip_rect;
++  cairo_rectangle_int_t visible_rect;
+   int paint_x_origin, paint_y_origin;
+   int screen_width, screen_height;
+ 
+@@ -112,10 +112,7 @@ meta_window_group_paint (ClutterActor *actor)
+    * sizes, we could intersect this with an accurate union of the
+    * monitors to avoid painting shadows that are visible only in the
+    * holes. */
+-  clutter_stage_get_redraw_clip_bounds (CLUTTER_STAGE (stage),
+-                                        &clip_rect);
+-
+-  clip_region = cairo_region_create_rectangle (&clip_rect);
++  clip_region = clutter_stage_get_redraw_clip (CLUTTER_STAGE (stage));
+ 
+   cairo_region_translate (clip_region, -paint_x_origin, -paint_y_origin);
+ 
