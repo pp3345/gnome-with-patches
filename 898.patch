@@ -1,0 +1,31 @@
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index 751f26da30671b2eb58a39d8685231cee46bef31..fdc22476af3a214cb72caf96030e998f2744fb52 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -800,7 +800,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+   swap_with_damage = FALSE;
+   if (has_buffer_age)
+     {
+-      if (use_clipped_redraw)
++      if (use_clipped_redraw && !clip_region_empty)
+         {
+           int age;
+ 
+@@ -943,9 +943,16 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+         }
+       else
+         {
++          cairo_rectangle_int_t clip;
+           cairo_region_t *view_region;
+ 
+-          view_region = cairo_region_create_rectangle (&view_rect);
++          clip = (cairo_rectangle_int_t) {
++            .x = 0,
++            .y = 0,
++            .width = ceilf (view_rect.width * fb_scale),
++            .height = ceilf (view_rect.height * fb_scale)
++          };
++          view_region = cairo_region_create_rectangle (&clip);
+           paint_stage (stage_cogl, view, view_region);
+           cairo_region_destroy (view_region);
+         }
