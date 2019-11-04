@@ -1,0 +1,47 @@
+From f73305cc415d2fd464aae4b0dc72558fd1b6bd81 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Mon, 4 Nov 2019 15:01:18 +0100
+Subject: [PATCH xserver 17/17] xwayland: Remove unnecessary
+ xwl_window_is_toplevel() check from xwl_output_set_window_randr_emu_props()
+
+Since the recent fix to call xwl_output_set_window_randr_emu_props() from
+ensure_surface_for_window(), it is now only called on a toplevel window,
+so the is-toplevel check is not necessary for the
+xwl_output_set_window_randr_emu_props() case.
+
+This commit moves the check to xwl_output_set_randr_emu_prop_callback()
+so that we only do it when we are walking over all Windows of a client
+to update the property on a change of the emulated resolution.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/xwayland/xwayland-output.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/hw/xwayland/xwayland-output.c b/hw/xwayland/xwayland-output.c
+index 7d705d919..084b669e4 100644
+--- a/hw/xwayland/xwayland-output.c
++++ b/hw/xwayland/xwayland-output.c
+@@ -468,9 +468,6 @@ static void
+ xwl_output_set_randr_emu_prop(WindowPtr window,
+                               struct xwl_output_randr_emu_prop *prop)
+ {
+-    if (!xwl_window_is_toplevel(window))
+-        return;
+-
+     if (prop->rect_count) {
+         dixChangeWindowProperty(serverClient, window, prop->atom,
+                                 XA_CARDINAL, 32, PropModeReplace,
+@@ -483,7 +480,8 @@ xwl_output_set_randr_emu_prop(WindowPtr window,
+ static void
+ xwl_output_set_randr_emu_prop_callback(void *resource, XID id, void *user_data)
+ {
+-    xwl_output_set_randr_emu_prop(resource, user_data);
++    if (xwl_window_is_toplevel(resource))
++        xwl_output_set_randr_emu_prop(resource, user_data);
+ }
+ 
+ static void
+-- 
+2.23.0
+

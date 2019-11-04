@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.5
-Release:   7%{?gitdate:.%{gitdate}}%{?dist}
+Release:   8%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -136,6 +136,25 @@ Patch43: 0012-glx-Fix-previous-context-validation-in-xorgGlxMakeCu.patch
 Patch44: 0013-xwayland-Separate-DamagePtr-into-separate-window-dat.patch
 Patch45: 0014-xwayland-Refactor-surface-creation-into-a-separate-f.patch
 Patch46: 0015-xwayland-Handle-the-case-of-windows-being-realized-b.patch
+
+# Backported Xwayland randr resolution change emulation support
+Patch47: 0001-dix-Add-GetCurrentClient-helper.patch
+Patch48: 0002-xwayland-Add-wp_viewport-wayland-extension-support.patch
+Patch49: 0003-xwayland-Use-buffer_damage-instead-of-surface-damage.patch
+Patch50: 0004-xwayland-Add-fake-output-modes-to-xrandr-output-mode.patch
+Patch51: 0005-xwayland-Use-RandR-1.2-interface-rev-2.patch
+Patch52: 0006-xwayland-Add-per-client-private-data.patch
+Patch53: 0007-xwayland-Add-support-for-storing-per-client-per-outp.patch
+Patch54: 0008-xwayland-Add-support-for-randr-resolution-change-emu.patch
+Patch55: 0009-xwayland-Add-xwlRRModeToDisplayMode-helper-function.patch
+Patch56: 0010-xwayland-Add-xwlVidModeGetCurrentRRMode-helper-to-th.patch
+Patch57: 0011-xwayland-Add-vidmode-mode-changing-emulation-support.patch
+Patch58: 0012-xwayland-xwl_window_should_enable_viewport-Add-extra.patch
+Patch59: 0013-xwayland-Set-_XWAYLAND_RANDR_EMU_MONITOR_RECTS-prope.patch
+Patch60: 0014-xwayland-Fix-emulated-modes-not-being-removed-when-s.patch
+Patch61: 0015-xwayland-Call-xwl_window_check_resolution_change_emu.patch
+Patch62: 0016-xwayland-Fix-setting-of-_XWAYLAND_RANDR_EMU_MONITOR_.patch
+Patch63: 0017-xwayland-Remove-unnecessary-xwl_window_is_toplevel-c.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -561,6 +580,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Nov  4 2019 Hans de Goede <hdegoede@redhat.com> - 1.20.5-8
+- Backport Xwayland randr resolution change emulation support
+
 * Thu Aug 29 2019 Olivier Fourdan <ofourdan@redhat.com> 1.20.5-7
 - Pick latest fixes from xserver stable branch upstream (rhbz#1729925)
 

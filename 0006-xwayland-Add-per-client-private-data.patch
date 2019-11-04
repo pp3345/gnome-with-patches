@@ -1,0 +1,77 @@
+From 1dc4938467b6338695eda4224f0b0c592cb2c25c Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Thu, 29 Aug 2019 22:45:12 +0200
+Subject: [PATCH xserver 06/14] xwayland: Add per client private data
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add per client private data, which for now is empty.
+
+This is a preparation patch for adding randr/vidmode resolution
+change emulation.
+
+Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
+Acked-by: Michel Dänzer <mdaenzer@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ hw/xwayland/xwayland.c | 14 ++++++++++++++
+ hw/xwayland/xwayland.h |  5 +++++
+ 2 files changed, 19 insertions(+)
+
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index a599c022a..2b6065f1a 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -122,11 +122,18 @@ ddxProcessArgument(int argc, char *argv[], int i)
+     return 0;
+ }
+ 
++static DevPrivateKeyRec xwl_client_private_key;
+ static DevPrivateKeyRec xwl_window_private_key;
+ static DevPrivateKeyRec xwl_screen_private_key;
+ static DevPrivateKeyRec xwl_pixmap_private_key;
+ static DevPrivateKeyRec xwl_damage_private_key;
+ 
++struct xwl_client *
++xwl_client_get(ClientPtr client)
++{
++    return dixLookupPrivate(&client->devPrivates, &xwl_client_private_key);
++}
++
+ static struct xwl_window *
+ xwl_window_get(WindowPtr window)
+ {
+@@ -1083,6 +1090,13 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
+         return FALSE;
+     if (!dixRegisterPrivateKey(&xwl_damage_private_key, PRIVATE_WINDOW, 0))
+         return FALSE;
++    /* There are no easy to use new / delete client hooks, we could use a
++     * ClientStateCallback, but it is easier to let the dix code manage the
++     * memory for us. This will zero fill the initial xwl_client data.
++     */
++    if (!dixRegisterPrivateKey(&xwl_client_private_key, PRIVATE_CLIENT,
++                               sizeof(struct xwl_client)))
++        return FALSE;
+ 
+     dixSetPrivate(&pScreen->devPrivates, &xwl_screen_private_key, xwl_screen);
+     xwl_screen->screen = pScreen;
+diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
+index 0fafc07a6..17018fcf5 100644
+--- a/hw/xwayland/xwayland.h
++++ b/hw/xwayland/xwayland.h
+@@ -380,6 +380,11 @@ struct xwl_output {
+     Bool xdg_output_done;
+ };
+ 
++struct xwl_client {
++};
++
++struct xwl_client *xwl_client_get(ClientPtr client);
++
+ void xwl_sync_events (struct xwl_screen *xwl_screen);
+ void xwl_surface_damage(struct xwl_screen *xwl_screen,
+                         struct wl_surface *surface,
+-- 
+2.23.0
+
