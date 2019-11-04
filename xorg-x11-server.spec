@@ -156,8 +156,9 @@ Patch61: 0015-xwayland-Call-xwl_window_check_resolution_change_emu.patch
 Patch62: 0016-xwayland-Fix-setting-of-_XWAYLAND_RANDR_EMU_MONITOR_.patch
 Patch63: 0017-xwayland-Remove-unnecessary-xwl_window_is_toplevel-c.patch
 
-# Fix building with new libglvnd provided gl.pc
+# Fix building with new libglvnd-1.2.0 (E)GL headers and pkgconfig files
 Patch64: 0001-build-glx-Lower-gl-version-to-work-with-libglvnd.patch
+Patch65: 0001-glamor-xwayland-Define-EGL_NO_X11.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -584,7 +585,7 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 %changelog
 * Mon Nov  4 2019 Hans de Goede <hdegoede@redhat.com> - 1.20.5-9
-- Fix building with new libglvnd provided gl.pc
+- Fix building with new libglvnd-1.2.0 (E)GL headers and pkgconfig files
 
 * Mon Nov  4 2019 Hans de Goede <hdegoede@redhat.com> - 1.20.5-8
 - Backport Xwayland randr resolution change emulation support
