@@ -1,0 +1,12 @@
+diff --git a/src/compositor/meta-surface-actor-wayland.c b/src/compositor/meta-surface-actor-wayland.c
+index 0b1c4ef012ec0ce9a906d71a0d7df152f982951b..c91dd82227c398bef8a1437987668b219241da30 100644
+--- a/src/compositor/meta-surface-actor-wayland.c
++++ b/src/compositor/meta-surface-actor-wayland.c
+@@ -103,5 +103,6 @@ meta_surface_actor_wayland_paint (ClutterActor *actor)
+ {
+   MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
+
++  if (!meta_surface_actor_is_obscured (META_SURFACE_ACTOR (actor)))
+-  queue_frame_callbacks (self);
++    queue_frame_callbacks (self);
+ 
