@@ -110,6 +110,7 @@ Patch190: 888.patch
 Patch200: 889.patch
 Patch210: 898.patch
 Patch220: 867.patch
+Patch230: 906.patch
 
 %description
 Mutter is a window and compositing manager that displays and manages

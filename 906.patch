@@ -1,0 +1,36 @@
+diff --git a/cogl/cogl/winsys/cogl-winsys-egl.c b/cogl/cogl/winsys/cogl-winsys-egl.c
+index f2b439a679482ca1015179655a84ab2fbdc45834..5dd106d1b0aaba090fecb215cba0e316a33ac9c4 100644
+--- a/cogl/cogl/winsys/cogl-winsys-egl.c
++++ b/cogl/cogl/winsys/cogl-winsys-egl.c
+@@ -696,13 +696,29 @@ _cogl_winsys_onscreen_get_buffer_age (CoglOnscreen *onscreen)
+   CoglRenderer *renderer = context->display->renderer;
+   CoglRendererEGL *egl_renderer = renderer->winsys;
+   CoglOnscreenEGL *egl_onscreen = onscreen->winsys;
++  CoglDisplayEGL *egl_display = context->display->winsys;
+   EGLSurface surface = egl_onscreen->egl_surface;
+-  int age;
++  static gboolean warned = FALSE;
++  int age = 0;
+ 
+   if (!(egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_BUFFER_AGE))
+     return 0;
+ 
+-  eglQuerySurface (egl_renderer->edpy, surface, EGL_BUFFER_AGE_EXT, &age);
++  if (!_cogl_winsys_egl_make_current (context->display,
++				      surface, surface,
++                                      egl_display->egl_context))
++    return 0;
++
++  if (!eglQuerySurface (egl_renderer->edpy, surface, EGL_BUFFER_AGE_EXT, &age))
++    {
++      if (!warned)
++        g_critical ("Failed to query buffer age, got error %x", eglGetError ());
++      warned = TRUE;
++    }
++  else
++    {
++      warned = FALSE;
++    }
+ 
+   return age;
+ }
