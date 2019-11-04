@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.5
-Release:   8%{?gitdate:.%{gitdate}}%{?dist}
+Release:   9%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -155,6 +155,9 @@ Patch60: 0014-xwayland-Fix-emulated-modes-not-being-removed-when-s.patch
 Patch61: 0015-xwayland-Call-xwl_window_check_resolution_change_emu.patch
 Patch62: 0016-xwayland-Fix-setting-of-_XWAYLAND_RANDR_EMU_MONITOR_.patch
 Patch63: 0017-xwayland-Remove-unnecessary-xwl_window_is_toplevel-c.patch
+
+# Fix building with new libglvnd provided gl.pc
+Patch64: 0001-build-glx-Lower-gl-version-to-work-with-libglvnd.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -580,6 +583,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Nov  4 2019 Hans de Goede <hdegoede@redhat.com> - 1.20.5-9
+- Fix building with new libglvnd provided gl.pc
+
 * Mon Nov  4 2019 Hans de Goede <hdegoede@redhat.com> - 1.20.5-8
 - Backport Xwayland randr resolution change emulation support
 
