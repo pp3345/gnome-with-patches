@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       5%{?dist}
+Release:       6%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -51,6 +51,11 @@ Patch12:       0001-x11-Translate-well-known-selection-atoms-to-mimetype.patch
 # https://gitlab.gnome.org/GNOME/mutter/issues/854
 # https://bugzilla.redhat.com/show_bug.cgi?id=1758873#c28
 Patch13:       0001-x11-Map-mimetypes-back-to-selection-atoms.patch
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/739
+# Complements the backported Xwayland randr resolution change emulation support
+# necessary for SDL2 apps to work correctly
+Patch14:       0001-window-Add-adjust_fullscreen_monitor_rect-virtual-me.patch
+Patch15:       0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -195,6 +200,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Nov  4 2019 Hans de Goede <hdegoede@redhat.com> - 3.34.1-6
+- Backport 2 patches which complement the backported Xwayland randr
+  resolution change emulation support (necessary for SDL2 apps)
+
 * Tue Oct 29 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.1-5
 - Enable sysprof support
   The required dependency was missing from rawhide when the feature
