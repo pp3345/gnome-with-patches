@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       7%{?dist}
+Release:       8%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -60,6 +60,12 @@ Patch15:       0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
 # Fixes issue with X11 cursor focus after '<application>” is not responding' dialog shows up:
 # https://gitlab.gnome.org/GNOME/gnome-shell/issues/1607
 Patch16:       0001-x11-Update-X11-focus-before-updating-MetaDisplay-foc.patch
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/843
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/860
+# Should fix some log spam and an input focus issue:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1761327
+Patch17:       0001-clutter-actor-Save-key-focus-state-and-unset-it-befo.patch
+Patch18:       0002-clutter-stage-Actually-set-key-focus-to-an-actor-on-.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -204,6 +210,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Nov 06 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-8
+- Backport MR #843 (and related MR #860) to fix log spam (#1761327)
+
 * Wed Nov 06 2019 LuK1337 <priv.luk@gmail.com> - 3.34.1-7
 - Backport MR #884
 
