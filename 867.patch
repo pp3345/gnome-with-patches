@@ -40,10 +40,10 @@ index a06c5190d5199244b5bc2f46f0e3b672d07e277d..c99e9594d583b53f5d45d3cfc9a609b2
  
  void              _clutter_stage_window_set_accept_focus        (ClutterStageWindow *window,
 diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
-index f1f75bd0ac7c69b0179eafeb4b14f6020075df95..5e0276c6703c6b5c5cd94e88b1b4368b41042a4f 100644
+index 4b6f46612cb7ef44d01e29eefe455485676af4d1..02377867a8fcddbbe58231feed310b72447cb25a 100644
 --- a/clutter/clutter/clutter-stage.c
 +++ b/clutter/clutter/clutter-stage.c
-@@ -1415,11 +1415,10 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
+@@ -1394,11 +1394,10 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
    ClutterDeviceManager *device_manager;
    GSList *updating = NULL;
    const GSList *devices;
@@ -57,7 +57,7 @@ index f1f75bd0ac7c69b0179eafeb4b14f6020075df95..5e0276c6703c6b5c5cd94e88b1b4368b
  
    device_manager = clutter_device_manager_get_default ();
    devices = clutter_device_manager_peek_devices (device_manager);
-@@ -1442,9 +1441,7 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
+@@ -1421,9 +1420,7 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
            if (!clutter_input_device_get_coords (dev, NULL, &point))
              continue;
  
@@ -68,7 +68,9 @@ index f1f75bd0ac7c69b0179eafeb4b14f6020075df95..5e0276c6703c6b5c5cd94e88b1b4368b
              updating = g_slist_prepend (updating, dev);
            break;
          default:
-@@ -1653,38 +1650,3 @@ clutter_stage_get_redraw_clip (ClutterStage *stage)
+@@ -1632,40 +1629,5 @@ clutter_stage_get_redraw_clip (ClutterStage *stage)
+ }
+ 
 -/**
 - * clutter_stage_get_redraw_clip_bounds:
 - * @stage: A #ClutterStage
@@ -108,10 +110,10 @@ index f1f75bd0ac7c69b0179eafeb4b14f6020075df95..5e0276c6703c6b5c5cd94e88b1b4368b
  _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                  gint              x,
 diff --git a/clutter/clutter/clutter-stage.h b/clutter/clutter/clutter-stage.h
-index f40ce8164a2334e72f2a550124e7c70ed965ef1a..dd8de9187cef7fb48b03f37fb2339ef118d26e3d 100644
+index 88cd96ad5ca498210b404654665ce45f24b750c5..5910e61400268791046014619a0b8c6f35549da7 100644
 --- a/clutter/clutter/clutter-stage.h
 +++ b/clutter/clutter/clutter-stage.h
-@@ -211,9 +211,6 @@ guchar *        clutter_stage_read_pixels                       (ClutterStage
+@@ -206,9 +206,6 @@ guchar *        clutter_stage_read_pixels                       (ClutterStage
                                                                   gint                   height);
  
  CLUTTER_EXPORT
@@ -122,10 +124,10 @@ index f40ce8164a2334e72f2a550124e7c70ed965ef1a..dd8de9187cef7fb48b03f37fb2339ef1
  CLUTTER_EXPORT
  void            clutter_stage_ensure_viewport                   (ClutterStage          *stage);
 diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
-index fdc22476af3a214cb72caf96030e998f2744fb52..7d679cf610b5854130330c18cbc47937558ae0ad 100644
+index 6dfde0b6bb78eefcc7850fc037662a2a28b85c53..4304db6e1cc698858e2a3342a7f6561ffb005a83 100644
 --- a/clutter/clutter/cogl/clutter-stage-cogl.c
 +++ b/clutter/clutter/cogl/clutter-stage-cogl.c
-@@ -883,27 +883,34 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+@@ -879,27 +879,34 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
        cairo_rectangle_int_t clip_rect;
        cairo_rectangle_int_t scissor_rect;
  
@@ -331,10 +333,10 @@ index b582dac7172c1d1db4753cdf93ac31564aa807c7..1df6731f7d6b4287c596c18a9fb14514
   * cogl_framebuffer_pop_clip:
   * @framebuffer: A #CoglFramebuffer pointer
 diff --git a/cogl/cogl/driver/gl/cogl-clip-stack-gl.c b/cogl/cogl/driver/gl/cogl-clip-stack-gl.c
-index 34f809a867c1020bcd1a03357241392ba8ee3820..2f13f5d1194cdf41772940bb8f35d2c16f5661c8 100644
+index 34f809a867c1020bcd1a03357241392ba8ee3820..2bc754cc0637bd7865233cc63ef7d911490f3580 100644
 --- a/cogl/cogl/driver/gl/cogl-clip-stack-gl.c
 +++ b/cogl/cogl/driver/gl/cogl-clip-stack-gl.c
-@@ -115,6 +115,94 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
+@@ -115,6 +115,102 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
    GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
  }
  
@@ -346,10 +348,7 @@ index 34f809a867c1020bcd1a03357241392ba8ee3820..2f13f5d1194cdf41772940bb8f35d2c1
 +  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 +  CoglMatrix matrix;
 +  int num_rectangles = cairo_region_num_rectangles (region);
-+  int i, width, height;
-+
-+  width = cogl_framebuffer_get_width (framebuffer);
-+  height = cogl_framebuffer_get_height (framebuffer);
++  int i;
 +
 +  /* NB: This can be called while flushing the journal so we need
 +   * to be very conservative with what state we change.
@@ -357,9 +356,20 @@ index 34f809a867c1020bcd1a03357241392ba8ee3820..2f13f5d1194cdf41772940bb8f35d2c1
 +  _cogl_context_set_current_projection_entry (ctx, &ctx->identity_entry);
 +  _cogl_context_set_current_modelview_entry (ctx, &ctx->identity_entry);
 +
++  /* The coordinates in the region are meant to be window coordinates,
++   * make a matrix that translates those across the viewport, and into
++   * the default [-1, -1, 1, 1] range.
++   */
 +  cogl_matrix_init_identity (&matrix);
 +  cogl_matrix_translate (&matrix, -1, 1, 0);
-+  cogl_matrix_scale (&matrix, 2.0 / width, - 2.0 / height, 1);
++  cogl_matrix_scale (&matrix,
++                     2.0 / framebuffer->viewport_width,
++                     - 2.0 / framebuffer->viewport_height,
++                     1);
++  cogl_matrix_translate (&matrix,
++                         - framebuffer->viewport_x,
++                         - framebuffer->viewport_y,
++                         0);
 +
 +  GE( ctx, glEnable (GL_STENCIL_TEST) );
 +
@@ -429,7 +439,7 @@ index 34f809a867c1020bcd1a03357241392ba8ee3820..2f13f5d1194cdf41772940bb8f35d2c1
  typedef void (*SilhouettePaintCallback) (CoglFramebuffer *framebuffer,
                                           CoglPipeline *pipeline,
                                           void *user_data);
-@@ -287,7 +375,6 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
+@@ -287,7 +383,6 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
      {
        COGL_NOTE (CLIPPING, "Flushed empty clip stack");
  
@@ -437,7 +447,7 @@ index 34f809a867c1020bcd1a03357241392ba8ee3820..2f13f5d1194cdf41772940bb8f35d2c1
        GE (ctx, glDisable (GL_SCISSOR_TEST));
        return;
      }
-@@ -382,6 +469,23 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
+@@ -382,6 +477,23 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
                  }
                break;
              }
@@ -461,7 +471,7 @@ index 34f809a867c1020bcd1a03357241392ba8ee3820..2f13f5d1194cdf41772940bb8f35d2c1
          case COGL_CLIP_STACK_WINDOW_RECT:
            break;
            /* We don't need to do anything for window space rectangles because
-@@ -392,3 +496,1 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
+@@ -389,3 +501,1 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
 -
 -  ctx->current_clip_stack_uses_stencil = using_stencil_buffer;
  }
