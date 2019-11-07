@@ -24,7 +24,6 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1749433
 # https://gitlab.gnome.org/GNOME/mutter/issues/826
 Patch1:        0001-cursor-tracker-Add-API-to-keep-the-wayland-pointer-f.patch
-Patch13:       0001-x11-Map-mimetypes-back-to-selection-atoms.patch
 # https://gitlab.gnome.org/GNOME/mutter/merge_requests/739
 # Complements the backported Xwayland randr resolution change emulation support
 # necessary for SDL2 apps to work correctly
