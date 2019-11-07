@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.5
-Release:   700%{?gitdate:.%{gitdate}}%{?dist}.pp3345
+Release:   800%{?gitdate:.%{gitdate}}%{?dist}.pp3345
 URL:       http://www.x.org
 License:   MIT
 
@@ -581,6 +581,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Nov  7 2019 Yussuf Khalil <dev@pp3345.net> - 1.20.5-800
+- Rebase to 1.20.5-8.fc31
+
 * Mon Nov  4 2019 Hans de Goede <hdegoede@redhat.com> - 1.20.5-8
 - Backport Xwayland randr resolution change emulation support
 
