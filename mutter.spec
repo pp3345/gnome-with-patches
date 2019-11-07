@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       403%{?dist}.pp3345
+Release:       800%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -188,6 +188,17 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Nov 07 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-800
+- Add !867 "Use regions for Cogl clipping and culling" @e746d880 (manually rebased)
+- Add !918 "surface-actor-wayland: Do not send frame callbacks if the actor is obscured" @5e87d67e (manually rebased)
+- Add !875 "window-actor: Destroy the actor despite stuck animations" @a295538e
+- Add !906 "Fix buffer age checks on multiple monitors" @d47324e8
+- Add !898 "clutter/cogl: Fix invalidation on non-primary monitors with no buffer age" @6bfa61a3
+- Add !889 "clutter/cogl: Fix clipped redraw off scaled views" @9678fd53 (manually rebased)
+- Add !888 "Handle empty invalidations" @2e9faaf6
+- Add !692 "clutter-stage-cogl: Use regions" @30783949 (manually rebased)
+- Rebase to gnome-3-34@cf785989
+
 * Wed Nov 06 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-8
 - Backport MR #843 (and related MR #860) to fix log spam (#1761327)
 
