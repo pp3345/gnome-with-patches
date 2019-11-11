@@ -1,0 +1,867 @@
+From ef8000d2e6402795e1fb01915c93a8b38d5c846b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
+Date: Wed, 9 Oct 2019 05:14:15 +0200
+Subject: [PATCH 01/11] animation: Finish porting to clutter transitions
+
+Animation when stopping the spinner was still using the old
+parameters that not working, although if silently failing.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/758
+---
+ js/ui/animation.js | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/js/ui/animation.js b/js/ui/animation.js
+index a1f257efc..18c837e82 100644
+--- a/js/ui/animation.js
++++ b/js/ui/animation.js
+@@ -167,8 +167,8 @@ var Spinner = class extends AnimatedIcon {
+         if (this._animate) {
+             this.actor.ease({
+                 opacity: 0,
+-                time: SPINNER_ANIMATION_TIME,
+-                transition: 'linear',
++                duration: SPINNER_ANIMATION_TIME,
++                mode: Clutter.AnimationMode.LINEAR,
+                 onComplete: () => super.stop()
+             });
+         } else {
+-- 
+2.23.0
+
+
+From 279024afc2312111c093e6300dbb585a1e08077f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
+Date: Thu, 10 Oct 2019 02:14:28 +0200
+Subject: [PATCH 02/11] js: Replace Tweener time leftovers with ease duration
+
+In some places we were not properly animating the actors as still using the
+non-existent 'time' property instead of 'duration'
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/758
+---
+ js/ui/appDisplay.js   | 2 +-
+ js/ui/dash.js         | 2 +-
+ js/ui/lookingGlass.js | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/js/ui/appDisplay.js b/js/ui/appDisplay.js
+index 9147d4c02..cc946f01c 100644
+--- a/js/ui/appDisplay.js
++++ b/js/ui/appDisplay.js
+@@ -2233,7 +2233,7 @@ var AppIcon = class AppIcon {
+         this.actor.ease({
+             scale_x: 1,
+             scale_y: 1,
+-            time: APP_ICON_SCALE_IN_TIME,
++            duration: APP_ICON_SCALE_IN_TIME,
+             delay: APP_ICON_SCALE_IN_DELAY,
+             mode: Clutter.AnimationMode.EASE_OUT_QUINT
+         });
+diff --git a/js/ui/dash.js b/js/ui/dash.js
+index 5751afee0..0f99b9c88 100644
+--- a/js/ui/dash.js
++++ b/js/ui/dash.js
+@@ -623,7 +623,7 @@ var Dash = class Dash {
+             icon.icon.ease({
+                 width: targetWidth,
+                 height: targetHeight,
+-                time: DASH_ANIMATION_TIME,
++                duration: DASH_ANIMATION_TIME,
+                 mode: Clutter.AnimationMode.EASE_OUT_QUAD
+             });
+         }
+diff --git a/js/ui/lookingGlass.js b/js/ui/lookingGlass.js
+index e2bb8cc27..35b47b036 100644
+--- a/js/ui/lookingGlass.js
++++ b/js/ui/lookingGlass.js
+@@ -428,7 +428,7 @@ var ObjInspector = class ObjInspector {
+                 scale_x: 1,
+                 scale_y: 1,
+                 mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+-                time: 200
++                duration: 200
+             });
+         } else {
+             this.actor.set_scale(1, 1);
+-- 
+2.23.0
+
+
+From 6c2a82258e839c31944549ee4a45acccdbb6931b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Mon, 14 Oct 2019 07:47:38 +0000
+Subject: [PATCH 03/11] environment: Only disable unredirection of ongoing
+ transitions
+
+When a transition is set up with a delay, it may be removed before it
+actually started. We won't get a ::stopped signal in that case, with
+the result that we currently end up with a mismatched unredirection
+disabling.
+
+Address this by only disable unredirection once the transition has
+actually started.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/issues/1788
+
+
+(cherry picked from commit 38ad1d7c1393ca3be7ec1b6a9b02fc6bb2a3e658)
+---
+ js/ui/environment.js | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/js/ui/environment.js b/js/ui/environment.js
+index 38d1d281a..bbd33c965 100644
+--- a/js/ui/environment.js
++++ b/js/ui/environment.js
+@@ -109,8 +109,6 @@ function _easeActor(actor, params) {
+         actor.set_easing_mode(params.mode);
+     delete params.mode;
+ 
+-    Meta.disable_unredirect_for_display(global.display);
+-
+     let cleanup = () => Meta.enable_unredirect_for_display(global.display);
+     let callback = _makeEaseCallback(params, cleanup);
+ 
+@@ -124,6 +122,11 @@ function _easeActor(actor, params) {
+     let transition = animatedProps.map(p => actor.get_transition(p))
+         .find(t => t !== null);
+ 
++    if (transition && transition.delay)
++        transition.connect('started', () => Meta.disable_unredirect_for_display(global.display));
++    else
++        Meta.disable_unredirect_for_display(global.display);
++
+     if (transition)
+         transition.connect('stopped', (t, finished) => callback(finished));
+     else
+@@ -145,8 +148,6 @@ function _easeActorProperty(actor, propName, target, params) {
+     if (actor instanceof Clutter.Actor && !actor.mapped)
+         duration = 0;
+ 
+-    Meta.disable_unredirect_for_display(global.display);
+-
+     let cleanup = () => Meta.enable_unredirect_for_display(global.display);
+     let callback = _makeEaseCallback(params, cleanup);
+ 
+@@ -157,6 +158,7 @@ function _easeActorProperty(actor, propName, target, params) {
+         let [obj, prop] = _getPropertyTarget(actor, propName);
+         obj[prop] = target;
+ 
++        Meta.disable_unredirect_for_display(global.display);
+         callback(true);
+ 
+         return;
+@@ -172,6 +174,11 @@ function _easeActorProperty(actor, propName, target, params) {
+ 
+     transition.set_to(target);
+ 
++    if (transition.delay)
++        transition.connect('started', () => Meta.disable_unredirect_for_display(global.display));
++    else
++        Meta.disable_unredirect_for_display(global.display);
++
+     transition.connect('stopped', (t, finished) => callback(finished));
+ }
+ 
+-- 
+2.23.0
+
+
+From 7149da3f4f24ffaf25068c6ae1529acaa11ec539 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
+Date: Fri, 4 Oct 2019 09:04:43 +0000
+Subject: [PATCH 04/11] screenShield: Compute lock timeout fade duration using
+ animation settings
+
+When the screen is marked as idle, we normally start a fading animation and
+a timeout to finally lock the screen. This timeout is configured using the
+fade time if no longer delay is set in settings.
+
+However if animations are disabled or slowed-down/up, the fade time is
+different from the STANDARD_FADE_TIME and so we might end up showing the
+lock shield without actually locking for STANDARD_FADE_TIME in the disabled
+or slowed-up animations case, or locking too early in case of slowed-down
+animations.
+
+So, just adjust the timeout time using the same logic of animations so that
+this value is matching all the times.
+
+Related to https://gitlab.gnome.org/GNOME/gnome-shell/issues/1744
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/749
+
+
+(cherry picked from commit ab6a629955d8bd3c004ec0eb21f57987f48ac655)
+---
+ js/ui/screenShield.js | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/js/ui/screenShield.js b/js/ui/screenShield.js
+index 2e2e95a38..ba50ef92f 100644
+--- a/js/ui/screenShield.js
++++ b/js/ui/screenShield.js
+@@ -17,6 +17,8 @@ const MessageTray = imports.ui.messageTray;
+ const ShellDBus = imports.ui.shellDBus;
+ const SmartcardManager = imports.misc.smartcardManager;
+ 
++const { adjustAnimationTime } = imports.ui.environment;
++
+ const SCREENSAVER_SCHEMA = 'org.gnome.desktop.screensaver';
+ const LOCK_ENABLED_KEY = 'lock-enabled';
+ const LOCK_DELAY_KEY = 'lock-delay';
+@@ -832,7 +834,7 @@ var ScreenShield = class {
+ 
+         if (shouldLock) {
+             let lockTimeout = Math.max(
+-                STANDARD_FADE_TIME,
++                adjustAnimationTime(STANDARD_FADE_TIME),
+                 this._settings.get_uint(LOCK_DELAY_KEY) * 1000);
+             this._lockTimeoutId = GLib.timeout_add(
+                 GLib.PRIORITY_DEFAULT,
+-- 
+2.23.0
+
+
+From 072a9a4842673355535098edd4748d689b913bf1 Mon Sep 17 00:00:00 2001
+From: Andrew Watson <andrew.l.watson@btinternet.com>
+Date: Tue, 15 Oct 2019 11:35:18 +0000
+Subject: [PATCH 05/11] workspace: Sort windows in overview grid using cached
+ center
+
+When accessing properties on ClutterActor for size and position there is
+a notable access time overhead. This overhead adds considerable user lag
+when opening the overview if many windows are open.
+
+This is primarily due to these properties being accessed while sorting
+WindowClone instances by their window's center for placement in the
+overview. By pre-computing this center value only once when
+initializing WindowClone, the induced lag can be significantly reduced.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/763
+
+
+(cherry picked from commit d91927674d4ea5ae7c7e77ace28f5939553147d5)
+---
+ js/ui/workspace.js | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
+
+diff --git a/js/ui/workspace.js b/js/ui/workspace.js
+index a93b19add..cf0c47902 100644
+--- a/js/ui/workspace.js
++++ b/js/ui/workspace.js
+@@ -157,6 +157,8 @@ var WindowClone = GObject.registerClass({
+         this.x = this._boundingBox.x;
+         this.y = this._boundingBox.y;
+ 
++        this._computeWindowCenter();
++
+         let clickAction = new Clutter.ClickAction();
+         clickAction.connect('clicked', this._onClicked.bind(this));
+         clickAction.connect('long-press', this._onLongPress.bind(this));
+@@ -299,6 +301,18 @@ var WindowClone = GObject.registerClass({
+         this.layout_manager.boundingBox = rect;
+     }
+ 
++    get windowCenter() {
++        return this._windowCenter;
++    }
++
++    _computeWindowCenter() {
++        let box = this.realWindow.get_allocation_box();
++        this._windowCenter = new Clutter.Point({
++            x: box.get_x() + box.get_width() / 2,
++            y: box.get_y() + box.get_height() / 2,
++        });
++    }
++
+     // Find the actor just below us, respecting reparenting done by DND code
+     getActualStackAbove() {
+         if (this._stackAbove == null)
+@@ -1003,11 +1017,7 @@ var UnalignedLayoutStrategy = class extends LayoutStrategy {
+     _sortRow(row) {
+         // Sort windows horizontally to minimize travel distance.
+         // This affects in what order the windows end up in a row.
+-        row.windows.sort((a, b) => {
+-            let aCenter = a.realWindow.x + a.realWindow.width / 2;
+-            let bCenter = b.realWindow.x + b.realWindow.width / 2;
+-            return aCenter - bCenter;
+-        });
++        row.windows.sort((a, b) => a.windowCenter.x - b.windowCenter.x);
+     }
+ 
+     computeLayout(windows, layout) {
+@@ -1026,11 +1036,7 @@ var UnalignedLayoutStrategy = class extends LayoutStrategy {
+         // Sort windows vertically to minimize travel distance.
+         // This affects what rows the windows get placed in.
+         let sortedWindows = windows.slice();
+-        sortedWindows.sort((a, b) => {
+-            let aCenter = a.realWindow.y + a.realWindow.height / 2;
+-            let bCenter = b.realWindow.y + b.realWindow.height / 2;
+-            return aCenter - bCenter;
+-        });
++        sortedWindows.sort((a, b) => a.windowCenter.y - b.windowCenter.y);
+ 
+         let windowIdx = 0;
+         for (let i = 0; i < numRows; i++) {
+-- 
+2.23.0
+
+
+From 246150d8b6177fda9aba47cba6089fcf548e0dab Mon Sep 17 00:00:00 2001
+From: Robert Mader <robert.mader@posteo.de>
+Date: Mon, 14 Oct 2019 15:13:11 +0000
+Subject: [PATCH 06/11] shell-screenshots: Do not pass a clip for window
+ screenshots
+
+Design team wants us not to clip away the shadows, lets do that.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/762
+
+
+(cherry picked from commit 20f4fc7c877472591cd77aeacb58645cf11f432a)
+---
+ src/shell-screenshot.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
+
+diff --git a/src/shell-screenshot.c b/src/shell-screenshot.c
+index c7f0ed2b6..a7296e566 100644
+--- a/src/shell-screenshot.c
++++ b/src/shell-screenshot.c
+@@ -457,7 +457,6 @@ grab_window_screenshot (ClutterActor *stage,
+   ClutterActor *window_actor;
+   gfloat actor_x, actor_y;
+   MetaRectangle rect;
+-  cairo_rectangle_int_t clip;
+ 
+   window_actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
+   clutter_actor_get_position (window_actor, &actor_x, &actor_y);
+@@ -467,16 +466,10 @@ grab_window_screenshot (ClutterActor *stage,
+   if (!priv->include_frame)
+     meta_window_frame_rect_to_client_rect (window, &rect, &rect);
+ 
+-  priv->screenshot_area.x = rect.x;
+-  priv->screenshot_area.y = rect.y;
+-  clip.x = rect.x - (gint) actor_x;
+-  clip.y = rect.y - (gint) actor_y;
+-
+-  clip.width = priv->screenshot_area.width = rect.width;
+-  clip.height = priv->screenshot_area.height = rect.height;
++  priv->screenshot_area = rect;
+ 
+   priv->image = meta_window_actor_get_image (META_WINDOW_ACTOR (window_actor),
+-                                             &clip);
++                                             NULL);
+   priv->datetime = g_date_time_new_now_local ();
+ 
+   if (priv->include_cursor)
+-- 
+2.23.0
+
+
+From 750c5acd30ef724b2398bb9d9178a130b58e046b Mon Sep 17 00:00:00 2001
+From: Philip Chimento <philip@endlessm.com>
+Date: Wed, 23 Oct 2019 00:48:00 +0000
+Subject: [PATCH 07/11] dnd: Skip drag target when its acceptDrop() throws an
+ exception
+
+In the case of bugs in a drag target's acceptDrop() function, it may
+throw an exception. In the previous code, this would break out of the
+loop entirely and never cancel the drag, so the mouse button release
+event would be ignored and you would have to press Esc to get out of the
+drag.
+
+In this change, if acceptDrop() throws an exception, we log it and move
+on to the next parent target instead.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/777
+
+
+(cherry picked from commit 055c007ac26b6475cc2821dbfc2e760ec4f3a9a6)
+---
+ js/ui/dnd.js | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/js/ui/dnd.js b/js/ui/dnd.js
+index 786d65419..7d3929d6e 100644
+--- a/js/ui/dnd.js
++++ b/js/ui/dnd.js
+@@ -573,11 +573,15 @@ var _Draggable = class _Draggable {
+         while (target) {
+             if (target._delegate && target._delegate.acceptDrop) {
+                 let [r_, targX, targY] = target.transform_stage_point(dropX, dropY);
+-                if (target._delegate.acceptDrop(this.actor._delegate,
+-                                                this._dragActor,
+-                                                targX,
+-                                                targY,
+-                                                event.get_time())) {
++                let accepted = false;
++                try {
++                    accepted = target._delegate.acceptDrop(this.actor._delegate,
++                        this._dragActor, targX, targY, event.get_time());
++                } catch (e) {
++                    // On error, skip this target
++                    logError(e, "Skipping drag target");
++                }
++                if (accepted) {
+                     // If it accepted the drop without taking the actor,
+                     // handle it ourselves.
+                     if (this._dragActor && this._dragActor.get_parent() == Main.uiGroup) {
+-- 
+2.23.0
+
+
+From c1ecd304e7161df4bfaf1eaac30533c5487c9313 Mon Sep 17 00:00:00 2001
+From: Milan Crha <mcrha@redhat.com>
+Date: Tue, 5 Nov 2019 11:07:40 +0000
+Subject: [PATCH 08/11] calendar-server: Uses wrong timezone for event times
+
+The conversion to UTC/time_t time was not using correct timezone.
+
+Closes https://gitlab.gnome.org/GNOME/gnome-shell/issues/1714
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/806
+
+
+(cherry picked from commit 28c535e341986b81bf562938c169fa186299a499)
+---
+ .../gnome-shell-calendar-server.c             | 49 ++++++++++++-------
+ 1 file changed, 30 insertions(+), 19 deletions(-)
+
+diff --git a/src/calendar-server/gnome-shell-calendar-server.c b/src/calendar-server/gnome-shell-calendar-server.c
+index 0e074fbbc..9c88a2f9e 100644
+--- a/src/calendar-server/gnome-shell-calendar-server.c
++++ b/src/calendar-server/gnome-shell-calendar-server.c
+@@ -105,7 +105,8 @@ typedef struct
+ } CollectAppointmentsData;
+ 
+ static time_t
+-get_time_from_property (ICalComponent         *icomp,
++get_time_from_property (ECalClient            *cal,
++                        ICalComponent         *icomp,
+                         ICalPropertyKind       prop_kind,
+                         ICalTime * (* get_prop_func) (ICalProperty *prop),
+                         ICalTimezone          *default_zone)
+@@ -124,12 +125,14 @@ get_time_from_property (ICalComponent         *icomp,
+ 
+   param = i_cal_property_get_first_parameter (prop, I_CAL_TZID_PARAMETER);
+   if (param)
+-    timezone = i_cal_timezone_get_builtin_timezone_from_tzid (i_cal_parameter_get_tzid (param));
++    timezone = e_timezone_cache_get_timezone (E_TIMEZONE_CACHE (cal), i_cal_parameter_get_tzid (param));
+   else if (i_cal_time_is_utc (itt))
+     timezone = i_cal_timezone_get_utc_timezone ();
+   else
+     timezone = default_zone;
+ 
++  i_cal_time_set_timezone (itt, timezone);
++
+   retval = i_cal_time_as_timet_with_zone (itt, timezone);
+ 
+   g_clear_object (&param);
+@@ -180,27 +183,32 @@ get_ical_description (ICalComponent *icomp)
+ }
+ 
+ static inline time_t
+-get_ical_start_time (ICalComponent *icomp,
++get_ical_start_time (ECalClient    *cal,
++                     ICalComponent *icomp,
+                      ICalTimezone  *default_zone)
+ {
+-  return get_time_from_property (icomp,
++  return get_time_from_property (cal,
++                                 icomp,
+                                  I_CAL_DTSTART_PROPERTY,
+                                  i_cal_property_get_dtstart,
+                                  default_zone);
+ }
+ 
+ static inline time_t
+-get_ical_end_time (ICalComponent *icomp,
++get_ical_end_time (ECalClient    *cal,
++                   ICalComponent *icomp,
+                    ICalTimezone  *default_zone)
+ {
+-  return get_time_from_property (icomp,
++  return get_time_from_property (cal,
++                                 icomp,
+                                  I_CAL_DTEND_PROPERTY,
+                                  i_cal_property_get_dtend,
+                                  default_zone);
+ }
+ 
+ static gboolean
+-get_ical_is_all_day (ICalComponent *icomp,
++get_ical_is_all_day (ECalClient    *cal,
++                     ICalComponent *icomp,
+                      time_t         start_time,
+                      ICalTimezone  *default_zone)
+ {
+@@ -226,7 +234,7 @@ get_ical_is_all_day (ICalComponent *icomp,
+       start_tm->tm_hour != 0)
+     return FALSE;
+ 
+-  if ((end_time = get_ical_end_time (icomp, default_zone)))
++  if ((end_time = get_ical_end_time (cal, icomp, default_zone)))
+     return (end_time - start_time) % 86400 == 0;
+ 
+   prop = i_cal_component_get_first_property (icomp, I_CAL_DURATION_PROPERTY);
+@@ -244,20 +252,24 @@ get_ical_is_all_day (ICalComponent *icomp,
+ }
+ 
+ static inline time_t
+-get_ical_due_time (ICalComponent *icomp,
++get_ical_due_time (ECalClient    *cal,
++                   ICalComponent *icomp,
+                    ICalTimezone  *default_zone)
+ {
+-  return get_time_from_property (icomp,
++  return get_time_from_property (cal,
++                                 icomp,
+                                  I_CAL_DUE_PROPERTY,
+                                  i_cal_property_get_due,
+                                  default_zone);
+ }
+ 
+ static inline time_t
+-get_ical_completed_time (ICalComponent *icomp,
++get_ical_completed_time (ECalClient    *cal,
++                         ICalComponent *icomp,
+                          ICalTimezone  *default_zone)
+ {
+-  return get_time_from_property (icomp,
++  return get_time_from_property (cal,
++                                 icomp,
+                                  I_CAL_COMPLETED_PROPERTY,
+                                  i_cal_property_get_completed,
+                                  default_zone);
+@@ -411,9 +423,10 @@ calendar_appointment_init (CalendarAppointment  *appointment,
+   appointment->summary      = get_ical_summary (icomp);
+   appointment->description  = get_ical_description (icomp);
+   appointment->color_string = get_source_color (cal);
+-  appointment->start_time   = get_ical_start_time (icomp, default_zone);
+-  appointment->end_time     = get_ical_end_time (icomp, default_zone);
+-  appointment->is_all_day   = get_ical_is_all_day (icomp,
++  appointment->start_time   = get_ical_start_time (cal, icomp, default_zone);
++  appointment->end_time     = get_ical_end_time (cal, icomp, default_zone);
++  appointment->is_all_day   = get_ical_is_all_day (cal,
++                                                   icomp,
+                                                    appointment->start_time,
+                                                    default_zone);
+ }
+@@ -442,10 +455,8 @@ generate_instances_cb (ICalComponent *icomp,
+   GHashTable *appointments = ((CollectAppointmentsData *)user_data)->appointments;
+   CalendarAppointment *appointment;
+   CalendarOccurrence *occurrence;
+-  ICalTimezone *default_zone;
+   const gchar *uid;
+ 
+-  default_zone = e_cal_client_get_default_timezone (cal);
+   uid = i_cal_component_get_uid (icomp);
+   appointment = g_hash_table_lookup (appointments, uid);
+ 
+@@ -456,8 +467,8 @@ generate_instances_cb (ICalComponent *icomp,
+     }
+ 
+   occurrence             = g_new0 (CalendarOccurrence, 1);
+-  occurrence->start_time = i_cal_time_as_timet_with_zone (instance_start, default_zone);
+-  occurrence->end_time   = i_cal_time_as_timet_with_zone (instance_end, default_zone);
++  occurrence->start_time = i_cal_time_as_timet_with_zone (instance_start, i_cal_time_get_timezone (instance_start));
++  occurrence->end_time   = i_cal_time_as_timet_with_zone (instance_end, i_cal_time_get_timezone (instance_end));
+   occurrence->rid        = e_cal_util_component_get_recurid_as_string (icomp);
+ 
+   appointment->occurrences = g_slist_append (appointment->occurrences, occurrence);
+-- 
+2.23.0
+
+
+From d142f594780e940fd48063b969048bff4c0bf208 Mon Sep 17 00:00:00 2001
+From: monday <monday15@gmx.com>
+Date: Sat, 2 Nov 2019 07:57:10 +0000
+Subject: [PATCH 09/11] theme: Adjust system-menu-action buttons
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/802
+---
+ data/theme/gnome-shell-sass/_common.scss | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/data/theme/gnome-shell-sass/_common.scss b/data/theme/gnome-shell-sass/_common.scss
+index 9724a8f97..1b59edf50 100644
+--- a/data/theme/gnome-shell-sass/_common.scss
++++ b/data/theme/gnome-shell-sass/_common.scss
+@@ -1209,12 +1209,11 @@ StScrollBar {
+     &:hover, &:focus {
+       background-color: $_hover_bg_color;
+       color: $fg_color;
+-      border: none;
+-      padding: 14px;
+     }
+     &:active { 
+       background-color: $selected_bg_color;
+       color: $selected_fg_color;
++      border-color: $selected_borders_color;
+     }
+ 
+     & > StIcon { icon-size: 16px; }
+-- 
+2.23.0
+
+
+From 006b300085c14d6c73366846cfb188a4e1411e97 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 8 Nov 2019 18:00:05 +0100
+Subject: [PATCH 10/11] windowManager: Use Sets to track ongoing effects
+
+We only care whether an effect is ongoing for an actor, not about
+any particular order. Sets are more convenient than arrays in that
+case, so use them instead.
+
+https://gitlab.gnome.org/GNOME/mutter/issues/655
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/815
+---
+ js/ui/windowManager.js | 51 +++++++++++++++++-------------------------
+ 1 file changed, 21 insertions(+), 30 deletions(-)
+
+diff --git a/js/ui/windowManager.js b/js/ui/windowManager.js
+index c9e48e7a3..c1bc41545 100644
+--- a/js/ui/windowManager.js
++++ b/js/ui/windowManager.js
+@@ -700,16 +700,16 @@ var WindowManager = class {
+     constructor() {
+         this._shellwm =  global.window_manager;
+ 
+-        this._minimizing = [];
+-        this._unminimizing = [];
+-        this._mapping = [];
+-        this._resizing = [];
+-        this._destroying = [];
++        this._minimizing = new Set();
++        this._unminimizing = new Set();
++        this._mapping = new Set();
++        this._resizing = new Set();
++        this._destroying = new Set();
+         this._movingWindow = null;
+ 
+         this._dimmedWindows = [];
+ 
+-        this._skippedActors = [];
++        this._skippedActors = new Set();
+ 
+         this._allowedKeybindings = {};
+ 
+@@ -1257,7 +1257,7 @@ var WindowManager = class {
+     }
+ 
+     skipNextEffect(actor) {
+-        this._skippedActors.push(actor);
++        this._skippedActors.add(actor);
+     }
+ 
+     setCustomKeybindingHandler(name, modes, handler) {
+@@ -1286,7 +1286,7 @@ var WindowManager = class {
+     }
+ 
+     _shouldAnimateActor(actor, types) {
+-        if (this._removeEffect(this._skippedActors, actor))
++        if (this._skippedActors.delete(actor))
+             return false;
+ 
+         if (!this._shouldAnimate())
+@@ -1299,15 +1299,6 @@ var WindowManager = class {
+         return types.includes(type);
+     }
+ 
+-    _removeEffect(list, actor) {
+-        let idx = list.indexOf(actor);
+-        if (idx != -1) {
+-            list.splice(idx, 1);
+-            return true;
+-        }
+-        return false;
+-    }
+-
+     _minimizeWindow(shellwm, actor) {
+         let types = [Meta.WindowType.NORMAL,
+                      Meta.WindowType.MODAL_DIALOG,
+@@ -1319,7 +1310,7 @@ var WindowManager = class {
+ 
+         actor.set_scale(1.0, 1.0);
+ 
+-        this._minimizing.push(actor);
++        this._minimizing.add(actor);
+ 
+         if (actor.meta_window.is_monitor_sized()) {
+             actor.ease({
+@@ -1373,7 +1364,7 @@ var WindowManager = class {
+     }
+ 
+     _minimizeWindowDone(shellwm, actor) {
+-        if (this._removeEffect(this._minimizing, actor)) {
++        if (this._minimizing.delete(actor)) {
+             actor.remove_all_transitions();
+             actor.set_scale(1.0, 1.0);
+             actor.set_opacity(255);
+@@ -1398,7 +1389,7 @@ var WindowManager = class {
+             return;
+         }
+ 
+-        this._unminimizing.push(actor);
++        this._unminimizing.add(actor);
+ 
+         if (actor.meta_window.is_monitor_sized()) {
+             actor.opacity = 0;
+@@ -1455,7 +1446,7 @@ var WindowManager = class {
+     }
+ 
+     _unminimizeWindowDone(shellwm, actor) {
+-        if (this._removeEffect(this._unminimizing, actor)) {
++        if (this._unminimizing.delete(actor)) {
+             actor.remove_all_transitions();
+             actor.set_scale(1.0, 1.0);
+             actor.set_opacity(255);
+@@ -1509,7 +1500,7 @@ var WindowManager = class {
+     _sizeChangedWindow(shellwm, actor) {
+         if (!actor.__animationInfo)
+             return;
+-        if (this._resizing.includes(actor))
++        if (this._resizing.has(actor))
+             return;
+ 
+         let actorClone = actor.__animationInfo.clone;
+@@ -1519,7 +1510,7 @@ var WindowManager = class {
+         let scaleX = targetRect.width / sourceRect.width;
+         let scaleY = targetRect.height / sourceRect.height;
+ 
+-        this._resizing.push(actor);
++        this._resizing.add(actor);
+ 
+         // Now scale and fade out the clone
+         actorClone.ease({
+@@ -1572,7 +1563,7 @@ var WindowManager = class {
+     }
+ 
+     _sizeChangeWindowDone(shellwm, actor) {
+-        if (this._removeEffect(this._resizing, actor)) {
++        if (this._resizing.delete(actor)) {
+             actor.remove_all_transitions();
+             actor.scale_x = 1.0;
+             actor.scale_y = 1.0;
+@@ -1676,7 +1667,7 @@ var WindowManager = class {
+             actor.scale_y = 0.05;
+             actor.opacity = 0;
+             actor.show();
+-            this._mapping.push(actor);
++            this._mapping.add(actor);
+ 
+             actor.ease({
+                 opacity: 255,
+@@ -1698,7 +1689,7 @@ var WindowManager = class {
+             actor.scale_y = 0;
+             actor.opacity = 0;
+             actor.show();
+-            this._mapping.push(actor);
++            this._mapping.add(actor);
+ 
+             actor.ease({
+                 opacity: 255,
+@@ -1720,7 +1711,7 @@ var WindowManager = class {
+     }
+ 
+     _mapWindowDone(shellwm, actor) {
+-        if (this._removeEffect(this._mapping, actor)) {
++        if (this._mapping.delete(actor)) {
+             actor.remove_all_transitions();
+             actor.opacity = 255;
+             actor.set_pivot_point(0, 0);
+@@ -1763,7 +1754,7 @@ var WindowManager = class {
+         switch (actor.meta_window.window_type) {
+         case Meta.WindowType.NORMAL:
+             actor.set_pivot_point(0.5, 0.5);
+-            this._destroying.push(actor);
++            this._destroying.add(actor);
+ 
+             actor.ease({
+                 opacity: 0,
+@@ -1777,7 +1768,7 @@ var WindowManager = class {
+         case Meta.WindowType.MODAL_DIALOG:
+         case Meta.WindowType.DIALOG:
+             actor.set_pivot_point(0.5, 0.5);
+-            this._destroying.push(actor);
++            this._destroying.add(actor);
+ 
+             if (window.is_attached_dialog()) {
+                 let parent = window.get_transient_for();
+@@ -1800,7 +1791,7 @@ var WindowManager = class {
+     }
+ 
+     _destroyWindowDone(shellwm, actor) {
+-        if (this._removeEffect(this._destroying, actor)) {
++        if (this._destroying.delete(actor)) {
+             let parent = actor.get_meta_window().get_transient_for();
+             if (parent && actor._parentDestroyId) {
+                 parent.disconnect(actor._parentDestroyId);
+-- 
+2.23.0
+
+
+From 5fbbeed29036ad7d62f688a4c678f74f62b26a07 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 8 Nov 2019 18:22:40 +0100
+Subject: [PATCH 11/11] windowManager: Complete interrupted size change effects
+
+Resizing effects are more finicky as other effects, as the actual
+animation is delayed until we receive the ::size-changed signal.
+
+However that signal may never be emitted if the window is destroyed
+just after starting the size-change effect, in which case the effect
+is never completed, blocking mutter from destroying the corresponding
+window actor.
+
+Address this by tracking when a resize effect is pending, and complete
+the effect when appropriate.
+
+https://gitlab.gnome.org/GNOME/mutter/issues/655
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/815
+---
+ js/ui/windowManager.js | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/js/ui/windowManager.js b/js/ui/windowManager.js
+index c1bc41545..3d8c46572 100644
+--- a/js/ui/windowManager.js
++++ b/js/ui/windowManager.js
+@@ -704,6 +704,7 @@ var WindowManager = class {
+         this._unminimizing = new Set();
+         this._mapping = new Set();
+         this._resizing = new Set();
++        this._resizePending = new Set();
+         this._destroying = new Set();
+         this._movingWindow = null;
+ 
+@@ -1492,6 +1493,7 @@ var WindowManager = class {
+             this._clearAnimationInfo(actor);
+         });
+ 
++        this._resizePending.add(actor);
+         actor.__animationInfo = { clone: actorClone,
+                                   oldRect: oldFrameRect,
+                                   destroyId: destroyId };
+@@ -1510,6 +1512,7 @@ var WindowManager = class {
+         let scaleX = targetRect.width / sourceRect.width;
+         let scaleY = targetRect.height / sourceRect.height;
+ 
++        this._resizePending.delete(actor);
+         this._resizing.add(actor);
+ 
+         // Now scale and fade out the clone
+@@ -1571,6 +1574,9 @@ var WindowManager = class {
+             actor.translation_y = 0;
+             this._clearAnimationInfo(actor);
+         }
++
++        if (this._resizePending.delete(actor))
++            this._shellwm.completed_size_change(actor);
+     }
+ 
+     _sizeChangeWindowOverwritten(shellwm, actor) {
+-- 
+2.23.0
+
