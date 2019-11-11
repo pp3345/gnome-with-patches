@@ -182,7 +182,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
-* Mon Nov 11 2018 Jonas Ådahl <jadahl@redhat.com> - 3.30.1-9
+* Mon Nov 11 2018 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-9
 - Backport current patches from the stable branch
 - Add patchs to mitigate crash on tear down
   Resolves: #1759876
