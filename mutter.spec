@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       8%{?dist}
+Release:       9%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -25,47 +25,19 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 # https://gitlab.gnome.org/GNOME/mutter/issues/826
 Patch1:        0001-cursor-tracker-Add-API-to-keep-the-wayland-pointer-f.patch
 # https://gitlab.gnome.org/GNOME/mutter/merge_requests/840
-# Fixes night light breakage in 3.34.1:
-# https://bugzilla.redhat.com/show_bug.cgi?id=1760254
-Patch2:        0001-kms-Always-predict-state-after-processing-update.patch
-Patch3:        0002-kms-crtc-Read-gamma-state-when-prediction-failed.patch
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/848
-# Fixes several issues with selections, including copy/paste and
-# drag/drop bugs:
-# https://bugzilla.redhat.com/show_bug.cgi?id=1751646
-# https://bugzilla.redhat.com/show_bug.cgi?id=1759644
-Patch4:        0001-wayland-Plug-MetaSelectionSourceWayland-leaks.patch
-Patch5:        0002-wayland-Drop-field-from-MetaWaylandDataSourcePrimary.patch
-Patch6:        0003-wayland-Chain-up-to-the-right-finalize-on-MetaWaylan.patch
-Patch7:        0004-wayland-Emit-wl-primary-offer-after-changing-selecti.patch
-Patch8:        0005-wayland-Check-resource-before-emitting-cancelled-eve.patch
-Patch9:        0006-wayland-Simplify-MetaSelectionSourceWayland.patch
-Patch10:       0007-wayland-Set-dummy-selection-source-on-.set_selection.patch
-Patch11:       0008-wayland-Figure-out-better-the-right-selection-source.patch
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/842
-# Fixes issue with X selection buffers in Qt applications:
-# https://bugzilla.redhat.com/show_bug.cgi?id=1758873
-Patch12:       0001-x11-Translate-well-known-selection-atoms-to-mimetype.patch
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/849
-# Fixes a bug introduced by MR #842 above:
-# https://gitlab.gnome.org/GNOME/mutter/issues/854
-# https://bugzilla.redhat.com/show_bug.cgi?id=1758873#c28
-Patch13:       0001-x11-Map-mimetypes-back-to-selection-atoms.patch
+
 # https://gitlab.gnome.org/GNOME/mutter/merge_requests/739
 # Complements the backported Xwayland randr resolution change emulation support
 # necessary for SDL2 apps to work correctly
-Patch14:       0001-window-Add-adjust_fullscreen_monitor_rect-virtual-me.patch
-Patch15:       0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/884
-# Fixes issue with X11 cursor focus after '<application>” is not responding' dialog shows up:
-# https://gitlab.gnome.org/GNOME/gnome-shell/issues/1607
-Patch16:       0001-x11-Update-X11-focus-before-updating-MetaDisplay-foc.patch
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/843
-# https://gitlab.gnome.org/GNOME/mutter/merge_requests/860
-# Should fix some log spam and an input focus issue:
-# https://bugzilla.redhat.com/show_bug.cgi?id=1761327
-Patch17:       0001-clutter-actor-Save-key-focus-state-and-unset-it-befo.patch
-Patch18:       0002-clutter-stage-Actually-set-key-focus-to-an-actor-on-.patch
+Patch2:        0001-window-Add-adjust_fullscreen_monitor_rect-virtual-me.patch
+Patch3:        0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
+
+# Backport of patches on the stable branch (gnome-3-34) after 3.34.1
+# rhbz#1759876, rhbz#1764311, rhbz#1770535, rhbz#1770539, rhbz#1770540
+Patch4:        mutter-gnome-3-34-2019-11-09.patch
+
+# Mitigate crash on tear down. (rhbz#1770089, rhbz#1770089)
+Patch5:        0001-compositor-Guard-against-untimely-calls.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -210,6 +182,15 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Nov 11 2018 Jonas Ådahl <jadahl@redhat.com> - 3.30.1-9
+- Backport current patches from the stable branch
+- Add patchs to mitigate crash on tear down
+  Resolves: #1759876
+  Resolves: #1764311
+  Resolves: #1770535
+  Resolves: #1770539
+  Resolves: #1770540
+
 * Wed Nov 06 2019 Adam Williamson <awilliam@redhat.com> - 3.34.1-8
 - Backport MR #843 (and related MR #860) to fix log spam (#1761327)
 
