@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.34.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -26,7 +26,7 @@ Patch4: 0001-magnifier-Use-own-showSystemCursor-instead-of-set_po.patch
 Patch5: 0002-magnifier-Use-new-cursor-tracker-API-to-keep-wayland.patch
 
 # Backport patches on gnome-3-34 post 3.34.1
-Patch6: gnome-shell-gnome-3-34-2019-11-09.patch
+Patch6: gnome-shell-gnome-3-34-2019-11-12.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
@@ -222,6 +222,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-4
+- Backport yet another patch from the stable branch
+
 * Mon Nov 11 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-3
 - Backport patches on the stable branch
 
