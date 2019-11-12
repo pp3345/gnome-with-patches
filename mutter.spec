@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       10%{?dist}
+Release:       11%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -182,6 +182,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-11
+- Backport two memory leak fixes
+
 * Tue Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-10
 - Backport yet another patch from the stable branch
 

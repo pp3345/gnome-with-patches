@@ -1,7 +1,7 @@
 From 81ee8886ceb64fecff74655cb971966cb88295d7 Mon Sep 17 00:00:00 2001
 From: Tim Klocke <taaem@mailbox.org>
 Date: Wed, 9 Oct 2019 10:24:54 +0200
-Subject: [PATCH 01/51] backends: Update inhibited state for the monitor and
+Subject: [PATCH 01/53] backends: Update inhibited state for the monitor and
  respect that state
 
 The inhibited state of the monitor was after the initializiation never
@@ -53,7 +53,7 @@ index 9fa481742..2ff1602e7 100644
 From 73eaf517702a448a4b073ca666413f030ffa8fe1 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Thu, 10 Oct 2019 17:21:13 +0800
-Subject: [PATCH 02/51] cogl-pango/meson.build: Remove extraneous quoting
+Subject: [PATCH 02/53] cogl-pango/meson.build: Remove extraneous quoting
 
 It wasn't necessary (see other instances of -DG_LOG_DOMAIN) and somewhere
 along the line it was getting turned into forward slashes becoming a syntax
@@ -90,7 +90,7 @@ index 787ec0132..06fba5195 100644
 From 4c15d32b5541b852bbdeaf2c63c081849f2a14b9 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Wed, 9 Oct 2019 21:27:11 +0200
-Subject: [PATCH 03/51] wayland/surface: Some minor coding style clean up
+Subject: [PATCH 03/53] wayland/surface: Some minor coding style clean up
 
 Some very long lines that were split up.
 
@@ -159,7 +159,7 @@ index 5def3c5d6..647f05338 100644
 From d49d10b14f4e0fa80e6867979b26fab383610b39 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Wed, 9 Oct 2019 21:53:09 +0200
-Subject: [PATCH 04/51] wayland/actor-surface: Queue redraw for frame callback
+Subject: [PATCH 04/53] wayland/actor-surface: Queue redraw for frame callback
 
 A frame callback without damage is still expected to be responded to.
 Implement this by simply queuing damage if there are any frame callbacks
@@ -198,7 +198,7 @@ index f74bfc59c..a61a80eff 100644
 From 59a697f773e856776887c6e11e452fe4b2cefed0 Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Thu, 10 Oct 2019 12:16:58 +0200
-Subject: [PATCH 05/51] x11: Translate well known selection atoms to mimetypes
+Subject: [PATCH 05/53] x11: Translate well known selection atoms to mimetypes
 
 Some antediluvian x11 clients only bother to set atoms like
 UTF8_STRING/STRING/TEXT/... and no matching mimetypes. Cover for them
@@ -251,7 +251,7 @@ index 15a763651..1a0369ab0 100644
 From 9234fcb6248c41d09e46d4e5b7747f78052b2b83 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
 Date: Sat, 31 Aug 2019 17:48:43 +0200
-Subject: [PATCH 06/51] event-x11: Use CLUTTER prefix for X11 filter docs
+Subject: [PATCH 06/53] event-x11: Use CLUTTER prefix for X11 filter docs
 
 As per commit ad72fa46b clutter_x11_handle_event was renamed into
 meta_x11_handle_event but the return type didn't change.
@@ -289,7 +289,7 @@ index 8b4f4fc81..19da2235b 100644
 From 446bd04b6c5c63b71cd90b8664e5442be43bfaaa Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
 Date: Sat, 31 Aug 2019 17:57:32 +0200
-Subject: [PATCH 07/51] clutter-backend-x11: Don't push keymap events to
+Subject: [PATCH 07/53] clutter-backend-x11: Don't push keymap events to
  clutter
 
 Xkb events should be handled by clutter backend but they are not translated
@@ -325,7 +325,7 @@ index 8d4b64b03..b6334de8b 100644
 From 1cc249fe18c8c280d8087642e0ac1f0287c53a64 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Thu, 10 Oct 2019 10:10:38 +0200
-Subject: [PATCH 08/51] kms: Always predict state after processing update
+Subject: [PATCH 08/53] kms: Always predict state after processing update
 
 Not only mode sets have state that should be predicted; changing gamma
 currently happens with its own update, so we missed predicting that.
@@ -386,7 +386,7 @@ index 9485bb4e8..804a1adda 100644
 From 1b4709794ea3602f5573fee164c880a14f049d3b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Thu, 10 Oct 2019 10:47:05 +0200
-Subject: [PATCH 09/51] kms/crtc: Read gamma state when prediction failed
+Subject: [PATCH 09/53] kms/crtc: Read gamma state when prediction failed
 
 If we did a mode set, the gamma may have been changed by the kernel, and
 if we didn't also update the gamma in the same transaction, we have no
@@ -501,7 +501,7 @@ index 3610df903..da99a58cd 100644
 From 69a0c1dc80ec733a807d61825e56794bdcf8c5ca Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Wed, 9 Oct 2019 10:58:43 +0200
-Subject: [PATCH 10/51] main: Warn instead of error in meta_test_init()
+Subject: [PATCH 10/53] main: Warn instead of error in meta_test_init()
 
 Otherwise we'll get the warning
 
@@ -536,7 +536,7 @@ index 7f4f666d2..3935f3523 100644
 From f7c3f50f61507bec04b52f342175a5be5a7ec2fb Mon Sep 17 00:00:00 2001
 From: Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
 Date: Fri, 11 Oct 2019 10:45:34 -0300
-Subject: [PATCH 11/51] clutter/shader-effect: Initialize shader-type properly
+Subject: [PATCH 11/53] clutter/shader-effect: Initialize shader-type properly
 
 The default value of the ClutterShaderEffect:shader-type
 property is CLUTTER_FRAGMENT_SHADER. However, because the
@@ -570,7 +570,7 @@ index a5ae1ee40..c659dab12 100644
 From 79cae1de9e9e3a93cb5dd71c7e8aedecfde1b86b Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Fri, 11 Oct 2019 13:25:35 +0200
-Subject: [PATCH 12/51] wayland: Plug MetaSelectionSourceWayland leaks
+Subject: [PATCH 12/53] wayland: Plug MetaSelectionSourceWayland leaks
 
 There was a dangling ref left on all of them, oops.
 
@@ -614,7 +614,7 @@ index 2ca77e8ea..e063a9a0c 100644
 From d1205d3c6b442bc4534e21c9a9036f30e805ca44 Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Fri, 11 Oct 2019 16:49:24 +0200
-Subject: [PATCH 13/51] wayland: Drop field from MetaWaylandDataSourcePrimary
+Subject: [PATCH 13/53] wayland: Drop field from MetaWaylandDataSourcePrimary
 
 This is a subclass of MetaWaylandDataSourceWayland, so there's no need
 for a duplicate wl_resource field. Make sure to reuse the parent struct
@@ -709,7 +709,7 @@ index e063a9a0c..310ad13cf 100644
 From 3f2ad3c5635aa388b6c4d7d8bb2fa33a2766c495 Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Fri, 11 Oct 2019 18:02:13 +0200
-Subject: [PATCH 14/51] wayland: Chain up to the right finalize on
+Subject: [PATCH 14/53] wayland: Chain up to the right finalize on
  MetaWaylandDataSourceWayland
 
 This function was using the wrong parent class pointer, so it was mistakenly
@@ -740,7 +740,7 @@ index 310ad13cf..7948fe912 100644
 From 86743a9c7c27c16f0b0a63aaf20c5cae60742bcd Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Fri, 11 Oct 2019 12:27:56 +0200
-Subject: [PATCH 15/51] wayland: Emit wl/primary offer after changing selection
+Subject: [PATCH 15/53] wayland: Emit wl/primary offer after changing selection
 
 We are still poking the mimetypes from the previous selection when creating
 the new offer. This may come out wrong between changes of the copied
@@ -838,7 +838,7 @@ index 7948fe912..24e97222a 100644
 From b3c69c3dfbe3859b4c7a7ee877f46407b9294d08 Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Fri, 11 Oct 2019 17:47:00 +0200
-Subject: [PATCH 16/51] wayland: Check resource before emitting cancelled event
+Subject: [PATCH 16/53] wayland: Check resource before emitting cancelled event
 
 If a data source is destroyed we first unset the resource, and then try to
 unref the related selection source. At this point the only event that might
@@ -881,7 +881,7 @@ index 24e97222a..3dfedd959 100644
 From 86b1a0465715b887156b7597de0553f4119c29f5 Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Fri, 11 Oct 2019 17:09:26 +0200
-Subject: [PATCH 17/51] wayland: Simplify MetaSelectionSourceWayland
+Subject: [PATCH 17/53] wayland: Simplify MetaSelectionSourceWayland
 
 Instead of taking resource and send/cancel funcs, take a
 MetaWaylandDataSource, which exposes all the vfuncs to do the same on the
@@ -1122,7 +1122,7 @@ index 729baacd9..efa5478bf 100644
 From a43aec2d3a466effd0ccc4433a58b3c0892abf66 Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Fri, 11 Oct 2019 18:43:00 +0200
-Subject: [PATCH 18/51] wayland: Set dummy selection source on
+Subject: [PATCH 18/53] wayland: Set dummy selection source on
  .set_selection(null)
 
 Requesting a selection with a NULL data source means "unset the clipboard",
@@ -1261,7 +1261,7 @@ index 0044a80b8..f95be0bf8 100644
 From 55b4e24a2584c1e3c72b6b519816d8d70cac32cc Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Fri, 11 Oct 2019 19:32:42 +0200
-Subject: [PATCH 19/51] wayland: Figure out better the right selection source
+Subject: [PATCH 19/53] wayland: Figure out better the right selection source
  for a wl_data_offer
 
 We were just looking at DnD actions which might still be unset at that
@@ -1329,7 +1329,7 @@ index f95be0bf8..38aa0f317 100644
 From 18621e3e29cf98c4b37fcb5f770129b83b3538dc Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Sat, 12 Oct 2019 19:15:11 +0200
-Subject: [PATCH 20/51] x11: Map mimetypes back to selection atoms
+Subject: [PATCH 20/53] x11: Map mimetypes back to selection atoms
 
 This may be seen as the missing half of
 https://gitlab.gnome.org/GNOME/mutter/merge_requests/842. Now that we
@@ -1370,7 +1370,7 @@ index 1a0369ab0..55e500327 100644
 From 938d983fe9f28b03c1db67f2cf5e729255a340e1 Mon Sep 17 00:00:00 2001
 From: Niels De Graef <niels.degraef@barco.com>
 Date: Fri, 11 Oct 2019 14:24:25 +0000
-Subject: [PATCH 21/51] dbus-session-watcher: Chain up to parent finalize()
+Subject: [PATCH 21/53] dbus-session-watcher: Chain up to parent finalize()
 
 https://gitlab.gnome.org/GNOME/mutter/merge_requests/847
 
@@ -1400,7 +1400,7 @@ index 22718e6c2..a885b423b 100644
 From da9a38689e2837956aec689cc0082731ba435c0f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
 Date: Thu, 10 Oct 2019 16:11:20 +0000
-Subject: [PATCH 22/51] clutter/actor: Save key-focus state and unset it before
+Subject: [PATCH 22/53] clutter/actor: Save key-focus state and unset it before
  destruction
 
 When clutter actors with key focus are destroyed we emit ::key-focus-out on
@@ -1633,7 +1633,7 @@ index 245cb8997..3a8a019d2 100644
 From 46935960b14c57ae535cbace33f3ac91d7ccd7aa Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
 Date: Tue, 15 Oct 2019 14:38:14 +0000
-Subject: [PATCH 23/51] clutter/stage: Actually set key focus to an actor on
+Subject: [PATCH 23/53] clutter/stage: Actually set key focus to an actor on
  key focus
 
 As per commit c2d03bf73 we're using a private method to set the actors key
@@ -1669,7 +1669,7 @@ index 3a8a019d2..c4b88b32e 100644
 From cf821044d1b6fa203e620589cc0ef52aa8c6da56 Mon Sep 17 00:00:00 2001
 From: Cosimo Cecchi <cosimoc@gnome.org>
 Date: Thu, 4 Jul 2019 19:52:30 +0000
-Subject: [PATCH 24/51] monitor-manager: check for underscan setting validity
+Subject: [PATCH 24/53] monitor-manager: check for underscan setting validity
  upfront
 
 Instead of doing a roundtrip to the X server before setting it, rely on
@@ -1725,7 +1725,7 @@ index 41036ca2a..0210aee33 100644
 From df336f2f6f2cc85e7718679e2c5474b8da153284 Mon Sep 17 00:00:00 2001
 From: Robert Mader <robert.mader@posteo.de>
 Date: Mon, 14 Oct 2019 17:45:14 +0200
-Subject: [PATCH 25/51] window-actor: Add a missing NULL-check
+Subject: [PATCH 25/53] window-actor: Add a missing NULL-check
 
 We shouldn't crash on a NULL-clip.
 
@@ -1782,7 +1782,7 @@ index db9ccec62..fd99844e8 100644
 From 5b71851b3fee13a405a6f8350e8362457315749c Mon Sep 17 00:00:00 2001
 From: Robert Mader <robert.mader@posteo.de>
 Date: Sun, 20 Oct 2019 19:32:29 +0000
-Subject: [PATCH 26/51] wayland/surface: Reset buffer_destroy_handler_id
+Subject: [PATCH 26/53] wayland/surface: Reset buffer_destroy_handler_id
 
 Syncronized subsurfaces that call into `merge_pending_state` might
 otherwise not create new destroy handlers, ending up with a invalid
@@ -1816,7 +1816,7 @@ index 647f05338..163b7c515 100644
 From 6955b9ffeaa7fdd352e67d24b24dfb149ffcefca Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Tue, 22 Oct 2019 12:17:40 +0000
-Subject: [PATCH 27/51] x11: Update X11 focus before updating MetaDisplay focus
+Subject: [PATCH 27/53] x11: Update X11 focus before updating MetaDisplay focus
 
 In a similar vein to commit 8fd55fef853. This notably failed when setting
 the focus on the stage (eg. to redirect key events to Clutter actors).
@@ -1865,7 +1865,7 @@ index 3ae5b3d8d..1aebaa961 100644
 From 3922409a6d45cb78e04331a02289c0dc6f9f230a Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Thu, 24 Oct 2019 21:19:36 +0200
-Subject: [PATCH 28/51] display: Move finishing of touch sequence to the
+Subject: [PATCH 28/53] display: Move finishing of touch sequence to the
  backend
 
 We need to manipulate an X11 grab when a touch sequence ends; move that
@@ -2075,7 +2075,7 @@ index a9db35ebc..e7bfc5472 100644
 From a7ee1635b234fedf2ea56be04a02d70c9aadab75 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 25 Oct 2019 10:06:55 +0200
-Subject: [PATCH 29/51] x11: Limit touch replay pointer events to when
+Subject: [PATCH 29/53] x11: Limit touch replay pointer events to when
  replaying
 
 When a touch sequence was rejected, the emulated pointer events would be
@@ -2242,7 +2242,7 @@ index fd58a388b..225d14d33 100644
 From e3c8f81b5e268678ea72ff5468333a8290516172 Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Mon, 28 Oct 2019 18:07:31 +0100
-Subject: [PATCH 30/51] wayland: Check stylus serials on
+Subject: [PATCH 30/53] wayland: Check stylus serials on
  meta_wayland_seat_can_popup()
 
 This allows xdg_popup.grab() to work with styli. Without this check
@@ -2352,7 +2352,7 @@ index 71bc86643..315e26bde 100644
 From f133364b960b6715b67e53808ac2e47f49897a18 Mon Sep 17 00:00:00 2001
 From: Olivier Fourdan <ofourdan@redhat.com>
 Date: Tue, 22 Oct 2019 17:03:03 +0200
-Subject: [PATCH 31/51] clutter/stage-view: Separate offscreen and shadowfb
+Subject: [PATCH 31/53] clutter/stage-view: Separate offscreen and shadowfb
 
 Previously, we would use a single offscreen framebuffer for both
 transformations and when a shadow framebuffer should be used, but that
@@ -2657,7 +2657,7 @@ index 4810e42a4..d2b833c4d 100644
 From ad30e12971303f09f4dfe3a2b9590217ba056826 Mon Sep 17 00:00:00 2001
 From: Olivier Fourdan <ofourdan@redhat.com>
 Date: Tue, 22 Oct 2019 17:05:46 +0200
-Subject: [PATCH 32/51] renderer-native: Separate offscreen and shadowfb
+Subject: [PATCH 32/53] renderer-native: Separate offscreen and shadowfb
 
 Create the intermediate shadow framebuffer for use exclusively when a
 shadowfb is required.
@@ -2756,7 +2756,7 @@ index 5c01375c8..84b6a7323 100644
 From 414962cd544b943efb747e8e7ff81620dba856ff Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 1 Nov 2019 13:14:39 +0100
-Subject: [PATCH 33/51] display: Add 'closing' signal
+Subject: [PATCH 33/53] display: Add 'closing' signal
 
 Emitted when the MetaDisplay is closing. Meant for clean up that depends
 on things that will be torn down during closing.
@@ -2807,7 +2807,7 @@ index 05c2a64b8..7f0b7f95e 100644
 From a416c03c9488fbb7dcefc67cd09eff39f7262c49 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 1 Nov 2019 13:15:57 +0100
-Subject: [PATCH 34/51] plugin/default: Init quark before using
+Subject: [PATCH 34/53] plugin/default: Init quark before using
 
 Cut lines in pieces, and remove useless "optimizations" while at it
 
@@ -2849,7 +2849,7 @@ index e7203ee11..42d28ec20 100644
 From 5d70153ea8dae2631000754749ed321e4aec2558 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 1 Nov 2019 13:16:25 +0100
-Subject: [PATCH 35/51] plugins/default: Clean up tile preview when closing
+Subject: [PATCH 35/53] plugins/default: Clean up tile preview when closing
  display
 
 On finalize, the preview actor will have been destroyed behind our back;
@@ -2913,7 +2913,7 @@ index 42d28ec20..378009006 100644
 From b37ec8fd05fc8ead9f625f470f07813963fe4417 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 1 Nov 2019 13:18:12 +0100
-Subject: [PATCH 36/51] window: Always update tile monitor number on hot plug
+Subject: [PATCH 36/53] window: Always update tile monitor number on hot plug
 
 Otherwise we'll end up crashing if we had two connected monitors,
 unplugged both, then replugged in a single one.
@@ -2972,7 +2972,7 @@ index e276b1e59..f72260f5d 100644
 From 8d71a01c9d25340f585635de77570f17197ffdc2 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 1 Nov 2019 13:35:38 +0100
-Subject: [PATCH 37/51] tests/monitor-unit-tests: Move test client sanity check
+Subject: [PATCH 37/53] tests/monitor-unit-tests: Move test client sanity check
  into helper
 
 https://gitlab.gnome.org/GNOME/mutter/merge_requests/912
@@ -3019,7 +3019,7 @@ index 83102c3a5..250bcd67d 100644
 From 71b2eba8018d32490ba634475503e739fac7b97c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 1 Nov 2019 13:37:22 +0100
-Subject: [PATCH 38/51] tests/runner: Move window shown synchronization to
+Subject: [PATCH 38/53] tests/runner: Move window shown synchronization to
  helper
 
 https://gitlab.gnome.org/GNOME/mutter/merge_requests/912
@@ -3176,7 +3176,7 @@ index e11f25353..2f1a73116 100644
 From a37126bb158980420bfa338245a9d4279a496565 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 1 Nov 2019 13:38:25 +0100
-Subject: [PATCH 39/51] tests/monitor-unit-tests: Add window tiling hot plug
+Subject: [PATCH 39/53] tests/monitor-unit-tests: Add window tiling hot plug
  test
 
 This test that we handle hot plugs correctly together with tiled
@@ -3335,7 +3335,7 @@ index 250bcd67d..c03c17e8d 100644
 From c3b1d9fc8113595a0ace0a141fa7b91c17696ad5 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 1 Nov 2019 13:40:04 +0100
-Subject: [PATCH 40/51] window: Reset tile monitor number when untiling
+Subject: [PATCH 40/53] window: Reset tile monitor number when untiling
 
 Otherwise we'll end up trying to access the out of date state later.
 
@@ -3381,7 +3381,7 @@ index f72260f5d..d93e723a5 100644
 From 8605eb5c03c81f9f30716dd823a284a89639be56 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 1 Nov 2019 13:48:50 +0100
-Subject: [PATCH 41/51] tests/monitor-unit-tests: Add another tiling window hot
+Subject: [PATCH 41/53] tests/monitor-unit-tests: Add another tiling window hot
  plug test
 
 Checks that we handle hot plugs of a untiled window, that was previously
@@ -3433,7 +3433,7 @@ index c03c17e8d..b498d899f 100644
 From 7c25950c30f85267ec769f168a10f7dbfc25d272 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
 Date: Thu, 31 Oct 2019 06:36:52 +0000
-Subject: [PATCH 42/51] x11-display: Don't unset the X11 focused window after
+Subject: [PATCH 42/53] x11-display: Don't unset the X11 focused window after
  setting one
 
 When using DesktopIcons extension and clicking in an icon, gnome-shell
@@ -3494,7 +3494,7 @@ index 1aebaa961..c05f1ab28 100644
 From c457a54a437d000fbdc9d4fb072659bd5d111666 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Mon, 28 Oct 2019 17:20:31 +0000
-Subject: [PATCH 43/51] wayland/actor-surface: Always store away frame
+Subject: [PATCH 43/53] wayland/actor-surface: Always store away frame
  callbacks on commit
 
 We're expected by MetaWaylandSurface to always pick the frame callbacks
@@ -3588,7 +3588,7 @@ index a61a80eff..bf93f9564 100644
 From 4d589619764a556a5464836c5353cede43bfe79b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
 Date: Tue, 29 Oct 2019 16:48:00 +0000
-Subject: [PATCH 44/51] window: Warn if O-R window workspace state is used
+Subject: [PATCH 44/53] window: Warn if O-R window workspace state is used
 
 Override-redirect windows have no workspace by default, and can't be parent
 of a top-level window, so we must check that the parent window is not an
@@ -3621,7 +3621,7 @@ index d93e723a5..f38f0fee2 100644
 From c94174d8e8876f12327f0f7fe56090882aa66401 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
 Date: Tue, 29 Oct 2019 02:54:42 +0000
-Subject: [PATCH 45/51] window: Assert we only set a NULL workspace when
+Subject: [PATCH 45/53] window: Assert we only set a NULL workspace when
  unmanaging
 
 There might be cases in which a window might be marked as both not in all
@@ -3666,7 +3666,7 @@ index f38f0fee2..ac8187978 100644
 From 7438c8ef9db05a020835c29461865e7ba9441a1c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
 Date: Tue, 29 Oct 2019 16:14:43 +0000
-Subject: [PATCH 46/51] window-props: Don't look for parent multiple times
+Subject: [PATCH 46/53] window-props: Don't look for parent multiple times
 
 Once we set the transient_for, we look for parent MetaWindow, so instead
 of overwriting this value for loops check, just use another function
@@ -3746,7 +3746,7 @@ index 48454befe..2564909a9 100644
 From 961b3b724a04bc216bf243e688f82542e33dc964 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
 Date: Tue, 29 Oct 2019 03:22:19 +0000
-Subject: [PATCH 47/51] window-props: Don't set override redirect windows as
+Subject: [PATCH 47/53] window-props: Don't set override redirect windows as
  top-level parent
 
 Java applications might use override-redirect windows as parent windows for
@@ -3855,7 +3855,7 @@ index 2564909a9..e1e96e0e3 100644
 From 3f283b9be1bc19cf7a6f470e7a9fc280de97d88e Mon Sep 17 00:00:00 2001
 From: Xiang Fan <sfanxiang@gmail.com>
 Date: Sat, 2 Nov 2019 15:05:57 -0400
-Subject: [PATCH 48/51] wayland/surface: Don't double scale when getting
+Subject: [PATCH 48/53] wayland/surface: Don't double scale when getting
  absolute coordinates
 
 The actor is already in surface coordinate space, so we should not scale
@@ -3895,7 +3895,7 @@ index 163b7c515..56d292517 100644
 From 2334b971e17d786c8add7dfa5260c9a75aa1b9c6 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
 Date: Fri, 8 Nov 2019 22:41:35 +0100
-Subject: [PATCH 49/51] plugins/default: Handle skipped animations
+Subject: [PATCH 49/53] plugins/default: Handle skipped animations
 
 We currently assume that the actor_animate() helper function returns
 a timeline. However Clutter may skip implicit animations and simple
@@ -4004,7 +4004,7 @@ index 378009006..08ecf01ac 100644
 From 35142ada8d980bb77ec4f5e86d30be58179c3952 Mon Sep 17 00:00:00 2001
 From: Robert Mader <robert.mader@posteo.de>
 Date: Fri, 8 Nov 2019 17:27:28 +0000
-Subject: [PATCH 50/51] plugin-manager: Kill window effects on destroy
+Subject: [PATCH 50/53] plugin-manager: Kill window effects on destroy
 
 We do so for all other window effects already. Why this was left out
 is unknown (9b3a0d1ad8f), but we will need it for a fix in GS.
@@ -4039,7 +4039,7 @@ index 09bcfd333..47bf922db 100644
 From 7c05d8273296002a53215e0588fcfaeaa1d25227 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Sun, 10 Nov 2019 17:41:37 +0100
-Subject: [PATCH 51/51] input-settings/x11: Add missing
+Subject: [PATCH 51/53] input-settings/x11: Add missing
  clutter_x11_trap_x_errors around XIGetProperty
 
 Add missing clutter_x11_[un]trap_x_errors around the XIGetProperty call
@@ -4077,6 +4077,80 @@ index 89f07ee1f..05f932420 100644
    if (rc == Success && type_ret == type && format_ret == format && nitems_ret >= nitems)
      {
        if (nitems_ret > nitems)
+-- 
+2.23.0
+
+
+From 48f22df38d59bb722f300a506e137b01b0e8aac6 Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Mon, 21 Oct 2019 18:55:12 +0200
+Subject: [PATCH 52/53] backends: Plug MetaKmsPageFlipData leak
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+If the page flip is postponed, keep a ref to it, but still unref it
+on the page flip callback anyways. Fix suggested by Jonas Ådahl.
+
+(cherry-picked from 668be1f4bd309fedc846a0022180aef5a9e44869)
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/873
+---
+ src/backends/native/meta-kms-impl-simple.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/backends/native/meta-kms-impl-simple.c b/src/backends/native/meta-kms-impl-simple.c
+index 19c4b2b33..571dccf12 100644
+--- a/src/backends/native/meta-kms-impl-simple.c
++++ b/src/backends/native/meta-kms-impl-simple.c
+@@ -772,12 +772,14 @@ meta_kms_impl_simple_handle_page_flip_callback (MetaKmsImpl         *impl,
+     {
+       impl_simple->postponed_page_flip_datas =
+         g_list_append (impl_simple->postponed_page_flip_datas,
+-                       page_flip_data);
++                       meta_kms_page_flip_data_ref (page_flip_data));
+     }
+   else
+     {
+       meta_kms_page_flip_data_flipped_in_impl (page_flip_data);
+     }
++
++  meta_kms_page_flip_data_unref (page_flip_data);
+ }
+ 
+ static void
+-- 
+2.23.0
+
+
+From 5634f22be7249c91db922aa964f83efb25204c89 Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Mon, 21 Oct 2019 18:57:10 +0200
+Subject: [PATCH 53/53] compositor: Plug cairo_region_t leak
+
+The MetaBackgroundActor uses a region to find out the areas that need
+repainting, but forgot to free it, oops.
+
+(cherry-picked from 40e6aa7d94e64d80fe07f020d75d540200004ea9)
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/873
+---
+ src/compositor/meta-background-actor.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/compositor/meta-background-actor.c b/src/compositor/meta-background-actor.c
+index 48f745b38..961f6721b 100644
+--- a/src/compositor/meta-background-actor.c
++++ b/src/compositor/meta-background-actor.c
+@@ -573,6 +573,8 @@ meta_background_actor_paint (ClutterActor *actor)
+       paint_clipped_rectangle (fb, self->pipeline, &rect,
+                                &self->texture_area);
+     }
++
++  cairo_region_destroy (region);
+ }
+ 
+ static void
 -- 
 2.23.0
 
