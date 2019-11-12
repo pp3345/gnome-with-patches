@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       9%{?dist}
+Release:       10%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -34,7 +34,7 @@ Patch3:        0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
 
 # Backport of patches on the stable branch (gnome-3-34) after 3.34.1
 # rhbz#1759876, rhbz#1764311, rhbz#1770535, rhbz#1770539, rhbz#1770540
-Patch4:        mutter-gnome-3-34-2019-11-09.patch
+Patch4:        mutter-gnome-3-34-2019-11-12.patch
 
 # Mitigate crash on tear down. (rhbz#1770089, rhbz#1770089)
 Patch5:        0001-compositor-Guard-against-untimely-calls.patch
@@ -182,6 +182,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-10
+- Backport yet another patch from the stable branch
+
 * Mon Nov 11 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-9
 - Backport current patches from the stable branch
 - Add patchs to mitigate crash on tear down
