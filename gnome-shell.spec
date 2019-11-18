@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.34.1
-Release:        201%{?dist}.pp3345
+Release:        400%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -221,6 +221,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Nov 18 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-400
+- Update !605 "Gestures overhaul" @b4bd41c0 (rebase taken from exalm/gnome-shell-gestures)
+- Rebase to gnome-3-34@7e8884a6
+
 * Tue Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-4
 - Backport yet another patch from the stable branch
 
