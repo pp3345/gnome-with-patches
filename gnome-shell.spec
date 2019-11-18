@@ -221,6 +221,12 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Tue Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-4
+- Backport yet another patch from the stable branch
+
+* Mon Nov 11 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-3
+- Backport patches on the stable branch
+
 * Mon Oct 21 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-201
 - Rebase to gnome-3-34@246150d8
 
