@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       800%{?dist}.pp3345
+Release:       1100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -190,6 +190,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Nov 18 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-1100
+- Remove !875 "window-actor: Destroy the actor despite stuck animations" (obsoleted)
+- Remove !873 "fix The Memory Leak (2019-10-21T19:00:24+02:00 edition)" (merged)
+- Add !850 "Make default focus window on each workspace appear focused" @f5252158 (manually rebased)
+- Rebase to gnome-3-34@d78585d6
+
 * Tue Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-11
 - Backport two memory leak fixes
 
