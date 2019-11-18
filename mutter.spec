@@ -118,7 +118,6 @@ Patch200: 889.patch
 Patch210: 898.patch
 Patch220: 867.patch
 Patch230: 906.patch
-Patch240: 875.patch
 Patch250: 918.patch
 
 %description
