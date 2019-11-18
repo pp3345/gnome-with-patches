@@ -27,8 +27,11 @@ Patch1:        0001-cursor-tracker-Add-API-to-keep-the-wayland-pointer-f.patch
 # https://gitlab.gnome.org/GNOME/mutter/merge_requests/739
 # Complements the backported Xwayland randr resolution change emulation support
 # necessary for SDL2 apps to work correctly
-Patch14:       0001-window-Add-adjust_fullscreen_monitor_rect-virtual-me.patch
-Patch15:       0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
+Patch2:        0001-window-Add-adjust_fullscreen_monitor_rect-virtual-me.patch
+Patch3:        0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
+
+# Mitigate crash on tear down. (rhbz#1770089, rhbz#1770089)
+Patch5:        0001-compositor-Guard-against-untimely-calls.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -188,6 +191,21 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-11
+- Backport two memory leak fixes
+
+* Tue Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-10
+- Backport yet another patch from the stable branch
+
+* Mon Nov 11 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-9
+- Backport current patches from the stable branch
+- Add patchs to mitigate crash on tear down
+  Resolves: #1759876
+  Resolves: #1764311
+  Resolves: #1770535
+  Resolves: #1770539
+  Resolves: #1770540
+
 * Thu Nov 07 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-800
 - Add !867 "Use regions for Cogl clipping and culling" @e746d880 (manually rebased)
 - Add !918 "surface-actor-wayland: Do not send frame callbacks if the actor is obscured" @5e87d67e (manually rebased)
