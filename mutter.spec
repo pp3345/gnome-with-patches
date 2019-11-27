@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       1100%{?dist}.pp3345
+Release:       1101%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -184,6 +184,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Nov 27 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-1101
+- Rebase to gnome-3-34@1b75d78c
+
 * Mon Nov 18 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-1100
 - Remove !875 "window-actor: Destroy the actor despite stuck animations" (obsoleted)
 - Remove !873 "fix The Memory Leak (2019-10-21T19:00:24+02:00 edition)" (merged)
