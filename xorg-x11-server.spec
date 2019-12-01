@@ -128,6 +128,7 @@ Patch516: 0016-xwayland-Fix-setting-of-_XWAYLAND_RANDR_EMU_MONITOR_.patch
 Patch517: 0017-xwayland-Remove-unnecessary-xwl_window_is_toplevel-c.patch
 
 Patch100: 282.patch
+Patch600: 316.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
