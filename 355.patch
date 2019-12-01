@@ -1,0 +1,23 @@
+diff --git a/hw/xwayland/xwayland-present.c b/hw/xwayland/xwayland-present.c
+index b7da261b779a312887e5ba8e03196ed2077d0cdb..d929ae65b70f8f9f584d24960889ea171892552a 100644
+--- a/hw/xwayland/xwayland-present.c
++++ b/hw/xwayland/xwayland-present.c
+@@ -24,6 +24,7 @@
+  */
+ 
+ #include "xwayland.h"
++#include "glamor.h"
+ 
+ #include <present.h>
+ 
+@@ -412,9 +413,7 @@ xwl_present_abort_vblank(WindowPtr present_window,
+ static void
+ xwl_present_flush(WindowPtr window)
+ {
+-    /* Only called when a Pixmap is copied instead of flipped,
+-     * but in this case we wait on the next block_handler.
+-     */
++    glamor_block_handler(window->drawable.pScreen);
+ }
+ 
+ static Bool
