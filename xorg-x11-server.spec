@@ -129,6 +129,7 @@ Patch517: 0017-xwayland-Remove-unnecessary-xwl_window_is_toplevel-c.patch
 
 Patch100: 282.patch
 Patch600: 316.patch
+Patch610: 356.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git

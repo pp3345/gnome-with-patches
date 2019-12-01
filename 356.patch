@@ -1,0 +1,264 @@
+diff --git a/hw/xwayland/xwayland-present.c b/hw/xwayland/xwayland-present.c
+index 7f0b951ab92481709257b269fa952cdea51215d8..3d31affd8fe5b78f7760fafe508fa26b74d1dfda 100644
+--- a/hw/xwayland/xwayland-present.c
++++ b/hw/xwayland/xwayland-present.c
+@@ -59,6 +59,7 @@ xwl_present_window_get_priv(WindowPtr window)
+         xwl_present_window->msc = 1;
+         xwl_present_window->ust = GetTimeInMicros();
+ 
++        xorg_list_init(&xwl_present_window->frame_callback_list);
+         xorg_list_init(&xwl_present_window->event_list);
+         xorg_list_init(&xwl_present_window->release_queue);
+ 
+@@ -95,7 +96,7 @@ xwl_present_reset_timer(struct xwl_present_window *xwl_present_window)
+     if (xwl_present_has_events(xwl_present_window)) {
+         CARD32 timeout;
+ 
+-        if (xwl_present_window->frame_callback)
++        if (!xorg_list_is_empty(&xwl_present_window->frame_callback_list))
+             timeout = TIMER_LEN_FLIP;
+         else
+             timeout = TIMER_LEN_COPY;
+@@ -118,10 +119,7 @@ xwl_present_cleanup(WindowPtr window)
+     if (!xwl_present_window)
+         return;
+ 
+-    if (xwl_present_window->frame_callback) {
+-        wl_callback_destroy(xwl_present_window->frame_callback);
+-        xwl_present_window->frame_callback = NULL;
+-    }
++    xorg_list_del(&xwl_present_window->frame_callback_list);
+ 
+     if (xwl_present_window->sync_callback) {
+         wl_callback_destroy(xwl_present_window->sync_callback);
+@@ -240,7 +238,10 @@ xwl_present_timer_callback(OsTimerPtr timer,
+ {
+     struct xwl_present_window *xwl_present_window = arg;
+ 
+-    xwl_present_window->frame_timer_firing = TRUE;
++    /* If we were expecting a frame callback for this window, it didn't arrive
++     * in a second. Stop listening to it to avoid double-bumping the MSC
++     */
++    xorg_list_del(&xwl_present_window->frame_callback_list);
+ 
+     xwl_present_msc_bump(xwl_present_window);
+     xwl_present_reset_timer(xwl_present_window);
+@@ -248,20 +249,10 @@ xwl_present_timer_callback(OsTimerPtr timer,
+     return 0;
+ }
+ 
+-static void
+-xwl_present_frame_callback(void *data,
+-               struct wl_callback *callback,
+-               uint32_t time)
++void
++xwl_present_frame_callback(struct xwl_present_window *xwl_present_window)
+ {
+-    struct xwl_present_window *xwl_present_window = data;
+-
+-    wl_callback_destroy(xwl_present_window->frame_callback);
+-    xwl_present_window->frame_callback = NULL;
+-
+-    if (xwl_present_window->frame_timer_firing) {
+-        /* If the timer is firing, this frame callback is too late */
+-        return;
+-    }
++    xorg_list_del(&xwl_present_window->frame_callback_list);
+ 
+     xwl_present_msc_bump(xwl_present_window);
+ 
+@@ -271,10 +262,6 @@ xwl_present_frame_callback(void *data,
+     xwl_present_reset_timer(xwl_present_window);
+ }
+ 
+-static const struct wl_callback_listener xwl_present_frame_listener = {
+-    xwl_present_frame_callback
+-};
+-
+ static void
+ xwl_present_sync_callback(void *data,
+                struct wl_callback *callback,
+@@ -356,6 +343,7 @@ xwl_present_queue_vblank(WindowPtr present_window,
+                          uint64_t msc)
+ {
+     struct xwl_present_window *xwl_present_window = xwl_present_window_get_priv(present_window);
++    struct xwl_window *xwl_window = xwl_window_from_window(present_window);
+     struct xwl_present_event *event;
+ 
+     event = malloc(sizeof *event);
+@@ -368,7 +356,15 @@ xwl_present_queue_vblank(WindowPtr present_window,
+ 
+     xorg_list_append(&event->list, &xwl_present_window->event_list);
+ 
+-    if (!xwl_present_window->frame_timer)
++    /* If there's a pending frame callback, use that */
++    if (xwl_window && xwl_window->frame_callback &&
++        xorg_list_is_empty(&xwl_present_window->frame_callback_list)) {
++        xorg_list_add(&xwl_present_window->frame_callback_list,
++                      &xwl_window->frame_callback_list);
++    }
++
++    if ((xwl_window && xwl_window->frame_callback) ||
++        !xwl_present_window->frame_timer)
+         xwl_present_reset_timer(xwl_present_window);
+ 
+     return Success;
+@@ -483,15 +479,18 @@ xwl_present_flip(WindowPtr present_window,
+     /* We can flip directly to the main surface (full screen window without clips) */
+     wl_surface_attach(xwl_window->surface, buffer, 0, 0);
+ 
+-    if (!xwl_present_window->frame_callback) {
+-        xwl_present_window->frame_callback = wl_surface_frame(xwl_window->surface);
+-        wl_callback_add_listener(xwl_present_window->frame_callback,
+-                                 &xwl_present_frame_listener,
+-                                 xwl_present_window);
++    if (!xwl_window->frame_callback) {
++        xwl_window->frame_callback = wl_surface_frame(xwl_window->surface);
++        wl_callback_add_listener(xwl_window->frame_callback,
++                                 &xwl_frame_listener, xwl_window);
++    }
++
++    if (xorg_list_is_empty(&xwl_present_window->frame_callback_list)) {
++        xorg_list_add(&xwl_present_window->frame_callback_list,
++                      &xwl_window->frame_callback_list);
+     }
+ 
+     /* Realign timer */
+-    xwl_present_window->frame_timer_firing = FALSE;
+     xwl_present_reset_timer(xwl_present_window);
+ 
+     xwl_surface_damage(xwl_window->xwl_screen, xwl_window->surface, 0, 0,
+@@ -527,14 +526,14 @@ xwl_present_unrealize_window(WindowPtr window)
+ {
+     struct xwl_present_window *xwl_present_window = xwl_present_window_priv(window);
+ 
+-    if (!xwl_present_window || !xwl_present_window->frame_callback)
++    if (!xwl_present_window ||
++        xorg_list_is_empty(&xwl_present_window->frame_callback_list))
+         return;
+ 
+     /* The pending frame callback may never be called, so drop it and shorten
+      * the frame timer interval.
+      */
+-    wl_callback_destroy(xwl_present_window->frame_callback);
+-    xwl_present_window->frame_callback = NULL;
++    xorg_list_del(&xwl_present_window->frame_callback_list);
+     xwl_present_reset_timer(xwl_present_window);
+ }
+ 
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index fc7932f67dd16031c8c8b620a0644798c4f17a43..b0b1a72edd008d1af3308c6cf4a95c7c87aa555d 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -903,6 +903,10 @@ ensure_surface_for_window(WindowPtr window)
+     xorg_list_init(&xwl_window->link_damage);
+     xorg_list_add(&xwl_window->link_window, &xwl_screen->window_list);
+ 
++#ifdef GLAMOR_HAS_GBM
++    xorg_list_init(&xwl_window->frame_callback_list);
++#endif
++
+     xwl_window_buffers_init(xwl_window);
+ 
+     xwl_window_init_allow_commits(xwl_window);
+@@ -991,11 +995,6 @@ xwl_unrealize_window(WindowPtr window)
+     xwl_screen->UnrealizeWindow = screen->UnrealizeWindow;
+     screen->UnrealizeWindow = xwl_unrealize_window;
+ 
+-#ifdef GLAMOR_HAS_GBM
+-    if (xwl_screen->present)
+-        xwl_present_unrealize_window(window);
+-#endif
+-
+     xwl_window = xwl_window_get(window);
+     if (!xwl_window)
+         return ret;
+@@ -1013,6 +1012,11 @@ xwl_unrealize_window(WindowPtr window)
+     if (xwl_window->frame_callback)
+         wl_callback_destroy(xwl_window->frame_callback);
+ 
++#ifdef GLAMOR_HAS_GBM
++    if (xwl_screen->present)
++        xwl_present_unrealize_window(window);
++#endif
++
+     free(xwl_window);
+     dixSetPrivate(&window->devPrivates, &xwl_window_private_key, NULL);
+ 
+@@ -1076,9 +1080,21 @@ frame_callback(void *data,
+ 
+     wl_callback_destroy (xwl_window->frame_callback);
+     xwl_window->frame_callback = NULL;
++
++#ifdef GLAMOR_HAS_GBM
++    if (xwl_window->xwl_screen->present) {
++        struct xwl_present_window *xwl_present_window, *tmp;
++
++        xorg_list_for_each_entry_safe(xwl_present_window, tmp,
++                                      &xwl_window->frame_callback_list,
++                                      frame_callback_list) {
++            xwl_present_frame_callback(xwl_present_window);
++        }
++    }
++#endif
+ }
+ 
+-static const struct wl_callback_listener frame_listener = {
++const struct wl_callback_listener xwl_frame_listener = {
+     frame_callback
+ };
+ 
+@@ -1165,7 +1181,8 @@ xwl_window_post_damage(struct xwl_window *xwl_window)
+     }
+ 
+     xwl_window->frame_callback = wl_surface_frame(xwl_window->surface);
+-    wl_callback_add_listener(xwl_window->frame_callback, &frame_listener, xwl_window);
++    wl_callback_add_listener(xwl_window->frame_callback, &xwl_frame_listener,
++                             xwl_window);
+ 
+     wl_surface_commit(xwl_window->surface);
+     DamageEmpty(window_get_damage(xwl_window->window));
+diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
+index 132dfc10a59d82c75361b6bab855098d616cb3da..6585c2997009b46a7935de81cdc51448a836c0ca 100644
+--- a/hw/xwayland/xwayland.h
++++ b/hw/xwayland/xwayland.h
+@@ -193,6 +193,7 @@ struct xwl_window {
+     struct xorg_list window_buffers_unavailable;
+     OsTimerPtr window_buffers_timer;
+ #ifdef GLAMOR_HAS_GBM
++    struct xorg_list frame_callback_list;
+     Bool present_flipped;
+ #endif
+ };
+@@ -202,13 +203,12 @@ struct xwl_present_window {
+     struct xwl_screen *xwl_screen;
+     struct xwl_present_event *sync_flip;
+     WindowPtr window;
+-    struct xorg_list link;
++    struct xorg_list frame_callback_list;
+ 
+     uint64_t msc;
+     uint64_t ust;
+ 
+     OsTimerPtr frame_timer;
+-    Bool frame_timer_firing;
+ 
+     struct wl_callback *frame_callback;
+     struct wl_callback *sync_callback;
+@@ -407,6 +407,8 @@ struct xwl_client {
+ 
+ struct xwl_client *xwl_client_get(ClientPtr client);
+ 
++const struct wl_callback_listener xwl_frame_listener;
++
+ void xwl_sync_events (struct xwl_screen *xwl_screen);
+ void xwl_surface_damage(struct xwl_screen *xwl_screen,
+                         struct wl_surface *surface,
+@@ -504,6 +506,7 @@ Bool xwl_glamor_allow_commits(struct xwl_window *xwl_window);
+ void xwl_glamor_egl_make_current(struct xwl_screen *xwl_screen);
+ 
+ #ifdef GLAMOR_HAS_GBM
++void xwl_present_frame_callback(struct xwl_present_window *xwl_present_window);
+ Bool xwl_present_init(ScreenPtr screen);
+ void xwl_present_cleanup(WindowPtr window);
+ void xwl_present_unrealize_window(WindowPtr window);
