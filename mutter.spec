@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       11%{?dist}
+Release:       12%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -38,6 +38,9 @@ Patch4:        mutter-gnome-3-34-2019-11-12.patch
 
 # Mitigate crash on tear down. (rhbz#1770089, rhbz#1770089)
 Patch5:        0001-compositor-Guard-against-untimely-calls.patch
+
+# https://gitlab.gnome.org/GNOME/mutter/merge_requests/943
+Patch6:        mutter-clipboard-manager-crash.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -182,6 +185,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Dec 02 2019 Michael Catanzaro <mcatanzaro@gnome.org> - 3.34.1-12
+- Backport patch to fix clipboard manager crashes
+
 * Tue Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-11
 - Backport two memory leak fixes
 
