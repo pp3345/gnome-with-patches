@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.1
-Release:       1101%{?dist}.pp3345
+Release:       1200%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -184,6 +184,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Dec 09 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-1200
+- Rebase to gnome-3-34@868a6179
+
 * Mon Dec 02 2019 Michael Catanzaro <mcatanzaro@gnome.org> - 3.34.1-12
 - Backport patch to fix clipboard manager crashes
 
