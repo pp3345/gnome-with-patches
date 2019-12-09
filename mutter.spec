@@ -184,6 +184,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Dec 02 2019 Michael Catanzaro <mcatanzaro@gnome.org> - 3.34.1-12
+- Backport patch to fix clipboard manager crashes
+
 * Wed Nov 27 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-1101
 - Rebase to gnome-3-34@1b75d78c
 
