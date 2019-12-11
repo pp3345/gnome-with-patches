@@ -54,6 +54,7 @@ BuildRequires: mesa-libGLES-devel
 BuildRequires: mesa-libGL-devel
 BuildRequires: mesa-libgbm-devel
 BuildRequires: pkgconfig(glesv2)
+BuildRequires: pkgconfig(graphene-gobject-1.0)
 BuildRequires: pam-devel
 BuildRequires: pipewire-devel >= %{pipewire_version}
 BuildRequires: pkgconfig(sysprof-capture-3)
