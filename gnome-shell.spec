@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.34.1
-Release:        4%{?dist}
+Version:        3.34.2
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -16,17 +16,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
-
-# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/754
-# Fixes accessibility cursor zoom bug:
-# https://bugzilla.redhat.com/show_bug.cgi?id=1749433
-# https://gitlab.gnome.org/GNOME/mutter/issues/826
-# Depends on a corresponding patch in mutter 3.34.1-2+
-Patch4: 0001-magnifier-Use-own-showSystemCursor-instead-of-set_po.patch
-Patch5: 0002-magnifier-Use-new-cursor-tracker-API-to-keep-wayland.patch
-
-# Backport patches on gnome-3-34 post 3.34.1
-Patch6: gnome-shell-gnome-3-34-2019-11-12.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
@@ -55,6 +44,7 @@ BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  gnome-autoar-devel
+BuildRequires:  pkgconfig(gnome-desktop-3.0)
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  mesa-libGL-devel
 BuildRequires:  NetworkManager-libnm-devel
@@ -222,6 +212,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed Dec 11 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.2-1
+- Update to 3.34.2
+
 * Tue Nov 12 2019 Jonas Ådahl <jadahl@redhat.com> - 3.34.1-4
 - Backport yet another patch from the stable branch
 
