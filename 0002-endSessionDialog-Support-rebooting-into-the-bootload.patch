@@ -1,4 +1,4 @@
-From 27736261bdb626e0c30884edc1b699c9fe5ed256 Mon Sep 17 00:00:00 2001
+From de894d40a62b9eb2f542bbc2af3526b89a8a1471 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 15 Aug 2018 15:03:56 +0200
 Subject: [PATCH 2/2] endSessionDialog: Support rebooting into the bootloader
@@ -17,11 +17,11 @@ js/ui/status/system.js first, but that puts the button in a St.Bin()
 which causes the button to think it is the only button on the dialog
 and makes it have rounded corners on both of its bottom corners.
 ---
- js/ui/endSessionDialog.js | 51 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 51 insertions(+)
+ js/ui/endSessionDialog.js | 52 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 52 insertions(+)
 
 diff --git a/js/ui/endSessionDialog.js b/js/ui/endSessionDialog.js
-index 4ce797527..c18a008eb 100644
+index a30cd21a4..2ca843c71 100644
 --- a/js/ui/endSessionDialog.js
 +++ b/js/ui/endSessionDialog.js
 @@ -254,6 +254,9 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
@@ -34,7 +34,7 @@ index 4ce797527..c18a008eb 100644
  
          this.connect('destroy',
                       this._onDestroy.bind(this));
-@@ -440,6 +443,26 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -439,6 +442,26 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
          this._sessionHeader.visible = hasSessions;
      }
  
@@ -61,9 +61,9 @@ index 4ce797527..c18a008eb 100644
      _updateButtons() {
          this.clearButtons();
  
-@@ -461,7 +484,33 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -460,7 +483,34 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
                  },
-                 label: label,
+                 label,
              });
 +
 +            // Add Alt "Boot Options" option to the Reboot button
@@ -80,7 +80,8 @@ index 4ce797527..c18a008eb 100644
 +                    label: C_("button", "Boot Options")
 +                });
 +                this._rebootButtonAlt.visible = false;
-+                this._capturedEventId = global.stage.connect('captured-event', this._onCapturedEvent.bind(this));
++                this._capturedEventId = global.stage.connect('captured-event',
++                    this._onCapturedEvent.bind(this));
 +            }
 +        }
 +    }
@@ -95,7 +96,7 @@ index 4ce797527..c18a008eb 100644
      }
  
      close(skipSignal) {
-@@ -473,6 +522,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -472,6 +522,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
  
      cancel() {
          this._stopTimer();
@@ -103,7 +104,7 @@ index 4ce797527..c18a008eb 100644
          this._dbusImpl.emit_signal('Canceled', null);
          this.close();
      }
-@@ -481,6 +531,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -480,6 +531,7 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
          let callback = () => {
              this._fadeOutDialog();
              this._stopTimer();

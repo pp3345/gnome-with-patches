@@ -1,4 +1,4 @@
-From bbbe73b2a0293165f9bc9cc63b647b35914a4a05 Mon Sep 17 00:00:00 2001
+From 0786d34664fdd58e31dad9f235b6f0f3ed393c30 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 15 Aug 2018 14:26:19 +0200
 Subject: [PATCH 1/2] endSessionDialog: Immediately add buttons to the dialog
@@ -13,10 +13,10 @@ button into a "Boot Options" button when Alt is pressed.
  1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/js/ui/endSessionDialog.js b/js/ui/endSessionDialog.js
-index e1c6517f4..4ce797527 100644
+index f9dad5835..a30cd21a4 100644
 --- a/js/ui/endSessionDialog.js
 +++ b/js/ui/endSessionDialog.js
-@@ -441,15 +441,17 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+@@ -440,15 +440,17 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
      }
  
      _updateButtons() {
@@ -26,8 +26,8 @@ index e1c6517f4..4ce797527 100644
 +
 +        this.addButton({ action: this.cancel.bind(this),
                           label: _("Cancel"),
--                         key: Clutter.Escape }];
-+                         key: Clutter.Escape });
+-                         key: Clutter.KEY_Escape }];
++                         key: Clutter.KEY_Escape });
  
 +        let dialogContent = DialogContent[this._type];
          for (let i = 0; i < dialogContent.confirmButtons.length; i++) {
@@ -38,8 +38,8 @@ index e1c6517f4..4ce797527 100644
                  action: () => {
                      this.close(true);
                      let signalId = this.connect('closed', () => {
-@@ -460,8 +462,6 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
-                 label: label,
+@@ -459,8 +461,6 @@ class EndSessionDialog extends ModalDialog.ModalDialog {
+                 label,
              });
          }
 -
