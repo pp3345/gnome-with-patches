@@ -7,8 +7,8 @@
 %global mutter_api_version 6
 
 Name:          mutter
-Version:       3.35.1
-Release:       3%{?dist}
+Version:       3.35.2
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -168,6 +168,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Dec 11 2019 Florian Müllner <fmuellner@redhat.com> - 3.35.2-1
+- Update to 3.35.2
+
 * Tue Oct 29 2019 Florian Müllner <fmuellner@redhat.com> - 3.35.1-3
 - Enable sysprof support
   The required dependency was missing from rawhide when the feature
