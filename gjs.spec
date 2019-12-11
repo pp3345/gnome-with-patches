@@ -16,11 +16,14 @@ License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
 Source0:       https://download.gnome.org/sources/%{name}/1.58/%{name}-%{version}.tar.xz
 
+Patch0:        0001-build-Fix-installation-with-DESTDIR-set.patch
+
 BuildRequires: cairo-gobject-devel
 BuildRequires: chrpath
 BuildRequires: dbus-daemon
 BuildRequires: dbus-glib-devel
 BuildRequires: gcc-c++
+BuildRequires: meson
 BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
@@ -62,12 +65,11 @@ the functionality of the installed gjs package.
 %autosetup -p1
 
 %build
-%configure --disable-static --enable-installed-tests
-
-make %{?_smp_mflags} V=1
+%meson
+%meson_build
 
 %install
-%make_install
+%meson_install
 
 # Remove lib64 rpaths
 chrpath --delete %{buildroot}%{_bindir}/gjs-console
@@ -76,7 +78,7 @@ chrpath --delete %{buildroot}%{_libexecdir}/gjs/installed-tests/minijasmine
 find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
 %check
-#make check
+#meson_test
 
 %files
 %license COPYING
