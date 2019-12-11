@@ -52,6 +52,7 @@ BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  gnome-autoar-devel
+BuildRequires:  pkgconfig(gnome-desktop-3.0)
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  mesa-libGL-devel
 BuildRequires:  NetworkManager-libnm-devel
