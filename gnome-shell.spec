@@ -55,6 +55,7 @@ BuildRequires:  gnome-autoar-devel
 BuildRequires:  pkgconfig(gnome-desktop-3.0)
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  mesa-libGL-devel
+BuildRequires:  mesa-libEGL-devel
 BuildRequires:  NetworkManager-libnm-devel
 BuildRequires:  polkit-devel >= %{polkit_version}
 BuildRequires:  startup-notification-devel
