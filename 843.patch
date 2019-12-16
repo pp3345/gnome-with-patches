@@ -1,0 +1,236 @@
+From 90aeb29b48618b8bde97289dee9a77ab5baa3d68 Mon Sep 17 00:00:00 2001
+From: Alexander Mikhaylenko <exalm7659@gmail.com>
+Date: Fri, 22 Nov 2019 03:24:46 +0500
+Subject: [PATCH 20/36] pageIndicators: Redesign and add position-based
+ animation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Remove setCurrentPage() function, introduce setCurrentPosition() instead,
+which allows to have fractional positions.
+
+Make inactive dots smaller, filled and partially transparent, as opposed to
+larger and fully opaque active dot. Make dots smaller overall, remove
+borders. Interpolate each dot between active and inactive state based on
+scroll position.
+
+Make it impossible to "uncheck" the active dot.
+
+Thanks Florian Müllner for parts of the code.
+
+Fixes https://gitlab.gnome.org/GNOME/gnome-shell/issues/1932
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/843
+---
+ data/theme/gnome-shell-sass/_common.scss | 16 +++------
+ js/ui/appDisplay.js                      |  9 ++---
+ js/ui/keyboard.js                        | 13 ++++++-
+ js/ui/pageIndicators.js                  | 45 +++++++++++++++++++-----
+ 4 files changed, 59 insertions(+), 24 deletions(-)
+
+diff --git a/data/theme/gnome-shell-sass/_common.scss b/data/theme/gnome-shell-sass/_common.scss
+index 1b59edf50..b1a2b8758 100644
+--- a/data/theme/gnome-shell-sass/_common.scss
++++ b/data/theme/gnome-shell-sass/_common.scss
+@@ -1570,20 +1570,14 @@ StScrollBar {
+   }
+ 
+   .page-indicator {
+-    padding: 15px 20px;
++    padding: 7px 16px;
+ 
+     .page-indicator-icon {
+       width: 12px;
+       height: 12px;
+-      background-color: transparent;
+-      border: 2px solid rgba(255, 255, 255, 0.4);
+-      border-radius: 12px;
++      background-color: white;
++      border-radius: 6px;
+     }
+-
+-    &:hover .page-indicator-icon { border-color: white; }
+-    &:active .page-indicator-icon { border: none; margin: 2px; background-color: white; }
+-    &:checked .page-indicator-icon,
+-    &:checked:active .page-indicator-icon { background-color: white;}
+   }
+ 
+   .no-frequent-applications-label { @extend %status_text; }
+@@ -1783,8 +1777,8 @@ StScrollBar {
+         padding: 4px 4px;
+ 
+         .page-indicator-icon {
+-            width: 6px;
+-            height: 6px
++            width: 8px;
++            height: 8px;
+         }
+     }
+ }
+diff --git a/js/ui/appDisplay.js b/js/ui/appDisplay.js
+index cc946f01c..7a41b32ae 100644
+--- a/js/ui/appDisplay.js
++++ b/js/ui/appDisplay.js
+@@ -292,6 +292,9 @@ var AllView = class AllView extends BaseAppView {
+         this._scrollView.set_policy(St.PolicyType.NEVER,
+                                     St.PolicyType.EXTERNAL);
+         this._adjustment = this._scrollView.vscroll.adjustment;
++        this._adjustment.connect('notify::value', adj => {
++            this._pageIndicators.setCurrentPosition(adj.value / adj.page_size);
++        });
+ 
+         this._pageIndicators = new PageIndicators.AnimatedPageIndicators();
+         this._pageIndicators.connect('page-activated',
+@@ -526,7 +529,7 @@ var AllView = class AllView extends BaseAppView {
+ 
+         if (!this.actor.mapped) {
+             this._adjustment.value = this._grid.getPageY(pageNumber);
+-            this._pageIndicators.setCurrentPage(pageNumber);
++            this._pageIndicators.setCurrentPosition(pageNumber);
+             this._grid.currentPage = pageNumber;
+             return;
+         }
+@@ -562,8 +565,6 @@ var AllView = class AllView extends BaseAppView {
+             mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+             duration: time
+         });
+-
+-        this._pageIndicators.setCurrentPage(pageNumber);
+     }
+ 
+     _diffToPage(pageNumber) {
+@@ -718,7 +719,7 @@ var AllView = class AllView extends BaseAppView {
+                 this._adjustment.value = 0;
+                 this._grid.currentPage = 0;
+                 this._pageIndicators.setNPages(this._grid.nPages());
+-                this._pageIndicators.setCurrentPage(0);
++                this._pageIndicators.setCurrentPosition(0);
+                 return GLib.SOURCE_REMOVE;
+             });
+         }
+diff --git a/js/ui/keyboard.js b/js/ui/keyboard.js
+index 45eb5ce82..a11514ba3 100644
+--- a/js/ui/keyboard.js
++++ b/js/ui/keyboard.js
+@@ -893,15 +893,21 @@ var EmojiSelection = class EmojiSelection {
+         this.actor.add(this._pageIndicator, { expand: true, x_fill: false, y_fill: false });
+         this._pageIndicator.setReactive(false);
+ 
++        this._emojiPager.connect('notify::delta', () => {
++            this._updateIndicatorPosition();
++        });
++
+         let bottomRow = this._createBottomRow();
+         this.actor.add(bottomRow, { expand: true, x_fill: false, y_fill: false });
+ 
++        this._curPage = 0;
+         this._emojiPager.setCurrentPage(0);
+     }
+ 
+     _onPageChanged(section, page, nPages) {
++        this._curPage = page;
+         this._pageIndicator.setNPages(nPages);
+-        this._pageIndicator.setCurrentPage(page);
++        this._updateIndicatorPosition();
+ 
+         for (let i = 0; i < this._sections.length; i++) {
+             let sect = this._sections[i];
+@@ -909,6 +915,11 @@ var EmojiSelection = class EmojiSelection {
+         }
+     }
+ 
++    _updateIndicatorPosition() {
++        this._pageIndicator.setCurrentPosition(this._curPage -
++            this._emojiPager.delta / this._emojiPager.width);
++    }
++
+     _findSection(emoji) {
+         for (let i = 0; i < this._sections.length; i++) {
+             if (this._sections[i].first == emoji)
+diff --git a/js/ui/pageIndicators.js b/js/ui/pageIndicators.js
+index 8d81fd0f3..26b1add32 100644
+--- a/js/ui/pageIndicators.js
++++ b/js/ui/pageIndicators.js
+@@ -5,6 +5,11 @@ const { Clutter, GLib, GObject, Meta, St } = imports.gi;
+ 
+ const { ANIMATION_TIME_OUT, ANIMATION_MAX_DELAY_OUT_FOR_ITEM, AnimationDirection } = imports.ui.iconGrid;
+ 
++const INDICATOR_INACTIVE_OPACITY = 128;
++const INDICATOR_INACTIVE_OPACITY_HOVER = 255;
++const INDICATOR_INACTIVE_SCALE = 2 / 3;
++const INDICATOR_INACTIVE_SCALE_PRESSED = 0.5;
++
+ var INDICATORS_BASE_TIME = 250;
+ var INDICATORS_BASE_TIME_OUT = 125;
+ var INDICATORS_ANIMATION_DELAY = 125;
+@@ -29,7 +34,7 @@ var PageIndicators = GObject.registerClass({
+                       reactive: true,
+                       clip_to_allocation: true });
+         this._nPages = 0;
+-        this._currentPage = undefined;
++        this._currentPosition = 0;
+         this._reactive = true;
+         this._reactive = true;
+     }
+@@ -63,13 +68,21 @@ var PageIndicators = GObject.registerClass({
+                                                 button_mask: St.ButtonMask.ONE |
+                                                              St.ButtonMask.TWO |
+                                                              St.ButtonMask.THREE,
+-                                                toggle_mode: true,
+-                                                reactive: this._reactive,
+-                                                checked: pageIndex == this._currentPage });
+-                indicator.child = new St.Widget({ style_class: 'page-indicator-icon' });
++                                                reactive: this._reactive });
++                indicator.child = new St.Widget({
++                    style_class: 'page-indicator-icon',
++                    pivot_point: new Clutter.Point({ x: 0.5, y: 0.5 }),
++                });
+                 indicator.connect('clicked', () => {
+                     this.emit('page-activated', pageIndex);
+                 });
++                indicator.connect('notify::hover', () => {
++                    this._updateIndicator(indicator, pageIndex);
++                });
++                indicator.connect('notify::pressed', () => {
++                    this._updateIndicator(indicator, pageIndex);
++                });
++                this._updateIndicator(indicator, pageIndex);
+                 this.add_actor(indicator);
+             }
+         } else {
+@@ -81,12 +94,28 @@ var PageIndicators = GObject.registerClass({
+         this.visible = (this._nPages > 1);
+     }
+ 
+-    setCurrentPage(currentPage) {
+-        this._currentPage = currentPage;
++    _updateIndicator(indicator, pageIndex) {
++        let progress =
++            Math.max(1 - Math.abs(this._currentPosition - pageIndex), 0);
++
++        let inactiveScale = indicator.pressed
++            ? INDICATOR_INACTIVE_SCALE_PRESSED : INDICATOR_INACTIVE_SCALE;
++        let inactiveOpacity = indicator.hover
++            ? INDICATOR_INACTIVE_OPACITY_HOVER : INDICATOR_INACTIVE_OPACITY;
++
++        let scale = inactiveScale + (1 - inactiveScale) * progress;
++        let opacity = inactiveOpacity + (255 - inactiveOpacity) * progress;
++
++        indicator.child.set_scale(scale, scale);
++        indicator.child.opacity = opacity;
++    }
++
++    setCurrentPosition(currentPosition) {
++        this._currentPosition = currentPosition;
+ 
+         let children = this.get_children();
+         for (let i = 0; i < children.length; i++)
+-            children[i].set_checked(i == this._currentPage);
++            this._updateIndicator(children[i], i);
+     }
+ });
+ 
+-- 
+2.23.0
+

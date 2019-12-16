@@ -133,6 +133,7 @@ Obsoletes:      python3-caribou < 0.4.21-10
 Conflicts:      gnome-shell-extension-background-logo < 3.34.0
 
 Patch91:  846.patch
+Patch92:  843.patch
 Patch100: 605.patch
 
 %description
