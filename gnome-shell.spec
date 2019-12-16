@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.34.1
+Version:        3.34.2
 Release:        400%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
@@ -7,7 +7,7 @@ License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        gnome-shell-3.34.1-7e8884a6.tar.gz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.34/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -16,14 +16,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
-
-# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/754
-# Fixes accessibility cursor zoom bug:
-# https://bugzilla.redhat.com/show_bug.cgi?id=1749433
-# https://gitlab.gnome.org/GNOME/mutter/issues/826
-# Depends on a corresponding patch in mutter 3.34.1-2+
-Patch4: 0001-magnifier-Use-own-showSystemCursor-instead-of-set_po.patch
-Patch5: 0002-magnifier-Use-new-cursor-tracker-API-to-keep-wayland.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
@@ -52,6 +44,7 @@ BuildRequires:  gcr-devel
 BuildRequires:  gjs-devel >= %{gjs_version}
 BuildRequires:  glib2-devel >= %{glib2_version}
 BuildRequires:  gnome-autoar-devel
+BuildRequires:  pkgconfig(gnome-desktop-3.0)
 BuildRequires:  gobject-introspection >= %{gobject_introspection_version}
 BuildRequires:  mesa-libGL-devel
 BuildRequires:  NetworkManager-libnm-devel
@@ -221,6 +214,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed Dec 11 2019 Florian Müllner <fmuellner@redhat.com> - 3.34.2-1
+- Update to 3.34.2
+
 * Mon Nov 18 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.1-400
 - Update !605 "Gestures overhaul" @b4bd41c0 (rebase taken from exalm/gnome-shell-gestures)
 - Rebase to gnome-3-34@7e8884a6
