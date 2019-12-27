@@ -1,0 +1,183 @@
+diff --git a/cogl/cogl/cogl-primitives-private.h b/cogl/cogl/cogl-primitives-private.h
+index 20f304d50e4b58111e3027cba6feed800e286e7b..637c33eba7f073b0599c21976b391fb27bb1e151 100644
+--- a/cogl/cogl/cogl-primitives-private.h
++++ b/cogl/cogl/cogl-primitives-private.h
+@@ -47,6 +47,13 @@ _cogl_rectangle_immediate (CoglFramebuffer *framebuffer,
+                            float x_2,
+                            float y_2);
+ 
++void
++cogl_2d_primitives_immediate (CoglFramebuffer *framebuffer,
++                              CoglPipeline *pipeline,
++                              CoglVerticesMode mode,
++                              const CoglVertexP2 *vertices,
++                              unsigned int n_vertices);
++
+ typedef struct _CoglMultiTexturedRect
+ {
+   const float *position; /* x0,y0,x1,y1 */
+diff --git a/cogl/cogl/cogl-primitives.c b/cogl/cogl/cogl-primitives.c
+index 2da0ae0bb9b2fd07fb1f681172585ebf9f0d3770..7d5141d4db701ff4c713b60bfc8a3295feead57b 100644
+--- a/cogl/cogl/cogl-primitives.c
++++ b/cogl/cogl/cogl-primitives.c
+@@ -708,42 +708,31 @@ _cogl_framebuffer_draw_multitextured_rectangles (
+ }
+ 
+ void
+-_cogl_rectangle_immediate (CoglFramebuffer *framebuffer,
+-                           CoglPipeline *pipeline,
+-                           float x_1,
+-                           float y_1,
+-                           float x_2,
+-                           float y_2)
++cogl_2d_primitives_immediate (CoglFramebuffer *framebuffer,
++                              CoglPipeline *pipeline,
++                              CoglVerticesMode mode,
++                              const CoglVertexP2 *vertices,
++                              unsigned int n_vertices)
+ {
+-  /* Draw a rectangle using the vertex array API to avoid going
+-     through the journal. This should only be used in cases where the
+-     code might be called while the journal is already being flushed
+-     such as when flushing the clip state */
+   CoglContext *ctx = framebuffer->context;
+-  float vertices[8] =
+-    {
+-      x_1, y_1,
+-      x_1, y_2,
+-      x_2, y_1,
+-      x_2, y_2
+-    };
+   CoglAttributeBuffer *attribute_buffer;
+   CoglAttribute *attributes[1];
++  size_t vertices_size = sizeof (CoglVertexP2) * n_vertices;
+ 
+   attribute_buffer =
+-    cogl_attribute_buffer_new (ctx, sizeof (vertices), vertices);
++    cogl_attribute_buffer_new (ctx, vertices_size, vertices);
+   attributes[0] = cogl_attribute_new (attribute_buffer,
+                                       "cogl_position_in",
+-                                      sizeof (float) * 2, /* stride */
++                                      sizeof (CoglVertexP2), /* stride */
+                                       0, /* offset */
+                                       2, /* n_components */
+                                       COGL_ATTRIBUTE_TYPE_FLOAT);
+ 
+   _cogl_framebuffer_draw_attributes (framebuffer,
+                                      pipeline,
+-                                     COGL_VERTICES_MODE_TRIANGLE_STRIP,
++                                     mode,
+                                      0, /* first_index */
+-                                     4, /* n_vertices */
++                                     n_vertices,
+                                      attributes,
+                                      1,
+                                      COGL_DRAW_SKIP_JOURNAL_FLUSH |
+@@ -754,4 +743,27 @@ _cogl_rectangle_immediate (CoglFramebuffer *framebuffer,
+   cogl_object_unref (attributes[0]);
+   cogl_object_unref (attribute_buffer);
+ }
++
++void
++_cogl_rectangle_immediate (CoglFramebuffer *framebuffer,
++                           CoglPipeline *pipeline,
++                           float x_1,
++                           float y_1,
++                           float x_2,
++                           float y_2)
++{
++  CoglVertexP2 vertices[4] =
++    {
++      {x_1, y_1},
++      {x_1, y_2},
++      {x_2, y_1},
++      {x_2, y_2}
++    };
++
++  cogl_2d_primitives_immediate (framebuffer,
++                                pipeline,
++                                COGL_VERTICES_MODE_TRIANGLE_STRIP,
++                                vertices,
++                                4);
++}
+ 
+diff --git a/cogl/cogl/driver/gl/cogl-clip-stack-gl.c b/cogl/cogl/driver/gl/cogl-clip-stack-gl.c
+index 022cb9e2dc3661e45e388a43cce5e4d82aaadf0c..3bd9ab873c51450230d43fed2fdcfbe84bb1d538 100644
+--- a/cogl/cogl/driver/gl/cogl-clip-stack-gl.c
++++ b/cogl/cogl/driver/gl/cogl-clip-stack-gl.c
+@@ -124,6 +124,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
+   CoglMatrix matrix;
+   int num_rectangles = cairo_region_num_rectangles (region);
+   int i;
++  CoglVertexP2 *vertices;
+ 
+   /* NB: This can be called while flushing the journal so we need
+    * to be very conservative with what state we change.
+@@ -167,31 +168,50 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
+       GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE) );
+     }
+ 
++  vertices = g_alloca (sizeof (CoglVertexP2) * num_rectangles * 6);
++
+   for (i = 0; i < num_rectangles; i++)
+     {
+       cairo_rectangle_int_t rect;
+-      float tl[4], br[4];
++      float x1, y1, z1, w1;
++      float x2, y2, z2, w2;
++      CoglVertexP2 *v = vertices + i * 6;
+ 
+       cairo_region_get_rectangle (region, i, &rect);
+ 
+-      tl[0] = rect.x;
+-      tl[1] = rect.y;
+-      tl[2] = 0.;
+-      tl[3] = 1.;
+-
+-      br[0] = rect.x + rect.width;
+-      br[1] = rect.y + rect.height;
+-      br[2] = 0.;
+-      br[3] = 1.;
+-
+-      cogl_matrix_transform_point (&matrix, &tl[0], &tl[1], &tl[2], &tl[3]);
+-      cogl_matrix_transform_point (&matrix, &br[0], &br[1], &br[2], &br[3]);
+-
+-      _cogl_rectangle_immediate (framebuffer,
+-                                 ctx->stencil_pipeline,
+-                                 tl[0], tl[1], br[0], br[1]);
++      x1 = rect.x;
++      y1 = rect.y;
++      z1 = 0.f;
++      w1 = 1.f;
++
++      x2 = rect.x + rect.width;
++      y2 = rect.y + rect.height;
++      z2 = 0.f;
++      w2 = 1.f;
++
++      cogl_matrix_transform_point (&matrix, &x1, &y1, &z1, &w1);
++      cogl_matrix_transform_point (&matrix, &x2, &y2, &z2, &w2);
++
++      v[0].x = x1;
++      v[0].y = y1;
++      v[1].x = x1;
++      v[1].y = y2;
++      v[2].x = x2;
++      v[2].y = y1;
++      v[3].x = x1;
++      v[3].y = y2;
++      v[4].x = x2;
++      v[4].y = y2;
++      v[5].x = x2;
++      v[5].y = y1;
+     }
+ 
++  cogl_2d_primitives_immediate (framebuffer,
++                                ctx->stencil_pipeline,
++                                COGL_VERTICES_MODE_TRIANGLES,
++                                vertices,
++                                6 * num_rectangles);
++
+   if (merge)
+     {
+       /* Subtract one from all pixels in the stencil buffer so that
