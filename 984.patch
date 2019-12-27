@@ -1,0 +1,332 @@
+diff --git a/src/backends/meta-monitor-config-manager.c b/src/backends/meta-monitor-config-manager.c
+index 9a54ce50f797e0c876112d59dac162f38ebfc63d..bfcde6cc73271fff5a62d7ab4daf0b931bd6eaa1 100644
+--- a/src/backends/meta-monitor-config-manager.c
++++ b/src/backends/meta-monitor-config-manager.c
+@@ -410,6 +410,27 @@ is_lid_closed (MetaMonitorManager *monitor_manager)
+     return meta_backend_is_lid_closed (backend);
+ }
+ 
++gboolean
++meta_config_key_edid_sufficient_for_specs (GList *monitor_specs)
++{
++  GList *l;
++
++  /* Assume the list is sorted. So we just need to check if none of the pairs
++   * are equal when only comparing data from EDID. */
++  for (l = monitor_specs; l && l->next; l = l->next)
++    {
++      MetaMonitorSpec *spec = l->data;
++      MetaMonitorSpec *spec_next = l->next->data;
++
++      if (meta_monitor_spec_equals (spec, spec_next, TRUE))
++        return FALSE;
++
++      /* XXX: Should we reject e.g. only 0 serial numbers? */
++    }
++
++  return TRUE;
++}
++
+ MetaMonitorsConfigKey *
+ meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_manager)
+ {
+@@ -439,7 +460,8 @@ meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_m
+ 
+   config_key = g_new0 (MetaMonitorsConfigKey, 1);
+   *config_key = (MetaMonitorsConfigKey) {
+-    .monitor_specs = monitor_specs
++    .monitor_specs = monitor_specs,
++    .edid_sufficient = meta_config_key_edid_sufficient_for_specs (monitor_specs)
+   };
+ 
+   return config_key;
+@@ -1251,7 +1273,8 @@ meta_monitors_config_key_new (GList *logical_monitor_configs,
+ 
+   config_key = g_new0 (MetaMonitorsConfigKey, 1);
+   *config_key = (MetaMonitorsConfigKey) {
+-    .monitor_specs = monitor_specs
++    .monitor_specs = monitor_specs,
++    .edid_sufficient = meta_config_key_edid_sufficient_for_specs (monitor_specs)
+   };
+ 
+   return config_key;
+@@ -1277,10 +1300,12 @@ meta_monitors_config_key_hash (gconstpointer data)
+     {
+       MetaMonitorSpec *monitor_spec = l->data;
+ 
+-      hash ^= (g_str_hash (monitor_spec->connector) ^
+-               g_str_hash (monitor_spec->vendor) ^
++      hash ^= (g_str_hash (monitor_spec->vendor) ^
+                g_str_hash (monitor_spec->product) ^
+                g_str_hash (monitor_spec->serial));
++
++      if (!config_key->edid_sufficient)
++        hash ^= g_str_hash (monitor_spec->connector);
+     }
+ 
+   return hash;
+@@ -1294,6 +1319,9 @@ meta_monitors_config_key_equal (gconstpointer data_a,
+   const MetaMonitorsConfigKey *config_key_b = data_b;
+   GList *l_a, *l_b;
+ 
++  if (config_key_a->edid_sufficient != config_key_b->edid_sufficient)
++    return FALSE;
++
+   for (l_a = config_key_a->monitor_specs, l_b = config_key_b->monitor_specs;
+        l_a && l_b;
+        l_a = l_a->next, l_b = l_b->next)
+@@ -1301,7 +1329,7 @@ meta_monitors_config_key_equal (gconstpointer data_a,
+       MetaMonitorSpec *monitor_spec_a = l_a->data;
+       MetaMonitorSpec *monitor_spec_b = l_b->data;
+ 
+-      if (!meta_monitor_spec_equals (monitor_spec_a, monitor_spec_b))
++      if (!meta_monitor_spec_equals (monitor_spec_a, monitor_spec_b, config_key_a->edid_sufficient))
+         return FALSE;
+     }
+ 
+@@ -1366,7 +1394,8 @@ meta_monitors_config_new (MetaMonitorManager           *monitor_manager,
+ 
+       monitor_spec = meta_monitor_get_spec (monitor);
+       if (meta_logical_monitor_configs_have_monitor (logical_monitor_configs,
+-                                                     monitor_spec))
++                                                     monitor_spec,
++                                                     monitor_manager->edid_sufficient))
+         continue;
+ 
+       disabled_monitor_specs =
+@@ -1569,7 +1598,8 @@ has_adjacent_neighbour (MetaMonitorsConfig       *config,
+ 
+ gboolean
+ meta_logical_monitor_configs_have_monitor (GList           *logical_monitor_configs,
+-                                           MetaMonitorSpec *monitor_spec)
++                                           MetaMonitorSpec *monitor_spec,
++                                           gboolean         edid_sufficient)
+ {
+   GList *l;
+ 
+@@ -1583,7 +1613,8 @@ meta_logical_monitor_configs_have_monitor (GList           *logical_monitor_conf
+           MetaMonitorConfig *monitor_config = k->data;
+ 
+           if (meta_monitor_spec_equals (monitor_spec,
+-                                        monitor_config->monitor_spec))
++                                        monitor_config->monitor_spec,
++                                        edid_sufficient))
+             return TRUE;
+         }
+     }
+@@ -1596,7 +1627,8 @@ meta_monitors_config_is_monitor_enabled (MetaMonitorsConfig *config,
+                                          MetaMonitorSpec    *monitor_spec)
+ {
+   return meta_logical_monitor_configs_have_monitor (config->logical_monitor_configs,
+-                                                    monitor_spec);
++                                                    monitor_spec,
++                                                    config->key->edid_sufficient);
+ }
+ 
+ gboolean
+diff --git a/src/backends/meta-monitor-config-manager.h b/src/backends/meta-monitor-config-manager.h
+index 3875e04e90215f84cd1feda5583d8e892f880c95..54d3d0d77f9ab44fa15478bfeff9f10851452ff3 100644
+--- a/src/backends/meta-monitor-config-manager.h
++++ b/src/backends/meta-monitor-config-manager.h
+@@ -49,6 +49,7 @@ typedef struct _MetaLogicalMonitorConfig
+ typedef struct _MetaMonitorsConfigKey
+ {
+   GList *monitor_specs;
++  gboolean edid_sufficient;
+ } MetaMonitorsConfigKey;
+ 
+ typedef enum _MetaMonitorsConfigFlag
+@@ -159,6 +160,9 @@ META_EXPORT_TEST
+ gboolean meta_monitors_config_key_equal (gconstpointer config_key_a,
+                                          gconstpointer config_key_b);
+ 
++META_EXPORT_TEST
++gboolean meta_config_key_edid_sufficient_for_specs (GList *monitor_specs);
++
+ META_EXPORT_TEST
+ void meta_monitors_config_key_free (MetaMonitorsConfigKey *config_key);
+ 
+@@ -173,7 +177,8 @@ MetaMonitorsConfigKey * meta_create_monitors_config_key_for_current_state (MetaM
+ 
+ META_EXPORT_TEST
+ gboolean meta_logical_monitor_configs_have_monitor (GList           *logical_monitor_configs,
+-                                                    MetaMonitorSpec *monitor_spec);
++                                                    MetaMonitorSpec *monitor_spec,
++                                                    gboolean         edid_sufficient);
+ 
+ META_EXPORT_TEST
+ gboolean meta_verify_monitor_mode_spec (MetaMonitorModeSpec *monitor_mode_spec,
+diff --git a/src/backends/meta-monitor-manager-private.h b/src/backends/meta-monitor-manager-private.h
+index 20bb6b679ca35430d5514535c96f9712f0409810..89745469725b7876ff320b4a30b894fd8e6296a6 100644
+--- a/src/backends/meta-monitor-manager-private.h
++++ b/src/backends/meta-monitor-manager-private.h
+@@ -122,6 +122,7 @@ struct _MetaMonitorManager
+   int screen_height;
+ 
+   GList *monitors;
++  gboolean edid_sufficient;
+ 
+   GList *logical_monitors;
+   MetaLogicalMonitor *primary_logical_monitor;
+diff --git a/src/backends/meta-monitor-manager.c b/src/backends/meta-monitor-manager.c
+index b773d436fa192034f8cd06f7344d1626b1a2166c..3d3bba3c4727cd3ae75a3ff70066796576f55708 100644
+--- a/src/backends/meta-monitor-manager.c
++++ b/src/backends/meta-monitor-manager.c
+@@ -2475,7 +2475,8 @@ meta_monitor_manager_get_monitor_from_spec (MetaMonitorManager *manager,
+       MetaMonitor *monitor = l->data;
+ 
+       if (meta_monitor_spec_equals (meta_monitor_get_spec (monitor),
+-                                    monitor_spec))
++                                    monitor_spec,
++                                    manager->edid_sufficient))
+         return monitor;
+     }
+ 
+@@ -2621,6 +2622,7 @@ rebuild_monitors (MetaMonitorManager *manager)
+ {
+   GList *gpus;
+   GList *l;
++  GList *specs;
+ 
+   if (manager->monitors)
+     {
+@@ -2659,6 +2661,17 @@ rebuild_monitors (MetaMonitorManager *manager)
+             }
+         }
+     }
++
++  specs = NULL;
++  for (l = manager->monitors; l; l = l->next)
++    {
++      specs = g_list_prepend (specs, meta_monitor_get_spec ((MetaMonitor*) l->data));
++    }
++
++  specs = g_list_sort (specs,
++                       (GCompareFunc) meta_monitor_spec_compare);
++  manager->edid_sufficient = meta_config_key_edid_sufficient_for_specs (specs);
++  g_list_free (specs);
+ }
+ 
+ void
+diff --git a/src/backends/meta-monitor.c b/src/backends/meta-monitor.c
+index 2b0aa5ac68b6806c6c456a63d5a4e1d8b78a5c0f..bdf59761cefb20c2ccd3218a1c85f057d225b2d9 100644
+--- a/src/backends/meta-monitor.c
++++ b/src/backends/meta-monitor.c
+@@ -126,12 +126,17 @@ meta_monitor_spec_clone (MetaMonitorSpec *monitor_spec)
+ 
+ gboolean
+ meta_monitor_spec_equals (MetaMonitorSpec *monitor_spec,
+-                          MetaMonitorSpec *other_monitor_spec)
++                          MetaMonitorSpec *other_monitor_spec,
++                          gboolean         edid_only)
+ {
+-  return (g_str_equal (monitor_spec->connector, other_monitor_spec->connector) &&
+-          g_str_equal (monitor_spec->vendor, other_monitor_spec->vendor) &&
++  gchar *type_end = strchr (monitor_spec->connector, '-');
++  gsize len = type_end ? type_end - monitor_spec->connector + 1 : 1000;
++
++  return (g_str_equal (monitor_spec->vendor, other_monitor_spec->vendor) &&
+           g_str_equal (monitor_spec->product, other_monitor_spec->product) &&
+-          g_str_equal (monitor_spec->serial, other_monitor_spec->serial));
++          g_str_equal (monitor_spec->serial, other_monitor_spec->serial) &&
++          (edid_only || g_str_equal (monitor_spec->connector, other_monitor_spec->connector)) &&
++          (!edid_only || (strncmp (monitor_spec->connector, other_monitor_spec->connector, len) == 0)));
+ }
+ 
+ int
+@@ -140,19 +145,23 @@ meta_monitor_spec_compare (MetaMonitorSpec *monitor_spec_a,
+ {
+   int ret;
+ 
+-  ret = strcmp (monitor_spec_a->connector, monitor_spec_b->connector);
++  ret = strcmp (monitor_spec_a->vendor, monitor_spec_b->vendor);
+   if (ret != 0)
+     return ret;
+ 
+-  ret = strcmp (monitor_spec_a->vendor, monitor_spec_b->vendor);
++  ret = strcmp (monitor_spec_a->product, monitor_spec_b->product);
+   if (ret != 0)
+     return ret;
+ 
+-  ret = strcmp (monitor_spec_a->product, monitor_spec_b->product);
++  ret = strcmp (monitor_spec_a->serial, monitor_spec_b->serial);
++  if (ret != 0)
++    return ret;
++
++  ret = strcmp (monitor_spec_a->connector, monitor_spec_b->connector);
+   if (ret != 0)
+     return ret;
+ 
+-  return strcmp (monitor_spec_a->serial, monitor_spec_b->serial);
++  return 0;
+ }
+ 
+ void
+diff --git a/src/backends/meta-monitor.h b/src/backends/meta-monitor.h
+index 58d2950c9cf7beb56a19c455d59dd2c0e20c41fd..60472dd971d9c9a588dc37967c66fefcd99c4a2a 100644
+--- a/src/backends/meta-monitor.h
++++ b/src/backends/meta-monitor.h
+@@ -272,7 +272,8 @@ MetaMonitorSpec * meta_monitor_spec_clone (MetaMonitorSpec *monitor_id);
+ 
+ META_EXPORT_TEST
+ gboolean meta_monitor_spec_equals (MetaMonitorSpec *monitor_id,
+-                                   MetaMonitorSpec *other_monitor_id);
++                                   MetaMonitorSpec *other_monitor_id,
++                                   gboolean         edid_only);
+ 
+ META_EXPORT_TEST
+ int meta_monitor_spec_compare (MetaMonitorSpec *monitor_spec_a,
+diff --git a/src/tests/monitor-store-unit-tests.c b/src/tests/monitor-store-unit-tests.c
+index 4a73d89db4c6375a7acf8e37c466875c4179abfc..77810e2e7b0392d87a43d7fcf8ef812ef6e0acb1 100644
+--- a/src/tests/monitor-store-unit-tests.c
++++ b/src/tests/monitor-store-unit-tests.c
+@@ -108,7 +108,8 @@ create_config_key_from_expect (MonitorStoreTestConfiguration *expect_config)
+ 
+   config_key = g_new0 (MetaMonitorsConfigKey, 1);
+   *config_key = (MetaMonitorsConfigKey) {
+-    .monitor_specs = monitor_specs
++    .monitor_specs = monitor_specs,
++    .edid_sufficient = meta_config_key_edid_sufficient_for_specs (monitor_specs)
+   };
+ 
+   return config_key;
+diff --git a/src/tests/monitor-unit-tests.c b/src/tests/monitor-unit-tests.c
+index b498d899f6b4630884fc58001408abd46f1bdc4d..7254b3312b2af36eded1aa5ad82f20b8941f3d66 100644
+--- a/src/tests/monitor-unit-tests.c
++++ b/src/tests/monitor-unit-tests.c
+@@ -89,7 +89,8 @@
+ typedef enum _MonitorTestFlag
+ {
+   MONITOR_TEST_FLAG_NONE,
+-  MONITOR_TEST_FLAG_NO_STORED
++  MONITOR_TEST_FLAG_NO_STORED,
++  MONITOR_TEST_FLAG_OFFSET_DP_CONNECTOR,
+ } MonitorTestFlag;
+ 
+ typedef struct _MonitorTestCaseMode
+@@ -924,6 +925,9 @@ create_monitor_test_setup (MonitorTestCase *test_case,
+   else
+     hotplug_mode_update = FALSE;
+ 
++  if (flags & MONITOR_TEST_FLAG_OFFSET_DP_CONNECTOR)
++    n_normal_panels = 100;
++
+   test_setup = g_new0 (MetaMonitorTestSetup, 1);
+ 
+   test_setup->modes = NULL;
+@@ -5279,6 +5283,15 @@ meta_test_monitor_custom_oneoff (void)
+   emulate_hotplug (test_setup);
+ 
+   check_monitor_configuration (&test_case);
++
++  /* Same test after hotplugging the monitor to a different port */
++  test_setup = create_monitor_test_setup (&test_case,
++                                          MONITOR_TEST_FLAG_NONE |
++                                          MONITOR_TEST_FLAG_OFFSET_DP_CONNECTOR);
++  set_custom_monitor_config ("oneoff.xml");
++  emulate_hotplug (test_setup);
++
++  check_monitor_configuration (&test_case);
+ }
+ 
+ static void
