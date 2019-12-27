@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.2
-Release:       100%{?dist}.pp3345
+Release:       101%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -189,6 +189,14 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Fri Dec 27 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.2-101
+- Add !984 "Ignore monitor connector ID when possible" @9958f6a5
+- Add !985 "window-actor: Also cull out clip_region" @99db3cc9
+- Add !983 "clutter/text: Check if attributes are equal before applying" @59f4e36f
+- Add !969 "Batch clip rectangles into a single upload" @4aab814c (manually rebased)
+- Update !724 "Sync timelines to hardware vsync" @f7d81f8a (manually rebased)
+- Rebase to gnome-3-34@57243108
+
 * Sun Dec 15 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.2-100
 - Rebase to 3.34.2-1.fc31
 
