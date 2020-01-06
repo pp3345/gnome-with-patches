@@ -7,14 +7,14 @@
 %global mutter_api_version 5
 
 Name:          mutter
-Version:       3.34.2
+Version:       3.34.3
 Release:       101%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       mutter-3.34.2-57243108.tar.gz
+Source0:       http://download.gnome.org/sources/%{name}/3.34/%{name}-%{version}.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
@@ -189,6 +189,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sun Jan 05 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.3-1
+- Update to 3.34.3
+
 * Fri Dec 27 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.2-101
 - Add !984 "Ignore monitor connector ID when possible" @9958f6a5
 - Add !985 "window-actor: Also cull out clip_region" @99db3cc9
