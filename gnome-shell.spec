@@ -216,6 +216,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Jan 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-100
+- Rebase to 3.34.3-1.fc31
+
 * Sun Jan 05 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.3-1
 - Update to 3.34.3
 
