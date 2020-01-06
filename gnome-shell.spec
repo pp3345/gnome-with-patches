@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.34.2
+Version:        3.34.3
 Release:        100%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
@@ -216,6 +216,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Jan 05 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.3-1
+- Update to 3.34.3
+
 * Mon Dec 16 2019 Yussuf Khalil <dev@pp3345.net> - 3.34.2-100
 - Update !605 "Gestures overhaul" (rebase taken from exalm/gnome-shell-gestures)
 - Add !843 "pageIndicators: Redesign and add position-based animation" @109f39af (rebase taken from exalm/gnome-shell-gestures)
