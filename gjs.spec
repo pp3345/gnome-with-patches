@@ -1,10 +1,10 @@
 %global glib2_version 2.58.0
-%global gobject_introspection_version 1.41.4
+%global gobject_introspection_version 1.61.2
 %global gtk3_version 3.20
 %global mozjs60_version 60.9.0
 
 Name:          gjs
-Version:       1.63.2
+Version:       1.63.3
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -14,9 +14,7 @@ Summary:       Javascript Bindings for GNOME
 # Stack printer (gjs/stack.c)
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
-Source0:       https://download.gnome.org/sources/%{name}/1.58/%{name}-%{version}.tar.xz
-
-Patch0:        0001-build-Fix-installation-with-DESTDIR-set.patch
+Source0:       https://download.gnome.org/sources/%{name}/1.63/%{name}-%{version}.tar.xz
 
 BuildRequires: cairo-gobject-devel
 BuildRequires: chrpath
@@ -82,7 +80,7 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
 %files
 %license COPYING
-%doc NEWS README
+%doc NEWS README.md
 %{_bindir}/gjs
 %{_bindir}/gjs-console
 %{_libdir}/*.so.*
@@ -103,6 +101,9 @@ find %{buildroot} -name '*.la' -exec rm -f {} ';'
 %{_datadir}/installed-tests
 
 %changelog
+* Wed Jan 08 2020 Kalev Lember <klember@redhat.com> - 1.63.3-1
+- Update to 1.63.3
+
 * Wed Dec 11 2019 Florian Müllner <fmuellner@redhat.com> - 1.63.2-1
 - Update to 1.63.2
 
