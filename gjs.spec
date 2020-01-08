@@ -17,7 +17,6 @@ URL:           https://wiki.gnome.org/Projects/Gjs
 Source0:       https://download.gnome.org/sources/%{name}/1.63/%{name}-%{version}.tar.xz
 
 BuildRequires: cairo-gobject-devel
-BuildRequires: chrpath
 BuildRequires: dbus-daemon
 BuildRequires: dbus-glib-devel
 BuildRequires: gcc-c++
@@ -68,12 +67,6 @@ the functionality of the installed gjs package.
 
 %install
 %meson_install
-
-# Remove lib64 rpaths
-chrpath --delete %{buildroot}%{_bindir}/gjs-console
-chrpath --delete %{buildroot}%{_libexecdir}/gjs/installed-tests/minijasmine
-
-find %{buildroot} -name '*.la' -exec rm -f {} ';'
 
 %check
 #meson_test
