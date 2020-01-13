@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.3
-Release:       100%{?dist}.pp3345
+Release:       101%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -193,6 +193,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Jan 13 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-101
+- Add !1002 "Region leak fixes" @8499c7da
+- Add !1001 "More selection leak fixes" @9584dd8d
+- Add !991 "Miscellaneous leak fixes" @802309ca
+- Add !1000 "clutter-actor: Add detail to captured-event" @177dbd65
+
 * Mon Jan 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-100
 - Rebase to 3.34.3-1.fc31
 
