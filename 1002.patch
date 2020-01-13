@@ -1,0 +1,35 @@
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index 64317b6f1c24b3654f60ed3676d69b881d478edd..5c5ff66bb3403430cb072131a8cfd484d82d829e 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -691,7 +691,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+   gboolean do_swap_buffer;
+   gboolean swap_with_damage;
+   ClutterActor *wrapper;
+-  cairo_region_t *redraw_clip;
++  cairo_region_t *redraw_clip = NULL;
+   cairo_region_t *fb_clip_region;
+   cairo_region_t *swap_region;
+   cairo_rectangle_int_t redraw_rect;
+@@ -782,6 +782,8 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+     {
+       cairo_rectangle_int_t rect = { 0, 0, view_rect.width, view_rect.height };
+       fb_clip_region = cairo_region_create_rectangle (&rect);
++      if (redraw_clip)
++        cairo_region_destroy (redraw_clip);
+       redraw_clip = cairo_region_copy (fb_clip_region);
+     }
+ 
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index 0079c0df5ab60d00db9b50e12a5c46b3bf426456..63e6a84b7964ca3550c55269f7a825b63f41caf4 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -239,6 +239,8 @@ meta_shaped_texture_dispose (GObject *object)
+   meta_shaped_texture_set_mask_texture (stex, NULL);
+   meta_shaped_texture_reset_pipelines (stex);
+ 
++  g_clear_pointer (&stex->opaque_region, cairo_region_destroy);
++
+   g_clear_pointer (&stex->snippet, cogl_object_unref);
+ 
+   G_OBJECT_CLASS (meta_shaped_texture_parent_class)->dispose (object);
