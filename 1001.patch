@@ -1,0 +1,70 @@
+diff --git a/src/core/meta-clipboard-manager.c b/src/core/meta-clipboard-manager.c
+index 1c1b587fe20a783e241d9e440495a27848cc299c..1f3b8ca7ec08f6fbb19356ecaa7a56e9bdfa5ec1 100644
+--- a/src/core/meta-clipboard-manager.c
++++ b/src/core/meta-clipboard-manager.c
+@@ -122,13 +122,18 @@ owner_changed_cb (MetaSelection       *selection,
+         }
+ 
+       if (best_idx < 0)
+-        return;
++        {
++          if (mimetypes)
++            g_list_free_full (mimetypes, g_free);
++          return;
++        }
+ 
+       display->saved_clipboard_mimetype = g_strdup (best);
++      g_list_free_full (mimetypes, g_free);
+       output = g_memory_output_stream_new_resizable ();
+       meta_selection_transfer_async (selection,
+                                      META_SELECTION_CLIPBOARD,
+-                                     best,
++                                     display->saved_clipboard_mimetype,
+                                      transfer_size,
+                                      output,
+                                      NULL,
+diff --git a/src/x11/meta-selection-source-x11.c b/src/x11/meta-selection-source-x11.c
+index 55e50032797527df9ecd6bae5a689bad2884b8fd..c9fc8fbc6c67ed4a7d6e07af53cf40fdbb66c605 100644
+--- a/src/x11/meta-selection-source-x11.c
++++ b/src/x11/meta-selection-source-x11.c
+@@ -190,6 +190,7 @@ read_mimetypes_cb (GInputStream *stream,
+     {
+       g_task_return_error (task, error);
+       g_object_unref (task);
++      g_object_unref (stream);
+       return;
+     }
+ 
+diff --git a/src/x11/meta-x11-selection-output-stream.c b/src/x11/meta-x11-selection-output-stream.c
+index 86615364ab998f763c949e3356c7a7838a1ee1d2..9ea6575e24500ddb2995f8765150149435429e96 100644
+--- a/src/x11/meta-x11-selection-output-stream.c
++++ b/src/x11/meta-x11-selection-output-stream.c
+@@ -43,7 +43,7 @@ struct _MetaX11SelectionOutputStreamPrivate
+   Atom xtarget;
+   char *property;
+   Atom xproperty;
+-  const char *type;
++  char *type;
+   Atom xtype;
+   int format;
+   gulong timestamp;
+@@ -518,6 +518,7 @@ meta_x11_selection_output_stream_finalize (GObject *object)
+   g_free (priv->selection);
+   g_free (priv->target);
+   g_free (priv->property);
++  g_free (priv->type);
+ 
+   G_OBJECT_CLASS (meta_x11_selection_output_stream_parent_class)->finalize (object);
+ }
+diff --git a/src/x11/meta-x11-selection.c b/src/x11/meta-x11-selection.c
+index 5332e9d545b16c9e22ad052b6434ff167209e73b..5109db94544e83cef7f454fe4381f7b080014445 100644
+--- a/src/x11/meta-x11-selection.c
++++ b/src/x11/meta-x11-selection.c
+@@ -257,6 +257,7 @@ source_new_cb (GObject      *object,
+     {
+       meta_selection_set_owner (selection, selection_type, source);
+       g_set_object (&x11_display->selection.owners[selection_type], source);
++      g_object_unref (source);
+     }
+   else if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+     {
