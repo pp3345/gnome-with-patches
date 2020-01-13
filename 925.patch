@@ -1,0 +1,24 @@
+diff --git a/js/ui/swipeTracker.js b/js/ui/swipeTracker.js
+index 65c3d0d649999703e9bacf01d3168e9da0d88441..e9afee7b978185daed57c1367a9ac31322735b66 100644
+--- a/js/ui/swipeTracker.js
++++ b/js/ui/swipeTracker.js
+@@ -58,5 +58,5 @@ const TouchpadSwipeGesture = GObject.registerClass({
+         this._orientation = Clutter.Orientation.VERTICAL;
+ 
+-        global.stage.connect('captured-event', this._handleEvent.bind(this));
++        global.stage.connect('captured-event::touchpad', this._handleEvent.bind(this));
+     }
+ 
+diff --git a/js/ui/viewSelector.js b/js/ui/viewSelector.js
+index 8acea0c03df323b2bca9753e6cf27baa0d78ec7b..5c0dd9bb750fb0ebd215d54099560167f873cc2a 100644
+--- a/js/ui/viewSelector.js
++++ b/js/ui/viewSelector.js
+@@ -44,7 +44,7 @@ function getTermsForSearchString(searchString) {
+ 
+ var TouchpadShowOverviewAction = class {
+     constructor(actor) {
+-        actor.connect('captured-event', this._handleEvent.bind(this));
++        actor.connect('captured-event::touchpad', this._handleEvent.bind(this));
+     }
+ 
+     _handleEvent(actor, event) {
