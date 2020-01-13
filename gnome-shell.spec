@@ -135,6 +135,7 @@ Conflicts:      gnome-shell-extension-background-logo < 3.34.0
 Patch91:  846.patch
 Patch92:  843.patch
 Patch100: 605.patch
+Patch110: 923.patch
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,

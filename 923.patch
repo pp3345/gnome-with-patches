@@ -1,0 +1,96 @@
+diff --git a/js/ui/background.js b/js/ui/background.js
+index f7506dec4b2a5aa8213fe49131f7ee9a7ab26750..89a595709a59a3422673d05a0c196b6f9bc27fb0 100644
+--- a/js/ui/background.js
++++ b/js/ui/background.js
+@@ -243,6 +243,13 @@ var Background = GObject.registerClass({
+         this.isLoaded = false;
+ 
+         this._clock = new GnomeDesktop.WallClock();
++        /*
++         * Extra _clock.ref() is required to stop toggle references from
++         * triggering garbage collection every time the clock emits a tick,
++         * even though that's a notify::clock and not a notify::timezone.
++         * The reference still toggles internally within Glib.
++         */
++        this._clock.ref();
+         this._timezoneChangedId = this._clock.connect('notify::timezone',
+             () => {
+                 if (this._animation)
+@@ -278,7 +285,10 @@ var Background = GObject.registerClass({
+             this._clock.disconnect(this._timezoneChangedId);
+         this._timezoneChangedId = 0;
+ 
+-        this._clock = null;
++        if (this._clock) {
++            this._clock.unref();
++            this._clock = null;
++        }
+ 
+         if (this._prepareForSleepId != 0)
+             LoginManager.getLoginManager().disconnect(this._prepareForSleepId);
+diff --git a/js/ui/dateMenu.js b/js/ui/dateMenu.js
+index 1fd6ccdbc22cf3ddee3403e7808976bd6f09309d..ad5a9878a5d3f9386b3625b437694d0413c3e6fb 100644
+--- a/js/ui/dateMenu.js
++++ b/js/ui/dateMenu.js
+@@ -630,13 +630,30 @@ class DateMenuButton extends PanelMenu.Button {
+         // Done with hbox for calendar and event list
+ 
+         this._clock = new GnomeDesktop.WallClock();
++        /*
++         * Extra _clock.ref() is required to stop toggle references from
++         * triggering garbage collection every time the clock emits a tick.
++         */
++        this._clock.ref();
+         this._clock.bind_property('clock', this._clockDisplay, 'text', GObject.BindingFlags.SYNC_CREATE);
+-        this._clock.connect('notify::timezone', this._updateTimeZone.bind(this));
++        this._timezoneChangedId = this._clock.connect('notify::timezone', this._updateTimeZone.bind(this));
+ 
+         Main.sessionMode.connect('updated', this._sessionUpdated.bind(this));
+         this._sessionUpdated();
+     }
+ 
++    destroy() {
++        if (this._timezoneChangedId) {
++            this._clock.disconnect(this._timezoneChangedId);
++            this._timezoneChangedId = 0;
++        }
++
++        if (this._clock) {
++            this._clock.unref();
++            this._clock = null;
++        }
++    }
++
+     _getEventSource() {
+         return new Calendar.DBusEventSource();
+     }
+diff --git a/js/ui/screenShield.js b/js/ui/screenShield.js
+index 842ae6324abcd8d13d4c46b66f333094e5daad6b..bfc0fe6bec384c0c61813bff80ff9590f4f375a5 100644
+--- a/js/ui/screenShield.js
++++ b/js/ui/screenShield.js
+@@ -66,6 +66,11 @@ class ScreenShieldClock extends St.BoxLayout {
+         this.actor.add_child(this._date);
+ 
+         this._wallClock = new GnomeDesktop.WallClock({ time_only: true });
++        /*
++         * Extra _wallClock.ref() is required to stop toggle references from
++         * triggering garbage collection every time the clock emits a tick.
++         */
++        this._wallClock.ref();
+         this._wallClock.connect('notify::clock', this._updateClock.bind(this));
+ 
+         this._updateClock();
+@@ -84,8 +89,12 @@ class ScreenShieldClock extends St.BoxLayout {
+     }
+ 
+     destroy() {
+         this.actor.destroy();
+-        this._wallClock.run_dispose();
++        if (this._wallClock) {
++            this._wallClock.unref();
++            this._wallClock.run_dispose();
++            this._wallClock = null;
++        }
+     }
+ };
+ 
