@@ -1,0 +1,27 @@
+diff --git a/src/ui/theme.c b/src/ui/theme.c
+index 9b8ddff631550559065233463ee24297d784f028..095b0f420136f96f90fa270165d616d322f4bcd9 100644
+--- a/src/ui/theme.c
++++ b/src/ui/theme.c
+@@ -861,8 +861,8 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
+           if (icon_name)
+             {
+               GtkIconTheme *theme = gtk_icon_theme_get_default ();
+-              GtkIconInfo *info;
+-              GdkPixbuf *pixbuf;
++              g_autoptr (GtkIconInfo) info = NULL;
++              g_autoptr (GdkPixbuf) pixbuf = NULL;
+ 
+               info = gtk_icon_theme_lookup_icon_for_scale (theme, icon_name,
+                                                            layout->icon_size, scale, 0);
+diff --git a/src/x11/meta-x11-selection.c b/src/x11/meta-x11-selection.c
+index 882b43297dc195df61f6248a42efd96aa73202e9..5332e9d545b16c9e22ad052b6434ff167209e73b 100644
+--- a/src/x11/meta-x11-selection.c
++++ b/src/x11/meta-x11-selection.c
+@@ -116,6 +116,7 @@ write_mimetypes_cb (GOutputStream *stream,
+ 
+   g_output_stream_write_bytes_finish (stream, res, &error);
+   g_output_stream_close (stream, NULL, NULL);
++  g_object_unref (stream);
+ 
+   if (error)
+     {
