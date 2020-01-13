@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.34.3
-Release:        100%{?dist}.pp3345
+Release:        101%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -219,6 +219,11 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Jan 13 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-101
+- Add !926 "iconGrid.js: Animate icon spring using translation" @76961927
+- Add !925 "js/ui: Subscribe touchpad gesture handlers to only touchpad events" @c35bccb4 (manually rebased)
+- Add !923 "js/ui: Keep refcounts to WallClock objects above 1." @73374358 (manually rebased)
+
 * Mon Jan 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-100
 - Rebase to 3.34.3-1.fc31
 
