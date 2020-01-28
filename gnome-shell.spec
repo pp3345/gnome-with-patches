@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.35.3
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -221,6 +221,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Tue Jan 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 3.35.3-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Thu Jan 16 2020 Kalev Lember <klember@redhat.com> - 3.35.3-2
 - Rebuilt for libgnome-desktop soname bump
 
