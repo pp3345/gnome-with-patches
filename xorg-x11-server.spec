@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.6
-Release:   1%{?gitdate:.%{gitdate}}%{?dist}
+Release:   2%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -551,6 +551,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Jan 31 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.20.6-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Mon Nov 25 2019 Olivier Fourdan <ofourdan@redhat.com> - 1.20.6-1
 - xserver 1.20.6
 
