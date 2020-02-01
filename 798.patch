@@ -4746,6 +4746,15 @@ index 8724da39feae8454c53d103f1bd60a1b41ea5420..dd42a8c1106afb026634cd59f279e637
      clutter_actor_show (actor);
    else
      clutter_actor_hide (actor);
+diff a/src/wayland/meta-wayland-actor-surface.c b/src/wayland/meta-wayland-actor-surface.c
+--- a/src/wayland/meta-wayland-actor-surface.c
++++ b/src/wayland/meta-wayland-actor-surface.c
+@@ -157,4 +157,4 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
+   stex = meta_surface_actor_get_texture (surface_actor);
+ 
+-  buffer = surface->buffer_ref.buffer;
++  buffer = surface->buffer_ref->buffer;
+   if (buffer)
 diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
 index 2612e53f98a53ed89551077a7fb6ba5f95598cf1..c60100740cd687602e8c252e912c6111d267e7e0 100644
 --- a/src/wayland/meta-wayland-surface.c
@@ -5003,7 +5012,7 @@ index 9b225fc6f47219c553a5ff0c0bb88ca21c886f13..7a928057a631f72984b50b704f836735
 +CoglScanout *       meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
 +                                                              CoglOnscreen       *onscreen);
 +
- #endif
+ static inline GNode *
 diff --git a/src/wayland/meta-wayland-wl-shell.c b/src/wayland/meta-wayland-wl-shell.c
 index 539fb9858e49b9d8b704c6d738ef2fdb61cc11c9..3f8dc0983bff1a56b90c455d9aee7f0146e9de2a 100644
 --- a/src/wayland/meta-wayland-wl-shell.c
