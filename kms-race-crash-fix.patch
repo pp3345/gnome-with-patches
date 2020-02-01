@@ -1,0 +1,119 @@
+From be777dbd7997462af66120731ba9ab8f96673a93 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 14 Jan 2020 11:23:04 +0100
+Subject: [PATCH 1/2] kms-impl-simple: Include mode name in error message
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/1007
+(cherry picked from commit 7733f8816810780ad857bce0d59ee65920e6989e)
+---
+ src/backends/native/meta-kms-impl-simple.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/backends/native/meta-kms-impl-simple.c b/src/backends/native/meta-kms-impl-simple.c
+index cd18ce736..c4dd31d38 100644
+--- a/src/backends/native/meta-kms-impl-simple.c
++++ b/src/backends/native/meta-kms-impl-simple.c
+@@ -247,7 +247,8 @@ process_mode_set (MetaKmsImpl     *impl,
+   if (ret != 0)
+     {
+       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+-                   "Failed to set mode on CRTC %u: %s",
++                   "Failed to set mode %s on CRTC %u: %s",
++                   mode_set->drm_mode ? mode_set->drm_mode->name : "off",
+                    meta_kms_crtc_get_id (crtc),
+                    g_strerror (-ret));
+       return FALSE;
+-- 
+2.24.1
+
+
+From 01d93f281942be5869e8962a62feed9053bfc52f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 14 Jan 2020 11:16:09 +0100
+Subject: [PATCH 2/2] kms-impl-simple: Handle mode set race conditions
+ gracefully
+
+If we end up trying to do a mode set on a DRM state that has already
+changed behind our back without us yet having seen the hotplug event we
+may fail with `EINVAL`. Since the renderer layer doesn't handle mode set
+failure, it'll still try to page flip later on, which will then also
+fail. When failing, it'll try to look up the cached mode set in order to
+retry the mode set later on, as is needed to handle other error
+conditions. However, if the mode set prior to the page flip failed, we
+won't cache the mode set, and the page flip error handling code will get
+confused.
+
+Instead of asserting that a page flip always has a valid cached mode set
+ready to look up, handle it being missing more gracefully by failing to
+mode set. It is expected that things will correct themself as there
+should be a hotplug event waiting around the the corner, to reconfigure
+the monitor configuration setting new modes.
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/issues/917
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/1007
+(cherry picked from commit ce3409b2b7f887ca2e83c939ff73ba4d3bc8c4c0)
+---
+ src/backends/native/meta-kms-impl-simple.c | 39 +++++++++++++++++-----
+ 1 file changed, 31 insertions(+), 8 deletions(-)
+
+diff --git a/src/backends/native/meta-kms-impl-simple.c b/src/backends/native/meta-kms-impl-simple.c
+index c4dd31d38..fc8d2929e 100644
+--- a/src/backends/native/meta-kms-impl-simple.c
++++ b/src/backends/native/meta-kms-impl-simple.c
+@@ -324,6 +324,13 @@ retry_page_flip_data_free (RetryPageFlipData *retry_page_flip_data)
+   g_free (retry_page_flip_data);
+ }
+ 
++static CachedModeSet *
++get_cached_mode_set (MetaKmsImplSimple *impl_simple,
++                     MetaKmsCrtc       *crtc)
++{
++  return g_hash_table_lookup (impl_simple->cached_mode_sets, crtc);
++}
++
+ static float
+ get_cached_crtc_refresh_rate (MetaKmsImplSimple *impl_simple,
+                               MetaKmsCrtc       *crtc)
+@@ -645,14 +652,30 @@ process_page_flip (MetaKmsImpl      *impl,
+ 
+   if (ret == -EBUSY)
+     {
+-      float refresh_rate;
+-
+-      refresh_rate = get_cached_crtc_refresh_rate (impl_simple, crtc);
+-      schedule_retry_page_flip (impl_simple,
+-                                crtc,
+-                                plane_assignment->fb_id,
+-                                refresh_rate,
+-                                page_flip_data);
++      CachedModeSet *cached_mode_set;
++
++      cached_mode_set = get_cached_mode_set (impl_simple, crtc);
++      if (cached_mode_set)
++        {
++          drmModeModeInfo *drm_mode;
++          float refresh_rate;
++
++          drm_mode = cached_mode_set->drm_mode;
++          refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
++          schedule_retry_page_flip (impl_simple,
++                                    crtc,
++                                    plane_assignment->fb_id,
++                                    refresh_rate,
++                                    page_flip_data);
++        }
++      else
++        {
++          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
++                       "Page flip of %u failed, and no mode set available",
++                       meta_kms_crtc_get_id (crtc));
++          meta_kms_page_flip_data_unref (page_flip_data);
++          return FALSE;
++        }
+     }
+   else if (ret == -EINVAL)
+     {
+-- 
+2.24.1
+

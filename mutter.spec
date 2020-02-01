@@ -28,6 +28,12 @@ Patch2:        0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
 # Mitigate crash on tear down. (rhbz#1770089, rhbz#1770089)
 Patch3:        0001-compositor-Guard-against-untimely-calls.patch
 
+# Fix crash meta_shaped_texture_get_texture() (rhbz#1779865)
+Patch4:        get-texture-crash-fix.patch
+
+# https://gitlab.gnome.org/GNOME/mutter/issues/917 (rhbz#1770591)
+Patch5:        kms-race-crash-fix.patch
+
 BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -193,6 +199,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Jan 14 2020 Jonas Ådahl <jadahl@redhat.com> - 3.34.3-2
+- Backport KMS race condition crash fix
+- Backport Wayland subsurface crash fix
+  Resolves: #1779865
+  Resolves: #1770591
+
 * Mon Jan 13 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-101
 - Add !1002 "Region leak fixes" @8499c7da
 - Add !1001 "More selection leak fixes" @9584dd8d

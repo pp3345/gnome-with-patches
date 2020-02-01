@@ -1,0 +1,815 @@
+From f52c0a3bf76d2b90a6fa81055d7b9b0ea7ce4ba5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Thu, 5 Dec 2019 19:43:07 +0100
+Subject: [PATCH 1/7] wayland/egl-stream: Cache texture snippet
+
+While it's not very relevant now, as we would rarely create it anyway
+since the buffer nor texture never changes for a surface, it will be in
+the future, as the actor state (including its content,
+MetaShapedTexture) will be synchronized by the MetaWaylandActorSurface
+at a later point in time, and not by MetaWaylandSurface, at state
+application time.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/961
+(cherry picked from commit 76ee026caa1ab0215be389e4a33a6994ce3d26fc)
+---
+ src/wayland/meta-wayland-buffer.c     |  2 +-
+ src/wayland/meta-wayland-egl-stream.c | 25 ++++++++++++++++---------
+ src/wayland/meta-wayland-egl-stream.h |  2 +-
+ 3 files changed, 18 insertions(+), 11 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-buffer.c b/src/wayland/meta-wayland-buffer.c
+index cdaad26eb..5639c3a17 100644
+--- a/src/wayland/meta-wayland-buffer.c
++++ b/src/wayland/meta-wayland-buffer.c
+@@ -456,7 +456,7 @@ meta_wayland_buffer_create_snippet (MetaWaylandBuffer *buffer)
+   if (!buffer->egl_stream.stream)
+     return NULL;
+ 
+-  return meta_wayland_egl_stream_create_snippet ();
++  return meta_wayland_egl_stream_create_snippet (buffer->egl_stream.stream);
+ #else
+   return NULL;
+ #endif /* HAVE_WAYLAND_EGLSTREAM */
+diff --git a/src/wayland/meta-wayland-egl-stream.c b/src/wayland/meta-wayland-egl-stream.c
+index 3f8908e67..3fe9669c9 100644
+--- a/src/wayland/meta-wayland-egl-stream.c
++++ b/src/wayland/meta-wayland-egl-stream.c
+@@ -134,6 +134,7 @@ struct _MetaWaylandEglStream
+   MetaWaylandBuffer *buffer;
+   CoglTexture2D *texture;
+   gboolean is_y_inverted;
++  CoglSnippet *snippet;
+ };
+ 
+ G_DEFINE_TYPE (MetaWaylandEglStream, meta_wayland_egl_stream,
+@@ -289,18 +290,22 @@ meta_wayland_egl_stream_is_y_inverted (MetaWaylandEglStream *stream)
+ }
+ 
+ CoglSnippet *
+-meta_wayland_egl_stream_create_snippet (void)
++meta_wayland_egl_stream_create_snippet (MetaWaylandEglStream *stream)
+ {
+-  CoglSnippet *snippet;
++  if (!stream->snippet)
++    {
++      CoglSnippet *snippet;
+ 
+-  snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_TEXTURE_LOOKUP,
+-                              "uniform samplerExternalOES tex_external;",
+-                              NULL);
+-  cogl_snippet_set_replace (snippet,
+-                            "cogl_texel = texture2D (tex_external,\n"
+-                            "                        cogl_tex_coord.xy);");
++      snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_TEXTURE_LOOKUP,
++                                  "uniform samplerExternalOES tex_external;",
++                                  NULL);
++      cogl_snippet_set_replace (snippet,
++                                "cogl_texel = texture2D (tex_external,\n"
++                                "                        cogl_tex_coord.xy);");
++      stream->snippet = snippet;
++    }
+ 
+-  return snippet;
++  return cogl_object_ref (stream->snippet);
+ }
+ 
+ gboolean
+@@ -341,6 +346,8 @@ meta_wayland_egl_stream_finalize (GObject *object)
+ 
+   meta_egl_destroy_stream (egl, egl_display, stream->egl_stream, NULL);
+ 
++  cogl_clear_object (&stream->snippet);
++
+   G_OBJECT_CLASS (meta_wayland_egl_stream_parent_class)->finalize (object);
+ }
+ 
+diff --git a/src/wayland/meta-wayland-egl-stream.h b/src/wayland/meta-wayland-egl-stream.h
+index fe488ed54..b8a6b1968 100644
+--- a/src/wayland/meta-wayland-egl-stream.h
++++ b/src/wayland/meta-wayland-egl-stream.h
+@@ -47,7 +47,7 @@ gboolean meta_wayland_egl_stream_attach (MetaWaylandEglStream *stream,
+ 
+ CoglTexture2D * meta_wayland_egl_stream_create_texture (MetaWaylandEglStream *stream,
+                                                         GError              **error);
+-CoglSnippet * meta_wayland_egl_stream_create_snippet (void);
++CoglSnippet * meta_wayland_egl_stream_create_snippet (MetaWaylandEglStream *stream);
+ 
+ gboolean meta_wayland_egl_stream_is_y_inverted (MetaWaylandEglStream *stream);
+ 
+-- 
+2.24.1
+
+
+From e91b12fdf991e1e9151a7102c311f129e310b2c6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 6 Dec 2019 18:22:47 +0100
+Subject: [PATCH 2/7] wayland: Replace manual GNode subsurface iteration with
+ macro
+
+Similar to wl_list_foreach(), add
+META_WAYLAND_SURFACE_FOREACH_SUBSURFACE() that iterates over all the
+subsurfaces of a surface, without the caller needing to care about
+implementation details, such as leaf nodes vs non-leaf nodes.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/961
+(cherry picked from commit fcfe90aa9fe0db130c94ae3fe5cee38daba20a50)
+---
+ src/wayland/meta-wayland-actor-surface.c | 17 +++-------
+ src/wayland/meta-wayland-pointer.c       | 11 ++-----
+ src/wayland/meta-wayland-shell-surface.c | 10 ++----
+ src/wayland/meta-wayland-subsurface.c    | 10 ++----
+ src/wayland/meta-wayland-surface.c       | 40 +++++++-----------------
+ src/wayland/meta-wayland-surface.h       | 34 ++++++++++++++++++++
+ src/wayland/meta-wayland-tablet-tool.c   | 11 ++-----
+ 7 files changed, 58 insertions(+), 75 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-actor-surface.c b/src/wayland/meta-wayland-actor-surface.c
+index bf93f9564..f929ff446 100644
+--- a/src/wayland/meta-wayland-actor-surface.c
++++ b/src/wayland/meta-wayland-actor-surface.c
+@@ -147,9 +147,9 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
+     meta_wayland_surface_role_get_surface (surface_role);
+   MetaSurfaceActor *surface_actor;
+   MetaShapedTexture *stex;
+-  GNode *n;
+   cairo_rectangle_int_t surface_rect;
+   int geometry_scale;
++  MetaWaylandSurface *subsurface_surface;
+ 
+   surface_actor = priv->actor;
+   stex = meta_surface_actor_get_texture (surface_actor);
+@@ -213,19 +213,12 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
+       meta_surface_actor_reset_viewport_dst_size (surface_actor);
+     }
+ 
+-  for (n = g_node_first_child (surface->subsurface_branch_node);
+-       n;
+-       n = g_node_next_sibling (n))
++  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+     {
+-      MetaWaylandSurface *subsurface_surface = n->data;
+-      MetaWaylandActorSurface *subsurface_actor_surface;
++      MetaWaylandActorSurface *actor_surface;
+ 
+-      if (G_NODE_IS_LEAF (n))
+-        continue;
+-
+-      subsurface_actor_surface =
+-        META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
+-      meta_wayland_actor_surface_sync_actor_state (subsurface_actor_surface);
++      actor_surface = META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
++      meta_wayland_actor_surface_sync_actor_state (actor_surface);
+     }
+ }
+ 
+diff --git a/src/wayland/meta-wayland-pointer.c b/src/wayland/meta-wayland-pointer.c
+index b69f43ab3..8b597417e 100644
+--- a/src/wayland/meta-wayland-pointer.c
++++ b/src/wayland/meta-wayland-pointer.c
+@@ -1209,20 +1209,13 @@ static gboolean
+ pointer_can_grab_surface (MetaWaylandPointer *pointer,
+                           MetaWaylandSurface *surface)
+ {
+-  GNode *n;
++  MetaWaylandSurface *subsurface;
+ 
+   if (pointer->focus_surface == surface)
+     return TRUE;
+ 
+-  for (n = g_node_first_child (surface->subsurface_branch_node);
+-       n;
+-       n = g_node_next_sibling (n))
++  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface)
+     {
+-      MetaWaylandSurface *subsurface = n->data;
+-
+-      if (G_NODE_IS_LEAF (n))
+-        continue;
+-
+       if (pointer_can_grab_surface (pointer, subsurface))
+         return TRUE;
+     }
+diff --git a/src/wayland/meta-wayland-shell-surface.c b/src/wayland/meta-wayland-shell-surface.c
+index 7a9a804b6..9870dfb97 100644
+--- a/src/wayland/meta-wayland-shell-surface.c
++++ b/src/wayland/meta-wayland-shell-surface.c
+@@ -43,23 +43,17 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
+   MetaWaylandSurface *surface =
+     meta_wayland_surface_role_get_surface (surface_role);
+   MetaRectangle geometry;
+-  GNode *n;
++  MetaWaylandSurface *subsurface_surface;
+ 
+   geometry = (MetaRectangle) {
+     .width = meta_wayland_surface_get_width (surface),
+     .height = meta_wayland_surface_get_height (surface),
+   };
+ 
+-  for (n = g_node_first_child (surface->subsurface_branch_node);
+-       n;
+-       n = g_node_next_sibling (n))
++  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+     {
+-      MetaWaylandSurface *subsurface_surface = n->data;
+       MetaWaylandSubsurface *subsurface;
+ 
+-      if (G_NODE_IS_LEAF (n))
+-        continue;
+-
+       subsurface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
+       meta_wayland_subsurface_union_geometry (subsurface,
+                                               0, 0,
+diff --git a/src/wayland/meta-wayland-subsurface.c b/src/wayland/meta-wayland-subsurface.c
+index 6abfde19f..0d59cdf97 100644
+--- a/src/wayland/meta-wayland-subsurface.c
++++ b/src/wayland/meta-wayland-subsurface.c
+@@ -198,7 +198,7 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
+   MetaWaylandSurface *surface =
+     meta_wayland_surface_role_get_surface (surface_role);
+   MetaRectangle geometry;
+-  GNode *n;
++  MetaWaylandSurface *subsurface_surface;
+ 
+   geometry = (MetaRectangle) {
+     .x = surface->offset_x + surface->sub.x,
+@@ -209,16 +209,10 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
+ 
+   meta_rectangle_union (out_geometry, &geometry, out_geometry);
+ 
+-  for (n = g_node_first_child (surface->subsurface_branch_node);
+-       n;
+-       n = g_node_next_sibling (n))
++  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+     {
+-      MetaWaylandSurface *subsurface_surface = n->data;
+       MetaWaylandSubsurface *subsurface;
+ 
+-      if (G_NODE_IS_LEAF (n))
+-        continue;
+-
+       subsurface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
+       meta_wayland_subsurface_union_geometry (subsurface,
+                                               parent_x + geometry.x,
+diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
+index 56d292517..d23105d2a 100644
+--- a/src/wayland/meta-wayland-surface.c
++++ b/src/wayland/meta-wayland-surface.c
+@@ -632,20 +632,6 @@ meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface)
+     }
+ }
+ 
+-static void
+-parent_surface_state_applied (GNode    *subsurface_node,
+-                              gpointer  user_data)
+-{
+-  MetaWaylandSurface *surface = subsurface_node->data;
+-  MetaWaylandSubsurface *subsurface;
+-
+-  if (G_NODE_IS_LEAF (subsurface_node))
+-    return;
+-
+-  subsurface = META_WAYLAND_SUBSURFACE (surface->role);
+-  meta_wayland_subsurface_parent_state_applied (subsurface);
+-}
+-
+ void
+ meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *surface,
+                                                     MetaWaylandPendingState *pending)
+@@ -659,6 +645,7 @@ void
+ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
+                                           MetaWaylandPendingState *pending)
+ {
++  MetaWaylandSurface *subsurface_surface;
+   gboolean had_damage = FALSE;
+ 
+   if (surface->role)
+@@ -832,10 +819,13 @@ cleanup:
+ 
+   pending_state_reset (pending);
+ 
+-  g_node_children_foreach (surface->subsurface_branch_node,
+-                           G_TRAVERSE_ALL,
+-                           parent_surface_state_applied,
+-                           NULL);
++  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
++    {
++      MetaWaylandSubsurface *subsurface;
++
++      subsurface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
++      meta_wayland_subsurface_parent_state_applied (subsurface);
++    }
+ 
+   if (had_damage)
+     {
+@@ -1276,22 +1266,14 @@ meta_wayland_surface_update_outputs (MetaWaylandSurface *surface)
+ static void
+ meta_wayland_surface_update_outputs_recursively (MetaWaylandSurface *surface)
+ {
+-  GNode *n;
++  MetaWaylandSurface *subsurface_surface;
+ 
+   meta_wayland_surface_update_outputs (surface);
+ 
+-  for (n = g_node_first_child (surface->subsurface_branch_node);
+-       n;
+-       n = g_node_next_sibling (n))
+-    {
+-      if (G_NODE_IS_LEAF (n))
+-        continue;
+-
+-      meta_wayland_surface_update_outputs_recursively (n->data);
+-    }
++  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
++    meta_wayland_surface_update_outputs_recursively (subsurface_surface);
+ }
+ 
+-
+ void
+ meta_wayland_surface_set_window (MetaWaylandSurface *surface,
+                                  MetaWindow         *window)
+diff --git a/src/wayland/meta-wayland-surface.h b/src/wayland/meta-wayland-surface.h
+index 5f867be9d..23d65945a 100644
+--- a/src/wayland/meta-wayland-surface.h
++++ b/src/wayland/meta-wayland-surface.h
+@@ -327,4 +327,38 @@ void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSur
+ int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
+ int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
+ 
++static inline GNode *
++meta_get_next_subsurface_sibling (GNode *n)
++{
++  GNode *next;
++
++  if (!n)
++    return NULL;
++
++  next = g_node_next_sibling (n);
++  if (!next)
++    return NULL;
++  if (!G_NODE_IS_LEAF (next))
++    return next;
++  else
++    return meta_get_next_subsurface_sibling (next);
++}
++
++static inline GNode *
++meta_get_first_subsurface_node (MetaWaylandSurface *surface)
++{
++  GNode *n;
++
++  n = g_node_first_child (surface->subsurface_branch_node);
++  if (!G_NODE_IS_LEAF (n))
++    return n;
++  else
++    return meta_get_next_subsurface_sibling (n);
++}
++
++#define META_WAYLAND_SURFACE_FOREACH_SUBSURFACE(surface, subsurface) \
++  for (GNode *G_PASTE(__n, __LINE__) = meta_get_first_subsurface_node ((surface)); \
++       (subsurface = (G_PASTE (__n, __LINE__) ? G_PASTE (__n, __LINE__)->data : NULL)); \
++       G_PASTE (__n, __LINE__) = meta_get_next_subsurface_sibling (G_PASTE (__n, __LINE__)))
++
+ #endif
+diff --git a/src/wayland/meta-wayland-tablet-tool.c b/src/wayland/meta-wayland-tablet-tool.c
+index 065c834bb..412e541be 100644
+--- a/src/wayland/meta-wayland-tablet-tool.c
++++ b/src/wayland/meta-wayland-tablet-tool.c
+@@ -989,20 +989,13 @@ static gboolean
+ tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
+                               MetaWaylandSurface    *surface)
+ {
+-  GNode *n;
++  MetaWaylandSurface *subsurface;
+ 
+   if (tool->focus_surface == surface)
+     return TRUE;
+ 
+-  for (n = g_node_first_child (surface->subsurface_branch_node);
+-       n;
+-       n = g_node_next_sibling (n))
++  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface)
+     {
+-      MetaWaylandSurface *subsurface = n->data;
+-
+-      if (G_NODE_IS_LEAF (n))
+-        continue;
+-
+       if (tablet_tool_can_grab_surface (tool, subsurface))
+         return TRUE;
+     }
+-- 
+2.24.1
+
+
+From 81b7196ad9df3db651354fa4f045b4813ba1ca97 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 6 Dec 2019 18:38:46 +0100
+Subject: [PATCH 3/7] shaped-texture: Minor clean up
+
+Use cogl_clear_object(), add reference to texture when setting, and
+remove redundant runtime type check.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/961
+(cherry picked from commit 60ebf19c9ed3d340330f643d9ebdaa20838f5ebd)
+---
+ src/compositor/meta-shaped-texture.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index 0d26e2283..f22c3b65c 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -458,16 +458,11 @@ set_cogl_texture (MetaShapedTexture *stex,
+ {
+   int width, height;
+ 
+-  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+-
+-  if (stex->texture)
+-    cogl_object_unref (stex->texture);
+-
+-  stex->texture = cogl_tex;
++  cogl_clear_object (&stex->texture);
+ 
+   if (cogl_tex != NULL)
+     {
+-      cogl_object_ref (cogl_tex);
++      stex->texture = cogl_object_ref (cogl_tex);
+       width = cogl_texture_get_width (COGL_TEXTURE (cogl_tex));
+       height = cogl_texture_get_height (COGL_TEXTURE (cogl_tex));
+     }
+-- 
+2.24.1
+
+
+From 06fc756f0f894d0681938d6f6727d74c5236c315 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 6 Dec 2019 18:39:56 +0100
+Subject: [PATCH 4/7] shaped-texture: Make setting the same texture a no-op
+
+Will be helpful when pushing state to the shaped texture, letting the
+one pushing not have to care about checking if anything changed.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/961
+(cherry picked from commit 3969285e5cf1068c26775d3fcc9c2c95e61ac467)
+---
+ src/compositor/meta-shaped-texture.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index f22c3b65c..5df672191 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -932,6 +932,9 @@ meta_shaped_texture_set_texture (MetaShapedTexture *stex,
+ {
+   g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+ 
++  if (stex->texture == texture)
++    return;
++
+   set_cogl_texture (stex, texture);
+ }
+ 
+-- 
+2.24.1
+
+
+From 1671692590ab51d492abe9b704cf3ef203c414a8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 6 Dec 2019 18:43:04 +0100
+Subject: [PATCH 5/7] wayland/surface-actor: Reset and sync subsurface state
+ when resetting
+
+A actor surface may be reset by an xdg_toplevel if a NULL buffer is
+attached. This should reset the actor state of the toplevel to an empty
+state, while unmapping the previous actor. Subsurfaces, however, should
+stay intact, including their relationship to the toplevel. They should
+also not be yanked away from the actor of the actor surface prior to it
+resetting, so that a window-destroy animation can include the subsurface
+actor.
+
+This fixes a potential crash when a subsurface tries to commit to its
+wl_surface after the destroy animation of the toplevel has finished, as
+the actor would at that point have been destroyed and cleared from the
+actor surface struct, causing a segmentation fault.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/961
+(cherry picked from commit fe7bece31e9462b8018f7d9cc5122dcb23ece2cd)
+---
+ src/wayland/meta-wayland-actor-surface.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/wayland/meta-wayland-actor-surface.c b/src/wayland/meta-wayland-actor-surface.c
+index f929ff446..0ded7f55e 100644
+--- a/src/wayland/meta-wayland-actor-surface.c
++++ b/src/wayland/meta-wayland-actor-surface.c
+@@ -348,6 +348,16 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
+     meta_wayland_actor_surface_get_instance_private (actor_surface);
+   MetaWaylandSurface *surface =
+     meta_wayland_surface_role_get_surface (META_WAYLAND_SURFACE_ROLE (actor_surface));
++  MetaWaylandSurface *subsurface_surface;
++
++  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
++    {
++      MetaWaylandActorSurface *actor_surface;
++
++      actor_surface = META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
++      meta_wayland_actor_surface_reset_actor (actor_surface);
++      meta_wayland_actor_surface_sync_actor_state (actor_surface);
++    }
+ 
+   clear_surface_actor (actor_surface);
+ 
+-- 
+2.24.1
+
+
+From fd7d0fb3391cc98488d9dbbb9560fd9b6d84bef8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 6 Dec 2019 18:57:10 +0100
+Subject: [PATCH 6/7] wayland/surface: Move shaped-texture synchronization to
+ actor surface
+
+As with most other state that ends up being pushed to the actor and the
+associated shaped texture, also push the texture and the corresponding
+metadata from the actor surface. This fixes an issue when a toplevel
+surface was reset, where before the subsurface content was not properly
+re-initialized, as content state synchronization only happened on
+commit, not when asked to synchronize.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/961
+(cherry picked from commit f0df07cba3ca308b47c9aefcc8112e8880fd9950)
+---
+ src/wayland/meta-wayland-actor-surface.c | 23 ++++++++++++++++++++++-
+ src/wayland/meta-wayland-buffer.c        | 16 +++-------------
+ src/wayland/meta-wayland-buffer.h        |  1 -
+ src/wayland/meta-wayland-dma-buf.c       |  2 --
+ src/wayland/meta-wayland-dma-buf.h       |  1 -
+ src/wayland/meta-wayland-surface.c       | 20 --------------------
+ 6 files changed, 25 insertions(+), 38 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-actor-surface.c b/src/wayland/meta-wayland-actor-surface.c
+index 0ded7f55e..cdcc6b1ca 100644
+--- a/src/wayland/meta-wayland-actor-surface.c
++++ b/src/wayland/meta-wayland-actor-surface.c
+@@ -28,6 +28,7 @@
+ #include "compositor/meta-surface-actor-wayland.h"
+ #include "compositor/meta-window-actor-wayland.h"
+ #include "compositor/region-utils.h"
++#include "wayland/meta-wayland-buffer.h"
+ #include "wayland/meta-wayland-surface.h"
+ #include "wayland/meta-window-wayland.h"
+ 
+@@ -147,13 +148,33 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
+     meta_wayland_surface_role_get_surface (surface_role);
+   MetaSurfaceActor *surface_actor;
+   MetaShapedTexture *stex;
++  MetaWaylandBuffer *buffer;
+   cairo_rectangle_int_t surface_rect;
+   int geometry_scale;
+   MetaWaylandSurface *subsurface_surface;
+ 
+   surface_actor = priv->actor;
+   stex = meta_surface_actor_get_texture (surface_actor);
+-  meta_shaped_texture_set_buffer_scale (stex, surface->scale);
++
++  buffer = surface->buffer_ref.buffer;
++  if (buffer)
++    {
++      CoglSnippet *snippet;
++      gboolean is_y_inverted;
++
++      snippet = meta_wayland_buffer_create_snippet (buffer);
++      is_y_inverted = meta_wayland_buffer_is_y_inverted (buffer);
++
++      meta_shaped_texture_set_texture (stex, surface->texture);
++      meta_shaped_texture_set_snippet (stex, snippet);
++      meta_shaped_texture_set_is_y_inverted (stex, is_y_inverted);
++      meta_shaped_texture_set_buffer_scale (stex, surface->scale);
++      cogl_clear_object (&snippet);
++    }
++  else
++    {
++      meta_shaped_texture_set_texture (stex, NULL);
++    }
+ 
+   /* Wayland surface coordinate space -> stage coordinate space */
+   geometry_scale = meta_wayland_actor_surface_get_geometry_scale (actor_surface);
+diff --git a/src/wayland/meta-wayland-buffer.c b/src/wayland/meta-wayland-buffer.c
+index 5639c3a17..df1a4adde 100644
+--- a/src/wayland/meta-wayland-buffer.c
++++ b/src/wayland/meta-wayland-buffer.c
+@@ -198,7 +198,6 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
+ static gboolean
+ shm_buffer_attach (MetaWaylandBuffer  *buffer,
+                    CoglTexture       **texture,
+-                   gboolean           *changed_texture,
+                    GError            **error)
+ {
+   MetaBackend *backend = meta_get_backend ();
+@@ -224,7 +223,6 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
+       _cogl_texture_get_format (*texture) == format)
+     {
+       buffer->is_y_inverted = TRUE;
+-      *changed_texture = FALSE;
+       return TRUE;
+     }
+ 
+@@ -269,7 +267,6 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
+     return FALSE;
+ 
+   *texture = new_texture;
+-  *changed_texture = TRUE;
+   buffer->is_y_inverted = TRUE;
+ 
+   return TRUE;
+@@ -278,7 +275,6 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
+ static gboolean
+ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
+                          CoglTexture       **texture,
+-                         gboolean           *changed_texture,
+                          GError            **error)
+ {
+   MetaBackend *backend = meta_get_backend ();
+@@ -294,7 +290,6 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
+ 
+   if (buffer->egl_image.texture)
+     {
+-      *changed_texture = *texture != buffer->egl_image.texture;
+       cogl_clear_object (texture);
+       *texture = cogl_object_ref (buffer->egl_image.texture);
+       return TRUE;
+@@ -362,7 +357,6 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
+ 
+   cogl_clear_object (texture);
+   *texture = cogl_object_ref (buffer->egl_image.texture);
+-  *changed_texture = TRUE;
+ 
+   return TRUE;
+ }
+@@ -371,7 +365,6 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
+ static gboolean
+ egl_stream_buffer_attach (MetaWaylandBuffer  *buffer,
+                           CoglTexture       **texture,
+-                          gboolean           *changed_texture,
+                           GError            **error)
+ {
+   MetaWaylandEglStream *stream = buffer->egl_stream.stream;
+@@ -381,7 +374,6 @@ egl_stream_buffer_attach (MetaWaylandBuffer  *buffer,
+   if (!meta_wayland_egl_stream_attach (stream, error))
+     return FALSE;
+ 
+-  *changed_texture = *texture != buffer->egl_stream.texture;
+   cogl_clear_object (texture);
+   *texture = cogl_object_ref (buffer->egl_stream.texture);
+ 
+@@ -411,7 +403,6 @@ egl_stream_buffer_attach (MetaWaylandBuffer  *buffer,
+ gboolean
+ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
+                             CoglTexture       **texture,
+-                            gboolean           *changed_texture,
+                             GError            **error)
+ {
+   g_return_val_if_fail (buffer->resource, FALSE);
+@@ -428,17 +419,16 @@ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
+   switch (buffer->type)
+     {
+     case META_WAYLAND_BUFFER_TYPE_SHM:
+-      return shm_buffer_attach (buffer, texture, changed_texture, error);
++      return shm_buffer_attach (buffer, texture, error);
+     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
+-      return egl_image_buffer_attach (buffer, texture, changed_texture, error);
++      return egl_image_buffer_attach (buffer, texture, error);
+ #ifdef HAVE_WAYLAND_EGLSTREAM
+     case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
+-      return egl_stream_buffer_attach (buffer, texture, changed_texture, error);
++      return egl_stream_buffer_attach (buffer, texture, error);
+ #endif
+     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
+       return meta_wayland_dma_buf_buffer_attach (buffer,
+                                                  texture,
+-                                                 changed_texture,
+                                                  error);
+     case META_WAYLAND_BUFFER_TYPE_UNKNOWN:
+       g_assert_not_reached ();
+diff --git a/src/wayland/meta-wayland-buffer.h b/src/wayland/meta-wayland-buffer.h
+index 5d75a3451..4a503b183 100644
+--- a/src/wayland/meta-wayland-buffer.h
++++ b/src/wayland/meta-wayland-buffer.h
+@@ -82,7 +82,6 @@ gboolean                meta_wayland_buffer_is_realized         (MetaWaylandBuff
+ gboolean                meta_wayland_buffer_realize             (MetaWaylandBuffer     *buffer);
+ gboolean                meta_wayland_buffer_attach              (MetaWaylandBuffer     *buffer,
+                                                                  CoglTexture          **texture,
+-                                                                 gboolean              *changed_texture,
+                                                                  GError               **error);
+ CoglSnippet *           meta_wayland_buffer_create_snippet      (MetaWaylandBuffer     *buffer);
+ gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuffer     *buffer);
+diff --git a/src/wayland/meta-wayland-dma-buf.c b/src/wayland/meta-wayland-dma-buf.c
+index 914e03a2f..1ad10d8e5 100644
+--- a/src/wayland/meta-wayland-dma-buf.c
++++ b/src/wayland/meta-wayland-dma-buf.c
+@@ -158,13 +158,11 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
+ gboolean
+ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
+                                     CoglTexture       **texture,
+-                                    gboolean           *changed_texture,
+                                     GError            **error)
+ {
+   if (!meta_wayland_dma_buf_realize_texture (buffer, error))
+     return FALSE;
+ 
+-  *changed_texture = *texture != buffer->dma_buf.texture;
+   cogl_clear_object (texture);
+   *texture = cogl_object_ref (buffer->dma_buf.texture);
+   return TRUE;
+diff --git a/src/wayland/meta-wayland-dma-buf.h b/src/wayland/meta-wayland-dma-buf.h
+index 580a3e777..b7f712d8d 100644
+--- a/src/wayland/meta-wayland-dma-buf.h
++++ b/src/wayland/meta-wayland-dma-buf.h
+@@ -44,7 +44,6 @@ gboolean meta_wayland_dma_buf_init (MetaWaylandCompositor *compositor);
+ gboolean
+ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
+                                     CoglTexture       **texture,
+-                                    gboolean           *changed_texture,
+                                     GError            **error);
+ 
+ MetaWaylandDmaBufBuffer *
+diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
+index d23105d2a..01e23783c 100644
+--- a/src/wayland/meta-wayland-surface.c
++++ b/src/wayland/meta-wayland-surface.c
+@@ -682,11 +682,9 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
+       if (pending->buffer)
+         {
+           GError *error = NULL;
+-          gboolean changed_texture;
+ 
+           if (!meta_wayland_buffer_attach (pending->buffer,
+                                            &surface->texture,
+-                                           &changed_texture,
+                                            &error))
+             {
+               g_warning ("Could not import pending buffer: %s", error->message);
+@@ -697,24 +695,6 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
+               g_error_free (error);
+               goto cleanup;
+             }
+-
+-          if (changed_texture && meta_wayland_surface_get_actor (surface))
+-            {
+-              MetaShapedTexture *stex;
+-              CoglTexture *texture;
+-              CoglSnippet *snippet;
+-              gboolean is_y_inverted;
+-
+-              stex = meta_surface_actor_get_texture (meta_wayland_surface_get_actor (surface));
+-              texture = surface->texture;
+-              snippet = meta_wayland_buffer_create_snippet (pending->buffer);
+-              is_y_inverted = meta_wayland_buffer_is_y_inverted (pending->buffer);
+-
+-              meta_shaped_texture_set_texture (stex, texture);
+-              meta_shaped_texture_set_snippet (stex, snippet);
+-              meta_shaped_texture_set_is_y_inverted (stex, is_y_inverted);
+-              g_clear_pointer (&snippet, cogl_object_unref);
+-            }
+         }
+       else
+         {
+-- 
+2.24.1
+
+
+From a9a011081826e76799361d7e5aa64eec6e8a3c55 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 6 Dec 2019 22:20:45 +0100
+Subject: [PATCH 7/7] wayland/actor-surface: Always consider unmapped actors
+ not on output
+
+This avoids using bogus geometric values from an unmapped actor to
+determine whether an actor is on a logical monitor or not. This would
+happen when committing to a subsurface of a yet to be mapped toplevel.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/961
+(cherry picked from commit 6d15231f10a22ee96f32dee9df8db8296c73376f)
+---
+ src/wayland/meta-wayland-actor-surface.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/wayland/meta-wayland-actor-surface.c b/src/wayland/meta-wayland-actor-surface.c
+index cdcc6b1ca..13f13bcf6 100644
+--- a/src/wayland/meta-wayland-actor-surface.c
++++ b/src/wayland/meta-wayland-actor-surface.c
+@@ -292,6 +292,9 @@ meta_wayland_actor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *surfac
+   MetaRectangle logical_monitor_layout;
+   gboolean is_on_monitor;
+ 
++  if (!clutter_actor_is_mapped (actor))
++    return FALSE;
++
+   clutter_actor_get_transformed_position (actor, &x, &y);
+   clutter_actor_get_transformed_size (actor, &width, &height);
+ 
+-- 
+2.24.1
+
