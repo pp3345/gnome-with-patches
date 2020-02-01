@@ -1,0 +1,122 @@
+diff --git a/js/ui/dnd.js b/js/ui/dnd.js
+index 75edfe7c2635253f640fd7e4471e5588701736a9..9ff7e7c27465b8aa760af8c529236220c0fd77cb 100644
+--- a/js/ui/dnd.js
++++ b/js/ui/dnd.js
+@@ -411,14 +411,18 @@ var _Draggable = class _Draggable {
+         this._snapBackY = this._dragStartY + this._dragOffsetY;
+         this._snapBackScale = this._dragActor.scale_x;
+ 
++        let origDragOffsetX = this._dragOffsetX;
++        let origDragOffsetY = this._dragOffsetY;
++        let [transX, transY] = this._dragActor.get_translation();
++        this._dragOffsetX -= transX;
++        this._dragOffsetY -= transY;
++
+         if (this._dragActorMaxSize != undefined) {
+             let [scaledWidth, scaledHeight] = this._dragActor.get_transformed_size();
+             let currentSize = Math.max(scaledWidth, scaledHeight);
+             if (currentSize > this._dragActorMaxSize) {
+                 let scale = this._dragActorMaxSize / currentSize;
+                 let origScale =  this._dragActor.scale_x;
+-                let origDragOffsetX = this._dragOffsetX;
+-                let origDragOffsetY = this._dragOffsetY;
+ 
+                 // The position of the actor changes as we scale
+                 // around the drag position, but we can't just tween
+@@ -435,8 +439,8 @@ var _Draggable = class _Draggable {
+ 
+                 this._dragActor.get_transition('scale-x').connect('new-frame', () => {
+                     let currentScale = this._dragActor.scale_x / origScale;
+-                    this._dragOffsetX = currentScale * origDragOffsetX;
+-                    this._dragOffsetY = currentScale * origDragOffsetY;
++                    this._dragOffsetX = currentScale * origDragOffsetX - transX;
++                    this._dragOffsetY = currentScale * origDragOffsetY - transY;
+                     this._dragActor.set_position(
+                         this._dragX + this._dragOffsetX,
+                         this._dragY + this._dragOffsetY);
+diff --git a/js/ui/workspace.js b/js/ui/workspace.js
+index d470f7f402839c15c0b09349c23d65175cb2aca3..3cfce9845d63fcd4c692b771f03a1714bd71666d 100644
+--- a/js/ui/workspace.js
++++ b/js/ui/workspace.js
+@@ -155,8 +155,7 @@ var WindowClone = GObject.registerClass({
+ 
+         this._updateAttachedDialogs();
+         this._computeBoundingBox();
+-        this.x = this._boundingBox.x;
+-        this.y = this._boundingBox.y;
++        this.set_translation(this._boundingBox.x, this._boundingBox.y, 0);
+ 
+         this._computeWindowCenter();
+ 
+@@ -1364,8 +1363,8 @@ class Workspace extends St.Widget {
+             if (!clone.positioned) {
+                 // This window appeared after the overview was already up
+                 // Grow the clone from the center of the slot
+-                clone.x = x + cloneWidth / 2;
+-                clone.y = y + cloneHeight / 2;
++                clone.translation_x = x + cloneWidth / 2;
++                clone.translation_y = y + cloneHeight / 2;
+                 clone.scale_x = 0;
+                 clone.scale_y = 0;
+                 clone.positioned = true;
+@@ -1380,8 +1379,8 @@ class Workspace extends St.Widget {
+                         clone.opacity = 0;
+                         clone.scale_x = 0;
+                         clone.scale_y = 0;
+-                        clone.x = x;
+-                        clone.y = y;
++                        clone.translation_x = x;
++                        clone.translation_y = y;
+                     }
+ 
+                     clone.ease({
+@@ -1395,7 +1394,7 @@ class Workspace extends St.Widget {
+             } else {
+                 // cancel any active tweens (otherwise they might override our changes)
+                 clone.remove_all_transitions();
+-                clone.set_position(x, y);
++                clone.set_translation(x, y, 0);
+                 clone.set_scale(scale, scale);
+                 clone.set_opacity(255);
+                 clone.overlay.relayout(false);
+@@ -1425,7 +1424,8 @@ class Workspace extends St.Widget {
+ 
+     _animateClone(clone, overlay, x, y, scale) {
+         clone.ease({
+-            x, y,
++            translation_x: x,
++            translation_y: y,
+             scale_x: scale,
+             scale_y: scale,
+             duration: Overview.ANIMATION_TIME,
+@@ -1570,7 +1570,7 @@ class Workspace extends St.Widget {
+             clone.slot = [x, y, clone.width * scale, clone.height * scale];
+             clone.positioned = true;
+ 
+-            clone.set_position(x, y);
++            clone.set_translation(x, y, 0);
+             clone.set_scale(scale, scale);
+             clone.overlay.relayout(false);
+         }
+@@ -1725,8 +1725,8 @@ class Workspace extends St.Widget {
+             let [origX, origY] = clone.getOriginalPosition();
+             clone.scale_x = 1;
+             clone.scale_y = 1;
+-            clone.x = origX;
+-            clone.y = origY;
++            clone.translation_x = origX;
++            clone.translation_y = origY;
+             clone.ease({
+                 opacity,
+                 duration,
+@@ -1776,8 +1776,8 @@ class Workspace extends St.Widget {
+         if (clone.metaWindow.showing_on_its_workspace()) {
+             let [origX, origY] = clone.getOriginalPosition();
+             clone.ease({
+-                x: origX,
+-                y: origY,
++                translation_x: origX,
++                translation_y: origY,
+                 scale_x: 1,
+                 scale_y: 1,
+                 opacity: 255,
