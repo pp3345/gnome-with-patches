@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.34.3
-Release:        101%{?dist}.pp3345
+Release:        102%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -222,6 +222,11 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sat Feb 01 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-102
+- Add !936 "workspace: Animate window clones using translation properties" @87df8c17
+- Add !948 "overviewControls: Use ClutterActor\'s translation-x" @4c4846e9 (manually rebased)
+- Add !949 "iconGrid: Remove _paintVisible opacity tracking" @e3bad27b
+
 * Mon Jan 13 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-101
 - Add !926 "iconGrid.js: Animate icon spring using translation" @76961927
 - Add !925 "js/ui: Subscribe touchpad gesture handlers to only touchpad events" @c35bccb4 (manually rebased)
