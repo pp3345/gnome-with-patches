@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.3
-Release:       101%{?dist}.pp3345
+Release:       200%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -195,6 +195,15 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Feb 01 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-200
+- Update !983 "clutter/text: Check if attributes are equal before applying" @9b7fe584
+- Update !1001 "More selection leak fixes" @98040e67
+- Add !1033 "clutter/actor: Fix GValue leak when overwriting transition values" @55b1f914
+- Add !1004 "background: Scale monitor_area after texture creation" @cf6493d3
+- Add !1017 "backend-eglnative: Search for the xsettings schema recursively" @d28a6409
+- Remove !1002 "Region leak fixes" (upstreamed)
+- Rebase to gnome-3-34@666bd250
+
 * Tue Jan 14 2020 Jonas Ådahl <jadahl@redhat.com> - 3.34.3-2
 - Backport KMS race condition crash fix
 - Backport Wayland subsurface crash fix
