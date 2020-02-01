@@ -14,7 +14,7 @@ Summary:       Window and compositing manager based on Clutter
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.34/%{name}-%{version}.tar.xz
+Source0:       mutter-3.34.3-208fd1b0.tar.gz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
@@ -27,12 +27,6 @@ Patch2:        0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
 
 # Mitigate crash on tear down. (rhbz#1770089, rhbz#1770089)
 Patch3:        0001-compositor-Guard-against-untimely-calls.patch
-
-# Fix crash meta_shaped_texture_get_texture() (rhbz#1779865)
-Patch4:        get-texture-crash-fix.patch
-
-# https://gitlab.gnome.org/GNOME/mutter/issues/917 (rhbz#1770591)
-Patch5:        kms-race-crash-fix.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -127,7 +121,6 @@ Patch300: 984.patch
 Patch310: 1000.patch
 Patch320: 991.patch
 Patch330: 1001.patch
-Patch340: 1002.patch
 
 %description
 Mutter is a window and compositing manager that displays and manages
