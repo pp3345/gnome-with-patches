@@ -1,0 +1,13 @@
+diff --git a/clutter/clutter/egl/clutter-backend-eglnative.c b/clutter/clutter/egl/clutter-backend-eglnative.c
+index 727dd4418334c11c8af7c65237211d61465aebee..8aa959caeae688ecfcad4375e24001168cd18391 100644
+--- a/clutter/clutter/egl/clutter-backend-eglnative.c
++++ b/clutter/clutter/egl/clutter-backend-eglnative.c
+@@ -233,7 +233,7 @@ clutter_backend_egl_native_init (ClutterBackendEglNative *backend_egl_native)
+   GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
+   GSettingsSchema *schema = g_settings_schema_source_lookup (source,
+                                                              xsettings_path,
+-                                                             FALSE);
++                                                             TRUE);
+ 
+   if (!schema)
+     {
