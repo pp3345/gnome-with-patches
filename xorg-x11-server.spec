@@ -131,6 +131,7 @@ Patch100: 282.patch
 Patch600: 316.patch
 Patch610: 356.patch
 Patch620: 355.patch
+Patch630: 389.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git

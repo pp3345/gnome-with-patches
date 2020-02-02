@@ -1,0 +1,40 @@
+diff --git a/hw/xwayland/xwayland-glamor-gbm.c b/hw/xwayland/xwayland-glamor-gbm.c
+index 80655fd165675200f17effeee6cf5dccf001c6c6..17682a172dd11034f44740b57a9942850b750dff 100644
+--- a/hw/xwayland/xwayland-glamor-gbm.c
++++ b/hw/xwayland/xwayland-glamor-gbm.c
+@@ -919,6 +920,14 @@ xwl_glamor_gbm_has_wl_interfaces(struct xwl_screen *xwl_screen)
+     return TRUE;
+ }
+ 
++static void
++xwl_glamor_gbm_post_damage(struct xwl_window *xwl_window, PixmapPtr pixmap,
++                           RegionPtr region)
++{
++    /* Make sure any pending drawing to the pixmap is flushed to the kernel */
++    glamor_block_handler(xwl_window->xwl_screen->screen);
++}
++
+ static Bool
+ xwl_glamor_gbm_init_egl(struct xwl_screen *xwl_screen)
+ {
+@@ -1111,5 +1120,6 @@ xwl_glamor_init_gbm(struct xwl_screen *xwl_screen)
+     xwl_screen->gbm_backend.init_egl = xwl_glamor_gbm_init_egl;
+     xwl_screen->gbm_backend.init_screen = xwl_glamor_gbm_init_screen;
+     xwl_screen->gbm_backend.get_wl_buffer_for_pixmap = xwl_glamor_gbm_get_wl_buffer_for_pixmap;
++    xwl_screen->gbm_backend.post_damage = xwl_glamor_gbm_post_damage;
+     xwl_screen->gbm_backend.is_available = TRUE;
+ }
+diff --git a/hw/xwayland/xwayland-glamor.c b/hw/xwayland/xwayland-glamor.c
+index d9523b0a798028180ac3235f661ed67b032a5a66..f3327f4eecefde08a77c6c9afe57638f7380c28b 100644
+--- a/hw/xwayland/xwayland-glamor.c
++++ b/hw/xwayland/xwayland-glamor.c
+@@ -124,8 +124,7 @@ xwl_glamor_post_damage(struct xwl_window *xwl_window,
+ {
+     struct xwl_screen *xwl_screen = xwl_window->xwl_screen;
+ 
+-    if (xwl_screen->egl_backend->post_damage)
+-        xwl_screen->egl_backend->post_damage(xwl_window, pixmap, region);
++    xwl_screen->egl_backend->post_damage(xwl_window, pixmap, region);
+ }
+ 
+ Bool
