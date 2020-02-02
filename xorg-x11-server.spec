@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.6
-Release:   101%{?gitdate:.%{gitdate}}%{?dist}.pp3345
+Release:   102%{?gitdate:.%{gitdate}}%{?dist}.pp3345
 URL:       http://www.x.org
 License:   MIT
 
@@ -557,6 +557,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Sun Feb 02 2020 Yussuf Khalil <dev@pp3345.net> - 1.20.6-102
+- Add !389 "xwayland/glamor-gbm: Add xwl_glamor_gbm_post_damage hook" @9e85aa9c (manually rebased)
+
 * Sun Dec 01 2019 Yussuf Khalil <dev@pp3345.net> - 1.20.6-101
 - Add !355 "xwayland: Do flush GPU work in xwl_present_flush" @162e1204
 - Add !356 "xwayland: Use frame callbacks for Present vblank events" @c7de6c22
