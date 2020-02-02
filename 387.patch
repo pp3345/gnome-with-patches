@@ -1,0 +1,49 @@
+diff --git a/gi/wrapperutils.h b/gi/wrapperutils.h
+index 1c3252ef5b60a0936a2aeab99cb6520d30bfa08f..c0e0319c6652324a021cde86659b901bad6d8cd8 100644
+--- a/gi/wrapperutils.h
++++ b/gi/wrapperutils.h
+@@ -31,6 +31,7 @@
+ 
+ #include <new>
+ #include <string>
++#include <unordered_map>
+ 
+ #include <girepository.h>
+ #include <glib-object.h>
+@@ -399,6 +400,14 @@ class GIWrapperBase {
+         return id == atoms.to_string();
+     }
+ 
++    struct JsidHasher {
++        std::size_t operator()(const jsid& id) const {
++            return JSID_BITS(id);
++        }
++    };
++
++    std::unordered_map<jsid, bool, JsidHasher> resolve_cache;
++
+  protected:
+     /*
+      * GIWrapperBase::resolve:
+@@ -456,8 +465,19 @@ class GIWrapperBase {
+             return true;  // not resolved, but no error
+         }
+ 
+-        return priv->to_prototype()->resolve_impl(cx, obj, id, prop_name.get(),
+-                                                  resolved);
++        bool ret;
++        auto found = priv->resolve_cache.find(id);
++        if (found != priv->resolve_cache.end()) {
++            *resolved = found->second;
++            ret = true;
++        } else {
++            ret = priv->to_prototype()->resolve_impl(cx, obj, id,
++                                                     prop_name.get(),
++                                                     resolved);
++            if (ret)
++                priv->resolve_cache[id] = *resolved;
++        }
++        return ret;
+     }
+ 
+     /*

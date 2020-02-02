@@ -35,6 +35,8 @@ Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires: gtk3%{?_isa} >= %{gtk3_version}
 Requires: mozjs60%{?_isa} >= %{mozjs60_version}
 
+Patch100: 387.patch
+
 # Filter provides for private libraries
 %global __provides_exclude_from ^%{_libdir}/gjs/
 
