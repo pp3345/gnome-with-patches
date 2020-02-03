@@ -1,11 +1,11 @@
 %global glib2_version 2.58.0
 %global gobject_introspection_version 1.61.2
 %global gtk3_version 3.20
-%global mozjs60_version 60.9.0
+%global mozjs68_version 60.9.0
 
 Name:          gjs
-Version:       1.63.3
-Release:       2%{?dist}
+Version:       1.63.90
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -25,7 +25,7 @@ BuildRequires: gettext
 BuildRequires: glib2-devel >= %{glib2_version}
 BuildRequires: gobject-introspection-devel >= %{gobject_introspection_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
-BuildRequires: mozjs60-devel >= %{mozjs60_version}
+BuildRequires: mozjs68-devel >= %{mozjs68_version}
 BuildRequires: pkgconfig
 BuildRequires: readline-devel
 BuildRequires: sysprof-devel
@@ -33,7 +33,7 @@ BuildRequires: sysprof-devel
 Requires: glib2%{?_isa} >= %{glib2_version}
 Requires: gobject-introspection%{?_isa} >= %{gobject_introspection_version}
 Requires: gtk3%{?_isa} >= %{gtk3_version}
-Requires: mozjs60%{?_isa} >= %{mozjs60_version}
+Requires: mozjs68%{?_isa} >= %{mozjs68_version}
 
 # Filter provides for private libraries
 %global __provides_exclude_from ^%{_libdir}/gjs/
@@ -94,6 +94,10 @@ the functionality of the installed gjs package.
 %{_datadir}/installed-tests
 
 %changelog
+* Mon Feb 03 2020 Kalev Lember <klember@redhat.com> - 1.63.90-1
+- Update to 1.63.90
+- Switch to building with mozjs68
+
 * Tue Jan 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.63.3-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
