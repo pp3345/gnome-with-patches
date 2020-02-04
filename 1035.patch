@@ -1,0 +1,16 @@
+diff --git a/src/core/window.c b/src/core/window.c
+index d7d3e1b592ecc55749f632c12ea2271bf6de4cd0..d5c92102bb56da8f249b1b598b14569255ef3561 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -1288,7 +1288,10 @@ _meta_window_shared_new (MetaDisplay         *display,
+                                                                      window->initial_workspace);
+         }
+ 
+-      set_workspace_state (window, on_all_workspaces, workspace);
++      /* Ignore when a window requests to be placed on a non-existent workspace
++       */
++      if (on_all_workspaces || workspace != NULL)
++        set_workspace_state (window, on_all_workspaces, workspace);
+     }
+ 
+   /* override-redirect windows are subtly different from other windows
