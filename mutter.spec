@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.3
-Release:       200%{?dist}.pp3345
+Release:       201%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -196,6 +196,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Feb 04 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-201
+- Add !1035 "window: Ignore requests to be placed on non-existent workspaces" @aa0aa89a
+- Rebase to gnome-3-34@2235629d
+
 * Sat Feb 01 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-200
 - Update !983 "clutter/text: Check if attributes are equal before applying" @9b7fe584
 - Update !1001 "More selection leak fixes" @98040e67
