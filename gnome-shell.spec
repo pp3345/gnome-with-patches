@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.35.3
-Release:        3%{?dist}
+Version:        3.35.90
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -166,7 +166,7 @@ mkdir -p %{buildroot}%{_datadir}/gnome-shell/search-providers
 
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.gnome.Shell.desktop
-desktop-file-validate %{buildroot}%{_datadir}/applications/gnome-shell-extension-prefs.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/org.gnome.Extensions.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.desktop
 
 %files -f %{name}.lang
@@ -180,7 +180,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/glib-2.0/schemas/00_org.gnome.shell.gschema.override
 %{_datadir}/applications/org.gnome.Shell.desktop
-%{_datadir}/applications/gnome-shell-extension-prefs.desktop
+%{_datadir}/applications/org.gnome.Extensions.desktop
 %{_datadir}/applications/evolution-calendar.desktop
 %{_datadir}/applications/org.gnome.Shell.PortalHelper.desktop
 %{_datadir}/bash-completion/completions/gnome-extensions
@@ -221,6 +221,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Thu Feb 06 2020 Florian Müllner <fmuellner@redhat.com> - 3.35.90-1
+- Update to 3.35.90
+
 * Tue Jan 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 3.35.3-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 

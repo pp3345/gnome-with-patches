@@ -1,4 +1,4 @@
-From d4e9d8cc28a43ee07ee609fccc5e6af173c7aa9b Mon Sep 17 00:00:00 2001
+From 39fe94ecf3221d60c0a1197e2aaaf904ee99fdb5 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
 Date: Mon, 7 Oct 2019 15:02:17 +0200
 Subject: [PATCH 2/2] magnifier: Use new cursor tracker API to keep wayland
@@ -30,7 +30,7 @@ https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/754
  1 file changed, 2 insertions(+)
 
 diff --git a/js/ui/magnifier.js b/js/ui/magnifier.js
-index 0a935edef..a410bbb13 100644
+index e9fa4c5d0..49fb321d3 100644
 --- a/js/ui/magnifier.js
 +++ b/js/ui/magnifier.js
 @@ -127,6 +127,7 @@ var Magnifier = class Magnifier {
@@ -50,5 +50,5 @@ index 0a935edef..a410bbb13 100644
      }
  
 -- 
-2.23.0
+2.24.1
 
