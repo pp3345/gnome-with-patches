@@ -196,6 +196,8 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Screenshot.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider2.xml
+%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Extensions.svg
+%{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Extensions-symbolic.svg
 %{_userunitdir}/gnome-shell-disable-extensions.service
 %{_userunitdir}/gnome-shell-wayland.service
 %{_userunitdir}/gnome-shell-wayland.target
