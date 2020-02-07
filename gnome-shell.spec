@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.35.90
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -223,6 +223,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Fri Feb 07 2020 Kalev Lember <klember@redhat.com> - 3.35.90-2
+- Adjust the favorites patch to include the apps we install by default
+
 * Thu Feb 06 2020 Florian Müllner <fmuellner@redhat.com> - 3.35.90-1
 - Update to 3.35.90
 
