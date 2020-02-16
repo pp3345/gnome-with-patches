@@ -7,8 +7,8 @@
 %global mutter_api_version 5
 
 Name:          mutter
-Version:       3.34.3
-Release:       2%{?dist}
+Version:       3.34.4
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -27,12 +27,6 @@ Patch2:        0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
 
 # Mitigate crash on tear down. (rhbz#1770089, rhbz#1770089)
 Patch3:        0001-compositor-Guard-against-untimely-calls.patch
-
-# Fix crash meta_shaped_texture_get_texture() (rhbz#1779865)
-Patch4:        get-texture-crash-fix.patch
-
-# https://gitlab.gnome.org/GNOME/mutter/issues/917 (rhbz#1770591)
-Patch5:        kms-race-crash-fix.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -177,6 +171,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sun Feb 16 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.4-1
+- Update to 3.34.4
+
 * Tue Jan 14 2020 Jonas Ådahl <jadahl@redhat.com> - 3.34.3-2
 - Backport KMS race condition crash fix
 - Backport Wayland subsurface crash fix
