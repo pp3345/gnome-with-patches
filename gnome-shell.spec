@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.34.3
+Version:        3.34.4
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -212,6 +212,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Feb 16 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.4-1
+- Update to 3.34.4
+
 * Sun Jan 05 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.3-1
 - Update to 3.34.3
 
