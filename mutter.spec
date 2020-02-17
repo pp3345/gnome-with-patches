@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.4
-Release:       1%{?dist}
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -200,6 +200,14 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Feb 17 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.4-100
+- Add !1058 "window-actor/x11: Make culling of opaque windows X11 only" @c89f8f19
+- Add !1052 "cullable: Check if effects are disabled" @aceadfe3
+- Add !1049 "wayland/actor-surface: Do not set opaque region for XWayland clients" @19814497
+- Add !1036 "cullable: Support culling of integer scaled actors" @264f6885 (manually rebased)
+- Rebase !798 "Wayland surface fullscreen unredirect"
+- Rebase to 3.34.4-1.fc31
+
 * Sun Feb 16 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.4-1
 - Update to 3.34.4
 
