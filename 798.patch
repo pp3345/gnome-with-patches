@@ -4738,8 +4738,8 @@ index 8724da39feae8454c53d103f1bd60a1b41ea5420..dd42a8c1106afb026634cd59f279e637
 --- a/src/wayland/meta-wayland-subsurface.c
 +++ b/src/wayland/meta-wayland-subsurface.c
 @@ -86,7 +86,7 @@ sync_actor_subsurface_state (MetaWaylandSurface *surface)
- 
    clutter_actor_set_position (actor, x, y);
+   clutter_actor_set_reactive (actor, TRUE);
  
 -  if (surface->buffer_ref.buffer)
 +  if (surface->buffer_ref->buffer)
