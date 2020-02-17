@@ -1,0 +1,259 @@
+diff --git a/src/compositor/clutter-utils.c b/src/compositor/clutter-utils.c
+index a399cd477ed025cf98d455756419738045d19eb5..949d99ba11f82e479a4f55e8c186b5d9b7dee69c 100644
+--- a/src/compositor/clutter-utils.c
++++ b/src/compositor/clutter-utils.c
+@@ -110,23 +110,6 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
+   return TRUE;
+ }
+ 
+-/* Check if an actor is "untransformed" - which actually means transformed by
+- * at most a integer-translation. The integer translation, if any, is returned.
+- */
+-gboolean
+-meta_actor_is_untransformed (ClutterActor *actor,
+-                             int          *x_origin,
+-                             int          *y_origin)
+-{
+-  gfloat widthf, heightf;
+-  ClutterVertex verts[4];
+-
+-  clutter_actor_get_size (actor, &widthf, &heightf);
+-  clutter_actor_get_abs_allocation_vertices (actor, verts);
+-
+-  return meta_actor_vertices_are_untransformed (verts, widthf, heightf, x_origin, y_origin);
+-}
+-
+ /**
+  * meta_actor_painting_untransformed:
+  * @paint_width: the width of the painted area
+diff --git a/src/compositor/clutter-utils.h b/src/compositor/clutter-utils.h
+index d0513393e999e81080ba55348b6587a24a8a80fc..a1fe6b739593b976e4ac259354700a6b9d8ad920 100644
+--- a/src/compositor/clutter-utils.h
++++ b/src/compositor/clutter-utils.h
+@@ -28,9 +28,6 @@ gboolean meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
+                                                 float          heightf,
+                                                 int           *x_origin,
+                                                 int           *y_origin);
+-gboolean meta_actor_is_untransformed (ClutterActor *actor,
+-                                      int          *x_origin,
+-                                      int          *y_origin);
+ 
+ gboolean meta_actor_painting_untransformed (CoglFramebuffer *fb,
+                                             int              paint_width,
+diff --git a/src/compositor/meta-cullable.c b/src/compositor/meta-cullable.c
+index 5cdc03a6d3d3fe1a31c1c89632ee94f07ca1164b..9f4f0a642c9f12c565fdab7ca90796f4cbce619b 100644
+--- a/src/compositor/meta-cullable.c
++++ b/src/compositor/meta-cullable.c
+@@ -100,7 +100,7 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
+       if (needs_culling && clutter_actor_has_effects (child))
+         needs_culling = FALSE;
+ 
+-      if (needs_culling && !meta_actor_is_untransformed (child, NULL, NULL))
++      if (needs_culling && !meta_cullable_is_untransformed (META_CULLABLE (child)))
+         needs_culling = FALSE;
+ 
+       if (needs_culling)
+@@ -149,9 +149,23 @@ meta_cullable_reset_culling_children (MetaCullable *cullable)
+     }
+ }
+ 
++static gboolean
++meta_cullable_default_is_untransformed (MetaCullable *cullable)
++{
++  float width, height;
++  ClutterVertex verts[4];
++
++  clutter_actor_get_size (CLUTTER_ACTOR (cullable), &width, &height);
++  clutter_actor_get_abs_allocation_vertices (CLUTTER_ACTOR (cullable), verts);
++
++  return meta_actor_vertices_are_untransformed (verts, width, height,
++                                                NULL, NULL);
++}
++
+ static void
+ meta_cullable_default_init (MetaCullableInterface *iface)
+ {
++  iface->is_untransformed = meta_cullable_default_is_untransformed;
+ }
+ 
+ /**
+@@ -186,6 +200,19 @@ meta_cullable_cull_out (MetaCullable   *cullable,
+   META_CULLABLE_GET_IFACE (cullable)->cull_out (cullable, unobscured_region, clip_region);
+ }
+ 
++/**
++ * meta_cullable_is_untransformed:
++ * @cullable: The #MetaCullable
++ *
++ * Check if a cullable is "untransformed" - which actually means transformed by
++ * at most a integer-translation.
++ */
++gboolean
++meta_cullable_is_untransformed (MetaCullable *cullable)
++{
++  return META_CULLABLE_GET_IFACE (cullable)->is_untransformed (cullable);
++}
++
+ /**
+  * meta_cullable_reset_culling:
+  * @cullable: The #MetaCullable
+diff --git a/src/compositor/meta-cullable.h b/src/compositor/meta-cullable.h
+index fc1720c8dca24b50308216dd2a84023ad3d33532..471681da3db079d4b63f7909373aff4907273083 100644
+--- a/src/compositor/meta-cullable.h
++++ b/src/compositor/meta-cullable.h
+@@ -39,12 +39,14 @@ struct _MetaCullableInterface
+   void (* cull_out)      (MetaCullable   *cullable,
+                           cairo_region_t *unobscured_region,
+                           cairo_region_t *clip_region);
++  gboolean (* is_untransformed) (MetaCullable *cullable);
+   void (* reset_culling) (MetaCullable  *cullable);
+ };
+ 
+ void meta_cullable_cull_out (MetaCullable   *cullable,
+                              cairo_region_t *unobscured_region,
+                              cairo_region_t *clip_region);
++gboolean meta_cullable_is_untransformed (MetaCullable *cullable);
+ void meta_cullable_reset_culling (MetaCullable *cullable);
+ 
+ /* Utility methods for implementations */
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index a12ecebab8d556408964055665cb884a15ba12c4..5847408a081a87b891276bd572e6b0a09acd9b31 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -36,7 +36,6 @@
+ 
+ #include "cogl/cogl.h"
+ #include "compositor/clutter-utils.h"
+-#include "compositor/meta-cullable.h"
+ #include "compositor/meta-texture-tower.h"
+ #include "compositor/region-utils.h"
+ #include "core/boxes-private.h"
+diff --git a/src/compositor/meta-surface-actor.c b/src/compositor/meta-surface-actor.c
+index 0871c5d4cd88b46f70f750f0a9d7b68823d9cd64..3a8cdf8692ef2ea8067f7f1e0bb1e0ab6e095328 100644
+--- a/src/compositor/meta-surface-actor.c
++++ b/src/compositor/meta-surface-actor.c
+@@ -20,6 +20,7 @@
+ #include "compositor/meta-surface-actor.h"
+ 
+ #include "clutter/clutter.h"
++#include "compositor/clutter-utils.h"
+ #include "compositor/meta-cullable.h"
+ #include "compositor/meta-shaped-texture-private.h"
+ #include "compositor/meta-window-actor-private.h"
+@@ -77,6 +78,21 @@ effective_unobscured_region (MetaSurfaceActor *surface_actor)
+   return priv->unobscured_region;
+ }
+ 
++static cairo_region_t*
++get_scaled_region (MetaSurfaceActor *surface_actor,
++                   cairo_region_t   *region)
++{
++  MetaWindowActor *window_actor;
++  int geometry_scale;
++
++  window_actor = meta_window_actor_from_actor (CLUTTER_ACTOR (surface_actor));
++  geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
++
++  return meta_region_scale_double (region,
++                                   1.0 / geometry_scale,
++                                   META_ROUNDING_STRATEGY_GROW);
++}
++
+ static void
+ set_unobscured_region (MetaSurfaceActor *surface_actor,
+                        cairo_region_t   *unobscured_region)
+@@ -98,7 +114,9 @@ set_unobscured_region (MetaSurfaceActor *surface_actor,
+         .height = height,
+       };
+ 
+-      priv->unobscured_region = cairo_region_copy (unobscured_region);
++      priv->unobscured_region =
++        get_scaled_region (surface_actor, unobscured_region);
++
+       cairo_region_intersect_rectangle (priv->unobscured_region, &bounds);
+     }
+ }
+@@ -112,7 +130,7 @@ set_clip_region (MetaSurfaceActor *surface_actor,
+ 
+   g_clear_pointer (&priv->clip_region, cairo_region_destroy);
+   if (clip_region)
+-    priv->clip_region = cairo_region_copy (clip_region);
++    priv->clip_region = get_scaled_region (surface_actor, clip_region);
+ }
+ 
+ static void
+@@ -275,6 +293,27 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
+     }
+ }
+ 
++static gboolean
++meta_surface_actor_is_untransformed (MetaCullable *cullable)
++{
++  ClutterActor *actor = CLUTTER_ACTOR (cullable);
++  MetaWindowActor *window_actor;
++  float width, height;
++  ClutterVertex verts[4];
++  int geometry_scale;
++
++  clutter_actor_get_size (actor, &width, &height);
++  clutter_actor_get_abs_allocation_vertices (actor, verts);
++
++  window_actor = meta_window_actor_from_actor (actor);
++  geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
++
++  return meta_actor_vertices_are_untransformed (verts,
++                                                width * geometry_scale,
++                                                height * geometry_scale,
++                                                NULL, NULL);
++}
++
+ static void
+ meta_surface_actor_reset_culling (MetaCullable *cullable)
+ {
+@@ -287,6 +326,7 @@ static void
+ cullable_iface_init (MetaCullableInterface *iface)
+ {
+   iface->cull_out = meta_surface_actor_cull_out;
++  iface->is_untransformed = meta_surface_actor_is_untransformed;
+   iface->reset_culling = meta_surface_actor_reset_culling;
+ }
+ 
+diff --git a/src/compositor/meta-window-group.c b/src/compositor/meta-window-group.c
+index 76ba88e61fe7364e2e26ad3b24288bd45084651b..cca22b87de9f270a5765f29265622582d3a12572 100644
+--- a/src/compositor/meta-window-group.c
++++ b/src/compositor/meta-window-group.c
+@@ -89,7 +89,7 @@ meta_window_group_paint (ClutterActor        *actor,
+                                               screen_height,
+                                               &paint_x_origin,
+                                               &paint_y_origin) ||
+-          !meta_actor_is_untransformed (actor, NULL, NULL))
++          !meta_cullable_is_untransformed (META_CULLABLE (actor)))
+         {
+           CLUTTER_ACTOR_CLASS (meta_window_group_parent_class)->paint (actor);
+           return;
+diff --git a/src/wayland/meta-wayland-actor-surface.c b/src/wayland/meta-wayland-actor-surface.c
+index 1838023be0a1e4c1e0fe545472001d5aad662dc3..c25f4ca39f35c3494d34cfec37e72d97ba6c532b 100644
+--- a/src/wayland/meta-wayland-actor-surface.c
++++ b/src/wayland/meta-wayland-actor-surface.c
+@@ -150,7 +150,6 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
+   MetaShapedTexture *stex;
+   MetaWaylandBuffer *buffer;
+   cairo_rectangle_int_t surface_rect;
+-  int geometry_scale;
+   MetaWaylandSurface *subsurface_surface;
+ 
+   surface_actor = priv->actor;
+@@ -176,11 +175,9 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
+       meta_shaped_texture_set_texture (stex, NULL);
+     }
+ 
+-  /* Wayland surface coordinate space -> stage coordinate space */
+-  geometry_scale = meta_wayland_actor_surface_get_geometry_scale (actor_surface);
+   surface_rect = (cairo_rectangle_int_t) {
+-    .width = meta_wayland_surface_get_width (surface) * geometry_scale,
+-    .height = meta_wayland_surface_get_height (surface) * geometry_scale,
++    .width = meta_wayland_surface_get_width (surface),
++    .height = meta_wayland_surface_get_height (surface),
+   };
+ 
+   if (surface->input_region)
