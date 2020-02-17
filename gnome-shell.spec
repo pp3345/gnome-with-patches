@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.34.3
-Release:        102%{?dist}.pp3345
+Version:        3.34.4
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -222,6 +222,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Feb 16 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.4-1
+- Update to 3.34.4
+
 * Sat Feb 01 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.3-102
 - Add !936 "workspace: Animate window clones using translation properties" @87df8c17
 - Add !948 "overviewControls: Use ClutterActor\'s translation-x" @4c4846e9 (manually rebased)
