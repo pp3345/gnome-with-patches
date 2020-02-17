@@ -138,7 +138,6 @@ Patch100: 605.patch
 Patch110: 923.patch
 Patch120: 925.patch
 Patch130: 926.patch
-Patch140: 949.patch
 Patch150: 948.patch
 Patch160: 936.patch
 
