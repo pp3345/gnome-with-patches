@@ -56,7 +56,7 @@ BuildRequires: mesa-libgbm-devel
 BuildRequires: pkgconfig(glesv2)
 BuildRequires: pkgconfig(graphene-gobject-1.0)
 BuildRequires: pam-devel
-BuildRequires: pipewire-devel >= %{pipewire_version}
+BuildRequires: pkgconfig(libpipewire-0.2) >= %{pipewire_version}
 BuildRequires: pkgconfig(sysprof-capture-3)
 BuildRequires: systemd-devel
 BuildRequires: upower-devel
