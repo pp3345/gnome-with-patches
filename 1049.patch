@@ -1,0 +1,38 @@
+diff --git a/src/wayland/meta-wayland-actor-surface.c b/src/wayland/meta-wayland-actor-surface.c
+index c25f4ca39f35c3494d34cfec37e72d97ba6c532b..4606ae6cd62b84b66b1bfc1a3516cdcd03a69c22 100644
+--- a/src/wayland/meta-wayland-actor-surface.c
++++ b/src/wayland/meta-wayland-actor-surface.c
+@@ -194,18 +194,22 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
+       meta_surface_actor_set_input_region (surface_actor, NULL);
+     }
+ 
+-  if (surface->opaque_region)
++  if (surface->window &&
++      surface->window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
+     {
+-      cairo_region_t *opaque_region;
+-
+-      opaque_region = cairo_region_copy (surface->opaque_region);
+-      cairo_region_intersect_rectangle (opaque_region, &surface_rect);
+-      meta_surface_actor_set_opaque_region (surface_actor, opaque_region);
+-      cairo_region_destroy (opaque_region);
+-    }
+-  else
+-    {
+-      meta_surface_actor_set_opaque_region (surface_actor, NULL);
++      if (surface->opaque_region)
++        {
++          cairo_region_t *opaque_region;
++
++          opaque_region = cairo_region_copy (surface->opaque_region);
++          cairo_region_intersect_rectangle (opaque_region, &surface_rect);
++          meta_surface_actor_set_opaque_region (surface_actor, opaque_region);
++          cairo_region_destroy (opaque_region);
++        }
++      else
++        {
++          meta_surface_actor_set_opaque_region (surface_actor, NULL);
++        }
+     }
+ 
+   meta_surface_actor_set_transform (surface_actor, surface->buffer_transform);

@@ -126,6 +126,7 @@ Patch350: 1004.patch
 Patch360: 1033.patch
 Patch370: 1035.patch
 Patch380: 1036.patch
+Patch390: 1049.patch
 
 %description
 Mutter is a window and compositing manager that displays and manages
