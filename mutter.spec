@@ -3,7 +3,7 @@
 %global gsettings_desktop_schemas_version 3.33.0
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
-%global pipewire_version 0.2.2
+%global pipewire_version 0.2.5
 %global mutter_api_version 6
 
 Name:          mutter
