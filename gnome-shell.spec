@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.34.4
-Release:        1%{?dist}
+Release:        100%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -222,6 +222,11 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Feb 17 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.4-100
+- Add !1002 "iconGrid: Create icon clones in a separate loop" @c48de608
+- Remove !949 "iconGrid: Remove _paintVisible opacity tracking" (obsoleted)
+- Rebase to 3.34.4-1.fc31
+
 * Sun Feb 16 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.4-1
 - Update to 3.34.4
 
