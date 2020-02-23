@@ -131,6 +131,7 @@ Patch400: 1052.patch
 Patch410: 1058.patch
 Patch420: 1082.patch
 Patch430: 1074.patch
+Patch440: 1071.patch
 
 %description
 Mutter is a window and compositing manager that displays and manages
