@@ -1,0 +1,90 @@
+diff --git a/src/compositor/meta-surface-actor.c b/src/compositor/meta-surface-actor.c
+index 15bf24c07e3f426c223163265ce510eaab91f4d2..02b7af2fcf33c8f3fb5405f9d525c97a1780a3d9 100644
+--- a/src/compositor/meta-surface-actor.c
++++ b/src/compositor/meta-surface-actor.c
+@@ -274,6 +274,18 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
+ 
+       opaque_region = meta_shaped_texture_get_opaque_region (priv->texture);
+ 
++      if (!opaque_region && meta_shaped_texture_is_opaque (priv->texture))
++        {
++          cairo_rectangle_int_t rect;
++
++          rect = (cairo_rectangle_int_t) {
++            .width = meta_shaped_texture_get_width (priv->texture),
++            .height = meta_shaped_texture_get_height (priv->texture)
++          };
++
++          opaque_region = cairo_region_create_rectangle (&rect);
++        }
++
+       if (!opaque_region)
+         return;
+ 
+diff --git a/src/compositor/meta-window-actor-x11.c b/src/compositor/meta-window-actor-x11.c
+index 15cfa5fcf2924014bb4ebf2d2e8382dc4e830d84..d36c4e7ed64ec3173d03cb2bafe10daf77ebb897 100644
+--- a/src/compositor/meta-window-actor-x11.c
++++ b/src/compositor/meta-window-actor-x11.c
+@@ -1456,37 +1456,26 @@ meta_window_actor_x11_cull_out (MetaCullable   *cullable,
+     {
+       MetaWindow *window =
+         meta_window_actor_get_meta_window (META_WINDOW_ACTOR (self));
++      cairo_region_t *region = meta_window_get_frame_bounds (window);
+ 
+-      if (window->shape_region)
++      if (region)
+         {
+           if (unobscured_region)
+-            cairo_region_subtract (unobscured_region, window->shape_region);
++            cairo_region_subtract (unobscured_region, region);
+           if (clip_region)
+-            cairo_region_subtract (clip_region, window->shape_region);
++            cairo_region_subtract (clip_region, region);
+         }
+       else
+         {
+-          cairo_region_t *region = meta_window_get_frame_bounds (window);
++          cairo_rectangle_int_t rect;
+ 
+-          if (region)
+-            {
+-              if (unobscured_region)
+-                cairo_region_subtract (unobscured_region, region);
+-              if (clip_region)
+-                cairo_region_subtract (clip_region, region);
+-            }
+-          else
+-            {
+-              cairo_rectangle_int_t rect;
+-
+-              meta_window_get_frame_rect (window, &rect);
+-              rect.x = rect.y = 0;
++          meta_window_get_frame_rect (window, &rect);
++          rect.x = rect.y = 0;
+ 
+-              if (unobscured_region)
+-                cairo_region_subtract_rectangle (unobscured_region, &rect);
+-              if (clip_region)
+-                cairo_region_subtract_rectangle (clip_region, &rect);
+-            }
++          if (unobscured_region)
++            cairo_region_subtract_rectangle (unobscured_region, &rect);
++          if (clip_region)
++            cairo_region_subtract_rectangle (clip_region, &rect);
+         }
+     }
+ 
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index c4781d3b2e9aa562b475f05617a03c9eea3d02a8..9bf1b77835fb1cc86f75899f525b015dd55181de 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -236,6 +236,9 @@ meta_window_actor_is_opaque (MetaWindowActor *self)
+   if (window->opacity != 0xff)
+     return FALSE;
+ 
++  if (window->shape_region)
++    return FALSE;
++
+   if (!priv->surface)
+     return FALSE;
+ 
