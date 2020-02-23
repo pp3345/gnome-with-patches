@@ -124,7 +124,6 @@ Patch330: 1001.patch
 Patch340: 1017.patch
 Patch350: 1004.patch
 Patch360: 1033.patch
-Patch370: 1035.patch
 Patch380: 1036.patch
 Patch390: 1049.patch
 Patch400: 1052.patch
