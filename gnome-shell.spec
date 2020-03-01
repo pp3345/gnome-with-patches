@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.35.91
+Version:        3.35.92
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -17,14 +17,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
-# https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/754
-# Fixes accessibility cursor zoom bug:
-# https://bugzilla.redhat.com/show_bug.cgi?id=1749433
-# https://gitlab.gnome.org/GNOME/mutter/issues/826
-# Depends on a corresponding patch in mutter 3.34.1-2+
-Patch4: 0001-magnifier-Use-own-showSystemCursor-instead-of-set_po.patch
-Patch5: 0002-magnifier-Use-new-cursor-tracker-API-to-keep-wayland.patch
-
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.33.4
@@ -32,7 +24,7 @@ Patch5: 0002-magnifier-Use-new-cursor-tracker-API-to-keep-wayland.patch
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.57.3
 %define gtk3_version 3.15.0
-%define mutter_version 3.35.91
+%define mutter_version 3.35.92
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.33.1
 %define ibus_version 1.5.2
@@ -224,6 +216,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Mar 01 2020 Florian Müllner <fmuellner@redhat.com> - 3.35.92-1
+- Update to 3.35.92
+
 * Tue Feb 18 2020 Florian Müllner <fmuellner@redhat.com> - 3.35.91-1
 - Update to 3.35.91
 
