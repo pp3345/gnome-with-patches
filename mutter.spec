@@ -3,7 +3,7 @@
 %global gsettings_desktop_schemas_version 3.33.0
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
-%global pipewire_version 0.2.5
+%global pipewire_version 0.3.0
 %global mutter_api_version 6
 
 Name:          mutter
@@ -50,7 +50,7 @@ BuildRequires: mesa-libgbm-devel
 BuildRequires: pkgconfig(glesv2)
 BuildRequires: pkgconfig(graphene-gobject-1.0)
 BuildRequires: pam-devel
-BuildRequires: pkgconfig(libpipewire-0.2) >= %{pipewire_version}
+BuildRequires: pkgconfig(libpipewire-0.3) >= %{pipewire_version}
 BuildRequires: pkgconfig(sysprof-capture-3)
 BuildRequires: systemd-devel
 BuildRequires: upower-devel
