@@ -4,7 +4,7 @@
 %global mozjs68_version 60.9.0
 
 Name:          gjs
-Version:       1.63.91
+Version:       1.63.92
 Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
@@ -94,6 +94,9 @@ the functionality of the installed gjs package.
 %{_datadir}/installed-tests
 
 %changelog
+* Mon Mar 02 2020 Kalev Lember <klember@redhat.com> - 1.63.92-1
+- Update to 1.63.92
+
 * Tue Feb 18 2020 Kalev Lember <klember@redhat.com> - 1.63.91-1
 - Update to 1.63.91
 
