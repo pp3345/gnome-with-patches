@@ -17,6 +17,8 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
+Patch4: 0001-environment-Fix-date-conversion.patch
+
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.33.4
