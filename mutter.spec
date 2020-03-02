@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.4
-Release:       100%{?dist}.pp3345
+Release:       101%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -206,6 +206,17 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Mar 02 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.4-101
+- Add ebc07871 "shaped-texture: Add `get_width()`/`get_height()` API"
+- Add !1082 "Culling fixes" @39a8c047 (partial)
+- Add !1074 "clutter/stage: Cache get_update_time results" @08880261 (manually rebased)
+- Add !1071 "cogl: reduce temporary allocations calculating redraw regions" @c1b189ed (manually rebased)
+- Remove !1035 "window: Ignore requests to be placed on non-existent workspaces" (merged)
+- Add !1099 "cursor-renderer-native: Fix hw cursor for non-square sprites" @390fd7dd
+- Add !1083 "clutter: do less when removing actors" @a3fc6518
+- Add !1008 "wayland/keyboard: Use write() instead of mmapped address to write file" @cb683ae4
+- Rebase to gnome-3-34@2709a4ff
+
 * Mon Feb 17 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.4-100
 - Add !1058 "window-actor/x11: Make culling of opaque windows X11 only" @c89f8f19
 - Add !1052 "cullable: Check if effects are disabled" @aceadfe3
