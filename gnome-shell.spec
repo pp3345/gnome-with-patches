@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.34.4
-Release:        100%{?dist}.pp3345
+Release:        101%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -227,6 +227,14 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Mar 02 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.4-101
+- Add !1044 "st: implement ClutterActorClass.has_accessible()" @24a3fd4c
+- Add !1051 "util: cache local GTimeZone" @06b690ff (manually rebased)
+- Add !1061 "environment: Fix date conversion" @0dd171a7
+- Add !1054 "app-cache: add ShellAppCache for GAppInfo caching" @3f9cf27f (manually rebased)
+- Add !974 "texture-cache: Fix invalid reads when storing used resource scales" @7287ee36
+- Rebase to gnome-3-34@bb9c286e
+
 * Mon Feb 17 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.4-100
 - Add !1002 "iconGrid: Create icon clones in a separate loop" @c48de608
 - Remove !949 "iconGrid: Remove _paintVisible opacity tracking" (obsoleted)
