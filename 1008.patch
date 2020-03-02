@@ -1,0 +1,39 @@
+diff --git a/src/wayland/meta-wayland-keyboard.c b/src/wayland/meta-wayland-keyboard.c
+index d74ef0dfae4f17c7fa48d2b514dfb6d9145995da..43af95a5e12fd86d7f5f0073cd24a3c4b4e3086d 100644
+--- a/src/wayland/meta-wayland-keyboard.c
++++ b/src/wayland/meta-wayland-keyboard.c
+@@ -123,8 +123,7 @@ send_keymap (MetaWaylandKeyboard *keyboard,
+ {
+   MetaWaylandXkbInfo *xkb_info = &keyboard->xkb_info;
+   GError *error = NULL;
+-  int fd;
+-  char *keymap_area;
++  int fd, retval;
+ 
+   if (!xkb_info->keymap_string)
+     return;
+@@ -139,21 +138,14 @@ send_keymap (MetaWaylandKeyboard *keyboard,
+       return;
+     }
+ 
+-
+-  keymap_area = mmap (NULL, xkb_info->keymap_size,
+-                      PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+-  if (keymap_area == MAP_FAILED)
++  retval = write (fd, xkb_info->keymap_string, xkb_info->keymap_size);
++  if (retval < 0)
+     {
+-      g_warning ("Failed to mmap() %lu bytes\n",
+-                 (unsigned long) xkb_info->keymap_size);
++      g_warning ("Writing to keymap file failed");
+       close (fd);
+       return;
+     }
+ 
+-  strcpy (keymap_area, xkb_info->keymap_string);
+-
+-  munmap (keymap_area, xkb_info->keymap_size);
+-
+   wl_keyboard_send_keymap (resource,
+                            WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
+                            fd,
