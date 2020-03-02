@@ -1,0 +1,41 @@
+diff --git a/js/ui/environment.js b/js/ui/environment.js
+index ba378e7d113496eda175dde300c3bf158b6d6dec..8ab9e7d444cdd515a6d4d29126989623bda5221e 100644
+--- a/js/ui/environment.js
++++ b/js/ui/environment.js
+@@ -12,6 +12,9 @@ imports.gi.versions.TelepathyLogger = '0.2';
+ 
+ const { Clutter, GLib, Meta, Shell, St } = imports.gi;
+ const Gettext = imports.gettext;
++const System = imports.system;
++
++let _localTimeZone = null;
+ 
+ // We can't import shell JS modules yet, because they may have
+ // variable initializations, etc, that depend on init() already having
+@@ -304,8 +307,25 @@ function init() {
+         }
+     };
+ 
++    // Override to clear our own timezone cache as well
++    const origClearDateCaches = System.clearDateCaches;
++    System.clearDateCaches = function () {
++        _localTimeZone = null;
++        origClearDateCaches();
++    };
++
+     // Work around https://bugzilla.mozilla.org/show_bug.cgi?id=508783
+     Date.prototype.toLocaleFormat = function(format) {
+-        return Shell.util_format_date(format, this.getTime());
++        if (_localTimeZone === null)
++            _localTimeZone = GLib.TimeZone.new_local();
++
++        let dt = GLib.DateTime.new(_localTimeZone,
++            this.getYear(),
++            this.getMonth() + 1,
++            this.getDate(),
++            this.getHours(),
++            this.getMinutes(),
++            this.getSeconds());
++        return dt ? dt.format(format) : '';
+     };
+ 
