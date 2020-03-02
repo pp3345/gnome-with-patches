@@ -143,6 +143,7 @@ Patch160: 936.patch
 Patch170: 1002.patch
 Patch180: 1044.patch
 Patch190: 1051.patch
+Patch200: 1061.patch
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,

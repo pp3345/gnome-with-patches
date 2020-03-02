@@ -1,0 +1,13 @@
+diff --git a/js/ui/environment.js b/js/ui/environment.js
+index 8ab9e7d444cdd515a6d4d29126989623bda5221e..0450f79328b338617f87e82b16e53622b3aa7289 100644
+--- a/js/ui/environment.js
++++ b/js/ui/environment.js
+@@ -320,7 +320,7 @@ function init() {
+             _localTimeZone = GLib.TimeZone.new_local();
+ 
+         let dt = GLib.DateTime.new(_localTimeZone,
+-            this.getYear(),
++            this.getFullYear(),
+             this.getMonth() + 1,
+             this.getDate(),
+             this.getHours(),
