@@ -128,6 +128,7 @@ Patch380: 1036.patch
 Patch390: 1049.patch
 Patch400: 1052.patch
 Patch410: 1058.patch
+Patch411: ebc07871eb5043a856f2698bb6320a5ef7dd521d.patch
 Patch420: 1082.patch
 Patch430: 1074.patch
 Patch440: 1071.patch

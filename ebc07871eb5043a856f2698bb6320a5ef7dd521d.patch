@@ -1,0 +1,40 @@
+diff --git a/src/compositor/meta-shaped-texture-private.h b/src/compositor/meta-shaped-texture-private.h
+index e96c6f8a82d27954c164e3bc7a80b01329c2fa27..85d94b7534a4fe7aa40d268f0bf0ef7376be9252 100644
+--- a/src/compositor/meta-shaped-texture-private.h
++++ b/src/compositor/meta-shaped-texture-private.h
+@@ -63,4 +63,7 @@ gboolean meta_shaped_texture_update_area (MetaShapedTexture     *stex,
+                                           int                    height,
+                                           cairo_rectangle_int_t *clip);
+ 
++int meta_shaped_texture_get_width (MetaShapedTexture *stex);
++int meta_shaped_texture_get_height (MetaShapedTexture *stex);
++
+ #endif
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index 5847408a081a87b891276bd572e6b0a09acd9b31..85a5143f94d84db9c2b1782b66e51ed2c03bf6b1 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -1437,3 +1437,23 @@ meta_shaped_texture_get_buffer_scale (MetaShapedTexture *stex)
+ 
+   return stex->buffer_scale;
+ }
++
++int
++meta_shaped_texture_get_width (MetaShapedTexture *stex)
++{
++  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 0);
++
++  ensure_size_valid (stex);
++
++  return stex->dst_width;
++}
++
++int
++meta_shaped_texture_get_height (MetaShapedTexture *stex)
++{
++  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 0);
++
++  ensure_size_valid (stex);
++
++  return stex->dst_height;
++}
