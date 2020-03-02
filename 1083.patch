@@ -1,0 +1,168 @@
+diff --git a/clutter/clutter/cally/cally-actor.c b/clutter/clutter/cally/cally-actor.c
+index c92b576e187ae6f5a2e0a5a2730fbfc9af24b4c8..91f68d4926dd9ea876bcdeeaf8a1c156e1ad4d6b 100644
+--- a/clutter/clutter/cally/cally-actor.c
++++ b/clutter/clutter/cally/cally-actor.c
+@@ -600,10 +600,11 @@ cally_actor_real_remove_actor (ClutterActor *container,
+   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
+ 
+   atk_parent = ATK_OBJECT (data);
+-  atk_child = clutter_actor_get_accessible (actor);
+ 
+-  if (atk_child)
++  if (clutter_actor_has_accessible (actor))
+     {
++      atk_child = clutter_actor_get_accessible (actor);
++
+       g_value_init (&values.old_value, G_TYPE_POINTER);
+       g_value_set_pointer (&values.old_value, atk_parent);
+ 
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 4979c9dcd9c4656c9d3b590d17d6ec6df5a8e534..4964586a94974f0537be96e8a52ad35466d57889 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -631,7 +631,7 @@
+ #include "clutter-color-static.h"
+ #include "clutter-color.h"
+ #include "clutter-constraint-private.h"
+-#include "clutter-container.h"
++#include "clutter-container-private.h"
+ #include "clutter-content-private.h"
+ #include "clutter-debug.h"
+ #include "clutter-easing.h"
+@@ -4582,7 +4582,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
+ 
+   /* we need to emit the signal before dropping the reference */
+   if (emit_actor_removed)
+-    g_signal_emit_by_name (self, "actor-removed", child);
++    _clutter_container_emit_actor_removed (CLUTTER_CONTAINER (self), child);
+ 
+   if (notify_first_last)
+     {
+@@ -13226,7 +13226,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
+     }
+ 
+   if (emit_actor_added)
+-    g_signal_emit_by_name (self, "actor-added", child);
++    _clutter_container_emit_actor_added (CLUTTER_CONTAINER (self), child);
+ 
+   if (notify_first_last)
+     {
+@@ -21192,3 +21192,14 @@ clutter_actor_create_texture_paint_node (ClutterActor *self,
+ 
+   return node;
+ }
++
++gboolean
++clutter_actor_has_accessible (ClutterActor *actor)
++{
++  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), FALSE);
++
++  if (CLUTTER_ACTOR_GET_CLASS (actor)->has_accessible)
++    return CLUTTER_ACTOR_GET_CLASS (actor)->has_accessible (actor);
++
++  return TRUE;
++}
+diff --git a/clutter/clutter/clutter-actor.h b/clutter/clutter/clutter-actor.h
+index bb968ddd02084d8a79de84cf4ad487d3af6c2ace..e4f25d9855c2dd87264e800d9b2ad889d8981299 100644
+--- a/clutter/clutter/clutter-actor.h
++++ b/clutter/clutter/clutter-actor.h
+@@ -299,10 +299,11 @@ struct _ClutterActorClass
+ 
+   gboolean (* touch_event)          (ClutterActor         *self,
+                                      ClutterTouchEvent    *event);
++  gboolean (* has_accessible)       (ClutterActor         *self);
+ 
+   /*< private >*/
+   /* padding for future expansion */
+-  gpointer _padding_dummy[26];
++  gpointer _padding_dummy[25];
+ };
+ 
+ /**
+@@ -380,6 +381,8 @@ CLUTTER_EXPORT
+ const gchar *                   clutter_actor_get_name                          (ClutterActor                *self);
+ CLUTTER_EXPORT
+ AtkObject *                     clutter_actor_get_accessible                    (ClutterActor                *self);
++CLUTTER_EXPORT
++gboolean                        clutter_actor_has_accessible                    (ClutterActor                *self);
+ 
+ CLUTTER_EXPORT
+ gboolean                        clutter_actor_is_visible                        (ClutterActor                *self);
+diff --git a/clutter/clutter/clutter-container-private.h b/clutter/clutter/clutter-container-private.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..d619a6531daecd7b3fcd5719bad22e4150fda99a
+--- /dev/null
++++ b/clutter/clutter/clutter-container-private.h
+@@ -0,0 +1,36 @@
++/*
++ * Clutter.
++ *
++ * An OpenGL based 'interactive canvas' library.
++ *
++ * Copyright 2020 Red Hat, Inc.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef __CLUTTER_CONTAINER_PRIVATE_H__
++#define __CLUTTER_CONTAINER_PRIVATE_H__
++
++#include <clutter/clutter-container.h>
++
++G_BEGIN_DECLS
++
++void _clutter_container_emit_actor_added   (ClutterContainer *container,
++                                            ClutterActor     *actor);
++void _clutter_container_emit_actor_removed (ClutterContainer *container,
++                                            ClutterActor     *actor);
++
++G_END_DECLS
++
++#endif /* __CLUTTER_CONTAINER_PRIVATE_H__ */
+diff --git a/clutter/clutter/clutter-container.c b/clutter/clutter/clutter-container.c
+index 587d891a763aafb7cd9a9fddbad9becc91559cf2..23169332f3562994afd80e9a07e06424a7b7b78e 100644
+--- a/clutter/clutter/clutter-container.c
++++ b/clutter/clutter/clutter-container.c
+@@ -37,6 +37,7 @@
+ 
+ #include "clutter-actor-private.h"
+ #include "clutter-child-meta.h"
++#include "clutter-container-private.h"
+ #include "clutter-debug.h"
+ #include "clutter-main.h"
+ #include "clutter-marshal.h"
+@@ -1250,3 +1251,23 @@ clutter_container_child_notify (ClutterContainer *container,
+                                                          child,
+                                                          pspec);
+ }
++
++void
++_clutter_container_emit_actor_added (ClutterContainer *container,
++                                     ClutterActor     *actor)
++{
++  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
++  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
++
++  g_signal_emit (container, container_signals[ACTOR_ADDED], 0, actor);
++}
++
++void
++_clutter_container_emit_actor_removed (ClutterContainer *container,
++                                       ClutterActor     *actor)
++{
++  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
++  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
++
++  g_signal_emit (container, container_signals[ACTOR_REMOVED], 0, actor);
++}
