@@ -132,6 +132,7 @@ Patch411: ebc07871eb5043a856f2698bb6320a5ef7dd521d.patch
 Patch420: 1082.patch
 Patch430: 1074.patch
 Patch440: 1071.patch
+Patch450: 1099.patch
 
 %description
 Mutter is a window and compositing manager that displays and manages
