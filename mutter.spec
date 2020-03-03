@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.35.92
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -125,7 +125,7 @@ the functionality of the installed %{name} package.
 %autosetup -S git
 
 %build
-%meson -Degl_device=true -Dwayland_eglstream=true
+%meson -Degl_device=true -Dwayland_eglstream=true -Dxwayland_initfd=disabled
 %meson_build
 
 %install
@@ -163,6 +163,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Mar 03 2020 Bastien Nocera <bnocera@redhat.com> - 3.35.92-2
++ mutter-3.35.92-2
+- Fix wayland session not starting up, see https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1103
+
 * Sun Mar 01 2020 Florian Müllner <fmuellner@redhat.com> - 3.35.92-1
 - Update to 3.35.92
 
