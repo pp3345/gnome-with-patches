@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.35.92
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,6 +18,10 @@ Source0:       http://download.gnome.org/sources/%{name}/3.35/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
+# Fix pop-up menus on secondary heads:
+# https://gitlab.gnome.org/GNOME/mutter/issues/1098
+# https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1110
+Patch1:        1110.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -163,6 +167,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Fri Mar 06 2020 Adam Williamson <awilliam@redhat.com> - 3.35.92-3
+- Backport fix for pop-up menus on secondary heads (Gitlab #1098)
+
 * Tue Mar 03 2020 Bastien Nocera <bnocera@redhat.com> - 3.35.92-2
 + mutter-3.35.92-2
 - Fix wayland session not starting up, see https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1103

@@ -1,0 +1,54 @@
+From 6cd0aa429f0e042477ca89a5a9c0176f36ad117b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 6 Mar 2020 17:24:35 +0100
+Subject: [PATCH] window: Force placement for first placement rule
+
+If we don't force the placement, we enter the constrain machinery with
+the position (0, 0), meaning we always get the "current work area" setup
+to correspond to whatever logical monitor was at that position.
+
+Avoid this by doing the same as "meta_window_force_placement()" and set
+"window->calc_placement" to TRUE while move-resizing, causing the
+move-resize to first calculate the initial position.
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/issues/1098
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1110
+---
+ src/wayland/meta-window-wayland.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/src/wayland/meta-window-wayland.c b/src/wayland/meta-window-wayland.c
+index 9864d2fd4..86cdbf86e 100644
+--- a/src/wayland/meta-window-wayland.c
++++ b/src/wayland/meta-window-wayland.c
+@@ -1001,6 +1001,10 @@ void
+ meta_window_place_with_placement_rule (MetaWindow        *window,
+                                        MetaPlacementRule *placement_rule)
+ {
++  gboolean first_placement;
++
++  first_placement = !window->placement.rule;
++
+   g_clear_pointer (&window->placement.rule, g_free);
+   window->placement.rule = g_new0 (MetaPlacementRule, 1);
+   *window->placement.rule = *placement_rule;
+@@ -1009,12 +1013,15 @@ meta_window_place_with_placement_rule (MetaWindow        *window,
+   window->unconstrained_rect.y = window->rect.y;
+   window->unconstrained_rect.width = placement_rule->width;
+   window->unconstrained_rect.height = placement_rule->height;
++
++  window->calc_placement = first_placement;
+   meta_window_move_resize_internal (window,
+                                     (META_MOVE_RESIZE_MOVE_ACTION |
+                                      META_MOVE_RESIZE_RESIZE_ACTION |
+                                      META_MOVE_RESIZE_PLACEMENT_CHANGED),
+                                     META_GRAVITY_NORTH_WEST,
+                                     window->unconstrained_rect);
++  window->calc_placement = FALSE;
+ }
+ 
+ void
+-- 
+2.24.1
+
