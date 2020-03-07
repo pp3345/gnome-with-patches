@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.35.92
+Version:        3.36.0
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -7,7 +7,7 @@ License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.35/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.36/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -17,16 +17,14 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
-Patch4: 0001-environment-Fix-date-conversion.patch
-
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
-%define gnome_desktop_version 3.33.4
+%define gnome_desktop_version 3.35.91
 %define glib2_version 2.56.0
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.57.3
 %define gtk3_version 3.15.0
-%define mutter_version 3.35.92
+%define mutter_version 3.36.0
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.33.1
 %define ibus_version 1.5.2
@@ -229,6 +227,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Extensions-symbolic.svg
 
 %changelog
+* Sat Mar 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.0-1
+- Update to 3.36.0
+
 * Sun Mar 01 2020 Florian Müllner <fmuellner@redhat.com> - 3.35.92-1
 - Update to 3.35.92
 
