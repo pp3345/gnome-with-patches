@@ -142,6 +142,15 @@ advantage of the capabilities of modern graphics hardware and introduces
 innovative user interface concepts to provide a visually attractive and
 easy to use experience.
 
+%package -n gnome-extensions-app
+Summary:        Manage GNOME Shell extensions
+License:        GPLv2+
+Requires:       gnome-shell >= %{version}
+
+%description -n gnome-extensions-app
+GNOME Extensions is an application for configuring and removing
+GNOME Shell extensions.
+
 %prep
 %autosetup -S git
 
@@ -170,11 +179,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_bindir}/gnome-extensions
 %{_bindir}/gnome-shell-extension-tool
 %{_bindir}/gnome-shell-perf-tool
-%{_bindir}/gnome-shell-extension-prefs
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/glib-2.0/schemas/00_org.gnome.shell.gschema.override
 %{_datadir}/applications/org.gnome.Shell.desktop
-%{_datadir}/applications/org.gnome.Extensions.desktop
 %{_datadir}/applications/evolution-calendar.desktop
 %{_datadir}/applications/org.gnome.Shell.PortalHelper.desktop
 %{_datadir}/bash-completion/completions/gnome-extensions
@@ -190,9 +197,6 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Screenshot.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider2.xml
-%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Extensions.svg
-%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Extensions.Devel.svg
-%{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Extensions-symbolic.svg
 %{_userunitdir}/gnome-shell-disable-extensions.service
 %{_userunitdir}/gnome-shell-wayland.service
 %{_userunitdir}/gnome-shell-wayland.target
@@ -216,6 +220,13 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/GConf/gsettings/gnome-shell-overrides.convert
 %{_mandir}/man1/gnome-extensions.1*
 %{_mandir}/man1/gnome-shell.1*
+
+%files -n gnome-extensions-app
+%{_bindir}/gnome-shell-extension-prefs
+%{_datadir}/applications/org.gnome.Extensions.desktop
+%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Extensions.svg
+%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Extensions.Devel.svg
+%{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Extensions-symbolic.svg
 
 %changelog
 * Sun Mar 01 2020 Florian Müllner <fmuellner@redhat.com> - 3.35.92-1
