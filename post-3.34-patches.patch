@@ -1,0 +1,245 @@
+From 99d948559b54ed82bd4c98f5f72a1eca7c1882b0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 19 Feb 2020 21:54:42 +0000
+Subject: [PATCH 1/4] closeDialog: Make dialog inactive while fading out
+
+Otherwise the user might click Kill, which would crash if the fade-out
+was triggered because a Wayland window was closed.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/1032
+
+
+(cherry picked from commit 32fa060a62051a6fc98532d43e060c65ec7848a7)
+---
+ js/ui/closeDialog.js | 1 +
+ js/ui/dialog.js      | 8 +++++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/js/ui/closeDialog.js b/js/ui/closeDialog.js
+index b943e85bf..e54ee48be 100644
+--- a/js/ui/closeDialog.js
++++ b/js/ui/closeDialog.js
+@@ -192,6 +192,7 @@ var CloseDialog = GObject.registerClass({
+         this._dialog = null;
+         this._removeWindowEffect();
+ 
++        dialog.makeInactive();
+         dialog._dialog.ease({
+             scale_y: 0,
+             mode: Clutter.AnimationMode.LINEAR,
+diff --git a/js/ui/dialog.js b/js/ui/dialog.js
+index f81dbfb40..cd64b9e74 100644
+--- a/js/ui/dialog.js
++++ b/js/ui/dialog.js
+@@ -51,10 +51,16 @@ class Dialog extends St.Widget {
+                            y_align: St.Align.START });
+     }
+ 
+-    _onDestroy() {
++    makeInactive() {
+         if (this._eventId != 0)
+             this._parentActor.disconnect(this._eventId);
+         this._eventId = 0;
++
++        this.buttonLayout.get_children().forEach(c => c.set_reactive(false));
++    }
++
++    _onDestroy() {
++        this.makeInactive();
+     }
+ 
+     _modalEventHandler(actor, event) {
+-- 
+2.25.1
+
+
+From b7389b328c866997e7d4f6bf1963d114bdf9b93b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Mon, 24 Feb 2020 11:19:28 +0100
+Subject: [PATCH 2/4] overview: Hide the overview on session mode hasOverview
+ changes
+
+If the sessionMode does not allow to show the overview, we should also
+hide an already visible overview.
+
+This fixes a bug where, if the lockscreen was shown while the overview
+was visible, the Ctrl+Alt+Tab popup would allow navigating inside the
+overview because the overview actor is still mapped.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/1043
+---
+ js/ui/overview.js | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/js/ui/overview.js b/js/ui/overview.js
+index e4837c821..affa390d7 100644
+--- a/js/ui/overview.js
++++ b/js/ui/overview.js
+@@ -199,7 +199,11 @@ var Overview = class {
+     }
+ 
+     _sessionUpdated() {
+-        this.isDummy = !Main.sessionMode.hasOverview;
++        const { hasOverview } = Main.sessionMode;
++        if (!hasOverview)
++            this.hide();
++
++        this.isDummy = !hasOverview;
+         this._createOverview();
+     }
+ 
+-- 
+2.25.1
+
+
+From cf2ab505a03f43fffef705c43e42142c0a147c5d Mon Sep 17 00:00:00 2001
+From: Christian Hergert <chergert@redhat.com>
+Date: Wed, 26 Feb 2020 14:46:20 -0800
+Subject: [PATCH 3/4] global: force fsync() to worker thread when saving state
+
+The g_file_replace_contents_async() API can potentially call fsync() from
+the thread calling into it upon completion. This can have disasterous
+effects when run from the compositor main thread such as complete stalls.
+
+This is a followup to 86a00b6872375a266449beee1ea6d5e94f1ebbcb which
+assumed (like the rest of us) that the fsync() would be performed on the
+thread that was doing the I/O operations.
+
+You can verify this with an strace -e fsync and cause terminal to display
+a command completed notification (eg: from a backdrop window).
+
+This also fixes a lifecycle bug for the variant, as
+g_file_replace_contents_async() does not copy the data during the operation
+as that is the responsibility of the caller. Instead, we just use a GBytes
+variant and reference the variant there.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/1050
+---
+ src/shell-global.c | 70 +++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 63 insertions(+), 7 deletions(-)
+
+diff --git a/src/shell-global.c b/src/shell-global.c
+index d25d2caf2..9c1f1248a 100644
+--- a/src/shell-global.c
++++ b/src/shell-global.c
+@@ -1554,6 +1554,55 @@ delete_variant_cb (GObject      *object,
+   g_hash_table_remove (global->save_ops, object);
+ }
+ 
++static void
++replace_contents_worker (GTask        *task,
++                         gpointer      source_object,
++                         gpointer      task_data,
++                         GCancellable *cancellable)
++{
++  GFile *file = source_object;
++  GBytes *bytes = task_data;
++  GError *error = NULL;
++  const gchar *data;
++  gsize len;
++
++  data = g_bytes_get_data (bytes, &len);
++
++  if (!g_file_replace_contents (file, data, len, NULL, FALSE,
++                                G_FILE_CREATE_REPLACE_DESTINATION,
++                                NULL, cancellable, &error))
++    g_task_return_error (task, g_steal_pointer (&error));
++  else
++    g_task_return_boolean (task, TRUE);
++}
++
++static void
++replace_contents_async (GFile               *path,
++                        GBytes              *bytes,
++                        GCancellable        *cancellable,
++                        GAsyncReadyCallback  callback,
++                        gpointer             user_data)
++{
++  g_autoptr(GTask) task = NULL;
++
++  g_assert (G_IS_FILE (path));
++  g_assert (bytes != NULL);
++  g_assert (!cancellable || G_IS_CANCELLABLE (cancellable));
++
++  task = g_task_new (path, cancellable, callback, user_data);
++  g_task_set_source_tag (task, replace_contents_async);
++  g_task_set_task_data (task, g_bytes_ref (bytes), (GDestroyNotify)g_bytes_unref);
++  g_task_run_in_thread (task, replace_contents_worker);
++}
++
++static gboolean
++replace_contents_finish (GFile         *file,
++                         GAsyncResult  *result,
++                         GError       **error)
++{
++  return g_task_propagate_boolean (G_TASK (result), error);
++}
++
+ static void
+ replace_variant_cb (GObject      *object,
+                     GAsyncResult *result,
+@@ -1562,7 +1611,7 @@ replace_variant_cb (GObject      *object,
+   ShellGlobal *global = user_data;
+   GError *error = NULL;
+ 
+-  if (!g_file_replace_contents_finish (G_FILE (object), result, NULL, &error))
++  if (!replace_contents_finish (G_FILE (object), result, &error))
+     {
+       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+         {
+@@ -1598,12 +1647,19 @@ save_variant (ShellGlobal *global,
+     }
+   else
+     {
+-      g_file_replace_contents_async (path,
+-                                     g_variant_get_data (variant),
+-                                     g_variant_get_size (variant),
+-                                     NULL, FALSE,
+-                                     G_FILE_CREATE_REPLACE_DESTINATION,
+-                                     cancellable, replace_variant_cb, global);
++      g_autoptr(GBytes) bytes = NULL;
++
++      bytes = g_bytes_new_with_free_func (g_variant_get_data (variant),
++                                          g_variant_get_size (variant),
++                                          (GDestroyNotify)g_variant_unref,
++                                          g_variant_ref (variant));
++      /* g_file_replace_contents_async() can potentially fsync() from the
++       * calling thread when completing the asynchronous task. Instead, we
++       * want to force that fsync() to a thread to avoid blocking the
++       * compository main loop. Using our own replace_contents_async()
++       * simply executes the operation synchronously from a thread.
++       */
++      replace_contents_async (path, bytes, cancellable, replace_variant_cb, global);
+     }
+ 
+   g_object_unref (path);
+-- 
+2.25.1
+
+
+From bb9c286e3f9176b6837bd3a9f388e40c06d429b4 Mon Sep 17 00:00:00 2001
+From: Christian Hergert <chergert@redhat.com>
+Date: Wed, 26 Feb 2020 18:59:31 -0800
+Subject: [PATCH 4/4] shell: fix typo in comment
+
+https://gitlab.gnome.org/GNOME/gnome-shell/merge_requests/1050
+---
+ src/shell-global.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/shell-global.c b/src/shell-global.c
+index 9c1f1248a..8241258db 100644
+--- a/src/shell-global.c
++++ b/src/shell-global.c
+@@ -1656,7 +1656,7 @@ save_variant (ShellGlobal *global,
+       /* g_file_replace_contents_async() can potentially fsync() from the
+        * calling thread when completing the asynchronous task. Instead, we
+        * want to force that fsync() to a thread to avoid blocking the
+-       * compository main loop. Using our own replace_contents_async()
++       * compositor main loop. Using our own replace_contents_async()
+        * simply executes the operation synchronously from a thread.
+        */
+       replace_contents_async (path, bytes, cancellable, replace_variant_cb, global);
+-- 
+2.25.1
+
