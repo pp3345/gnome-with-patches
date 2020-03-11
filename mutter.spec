@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.4
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -27,6 +27,15 @@ Patch2:        0002-window-xwayland-Add-Xwayland-fullscreen-games-workar.patch
 
 # Mitigate crash on tear down. (rhbz#1770089, rhbz#1770089)
 Patch3:        0001-compositor-Guard-against-untimely-calls.patch
+
+# Fixes landed after 3.34.4 (#1808450, #1808107, #1807576, #1806600)
+Patch4:        post-3.34.4-backports.patch
+
+# Avoid crash when KMS node starts returning NULL resources (rhbz#1812423)
+Patch5:        0001-kms-impl-device-Clean-up-state-if-drm-resources-disa.patch
+
+# Don't crash when fullscreen on inert wl_output (#1791357)
+Patch6:        0001-wayland-Don-t-crash-when-trying-to-fullscreen-on-ine.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -171,6 +180,17 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Mar 11 2020 Jonas Ådahl <jadahl@redhat.com> - 3.34.4-2
+- Avoid crash when KMS node starts returning NULL resources
+  Resolves: #1812423
+- Fixes landed after 3.34.4
+  Resolves: #1808450
+  Resolves: #1808107
+  Resolves: #1807576
+  Resolves: #1806600
+- Don't crash when fullscreen on inert wl_output
+  Resolves: #1791357
+
 * Sun Feb 16 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.4-1
 - Update to 3.34.4
 
