@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -21,6 +21,10 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 # https://gitlab.gnome.org/GNOME/gnome-shell/issues/2341
 # https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1080
 Patch4: 1080.patch
+
+# Fix input method preedit not counting as 'started typing'
+# https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1084
+Patch5: 1084.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
@@ -232,6 +236,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Extensions-symbolic.svg
 
 %changelog
+* Wed Mar 11 2020 Adam Williamson <awilliam@redhat.com> - 3.36.0-3
+- Backport fix for input method preedit issue (MR #1084)
+
 * Tue Mar 10 2020 Adam Williamson <awilliam@redhat.com> - 3.36.0-2
 - Backport fix for ibus failing to start automatically (MR #1080)
 
