@@ -1,0 +1,57 @@
+From ad7364d8d7f936b9b08195e47d2f6ee9329ff687 Mon Sep 17 00:00:00 2001
+From: Kenneth Graunke <kenneth@whitecape.org>
+Date: Mon, 13 Jan 2020 23:34:49 -0800
+Subject: [PATCH xserver 01/22] configure: Define GLAMOR_HAS_EGL_QUERY_DRIVER
+ when available
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Commit 195c2ef8f9f07b9bdabc0f554a9033b7857b99c7 added this to the Meson
+build but neglected to add it to autotools.
+
+v2: Also update dix-config.h.in
+
+Fixes: 195c2ef8f ("glamor: Add a function to get the driver name via EGL_MESA_query_driver")
+
+Reviewed-by: Michel Dänzer <mdaenzer@redhat.com> [v1]
+Reviewed-by: Eric Engestrom <eric@engestrom.ch> [v1]
+Reviewed-by: Matt Turner <mattst88@gmail.com>
+(cherry picked from commit 25ca99df38a2c28c25ab20a917e68442285f2353)
+---
+ configure.ac            | 4 ++++
+ include/dix-config.h.in | 3 +++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index 9f82e2a7d..231515f0c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2053,6 +2053,10 @@ if test "x$GLAMOR" = xyes; then
+ 			 [AC_DEFINE(GLAMOR_HAS_EGL_QUERY_DMABUF, 1, [Have GLAMOR_HAS_EGL_QUERY_DMABUF])],
+ 			 [])
+ 
++	PKG_CHECK_EXISTS(epoxy >= 1.5.4,
++			 [AC_DEFINE(GLAMOR_HAS_EGL_QUERY_DRIVER, 1, [Have GLAMOR_HAS_EGL_QUERY_DRIVER])],
++			 [])
++
+ 	PKG_CHECK_MODULES(GBM, "$LIBGBM", [GBM=yes], [GBM=no])
+ 	if test "x$GBM" = xyes; then
+ 		AC_DEFINE(GLAMOR_HAS_GBM, 1,
+diff --git a/include/dix-config.h.in b/include/dix-config.h.in
+index c18f62370..d02bb1b81 100644
+--- a/include/dix-config.h.in
++++ b/include/dix-config.h.in
+@@ -485,6 +485,9 @@
+ /* Glamor can use eglQueryDmaBuf* functions */
+ #undef GLAMOR_HAS_EGL_QUERY_DMABUF
+ 
++/* Glamor can use EGL_MESA_query_driver functions */
++#undef GLAMOR_HAS_EGL_QUERY_DRIVER
++
+ /* byte order */
+ #undef X_BYTE_ORDER
+ 
+-- 
+2.24.1
+

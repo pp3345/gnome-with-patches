@@ -1,7 +1,7 @@
-From f473d009dba1029658f6c3fb5751fbbf027ed468 Mon Sep 17 00:00:00 2001
+From 707554709a1f7c0f04ef55e72c4cc41ad8e904fd Mon Sep 17 00:00:00 2001
 From: Robert Mader <robert.mader@posteo.de>
 Date: Mon, 22 Jan 2018 22:02:32 +0100
-Subject: [PATCH xserver 02/14] xwayland: Add wp_viewport wayland extension
+Subject: [PATCH xserver 02/17] xwayland: Add wp_viewport wayland extension
  support
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -23,7 +23,7 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  hw/xwayland/meson.build | 3 +++
  hw/xwayland/xwayland.c  | 3 +++
  hw/xwayland/xwayland.h  | 2 ++
- 5 files changed, 24 insertions(+), 1 deletion(-)
+ 4 files changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/hw/xwayland/Makefile.am b/hw/xwayland/Makefile.am
 index bc1cb8506..49aae3d8b 100644
@@ -80,10 +80,10 @@ index 36bf2133a..4a8d171bb 100644
  xwayland_glamor = []
  eglstream_srcs = []
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index baa08d87b..292f239e8 100644
+index 5fefa5923..13b298f7f 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -863,6 +863,9 @@ registry_global(void *data, struct wl_registry *registry, uint32_t id,
+@@ -916,6 +916,9 @@ registry_global(void *data, struct wl_registry *registry, uint32_t id,
              wl_registry_bind(registry, id, &zxdg_output_manager_v1_interface, 1);
          xwl_screen_init_xdg_output(xwl_screen);
      }
@@ -94,7 +94,7 @@ index baa08d87b..292f239e8 100644
      else if (xwl_screen->glamor) {
          xwl_glamor_init_wl_registry(xwl_screen, registry, id, interface,
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 0854df456..c4eabe4c3 100644
+index a12ec257b..042e107ce 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
 @@ -48,6 +48,7 @@
@@ -114,5 +114,5 @@ index 0854df456..c4eabe4c3 100644
  
  #define XWL_FORMAT_ARGB8888 (1 << 0)
 -- 
-2.23.0
+2.24.1
 

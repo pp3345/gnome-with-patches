@@ -1,7 +1,7 @@
-From e997273b14a23b0ffe89f542de783adbec6e8a1b Mon Sep 17 00:00:00 2001
+From 869e6f39165daeacdd9cbb3f2f0d1845a3af3360 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 2 Jul 2019 11:55:26 +0200
-Subject: [PATCH xserver 08/14] xwayland: Add support for randr-resolution
+Subject: [PATCH xserver 08/17] xwayland: Add support for randr-resolution
  change emulation using viewport
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -142,10 +142,10 @@ index 82ff5db70..99ab1b288 100644
  
  static Bool
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 2b6065f1a..ec1b7eee4 100644
+index 7720baab8..1466e1e11 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -163,6 +163,23 @@ xwl_screen_has_resolution_change_emulation(struct xwl_screen *xwl_screen)
+@@ -176,6 +176,23 @@ xwl_screen_has_resolution_change_emulation(struct xwl_screen *xwl_screen)
      return xwl_screen->rootless && xwl_screen_has_viewport_support(xwl_screen);
  }
  
@@ -169,7 +169,7 @@ index 2b6065f1a..ec1b7eee4 100644
  static void
  xwl_window_set_allow_commits(struct xwl_window *xwl_window, Bool allow,
                               const char *debug_msg)
-@@ -499,6 +516,150 @@ xwl_pixmap_get(PixmapPtr pixmap)
+@@ -512,6 +529,150 @@ xwl_pixmap_get(PixmapPtr pixmap)
      return dixLookupPrivate(&pixmap->devPrivates, &xwl_pixmap_private_key);
  }
  
@@ -320,7 +320,7 @@ index 2b6065f1a..ec1b7eee4 100644
  static void
  xwl_window_init_allow_commits(struct xwl_window *xwl_window)
  {
-@@ -569,6 +730,8 @@ ensure_surface_for_window(WindowPtr window)
+@@ -582,6 +743,8 @@ ensure_surface_for_window(WindowPtr window)
  
      xwl_window->xwl_screen = xwl_screen;
      xwl_window->window = window;
@@ -329,15 +329,15 @@ index 2b6065f1a..ec1b7eee4 100644
      xwl_window->surface = wl_compositor_create_surface(xwl_screen->compositor);
      if (xwl_window->surface == NULL) {
          ErrorF("wl_display_create_surface failed\n");
-@@ -610,6 +773,7 @@ ensure_surface_for_window(WindowPtr window)
+@@ -623,6 +786,7 @@ ensure_surface_for_window(WindowPtr window)
  
      dixSetPrivate(&window->devPrivates, &xwl_window_private_key, xwl_window);
      xorg_list_init(&xwl_window->link_damage);
 +    xorg_list_add(&xwl_window->link_window, &xwl_screen->window_list);
  
-     xwl_window_init_allow_commits(xwl_window);
- 
-@@ -704,8 +868,12 @@ xwl_unrealize_window(WindowPtr window)
+ #ifdef GLAMOR_HAS_GBM
+     xorg_list_init(&xwl_window->frame_callback_list);
+@@ -716,8 +880,12 @@ xwl_unrealize_window(WindowPtr window)
      if (!xwl_window)
          return ret;
  
@@ -350,7 +350,7 @@ index 2b6065f1a..ec1b7eee4 100644
      unregister_damage(window);
  
      if (xwl_window->frame_callback)
-@@ -743,6 +911,33 @@ xwl_set_window_pixmap(WindowPtr window,
+@@ -760,6 +928,33 @@ xwl_set_window_pixmap(WindowPtr window,
      ensure_surface_for_window(window);
  }
  
@@ -384,7 +384,7 @@ index 2b6065f1a..ec1b7eee4 100644
  static void
  frame_callback(void *data,
                 struct wl_callback *callback,
-@@ -1158,6 +1353,7 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
+@@ -1211,6 +1406,7 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
      xorg_list_init(&xwl_screen->output_list);
      xorg_list_init(&xwl_screen->seat_list);
      xorg_list_init(&xwl_screen->damage_window_list);
@@ -392,7 +392,7 @@ index 2b6065f1a..ec1b7eee4 100644
      xwl_screen->depth = 24;
  
      xwl_screen->display = wl_display_connect(NULL);
-@@ -1256,6 +1452,9 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
+@@ -1309,6 +1505,9 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
      xwl_screen->CloseScreen = pScreen->CloseScreen;
      pScreen->CloseScreen = xwl_close_screen;
  
@@ -403,7 +403,7 @@ index 2b6065f1a..ec1b7eee4 100644
          xwl_screen->SetWindowPixmap = pScreen->SetWindowPixmap;
          pScreen->SetWindowPixmap = xwl_set_window_pixmap;
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index d0e87a89d..b52de11d2 100644
+index 7e6497b80..56e753306 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
 @@ -135,10 +135,12 @@ struct xwl_screen {
@@ -433,7 +433,7 @@ index d0e87a89d..b52de11d2 100644
      struct wl_callback *frame_callback;
      Bool allow_commits;
  #ifdef GLAMOR_HAS_GBM
-@@ -408,6 +414,9 @@ Bool xwl_screen_init_cursor(struct xwl_screen *xwl_screen);
+@@ -409,6 +415,9 @@ Bool xwl_screen_init_cursor(struct xwl_screen *xwl_screen);
  
  struct xwl_screen *xwl_screen_get(ScreenPtr screen);
  Bool xwl_screen_has_resolution_change_emulation(struct xwl_screen *xwl_screen);
@@ -443,7 +443,7 @@ index d0e87a89d..b52de11d2 100644
  
  void xwl_tablet_tool_set_cursor(struct xwl_tablet_tool *tool);
  void xwl_seat_set_cursor(struct xwl_seat *xwl_seat);
-@@ -441,6 +450,12 @@ void xwl_output_remove(struct xwl_output *xwl_output);
+@@ -442,6 +451,12 @@ void xwl_output_remove(struct xwl_output *xwl_output);
  struct xwl_emulated_mode *xwl_output_get_emulated_mode_for_client(
                              struct xwl_output *xwl_output, ClientPtr client);
  
@@ -457,5 +457,5 @@ index d0e87a89d..b52de11d2 100644
                         float VRefresh, Bool Reduced, Bool Interlaced);
  
 -- 
-2.23.0
+2.24.1
 

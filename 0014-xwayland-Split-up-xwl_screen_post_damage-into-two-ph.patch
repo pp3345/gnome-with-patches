@@ -1,0 +1,64 @@
+From a93bce6bfc6c610676a7fbc76639854c5553cb2c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Fri, 7 Feb 2020 12:06:39 +0100
+Subject: [PATCH xserver 14/22] xwayland: Split up xwl_screen_post_damage into
+ two phases
+
+The first phase sets the new surface properties for all damaged
+windows, then the second phase commits all surface updates.
+
+This is preparatory for the next change, there should be no observable
+change in behaviour (other than the order of Wayland protocol
+requests).
+
+Reviewed-by: Adam Jackson <ajax@redhat.com>
+(cherry picked from commit f88d9b1f779835302e02e255fcd45989db7f488d)
+---
+ hw/xwayland/xwayland.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index 324c68ccf..de35a5af0 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -816,16 +816,16 @@ xwl_window_post_damage(struct xwl_window *xwl_window)
+     xwl_window->frame_callback = wl_surface_frame(xwl_window->surface);
+     wl_callback_add_listener(xwl_window->frame_callback, &frame_listener, xwl_window);
+ 
+-    wl_surface_commit(xwl_window->surface);
+     DamageEmpty(window_get_damage(xwl_window->window));
+-
+-    xorg_list_del(&xwl_window->link_damage);
+ }
+ 
+ static void
+ xwl_screen_post_damage(struct xwl_screen *xwl_screen)
+ {
+     struct xwl_window *xwl_window, *next_xwl_window;
++    struct xorg_list commit_window_list;
++
++    xorg_list_init(&commit_window_list);
+ 
+     xorg_list_for_each_entry_safe(xwl_window, next_xwl_window,
+                                   &xwl_screen->damage_window_list, link_damage) {
+@@ -843,6 +843,17 @@ xwl_screen_post_damage(struct xwl_screen *xwl_screen)
+ #endif
+ 
+         xwl_window_post_damage(xwl_window);
++        xorg_list_del(&xwl_window->link_damage);
++        xorg_list_append(&xwl_window->link_damage, &commit_window_list);
++    }
++
++    if (xorg_list_is_empty(&commit_window_list))
++        return;
++
++    xorg_list_for_each_entry_safe(xwl_window, next_xwl_window,
++                                  &commit_window_list, link_damage) {
++        wl_surface_commit(xwl_window->surface);
++        xorg_list_del(&xwl_window->link_damage);
+     }
+ }
+ 
+-- 
+2.24.1
+

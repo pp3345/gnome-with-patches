@@ -1,0 +1,39 @@
+From af2fd88b1019f63fe3ce871f9e99b3e1e4608b25 Mon Sep 17 00:00:00 2001
+From: Daniel Llewellyn <daniel@bowlhat.net>
+Date: Thu, 6 Feb 2020 17:56:12 +0100
+Subject: [PATCH xserver 05/22] os: Ignore dying client in ResetCurrentRequest
+
+You might as well, it's harmless. Better, some cleanup code (like DRI2
+swap wait) needs to run both normally and at client exit, so it
+simplifies the callers to not need to check first. See 4308f5d3 for a
+similar example.
+
+Props: @ajax (Adam Jackson)
+
+Fixes: xorg/xserver#211
+
+Signed-off-by: Daniel Llewellyn <diddledan@ubuntu.com>
+(cherry picked from commit 578371616e09364318c9fb2371a693d438b31b29)
+---
+ os/io.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/os/io.c b/os/io.c
+index b099f0967..939f51743 100644
+--- a/os/io.c
++++ b/os/io.c
+@@ -557,6 +557,11 @@ void
+ ResetCurrentRequest(ClientPtr client)
+ {
+     OsCommPtr oc = (OsCommPtr) client->osPrivate;
++
++    /* ignore dying clients */
++    if (!oc)
++        return;
++
+     register ConnectionInputPtr oci = oc->input;
+     register xReq *request;
+     int gotnow, needed;
+-- 
+2.24.1
+

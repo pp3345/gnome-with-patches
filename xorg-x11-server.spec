@@ -21,7 +21,7 @@
 %global ansic_major 0
 %global ansic_minor 4
 %global videodrv_major 24
-%global videodrv_minor 0
+%global videodrv_minor 1
 %global xinput_major 24
 %global xinput_minor 1
 %global extension_major 10
@@ -45,8 +45,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.20.6
-Release:   2%{?gitdate:.%{gitdate}}%{?dist}
+Version:   1.20.7
+Release:   1%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -101,12 +101,31 @@ Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 #Patch24: 0004-modesetting-Use-atomic-instead-of-per-crtc-walks-whe.patch
 
 # Backports from current stable "server-1.20-branch":
-# ...
+
+Patch100: 0001-configure-Define-GLAMOR_HAS_EGL_QUERY_DRIVER-when-av.patch
+Patch101: 0002-modesetting-Explicitly-include-mi.h.patch
+Patch102: 0003-Restrict-1x1-pixmap-filling-optimization-to-GXcopy.patch
+Patch103: 0004-Revert-dri2-Don-t-make-reference-to-noClientExceptio.patch
+Patch104: 0005-os-Ignore-dying-client-in-ResetCurrentRequest.patch
+Patch105: 0006-xfree86-modes-Bail-from-xf86RotateRedisplay-if-pScre.patch
+Patch106: 0007-modesetting-remove-unnecessary-error-message-fix-zap.patch
+Patch107: 0008-glamor-Propagate-FBO-allocation-failure-for-picture-.patch
+Patch108: 0009-glamor-Error-out-on-out-of-memory-when-allocating-PB.patch
+Patch109: 0010-glamor-Propagate-glamor_prepare_access-failures-in-c.patch
+Patch110: 0011-glamor-Fallback-to-system-memory-for-RW-PBO-buffer-a.patch
+Patch111: 0012-glamor-Fix-a-compiler-warning-since-the-recent-OOM-f.patch
+Patch112: 0013-modesetting-Disable-atomic-support-by-default.patch
+Patch113: 0014-xwayland-Split-up-xwl_screen_post_damage-into-two-ph.patch
+Patch114: 0015-xwayland-Call-glamor_block_handler-from-xwl_screen_p.patch
+Patch115: 0016-xwayland-clear-pixmaps-after-creation-in-rootless-mo.patch
+Patch116: 0017-xwayland-Add-xwl_window_create_frame_callback-helper.patch
+Patch117: 0018-xwayland-Use-single-frame-callback-for-Present-flips.patch
+Patch118: 0019-xwayland-Use-frame-callbacks-for-Present-vblank-even.patch
+Patch119: 0020-Fix-building-with-fno-common.patch
+Patch120: 0021-dix-Check-for-NULL-spriteInfo-in-GetPairedDevice.patch
+Patch121: 0022-xwayland-glamor-gbm-Handle-DRM_FORMAT_MOD_INVALID-gr.patch
 
 # Backports from "master" upstream:
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1697804
-Patch500: 0001-Xi-return-AlreadyGrabbed-for-key-grabs-255.patch
 
 # Backported Xwayland randr resolution change emulation support
 Patch501: 0001-dix-Add-GetCurrentClient-helper.patch
@@ -551,6 +570,14 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Mar 13 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.7-1
+- xserver 1.20.7
+- backport from stable "xserver-1.20-branch" up to commit ad7364d8d
+  (for mutter fullscreen unredirect on Wayland)
+- Update videodrv minor ABI as 1.20.7 changed the minor ABI version
+  (backward compatible, API addition in glamor)
+- Rebase Xwayland randr resolution change emulation support patches
+
 * Fri Jan 31 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.20.6-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 

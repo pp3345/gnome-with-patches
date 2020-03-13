@@ -1,0 +1,99 @@
+From 2a185dd22ddb5b0d7d2ef5948591028766bb9530 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Mon, 2 Mar 2020 18:09:31 +0100
+Subject: [PATCH xserver 19/22] xwayland: Use frame callbacks for Present
+ vblank events
+
+Instead of only the fallback timer.
+
+Fixes https://gitlab.freedesktop.org/xorg/xserver/issues/854
+
+v2:
+* Drop unused frame_callback member of struct xwl_present_window
+  (Olivier Fourdan)
+
+Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
+(cherry picked from commit 9b31358c52e951883bf7c01c953a9da080542244)
+---
+ hw/xwayland/xwayland-present.c | 22 ++++++++++++++--------
+ hw/xwayland/xwayland.h         |  2 --
+ 2 files changed, 14 insertions(+), 10 deletions(-)
+
+diff --git a/hw/xwayland/xwayland-present.c b/hw/xwayland/xwayland-present.c
+index baa97d6f3..c7c077aaa 100644
+--- a/hw/xwayland/xwayland-present.c
++++ b/hw/xwayland/xwayland-present.c
+@@ -242,7 +242,10 @@ xwl_present_timer_callback(OsTimerPtr timer,
+ {
+     struct xwl_present_window *xwl_present_window = arg;
+ 
+-    xwl_present_window->frame_timer_firing = TRUE;
++    /* If we were expecting a frame callback for this window, it didn't arrive
++     * in a second. Stop listening to it to avoid double-bumping the MSC
++     */
++    xorg_list_del(&xwl_present_window->frame_callback_list);
+ 
+     xwl_present_msc_bump(xwl_present_window);
+     xwl_present_reset_timer(xwl_present_window);
+@@ -255,11 +258,6 @@ xwl_present_frame_callback(struct xwl_present_window *xwl_present_window)
+ {
+     xorg_list_del(&xwl_present_window->frame_callback_list);
+ 
+-    if (xwl_present_window->frame_timer_firing) {
+-        /* If the timer is firing, this frame callback is too late */
+-        return;
+-    }
+-
+     xwl_present_msc_bump(xwl_present_window);
+ 
+     /* we do not need the timer anymore for this frame,
+@@ -349,6 +347,7 @@ xwl_present_queue_vblank(WindowPtr present_window,
+                          uint64_t msc)
+ {
+     struct xwl_present_window *xwl_present_window = xwl_present_window_get_priv(present_window);
++    struct xwl_window *xwl_window = xwl_window_from_window(present_window);
+     struct xwl_present_event *event;
+ 
+     event = malloc(sizeof *event);
+@@ -361,7 +360,15 @@ xwl_present_queue_vblank(WindowPtr present_window,
+ 
+     xorg_list_append(&event->list, &xwl_present_window->event_list);
+ 
+-    if (!xwl_present_window->frame_timer)
++    /* If there's a pending frame callback, use that */
++    if (xwl_window && xwl_window->frame_callback &&
++        xorg_list_is_empty(&xwl_present_window->frame_callback_list)) {
++        xorg_list_add(&xwl_present_window->frame_callback_list,
++                      &xwl_window->frame_callback_list);
++    }
++
++    if ((xwl_window && xwl_window->frame_callback) ||
++        !xwl_present_window->frame_timer)
+         xwl_present_reset_timer(xwl_present_window);
+ 
+     return Success;
+@@ -486,7 +493,6 @@ xwl_present_flip(WindowPtr present_window,
+     }
+ 
+     /* Realign timer */
+-    xwl_present_window->frame_timer_firing = FALSE;
+     xwl_present_reset_timer(xwl_present_window);
+ 
+     wl_surface_damage(xwl_window->surface, 0, 0,
+diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
+index d4eb6bf1a..a12ec257b 100644
+--- a/hw/xwayland/xwayland.h
++++ b/hw/xwayland/xwayland.h
+@@ -199,9 +199,7 @@ struct xwl_present_window {
+     uint64_t ust;
+ 
+     OsTimerPtr frame_timer;
+-    Bool frame_timer_firing;
+ 
+-    struct wl_callback *frame_callback;
+     struct wl_callback *sync_callback;
+ 
+     struct xorg_list event_list;
+-- 
+2.24.1
+

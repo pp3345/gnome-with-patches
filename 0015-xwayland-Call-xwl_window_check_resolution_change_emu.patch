@@ -1,4 +1,4 @@
-From 01629caef21b77cfabc052408eb04699e4fa5143 Mon Sep 17 00:00:00 2001
+From c0bae670131d7eef3d0a4d015a14899cbd4c9b2d Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 4 Nov 2019 11:46:49 +0100
 Subject: [PATCH xserver 15/17] xwayland: Call
@@ -26,10 +26,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 5 insertions(+)
 
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 75ff9f011..ed1d671ff 100644
+index 1840ccbfb..181977033 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -815,6 +815,11 @@ ensure_surface_for_window(WindowPtr window)
+@@ -832,6 +832,11 @@ ensure_surface_for_window(WindowPtr window)
  
      xwl_window_init_allow_commits(xwl_window);
  
@@ -42,5 +42,5 @@ index 75ff9f011..ed1d671ff 100644
  
  err_surf:
 -- 
-2.23.0
+2.24.1
 

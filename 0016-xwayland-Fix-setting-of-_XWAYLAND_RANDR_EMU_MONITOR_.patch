@@ -1,4 +1,4 @@
-From 2db2fcb97bd148476817634486cb384a1f623fa9 Mon Sep 17 00:00:00 2001
+From 8a34f7eb226be8d8ae0d9920657c17848372c92e Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 4 Nov 2019 14:32:29 +0100
 Subject: [PATCH xserver 16/17] xwayland: Fix setting of
@@ -33,10 +33,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index ed1d671ff..1ce29c51c 100644
+index 181977033..d8e65d59f 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -815,7 +815,13 @@ ensure_surface_for_window(WindowPtr window)
+@@ -832,7 +832,13 @@ ensure_surface_for_window(WindowPtr window)
  
      xwl_window_init_allow_commits(xwl_window);
  
@@ -51,7 +51,7 @@ index ed1d671ff..1ce29c51c 100644
          /* CSD or O-R toplevel window, check viewport on creation */
          xwl_window_check_resolution_change_emulation(xwl_window);
      }
-@@ -864,8 +870,6 @@ xwl_realize_window(WindowPtr window)
+@@ -881,8 +887,6 @@ xwl_realize_window(WindowPtr window)
              return FALSE;
      }
  
@@ -61,5 +61,5 @@ index ed1d671ff..1ce29c51c 100644
  }
  
 -- 
-2.23.0
+2.24.1
 

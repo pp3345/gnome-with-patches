@@ -1,0 +1,38 @@
+From d845ceae53bb425695e6a185b51ae1b432dd4672 Mon Sep 17 00:00:00 2001
+From: George Matsumura <gmmatsumura01@bvsd.org>
+Date: Thu, 6 Feb 2020 17:54:36 +0100
+Subject: [PATCH xserver 03/22] Restrict 1x1 pixmap filling optimization to
+ GXcopy
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This restricts an optimization whereby the filling of 1x1 pixmaps
+went around the driver-provided function to cases where the
+source color is meant to be directly copied to the destination,
+as opposed to other operations which should produce different
+destination values than just the foreground color.
+
+Signed-off-by: George Matsumura <gmmatsumura01@bvsd.org>
+Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
+(cherry picked from commit 83826075e59c0393c16d2a2482dc5c9f2fdf4564)
+---
+ exa/exa_accel.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/exa/exa_accel.c b/exa/exa_accel.c
+index b26d5c804..41fcb129f 100644
+--- a/exa/exa_accel.c
++++ b/exa/exa_accel.c
+@@ -1037,7 +1037,7 @@ exaFillRegionSolid(DrawablePtr pDrawable, RegionPtr pRegion, Pixel pixel,
+         if (pExaPixmap->pDamage &&
+             pExaPixmap->sys_ptr && pDrawable->type == DRAWABLE_PIXMAP &&
+             pDrawable->width == 1 && pDrawable->height == 1 &&
+-            pDrawable->bitsPerPixel != 24) {
++            pDrawable->bitsPerPixel != 24 && alu == GXcopy) {
+             RegionPtr pending_damage = DamagePendingRegion(pExaPixmap->pDamage);
+ 
+             switch (pDrawable->bitsPerPixel) {
+-- 
+2.24.1
+

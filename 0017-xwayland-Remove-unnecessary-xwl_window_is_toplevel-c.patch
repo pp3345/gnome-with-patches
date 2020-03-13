@@ -1,4 +1,4 @@
-From f73305cc415d2fd464aae4b0dc72558fd1b6bd81 Mon Sep 17 00:00:00 2001
+From 28610d4f35d8bc30f30f33656777649ea355f3c2 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 4 Nov 2019 15:01:18 +0100
 Subject: [PATCH xserver 17/17] xwayland: Remove unnecessary
@@ -43,5 +43,5 @@ index 7d705d919..084b669e4 100644
  
  static void
 -- 
-2.23.0
+2.24.1
 

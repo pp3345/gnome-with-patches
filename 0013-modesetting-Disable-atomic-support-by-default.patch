@@ -1,0 +1,69 @@
+From 1ba5e528d52ed9d7d67eb45c5d3e04b6f5d22b05 Mon Sep 17 00:00:00 2001
+From: Maarten Lankhorst <dev@mblankhorst.nl>
+Date: Thu, 25 Apr 2019 11:46:41 +0200
+Subject: [PATCH xserver 13/22] modesetting: Disable atomic support by default
+
+The atomic driver has issues with modesetting when stealing
+connectors from a different crtc, a black screen when doing rotation
+on a different crtc, and in general is just a mapping of the legacy
+helpers to atomic. This is already done in the kernel, so just
+fallback to legacy by default until this is fixed.
+
+Please backport to 1.20, as we don't want to enable it for everyone
+there. It breaks for existing users.
+
+The fixes to make the xserver more atomic have been pending on the
+mailing list for ages.
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110375
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110030
+References: https://gitlab.freedesktop.org/xorg/xserver/merge_requests/36/commits
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+(cherry picked from commit f0d78b47ac49977a6007f5fe081f00c6eb19a12e)
+---
+ hw/xfree86/drivers/modesetting/driver.c | 9 +++++++--
+ hw/xfree86/drivers/modesetting/driver.h | 1 +
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/hw/xfree86/drivers/modesetting/driver.c b/hw/xfree86/drivers/modesetting/driver.c
+index 9beb51f36..0612a08f6 100644
+--- a/hw/xfree86/drivers/modesetting/driver.c
++++ b/hw/xfree86/drivers/modesetting/driver.c
+@@ -131,6 +131,7 @@ static const OptionInfoRec Options[] = {
+     {OPTION_PAGEFLIP, "PageFlip", OPTV_BOOLEAN, {0}, FALSE},
+     {OPTION_ZAPHOD_HEADS, "ZaphodHeads", OPTV_STRING, {0}, FALSE},
+     {OPTION_DOUBLE_SHADOW, "DoubleShadow", OPTV_BOOLEAN, {0}, FALSE},
++    {OPTION_ATOMIC, "Atomic", OPTV_BOOLEAN, {0}, FALSE},
+     {-1, NULL, OPTV_NONE, {0}, FALSE}
+ };
+ 
+@@ -1038,8 +1039,12 @@ PreInit(ScrnInfoPtr pScrn, int flags)
+ #endif
+     }
+ 
+-    ret = drmSetClientCap(ms->fd, DRM_CLIENT_CAP_ATOMIC, 1);
+-    ms->atomic_modeset = (ret == 0);
++    if (xf86ReturnOptValBool(ms->drmmode.Options, OPTION_ATOMIC, FALSE)) {
++        ret = drmSetClientCap(ms->fd, DRM_CLIENT_CAP_ATOMIC, 1);
++        ms->atomic_modeset = (ret == 0);
++    } else {
++        ms->atomic_modeset = FALSE;
++    }
+ 
+     ms->kms_has_modifiers = FALSE;
+     ret = drmGetCap(ms->fd, DRM_CAP_ADDFB2_MODIFIERS, &value);
+diff --git a/hw/xfree86/drivers/modesetting/driver.h b/hw/xfree86/drivers/modesetting/driver.h
+index 493280c1d..8bfb2fc1a 100644
+--- a/hw/xfree86/drivers/modesetting/driver.h
++++ b/hw/xfree86/drivers/modesetting/driver.h
+@@ -51,6 +51,7 @@ typedef enum {
+     OPTION_PAGEFLIP,
+     OPTION_ZAPHOD_HEADS,
+     OPTION_DOUBLE_SHADOW,
++    OPTION_ATOMIC,
+ } modesettingOpts;
+ 
+ typedef struct
+-- 
+2.24.1
+

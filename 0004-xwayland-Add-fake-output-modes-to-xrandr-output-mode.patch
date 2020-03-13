@@ -1,7 +1,7 @@
-From 873a7d2164c08ddf57e88095b34bbec092f28d31 Mon Sep 17 00:00:00 2001
+From 1a24c9850144481cdc0ebf9bea5b3141ddc2c4b2 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 26 Jun 2019 16:46:54 +0200
-Subject: [PATCH xserver 04/14] xwayland: Add fake output modes to xrandr
+Subject: [PATCH xserver 04/17] xwayland: Add fake output modes to xrandr
  output mode lists
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -162,10 +162,10 @@ index aa6f37864..2ccc3ca60 100644
      xorg_list_for_each_entry(it, &xwl_screen->output_list, link) {
          /* output done event is sent even when some property
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 8b1c7918a..a599c022a 100644
+index 87185e6f3..44eb0e042 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -139,6 +139,23 @@ xwl_screen_get(ScreenPtr screen)
+@@ -152,6 +152,23 @@ xwl_screen_get(ScreenPtr screen)
      return dixLookupPrivate(&screen->devPrivates, &xwl_screen_private_key);
  }
  
@@ -190,10 +190,10 @@ index 8b1c7918a..a599c022a 100644
  xwl_window_set_allow_commits(struct xwl_window *xwl_window, Bool allow,
                               const char *debug_msg)
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 3e973d688..0fafc07a6 100644
+index 07baa09e2..937977ccf 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
-@@ -388,6 +388,7 @@ void xwl_surface_damage(struct xwl_screen *xwl_screen,
+@@ -389,6 +389,7 @@ void xwl_surface_damage(struct xwl_screen *xwl_screen,
  Bool xwl_screen_init_cursor(struct xwl_screen *xwl_screen);
  
  struct xwl_screen *xwl_screen_get(ScreenPtr screen);
@@ -202,5 +202,5 @@ index 3e973d688..0fafc07a6 100644
  void xwl_tablet_tool_set_cursor(struct xwl_tablet_tool *tool);
  void xwl_seat_set_cursor(struct xwl_seat *xwl_seat);
 -- 
-2.23.0
+2.24.1
 

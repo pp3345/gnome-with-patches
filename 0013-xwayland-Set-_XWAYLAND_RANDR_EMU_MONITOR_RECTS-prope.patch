@@ -1,7 +1,7 @@
-From d9f1d6f51f4c2d388214a675330b58ba2facb170 Mon Sep 17 00:00:00 2001
+From 2fd8751593ed1268e859a9a19f0eea3820ce5f69 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 2 Sep 2019 17:32:45 +0200
-Subject: [PATCH xserver 13/14] xwayland: Set _XWAYLAND_RANDR_EMU_MONITOR_RECTS
+Subject: [PATCH xserver 13/17] xwayland: Set _XWAYLAND_RANDR_EMU_MONITOR_RECTS
  property for resolution emulation
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -138,10 +138,10 @@ index 99ab1b288..20c254962 100644
  
  static void
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 58252d2e8..75ff9f011 100644
+index 19a348255..1840ccbfb 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -677,6 +677,27 @@ xwl_screen_check_resolution_change_emulation(struct xwl_screen *xwl_screen)
+@@ -690,6 +690,27 @@ xwl_screen_check_resolution_change_emulation(struct xwl_screen *xwl_screen)
          xwl_window_check_resolution_change_emulation(xwl_window);
  }
  
@@ -169,7 +169,7 @@ index 58252d2e8..75ff9f011 100644
  static void
  xwl_window_init_allow_commits(struct xwl_window *xwl_window)
  {
-@@ -838,6 +859,8 @@ xwl_realize_window(WindowPtr window)
+@@ -855,6 +876,8 @@ xwl_realize_window(WindowPtr window)
              return FALSE;
      }
  
@@ -179,10 +179,10 @@ index 58252d2e8..75ff9f011 100644
  }
  
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index b52de11d2..2d825ee8c 100644
+index 56e753306..ef1138348 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
-@@ -417,6 +417,7 @@ Bool xwl_screen_has_resolution_change_emulation(struct xwl_screen *xwl_screen);
+@@ -418,6 +418,7 @@ Bool xwl_screen_has_resolution_change_emulation(struct xwl_screen *xwl_screen);
  struct xwl_output *xwl_screen_get_first_output(struct xwl_screen *xwl_screen);
  void xwl_screen_check_resolution_change_emulation(struct xwl_screen *xwl_screen);
  Bool xwl_window_has_viewport_enabled(struct xwl_window *xwl_window);
@@ -190,7 +190,7 @@ index b52de11d2..2d825ee8c 100644
  
  void xwl_tablet_tool_set_cursor(struct xwl_tablet_tool *tool);
  void xwl_seat_set_cursor(struct xwl_seat *xwl_seat);
-@@ -455,6 +456,8 @@ RRModePtr xwl_output_find_mode(struct xwl_output *xwl_output,
+@@ -456,6 +457,8 @@ RRModePtr xwl_output_find_mode(struct xwl_output *xwl_output,
  void xwl_output_set_emulated_mode(struct xwl_output *xwl_output,
                                    ClientPtr client, RRModePtr mode,
                                    Bool from_vidmode);
@@ -200,5 +200,5 @@ index b52de11d2..2d825ee8c 100644
  RRModePtr xwayland_cvt(int HDisplay, int VDisplay,
                         float VRefresh, Bool Reduced, Bool Interlaced);
 -- 
-2.23.0
+2.24.1
 

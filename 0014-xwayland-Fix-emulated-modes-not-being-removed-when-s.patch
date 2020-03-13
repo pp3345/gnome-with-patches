@@ -1,7 +1,7 @@
-From c392765d459bd2cac6e3f431c67d698bb905e0ab Mon Sep 17 00:00:00 2001
+From a5b9f4880ab61dc0c02065e6fdf5e2f16f36be7c Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 7 Oct 2019 14:27:49 +0200
-Subject: [PATCH xserver 14/14] xwayland: Fix emulated modes not being removed
+Subject: [PATCH xserver 14/17] xwayland: Fix emulated modes not being removed
  when screen rotation is used
 
 The code building the mode-list does the following to deal with screen
@@ -57,5 +57,5 @@ index 20c254962..7d705d919 100644
      else
          xwl_output_add_emulated_mode_for_client(xwl_output, client, mode, from_vidmode);
 -- 
-2.23.0
+2.24.1
 

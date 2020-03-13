@@ -1,7 +1,7 @@
-From 7d403201820fb2bdc04bfa8f83c9dd3822c6abda Mon Sep 17 00:00:00 2001
+From 23d54f7049c83fd5baf9e008c159c8ffbec3649c Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 29 Aug 2019 14:18:28 +0200
-Subject: [PATCH xserver 01/14] dix: Add GetCurrentClient helper
+Subject: [PATCH xserver 01/17] dix: Add GetCurrentClient helper
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  2 files changed, 23 insertions(+), 1 deletion(-)
 
 diff --git a/dix/dispatch.c b/dix/dispatch.c
-index 176c7a0dd..ce84e6c8c 100644
+index a33bfaa9e..2b1cf1a74 100644
 --- a/dix/dispatch.c
 +++ b/dix/dispatch.c
 @@ -148,6 +148,7 @@ xConnSetupPrefix connSetupPrefix;
@@ -111,5 +111,5 @@ index b6e2bcfde..d65060cb6 100644
  extern _X_EXPORT void SetInputCheck(HWEventQueuePtr /*c0 */ ,
                                      HWEventQueuePtr /*c1 */ );
 -- 
-2.23.0
+2.24.1
 

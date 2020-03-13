@@ -1,0 +1,46 @@
+From 0238359bced17f9db0e266111897d154ab117d68 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Fri, 7 Feb 2020 12:15:07 +0100
+Subject: [PATCH xserver 15/22] xwayland: Call glamor_block_handler from
+ xwl_screen_post_damage
+
+In between the two phases introduced by the previous change. This makes
+sure all pending drawing to the new buffers is flushed before they're
+committed to the Wayland server.
+(cherry picked from commit a542224ea28e2e8ccaf5e0df85bf6c603e97599a)
+---
+ hw/xwayland/xwayland.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index de35a5af0..d3a4684d2 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -43,6 +43,10 @@
+ _X_EXPORT Bool noXFree86VidModeExtension;
+ #endif
+ 
++#ifdef XWL_HAS_GLAMOR
++#include <glamor.h>
++#endif
++
+ void
+ ddxGiveUp(enum ExitCode error)
+ {
+@@ -850,6 +854,13 @@ xwl_screen_post_damage(struct xwl_screen *xwl_screen)
+     if (xorg_list_is_empty(&commit_window_list))
+         return;
+ 
++#ifdef XWL_HAS_GLAMOR
++    if (xwl_screen->glamor &&
++        xwl_screen->egl_backend == &xwl_screen->gbm_backend) {
++        glamor_block_handler(xwl_screen->screen);
++    }
++#endif
++
+     xorg_list_for_each_entry_safe(xwl_window, next_xwl_window,
+                                   &commit_window_list, link_damage) {
+         wl_surface_commit(xwl_window->surface);
+-- 
+2.24.1
+

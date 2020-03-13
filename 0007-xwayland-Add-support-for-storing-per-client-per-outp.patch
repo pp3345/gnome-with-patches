@@ -1,7 +1,7 @@
-From dfb887783bfe3c5f57d46738bce13ec2d79b1769 Mon Sep 17 00:00:00 2001
+From 7c9852e4e9e85000d6c8759b237ed9e9320dadfd Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 29 Aug 2019 23:04:36 +0200
-Subject: [PATCH xserver 07/14] xwayland: Add support for storing per client
+Subject: [PATCH xserver 07/17] xwayland: Add support for storing per client
  per output emulated resolution
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -108,12 +108,12 @@ index 67e99bdab..82ff5db70 100644
  const int32_t xwl_output_fake_modes[][2] = {
      /* 4:3 (1.33) */
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 17018fcf5..d0e87a89d 100644
+index 630b14e48..7e6497b80 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
-@@ -380,7 +380,21 @@ struct xwl_output {
-     Bool xdg_output_done;
- };
+@@ -381,7 +381,21 @@ struct xwl_output {
+ 
+ void xwl_window_create_frame_callback(struct xwl_window *xwl_window);
  
 +/* Per client per output emulated randr/vidmode resolution info. */
 +struct xwl_emulated_mode {
@@ -133,7 +133,7 @@ index 17018fcf5..d0e87a89d 100644
  };
  
  struct xwl_client *xwl_client_get(ClientPtr client);
-@@ -424,6 +438,9 @@ void xwl_output_destroy(struct xwl_output *xwl_output);
+@@ -425,6 +439,9 @@ void xwl_output_destroy(struct xwl_output *xwl_output);
  
  void xwl_output_remove(struct xwl_output *xwl_output);
  
@@ -144,5 +144,5 @@ index 17018fcf5..d0e87a89d 100644
                         float VRefresh, Bool Reduced, Bool Interlaced);
  
 -- 
-2.23.0
+2.24.1
 
