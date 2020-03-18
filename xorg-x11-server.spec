@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.7
-Release:   1%{?gitdate:.%{gitdate}}%{?dist}
+Release:   2%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -124,6 +124,7 @@ Patch118: 0019-xwayland-Use-frame-callbacks-for-Present-vblank-even.patch
 Patch119: 0020-Fix-building-with-fno-common.patch
 Patch120: 0021-dix-Check-for-NULL-spriteInfo-in-GetPairedDevice.patch
 Patch121: 0022-xwayland-glamor-gbm-Handle-DRM_FORMAT_MOD_INVALID-gr.patch
+Patch122: 0001-xwayland-Delete-all-frame_callback_list-nodes-in-xwl.patch
 
 # Backports from "master" upstream:
 
@@ -570,6 +571,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Mar 18 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.7-2
+- Fix a crash on closing a window using Present found upstream:
+  https://gitlab.freedesktop.org/xorg/xserver/issues/1000
+
 * Fri Mar 13 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.7-1
 - xserver 1.20.7
 - backport from stable "xserver-1.20-branch" up to commit ad7364d8d
