@@ -1,0 +1,156 @@
+diff --git a/src/compositor/clutter-utils.c b/src/compositor/clutter-utils.c
+index 949d99ba11f82e479a4f55e8c186b5d9b7dee69c..f05a698f58a9c40f8c926bb6581c7319c7e00726 100644
+--- a/src/compositor/clutter-utils.c
++++ b/src/compositor/clutter-utils.c
+@@ -76,7 +76,8 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
+   int v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y;
+   int x, y;
+ 
+-  width = round_to_fixed (widthf); height = round_to_fixed (heightf);
++  width = round_to_fixed (widthf);
++  height = round_to_fixed (heightf);
+ 
+   v0x = round_to_fixed (verts[0].x); v0y = round_to_fixed (verts[0].y);
+   v1x = round_to_fixed (verts[1].x); v1y = round_to_fixed (verts[1].y);
+@@ -114,6 +115,8 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
+  * meta_actor_painting_untransformed:
+  * @paint_width: the width of the painted area
+  * @paint_height: the height of the painted area
++ * @sample_width: the width of the sampled area of the texture
++ * @sample_height: the height of the sampled area of the texture
+  * @x_origin: if the transform is only an integer translation
+  *  then the X coordinate of the location of the origin under the transformation
+  *  from drawing space to screen pixel space is returned here.
+@@ -132,6 +135,8 @@ gboolean
+ meta_actor_painting_untransformed (CoglFramebuffer *fb,
+                                    int              paint_width,
+                                    int              paint_height,
++                                   int              sample_width,
++                                   int              sample_height,
+                                    int             *x_origin,
+                                    int             *y_origin)
+ {
+@@ -165,13 +170,19 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
+   for (i = 0; i < 4; i++)
+     {
+       float w = 1;
+-      cogl_matrix_transform_point (&modelview_projection, &vertices[i].x, &vertices[i].y, &vertices[i].z, &w);
++      cogl_matrix_transform_point (&modelview_projection,
++                                   &vertices[i].x,
++                                   &vertices[i].y,
++                                   &vertices[i].z,
++                                   &w);
+       vertices[i].x = MTX_GL_SCALE_X (vertices[i].x, w,
+                                       viewport[2], viewport[0]);
+       vertices[i].y = MTX_GL_SCALE_Y (vertices[i].y, w,
+                                       viewport[3], viewport[1]);
+     }
+ 
+-  return meta_actor_vertices_are_untransformed (vertices, paint_width, paint_height, x_origin, y_origin);
++  return meta_actor_vertices_are_untransformed (vertices,
++                                                sample_width, sample_height,
++                                                x_origin, y_origin);
+ }
+ 
+diff --git a/src/compositor/clutter-utils.h b/src/compositor/clutter-utils.h
+index a1fe6b739593b976e4ac259354700a6b9d8ad920..8ed0e2a4d127d037a0371d01d1d7dbd349adc161 100644
+--- a/src/compositor/clutter-utils.h
++++ b/src/compositor/clutter-utils.h
+@@ -32,6 +32,8 @@ gboolean meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
+ gboolean meta_actor_painting_untransformed (CoglFramebuffer *fb,
+                                             int              paint_width,
+                                             int              paint_height,
++                                            int              sample_widthf,
++                                            int              sample_heightf,
+                                             int             *x_origin,
+                                             int             *y_origin);
+ 
+diff --git a/src/compositor/meta-background-actor.c b/src/compositor/meta-background-actor.c
+index 54a6fa5f4c968b4cfba7c005b72aaf6d6424939e..361fbeeb1fa69010256e171fc7d7943ba2b4e201 100644
+--- a/src/compositor/meta-background-actor.c
++++ b/src/compositor/meta-background-actor.c
+@@ -450,6 +450,8 @@ setup_pipeline (MetaBackgroundActor   *self,
+   fb = clutter_paint_context_get_framebuffer (paint_context);
+   if (!self->force_bilinear &&
+       meta_actor_painting_untransformed (fb,
++                                         actor_pixel_rect->width,
++                                         actor_pixel_rect->height,
+                                          actor_pixel_rect->width,
+                                          actor_pixel_rect->height,
+                                          NULL, NULL))
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index 6f30325cd7d2cc38bfa20bcf7a57128aae7e5eb6..71b99f32bf258000ffbf62354a548ee561476936 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -507,6 +507,17 @@ texture_is_idle_and_not_mipmapped (gpointer user_data)
+   return G_SOURCE_REMOVE;
+ }
+ 
++static void
++flip_ints (int *x,
++           int *y)
++{
++  int tmp;
++
++  tmp = *x;
++  *x = *y;
++  *y = tmp;
++}
++
+ static void
+ do_paint_content (MetaShapedTexture   *stex,
+                   ClutterPaintNode    *root_node,
+@@ -522,6 +533,7 @@ do_paint_content (MetaShapedTexture   *stex,
+   CoglContext *ctx;
+   CoglPipelineFilter filter;
+   CoglFramebuffer *framebuffer;
++  int sample_width, sample_height;
+ 
+   ensure_size_valid (stex);
+ 
+@@ -542,15 +554,30 @@ do_paint_content (MetaShapedTexture   *stex,
+    * improves performance, especially with software rendering.
+    */
+ 
+-  filter = COGL_PIPELINE_FILTER_LINEAR;
+-
+   framebuffer = clutter_paint_node_get_framebuffer (root_node);
+   if (!framebuffer)
+     framebuffer = clutter_paint_context_get_framebuffer (paint_context);
++
++  if (stex->has_viewport_src_rect)
++    {
++      sample_width = stex->viewport_src_rect.size.width * stex->buffer_scale;
++      sample_height = stex->viewport_src_rect.size.height * stex->buffer_scale;
++    }
++  else
++    {
++      sample_width = cogl_texture_get_width (stex->texture);
++      sample_height = cogl_texture_get_height (stex->texture);
++    }
++  if (meta_monitor_transform_is_rotated (stex->transform))
++    flip_ints (&sample_width, &sample_height);
++
+   if (meta_actor_painting_untransformed (framebuffer,
+                                          dst_width, dst_height,
++                                         sample_width, sample_height,
+                                          NULL, NULL))
+     filter = COGL_PIPELINE_FILTER_NEAREST;
++  else
++    filter = COGL_PIPELINE_FILTER_LINEAR;
+ 
+   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+ 
+diff --git a/src/compositor/meta-window-group.c b/src/compositor/meta-window-group.c
+index 49eb72b85c1695138d4f62f2078b0310cb9f921e..d526805feebcfac752b9186b82131f50195dad09 100644
+--- a/src/compositor/meta-window-group.c
++++ b/src/compositor/meta-window-group.c
+@@ -94,6 +94,8 @@ meta_window_group_paint (ClutterActor        *actor,
+ 
+       fb = clutter_paint_context_get_framebuffer (paint_context);
+       if (!meta_actor_painting_untransformed (fb,
++                                              screen_width,
++                                              screen_height,
+                                               screen_width,
+                                               screen_height,
+                                               &paint_x_origin,
