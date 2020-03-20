@@ -9,4 +9,7 @@ https://copr.fedorainfracloud.org/coprs/pp3345/gnome-with-patches/
 * `f31-gnome-shell`: gnome-shell sources for Fedora 31
 * `f31-gjs`: gjs sources for Fedora 31
 * `f31-xorg-x11-server`: Xorg/Xwayland sources for Fedora 31
+* `f32-mutter`: mutter sources for Fedora 32
+* `f32-gnome-shell`: gnome-shell sources for Fedora 32
+* `f32-xorg-x11-server`: Xorg/Xwayland sources for Fedora 32
 * `info`: this file
