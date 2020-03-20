@@ -1,0 +1,8 @@
+diff a/src/backends/meta-settings.c b/src/backends/meta-settings.c
+--- a/src/backends/meta-settings.c
++++ b/src/backends/meta-settings.c
+@@ -251,3 +251,3 @@ experimental_features_handler (GVariant *features_variant,
+   char *feature_str;
+-  MetaExperimentalFeature features = META_EXPERIMENTAL_FEATURE_NONE;
++  MetaExperimentalFeature features = META_EXPERIMENTAL_FEATURE_RT_SCHEDULER;
+ 
