@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.0
-Release:       1%{?dist}
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -172,6 +172,17 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Fri Mar 20 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.0-100
+- Add !850 "Make default focus window on each workspace appear focused" @f5252158
+- Add !983 "clutter/text: Check if attributes are equal before applying" @9b7fe584
+- Add !1074 "clutter/stage: Cache get_update_time results" @08880261
+- Add !798 "Wayland surface fullscreen unredirect" @0edcd574 (manually rebased)
+- Add !1124 "Use correct shaped texture filtering" @2db872cb
+- Add !724 "Sync timelines to hardware vsync" @dca8a88e
+- Add !1108 "surface-actor: Add culling offset for geometry scale" @974635e7
+- Enable real-time scheduling by default
+- Rebase to master@a13d60aa
+
 * Sat Mar 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.0-1
 - Update to 3.36.0
 
