@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.0
-Release:        3%{?dist}
+Release:        300%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -232,6 +232,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Extensions-symbolic.svg
 
 %changelog
+* Fri Mar 20 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.0-300
+- Add !923 "js/ui: Keep refcounts to WallClock objects above 1." @c599ec7a
+- Rebase to master@d9e8a525
+
 * Wed Mar 11 2020 Adam Williamson <awilliam@redhat.com> - 3.36.0-3
 - Backport fix for input method preedit issue (MR #1084)
 
