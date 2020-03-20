@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.7
-Release:   2%{?gitdate:.%{gitdate}}%{?dist}
+Release:   200%{?gitdate:.%{gitdate}}%{?dist}.pp3345
 URL:       http://www.x.org
 License:   MIT
 
@@ -574,6 +574,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Mar 20 2020 Yussuf Khalil <dev@pp3345.net> - 1.20.7-200
+- Add !389 "xwayland/glamor-gbm: Add xwl_glamor_gbm_post_damage hook" @9e85aa9c (manually rebased)
+- Add !316 "Add multiple buffering to xwl_window" @cd999f08 (manually rebased)
+
 * Wed Mar 18 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.7-2
 - Fix a crash on closing a window using Present found upstream:
   https://gitlab.freedesktop.org/xorg/xserver/issues/1000
