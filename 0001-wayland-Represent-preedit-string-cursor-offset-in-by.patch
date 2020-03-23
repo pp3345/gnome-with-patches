@@ -1,0 +1,42 @@
+From db9b60cc6357539d0deefd9ded236b1dd302d4a2 Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Tue, 17 Mar 2020 16:11:57 +0100
+Subject: [PATCH] wayland: Represent preedit string cursor offset in bytes
+
+Both IBus and ClutterInputFocus work in character offsets for the cursor
+position in the preedit string. However the zwp_text_input protocol does
+define the preedit string cursor offset to be in bytes.
+
+Fixes client bugs in representing the caret within the preedit string,
+as we were clearly giving the wrong offset.
+
+Fixes: https://gitlab.gnome.org/GNOME/gtk/issues/2517
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1132
+---
+ src/wayland/meta-wayland-text-input.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/wayland/meta-wayland-text-input.c b/src/wayland/meta-wayland-text-input.c
+index ee9b895cb..deff44c1b 100644
+--- a/src/wayland/meta-wayland-text-input.c
++++ b/src/wayland/meta-wayland-text-input.c
+@@ -207,12 +207,14 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
+ {
+   MetaWaylandTextInput *text_input;
+   struct wl_resource *resource;
++  gsize pos;
+ 
+   text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
++  pos = g_utf8_offset_to_pointer (text, cursor) - text;
+ 
+   wl_resource_for_each (resource, &text_input->focus_resource_list)
+     {
+-      zwp_text_input_v3_send_preedit_string (resource, text, cursor, cursor);
++      zwp_text_input_v3_send_preedit_string (resource, text, pos, pos);
+     }
+ 
+   meta_wayland_text_input_focus_defer_done (focus);
+-- 
+2.25.1
+
