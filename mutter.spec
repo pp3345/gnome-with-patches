@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.0
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,6 +18,11 @@ Source0:       http://download.gnome.org/sources/%{name}/3.36/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
+# Fix preedit string cursor position bug
+# https://gitlab.gnome.org/GNOME/gtk/issues/2517
+# https://bugzilla.redhat.com/show_bug.cgi?id=1812449
+# https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1132
+Patch1:        0001-wayland-Represent-preedit-string-cursor-offset-in-by.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -163,6 +168,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Mar 23 2020 Adam Williamson <awilliam@redhat.com> - 3.36.0-2
+- Backport fix for preedit cursor position bug (#1812449)
+
 * Sat Mar 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.0-1
 - Update to 3.36.0
 
