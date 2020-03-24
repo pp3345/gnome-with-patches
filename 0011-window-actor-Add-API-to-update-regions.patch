@@ -1,0 +1,136 @@
+From 304a103659def666388414f470fa5f0089cdff52 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Tue, 3 Mar 2020 10:26:54 +0100
+Subject: [PATCH 11/48] window-actor: Add API to update regions
+
+For X11 clients running on Xwayland, the opaque, input and shape regions
+are processed from different properties and may occur at a different
+time, before the actual buffer is eventually committed by Xwayland.
+
+Add a new API `update_regions` to window actor to trigger the update of
+those regions when needed.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/1091
+---
+ src/compositor/meta-window-actor-private.h |  3 +++
+ src/compositor/meta-window-actor-wayland.c |  6 ++++++
+ src/compositor/meta-window-actor-x11.c     | 21 ++++++++++++++++++++-
+ src/compositor/meta-window-actor.c         |  6 ++++++
+ 4 files changed, 35 insertions(+), 1 deletion(-)
+
+diff --git a/src/compositor/meta-window-actor-private.h b/src/compositor/meta-window-actor-private.h
+index 59dd641d4..31cc37702 100644
+--- a/src/compositor/meta-window-actor-private.h
++++ b/src/compositor/meta-window-actor-private.h
+@@ -28,6 +28,7 @@ struct _MetaWindowActorClass
+   void (*queue_destroy) (MetaWindowActor *actor);
+   void (*set_frozen) (MetaWindowActor *actor,
+                       gboolean         frozen);
++  void (*update_regions) (MetaWindowActor *actor);
+ };
+ 
+ typedef enum
+@@ -88,4 +89,6 @@ gboolean meta_window_actor_is_frozen (MetaWindowActor *self);
+ 
+ gboolean meta_window_actor_is_opaque (MetaWindowActor *self);
+ 
++void meta_window_actor_update_regions (MetaWindowActor *self);
++
+ #endif /* META_WINDOW_ACTOR_PRIVATE_H */
+diff --git a/src/compositor/meta-window-actor-wayland.c b/src/compositor/meta-window-actor-wayland.c
+index 4cdf8fe0e..bd890256c 100644
+--- a/src/compositor/meta-window-actor-wayland.c
++++ b/src/compositor/meta-window-actor-wayland.c
+@@ -162,6 +162,11 @@ meta_window_actor_wayland_get_paint_volume (ClutterActor       *actor,
+   return TRUE;
+ }
+ 
++static void
++meta_window_actor_wayland_update_regions (MetaWindowActor *actor)
++{
++}
++
+ static void
+ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
+ {
+@@ -177,6 +182,7 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
+   window_actor_class->post_paint = meta_window_actor_wayland_post_paint;
+   window_actor_class->queue_destroy = meta_window_actor_wayland_queue_destroy;
+   window_actor_class->set_frozen = meta_window_actor_wayland_set_frozen;
++  window_actor_class->update_regions = meta_window_actor_wayland_update_regions;
+ }
+ 
+ static void
+diff --git a/src/compositor/meta-window-actor-x11.c b/src/compositor/meta-window-actor-x11.c
+index 5c0db02ce..228d15e04 100644
+--- a/src/compositor/meta-window-actor-x11.c
++++ b/src/compositor/meta-window-actor-x11.c
+@@ -1132,7 +1132,7 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
+ }
+ 
+ static void
+-check_needs_reshape (MetaWindowActorX11 *actor_x11)
++update_regions (MetaWindowActorX11 *actor_x11)
+ {
+   if (!actor_x11->needs_reshape)
+     return;
+@@ -1144,6 +1144,18 @@ check_needs_reshape (MetaWindowActorX11 *actor_x11)
+   actor_x11->needs_reshape = FALSE;
+ }
+ 
++static void
++check_needs_reshape (MetaWindowActorX11 *actor_x11)
++{
++  MetaWindow *window =
++    meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
++
++  if (meta_window_x11_always_update_shape (window))
++    return;
++
++  update_regions (actor_x11);
++}
++
+ void
+ meta_window_actor_x11_update_shape (MetaWindowActorX11 *actor_x11)
+ {
+@@ -1394,6 +1406,12 @@ meta_window_actor_x11_set_frozen (MetaWindowActor *actor,
+     meta_window_x11_thaw_commits (window);
+ }
+ 
++static void
++meta_window_actor_x11_update_regions (MetaWindowActor *actor)
++{
++  update_regions (META_WINDOW_ACTOR_X11 (actor));
++}
++
+ static void
+ meta_window_actor_x11_set_property (GObject      *object,
+                                     guint         prop_id,
+@@ -1566,6 +1584,7 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
+   window_actor_class->post_paint = meta_window_actor_x11_post_paint;
+   window_actor_class->queue_destroy = meta_window_actor_x11_queue_destroy;
+   window_actor_class->set_frozen = meta_window_actor_x11_set_frozen;
++  window_actor_class->update_regions = meta_window_actor_x11_update_regions;
+ 
+   actor_class->paint = meta_window_actor_x11_paint;
+   actor_class->get_paint_volume = meta_window_actor_x11_get_paint_volume;
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index c5ad8e1b0..32b85ed1f 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -251,6 +251,12 @@ meta_window_actor_is_frozen (MetaWindowActor *self)
+   return priv->surface == NULL || priv->freeze_count > 0;
+ }
+ 
++void
++meta_window_actor_update_regions (MetaWindowActor *self)
++{
++  META_WINDOW_ACTOR_GET_CLASS (self)->update_regions (self);
++}
++
+ static void
+ meta_window_actor_set_frozen (MetaWindowActor *self,
+                               gboolean         frozen)
+-- 
+2.26.0.rc2
+

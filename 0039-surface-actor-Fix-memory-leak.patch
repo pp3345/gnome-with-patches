@@ -1,0 +1,56 @@
+From 1d2004524728d337b0e98bedfc360549b9ee7d0e Mon Sep 17 00:00:00 2001
+From: Robert Mader <robert.mader@posteo.de>
+Date: Tue, 17 Mar 2020 20:57:18 +0100
+Subject: [PATCH 39/48] surface-actor: Fix memory leak
+
+When we create a new region for an opaque texture we need to free it.
+While on it, simplify the check slightly.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1108
+---
+ src/compositor/meta-surface-actor.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/src/compositor/meta-surface-actor.c b/src/compositor/meta-surface-actor.c
+index ff66f3c0a..41aa5a26d 100644
+--- a/src/compositor/meta-surface-actor.c
++++ b/src/compositor/meta-surface-actor.c
+@@ -285,8 +285,11 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
+       int geometry_scale = 1;
+ 
+       opaque_region = meta_shaped_texture_get_opaque_region (priv->texture);
+-
+-      if (!opaque_region && meta_shaped_texture_is_opaque (priv->texture))
++      if (opaque_region)
++        {
++          cairo_region_reference (opaque_region);
++        }
++      else if (meta_shaped_texture_is_opaque (priv->texture))
+         {
+           cairo_rectangle_int_t rect;
+ 
+@@ -297,9 +300,10 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
+ 
+           opaque_region = cairo_region_create_rectangle (&rect);
+         }
+-
+-      if (!opaque_region)
+-        return;
++      else
++        {
++          return;
++        }
+ 
+       window_actor =
+         meta_window_actor_from_actor (CLUTTER_ACTOR (surface_actor));
+@@ -313,6 +317,7 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
+       if (clip_region)
+         cairo_region_subtract (clip_region, scaled_opaque_region);
+ 
++      cairo_region_destroy (opaque_region);
+       cairo_region_destroy (scaled_opaque_region);
+     }
+ }
+-- 
+2.26.0.rc2
+

@@ -1,7 +1,8 @@
 From db9b60cc6357539d0deefd9ded236b1dd302d4a2 Mon Sep 17 00:00:00 2001
 From: Carlos Garnacho <carlosg@gnome.org>
 Date: Tue, 17 Mar 2020 16:11:57 +0100
-Subject: [PATCH] wayland: Represent preedit string cursor offset in bytes
+Subject: [PATCH 32/48] wayland: Represent preedit string cursor offset in
+ bytes
 
 Both IBus and ClutterInputFocus work in character offsets for the cursor
 position in the preedit string. However the zwp_text_input protocol does
@@ -38,5 +39,5 @@ index ee9b895cb..deff44c1b 100644
  
    meta_wayland_text_input_focus_defer_done (focus);
 -- 
-2.25.1
+2.26.0.rc2
 

@@ -1,0 +1,29 @@
+From 509e9ca5a0009268faaa7373c984e2df710a48e2 Mon Sep 17 00:00:00 2001
+From: Sebastian Keller <skeller@gnome.org>
+Date: Tue, 10 Mar 2020 23:27:35 +0100
+Subject: [PATCH 15/48] xwayland: Fix mime type atom list leak on DnD with more
+ than 3 types
+
+Found using the clang static analyzer
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1117
+---
+ src/wayland/meta-xwayland-dnd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/wayland/meta-xwayland-dnd.c b/src/wayland/meta-xwayland-dnd.c
+index 9821f2dc3..6b75362ba 100644
+--- a/src/wayland/meta-xwayland-dnd.c
++++ b/src/wayland/meta-xwayland-dnd.c
+@@ -171,7 +171,7 @@ xdnd_send_enter (MetaXWaylandDnd *dnd,
+       /* We have more than 3 mimetypes, we must set up
+        * the mimetype list as a XdndTypeList property.
+        */
+-      Atom *atomlist;
++      g_autofree Atom *atomlist = NULL;
+       gint i = 0;
+ 
+       xev.xclient.data.l[1] |= 1;
+-- 
+2.26.0.rc2
+
