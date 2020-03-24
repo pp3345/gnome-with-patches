@@ -1,0 +1,34 @@
+From 6989fea76717b54496da829aca7ca5591ff36a52 Mon Sep 17 00:00:00 2001
+From: Andre Moreira Magalhaes <andre@endlessm.com>
+Date: Thu, 12 Mar 2020 17:49:11 -0300
+Subject: [PATCH 22/48] cogl: Fix build error when GL_ARB_sync is not defined
+
+Commit 41992757e0 introduced a change to use CoglContext.glFenceSync
+but this method is only available when GL_ARB_sync is defined (as
+defined on gl-prototypes/cogl-all-functions.h).
+
+This change fixes that.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1123
+---
+ cogl/cogl/driver/gl/gles/cogl-driver-gles.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/cogl/cogl/driver/gl/gles/cogl-driver-gles.c b/cogl/cogl/driver/gl/gles/cogl-driver-gles.c
+index e0c8ca1fa..ca98823e8 100644
+--- a/cogl/cogl/driver/gl/gles/cogl-driver-gles.c
++++ b/cogl/cogl/driver/gl/gles/cogl-driver-gles.c
+@@ -366,8 +366,10 @@ _cogl_driver_update_features (CoglContext *context,
+       _cogl_check_extension ("GL_OES_egl_sync", gl_extensions))
+     COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_OES_EGL_SYNC, TRUE);
+ 
++#ifdef GL_ARB_sync
+   if (context->glFenceSync)
+     COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_FENCE, TRUE);
++#endif
+ 
+   if (_cogl_check_extension ("GL_EXT_texture_rg", gl_extensions))
+     COGL_FLAGS_SET (context->features,
+-- 
+2.26.0.rc2
+

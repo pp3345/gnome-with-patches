@@ -1,0 +1,48 @@
+From 50ff30bf2bc9789944737ab35936533a81990c95 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Mon, 2 Mar 2020 15:49:07 +0100
+Subject: [PATCH 04/48] xwayland: Log actual error message if available
+
+If X11 initialization fails, print the actual error message if the error
+is set, to help with debugging.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/1102
+---
+ src/core/display.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/src/core/display.c b/src/core/display.c
+index a9394ea82..6a7e75d55 100644
+--- a/src/core/display.c
++++ b/src/core/display.c
+@@ -701,7 +701,13 @@ meta_display_init_x11_finish (MetaDisplay   *display,
+   g_assert (g_task_get_source_tag (G_TASK (result)) == meta_display_init_x11);
+ 
+   if (!g_task_propagate_boolean (G_TASK (result), error))
+-    return FALSE;
++    {
++      if (*error == NULL)
++        g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED, "Unknown error");
++
++      return FALSE;
++    }
++
+   if (display->x11_display)
+     return TRUE;
+ 
+@@ -778,8 +784,10 @@ on_x11_initialized (MetaDisplay  *display,
+                     GAsyncResult *result,
+                     gpointer      user_data)
+ {
+-  if (!meta_display_init_x11_finish (display, result, NULL))
+-    g_critical ("Failed to init X11 display");
++  g_autoptr (GError) error = NULL;
++
++  if (!meta_display_init_x11_finish (display, result, &error))
++    g_critical ("Failed to init X11 display: %s", error->message);
+ }
+ #endif
+ 
+-- 
+2.26.0.rc2
+

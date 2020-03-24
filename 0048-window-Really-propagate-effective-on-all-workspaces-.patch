@@ -1,0 +1,49 @@
+From d4c070da88d94a8d6e3e96348b97ce46f93430ab Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Sat, 21 Mar 2020 18:24:52 +0100
+Subject: [PATCH 48/48] window: Really propagate effective on-all-workspaces
+ setting to transients
+
+Commit cda9579034b fixed a corner case when setting the initial workspace
+state of transient windows, but it still missed a case:
+
+should_be_on_all_workspaces() returns whether the window should be on all
+workspaces according to its properties/placement, but it doesn't take
+transient relations into account.
+
+That means in case of nested transients, we can still fail the assert:
+
+ 1. on-all-workspaces toplevel
+ 2. should_be_on_all_workspaces() is TRUE for the first transient's parent,
+    as the window from (1) has on_all_workspaces_requested == TRUE
+ 3. should_be_on_all_workspaces() is FALSE for the second transient's
+    parent, as the window from (2) is only on-all-workspace because
+    of its parent
+
+We can fix this by either using the state from the root ancestor
+instead of the direct transient parent, or by using the parent's
+on_all_workspaces_state.
+
+The latter is simpler, so go with that.
+
+https://gitlab.gnome.org/GNOME/mutter/issues/1083
+---
+ src/core/window.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/window.c b/src/core/window.c
+index 5a9341578..06988dd1b 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -1319,7 +1319,7 @@ _meta_window_shared_new (MetaDisplay         *display,
+ 
+           g_warn_if_fail (!window->transient_for->override_redirect);
+           set_workspace_state (window,
+-                               should_be_on_all_workspaces (window->transient_for),
++                               window->transient_for->on_all_workspaces,
+                                window->transient_for->workspace);
+         }
+       else if (window->on_all_workspaces)
+-- 
+2.26.0.rc2
+

@@ -1,0 +1,24 @@
+From 121c5d2a927f168f4df9b95230d261d299b46299 Mon Sep 17 00:00:00 2001
+From: Mart Raudsepp <leio@gentoo.org>
+Date: Tue, 3 Mar 2020 17:40:11 +0200
+Subject: [PATCH 05/48] meson: Expand on xwayland_initfd option description
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/1104
+---
+ meson_options.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meson_options.txt b/meson_options.txt
+index 097809a93..75a1961e4 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -156,5 +156,5 @@ option('xwayland_grab_default_access_rules',
+ option('xwayland_initfd',
+   type: 'feature',
+   value: 'auto',
+-  description: 'Whether Xwayland -initfd argument is used'
++  description: 'Whether -initfd argument is passed to Xwayland to guarantee services (e.g. gsd-xsettings) startup before applications'
+ )
+-- 
+2.26.0.rc2
+

@@ -1,0 +1,62 @@
+From 0053ef2e1633cf6f1be249a7b9fa83a35e8664f9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Corentin=20No=C3=ABl?= <corentin@elementary.io>
+Date: Tue, 17 Mar 2020 13:21:11 +0100
+Subject: [PATCH 29/48] cogl-texture: Add some missing array annotations
+
+This allows bindings to correctly understand that it is an array
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1130
+---
+ cogl/cogl/cogl-texture.h                 | 8 ++++----
+ cogl/cogl/deprecated/cogl-auto-texture.h | 2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/cogl/cogl/cogl-texture.h b/cogl/cogl/cogl-texture.h
+index 924912d02..d9727dbbe 100644
+--- a/cogl/cogl/cogl-texture.h
++++ b/cogl/cogl/cogl-texture.h
+@@ -320,8 +320,8 @@ cogl_texture_get_gl_texture (CoglTexture *texture,
+  * @rowstride: the rowstride of @data in bytes or pass 0 to calculate
+  *             from the bytes-per-pixel of @format multiplied by the
+  *             @texture width.
+- * @data: memory location to write the @texture's contents, or %NULL
+- * to only query the data size through the return value.
++ * @data: (array) (nullable): memory location to write the @texture's contents,
++ * or %NULL to only query the data size through the return value.
+  *
+  * Copies the pixel data from a cogl texture to system memory.
+  *
+@@ -354,7 +354,7 @@ cogl_texture_get_data (CoglTexture *texture,
+  * @format: the #CoglPixelFormat used in the source buffer.
+  * @rowstride: rowstride of source buffer (computed from width if none
+  * specified)
+- * @data: the actual pixel data.
++ * @data: (array): the actual pixel data.
+  *
+  * Sets the pixels in a rectangular subregion of @texture from an in-memory
+  * buffer containing pixel data.
+@@ -384,7 +384,7 @@ cogl_texture_set_region (CoglTexture *texture,
+  * @format: the #CoglPixelFormat used in the source @data buffer.
+  * @rowstride: rowstride of the source @data buffer (computed from
+  *             the texture width and @format if it equals 0)
+- * @data: the source data, pointing to the first top-left pixel to set
++ * @data: (array): the source data, pointing to the first top-left pixel to set
+  * @level: The mipmap level to update (Normally 0 for the largest,
+  *         base texture)
+  * @error: A #GError to return exceptional errors
+diff --git a/cogl/cogl/deprecated/cogl-auto-texture.h b/cogl/cogl/deprecated/cogl-auto-texture.h
+index df2b1da29..afd5cf98c 100644
+--- a/cogl/cogl/deprecated/cogl-auto-texture.h
++++ b/cogl/cogl/deprecated/cogl-auto-texture.h
+@@ -104,7 +104,7 @@ cogl_texture_new_from_file (const char       *filename,
+  *    something other than straight blending.
+  * @rowstride: the memory offset in bytes between the starts of
+  *    scanlines in @data
+- * @data: pointer the memory region where the source buffer resides
++ * @data: (array): pointer the memory region where the source buffer resides
+  *
+  * Creates a new #CoglTexture based on data residing in memory.
+  *
+-- 
+2.26.0.rc2
+

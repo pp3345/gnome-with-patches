@@ -1,0 +1,40 @@
+From b310e1d9d7c9e20de957c4ea1ff1d2b819aeb0a2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Corentin=20No=C3=ABl?= <corentin@elementary.io>
+Date: Tue, 17 Mar 2020 13:37:49 +0100
+Subject: [PATCH 30/48] clutter-stage: Add annotations to clutter_stage_capture
+
+Especially document that out_captures is an array that is given as output.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1131
+---
+ clutter/clutter/clutter-stage.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index 80061bba7..a5d73e63f 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -4349,6 +4349,20 @@ capture_view (ClutterStage          *stage,
+   cairo_surface_mark_dirty (capture->image);
+ }
+ 
++/**
++ * clutter_stage_capture:
++ * @stage: a #ClutterStage
++ * @paint: whether to pain the frame
++ * @rect: a #cairo_rectangle_int_t in stage coordinates
++ * @out_captures: (out) (array length=out_n_captures): an array of
++ *   #ClutterCapture
++ * @out_n_captures: (out): the number of captures in @out_captures
++ *
++ * Captures the stage pixels of @rect into @captures. @rect is in stage
++ * coordinates.
++ *
++ * Returns: %TRUE if a #ClutterCapture has been created, %FALSE otherwise
++ */
+ gboolean
+ clutter_stage_capture (ClutterStage          *stage,
+                        gboolean               paint,
+-- 
+2.26.0.rc2
+

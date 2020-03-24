@@ -1,0 +1,50 @@
+From 0b102afb5392c1a8f9d1b9ed7f20aceb1fdf84b2 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Tue, 3 Mar 2020 10:31:51 +0100
+Subject: [PATCH 12/48] xwayland: Update regions on texture updates
+
+For X11 clients running on Wayland, the actual texture is set by
+Xwayland.
+
+The shape, input and opaque regions, however are driven by X11
+properties meaning that those may come at a different time than the
+actual update of the content.
+
+This results in black areas being visible at times on resize with
+Xwayland clients.
+
+To make sure we update all the regions at the same time the buffer is
+updated, update the shape, input and opaque regions when the texture is
+committed from when the Xwayland surface state is synchronized.
+
+That fixes the remaining black areas being sometimes visible when
+resizing client-side decorations windows on Xwayland.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/issues/1007
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/1091
+---
+ src/wayland/meta-xwayland-surface.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/wayland/meta-xwayland-surface.c b/src/wayland/meta-xwayland-surface.c
+index 3233dcc26..4a4615a2c 100644
+--- a/src/wayland/meta-xwayland-surface.c
++++ b/src/wayland/meta-xwayland-surface.c
+@@ -232,7 +232,13 @@ meta_xwayland_surface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
+     META_WAYLAND_ACTOR_SURFACE_CLASS (meta_xwayland_surface_parent_class);
+ 
+   if (xwayland_surface->window)
+-    actor_surface_class->sync_actor_state (actor_surface);
++    {
++      MetaWindowActor *window_actor =
++        meta_window_actor_from_window (xwayland_surface->window);
++
++      actor_surface_class->sync_actor_state (actor_surface);
++      meta_window_actor_update_regions (window_actor);
++    }
+ }
+ 
+ static void
+-- 
+2.26.0.rc2
+

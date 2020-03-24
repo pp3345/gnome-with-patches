@@ -1,0 +1,26 @@
+From 0700f3749f7d469bd229866b1cd6b8acb7346f4c Mon Sep 17 00:00:00 2001
+From: Andrew Gaul <andrew@gaul.org>
+Date: Sun, 16 Jun 2019 16:57:50 -0700
+Subject: [PATCH 26/48] input-settings/x11: Fix typo in has_udev_property
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/256
+---
+ src/backends/x11/meta-input-settings-x11.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/backends/x11/meta-input-settings-x11.c b/src/backends/x11/meta-input-settings-x11.c
+index a9658e702..40067770f 100644
+--- a/src/backends/x11/meta-input-settings-x11.c
++++ b/src/backends/x11/meta-input-settings-x11.c
+@@ -496,7 +496,7 @@ has_udev_property (MetaInputSettings  *settings,
+ 
+   if (!warned_once)
+     {
+-      g_warning ("Failed to set acceleration profile: no udev support");
++      g_warning ("Failed to query property: no udev support");
+       warned_once = TRUE;
+     }
+ 
+-- 
+2.26.0.rc2
+

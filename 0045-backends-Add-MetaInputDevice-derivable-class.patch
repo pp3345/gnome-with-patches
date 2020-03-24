@@ -1,0 +1,360 @@
+From 1f00aba92c324ec501a775fe288af187f3c36910 Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Fri, 6 Mar 2020 14:12:59 +0100
+Subject: [PATCH 45/48] backends: Add MetaInputDevice derivable class
+
+This class sits between ClutterInputDevice and the backend implementations,
+it will be the despositary of features we need across both backends, but
+don't need to offer through Clutter's API.
+
+As a first thing to have there, add a getter for a WacomDevice. This is
+something scattered across and somewhat inconsistent (eg. different places
+of the code create wacom devices for different device types). Just make it
+here for all devices, so users can pick.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1109
+---
+ src/backends/meta-backend-private.h           |   4 +
+ src/backends/meta-backend.c                   |  27 ++++
+ src/backends/meta-input-device-private.h      |  48 ++++++
+ src/backends/meta-input-device.c              | 137 ++++++++++++++++++
+ .../native/meta-input-device-native.c         |   2 +-
+ .../native/meta-input-device-native.h         |   1 +
+ src/backends/x11/meta-input-device-x11.c      |   2 +-
+ src/backends/x11/meta-input-device-x11.h      |   1 +
+ src/meson.build                               |   1 +
+ 9 files changed, 221 insertions(+), 2 deletions(-)
+ create mode 100644 src/backends/meta-input-device-private.h
+ create mode 100644 src/backends/meta-input-device.c
+
+diff --git a/src/backends/meta-backend-private.h b/src/backends/meta-backend-private.h
+index f5423c12b..4678f7768 100644
+--- a/src/backends/meta-backend-private.h
++++ b/src/backends/meta-backend-private.h
+@@ -182,4 +182,8 @@ void meta_backend_add_gpu (MetaBackend *backend,
+ META_EXPORT_TEST
+ GList * meta_backend_get_gpus (MetaBackend *backend);
+ 
++#ifdef HAVE_LIBWACOM
++WacomDeviceDatabase * meta_backend_get_wacom_database (MetaBackend *backend);
++#endif
++
+ #endif /* META_BACKEND_PRIVATE_H */
+diff --git a/src/backends/meta-backend.c b/src/backends/meta-backend.c
+index 6295c8b7e..f75df806b 100644
+--- a/src/backends/meta-backend.c
++++ b/src/backends/meta-backend.c
+@@ -134,6 +134,10 @@ struct _MetaBackendPrivate
+   MetaProfiler *profiler;
+ #endif
+ 
++#ifdef HAVE_LIBWACOM
++  WacomDeviceDatabase *wacom_db;
++#endif
++
+   ClutterBackend *clutter_backend;
+   ClutterActor *stage;
+ 
+@@ -199,6 +203,10 @@ meta_backend_finalize (GObject *object)
+   g_clear_object (&priv->remote_access_controller);
+ #endif
+ 
++#ifdef HAVE_LIBWACOM
++  g_clear_pointer (&priv->wacom_db, libwacom_database_destroy);
++#endif
++
+   if (priv->sleep_signal_id)
+     g_dbus_connection_signal_unsubscribe (priv->system_bus, priv->sleep_signal_id);
+   if (priv->upower_watch_id)
+@@ -715,6 +723,15 @@ meta_backend_constructed (GObject *object)
+   MetaBackendClass *backend_class =
+    META_BACKEND_GET_CLASS (backend);
+ 
++#ifdef HAVE_LIBWACOM
++  priv->wacom_db = libwacom_database_new ();
++  if (!priv->wacom_db)
++    {
++      g_warning ("Could not create database of Wacom devices, "
++                 "expect tablets to misbehave");
++    }
++#endif
++
+   if (backend_class->is_lid_closed != meta_backend_real_is_lid_closed)
+     return;
+ 
+@@ -1442,3 +1459,13 @@ meta_backend_get_gpus (MetaBackend *backend)
+ 
+   return priv->gpus;
+ }
++
++#ifdef HAVE_LIBWACOM
++WacomDeviceDatabase *
++meta_backend_get_wacom_database (MetaBackend *backend)
++{
++  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
++
++  return priv->wacom_db;
++}
++#endif
+diff --git a/src/backends/meta-input-device-private.h b/src/backends/meta-input-device-private.h
+new file mode 100644
+index 000000000..a2cbd4864
+--- /dev/null
++++ b/src/backends/meta-input-device-private.h
+@@ -0,0 +1,48 @@
++/*
++ * Copyright © 2020  Red Hat Ltd.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author: Carlos Garnacho <carlosg@gnome.org>
++ */
++#ifndef META_INPUT_DEVICE_H
++#define META_INPUT_DEVICE_H
++
++#include <glib-object.h>
++
++#ifdef HAVE_LIBWACOM
++#include <libwacom/libwacom.h>
++#endif
++
++#include "clutter/clutter-mutter.h"
++
++typedef struct _MetaInputDeviceClass MetaInputDeviceClass;
++typedef struct _MetaInputDevice MetaInputDevice;
++
++struct _MetaInputDeviceClass
++{
++  ClutterInputDeviceClass parent_class;
++};
++
++#define META_TYPE_INPUT_DEVICE (meta_input_device_get_type ())
++G_DECLARE_DERIVABLE_TYPE (MetaInputDevice,
++			  meta_input_device,
++			  META, INPUT_DEVICE,
++			  ClutterInputDevice)
++
++#ifdef HAVE_LIBWACOM
++WacomDevice * meta_input_device_get_wacom_device (MetaInputDevice *input_device);
++#endif
++
++#endif /* META_INPUT_DEVICE_H */
+diff --git a/src/backends/meta-input-device.c b/src/backends/meta-input-device.c
+new file mode 100644
+index 000000000..e05c024e3
+--- /dev/null
++++ b/src/backends/meta-input-device.c
+@@ -0,0 +1,137 @@
++/*
++ * Copyright © 2020  Red Hat Ltd.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library. If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author: Carlos Garnacho <carlosg@gnome.org>
++ */
++
++#include "config.h"
++
++#include "backends/meta-backend-private.h"
++#include "meta-input-device-private.h"
++
++typedef struct _MetaInputDevicePrivate MetaInputDevicePrivate;
++
++struct _MetaInputDevicePrivate
++{
++#ifdef HAVE_LIBWACOM
++  WacomDevice *wacom_device;
++#else
++  /* Just something to have non-zero sized struct otherwise */
++  gpointer wacom_device;
++#endif
++};
++
++enum
++{
++  PROP_WACOM_DEVICE = 1,
++  N_PROPS
++};
++
++static GParamSpec *props[N_PROPS] = { 0 };
++
++G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaInputDevice,
++                                     meta_input_device,
++                                     CLUTTER_TYPE_INPUT_DEVICE)
++
++static void
++meta_input_device_init (MetaInputDevice *input_device)
++{
++}
++
++static void
++meta_input_device_constructed (GObject *object)
++{
++  MetaInputDevice *input_device = META_INPUT_DEVICE (object);
++#ifdef HAVE_LIBWACOM
++  WacomDeviceDatabase *wacom_db;
++  MetaInputDevicePrivate *priv;
++  const char *node;
++#endif
++
++  G_OBJECT_CLASS (meta_input_device_parent_class)->constructed (object);
++
++#ifdef HAVE_LIBWACOM
++  priv = meta_input_device_get_instance_private (input_device);
++  wacom_db = meta_backend_get_wacom_database (meta_get_backend ());
++  node = clutter_input_device_get_device_node (CLUTTER_INPUT_DEVICE (input_device));
++  priv->wacom_device = libwacom_new_from_path (wacom_db, node,
++                                               WFALLBACK_NONE, NULL);
++#endif /* HAVE_LIBWACOM */
++}
++
++static void
++meta_input_device_finalize (GObject *object)
++{
++#ifdef HAVE_LIBWACOM
++  MetaInputDevicePrivate *priv;
++
++  priv = meta_input_device_get_instance_private (META_INPUT_DEVICE (object));
++
++  g_clear_pointer (&priv->wacom_device, libwacom_destroy);
++#endif /* HAVE_LIBWACOM */
++
++  G_OBJECT_CLASS (meta_input_device_parent_class)->finalize (object);
++}
++
++static void
++meta_input_device_get_property (GObject    *object,
++                                guint       prop_id,
++                                GValue     *value,
++                                GParamSpec *pspec)
++{
++  MetaInputDevicePrivate *priv;
++
++  priv = meta_input_device_get_instance_private (META_INPUT_DEVICE (object));
++
++  switch (prop_id)
++    {
++    case PROP_WACOM_DEVICE:
++      g_value_set_pointer (value, priv->wacom_device);
++      break;
++    default:
++      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
++    }
++}
++
++static void
++meta_input_device_class_init (MetaInputDeviceClass *klass)
++{
++  GObjectClass *object_class = G_OBJECT_CLASS (klass);
++
++  object_class->constructed = meta_input_device_constructed;
++  object_class->finalize = meta_input_device_finalize;
++  object_class->get_property = meta_input_device_get_property;
++
++  props[PROP_WACOM_DEVICE] =
++    g_param_spec_pointer ("wacom-device",
++                          "Wacom device",
++                          "Wacom device",
++                          G_PARAM_READABLE);
++
++  g_object_class_install_properties (object_class, N_PROPS, props);
++}
++
++#ifdef HAVE_LIBWACOM
++WacomDevice *
++meta_input_device_get_wacom_device (MetaInputDevice *input_device)
++{
++  MetaInputDevicePrivate *priv;
++
++  priv = meta_input_device_get_instance_private (input_device);
++
++  return priv->wacom_device;
++}
++#endif /* HAVE_LIBWACOM */
+diff --git a/src/backends/native/meta-input-device-native.c b/src/backends/native/meta-input-device-native.c
+index 34054c5e9..4b87eb2a0 100644
+--- a/src/backends/native/meta-input-device-native.c
++++ b/src/backends/native/meta-input-device-native.c
+@@ -31,7 +31,7 @@
+ 
+ G_DEFINE_TYPE (MetaInputDeviceNative,
+                meta_input_device_native,
+-               CLUTTER_TYPE_INPUT_DEVICE)
++               META_TYPE_INPUT_DEVICE)
+ 
+ enum
+ {
+diff --git a/src/backends/native/meta-input-device-native.h b/src/backends/native/meta-input-device-native.h
+index 9b3a21904..59cff51ef 100644
+--- a/src/backends/native/meta-input-device-native.h
++++ b/src/backends/native/meta-input-device-native.h
+@@ -28,6 +28,7 @@
+ 
+ #include <glib-object.h>
+ 
++#include "backends/meta-input-device-private.h"
+ #include "backends/native/meta-seat-native.h"
+ #include "clutter/clutter-mutter.h"
+ 
+diff --git a/src/backends/x11/meta-input-device-x11.c b/src/backends/x11/meta-input-device-x11.c
+index af07c34f6..3d96c344e 100644
+--- a/src/backends/x11/meta-input-device-x11.c
++++ b/src/backends/x11/meta-input-device-x11.c
+@@ -52,7 +52,7 @@ struct _MetaInputDeviceX11Class
+ 
+ G_DEFINE_TYPE (MetaInputDeviceX11,
+                meta_input_device_x11,
+-               CLUTTER_TYPE_INPUT_DEVICE)
++               META_TYPE_INPUT_DEVICE)
+ 
+ static void
+ meta_input_device_x11_constructed (GObject *object)
+diff --git a/src/backends/x11/meta-input-device-x11.h b/src/backends/x11/meta-input-device-x11.h
+index eacef955a..1cbee031a 100644
+--- a/src/backends/x11/meta-input-device-x11.h
++++ b/src/backends/x11/meta-input-device-x11.h
+@@ -26,6 +26,7 @@
+ #include <libwacom/libwacom.h>
+ #endif
+ 
++#include "backends/meta-input-device-private.h"
+ #include "clutter/clutter.h"
+ 
+ G_BEGIN_DECLS
+diff --git a/src/meson.build b/src/meson.build
+index b882b5350..bb1b48b44 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -190,6 +190,7 @@ mutter_sources = [
+   'backends/meta-idle-monitor-dbus.c',
+   'backends/meta-idle-monitor-dbus.h',
+   'backends/meta-idle-monitor-private.h',
++  'backends/meta-input-device.c',
+   'backends/meta-input-mapper.c',
+   'backends/meta-input-mapper-private.h',
+   'backends/meta-input-settings.c',
+-- 
+2.26.0.rc2
+
