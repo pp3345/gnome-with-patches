@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.0
-Release:       100%{?dist}.pp3345
+Release:       101%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -171,6 +171,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Mar 25 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.0-101
+- Remove !1108 "surface-actor: Add culling offset for geometry scale" (merged)
+- Rebase to master@3aece844
+
 * Fri Mar 20 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.0-100
 - Add !850 "Make default focus window on each workspace appear focused" @f5252158
 - Add !983 "clutter/text: Check if attributes are equal before applying" @9b7fe584
