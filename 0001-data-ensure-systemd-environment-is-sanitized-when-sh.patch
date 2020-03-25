@@ -1,0 +1,60 @@
+From 187af8f442248b4d9481cc4189e24033607a1c81 Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Wed, 25 Mar 2020 16:30:46 -0400
+Subject: [PATCH] data: ensure systemd environment is sanitized when shell
+ exits
+
+When mutter is acting as a display server it sets a number of
+environment variables in the user's session. These variables
+tell applications where the display server's sockets are.
+
+When the shell exits at logout time it leaves these environment
+variables in the systemd --user environment, which can confuse
+subsequent sessions.
+
+This commit clears up the environment on exit.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1129
+---
+ data/gnome-shell-wayland.service.in | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/data/gnome-shell-wayland.service.in b/data/gnome-shell-wayland.service.in
+index 04f94af2d..aab02f4f5 100644
+--- a/data/gnome-shell-wayland.service.in
++++ b/data/gnome-shell-wayland.service.in
+@@ -1,27 +1,31 @@
+ [Unit]
+ Description=GNOME Shell on Wayland
+ # On wayland, force a session shutdown
+ OnFailure=gnome-shell-disable-extensions.service gnome-session-shutdown.target
+ OnFailureJobMode=replace-irreversibly
+ CollectMode=inactive-or-failed
+ RefuseManualStart=on
+ RefuseManualStop=on
+ 
+ After=gnome-session-manager.target
+ 
+ Requisite=gnome-session-initialized.target
+ PartOf=gnome-session-initialized.target
+ Before=gnome-session-initialized.target
+ 
+ # The units already conflict because they use the same BusName
+ #Conflicts=gnome-shell-x11.service
+ 
+ [Service]
+ Type=notify
+ ExecStart=@bindir@/gnome-shell
++
++# unset some environment variables that were set by the shell and won't work now that the shell is gone
++ExecStopPost=-systemctl --user unset-environment GNOME_SETUP_DISPLAY WAYLAND_DISPLAY DISPLAY XAUTHORITY
++
+ # Exit code 1 means we are probably *not* dealing with an extension failure
+ SuccessExitStatus=1
+ # On wayland we cannot restart
+ Restart=no
+ # Kill any stubborn child processes after this long
+ TimeoutStopSec=5
+-- 
+2.21.1
+
