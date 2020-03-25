@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.0
-Release:        300%{?dist}.pp3345
+Release:        301%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -233,6 +233,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Extensions-symbolic.svg
 
 %changelog
+* Wed Mar 25 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.0-301
+- Rebase to master@66c4b1a8
+
 * Fri Mar 20 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.0-300
 - Add !923 "js/ui: Keep refcounts to WallClock objects above 1." @c599ec7a
 - Rebase to master@d9e8a525
