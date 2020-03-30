@@ -7,7 +7,7 @@
 %global mutter_api_version 6
 
 Name:          mutter
-Version:       3.36.0
+Version:       3.36.1
 Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -18,60 +18,6 @@ Source0:       http://download.gnome.org/sources/%{name}/3.36/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-# All patches from 3.36.0 to d4c070da88d94a8d6e3e96348b97ce46f93430ab
-# Including fixes for preedit issue:
-# https://bugzilla.redhat.com/show_bug.cgi?id=1812449
-# and output problems on X11 with 4k displays and/or scaling:
-# https://bugzilla.redhat.com/show_bug.cgi?id=1809717
-Patch0001:     0001-Update-Serbian-translation.patch
-Patch0002:     0002-screen-cast-stream-src-Don-t-complain-when-we-can-t-.patch
-Patch0003:     0003-screen-cast-stream-src-Don-t-leak-GSource.patch
-Patch0004:     0004-xwayland-Log-actual-error-message-if-available.patch
-Patch0005:     0005-meson-Expand-on-xwayland_initfd-option-description.patch
-Patch0006:     0006-cursor-renderer-native-Refactor-init-to-per-gpu.patch
-Patch0007:     0007-cursor-renderer-native-Handle-GPU-hotplug.patch
-Patch0008:     0008-window-actor-X11-Update-shape-input-and-opaque-regio.patch
-Patch0009:     0009-window-x11-Add-function-to-convert-the-surface-to-cl.patch
-Patch0010:     0010-window-actor-x11-Compute-client-area-from-surface-si.patch
-Patch0011:     0011-window-actor-Add-API-to-update-regions.patch
-Patch0012:     0012-xwayland-Update-regions-on-texture-updates.patch
-Patch0013:     0013-window-actor-x11-Use-the-new-MetaShapedTexture-API.patch
-Patch0014:     0014-window-x11-Rename-meta_window_x11_buffer_rect_to_fra.patch
-Patch0015:     0015-xwayland-Fix-mime-type-atom-list-leak-on-DnD-with-mo.patch
-Patch0016:     0016-monitor-config-manager-Respect-layout-mode-when-calc.patch
-Patch0017:     0017-crtc-xrandr-Compare-right-coordinate-when-checking-a.patch
-Patch0018:     0018-wayland-Don-t-crash-when-trying-to-fullscreen-on-ine.patch
-Patch0019:     0019-keybindings-Move-common-window-grab-code-out-of-X-on.patch
-Patch0020:     0020-kms-impl-device-Clean-up-state-if-drm-resources-disa.patch
-Patch0021:     0021-cogl-Add-main-header-for-Cogl.patch
-Patch0022:     0022-cogl-Fix-build-error-when-GL_ARB_sync-is-not-defined.patch
-Patch0023:     0023-keybindings-Avoid-double-calls-to-process_event-on-t.patch
-Patch0024:     0024-keybindings-Check-the-special-modifiers-specifically.patch
-Patch0025:     0025-input-settings-Wire-up-middle-emulation.patch
-Patch0026:     0026-input-settings-x11-Fix-typo-in-has_udev_property.patch
-Patch0027:     0027-input-settings-Specify-middle-click-emulation-key.patch
-Patch0028:     0028-cursor-renderer-native-Skip-hw-cursor-upload-if-we-c.patch
-Patch0029:     0029-cogl-texture-Add-some-missing-array-annotations.patch
-Patch0030:     0030-clutter-stage-Add-annotations-to-clutter_stage_captu.patch
-Patch0031:     0031-wayland-window-Ignore-state-changes-for-popups.patch
-Patch0032:     0032-wayland-Represent-preedit-string-cursor-offset-in-by.patch
-Patch0033:     0033-kms-impl-simple-Handle-lack-of-cached-mode-set-in-fl.patch
-Patch0034:     0034-monitor-manager-Remove-mirror-capability.patch
-Patch0035:     0035-clutter-stage-Rename-parameters-to-match-documentati.patch
-Patch0036:     0036-Update-Romanian-translation.patch
-Patch0037:     0037-x11-Handle-windowing-errors-while-writing-selection-.patch
-Patch0038:     0038-backends-x11-Observe-multiple-pad-mode-switch-button.patch
-Patch0039:     0039-surface-actor-Fix-memory-leak.patch
-Patch0040:     0040-surface-actor-Add-culling-offset-for-geometry-scale.patch
-Patch0041:     0041-backends-use-the-enum-name-instead-of-a-literal-0.patch
-Patch0042:     0042-wayland-Handle-NULL-preedit-text.patch
-Patch0043:     0043-backends-Add-mapping-function-arg-to-settings_set_bo.patch
-Patch0044:     0044-backends-Fix-configuration-changes-to-tap-and-drag.patch
-Patch0045:     0045-backends-Add-MetaInputDevice-derivable-class.patch
-Patch0046:     0046-backends-x11-Drop-internal-WacomDevice-lookups.patch
-Patch0047:     0047-backends-Drop-internal-WacomDevice-in-MetaInputSetti.patch
-Patch0048:     0048-window-Really-propagate-effective-on-all-workspaces-.patch
-
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -217,6 +163,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Mar 30 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.1-1
+- Update to 3.36.1
+
 * Tue Mar 24 2020 Adam Williamson <awilliam@redhat.com> - 3.36.0-3
 - Backport all patches to git master for various fixes inc (#1809717)
 
