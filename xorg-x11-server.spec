@@ -45,8 +45,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.20.7
-Release:   2%{?gitdate:.%{gitdate}}%{?dist}
+Version:   1.20.8
+Release:   1%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -92,39 +92,7 @@ Patch5: 0001-autobind-GPUs-to-the-screen.patch
 # because the display-managers are not ready yet, do not upstream
 Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
-# test for https://bugzilla.redhat.com/show_bug.cgi?id=1697591
-# see also https://gitlab.freedesktop.org/xorg/xserver/merge_requests/36
-# ofourdan> Disabling those for now, causing regressions (#1714981, #1723715)
-#Patch21: 0001-modesetting-Weaksauce-atomic-property-debugging.patch
-#Patch22: 0002-modesetting-Propagate-more-failure-in-drmmode_set_mo.patch
-#Patch23: 0003-modesetting-Factor-out-drmmode_target_output.patch
-#Patch24: 0004-modesetting-Use-atomic-instead-of-per-crtc-walks-whe.patch
-
 # Backports from current stable "server-1.20-branch":
-
-Patch100: 0001-configure-Define-GLAMOR_HAS_EGL_QUERY_DRIVER-when-av.patch
-Patch101: 0002-modesetting-Explicitly-include-mi.h.patch
-Patch102: 0003-Restrict-1x1-pixmap-filling-optimization-to-GXcopy.patch
-Patch103: 0004-Revert-dri2-Don-t-make-reference-to-noClientExceptio.patch
-Patch104: 0005-os-Ignore-dying-client-in-ResetCurrentRequest.patch
-Patch105: 0006-xfree86-modes-Bail-from-xf86RotateRedisplay-if-pScre.patch
-Patch106: 0007-modesetting-remove-unnecessary-error-message-fix-zap.patch
-Patch107: 0008-glamor-Propagate-FBO-allocation-failure-for-picture-.patch
-Patch108: 0009-glamor-Error-out-on-out-of-memory-when-allocating-PB.patch
-Patch109: 0010-glamor-Propagate-glamor_prepare_access-failures-in-c.patch
-Patch110: 0011-glamor-Fallback-to-system-memory-for-RW-PBO-buffer-a.patch
-Patch111: 0012-glamor-Fix-a-compiler-warning-since-the-recent-OOM-f.patch
-Patch112: 0013-modesetting-Disable-atomic-support-by-default.patch
-Patch113: 0014-xwayland-Split-up-xwl_screen_post_damage-into-two-ph.patch
-Patch114: 0015-xwayland-Call-glamor_block_handler-from-xwl_screen_p.patch
-Patch115: 0016-xwayland-clear-pixmaps-after-creation-in-rootless-mo.patch
-Patch116: 0017-xwayland-Add-xwl_window_create_frame_callback-helper.patch
-Patch117: 0018-xwayland-Use-single-frame-callback-for-Present-flips.patch
-Patch118: 0019-xwayland-Use-frame-callbacks-for-Present-vblank-even.patch
-Patch119: 0020-Fix-building-with-fno-common.patch
-Patch120: 0021-dix-Check-for-NULL-spriteInfo-in-GetPairedDevice.patch
-Patch121: 0022-xwayland-glamor-gbm-Handle-DRM_FORMAT_MOD_INVALID-gr.patch
-Patch122: 0001-xwayland-Delete-all-frame_callback_list-nodes-in-xwl.patch
 
 # Backports from "master" upstream:
 
@@ -142,10 +110,17 @@ Patch510: 0010-xwayland-Add-xwlVidModeGetCurrentRRMode-helper-to-th.patch
 Patch511: 0011-xwayland-Add-vidmode-mode-changing-emulation-support.patch
 Patch512: 0012-xwayland-xwl_window_should_enable_viewport-Add-extra.patch
 Patch513: 0013-xwayland-Set-_XWAYLAND_RANDR_EMU_MONITOR_RECTS-prope.patch
-Patch514: 0014-xwayland-Fix-emulated-modes-not-being-removed-when-s.patch
-Patch515: 0015-xwayland-Call-xwl_window_check_resolution_change_emu.patch
-Patch516: 0016-xwayland-Fix-setting-of-_XWAYLAND_RANDR_EMU_MONITOR_.patch
-Patch517: 0017-xwayland-Remove-unnecessary-xwl_window_is_toplevel-c.patch
+Patch514: 0014-xwayland-Cache-client-id-for-the-window-manager-clie.patch
+Patch515: 0015-xwayland-Reuse-viewport-instead-of-recreating.patch
+Patch516: 0016-xwayland-Recurse-on-finding-the-none-wm-owner.patch
+Patch517: 0017-xwayland-Make-window_get_none_wm_owner-return-a-Wind.patch
+Patch518: 0018-xwayland-Check-emulation-on-client-toplevel-resize.patch
+Patch519: 0019-xwayland-Also-check-resolution-change-emulation-when.patch
+Patch520: 0020-xwayland-Also-hook-screen-s-MoveWindow-method.patch
+Patch521: 0021-xwayland-Fix-emulated-modes-not-being-removed-when-s.patch
+Patch522: 0022-xwayland-Call-xwl_window_check_resolution_change_emu.patch
+Patch523: 0023-xwayland-Fix-setting-of-_XWAYLAND_RANDR_EMU_MONITOR_.patch
+Patch524: 0024-xwayland-Remove-unnecessary-xwl_window_is_toplevel-c.patch
 
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
@@ -571,6 +546,11 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Mon Mar 30 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.8-1
+- xserver 1.20.8
+- Backport latest Xwayland randr resolution change emulation support
+  patches.
+
 * Wed Mar 18 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.7-2
 - Fix a crash on closing a window using Present found upstream:
   https://gitlab.freedesktop.org/xorg/xserver/issues/1000

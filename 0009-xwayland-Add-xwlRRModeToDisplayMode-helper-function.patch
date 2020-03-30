@@ -1,7 +1,7 @@
-From 3367f9a40c56b48b4945d8529934ef0ac8c395f3 Mon Sep 17 00:00:00 2001
+From 62e8b2ff7471f1a48b8bac9f41cceecea4931c03 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 8 Jul 2019 14:00:27 +0200
-Subject: [PATCH xserver 09/17] xwayland: Add xwlRRModeToDisplayMode() helper
+Subject: [PATCH xserver 09/24] xwayland: Add xwlRRModeToDisplayMode() helper
  function
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -14,6 +14,7 @@ Wayland viewport extension.
 Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
 Acked-by: Michel Dänzer <mdaenzer@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit 43c80078126f6f33c6ab7d3cf4668733bde03366)
 ---
  hw/xwayland/xwayland-vidmode.c | 51 +++++++++++++++++++---------------
  1 file changed, 28 insertions(+), 23 deletions(-)
@@ -96,5 +97,5 @@ index 0bcd11401..a59c9f6a9 100644
      return TRUE;
  }
 -- 
-2.24.1
+2.25.2
 

@@ -1,7 +1,7 @@
-From 23d54f7049c83fd5baf9e008c159c8ffbec3649c Mon Sep 17 00:00:00 2001
+From e78e96157efb523272404a85a9433c7b9803c1db Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 29 Aug 2019 14:18:28 +0200
-Subject: [PATCH xserver 01/17] dix: Add GetCurrentClient helper
+Subject: [PATCH xserver 01/24] dix: Add GetCurrentClient helper
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,6 +43,7 @@ to RRSetCrtc).
 Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
 Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit 834a467af978ac7a24ed17b8c8e58b6cddb4faf9)
 ---
  dix/dispatch.c | 23 ++++++++++++++++++++++-
  include/dix.h  |  1 +
@@ -111,5 +112,5 @@ index b6e2bcfde..d65060cb6 100644
  extern _X_EXPORT void SetInputCheck(HWEventQueuePtr /*c0 */ ,
                                      HWEventQueuePtr /*c1 */ );
 -- 
-2.24.1
+2.25.2
 

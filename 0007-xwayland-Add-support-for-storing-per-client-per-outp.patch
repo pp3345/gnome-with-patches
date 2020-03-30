@@ -1,7 +1,7 @@
-From 7c9852e4e9e85000d6c8759b237ed9e9320dadfd Mon Sep 17 00:00:00 2001
+From 879fed575deea57462217fc31eb331db8d23637c Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 29 Aug 2019 23:04:36 +0200
-Subject: [PATCH xserver 07/17] xwayland: Add support for storing per client
+Subject: [PATCH xserver 07/24] xwayland: Add support for storing per client
  per output emulated resolution
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -24,6 +24,7 @@ change emulation.
 Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
 Acked-by: Michel Dänzer <mdaenzer@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit aca0a588eb40a5e6669094a2ab7f71ca0ba06b16)
 ---
  hw/xwayland/xwayland-output.c | 67 +++++++++++++++++++++++++++++++++++
  hw/xwayland/xwayland.h        | 17 +++++++++
@@ -108,12 +109,12 @@ index 67e99bdab..82ff5db70 100644
  const int32_t xwl_output_fake_modes[][2] = {
      /* 4:3 (1.33) */
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 630b14e48..7e6497b80 100644
+index 593e92b64..0e6f92e63 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
-@@ -381,7 +381,21 @@ struct xwl_output {
- 
- void xwl_window_create_frame_callback(struct xwl_window *xwl_window);
+@@ -379,7 +379,21 @@ struct xwl_output {
+     Bool xdg_output_done;
+ };
  
 +/* Per client per output emulated randr/vidmode resolution info. */
 +struct xwl_emulated_mode {
@@ -132,7 +133,7 @@ index 630b14e48..7e6497b80 100644
 +    struct xwl_emulated_mode emulated_modes[XWL_CLIENT_MAX_EMULATED_MODES];
  };
  
- struct xwl_client *xwl_client_get(ClientPtr client);
+ void xwl_window_create_frame_callback(struct xwl_window *xwl_window);
 @@ -425,6 +439,9 @@ void xwl_output_destroy(struct xwl_output *xwl_output);
  
  void xwl_output_remove(struct xwl_output *xwl_output);
@@ -144,5 +145,5 @@ index 630b14e48..7e6497b80 100644
                         float VRefresh, Bool Reduced, Bool Interlaced);
  
 -- 
-2.24.1
+2.25.2
 

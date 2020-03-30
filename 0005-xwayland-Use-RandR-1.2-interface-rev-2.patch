@@ -1,7 +1,7 @@
-From 10ea651c552c8a7d7a2bfab29b7def4f31f8af6c Mon Sep 17 00:00:00 2001
+From d837f7003d22c5e0d5bd05d41e872e7ee331dfa4 Mon Sep 17 00:00:00 2001
 From: Robert Mader <robert.mader@posteo.de>
 Date: Mon, 22 Jan 2018 17:57:38 +0100
-Subject: [PATCH xserver 05/17] xwayland: Use RandR 1.2 interface (rev 2)
+Subject: [PATCH xserver 05/24] xwayland: Use RandR 1.2 interface (rev 2)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -23,6 +23,7 @@ was set.
 Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
 Acked-by: Michel Dänzer <mdaenzer@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit e89872f51aa834fa9d94a4ca4822f03b0341ab4f)
 ---
  hw/xwayland/xwayland-output.c | 81 +++++++++++++++++++++++++++++++++++
  1 file changed, 81 insertions(+)
@@ -134,5 +135,5 @@ index 2ccc3ca60..67e99bdab 100644
      return TRUE;
  }
 -- 
-2.24.1
+2.25.2
 
