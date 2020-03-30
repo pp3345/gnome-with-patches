@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.36.0
-Release:        4%{?dist}
+Version:        3.36.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -16,18 +16,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
-
-# Fix ibus failing to launch automatically
-# https://gitlab.gnome.org/GNOME/gnome-shell/issues/2341
-# https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1080
-Patch4: 1080.patch
-
-# Fix input method preedit not counting as 'started typing'
-# https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1084
-Patch5: 1084.patch
-
-# Clear environment on logout
-Patch6: 0001-data-ensure-systemd-environment-is-sanitized-when-sh.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
@@ -152,20 +140,11 @@ advantage of the capabilities of modern graphics hardware and introduces
 innovative user interface concepts to provide a visually attractive and
 easy to use experience.
 
-%package -n gnome-extensions-app
-Summary:        Manage GNOME Shell extensions
-License:        GPLv2+
-Requires:       gnome-shell >= %{version}
-
-%description -n gnome-extensions-app
-GNOME Extensions is an application for configuring and removing
-GNOME Shell extensions.
-
 %prep
 %autosetup -S git
 
 %build
-%meson
+%meson -Dextensions_app=false
 %meson_build
 
 %install
@@ -179,7 +158,6 @@ mkdir -p %{buildroot}%{_datadir}/gnome-shell/search-providers
 
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.gnome.Shell.desktop
-desktop-file-validate %{buildroot}%{_datadir}/applications/org.gnome.Extensions.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.desktop
 
 %files -f %{name}.lang
@@ -198,7 +176,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/gnome-control-center/keybindings/50-gnome-shell-system.xml
 %{_datadir}/gnome-shell/
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
+%{_datadir}/dbus-1/services/org.gnome.Shell.Extensions.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
+%{_datadir}/dbus-1/services/org.gnome.Shell.Notifications.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.PortalHelper.service
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Extensions.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Introspect.xml
@@ -231,14 +211,11 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-extensions.1*
 %{_mandir}/man1/gnome-shell.1*
 
-%files -n gnome-extensions-app
-%{_bindir}/gnome-shell-extension-prefs
-%{_datadir}/applications/org.gnome.Extensions.desktop
-%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Extensions.svg
-%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Extensions.Devel.svg
-%{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Extensions-symbolic.svg
-
 %changelog
+* Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.1-1
+- Update to 3.36.1
+- Remove gnome-extensions-app subpackage (will move to a separate .spec)
+
 * Wed Mar 25 2020 Ray Strode <rstrode@redhat.com> - 3.36.0-4
 - Clear environment on logout
   Fixes log in to Xorg right after log out from wayland
