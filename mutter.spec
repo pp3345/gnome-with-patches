@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.34.5
-Release:       1%{?dist}
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -206,6 +206,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Mar 31 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.5-100
+- Rebase to 3.34.5-1.fc31
+
 * Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.5-1
 - Update to 3.34.5
 
