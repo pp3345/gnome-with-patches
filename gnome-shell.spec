@@ -1,13 +1,13 @@
 Name:           gnome-shell
-Version:        3.34.4
-Release:        101%{?dist}.pp3345
+Version:        3.34.5
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        gnome-shell-3.34.4-bb9c286e.tar.gz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.34/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -227,6 +227,14 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.5-1
+- Update to 3.34.5
+
+* Wed Mar 11 2020 Jonas Ådahl <jadahl@redhat.com> - 3.34.4-2
+- Backport patches after 3.34.4
+  Resolves: 1784268
+  Resolves: #1768690
+
 * Mon Mar 02 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.4-101
 - Add !1044 "st: implement ClutterActorClass.has_accessible()" @24a3fd4c
 - Add !1051 "util: cache local GTimeZone" @06b690ff (manually rebased)
