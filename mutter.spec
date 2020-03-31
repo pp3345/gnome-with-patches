@@ -7,14 +7,14 @@
 %global mutter_api_version 5
 
 Name:          mutter
-Version:       3.34.4
-Release:       101%{?dist}.pp3345
+Version:       3.34.5
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       mutter-3.34.4-2709a4ff.tar.gz
+Source0:       http://download.gnome.org/sources/%{name}/3.34/%{name}-%{version}.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
@@ -206,6 +206,20 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.5-1
+- Update to 3.34.5
+
+* Wed Mar 11 2020 Jonas Ådahl <jadahl@redhat.com> - 3.34.4-2
+- Avoid crash when KMS node starts returning NULL resources
+  Resolves: #1812423
+- Fixes landed after 3.34.4
+  Resolves: #1808450
+  Resolves: #1808107
+  Resolves: #1807576
+  Resolves: #1806600
+- Don't crash when fullscreen on inert wl_output
+  Resolves: #1791357
+
 * Mon Mar 02 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.4-101
 - Add ebc07871 "shaped-texture: Add `get_width()`/`get_height()` API"
 - Add !1082 "Culling fixes" @39a8c047 (partial)
