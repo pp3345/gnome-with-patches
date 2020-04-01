@@ -7,14 +7,14 @@
 %global mutter_api_version 6
 
 Name:          mutter
-Version:       3.36.0
-Release:       101%{?dist}.pp3345
+Version:       3.36.1
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       mutter-3.36.0-3aece844.tar.gz
+Source0:       http://download.gnome.org/sources/%{name}/3.36/%{name}-%{version}.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
@@ -171,9 +171,18 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Mar 30 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.1-1
+- Update to 3.36.1
+
 * Wed Mar 25 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.0-101
 - Remove !1108 "surface-actor: Add culling offset for geometry scale" (merged)
 - Rebase to master@3aece844
+
+* Tue Mar 24 2020 Adam Williamson <awilliam@redhat.com> - 3.36.0-3
+- Backport all patches to git master for various fixes inc (#1809717)
+
+* Mon Mar 23 2020 Adam Williamson <awilliam@redhat.com> - 3.36.0-2
+- Backport fix for preedit cursor position bug (#1812449)
 
 * Fri Mar 20 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.0-100
 - Add !850 "Make default focus window on each workspace appear focused" @f5252158
