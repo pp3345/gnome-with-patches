@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -17,8 +17,8 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
-# Backported from gnome-3-36
-Patch4: 0001-appDisplay-Clear-animateLater-callbacks-when-unmappi.patch
+# Backports from gnome-3-36
+Patch4: gnome-shell-patches-3.36.1~a6783692c5f630.patch
 
 %define libcroco_version 0.6.8
 %define eds_version 3.33.1
@@ -215,6 +215,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Tue Apr 07 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.1-3
+- Backport fixes from gnome-3-36
+
 * Tue Mar 31 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.1-2
 - Backport fixup for spring animation fix
 
