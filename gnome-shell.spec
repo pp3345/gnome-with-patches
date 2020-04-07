@@ -20,7 +20,6 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 # Backports from gnome-3-36
 Patch4: gnome-shell-patches-3.36.1~a6783692c5f630.patch
 
-%define libcroco_version 0.6.8
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
 %define glib2_version 2.56.0
@@ -62,7 +61,6 @@ BuildRequires:  gstreamer1-devel >= %{gstreamer_version}
 BuildRequires:  gtk3-devel >= %{gtk3_version}
 BuildRequires:  gettext >= 0.19.6
 BuildRequires:  libcanberra-devel
-BuildRequires:  libcroco-devel >= %{libcroco_version}
 BuildRequires:  python3
 
 # for barriers
@@ -98,7 +96,6 @@ Requires:       polkit%{?_isa} >= %{polkit_version}
 Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       glib2%{?_isa} >= %{glib2_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
-Requires:       libcroco%{?_isa} >= %{libcroco_version}
 Requires:       gstreamer1%{?_isa} >= %{gstreamer_version}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
@@ -215,6 +212,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com - 3.36.1-3
+- Remove obsolete libcroco require
+
 * Tue Apr 07 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.1-3
 - Backport fixes from gnome-3-36
 
