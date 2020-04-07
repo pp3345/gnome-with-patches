@@ -1,0 +1,1311 @@
+From 82f3bdd14e0081dff60e9fed51376fc4cbf8b201 Mon Sep 17 00:00:00 2001
+From: Andre Moreira Magalhaes <andre@endlessm.com>
+Date: Tue, 31 Mar 2020 21:11:19 +0000
+Subject: [PATCH 01/16] clutter/actor: Fix pick when actor is not allocated
+
+When selecting the pick regions for an actor we were not considering
+whether the actor was allocated and that was causing issues where the
+preferred width/height of the actor was used when deciding whether
+the actor should be considered as a pick target.
+
+Check if the actor has a valid allocation, in addition to being mapped
+and being in pick mode, in clutter_actor_should_pick_paint().
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1169
+
+
+(cherry picked from commit 902302a174483eabe796227a3fc82a36770f40b2)
+---
+ clutter/clutter/clutter-actor.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 56eaad611..b82d847a4 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -2410,6 +2410,7 @@ clutter_actor_should_pick_paint (ClutterActor *self)
+   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+ 
+   if (CLUTTER_ACTOR_IS_MAPPED (self) &&
++      clutter_actor_has_allocation (self) &&
+       (_clutter_context_get_pick_mode () == CLUTTER_PICK_ALL ||
+        CLUTTER_ACTOR_IS_REACTIVE (self)))
+     return TRUE;
+-- 
+2.26.0
+
+
+From 31809e121424ec6609e947ab2d6bde6ae792b539 Mon Sep 17 00:00:00 2001
+From: Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
+Date: Tue, 31 Mar 2020 21:58:44 +0000
+Subject: [PATCH 02/16] tests/actor-pick: Remove tabs
+
+They're evil.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1169
+
+
+(cherry picked from commit 059d2144b2f5de2b5c0669935b5dda04eb73e01e)
+---
+ src/tests/clutter/conform/actor-pick.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/tests/clutter/conform/actor-pick.c b/src/tests/clutter/conform/actor-pick.c
+index 09c5bf748..53ac8ec5a 100644
+--- a/src/tests/clutter/conform/actor-pick.c
++++ b/src/tests/clutter/conform/actor-pick.c
+@@ -175,10 +175,10 @@ actor_pick (void)
+   for (y = 0; y < ACTORS_Y; y++)
+     for (x = 0; x < ACTORS_X; x++)
+       {
+-	ClutterColor color = { x * 255 / (ACTORS_X - 1),
+-			       y * 255 / (ACTORS_Y - 1),
+-			       128, 255 };
+-	ClutterActor *rect = clutter_rectangle_new_with_color (&color);
++        ClutterColor color = { x * 255 / (ACTORS_X - 1),
++                               y * 255 / (ACTORS_Y - 1),
++                               128, 255 };
++        ClutterActor *rect = clutter_rectangle_new_with_color (&color);
+ 
+         clutter_actor_set_position (rect,
+                                     x * state.actor_width,
+@@ -187,9 +187,9 @@ actor_pick (void)
+                                 state.actor_width,
+                                 state.actor_height);
+ 
+-	clutter_actor_add_child (state.stage, rect);
++        clutter_actor_add_child (state.stage, rect);
+ 
+-	state.actors[y * ACTORS_X + x] = rect;
++        state.actors[y * ACTORS_X + x] = rect;
+       }
+ 
+   clutter_actor_show (state.stage);
+-- 
+2.26.0
+
+
+From 6f9b5edd4deeb412e644122ce2f15b3d593bd07a Mon Sep 17 00:00:00 2001
+From: Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
+Date: Tue, 31 Mar 2020 22:01:53 +0000
+Subject: [PATCH 03/16] tests/actor-pick: Allocate actor before picking
+
+Picking now only happens on allocated actors, but the
+callback in the actor-pick test is not waiting for the
+stage to run an allocation cycle. Ideally, we'd wait
+for this cycle, but for now, forcing an allocation works
+as well.
+
+Allocate the overlay actor in the actor-pick test.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1169
+
+
+(cherry picked from commit 7f488e3e1d13f54ff1bbc9b43ee64cd2dfa82905)
+---
+ src/tests/clutter/conform/actor-pick.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/tests/clutter/conform/actor-pick.c b/src/tests/clutter/conform/actor-pick.c
+index 53ac8ec5a..dcee96424 100644
+--- a/src/tests/clutter/conform/actor-pick.c
++++ b/src/tests/clutter/conform/actor-pick.c
+@@ -67,6 +67,9 @@ on_timeout (gpointer data)
+         }
+       else if (test_num == 2)
+         {
++          ClutterActorBox over_actor_box =
++            CLUTTER_ACTOR_BOX_INIT (0, 0, STAGE_WIDTH, STAGE_HEIGHT);
++
+           /* Make the actor visible but set a clip so that only some
+              of the actors are accessible */
+           clutter_actor_show (over_actor);
+@@ -76,6 +79,11 @@ on_timeout (gpointer data)
+                                   state->actor_width * (ACTORS_X - 4),
+                                   state->actor_height * (ACTORS_Y - 4));
+ 
++          /* Only allocated actors can be picked, so force an allocation
++           * of the overlay actor here.
++           */
++          clutter_actor_allocate (over_actor, &over_actor_box, 0);
++
+           if (g_test_verbose ())
+             g_print ("Clipped covering actor:\n");
+         }
+-- 
+2.26.0
+
+
+From 95c1baf3d18fe8e50de402b7af4c29d9ae993d19 Mon Sep 17 00:00:00 2001
+From: Andre Moreira Magalhaes <andre@endlessm.com>
+Date: Thu, 2 Apr 2020 16:12:43 +0000
+Subject: [PATCH 04/16] clutter/click-action: Do not process captured event if
+ action is disabled
+
+Disabling a click action after a button-press but before a
+button-release is captured makes ClutterClickAction connect to
+captured-event and never disconnect.
+
+This change fixes it by making sure the captured-event is only
+processed if the action is still enabled, otherwise releasing
+the action (reset state) and propagating the event.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1170
+
+
+(cherry picked from commit 5f5ce08ba4f6320f27e53440a0ee8d9799e05cf6)
+---
+ clutter/clutter/clutter-click-action.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/clutter/clutter/clutter-click-action.c b/clutter/clutter/clutter-click-action.c
+index 6b523b033..cb35d7253 100644
+--- a/clutter/clutter/clutter-click-action.c
++++ b/clutter/clutter/clutter-click-action.c
+@@ -346,6 +346,12 @@ on_captured_event (ClutterActor       *stage,
+   ClutterModifierType modifier_state;
+   gboolean has_button = TRUE;
+ 
++  if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (action)))
++    {
++      clutter_click_action_release (action);
++      return CLUTTER_EVENT_PROPAGATE;
++    }
++
+   actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
+ 
+   switch (clutter_event_type (event))
+-- 
+2.26.0
+
+
+From 2c805524b49150793fe97908cb309d9b8c52f8ad Mon Sep 17 00:00:00 2001
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Tue, 13 Aug 2019 17:33:19 +0800
+Subject: [PATCH 05/16] clutter/stage: Add API to get_next_presentation_time
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/724
+---
+ clutter/clutter/clutter-stage-private.h   |  1 +
+ clutter/clutter/clutter-stage-window.c    | 16 ++++++++++++
+ clutter/clutter/clutter-stage-window.h    |  4 +++
+ clutter/clutter/clutter-stage.c           | 15 +++++++++++
+ clutter/clutter/cogl/clutter-stage-cogl.c | 32 ++++++++++++++++++++++-
+ clutter/clutter/cogl/clutter-stage-cogl.h |  1 +
+ 6 files changed, 68 insertions(+), 1 deletion(-)
+
+diff --git a/clutter/clutter/clutter-stage-private.h b/clutter/clutter/clutter-stage-private.h
+index c8c1ef34a..a8abd0564 100644
+--- a/clutter/clutter/clutter-stage-private.h
++++ b/clutter/clutter/clutter-stage-private.h
+@@ -78,6 +78,7 @@ void     _clutter_stage_schedule_update                   (ClutterStage *stage);
+ gint64    _clutter_stage_get_update_time                  (ClutterStage *stage);
+ void     _clutter_stage_clear_update_time                 (ClutterStage *stage);
+ gboolean _clutter_stage_has_full_redraw_queued            (ClutterStage *stage);
++int64_t  _clutter_stage_get_next_presentation_time        (ClutterStage *stage);
+ 
+ void clutter_stage_log_pick (ClutterStage           *stage,
+                              const graphene_point_t *vertices,
+diff --git a/clutter/clutter/clutter-stage-window.c b/clutter/clutter/clutter-stage-window.c
+index 3c80124a9..a3782a175 100644
+--- a/clutter/clutter/clutter-stage-window.c
++++ b/clutter/clutter/clutter-stage-window.c
+@@ -178,6 +178,22 @@ _clutter_stage_window_clear_update_time (ClutterStageWindow *window)
+   iface->clear_update_time (window);
+ }
+ 
++int64_t
++_clutter_stage_window_get_next_presentation_time (ClutterStageWindow *window)
++{
++  ClutterStageWindowInterface *iface;
++
++  g_return_val_if_fail (CLUTTER_IS_STAGE_WINDOW (window), 0);
++
++  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
++
++  /* If not implemented then just revert to the old behaviour... */
++  if (iface->get_next_presentation_time == NULL)
++    return _clutter_stage_window_get_update_time (window);
++
++  return iface->get_next_presentation_time (window);
++}
++
+ void
+ _clutter_stage_window_set_accept_focus (ClutterStageWindow *window,
+                                         gboolean            accept_focus)
+diff --git a/clutter/clutter/clutter-stage-window.h b/clutter/clutter/clutter-stage-window.h
+index eb529416e..78d15b743 100644
+--- a/clutter/clutter/clutter-stage-window.h
++++ b/clutter/clutter/clutter-stage-window.h
+@@ -61,6 +61,8 @@ struct _ClutterStageWindowInterface
+   GList            *(* get_views)               (ClutterStageWindow *stage_window);
+   int64_t           (* get_frame_counter)       (ClutterStageWindow *stage_window);
+   void              (* finish_frame)            (ClutterStageWindow *stage_window);
++
++  int64_t           (* get_next_presentation_time) (ClutterStageWindow *stage_window);
+ };
+ 
+ ClutterActor *    _clutter_stage_window_get_wrapper        (ClutterStageWindow *window);
+@@ -101,6 +103,8 @@ void              _clutter_stage_window_finish_frame            (ClutterStageWin
+ 
+ int64_t           _clutter_stage_window_get_frame_counter       (ClutterStageWindow *window);
+ 
++int64_t           _clutter_stage_window_get_next_presentation_time (ClutterStageWindow *window);
++
+ G_END_DECLS
+ 
+ #endif /* __CLUTTER_STAGE_WINDOW_H__ */
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index 07ba9dfae..fb73a027d 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -3751,6 +3751,21 @@ _clutter_stage_clear_update_time (ClutterStage *stage)
+     _clutter_stage_window_clear_update_time (stage_window);
+ }
+ 
++int64_t
++_clutter_stage_get_next_presentation_time (ClutterStage *stage)
++{
++  ClutterStageWindow *stage_window;
++
++  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
++    return 0;
++
++  stage_window = _clutter_stage_get_window (stage);
++  if (stage_window == NULL)
++    return 0;
++
++  return _clutter_stage_window_get_next_presentation_time (stage_window);
++}
++
+ ClutterPaintVolume *
+ _clutter_stage_paint_volume_stack_allocate (ClutterStage *stage)
+ {
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index d48e97641..28b33455f 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -235,7 +235,12 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
+   stage_cogl->update_time = next_presentation_time - max_render_time_allowed;
+ 
+   if (stage_cogl->update_time == stage_cogl->last_update_time)
+-    stage_cogl->update_time = stage_cogl->last_update_time + refresh_interval;
++    {
++      stage_cogl->update_time += refresh_interval;
++      next_presentation_time += refresh_interval;
++    }
++
++  stage_cogl->next_presentation_time = next_presentation_time;
+ }
+ 
+ static gint64
+@@ -256,6 +261,29 @@ clutter_stage_cogl_clear_update_time (ClutterStageWindow *stage_window)
+ 
+   stage_cogl->last_update_time = stage_cogl->update_time;
+   stage_cogl->update_time = -1;
++  stage_cogl->next_presentation_time = -1;
++}
++
++static int64_t
++clutter_stage_cogl_get_next_presentation_time (ClutterStageWindow *stage_window)
++{
++  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
++  int64_t now = g_get_monotonic_time ();
++
++  if (stage_cogl->next_presentation_time > 0 &&
++      stage_cogl->next_presentation_time <= now)
++    {
++      CLUTTER_NOTE (BACKEND,
++                    "Missed some frames. Something blocked for over "
++                    "%" G_GINT64_FORMAT "ms.",
++                    (now - stage_cogl->next_presentation_time) / 1000);
++
++      stage_cogl->update_time = -1;
++      clutter_stage_cogl_schedule_update (stage_window,
++                                          stage_cogl->last_sync_delay);
++    }
++
++  return stage_cogl->next_presentation_time;
+ }
+ 
+ static ClutterActor *
+@@ -1008,6 +1036,7 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
+   iface->schedule_update = clutter_stage_cogl_schedule_update;
+   iface->get_update_time = clutter_stage_cogl_get_update_time;
+   iface->clear_update_time = clutter_stage_cogl_clear_update_time;
++  iface->get_next_presentation_time = clutter_stage_cogl_get_next_presentation_time;
+   iface->redraw = clutter_stage_cogl_redraw;
+ }
+ 
+@@ -1053,6 +1082,7 @@ _clutter_stage_cogl_init (ClutterStageCogl *stage)
+   stage->refresh_rate = 0.0;
+ 
+   stage->update_time = -1;
++  stage->next_presentation_time = -1;
+ }
+ 
+ static void
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.h b/clutter/clutter/cogl/clutter-stage-cogl.h
+index 1eaa02e8f..634f856d4 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.h
++++ b/clutter/clutter/cogl/clutter-stage-cogl.h
+@@ -48,6 +48,7 @@ struct _ClutterStageCogl
+   gint64 last_presentation_time;
+   gint64 update_time;
+   int64_t last_update_time;
++  int64_t next_presentation_time;
+ 
+   /* We only enable clipped redraws after 2 frames, since we've seen
+    * a lot of drivers can struggle to get going and may output some
+-- 
+2.26.0
+
+
+From 6f094bd399f4197e7036d8306337b4b0ee72ca65 Mon Sep 17 00:00:00 2001
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Tue, 13 Aug 2019 18:03:26 +0800
+Subject: [PATCH 06/16] clutter/master-clock-default: Sync timelines to
+ hardware vsync
+
+Previously clutter timelines advanced according to `g_source_get_time`.
+But that meant the spatial stepping of animations was visibly sensitive to
+any irregularities in the main loop. It also represented a time older [1]
+than the intended presentation time of each frame.
+
+Now we instead use `master_clock_get_next_presentation_time`. This ensures
+we get the smoothness of hardware vsync as well as being closer to the
+actual presentation time.
+
+This means, for example, backends like Xorg that move the hardware cursor
+independently of repaints will have their animations more closely matching
+the hardware cursor position. So the cursor appears to stick more closely
+when dragging windows or on the lock screen etc.
+
+[1] "older" = (refresh_interval - sync_delay) = ~14ms for 60Hz
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/issues/25
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/724
+---
+ .../clutter/clutter-master-clock-default.c    | 26 ++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/clutter/clutter/clutter-master-clock-default.c b/clutter/clutter/clutter-master-clock-default.c
+index 8d50ab8f3..ac55f1b42 100644
+--- a/clutter/clutter/clutter-master-clock-default.c
++++ b/clutter/clutter/clutter-master-clock-default.c
+@@ -190,6 +190,26 @@ master_clock_get_swap_wait_time (ClutterMasterClockDefault *master_clock)
+     }
+ }
+ 
++static int64_t
++master_clock_get_next_presentation_time (ClutterMasterClockDefault *master_clock)
++{
++  ClutterStageManager *stage_manager = clutter_stage_manager_get_default ();
++  const GSList *stages, *l;
++  int64_t earliest = -1;
++
++  stages = clutter_stage_manager_peek_stages (stage_manager);
++
++  for (l = stages; l != NULL; l = l->next)
++    {
++      gint64 t = _clutter_stage_get_next_presentation_time (l->data);
++
++      if (earliest == -1 || (t != -1 && t < earliest))
++        earliest = t;
++    }
++
++  return earliest;
++}
++
+ static void
+ master_clock_schedule_stage_updates (ClutterMasterClockDefault *master_clock)
+ {
+@@ -466,7 +486,11 @@ clutter_clock_dispatch (GSource     *source,
+   COGL_TRACE_BEGIN (ClutterMasterClockTick, "Master Clock (tick)");
+ 
+   /* Get the time to use for this frame */
+-  master_clock->cur_tick = g_source_get_time (source);
++  master_clock->cur_tick = master_clock_get_next_presentation_time (master_clock);
++
++  /* On the first frame the backend might not have an answer */
++  if (master_clock->cur_tick <= 0)
++    master_clock->cur_tick = g_source_get_time (source);
+ 
+ #ifdef CLUTTER_ENABLE_DEBUG
+   master_clock->remaining_budget = master_clock->frame_budget;
+-- 
+2.26.0
+
+
+From e3b2b90c72f72f9bf4a99add15829bf275fbe1a7 Mon Sep 17 00:00:00 2001
+From: Simon McVittie <smcv@debian.org>
+Date: Thu, 2 Apr 2020 19:30:14 +0100
+Subject: [PATCH 07/16] cogl: Don't allow creating sized textures with 0 pixels
+
+A texture with no pixels isn't a useful thing to have, and breaks
+assumptions elsewhere. For example, CoglFramebuffer assumes that after
+a texture has been allocated, it will have width and height both greater
+than 0.
+
+In particular, this works around a crash when gnome-shell tries to blur a
+background that hasn't yet had any space allocated for it - which it seems
+is really an actor layout bug, but more robustness seems good to have.
+
+Workaround for <https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/2538>.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1172
+
+Signed-off-by: Simon McVittie <smcv@debian.org>
+
+(cherry picked from commit 37eda498f2de2cf787a5e65d6f0248e4a8e33490)
+---
+ cogl/cogl/cogl-texture-2d.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/cogl/cogl/cogl-texture-2d.c b/cogl/cogl/cogl-texture-2d.c
+index 21a3c3fb6..a99cbb31e 100644
+--- a/cogl/cogl/cogl-texture-2d.c
++++ b/cogl/cogl/cogl-texture-2d.c
+@@ -121,6 +121,9 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
+ {
+   CoglTextureLoader *loader;
+ 
++  g_return_val_if_fail (width >= 1, NULL);
++  g_return_val_if_fail (height >= 1, NULL);
++
+   loader = _cogl_texture_create_loader ();
+   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZED;
+   loader->src.sized.width = width;
+-- 
+2.26.0
+
+
+From e339a57ddf87de42e8171a935a7617cd2acf7ef6 Mon Sep 17 00:00:00 2001
+From: Simon McVittie <smcv@debian.org>
+Date: Thu, 2 Apr 2020 19:30:59 +0100
+Subject: [PATCH 08/16] cogl: Defend against empty or unallocated framebuffers
+
+It isn't immediately obvious that this is impossible, because there's some
+"action at a distance" going on with framebuffers that have their size
+set lazily, after their textures get allocated; so let's make this a
+critical warning rather than crashing.
+
+In particular, this works around a crash when gnome-shell tries to blur a
+background that hasn't yet had any space allocated for it - which it seems
+is really an actor layout bug, but more robustness seems good to have.
+
+Workaround for <https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/2538>.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1172
+
+Signed-off-by: Simon McVittie <smcv@debian.org>
+
+(cherry picked from commit c389aadff933c2d4c7fbe4f2b0864832dec40461)
+---
+ cogl/cogl/driver/gl/cogl-framebuffer-gl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cogl/cogl/driver/gl/cogl-framebuffer-gl.c b/cogl/cogl/driver/gl/cogl-framebuffer-gl.c
+index 2848d7183..e4d215ea2 100644
+--- a/cogl/cogl/driver/gl/cogl-framebuffer-gl.c
++++ b/cogl/cogl/driver/gl/cogl-framebuffer-gl.c
+@@ -132,8 +132,8 @@ _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
+ {
+   float gl_viewport_y;
+ 
+-  g_assert (framebuffer->viewport_width >=0 &&
+-            framebuffer->viewport_height >=0);
++  g_return_if_fail (framebuffer->viewport_width >= 0);
++  g_return_if_fail (framebuffer->viewport_height >= 0);
+ 
+   /* Convert the Cogl viewport y offset to an OpenGL viewport y offset
+    * NB: OpenGL defines its window and viewport origins to be bottom
+-- 
+2.26.0
+
+
+From 7e94311e2eb78c5fbaf8df047bebc92bd501aeb8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 3 Apr 2020 15:12:58 +0000
+Subject: [PATCH 09/16] window-actor: Set viewport when blitting to screencast
+ fb
+
+This fixes an issue where a non-maximized screen casted window would be
+stretched to fill the whole screen cast stream, instead of just the crop
+that corresponds to the current window size.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1174
+
+
+(cherry picked from commit a6f94696e2e8ade9e800f3b37092a5f40e22cf38)
+---
+ src/compositor/meta-window-actor.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index 92355a918..31e0cb607 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -1300,6 +1300,7 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
+   cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+   cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
+   cogl_framebuffer_orthographic (framebuffer, 0, 0, width, height, 0, 1.0);
++  cogl_framebuffer_set_viewport (framebuffer, 0, 0, width, height);
+ 
+   meta_rectangle_scale_double (bounds, resource_scale,
+                                META_ROUNDING_STRATEGY_GROW,
+-- 
+2.26.0
+
+
+From b0709504ea22cdbd51225f9c0bf497d12351b37f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Du=C5=A1an=20Kazik?= <prescott66@gmail.com>
+Date: Sun, 5 Apr 2020 20:22:08 +0000
+Subject: [PATCH 10/16] Update Slovak translation
+
+---
+ po/sk.po | 167 +++++++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 108 insertions(+), 59 deletions(-)
+
+diff --git a/po/sk.po b/po/sk.po
+index 89e6859a1..d22e1a24c 100644
+--- a/po/sk.po
++++ b/po/sk.po
+@@ -13,8 +13,8 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: mutter\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
+-"POT-Creation-Date: 2018-02-06 04:14+0000\n"
+-"PO-Revision-Date: 2018-03-17 21:52+0100\n"
++"POT-Creation-Date: 2020-03-30 20:11+0000\n"
++"PO-Revision-Date: 2020-04-05 22:21+0200\n"
+ "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
+ "Language-Team: Slovak <gnome-sk-list@gnome.org>\n"
+ "Language: sk\n"
+@@ -22,7 +22,7 @@ msgstr ""
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+ "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
+-"X-Generator: Poedit 2.0.6\n"
++"X-Generator: Poedit 2.3\n"
+ 
+ #: data/50-mutter-navigation.xml:6
+ msgid "Navigation"
+@@ -468,29 +468,47 @@ msgid ""
+ "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+ "mutter default to layout logical monitors in a logical pixel coordinate "
+ "space, while scaling monitor framebuffers instead of window content, to "
+-"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
+-"enables remote desktop support. To support remote desktop with screen "
+-"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
+-"screen cast support."
++"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
++"mutter request a low priority real-time scheduling. The executable or user "
++"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
++"initializes Xwayland lazily if there are X11 clients. Requires restart."
++msgstr ""
++
++#: data/org.gnome.mutter.gschema.xml.in:134
++msgid "Modifier to use to locate the pointer"
++msgstr "Modifikátor použitý na lokalizovanie ukazovateľa"
++
++#: data/org.gnome.mutter.gschema.xml.in:135
++msgid "This key will initiate the “locate pointer” action."
++msgstr ""
++
++#: data/org.gnome.mutter.gschema.xml.in:142
++msgid "Timeout for check-alive ping"
++msgstr ""
++
++#: data/org.gnome.mutter.gschema.xml.in:143
++msgid ""
++"Number of milliseconds a client has to respond to a ping request in order to "
++"not be detected as frozen. Using 0 will disable the alive check completely."
+ msgstr ""
+ 
+ # summary
+-#: data/org.gnome.mutter.gschema.xml.in:145
++#: data/org.gnome.mutter.gschema.xml.in:165
+ msgid "Select window from tab popup"
+ msgstr "Vybrať okno z rozbaľovacej ponuky tabulátora"
+ 
+ # summary
+-#: data/org.gnome.mutter.gschema.xml.in:150
++#: data/org.gnome.mutter.gschema.xml.in:170
+ msgid "Cancel tab popup"
+ msgstr "Zrušit rozbaľovaciu ponuku tabulátora"
+ 
+ # PK: predpokladam ze to prepisane medzi tlacidlami
+ # description
+-#: data/org.gnome.mutter.gschema.xml.in:155
++#: data/org.gnome.mutter.gschema.xml.in:175
+ msgid "Switch monitor configurations"
+ msgstr "Prepnúť nastavenia monitorov"
+ 
+-#: data/org.gnome.mutter.gschema.xml.in:160
++#: data/org.gnome.mutter.gschema.xml.in:180
+ msgid "Rotates the built-in monitor configuration"
+ msgstr "Otočí nastavenie vstavaného monitora"
+ 
+@@ -554,23 +572,27 @@ msgid "Re-enable shortcuts"
+ msgstr "Znovu povoliť klávesové skratky"
+ 
+ #: data/org.gnome.mutter.wayland.gschema.xml.in:64
+-msgid "Allow grabs with Xwayland"
++msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+ msgstr ""
+ 
+ #: data/org.gnome.mutter.wayland.gschema.xml.in:65
+ msgid ""
+-"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
+-"taken into account. For a X11 grab to be taken into account under Wayland, "
+-"the client must also either send a specific X11 ClientMessage to the root "
+-"window or be among the applications white-listed in key “xwayland-grab-"
+-"access-rules”."
++"Allow all keyboard events to be routed to X11 “override redirect” windows "
++"with a grab when running in Xwayland. This option is to support X11 clients "
++"which map an “override redirect” window (which do not receive keyboard "
++"focus) and issue a keyboard grab to force all keyboard events to that "
++"window. This option is seldom used and has no effect on regular X11 windows "
++"which can receive keyboard focus under normal circumstances. For a X11 grab "
++"to be taken into account under Wayland, the client must also either send a "
++"specific X11 ClientMessage to the root window or be among the applications "
++"white-listed in key “xwayland-grab-access-rules”."
+ msgstr ""
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:77
++#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+ msgid "Xwayland applications allowed to issue keyboard grabs"
+ msgstr ""
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:78
++#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+ msgid ""
+ "List the resource names or resource class of X11 windows either allowed or "
+ "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+@@ -587,7 +609,7 @@ msgstr ""
+ #. TRANSLATORS: This string refers to a button that switches between
+ #. * different modes.
+ #.
+-#: src/backends/meta-input-settings.c:2260
++#: src/backends/meta-input-settings.c:2631
+ #, c-format
+ msgid "Mode Switch (Group %d)"
+ msgstr "Prepínač režimu (skupina č. %d)"
+@@ -597,53 +619,61 @@ msgstr "Prepínač režimu (skupina č. %d)"
+ #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+ #. * mapping through the available outputs.
+ #.
+-#: src/backends/meta-input-settings.c:2283
++#: src/backends/meta-input-settings.c:2654
+ msgid "Switch monitor"
+ msgstr "Prepnúť monitor"
+ 
+-#: src/backends/meta-input-settings.c:2285
++#: src/backends/meta-input-settings.c:2656
+ msgid "Show on-screen help"
+ msgstr "Zobraziť pomocníka na obrazovke"
+ 
+-#: src/backends/meta-monitor-manager.c:900
++#: src/backends/meta-monitor.c:226
+ msgid "Built-in display"
+ msgstr "Vstavaný displej"
+ 
+-#: src/backends/meta-monitor-manager.c:923
++#: src/backends/meta-monitor.c:255
+ msgid "Unknown"
+ msgstr "Neznámy"
+ 
+-#: src/backends/meta-monitor-manager.c:925
++#: src/backends/meta-monitor.c:257
+ msgid "Unknown Display"
+ msgstr "Neznámy displej"
+ 
+-#. TRANSLATORS: this is a monitor vendor name, followed by a
+-#. * size in inches, like 'Dell 15"'
+-#.
+-#: src/backends/meta-monitor-manager.c:933
++#: src/backends/meta-monitor.c:265
+ #, c-format
++#| msgid "%s %s"
++msgctxt ""
++"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+ msgid "%s %s"
+ msgstr "%s %s"
+ 
++#: src/backends/meta-monitor.c:273
++#, c-format
++#| msgid "%s %s"
++msgctxt ""
++"This is a monitor vendor name followed by product/model name where size in "
++"inches could not be calculated, e.g. Dell U2414H"
++msgid "%s %s"
++msgstr "%s %s"
++
++#. Translators: this string will appear in Sysprof
++#: src/backends/meta-profiler.c:79
++msgid "Compositor"
++msgstr "Kompozítor"
++
+ #. This probably means that a non-WM compositor like xcompmgr is running;
+ #. * we have no way to get it to exit
+-#: src/compositor/compositor.c:481
++#: src/compositor/compositor.c:533
+ #, c-format
+ msgid ""
+ "Another compositing manager is already running on screen %i on display “%s”."
+ msgstr ""
+ "Pre obrazovku č. %i na displeji „%s“ je spustený už iný správca rozloženia."
+ 
+-#: src/core/bell.c:194
++#: src/core/bell.c:192
+ msgid "Bell event"
+ msgstr "Udalosť zvončeka"
+ 
+-# X window system preloz, napr. system na spravu okien X
+-#: src/core/display.c:608
+-#, c-format
+-msgid "Failed to open X Window System display “%s”\n"
+-msgstr "Zlyhalo otvorenie displeja systému na správu okien X „%s“\n"
+-
+ # cmd desc
+ #: src/core/main.c:190
+ msgid "Disable connection to session manager"
+@@ -683,41 +713,45 @@ msgstr "Spustí ako kompozitor protokolu wayland"
+ msgid "Run as a nested compositor"
+ msgstr "Spustí ako kompozitor s vnoreným režimom"
+ 
+-#: src/core/main.c:240
++#: src/core/main.c:238
++msgid "Run wayland compositor without starting Xwayland"
++msgstr ""
++
++#: src/core/main.c:246
+ msgid "Run as a full display server, rather than nested"
+ msgstr "Spustí ako plnohodnotný zobrazovací server, namiesto vnoreného režimu"
+ 
+-#: src/core/main.c:246
++#: src/core/main.c:252
+ msgid "Run with X11 backend"
+ msgstr "Spustí s obslužným programom X11"
+ 
+ # %s is a window title
+ #. Translators: %s is a window title
+-#: src/core/meta-close-dialog-default.c:147
++#: src/core/meta-close-dialog-default.c:151
+ #, c-format
+ msgid "“%s” is not responding."
+ msgstr "„%s“ neodpovedá."
+ 
+-#: src/core/meta-close-dialog-default.c:149
++#: src/core/meta-close-dialog-default.c:153
+ msgid "Application is not responding."
+ msgstr "Aplikácia neodpovedá."
+ 
+-#: src/core/meta-close-dialog-default.c:154
++#: src/core/meta-close-dialog-default.c:158
+ msgid ""
+ "You may choose to wait a short while for it to continue or force the "
+ "application to quit entirely."
+ msgstr ""
+ "Môžete chvíľu počkať na pokračovanie aplikácie, alebo ju môžete ukončiť."
+ 
+-#: src/core/meta-close-dialog-default.c:161
++#: src/core/meta-close-dialog-default.c:165
+ msgid "_Force Quit"
+ msgstr "_Vynútiť ukončenie"
+ 
+-#: src/core/meta-close-dialog-default.c:161
++#: src/core/meta-close-dialog-default.c:165
+ msgid "_Wait"
+ msgstr "_Počkať"
+ 
+-#: src/core/mutter.c:39
++#: src/core/mutter.c:38
+ #, c-format
+ msgid ""
+ "mutter %s\n"
+@@ -733,21 +767,30 @@ msgstr ""
+ "Záruka sa NEPOSKYTUJE; ani na PREDAJNOSŤ alebo VHODNOSŤ PRE URČITÝ ÚČEL.\n"
+ 
+ # cmd desc
+-#: src/core/mutter.c:53
++#: src/core/mutter.c:52
+ msgid "Print version"
+ msgstr "Zobrazí verziu"
+ 
+ # cmd desc
+-#: src/core/mutter.c:59
++#: src/core/mutter.c:58
+ msgid "Mutter plugin to use"
+ msgstr "Použije zásuvný modul Mutter"
+ 
+-#: src/core/prefs.c:1997
++#: src/core/prefs.c:1911
+ #, c-format
+ msgid "Workspace %d"
+ msgstr "Pracovný priestor č. %d"
+ 
+-#: src/core/screen.c:583
++#: src/core/util.c:122
++msgid "Mutter was compiled without support for verbose mode\n"
++msgstr "Mutter bol skompilovaný bez výpisu podrobností pri behu\n"
++
++#: src/wayland/meta-wayland-tablet-pad.c:568
++#, c-format
++msgid "Mode Switch: Mode %d"
++msgstr "Prepínač režimu: Režim č. %d"
++
++#: src/x11/meta-x11-display.c:676
+ #, c-format
+ msgid ""
+ "Display “%s” already has a window manager; try using the --replace option to "
+@@ -756,21 +799,27 @@ msgstr ""
+ "Displej „%s“ už má správcu okien. Skúste použiť prepínač --replace, aby sa "
+ "aktuálny správca nahradil."
+ 
+-#: src/core/screen.c:668
++#: src/x11/meta-x11-display.c:1089
++msgid "Failed to initialize GDK\n"
++msgstr "Zlyhala inicializácia GDK\n"
++
++# X window system preloz, napr. system na spravu okien X
++#: src/x11/meta-x11-display.c:1113
++#, c-format
++msgid "Failed to open X Window System display “%s”\n"
++msgstr "Zlyhalo otvorenie displeja systému na správu okien X „%s“\n"
++
++#: src/x11/meta-x11-display.c:1196
+ #, c-format
+ msgid "Screen %d on display “%s” is invalid\n"
+ msgstr "Obrazovka č. %d na displeji „%s“ nie je platná\n"
+ 
+-#: src/core/util.c:120
+-msgid "Mutter was compiled without support for verbose mode\n"
+-msgstr "Mutter bol skompilovaný bez výpisu podrobností pri behu\n"
+-
+-#: src/wayland/meta-wayland-tablet-pad.c:563
++#: src/x11/meta-x11-selection-input-stream.c:460
+ #, c-format
+-msgid "Mode Switch: Mode %d"
+-msgstr "Prepínač režimu: Režim č. %d"
++msgid "Format %s not supported"
++msgstr "Formát %s nie je podporovaný"
+ 
+-#: src/x11/session.c:1818
++#: src/x11/session.c:1821
+ msgid ""
+ "These windows do not support “save current setup” and will have to be "
+ "restarted manually next time you log in."
+@@ -779,7 +828,7 @@ msgstr ""
+ "prihlásení ich budete musieť znovu spustiť ručne."
+ 
+ # window title; wm_client_machine
+-#: src/x11/window-props.c:559
++#: src/x11/window-props.c:569
+ #, c-format
+ msgid "%s (on %s)"
+ msgstr "%s (na %s)"
+-- 
+2.26.0
+
+
+From 7baabc7ed0105dbf457fffe48250919849623254 Mon Sep 17 00:00:00 2001
+From: Christian Rauch <Rauch.Christian@gmx.de>
+Date: Tue, 31 Mar 2020 20:28:44 +0000
+Subject: [PATCH 11/16] x11: fix compilation if 'libwacom=false'
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1168
+
+
+(cherry picked from commit a8f6cada883eda2a34e6478a53e2fb7c392d98b7)
+---
+ src/backends/x11/meta-input-device-x11.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/backends/x11/meta-input-device-x11.c b/src/backends/x11/meta-input-device-x11.c
+index 480acd83e..2406c34d7 100644
+--- a/src/backends/x11/meta-input-device-x11.c
++++ b/src/backends/x11/meta-input-device-x11.c
+@@ -122,9 +122,9 @@ meta_input_device_x11_is_grouped (ClutterInputDevice *device,
+ static void
+ meta_input_device_x11_finalize (GObject *object)
+ {
+-#ifdef HAVE_LIBWACOM
+   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (object);
+ 
++#ifdef HAVE_LIBWACOM
+   if (device_xi2->group_modes)
+     g_array_unref (device_xi2->group_modes);
+ #endif
+-- 
+2.26.0
+
+
+From c8986d19e567bfbf46b1e954427058ef5240583a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 7 Apr 2020 08:39:10 +0000
+Subject: [PATCH 12/16] window: Check aliveness a bit less aggressively
+
+Currently we check whether a window is alive everytime it's focused.
+This means that an application that doesn't respond to the check-alive
+event during startup always showing the "application froze" dialog,
+without the user ever trying to interact with it.
+
+An example where this tends to to happen is with games, and for this
+particular scenario, it's purely an annoyance, as I never tried to
+interact with the game window in the first place, so I don't care that
+it's not responding - it's loading.
+
+To avoid these unnecessary particular "app-is-frozen" popups, remove the
+alive check from the focus function, and instead move it back to the
+"meta_window_activate_full()" call. To also trigger it slightly more
+often, also add it to the path that triggers the window focus when a
+user actively clicks on the window.
+
+This means that we currently check whether a window is alive on:
+
+  * Any time the window is activated. This means e.g. alt-tab or
+    selecting the window in the overview.
+  * The user clicks on the window.
+
+Note that the second only works for an already focused window on
+Wayland, as on X11, we don't refocus it. This particular case isn't
+changed with this commit, as we didn't call meta_window_focus() to begin
+with here.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1182
+
+
+(cherry picked from commit 8df3b21a51b0e8dcea4a4376426880e4f3c4f837)
+---
+ src/core/window.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/core/window.c b/src/core/window.c
+index 3356fc790..ea721f794 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -3751,6 +3751,8 @@ meta_window_activate_full (MetaWindow     *window,
+     meta_window_focus (window, timestamp);
+   else
+     meta_workspace_activate_with_focus (window->workspace, window, timestamp);
++
++  meta_window_check_alive (window, timestamp);
+ }
+ 
+ /* This function exists since most of the functionality in window_activate
+@@ -4790,8 +4792,6 @@ meta_window_focus (MetaWindow  *window,
+       return;
+     }
+ 
+-  meta_window_check_alive (window, timestamp);
+-
+   META_WINDOW_GET_CLASS (window)->focus (window, timestamp);
+ 
+   if (window->display->event_route == META_EVENT_ROUTE_NORMAL)
+@@ -8349,6 +8349,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
+                   "Focusing %s due to button %u press (display.c)\n",
+                   window->desc, button);
+       meta_window_focus (window, event->any.time);
++      meta_window_check_alive (window, event->any.time);
+     }
+   else
+     /* However, do allow terminals to lose focus due to new
+-- 
+2.26.0
+
+
+From bc47f0a1ac268be3432d0a457a9f1968b9c6d46b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Fri, 3 Apr 2020 08:40:46 +0000
+Subject: [PATCH 13/16] clutter/stage: Don't assume stage relayouts reallocate
+ everything
+
+With the introduction of "shallow" relayouts, we are now able to enter
+allocation cycles not only at the stage but also deeper down the
+hierarchy if we know an actors allocation isn't affected by its children
+since the NO_LAYOUT flag is set.
+
+Now that means when queuing relayouts it's possible that
+`priv->needs_allocation` gets set to TRUE for some actors down the
+hierarchy, but not for actors higher up in the hierarchy. An actor tree
+where that happens could look like that:
+
+stage -> container -> container2 (NO_LAYOUT) -> textActor
+
+With that tree, if the "textActor" queues a relayout, "container2" will
+be added to the relayout hashtable of the stage and the actors "stage"
+and "container" will have `priv->needs_allocation` set to FALSE.
+
+Now if another relayout on the stage actor is queued,
+`clutter_stage_queue_actor_relayout()` currently removes all the other
+hashtable entries in favour of the stage entry, (wrongly) assuming that
+will allocate everything. It doesn't allocate everything because in the
+example above "container" has `priv->needs_allocation` set to FALSE,
+which makes clutter_actor_allocate() return early before allocating its
+children, so in the end "container2" will never get a new allocation.
+
+To fix this, stop flushing the relayout hashtable when queuing a
+stage-relayout and still add new entries to the hashtable if a stage
+relayout is already queued to make sure we still go through all the
+previously queued "shallow" relayouts. That shouldn't hurt performance,
+too, because as soon as an actor got allocated once, it doesn't need an
+allocation anymore and should bail out in clutter_actor_allocate() as
+long as it's absolute position didn't change.
+
+Fixes https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/2538
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1173
+
+
+(cherry picked from commit e74c2e42cf3dc744aaa53cb5a683138425cda9b6)
+---
+ clutter/clutter/clutter-stage.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index fb73a027d..458778658 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -1320,15 +1320,9 @@ clutter_stage_queue_actor_relayout (ClutterStage *stage,
+ {
+   ClutterStagePrivate *priv = stage->priv;
+ 
+-  if (g_hash_table_contains (priv->pending_relayouts, stage))
+-    return;
+-
+   if (g_hash_table_size (priv->pending_relayouts) == 0)
+     _clutter_stage_schedule_update (stage);
+ 
+-  if (actor == (ClutterActor *) stage)
+-    g_hash_table_remove_all (priv->pending_relayouts);
+-
+   g_hash_table_add (priv->pending_relayouts, g_object_ref (actor));
+   priv->pending_relayouts_version++;
+ }
+-- 
+2.26.0
+
+
+From 3b2f6ae93d77d2e58451c348ce3189a6b61be41e Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Tue, 7 Apr 2020 16:57:59 +0000
+Subject: [PATCH 14/16] backends/x11: Fix access to WacomDevice
+
+At some point we crossed the streams... In a short timespan we had
+1f00aba92c32 merged, pushing WacomDevice to a common parent object,
+and dcaa45fc0c199 implementing device grouping for X11.
+
+The latter did not rely on the former, and just happened to
+merge/compile without issues, but would promptly trigger a crash
+whenever the API would be used.
+
+Drop all traces of the WacomDevice internal to MetaInputDeviceX11.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1183
+
+
+(cherry picked from commit f0718c7d95820a38a54222ff362c76c2f7e0ec58)
+---
+ src/backends/x11/meta-input-device-x11.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
+
+diff --git a/src/backends/x11/meta-input-device-x11.c b/src/backends/x11/meta-input-device-x11.c
+index 2406c34d7..6e41ffdaf 100644
+--- a/src/backends/x11/meta-input-device-x11.c
++++ b/src/backends/x11/meta-input-device-x11.c
+@@ -38,7 +38,6 @@ struct _MetaInputDeviceX11
+   float current_y;
+ 
+ #ifdef HAVE_LIBWACOM
+-  WacomDevice *wacom_device;
+   GArray *group_modes;
+ #endif
+ };
+@@ -93,13 +92,16 @@ meta_input_device_x11_is_grouped (ClutterInputDevice *device,
+                                   ClutterInputDevice *other_device)
+ {
+ #ifdef HAVE_LIBWACOM
+-  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+-  MetaInputDeviceX11 *other_device_x11 = META_INPUT_DEVICE_X11 (other_device);
++  WacomDevice *wacom_device, *other_wacom_device;
+ 
+-  if (device_x11->wacom_device &&
+-      other_device_x11->wacom_device &&
+-      libwacom_compare (device_x11->wacom_device,
+-                        other_device_x11->wacom_device,
++  wacom_device =
++    meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
++  other_wacom_device =
++    meta_input_device_get_wacom_device (META_INPUT_DEVICE (other_device));
++
++  if (wacom_device && other_wacom_device &&
++      libwacom_compare (wacom_device,
++                        other_wacom_device,
+                         WCOMPARE_NORMAL) == 0)
+     return TRUE;
+ #endif
+@@ -413,9 +415,12 @@ pad_switch_mode (ClutterInputDevice *device,
+ {
+   MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+   uint32_t n_buttons, n_modes, button_group, next_mode, i;
++  WacomDevice *wacom_device;
+   GList *switch_buttons = NULL;
+ 
+-  n_buttons = libwacom_get_num_buttons (device_x11->wacom_device);
++  wacom_device =
++    meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
++  n_buttons = libwacom_get_num_buttons (wacom_device);
+ 
+   for (i = 0; i < n_buttons; i++)
+     {
+-- 
+2.26.0
+
+
+From 83553e3f6ea06f0076d9d0b7bdf2a193ef2a0d43 Mon Sep 17 00:00:00 2001
+From: Jonas Troeger <jonas@troeger-mail.de>
+Date: Tue, 31 Mar 2020 22:11:37 +0200
+Subject: [PATCH 15/16] backends/native: Translate coordinates of absolute
+ motion events
+
+The motion events of tablets for example need to be mapped on the
+selected screen area if the input device is configured to use only a
+part of the active logical monitor.
+To achieve this behavior each motion event is transformed using the
+transformation matrix set for the input device.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1118
+---
+ src/backends/native/meta-seat-native.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/backends/native/meta-seat-native.c b/src/backends/native/meta-seat-native.c
+index 7e0feab44..9c25d4abf 100644
+--- a/src/backends/native/meta-seat-native.c
++++ b/src/backends/native/meta-seat-native.c
+@@ -424,6 +424,9 @@ new_absolute_motion_event (MetaSeatNative     *seat,
+   meta_xkb_translate_state (event, seat->xkb, seat->button_state);
+   event->motion.x = x;
+   event->motion.y = y;
++  meta_input_device_native_translate_coordinates (input_device, stage,
++                                                  &event->motion.x,
++                                                  &event->motion.y);
+   event->motion.axes = axes;
+   clutter_event_set_device (event, seat->core_pointer);
+   clutter_event_set_source_device (event, input_device);
+-- 
+2.26.0
+
+
+From db164bcfa2f66c69a5978a6a1bc6a3bceeb17f20 Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Tue, 7 Apr 2020 19:16:16 +0200
+Subject: [PATCH 16/16] wayland/xdnd: Add error traps around Xdnd* IPC
+
+Make all of them spew criticals, except for XdndLeave as it's feasible
+to expect the window we are sending the event to did disappear in the
+way (eg. if the window is destroyed while the DnD operation is ongoing
+and the pointer is over the window).
+
+Fixes: https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/2590
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1184
+---
+ src/wayland/meta-xwayland-dnd.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/src/wayland/meta-xwayland-dnd.c b/src/wayland/meta-xwayland-dnd.c
+index 6b75362ba..ea81d71be 100644
+--- a/src/wayland/meta-xwayland-dnd.c
++++ b/src/wayland/meta-xwayland-dnd.c
+@@ -145,6 +145,8 @@ xdnd_send_enter (MetaXWaylandDnd *dnd,
+   gchar **p;
+   struct wl_array *source_mime_types;
+ 
++  meta_x11_error_trap_push (x11_display);
++
+   data_source = compositor->seat->data_device.dnd_data_source;
+   xev.xclient.type = ClientMessage;
+   xev.xclient.message_type = xdnd_atoms[ATOM_DND_ENTER];
+@@ -189,6 +191,9 @@ xdnd_send_enter (MetaXWaylandDnd *dnd,
+     }
+ 
+   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
++
++  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
++    g_critical ("Error sending XdndEnter");
+ }
+ 
+ static void
+@@ -205,7 +210,9 @@ xdnd_send_leave (MetaXWaylandDnd *dnd,
+   xev.xclient.window = dest;
+   xev.xclient.data.l[0] = x11_display->selection.xwindow;
+ 
++  meta_x11_error_trap_push (x11_display);
+   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
++  meta_x11_error_trap_pop (x11_display);
+ }
+ 
+ static void
+@@ -241,7 +248,11 @@ xdnd_send_position (MetaXWaylandDnd *dnd,
+   xev.xclient.data.l[3] = time;
+   xev.xclient.data.l[4] = action_to_atom (action);
+ 
++  meta_x11_error_trap_push (x11_display);
+   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
++
++  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
++    g_critical ("Error sending XdndPosition");
+ }
+ 
+ static void
+@@ -261,7 +272,11 @@ xdnd_send_drop (MetaXWaylandDnd *dnd,
+   xev.xclient.data.l[0] = x11_display->selection.xwindow;
+   xev.xclient.data.l[2] = time;
+ 
++  meta_x11_error_trap_push (x11_display);
+   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
++
++  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
++    g_critical ("Error sending XdndDrop");
+ }
+ 
+ static void
+@@ -289,7 +304,11 @@ xdnd_send_finished (MetaXWaylandDnd *dnd,
+       xev.xclient.data.l[2] = action_to_atom (action);
+     }
+ 
++  meta_x11_error_trap_push (x11_display);
+   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
++
++  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
++    g_critical ("Error sending XdndFinished");
+ }
+ 
+ static void
+@@ -297,6 +316,7 @@ xdnd_send_status (MetaXWaylandDnd *dnd,
+                   Window           dest,
+                   uint32_t         action)
+ {
++  MetaX11Display *x11_display = meta_get_display ()->x11_display;
+   Display *xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
+   XEvent xev = { 0 };
+ 
+@@ -312,7 +332,11 @@ xdnd_send_status (MetaXWaylandDnd *dnd,
+   if (xev.xclient.data.l[4])
+     xev.xclient.data.l[1] |= 1 << 0; /* Bit 1: dest accepts the drop */
+ 
++  meta_x11_error_trap_push (x11_display);
+   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
++
++  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
++    g_critical ("Error sending Xdndstatus");
+ }
+ 
+ static void
+-- 
+2.26.0
+
