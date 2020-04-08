@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.1
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,6 +18,9 @@ Source0:       http://download.gnome.org/sources/%{name}/3.36/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
+
+# Backports post 3.36.1
+Patch1:        mutter-patches-3.36.1~db164bcfa2f6.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -170,6 +173,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Apr 07 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.1-4
+- Backport fixes from stable branch
+
 * Mon Mar 30 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.1-1
 - Update to 3.36.1
 
