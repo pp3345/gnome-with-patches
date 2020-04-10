@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.1
-Release:        3%{?dist}
+Release:        300%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -217,6 +217,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Fri Apr 10 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.1-300
+- Rebase to 3.36.1-3.fc32
+
 * Tue Apr 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.1-3
 - Remove obsolete libcroco require
 - Update files section
