@@ -1,13 +1,13 @@
 Name:           gnome-shell
-Version:        3.36.0
-Release:        301%{?dist}.pp3345
+Version:        3.36.1
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        gnome-shell-3.36.0-66c4b1a8.tar.gz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.36/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -17,7 +17,9 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
-%define libcroco_version 0.6.8
+# Backports from gnome-3-36
+Patch4: gnome-shell-patches-3.36.1~a6783692c5f630.patch
+
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
 %define glib2_version 2.56.0
@@ -59,7 +61,6 @@ BuildRequires:  gstreamer1-devel >= %{gstreamer_version}
 BuildRequires:  gtk3-devel >= %{gtk3_version}
 BuildRequires:  gettext >= 0.19.6
 BuildRequires:  libcanberra-devel
-BuildRequires:  libcroco-devel >= %{libcroco_version}
 BuildRequires:  python3
 
 # for barriers
@@ -95,7 +96,6 @@ Requires:       polkit%{?_isa} >= %{polkit_version}
 Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       glib2%{?_isa} >= %{glib2_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
-Requires:       libcroco%{?_isa} >= %{libcroco_version}
 Requires:       gstreamer1%{?_isa} >= %{gstreamer_version}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
@@ -142,20 +142,11 @@ advantage of the capabilities of modern graphics hardware and introduces
 innovative user interface concepts to provide a visually attractive and
 easy to use experience.
 
-%package -n gnome-extensions-app
-Summary:        Manage GNOME Shell extensions
-License:        GPLv2+
-Requires:       gnome-shell >= %{version}
-
-%description -n gnome-extensions-app
-GNOME Extensions is an application for configuring and removing
-GNOME Shell extensions.
-
 %prep
 %autosetup -S git
 
 %build
-%meson
+%meson -Dextensions_app=false
 %meson_build
 
 %install
@@ -169,7 +160,6 @@ mkdir -p %{buildroot}%{_datadir}/gnome-shell/search-providers
 
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.gnome.Shell.desktop
-desktop-file-validate %{buildroot}%{_datadir}/applications/org.gnome.Extensions.desktop
 desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.desktop
 
 %files -f %{name}.lang
@@ -183,16 +173,16 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/glib-2.0/schemas/00_org.gnome.shell.gschema.override
 %{_datadir}/applications/org.gnome.Shell.desktop
 %{_datadir}/applications/evolution-calendar.desktop
+%{_datadir}/applications/org.gnome.Shell.Extensions.desktop
 %{_datadir}/applications/org.gnome.Shell.PortalHelper.desktop
 %{_datadir}/bash-completion/completions/gnome-extensions
 %{_datadir}/gnome-control-center/keybindings/50-gnome-shell-system.xml
 %{_datadir}/gnome-shell/
 %{_datadir}/dbus-1/services/org.gnome.Shell.CalendarServer.service
-%{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
-%{_datadir}/dbus-1/services/org.gnome.Shell.PortalHelper.service
-%{_datadir}/dbus-1/services/org.gnome.Shell.Notifications.service
-%{_datadir}/dbus-1/services/org.gnome.Extensions.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.Extensions.service
+%{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
+%{_datadir}/dbus-1/services/org.gnome.Shell.Notifications.service
+%{_datadir}/dbus-1/services/org.gnome.Shell.PortalHelper.service
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Extensions.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Introspect.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.PadOsd.xml
@@ -200,7 +190,8 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Screenshot.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider2.xml
-%{_datadir}/metainfo/org.gnome.Extensions.metainfo.xml
+%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Shell.Extensions.svg
+%{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Shell.Extensions-symbolic.svg
 %{_userunitdir}/gnome-shell-disable-extensions.service
 %{_userunitdir}/gnome-shell-wayland.service
 %{_userunitdir}/gnome-shell-wayland.target
@@ -225,14 +216,26 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-extensions.1*
 %{_mandir}/man1/gnome-shell.1*
 
-%files -n gnome-extensions-app
-%{_bindir}/gnome-shell-extension-prefs
-%{_datadir}/applications/org.gnome.Extensions.desktop
-%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Extensions.svg
-%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Extensions.Devel.svg
-%{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Extensions-symbolic.svg
-
 %changelog
+* Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com - 3.36.1-3
+- Remove obsolete libcroco require
+- Update files section
+
+* Tue Apr 07 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.1-3
+- Backport fixes from gnome-3-36
+
+* Tue Mar 31 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.1-2
+- Backport fixup for spring animation fix
+
+* Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.1-1
+- Update to 3.36.1
+- Remove gnome-extensions-app subpackage (will move to a separate .spec)
+
+* Wed Mar 25 2020 Ray Strode <rstrode@redhat.com> - 3.36.0-4
+- Clear environment on logout
+  Fixes log in to Xorg right after log out from wayland
+  Resolves: #1815487
+
 * Wed Mar 25 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.0-301
 - Rebase to master@66c4b1a8
 
