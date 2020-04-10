@@ -671,14 +671,6 @@ index acb77a63814da6e1e07a07e1a5ed292d07444e8f..fc7932f67dd16031c8c8b620a0644798
      if (xwl_window->frame_callback)
          wl_callback_destroy(xwl_window->frame_callback);
  
-@@ -994,6 +1058,7 @@ xwl_resize_window(WindowPtr window,
-     screen->ResizeWindow = xwl_resize_window;
- 
-     if (xwl_window) {
-+        xwl_window_buffers_recycle(xwl_window);
-         xwl_window->x = x;
-         xwl_window->y = y;
-         xwl_window->width = width;
 @@ -1065,7 +1130,7 @@ xwl_window_post_damage(struct xwl_window *xwl_window)
      assert(!xwl_window->frame_callback);
  
