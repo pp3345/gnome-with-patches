@@ -217,7 +217,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
-* Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com - 3.36.1-3
+* Tue Apr 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.1-3
 - Remove obsolete libcroco require
 - Update files section
 
