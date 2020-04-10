@@ -1,7 +1,7 @@
-From 9da07f246b50292d24347608d5bba92efd1756af Mon Sep 17 00:00:00 2001
+From 3ecabb250841ff0423744cd2291aaebf87b4239a Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 8 Jul 2019 18:35:27 +0200
-Subject: [PATCH xserver 10/17] xwayland: Add xwlVidModeGetCurrentRRMode helper
+Subject: [PATCH xserver 10/24] xwayland: Add xwlVidModeGetCurrentRRMode helper
  to the vidmode code
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -24,6 +24,7 @@ support to Xwayland's XF86 vidmode extension emulation.
 Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
 Acked-by: Michel Dänzer <mdaenzer@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit bcad1b813a04b9f3ff225f57a4baad09bd6315b9)
 ---
  hw/xwayland/xwayland-vidmode.c | 90 +++++++++++++++++++++-------------
  1 file changed, 56 insertions(+), 34 deletions(-)
@@ -188,5 +189,5 @@ index a59c9f6a9..e9aea7269 100644
  
  static void
 -- 
-2.24.1
+2.25.2
 

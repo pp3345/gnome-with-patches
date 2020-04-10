@@ -1,7 +1,7 @@
-From a5b9f4880ab61dc0c02065e6fdf5e2f16f36be7c Mon Sep 17 00:00:00 2001
+From 52bbef1f55d17229684b0d76a478ec639c4032ed Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 7 Oct 2019 14:27:49 +0200
-Subject: [PATCH xserver 14/17] xwayland: Fix emulated modes not being removed
+Subject: [PATCH xserver 21/24] xwayland: Fix emulated modes not being removed
  when screen rotation is used
 
 The code building the mode-list does the following to deal with screen
@@ -24,7 +24,9 @@ to a member of xwl_output->randr_output->modes, so we do not need to
 duplicate this code, instead we can simply check that the passed in mode
 is modes[0] which always is the actual output mode.
 
+Acked-by: Olivier Fourdan <ofourdan@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit 88342353de45e64f408c38bb10cd1506ba0f159a)
 ---
  hw/xwayland/xwayland-output.c | 8 ++++++--
  1 file changed, 6 insertions(+), 2 deletions(-)
@@ -57,5 +59,5 @@ index 20c254962..7d705d919 100644
      else
          xwl_output_add_emulated_mode_for_client(xwl_output, client, mode, from_vidmode);
 -- 
-2.24.1
+2.25.2
 

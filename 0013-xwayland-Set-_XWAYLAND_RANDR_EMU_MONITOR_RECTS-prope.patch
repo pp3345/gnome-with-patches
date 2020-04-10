@@ -1,7 +1,7 @@
-From 2fd8751593ed1268e859a9a19f0eea3820ce5f69 Mon Sep 17 00:00:00 2001
+From dda4a8b2f672eb5791f39222dd0996e07b416eb7 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 2 Sep 2019 17:32:45 +0200
-Subject: [PATCH xserver 13/17] xwayland: Set _XWAYLAND_RANDR_EMU_MONITOR_RECTS
+Subject: [PATCH xserver 13/24] xwayland: Set _XWAYLAND_RANDR_EMU_MONITOR_RECTS
  property for resolution emulation
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -29,6 +29,7 @@ be equal to the new resolution.
 Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
 Acked-by: Michel Dänzer <mdaenzer@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit 5315f988d9f175e4850f4259f691a68d95ce7ac2)
 ---
  hw/xwayland/xwayland-output.c | 77 +++++++++++++++++++++++++++++++++++
  hw/xwayland/xwayland.c        | 23 +++++++++++
@@ -138,7 +139,7 @@ index 99ab1b288..20c254962 100644
  
  static void
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 19a348255..1840ccbfb 100644
+index 85036adfe..e43f3de96 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
 @@ -690,6 +690,27 @@ xwl_screen_check_resolution_change_emulation(struct xwl_screen *xwl_screen)
@@ -179,7 +180,7 @@ index 19a348255..1840ccbfb 100644
  }
  
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 56e753306..ef1138348 100644
+index 9adf3af76..eb8c4bd70 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
 @@ -418,6 +418,7 @@ Bool xwl_screen_has_resolution_change_emulation(struct xwl_screen *xwl_screen);
@@ -200,5 +201,5 @@ index 56e753306..ef1138348 100644
  RRModePtr xwayland_cvt(int HDisplay, int VDisplay,
                         float VRefresh, Bool Reduced, Bool Interlaced);
 -- 
-2.24.1
+2.25.2
 

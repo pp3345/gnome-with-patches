@@ -1,7 +1,7 @@
-From 869e6f39165daeacdd9cbb3f2f0d1845a3af3360 Mon Sep 17 00:00:00 2001
+From a640802d33e0daccf2d4045ecb3e70cbf56bf0ac Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Tue, 2 Jul 2019 11:55:26 +0200
-Subject: [PATCH xserver 08/17] xwayland: Add support for randr-resolution
+Subject: [PATCH xserver 08/24] xwayland: Add support for randr-resolution
  change emulation using viewport
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -28,6 +28,7 @@ disabling resolution emulation all together when going windowed.
 Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
 Acked-by: Michel Dänzer <mdaenzer@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit d99b9ff0f237d15e7eb507484493c73b393d5dba)
 ---
  hw/xwayland/xwayland-input.c  |   5 +
  hw/xwayland/xwayland-output.c |  63 ++++++++++-
@@ -142,7 +143,7 @@ index 82ff5db70..99ab1b288 100644
  
  static Bool
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 7720baab8..1466e1e11 100644
+index b0e37ceb9..1ab5b3a28 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
 @@ -176,6 +176,23 @@ xwl_screen_has_resolution_change_emulation(struct xwl_screen *xwl_screen)
@@ -350,7 +351,7 @@ index 7720baab8..1466e1e11 100644
      unregister_damage(window);
  
      if (xwl_window->frame_callback)
-@@ -760,6 +928,33 @@ xwl_set_window_pixmap(WindowPtr window,
+@@ -767,6 +935,33 @@ xwl_set_window_pixmap(WindowPtr window,
      ensure_surface_for_window(window);
  }
  
@@ -384,7 +385,7 @@ index 7720baab8..1466e1e11 100644
  static void
  frame_callback(void *data,
                 struct wl_callback *callback,
-@@ -1211,6 +1406,7 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
+@@ -1218,6 +1413,7 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
      xorg_list_init(&xwl_screen->output_list);
      xorg_list_init(&xwl_screen->seat_list);
      xorg_list_init(&xwl_screen->damage_window_list);
@@ -392,7 +393,7 @@ index 7720baab8..1466e1e11 100644
      xwl_screen->depth = 24;
  
      xwl_screen->display = wl_display_connect(NULL);
-@@ -1309,6 +1505,9 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
+@@ -1316,6 +1512,9 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
      xwl_screen->CloseScreen = pScreen->CloseScreen;
      pScreen->CloseScreen = xwl_close_screen;
  
@@ -403,7 +404,7 @@ index 7720baab8..1466e1e11 100644
          xwl_screen->SetWindowPixmap = pScreen->SetWindowPixmap;
          pScreen->SetWindowPixmap = xwl_set_window_pixmap;
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 7e6497b80..56e753306 100644
+index 0e6f92e63..9adf3af76 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
 @@ -135,10 +135,12 @@ struct xwl_screen {
@@ -457,5 +458,5 @@ index 7e6497b80..56e753306 100644
                         float VRefresh, Bool Reduced, Bool Interlaced);
  
 -- 
-2.24.1
+2.25.2
 

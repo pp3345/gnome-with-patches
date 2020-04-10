@@ -1,7 +1,7 @@
-From 000b477eee11fddd0d4e323407aaa40afb818827 Mon Sep 17 00:00:00 2001
+From 80ca38c4428a499a795084dc696c390b707749b9 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 29 Aug 2019 22:45:12 +0200
-Subject: [PATCH xserver 06/17] xwayland: Add per client private data
+Subject: [PATCH xserver 06/24] xwayland: Add per client private data
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -14,13 +14,14 @@ change emulation.
 Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
 Acked-by: Michel Dänzer <mdaenzer@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit 905cb8b9e27add5f49a45fe167a0005bf05218bc)
 ---
  hw/xwayland/xwayland.c | 14 ++++++++++++++
  hw/xwayland/xwayland.h |  5 +++++
  2 files changed, 19 insertions(+)
 
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 44eb0e042..7720baab8 100644
+index 3c50396f1..b0e37ceb9 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
 @@ -135,11 +135,18 @@ ddxProcessArgument(int argc, char *argv[], int i)
@@ -42,7 +43,7 @@ index 44eb0e042..7720baab8 100644
  static struct xwl_window *
  xwl_window_get(WindowPtr window)
  {
-@@ -1136,6 +1143,13 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
+@@ -1143,6 +1150,13 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
          return FALSE;
      if (!dixRegisterPrivateKey(&xwl_damage_private_key, PRIVATE_WINDOW, 0))
          return FALSE;
@@ -57,21 +58,23 @@ index 44eb0e042..7720baab8 100644
      dixSetPrivate(&pScreen->devPrivates, &xwl_screen_private_key, xwl_screen);
      xwl_screen->screen = pScreen;
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 937977ccf..630b14e48 100644
+index c66997f00..593e92b64 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
-@@ -381,6 +381,11 @@ struct xwl_output {
- 
- void xwl_window_create_frame_callback(struct xwl_window *xwl_window);
+@@ -379,8 +379,13 @@ struct xwl_output {
+     Bool xdg_output_done;
+ };
  
 +struct xwl_client {
 +};
 +
+ void xwl_window_create_frame_callback(struct xwl_window *xwl_window);
+ 
 +struct xwl_client *xwl_client_get(ClientPtr client);
 +
  void xwl_sync_events (struct xwl_screen *xwl_screen);
  void xwl_surface_damage(struct xwl_screen *xwl_screen,
                          struct wl_surface *surface,
 -- 
-2.24.1
+2.25.2
 

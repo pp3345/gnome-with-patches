@@ -1,7 +1,7 @@
-From 1a24c9850144481cdc0ebf9bea5b3141ddc2c4b2 Mon Sep 17 00:00:00 2001
+From 6ff9bf9f005ce81b587d3b4345232c73fc12da53 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 26 Jun 2019 16:46:54 +0200
-Subject: [PATCH xserver 04/17] xwayland: Add fake output modes to xrandr
+Subject: [PATCH xserver 04/24] xwayland: Add fake output modes to xrandr
  output mode lists
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -17,6 +17,7 @@ WPviewport to scale there pixmap to cover the entire output.
 Reviewed-by: Olivier Fourdan <ofourdan@redhat.com>
 Acked-by: Michel Dänzer <mdaenzer@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit 0d656d796071fb637e4969ea800855fe5d1c9728)
 ---
  hw/xwayland/xwayland-output.c | 112 ++++++++++++++++++++++++++++++++--
  hw/xwayland/xwayland.c        |  17 ++++++
@@ -162,7 +163,7 @@ index aa6f37864..2ccc3ca60 100644
      xorg_list_for_each_entry(it, &xwl_screen->output_list, link) {
          /* output done event is sent even when some property
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 87185e6f3..44eb0e042 100644
+index 942981834..3c50396f1 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
 @@ -152,6 +152,23 @@ xwl_screen_get(ScreenPtr screen)
@@ -190,7 +191,7 @@ index 87185e6f3..44eb0e042 100644
  xwl_window_set_allow_commits(struct xwl_window *xwl_window, Bool allow,
                               const char *debug_msg)
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 07baa09e2..937977ccf 100644
+index fa78b5ab9..c66997f00 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
 @@ -389,6 +389,7 @@ void xwl_surface_damage(struct xwl_screen *xwl_screen,
@@ -202,5 +203,5 @@ index 07baa09e2..937977ccf 100644
  void xwl_tablet_tool_set_cursor(struct xwl_tablet_tool *tool);
  void xwl_seat_set_cursor(struct xwl_seat *xwl_seat);
 -- 
-2.24.1
+2.25.2
 

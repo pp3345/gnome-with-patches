@@ -1,7 +1,7 @@
-From 28610d4f35d8bc30f30f33656777649ea355f3c2 Mon Sep 17 00:00:00 2001
+From 231d5e2da2e1b0aee3cfe6febc54daf7a0e4b4c7 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 4 Nov 2019 15:01:18 +0100
-Subject: [PATCH xserver 17/17] xwayland: Remove unnecessary
+Subject: [PATCH xserver 24/24] xwayland: Remove unnecessary
  xwl_window_is_toplevel() check from xwl_output_set_window_randr_emu_props()
 
 Since the recent fix to call xwl_output_set_window_randr_emu_props() from
@@ -13,7 +13,9 @@ This commit moves the check to xwl_output_set_randr_emu_prop_callback()
 so that we only do it when we are walking over all Windows of a client
 to update the property on a change of the emulated resolution.
 
+Acked-by: Olivier Fourdan <ofourdan@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+(cherry picked from commit d4faab8708779df265239b203ed5f020bff681bf)
 ---
  hw/xwayland/xwayland-output.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
@@ -43,5 +45,5 @@ index 7d705d919..084b669e4 100644
  
  static void
 -- 
-2.24.1
+2.25.2
 
