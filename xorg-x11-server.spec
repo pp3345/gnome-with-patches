@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.8
-Release:   1%{?gitdate:.%{gitdate}}%{?dist}
+Release:   100%{?gitdate:.%{gitdate}}%{?dist}.pp3345
 URL:       http://www.x.org
 License:   MIT
 
@@ -550,6 +550,11 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Apr 10 2020 Yussuf Khalil <dev@pp3345.net> - 1.20.8-100
+- Add !361 "Take window border width into account for window buffer updates and recycling" @46e5236b (manually rebased)
+- Rebase !316 "Add multiple buffering to xwl_window"
+- Rebase to 1.20.8-1.fc32
+
 * Mon Mar 30 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.8-1
 - xserver 1.20.8
 - Backport latest Xwayland randr resolution change emulation support
