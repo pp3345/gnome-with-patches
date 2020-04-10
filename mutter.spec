@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.1
-Release:       4%{?dist}
+Release:       400%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -172,6 +172,13 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Fri Apr 10 2020 Yussuf Khalil <dev@pp3345.net> 3.36.1-400
+- Add !1003 "background: Limit mipmap levels to avoid loss of visible detail" @9209c13c
+- Remove !798 "Wayland surface fullscreen unredirect" (needs rebase)
+- Remove !724 "Sync timelines to hardware vsync" (merged)
+- Remove !1124 "Use correct shaped texture filtering" (merged)
+- Rebase to 3.36.1-4.fc32
+
 * Tue Apr 07 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.1-4
 - Backport fixes from stable branch
 
