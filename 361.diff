@@ -1,0 +1,65 @@
+diff --git a/hw/xwayland/xwayland-window-buffers.c b/hw/xwayland/xwayland-window-buffers.c
+index 62999091de48e93769e456de6452b433b191415e..22fef3ffd40fa808ffaae5c8b152e7a20ec1b9a5 100644
+--- a/hw/xwayland/xwayland-window-buffers.c
++++ b/hw/xwayland/xwayland-window-buffers.c
+@@ -286,8 +286,10 @@ xwl_window_buffers_get_pixmap(struct xwl_window *xwl_window,
+         while (nBox--) {
+             if (!copy_pixmap_area(window_pixmap,
+                                   xwl_window_buffer->pixmap,
+-                                  pBox->x1, pBox->y1,
+-                                  pBox->x2 - pBox->x1, pBox->y2 - pBox->y1))
++                                  pBox->x1 + xwl_window->window->borderWidth,
++                                  pBox->y1 + xwl_window->window->borderWidth,
++                                  pBox->x2 - pBox->x1,
++                                  pBox->y2 - pBox->y1))
+                 return window_pixmap;
+ 
+             pBox++;
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index fc7932f67dd16031c8c8b620a0644798c4f17a43..686b259dffec514ff8019fe490844fd26044f39d 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -1025,7 +1025,10 @@ xwl_set_window_pixmap(WindowPtr window,
+ {
+     ScreenPtr screen = window->drawable.pScreen;
+     struct xwl_screen *xwl_screen;
++    struct xwl_window *xwl_window;
++    PixmapPtr old_pixmap;
+ 
++    old_pixmap = (*screen->GetWindowPixmap) (window);
+     xwl_screen = xwl_screen_get(screen);
+ 
+     screen->SetWindowPixmap = xwl_screen->SetWindowPixmap;
+@@ -1037,5 +1040,13 @@ xwl_set_window_pixmap(WindowPtr window,
+         return;
+ 
+     ensure_surface_for_window(window);
++
++    if (old_pixmap->drawable.width == pixmap->drawable.width &&
++        old_pixmap->drawable.height == pixmap->drawable.height)
++       return;
++
++    xwl_window = xwl_window_get(window);
++    if (xwl_window)
++            xwl_window_buffers_recycle(xwl_window);
+ }
+ 
+@@ -1153,13 +1163,16 @@ xwl_window_post_damage(struct xwl_window *xwl_window)
+      */
+     if (RegionNumRects(region) > 256) {
+         box = RegionExtents(region);
+-        xwl_surface_damage(xwl_screen, xwl_window->surface, box->x1, box->y1,
++        xwl_surface_damage(xwl_screen, xwl_window->surface,
++                           box->x1 + xwl_window->window->borderWidth,
++                           box->y1 + xwl_window->window->borderWidth,
+                            box->x2 - box->x1, box->y2 - box->y1);
+     } else {
+         box = RegionRects(region);
+         for (i = 0; i < RegionNumRects(region); i++, box++) {
+             xwl_surface_damage(xwl_screen, xwl_window->surface,
+-                               box->x1, box->y1,
++                               box->x1 + xwl_window->window->borderWidth,
++                               box->y1 + xwl_window->window->borderWidth,
+                                box->x2 - box->x1, box->y2 - box->y1);
+         }
+     }
