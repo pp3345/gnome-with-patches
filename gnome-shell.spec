@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -19,6 +19,9 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
 # Backports from gnome-3-36
 Patch4: gnome-shell-patches-3.36.1~a6783692c5f630.patch
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1822336
+Patch5: fix-folder-name-regression.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -215,6 +218,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Apr 13 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.1-4
+- Fix translated folder names
+  Resolves: #1822336
+
 * Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com - 3.36.1-3
 - Remove obsolete libcroco require
 - Update files section
