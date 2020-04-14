@@ -1,0 +1,455 @@
+From 3edf6a529227ca0ff4352b3879de69d7c5f7638b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 14 Apr 2020 21:11:28 +0200
+Subject: [PATCH 1/5] monitor: Fix tile coordinate calculation
+
+Previously the tile coordinate was used to offset a CRTC scanout
+coordinate within a larger framebuffer. Since 3.36 we're always
+scanning out from (0, 0) as we always have one framebuffer per CRTC; we
+instead use the tile coordinate to calculate the coordinate the tile has
+in the stage view. Adapt calculation to fulfil this promise instead of
+the old one.
+
+This also corrects the tiled custom monitor test case.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1199
+---
+ src/backends/meta-monitor.c    | 8 ++++----
+ src/tests/monitor-unit-tests.c | 3 ++-
+ 2 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/src/backends/meta-monitor.c b/src/backends/meta-monitor.c
+index f4d71f047..07857e00b 100644
+--- a/src/backends/meta-monitor.c
++++ b/src/backends/meta-monitor.c
+@@ -817,19 +817,19 @@ calculate_tile_coordinate (MetaMonitor         *monitor,
+         case META_MONITOR_TRANSFORM_270:
+         case META_MONITOR_TRANSFORM_FLIPPED_270:
+           if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
+-              other_output->tile_info.loc_h_tile < output->tile_info.loc_h_tile)
++              other_output->tile_info.loc_h_tile > output->tile_info.loc_h_tile)
+             y += other_output->tile_info.tile_w;
+           if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
+-              other_output->tile_info.loc_v_tile < output->tile_info.loc_v_tile)
++              other_output->tile_info.loc_v_tile > output->tile_info.loc_v_tile)
+             x += other_output->tile_info.tile_h;
+           break;
+         case META_MONITOR_TRANSFORM_90:
+         case META_MONITOR_TRANSFORM_FLIPPED_90:
+           if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
+-              other_output->tile_info.loc_h_tile > output->tile_info.loc_h_tile)
++              other_output->tile_info.loc_h_tile < output->tile_info.loc_h_tile)
+             y += other_output->tile_info.tile_w;
+           if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
+-              other_output->tile_info.loc_v_tile > output->tile_info.loc_v_tile)
++              other_output->tile_info.loc_v_tile < output->tile_info.loc_v_tile)
+             x += other_output->tile_info.tile_h;
+           break;
+         }
+diff --git a/src/tests/monitor-unit-tests.c b/src/tests/monitor-unit-tests.c
+index ad0cdda62..883de1bd0 100644
+--- a/src/tests/monitor-unit-tests.c
++++ b/src/tests/monitor-unit-tests.c
+@@ -4828,12 +4828,13 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
+           .current_mode = 1,
+           .transform = META_MONITOR_TRANSFORM_90,
+           .x = 1024,
+-          .y = 400,
++          .y = 0,
+         },
+         {
+           .current_mode = 1,
+           .transform = META_MONITOR_TRANSFORM_90,
+           .x = 1024,
++          .y = 400,
+         }
+       },
+       .n_crtcs = 3,
+-- 
+2.26.0
+
+
+From 5e9986bbcbfe18d1eb58f62753472113e9b9522d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 14 Apr 2020 10:23:43 +0200
+Subject: [PATCH 2/5] monitor-config-manager: Only use crtc transform for
+ assignment
+
+The CRTC level transform (i.e. not necessarily the one set on the
+hardware) is what is relevant for calculating the layout the CRTC will
+have on the stage, so only use the one that can be handled by the
+hardware for the CRTC assignment.
+
+This makes the CRTC layout valid for tiled monitors.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1199
+---
+ src/backends/meta-monitor-config-manager.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/src/backends/meta-monitor-config-manager.c b/src/backends/meta-monitor-config-manager.c
+index 5739ca18b..cc9159683 100644
+--- a/src/backends/meta-monitor-config-manager.c
++++ b/src/backends/meta-monitor-config-manager.c
+@@ -172,6 +172,7 @@ assign_monitor_crtc (MetaMonitor         *monitor,
+   MetaCrtc *crtc;
+   MetaMonitorTransform transform;
+   MetaMonitorTransform crtc_transform;
++  MetaMonitorTransform crtc_hw_transform;
+   int crtc_x, crtc_y;
+   float x_offset, y_offset;
+   float scale = 0.0;
+@@ -200,10 +201,12 @@ assign_monitor_crtc (MetaMonitor         *monitor,
+ 
+   transform = data->logical_monitor_config->transform;
+   crtc_transform = meta_monitor_logical_to_crtc_transform (monitor, transform);
+-  if (!meta_monitor_manager_is_transform_handled (data->monitor_manager,
+-                                                  crtc,
+-                                                  crtc_transform))
+-    crtc_transform = META_MONITOR_TRANSFORM_NORMAL;
++  if (meta_monitor_manager_is_transform_handled (data->monitor_manager,
++                                                 crtc,
++                                                 crtc_transform))
++    crtc_hw_transform = crtc_transform;
++  else
++    crtc_hw_transform = META_MONITOR_TRANSFORM_NORMAL;
+ 
+   meta_monitor_calculate_crtc_pos (monitor, mode, output, crtc_transform,
+                                    &crtc_x, &crtc_y);
+@@ -244,7 +247,7 @@ assign_monitor_crtc (MetaMonitor         *monitor,
+     .crtc = crtc,
+     .mode = crtc_mode,
+     .layout = crtc_layout,
+-    .transform = crtc_transform,
++    .transform = crtc_hw_transform,
+     .outputs = g_ptr_array_new ()
+   };
+   g_ptr_array_add (crtc_info->outputs, output);
+-- 
+2.26.0
+
+
+From e8f29a333626badbdca4dd283c1c7af673a5a9f5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 14 Apr 2020 10:41:37 +0200
+Subject: [PATCH 3/5] tests/monitor-unit-tests: Test non-hw-transform rotated
+ tiled monitors
+
+Should affect the assigned transform, but not the layout, as that is the
+layout on the stage, not the coordinates in any buffer.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1199
+---
+ src/tests/monitor-unit-tests.c | 194 +++++++++++++++++++++++++++++++++
+ 1 file changed, 194 insertions(+)
+
+diff --git a/src/tests/monitor-unit-tests.c b/src/tests/monitor-unit-tests.c
+index 883de1bd0..13f0f21eb 100644
+--- a/src/tests/monitor-unit-tests.c
++++ b/src/tests/monitor-unit-tests.c
+@@ -4860,6 +4860,198 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
+   check_monitor_configuration (&test_case);
+ }
+ 
++static void
++meta_test_monitor_custom_second_rotated_nonnative_tiled_config (void)
++{
++  MonitorTestCase test_case = {
++    .setup = {
++      .modes = {
++        {
++          .width = 1024,
++          .height = 768,
++          .refresh_rate = 60.000495910644531
++        },
++        {
++          .width = 400,
++          .height = 600,
++          .refresh_rate = 60.000495910644531
++        }
++      },
++      .n_modes = 2,
++      .outputs = {
++        {
++          .crtc = 0,
++          .modes = { 0 },
++          .n_modes = 1,
++          .preferred_mode = 0,
++          .possible_crtcs = { 0 },
++          .n_possible_crtcs = 1,
++          .width_mm = 222,
++          .height_mm = 125,
++        },
++        {
++          .crtc = -1,
++          .modes = { 1 },
++          .n_modes = 1,
++          .preferred_mode = 1,
++          .possible_crtcs = { 1, 2 },
++          .n_possible_crtcs = 2,
++          .width_mm = 222,
++          .height_mm = 125,
++          .tile_info = {
++            .group_id = 1,
++            .max_h_tiles = 2,
++            .max_v_tiles = 1,
++            .loc_h_tile = 0,
++            .loc_v_tile = 0,
++            .tile_w = 400,
++            .tile_h = 600
++          }
++        },
++        {
++          .crtc = -1,
++          .modes = { 1 },
++          .n_modes = 1,
++          .preferred_mode = 1,
++          .possible_crtcs = { 1, 2 },
++          .n_possible_crtcs = 2,
++          .width_mm = 222,
++          .height_mm = 125,
++          .tile_info = {
++            .group_id = 1,
++            .max_h_tiles = 2,
++            .max_v_tiles = 1,
++            .loc_h_tile = 1,
++            .loc_v_tile = 0,
++            .tile_w = 400,
++            .tile_h = 600
++          }
++        }
++      },
++      .n_outputs = 3,
++      .crtcs = {
++        {
++          .current_mode = -1
++        },
++        {
++          .current_mode = -1
++        },
++        {
++          .current_mode = -1
++        }
++      },
++      .n_crtcs = 3
++    },
++
++    .expect = {
++      .monitors = {
++        {
++          .outputs = { 0 },
++          .n_outputs = 1,
++          .modes = {
++            {
++              .width = 1024,
++              .height = 768,
++              .refresh_rate = 60.000495910644531,
++              .crtc_modes = {
++                {
++                  .output = 0,
++                  .crtc_mode = 0
++                }
++              }
++            }
++          },
++          .n_modes = 1,
++          .current_mode = 0,
++          .width_mm = 222,
++          .height_mm = 125,
++        },
++        {
++          .outputs = { 1, 2 },
++          .n_outputs = 2,
++          .modes = {
++            {
++              .width = 800,
++              .height = 600,
++              .refresh_rate = 60.000495910644531,
++              .crtc_modes = {
++                {
++                  .output = 1,
++                  .crtc_mode = 1,
++                },
++                {
++                  .output = 2,
++                  .crtc_mode = 1,
++                }
++              }
++            }
++          },
++          .n_modes = 1,
++          .current_mode = 0,
++          .width_mm = 222,
++          .height_mm = 125,
++        }
++      },
++      .n_monitors = 2,
++      .logical_monitors = {
++        {
++          .monitors = { 0 },
++          .n_monitors = 1,
++          .layout = { .x = 0, .y = 256, .width = 1024, .height = 768 },
++          .scale = 1
++        },
++        {
++          .monitors = { 1 },
++          .n_monitors = 1,
++          .layout = { .x = 1024, .y = 0, .width = 600, .height = 800 },
++          .scale = 1,
++          .transform = META_MONITOR_TRANSFORM_90
++        }
++      },
++      .n_logical_monitors = 2,
++      .primary_logical_monitor = 0,
++      .n_outputs = 3,
++      .crtcs = {
++        {
++          .current_mode = 0,
++          .y = 256,
++        },
++        {
++          .current_mode = 1,
++          .transform = META_MONITOR_TRANSFORM_NORMAL,
++          .x = 1024,
++          .y = 0,
++        },
++        {
++          .current_mode = 1,
++          .transform = META_MONITOR_TRANSFORM_NORMAL,
++          .x = 1024,
++          .y = 400,
++        }
++      },
++      .n_crtcs = 3,
++      .n_tiled_monitors = 1,
++      .screen_width = 1024 + 600,
++      .screen_height = 1024
++    }
++  };
++  MetaMonitorTestSetup *test_setup;
++  MetaBackend *backend = meta_get_backend ();
++  MetaMonitorManager *monitor_manager =
++    meta_backend_get_monitor_manager (backend);
++  MetaMonitorManagerTest *monitor_manager_test =
++    META_MONITOR_MANAGER_TEST (monitor_manager);
++
++  meta_monitor_manager_test_set_handles_transforms (monitor_manager_test,
++                                                    FALSE);
++
++  test_setup = create_monitor_test_setup (&test_case,
++                                          MONITOR_TEST_FLAG_NONE);
++  set_custom_monitor_config ("second-rotated-tiled.xml");
++  emulate_hotplug (test_setup);
++  check_monitor_configuration (&test_case);
++}
++
+ static void
+ meta_test_monitor_custom_second_rotated_nonnative_config (void)
+ {
+@@ -6094,6 +6286,8 @@ init_monitor_tests (void)
+                     meta_test_monitor_custom_second_rotated_config);
+   add_monitor_test ("/backends/monitor/custom/second-rotated-tiled-config",
+                     meta_test_monitor_custom_second_rotated_tiled_config);
++  add_monitor_test ("/backends/monitor/custom/second-rotated-nonnative-tiled-config",
++                    meta_test_monitor_custom_second_rotated_nonnative_tiled_config);
+   add_monitor_test ("/backends/monitor/custom/second-rotated-nonnative-config",
+                     meta_test_monitor_custom_second_rotated_nonnative_config);
+   add_monitor_test ("/backends/monitor/custom/interlaced-config",
+-- 
+2.26.0
+
+
+From ea546a8b90a5cf8143fca969cea4bf5a3fb61aa7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 14 Apr 2020 10:44:16 +0200
+Subject: [PATCH 4/5] renderer-native: Use CRTC layout in stage view
+
+The port to per CRTC views was incomplete; we still used the logical
+monitor layout as the stage view layout, while still using one view per
+CRTC.
+
+This worked fine for most cases, e.g. regular monitors, tiled or
+non-tiled, transformed or non-transformed. Where it broke, however, was
+when a monitor consists of multiple CRTCs. We already have the layout a
+CRTC corresponds to on the stage kept with the CRTC metadata, so use
+this directly.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1170
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1199`
+---
+ src/backends/native/meta-renderer-native.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index d1d713040..8d82ad7c4 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -3037,6 +3037,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
+   float scale;
+   int onscreen_width;
+   int onscreen_height;
++  MetaRectangle view_layout;
+   MetaRendererView *view;
+   GError *error = NULL;
+ 
+@@ -3108,8 +3109,11 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
+   else
+     scale = 1.0;
+ 
++  meta_rectangle_from_graphene_rect (&crtc->config->layout,
++                                     META_ROUNDING_STRATEGY_ROUND,
++                                     &view_layout);
+   view = g_object_new (META_TYPE_RENDERER_VIEW,
+-                       "layout", &logical_monitor->rect,
++                       "layout", &view_layout,
+                        "scale", scale,
+                        "framebuffer", onscreen,
+                        "offscreen", offscreen,
+-- 
+2.26.0
+
+
+From 568876da9547c9a20c5fe39f4ed09fe0d2d99b4a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 14 Apr 2020 21:14:24 +0200
+Subject: [PATCH 5/5] cursor-renderer-native: Take CRTC transform into account
+
+The CRTC level transform (not necessarily the hw transform) must be
+taken into account when calculating the position of the CRTC in the
+stage coordinate space, when placing the hw cursor, otherwise we'll
+place the cursor as if the monitor was not rotated.
+
+This wasn't a problem in the past, as with rotation, we always used the
+OpenGL cursor, so the issue newer showed.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1199
+---
+ src/backends/native/meta-cursor-renderer-native.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/src/backends/native/meta-cursor-renderer-native.c b/src/backends/native/meta-cursor-renderer-native.c
+index 2450e19f2..578a9a0a0 100644
+--- a/src/backends/native/meta-cursor-renderer-native.c
++++ b/src/backends/native/meta-cursor-renderer-native.c
+@@ -407,13 +407,14 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
+   else
+     scale = 1.0;
+ 
++  transform = meta_logical_monitor_get_transform (data->in_logical_monitor);
++  transform = meta_monitor_logical_to_crtc_transform (monitor, transform);
++
+   meta_monitor_calculate_crtc_pos (monitor, monitor_mode,
+                                    monitor_crtc_mode->output,
+-                                   META_MONITOR_TRANSFORM_NORMAL,
++                                   transform,
+                                    &crtc_x, &crtc_y);
+ 
+-  transform = meta_logical_monitor_get_transform (data->in_logical_monitor);
+-  transform = meta_monitor_logical_to_crtc_transform (monitor, transform);
+   if (meta_monitor_transform_is_rotated (transform))
+     {
+       crtc_width = monitor_crtc_mode->crtc_mode->height;
+-- 
+2.26.0
+

@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.1
-Release:       4%{?dist}
+Release:       5%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -21,6 +21,9 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 
 # Backports post 3.36.1
 Patch1:        mutter-patches-3.36.1~db164bcfa2f6.patch
+
+# Fix tiled monitors (#1823678)
+Patch2:        fix-tiled-monitors.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -166,6 +169,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Apr 14 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.1-5
+- Fix tiled monitors (#1823678)
+
 * Tue Apr 07 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.1-4
 - Backport fixes from stable branch
 
