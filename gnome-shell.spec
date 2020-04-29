@@ -167,6 +167,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_bindir}/gnome-shell-perf-tool
 %{_datadir}/glib-2.0/schemas/*.xml
 %{_datadir}/glib-2.0/schemas/00_org.gnome.shell.gschema.override
+%{_datadir}/applications/org.gnome.Shell.Extensions.desktop
 %{_datadir}/applications/org.gnome.Shell.desktop
 %{_datadir}/applications/evolution-calendar.desktop
 %{_datadir}/applications/org.gnome.Shell.PortalHelper.desktop
@@ -185,6 +186,8 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Screenshot.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider2.xml
+%{_datadir}/icons/hicolor/scalable/apps/org.gnome.Shell.Extensions.svg
+%{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Shell.Extensions-symbolic.svg
 %{_userunitdir}/gnome-shell-disable-extensions.service
 %{_userunitdir}/gnome-shell-wayland.service
 %{_userunitdir}/gnome-shell-wayland.target
