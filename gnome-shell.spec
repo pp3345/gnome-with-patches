@@ -1,13 +1,13 @@
 Name:           gnome-shell
-Version:        3.36.1
-Release:        2%{?dist}
+Version:        3.37.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.36/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.37/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -16,9 +16,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
-
-# Backported from gnome-3-36
-Patch4: 0001-appDisplay-Clear-animateLater-callbacks-when-unmappi.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -165,6 +162,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %doc README.md
 %caps(cap_sys_nice+ep) %{_bindir}/gnome-shell
 %{_bindir}/gnome-extensions
+%{_bindir}/gnome-shell-extension-prefs
 %{_bindir}/gnome-shell-extension-tool
 %{_bindir}/gnome-shell-perf-tool
 %{_datadir}/glib-2.0/schemas/*.xml
@@ -212,6 +210,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Thu Apr 30 2020 Florian Müllner <fmuellner@redhat.com - 3.37.1-1
+- Update to 3.37.1
+
 * Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com - 3.36.1-2
 - Remove obsolete libcroco require
 
