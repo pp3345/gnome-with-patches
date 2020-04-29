@@ -84,24 +84,11 @@ name that either calls out to the portal or launches the app.
 
 https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1220
 ---
- .gitignore                      |  1 -
  src/gnome-shell-extension-prefs | 31 +++++++++++++++++++++++++++++++
  src/meson.build                 |  4 ++++
  3 files changed, 35 insertions(+), 1 deletion(-)
  create mode 100755 src/gnome-shell-extension-prefs
 
-diff --git a/.gitignore b/.gitignore
-index 38d6765cc..396a628e5 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -60,7 +60,6 @@ src/calendar-server/evolution-calendar.desktop
- src/calendar-server/org.gnome.Shell.CalendarServer.service
- src/gnome-shell
- src/gnome-shell-calendar-server
--src/gnome-shell-extension-prefs
- src/gnome-shell-extension-tool
- src/gnome-shell-hotplug-sniffer
- src/gnome-shell-perf-helper
 diff --git a/src/gnome-shell-extension-prefs b/src/gnome-shell-extension-prefs
 new file mode 100755
 index 000000000..303b1963c
