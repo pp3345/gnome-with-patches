@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.36.1
-Release:        300%{?dist}.pp3345
+Version:        3.36.2
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -17,8 +17,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
-# Backports from gnome-3-36
-Patch4: gnome-shell-patches-3.36.1~a6783692c5f630.patch
+Patch4: extension-prefs-compat.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -167,6 +166,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %doc README.md
 %caps(cap_sys_nice+ep) %{_bindir}/gnome-shell
 %{_bindir}/gnome-extensions
+%{_bindir}/gnome-shell-extension-prefs
 %{_bindir}/gnome-shell-extension-tool
 %{_bindir}/gnome-shell-perf-tool
 %{_datadir}/glib-2.0/schemas/*.xml
@@ -217,6 +217,13 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Thu Apr 30 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.2-1
+- Update to 3.36.2
+
+* Mon Apr 13 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.1-4
+- Fix translated folder names
+  Resolves: #1822336
+
 * Fri Apr 10 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.1-300
 - Rebase to 3.36.1-3.fc32
 
