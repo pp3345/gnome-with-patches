@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.2
-Release:       1%{?dist}
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -171,6 +171,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Apr 30 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.2-100
+- Add !1218 "Some Wayland frame callback fixes" @b802d8c8 (manually rebased)
+- Add !798 "Wayland surface fullscreen unredirect" @65a6c4c3 (manually rebased)
+- Rebase to 3.36.2-1.fc32
+
 * Thu Apr 30 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.2-1
 - Update to 3.36.2
 
