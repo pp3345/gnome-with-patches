@@ -7,8 +7,8 @@
 %global mutter_api_version 5
 
 Name:          mutter
-Version:       3.34.5
-Release:       100%{?dist}.pp3345
+Version:       3.34.6
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -206,6 +206,13 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Apr 30 2020 Florian Müllner <fmuellner@redhat.com> - 3.34.6-1
+- Update to 3.34.6
+
+* Thu Apr 16 2020 Jonas Ådahl <jadahl@redhat.com> - 3.34.5-2
+- Backport fix for crash when running IntelliJ IDEA
+  Resolves: #1824333
+
 * Tue Mar 31 2020 Yussuf Khalil <dev@pp3345.net> - 3.34.5-100
 - Rebase to 3.34.5-1.fc31
 
