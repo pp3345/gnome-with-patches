@@ -7,8 +7,8 @@
 %global mutter_api_version 6
 
 Name:          mutter
-Version:       3.36.1
-Release:       400%{?dist}.pp3345
+Version:       3.36.2
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,9 +18,6 @@ Source0:       http://download.gnome.org/sources/%{name}/3.36/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-
-# Backports post 3.36.1
-Patch1:        mutter-patches-3.36.1~db164bcfa2f6.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -172,6 +169,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Apr 30 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.2-1
+- Update to 3.36.2
+
+* Tue Apr 14 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.1-5
+- Fix tiled monitors (#1823678)
+
 * Fri Apr 10 2020 Yussuf Khalil <dev@pp3345.net> 3.36.1-400
 - Add !1003 "background: Limit mipmap levels to avoid loss of visible detail" @9209c13c
 - Remove !798 "Wayland surface fullscreen unredirect" (needs rebase)
