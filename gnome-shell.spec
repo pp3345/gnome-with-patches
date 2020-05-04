@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.37.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -16,6 +16,11 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 # This should go upstream once systemd has a generic interface for this
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
+
+# Fix panel to show input methods again
+# https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1235
+# https://gitlab.gnome.org/GNOME/gnome-shell/-/commit/e08a4acd
+Patch4: 0001-ibusManager-Fix-the-panel-after-porting-to-Promises.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -213,6 +218,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon May 04 2020 Adam Williamson <awilliam@redhat.com> - 3.37.1-2
+- Fix panel to show input methods (MR #1235)
+
 * Thu Apr 30 2020 Florian Müllner <fmuellner@redhat.com - 3.37.1-1
 - Update to 3.37.1
 
