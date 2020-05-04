@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.32.2
-Release:        2.3%{?dist}.pp3345
+Release:        300%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -210,6 +210,13 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Mon May 04 2020 Yussuf Khalil <dev@pp3345.net> - 3.32.2-300
+- Rebase to 3.32.2-3.fc30
+
+* Mon Apr 13 2020 Adam Williamson <awilliam@redhat.com> - 3.32.2-3
+- Backport MR #576 to fix a crash on screen lock
+  Resolves: #1823445
+
 * Mon Jul 29 2019 Yussuf Khalil <dev@pp3345.net> - 3.32.2-2.3
 - Rebase to gnome-3-32 @1c6abf37
 
