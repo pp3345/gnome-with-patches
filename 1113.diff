@@ -1,0 +1,497 @@
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index 9e897ed1ec1f210a59cd7fa6e4432fd3c592ce71..4a7eee73558d34498a911c8dbec088edb36ec439 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -430,18 +430,6 @@ swap_framebuffer (ClutterStageWindow *stage_window,
+     }
+ }
+ 
+-static void
+-scale_and_clamp_rect (const graphene_rect_t *rect,
+-                      float                  scale,
+-                      cairo_rectangle_int_t *dest)
+-
+-{
+-  graphene_rect_t tmp = *rect;
+-
+-  graphene_rect_scale (&tmp, scale, scale, &tmp);
+-  _clutter_util_rectangle_int_extents (&tmp, dest);
+-}
+-
+ static cairo_region_t *
+ offset_scale_and_clamp_region (const cairo_region_t *region,
+                                int                   offset_x,
+@@ -463,15 +451,52 @@ offset_scale_and_clamp_region (const cairo_region_t *region,
+     rects = freeme = g_new (cairo_rectangle_int_t, n_rects);
+ 
+   for (i = 0; i < n_rects; i++)
+-    cairo_region_get_rectangle (region, i, &rects[i]);
++    {
++      cairo_rectangle_int_t *rect = &rects[i];
++      graphene_rect_t tmp;
++
++      cairo_region_get_rectangle (region, i, rect);
++
++      _clutter_util_rect_from_rectangle (rect, &tmp);
++      graphene_rect_offset (&tmp, offset_x, offset_y);
++      graphene_rect_scale (&tmp, scale, scale, &tmp);
++      _clutter_util_rectangle_int_extents (&tmp, rect);
++    }
++
++  return cairo_region_create_rectangles (rects, n_rects);
++}
++
++static cairo_region_t *
++scale_offset_and_clamp_region (const cairo_region_t *region,
++                               float                 scale,
++                               int                   offset_x,
++                               int                   offset_y)
++{
++  int n_rects, i;
++  cairo_rectangle_int_t *rects;
++  g_autofree cairo_rectangle_int_t *freeme = NULL;
++
++  n_rects = cairo_region_num_rectangles (region);
++
++  if (n_rects == 0)
++    return cairo_region_create ();
++
++  if (n_rects < MAX_STACK_RECTS)
++    rects = g_newa (cairo_rectangle_int_t, n_rects);
++  else
++    rects = freeme = g_new (cairo_rectangle_int_t, n_rects);
+ 
+   for (i = 0; i < n_rects; i++)
+     {
++      cairo_rectangle_int_t *rect = &rects[i];
+       graphene_rect_t tmp;
+ 
+-      _clutter_util_rect_from_rectangle (&rects[i], &tmp);
++      cairo_region_get_rectangle (region, i, rect);
++
++      _clutter_util_rect_from_rectangle (rect, &tmp);
++      graphene_rect_scale (&tmp, scale, scale, &tmp);
+       graphene_rect_offset (&tmp, offset_x, offset_y);
+-      scale_and_clamp_rect (&tmp, scale, &rects[i]);
++      _clutter_util_rectangle_int_extents (&tmp, rect);
+     }
+ 
+   return cairo_region_create_rectangles (rects, n_rects);
+@@ -507,17 +532,6 @@ fill_current_damage_history (ClutterStageView *view,
+   view_priv->damage_index++;
+ }
+ 
+-static void
+-fill_current_damage_history_rectangle (ClutterStageView            *view,
+-                                       const cairo_rectangle_int_t *rect)
+-{
+-  cairo_region_t *damage;
+-
+-  damage = cairo_region_create_rectangle (rect);
+-  fill_current_damage_history (view, damage);
+-  cairo_region_destroy (damage);
+-}
+-
+ static cairo_region_t *
+ transform_swap_region_to_onscreen (ClutterStageView *view,
+                                    cairo_region_t   *swap_region)
+@@ -566,28 +580,6 @@ transform_swap_region_to_onscreen (ClutterStageView *view,
+   return transformed_region;
+ }
+ 
+-static void
+-calculate_scissor_region (cairo_rectangle_int_t *fb_clip_region,
+-                          int                    subpixel_compensation,
+-                          int                    fb_width,
+-                          int                    fb_height,
+-                          cairo_rectangle_int_t *out_scissor_rect)
+-{
+-  *out_scissor_rect = *fb_clip_region;
+-
+-  if (subpixel_compensation == 0)
+-    return;
+-
+-  if (fb_clip_region->x > 0)
+-    out_scissor_rect->x += subpixel_compensation;
+-  if (fb_clip_region->y > 0)
+-    out_scissor_rect->y += subpixel_compensation;
+-  if (fb_clip_region->x + fb_clip_region->width < fb_width)
+-    out_scissor_rect->width -= 2 * subpixel_compensation;
+-  if (fb_clip_region->y + fb_clip_region->height < fb_height)
+-    out_scissor_rect->height -= 2 * subpixel_compensation;
+-}
+-
+ static inline gboolean
+ is_buffer_age_enabled (void)
+ {
+@@ -608,25 +600,18 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
+   cairo_rectangle_int_t view_rect;
+   gboolean is_full_redraw;
+-  gboolean may_use_clipped_redraw;
+   gboolean use_clipped_redraw;
+   gboolean can_blit_sub_buffer;
+   gboolean has_buffer_age;
+-  gboolean do_swap_buffer;
+   gboolean swap_with_damage;
+-  ClutterActor *wrapper;
+   cairo_region_t *redraw_clip;
+   cairo_region_t *queued_redraw_clip = NULL;
+   cairo_region_t *fb_clip_region;
+   cairo_region_t *swap_region;
+-  cairo_rectangle_int_t redraw_rect;
+-  gboolean clip_region_empty;
+   float fb_scale;
+-  int subpixel_compensation = 0;
+   int fb_width, fb_height;
+   int buffer_age;
+-
+-  wrapper = CLUTTER_ACTOR (stage_cogl->wrapper);
++  gboolean res;
+ 
+   clutter_stage_view_get_layout (view, &view_rect);
+   fb_scale = clutter_stage_view_get_scale (view);
+@@ -649,51 +634,34 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+   else
+     is_full_redraw = FALSE;
+ 
+-  may_use_clipped_redraw =
+-    _clutter_stage_window_can_clip_redraws (stage_window) &&
+-    (can_blit_sub_buffer || has_buffer_age) &&
+-    !is_full_redraw &&
+-    /* some drivers struggle to get going and produce some junk
+-     * frames when starting up... */
+-    cogl_onscreen_get_frame_counter (COGL_ONSCREEN (fb)) > 3;
+-
+   if (has_buffer_age)
+     {
+       buffer_age = cogl_onscreen_get_buffer_age (COGL_ONSCREEN (fb));
+       if (!valid_buffer_age (view_cogl, buffer_age))
+         {
+-          CLUTTER_NOTE (CLIPPING, "Invalid back buffer(age=%d): forcing full redraw\n", buffer_age);
+-          may_use_clipped_redraw = FALSE;
++          CLUTTER_NOTE (CLIPPING,
++                        "Invalid back buffer(age=%d): forcing full redraw\n",
++                        buffer_age);
++          use_clipped_redraw = FALSE;
+         }
+     }
+ 
+-  if (may_use_clipped_redraw)
++  use_clipped_redraw =
++    use_clipped_redraw &&
++    !(clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS) &&
++    _clutter_stage_window_can_clip_redraws (stage_window) &&
++    (can_blit_sub_buffer || has_buffer_age) &&
++    !is_full_redraw &&
++    /* some drivers struggle to get going and produce some junk
++     * frames when starting up... */
++    cogl_onscreen_get_frame_counter (COGL_ONSCREEN (fb)) > 3;
++
++  if (use_clipped_redraw)
+     {
+       fb_clip_region = offset_scale_and_clamp_region (redraw_clip,
+                                                       -view_rect.x,
+                                                       -view_rect.y,
+                                                       fb_scale);
+-
+-      if (fb_scale != floorf (fb_scale))
+-        {
+-          int n_rects, i;
+-          cairo_rectangle_int_t *rects;
+-
+-          subpixel_compensation = ceilf (fb_scale);
+-
+-          n_rects = cairo_region_num_rectangles (fb_clip_region);
+-          rects = g_newa (cairo_rectangle_int_t, n_rects);
+-          for (i = 0; i < n_rects; i++)
+-            {
+-              cairo_region_get_rectangle (fb_clip_region, i, &rects[i]);
+-              rects[i].x -= subpixel_compensation;
+-              rects[i].y -= subpixel_compensation;
+-              rects[i].width += 2 * subpixel_compensation;
+-              rects[i].height += 2 * subpixel_compensation;
+-            }
+-          cairo_region_destroy (fb_clip_region);
+-          fb_clip_region = cairo_region_create_rectangles (rects, n_rects);
+-        }
+     }
+   else
+     {
+@@ -709,25 +677,19 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+       redraw_clip = cairo_region_create_rectangle (&view_rect);
+     }
+ 
+-  if (may_use_clipped_redraw &&
+-      G_LIKELY (!(clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)))
+-    use_clipped_redraw = TRUE;
+-  else
+-    use_clipped_redraw = FALSE;
+-
+-  clip_region_empty = may_use_clipped_redraw && cairo_region_is_empty (fb_clip_region);
++  g_return_val_if_fail (!cairo_region_is_empty (fb_clip_region), FALSE);
+ 
+   swap_with_damage = FALSE;
+   if (has_buffer_age)
+     {
+-      if (use_clipped_redraw && !clip_region_empty)
++      fill_current_damage_history (view, fb_clip_region);
++
++      if (use_clipped_redraw)
+         {
+           cairo_region_t *fb_damage;
+           cairo_region_t *view_damage;
+           int i;
+ 
+-          fill_current_damage_history (view, fb_clip_region);
+-
+           fb_damage = cairo_region_create ();
+ 
+           for (i = 1; i <= buffer_age; i++)
+@@ -742,13 +704,12 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+           /* Update the fb clip region with the extra damage. */
+           cairo_region_union (fb_clip_region, fb_damage);
+ 
+-          view_damage = offset_scale_and_clamp_region (fb_damage,
+-                                                       0, 0,
+-                                                       1.0f / fb_scale);
+-          cairo_region_translate (view_damage, view_rect.x, view_rect.y);
+-          cairo_region_intersect_rectangle (view_damage, &view_rect);
++          /* Update the redraw clip with the extra damage done to the view */
++          view_damage = scale_offset_and_clamp_region (fb_damage,
++                                                       1.0f / fb_scale,
++                                                       view_rect.x,
++                                                       view_rect.y);
+ 
+-          /* Update the redraw clip region with the extra damage. */
+           cairo_region_union (redraw_clip, view_damage);
+ 
+           cairo_region_destroy (view_damage);
+@@ -760,55 +721,11 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+ 
+           swap_with_damage = TRUE;
+         }
+-      else if (!use_clipped_redraw)
+-        {
+-          cairo_rectangle_int_t fb_damage;
+-
+-          fb_damage = (cairo_rectangle_int_t) {
+-            .x = 0,
+-            .y = 0,
+-            .width = ceilf (view_rect.width * fb_scale),
+-            .height = ceilf (view_rect.height * fb_scale)
+-          };
+-          fill_current_damage_history_rectangle (view, &fb_damage);
+-        }
+     }
+ 
+-  if (use_clipped_redraw && clip_region_empty)
+-    {
+-      CLUTTER_NOTE (CLIPPING, "Empty stage output paint\n");
+-    }
+-  else if (use_clipped_redraw)
++  if (use_clipped_redraw)
+     {
+-      cairo_rectangle_int_t clip_rect;
+-      cairo_rectangle_int_t scissor_rect;
+-
+-      if (cairo_region_num_rectangles (fb_clip_region) == 1)
+-        {
+-          cairo_region_get_extents (fb_clip_region, &clip_rect);
+-
+-          calculate_scissor_region (&clip_rect,
+-                                    subpixel_compensation,
+-                                    fb_width, fb_height,
+-                                    &scissor_rect);
+-
+-          CLUTTER_NOTE (CLIPPING,
+-                        "Stage clip pushed: x=%d, y=%d, width=%d, height=%d\n",
+-                        scissor_rect.x,
+-                        scissor_rect.y,
+-                        scissor_rect.width,
+-                        scissor_rect.height);
+-
+-          cogl_framebuffer_push_scissor_clip (fb,
+-                                              scissor_rect.x,
+-                                              scissor_rect.y,
+-                                              scissor_rect.width,
+-                                              scissor_rect.height);
+-        }
+-      else
+-        {
+-          cogl_framebuffer_push_region_clip (fb, fb_clip_region);
+-        }
++      cogl_framebuffer_push_region_clip (fb, fb_clip_region);
+ 
+       paint_stage (stage_cogl, view, redraw_clip);
+ 
+@@ -818,77 +735,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+     {
+       CLUTTER_NOTE (CLIPPING, "Unclipped stage paint\n");
+ 
+-      /* If we are trying to debug redraw issues then we want to pass
+-       * the redraw_clip so it can be visualized */
+-      if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS) &&
+-          may_use_clipped_redraw &&
+-          !clip_region_empty)
+-        {
+-          cairo_rectangle_int_t clip_rect;
+-          cairo_rectangle_int_t scissor_rect;
+-
+-          cairo_region_get_extents (fb_clip_region, &clip_rect);
+-
+-          calculate_scissor_region (&clip_rect,
+-                                    subpixel_compensation,
+-                                    fb_width, fb_height,
+-                                    &scissor_rect);
+-
+-          cogl_framebuffer_push_scissor_clip (fb,
+-                                              scissor_rect.x,
+-                                              scissor_rect.y,
+-                                              scissor_rect.width,
+-                                              scissor_rect.height);
+-
+-          paint_stage (stage_cogl, view, redraw_clip);
+-
+-          cogl_framebuffer_pop_clip (fb);
+-        }
+-      else
+-        {
+-          paint_stage (stage_cogl, view, redraw_clip);
+-        }
+-    }
+-
+-  cairo_region_get_extents (redraw_clip, &redraw_rect);
+-
+-  if (may_use_clipped_redraw &&
+-      G_UNLIKELY ((clutter_paint_debug_flags & CLUTTER_DEBUG_REDRAWS)))
+-    {
+-      CoglContext *ctx = cogl_framebuffer_get_context (fb);
+-      static CoglPipeline *outline = NULL;
+-      ClutterActor *actor = CLUTTER_ACTOR (wrapper);
+-      float x_1 = redraw_rect.x;
+-      float x_2 = redraw_rect.x + redraw_rect.width;
+-      float y_1 = redraw_rect.y;
+-      float y_2 = redraw_rect.y + redraw_rect.height;
+-      CoglVertexP2 quad[4] = {
+-        { x_1, y_1 },
+-        { x_2, y_1 },
+-        { x_2, y_2 },
+-        { x_1, y_2 }
+-      };
+-      CoglPrimitive *prim;
+-      CoglMatrix modelview;
+-
+-      if (outline == NULL)
+-        {
+-          outline = cogl_pipeline_new (ctx);
+-          cogl_pipeline_set_color4ub (outline, 0xff, 0x00, 0x00, 0xff);
+-        }
+-
+-      prim = cogl_primitive_new_p2 (ctx,
+-                                    COGL_VERTICES_MODE_LINE_LOOP,
+-                                    4, /* n_vertices */
+-                                    quad);
+-
+-      cogl_framebuffer_push_matrix (fb);
+-      cogl_matrix_init_identity (&modelview);
+-      _clutter_actor_apply_modelview_transform (actor, &modelview);
+-      cogl_framebuffer_set_modelview_matrix (fb, &modelview);
+-      cogl_framebuffer_draw_primitive (fb, outline, prim);
+-      cogl_framebuffer_pop_matrix (fb);
+-      cogl_object_unref (prim);
++      paint_stage (stage_cogl, view, redraw_clip);
+     }
+ 
+   /* XXX: It seems there will be a race here in that the stage
+@@ -900,65 +747,42 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+    * artefacts.
+    */
+   if (use_clipped_redraw)
+-    {
+-      if (clip_region_empty)
+-        {
+-          do_swap_buffer = FALSE;
+-        }
+-      else
+-        {
+-          swap_region = cairo_region_copy (fb_clip_region);
+-          do_swap_buffer = TRUE;
+-        }
+-    }
++    swap_region = cairo_region_copy (fb_clip_region);
+   else
+-    {
+-      swap_region = cairo_region_create ();
+-      do_swap_buffer = TRUE;
+-    }
++    swap_region = cairo_region_create ();
+ 
+   g_clear_pointer (&redraw_clip, cairo_region_destroy);
+   g_clear_pointer (&fb_clip_region, cairo_region_destroy);
+ 
+-  if (do_swap_buffer)
+-    {
+-      gboolean res;
+-
+-      COGL_TRACE_BEGIN_SCOPED (ClutterStageCoglRedrawViewSwapFramebuffer,
+-                               "Paint (swap framebuffer)");
++  COGL_TRACE_BEGIN_SCOPED (ClutterStageCoglRedrawViewSwapFramebuffer,
++                           "Paint (swap framebuffer)");
+ 
+-      if (clutter_stage_view_get_onscreen (view) !=
+-          clutter_stage_view_get_framebuffer (view))
+-        {
+-          cairo_region_t *transformed_swap_region;
+-
+-          transformed_swap_region =
+-            transform_swap_region_to_onscreen (view, swap_region);
+-          cairo_region_destroy (swap_region);
+-          swap_region = transformed_swap_region;
+-        }
+-
+-      if (queued_redraw_clip)
+-        {
+-          paint_damage_region (stage_window, view,
+-                               swap_region, queued_redraw_clip);
+-          cairo_region_destroy (queued_redraw_clip);
+-        }
+-
+-      res = swap_framebuffer (stage_window,
+-                              view,
+-                              swap_region,
+-                              swap_with_damage);
++  if (clutter_stage_view_get_onscreen (view) !=
++      clutter_stage_view_get_framebuffer (view))
++    {
++      cairo_region_t *transformed_swap_region;
+ 
++      transformed_swap_region =
++        transform_swap_region_to_onscreen (view, swap_region);
+       cairo_region_destroy (swap_region);
+-
+-      return res;
++      swap_region = transformed_swap_region;
+     }
+-  else
++
++  if (queued_redraw_clip)
+     {
+-      g_clear_pointer (&queued_redraw_clip, cairo_region_destroy);
+-      return FALSE;
++      paint_damage_region (stage_window, view,
++                           swap_region, queued_redraw_clip);
++      cairo_region_destroy (queued_redraw_clip);
+     }
++
++  res = swap_framebuffer (stage_window,
++                          view,
++                          swap_region,
++                          swap_with_damage);
++
++  cairo_region_destroy (swap_region);
++
++  return res;
+ }
+ 
+ static void
