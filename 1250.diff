@@ -1,0 +1,107 @@
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index 79f4ce6a66b78452e2be9a09ce874b8642970a4b..e23b426a9114453d7bb627dc8d8f8c7386245a06 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -272,11 +272,23 @@ meta_window_actor_set_frozen (MetaWindowActor *self,
+   META_WINDOW_ACTOR_GET_CLASS (self)->set_frozen (self, frozen);
+ }
+ 
+-static void
++/**
++ * meta_window_actor_freeze:
++ * @self: The #MetaWindowActor
++ *
++ * Freezes the #MetaWindowActor, which inhibits updates and geometry
++ * changes of the window. This property is refcounted, so make sure
++ * to call meta_window_actor_thaw() the exact same amount of times
++ * as this function to allow updates again.
++ */
++void
+ meta_window_actor_freeze (MetaWindowActor *self)
+ {
+-  MetaWindowActorPrivate *priv =
+-    meta_window_actor_get_instance_private (self);
++  MetaWindowActorPrivate *priv;
++
++  g_return_if_fail (META_IS_WINDOW_ACTOR (self));
++
++  priv = meta_window_actor_get_instance_private (self);
+ 
+   if (priv->freeze_count == 0 && priv->surface)
+     meta_window_actor_set_frozen (self, TRUE);
+@@ -300,11 +312,21 @@ meta_window_actor_sync_thawed_state (MetaWindowActor *self)
+   meta_window_actor_sync_actor_geometry (self, FALSE);
+ }
+ 
+-static void
++/**
++ * meta_window_actor_thaw:
++ * @self: The #MetaWindowActor
++ *
++ * Thaws/unfreezes the #MetaWindowActor to allow updates and geometry
++ * changes after a window was frozen using meta_window_actor_freeze().
++ */
++void
+ meta_window_actor_thaw (MetaWindowActor *self)
+ {
+-  MetaWindowActorPrivate *priv =
+-    meta_window_actor_get_instance_private (self);
++  MetaWindowActorPrivate *priv;
++
++  g_return_if_fail (META_IS_WINDOW_ACTOR (self));
++
++  priv = meta_window_actor_get_instance_private (self);
+ 
+   if (priv->freeze_count <= 0)
+     g_error ("Error in freeze/thaw accounting");
+@@ -567,7 +589,6 @@ is_freeze_thaw_effect (MetaPluginEffect event)
+   switch (event)
+   {
+   case META_PLUGIN_DESTROY:
+-  case META_PLUGIN_SIZE_CHANGE:
+     return TRUE;
+     break;
+   default:
+@@ -792,9 +813,6 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
+   if (meta_window_actor_is_frozen (self) && !did_placement)
+     return META_WINDOW_ACTOR_CHANGE_POSITION | META_WINDOW_ACTOR_CHANGE_SIZE;
+ 
+-  if (meta_window_actor_effect_in_progress (self))
+-    return META_WINDOW_ACTOR_CHANGE_POSITION | META_WINDOW_ACTOR_CHANGE_SIZE;
+-
+   if (clutter_actor_has_allocation (actor))
+     {
+       ClutterActorBox box;
+@@ -918,14 +936,10 @@ meta_window_actor_size_change (MetaWindowActor    *self,
+     meta_compositor_get_plugin_manager (compositor);
+ 
+   priv->size_change_in_progress++;
+-  meta_window_actor_freeze (self);
+ 
+   if (!meta_plugin_manager_event_size_change (plugin_mgr, self,
+                                               which_change, old_frame_rect, old_buffer_rect))
+-    {
+-      priv->size_change_in_progress--;
+-      meta_window_actor_thaw (self);
+-    }
++    priv->size_change_in_progress--;
+ }
+ 
+ #if 0
+diff --git a/src/meta/meta-window-actor.h b/src/meta/meta-window-actor.h
+index 7d3b96e5932a70fe28de3da0d1287c25ce6f7747..6e18683a2798ad3469e699cc574b93fdf1484abe 100644
+--- a/src/meta/meta-window-actor.h
++++ b/src/meta/meta-window-actor.h
+@@ -51,6 +51,12 @@ META_EXPORT
+ cairo_surface_t * meta_window_actor_get_image (MetaWindowActor       *self,
+                                                cairo_rectangle_int_t *clip);
+ 
++META_EXPORT
++void meta_window_actor_freeze (MetaWindowActor *self);
++
++META_EXPORT
++void meta_window_actor_thaw (MetaWindowActor *self);
++
+ typedef enum
+ {
+   META_SHADOW_MODE_AUTO,
