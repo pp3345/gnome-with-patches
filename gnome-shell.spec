@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.2
-Release:        100%{?dist}.pp3345
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -18,6 +18,7 @@ Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
 Patch4: extension-prefs-compat.patch
+Patch5: 0001-st-theme-Unref-CRStylesheet-after-removing-old-theme.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -218,6 +219,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Fri May 01 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.2-2
+- Fix a crash
+
 * Thu Apr 30 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.2-100
 - Rebase to 3.36.2-1.fc32
 
