@@ -1,0 +1,186 @@
+diff --git a/clutter/clutter/clutter-stage-window.c b/clutter/clutter/clutter-stage-window.c
+index a3782a175ca58d68a304746d0eb6ce7cf9150baf..0c30c6c96328c099658034f1c3f9ddf67615b056 100644
+--- a/clutter/clutter/clutter-stage-window.c
++++ b/clutter/clutter/clutter-stage-window.c
+@@ -207,6 +207,20 @@ _clutter_stage_window_set_accept_focus (ClutterStageWindow *window,
+     iface->set_accept_focus (window, accept_focus);
+ }
+ 
++gboolean
++_clutter_stage_window_can_redraw (ClutterStageWindow *window)
++{
++  ClutterStageWindowInterface *iface;
++
++  g_return_val_if_fail (CLUTTER_IS_STAGE_WINDOW (window), FALSE);
++
++  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
++  if (iface->can_redraw)
++    return iface->can_redraw (window);
++
++  return FALSE;
++}
++
+ void
+ _clutter_stage_window_redraw (ClutterStageWindow *window)
+ {
+diff --git a/clutter/clutter/clutter-stage-window.h b/clutter/clutter/clutter-stage-window.h
+index 78d15b74382ce62431ba0155792603f014c1d0c8..a17de140e5a5bec65656adb4983cbbbbc6783a58 100644
+--- a/clutter/clutter/clutter-stage-window.h
++++ b/clutter/clutter/clutter-stage-window.h
+@@ -54,6 +54,7 @@ struct _ClutterStageWindowInterface
+   void              (* set_accept_focus)        (ClutterStageWindow *stage_window,
+                                                  gboolean            accept_focus);
+ 
++  gboolean          (* can_redraw)              (ClutterStageWindow *stage_window);
+   void              (* redraw)                  (ClutterStageWindow *stage_window);
+ 
+   gboolean          (* can_clip_redraws)        (ClutterStageWindow *stage_window);
+@@ -93,6 +94,7 @@ void              _clutter_stage_window_clear_update_time       (ClutterStageWin
+ void              _clutter_stage_window_set_accept_focus        (ClutterStageWindow *window,
+                                                                  gboolean            accept_focus);
+ 
++gboolean          _clutter_stage_window_can_redraw              (ClutterStageWindow *window);
+ void              _clutter_stage_window_redraw                  (ClutterStageWindow *window);
+ 
+ gboolean          _clutter_stage_window_can_clip_redraws        (ClutterStageWindow *window);
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index 9031f52915ead79a51f4df9ceb4a3ed24fd157a2..cf86d9d70f000ca2e53f6167f8d74b33396bf0b6 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -989,5 +989,13 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+ }
+ 
++static gboolean
++clutter_stage_cogl_can_redraw (ClutterStageWindow *stage_window)
++{
++  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
++
++  return stage_cogl->pending_swaps == 0;
++}
++
+ static void
+ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
+ {
+@@ -1039,6 +1047,7 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
+   iface->get_update_time = clutter_stage_cogl_get_update_time;
+   iface->clear_update_time = clutter_stage_cogl_clear_update_time;
+   iface->get_next_presentation_time = clutter_stage_cogl_get_next_presentation_time;
++  iface->can_redraw = clutter_stage_cogl_can_redraw;
+   iface->redraw = clutter_stage_cogl_redraw;
+ }
+ 
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index cf86d9d70f000ca2e53f6167f8d74b33396bf0b6..f7e527d54774464a7c4b065ba4d9831b9d3f067b 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -243,17 +243,6 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
+   stage_cogl->next_presentation_time = next_presentation_time;
+ }
+ 
+-static gint64
+-clutter_stage_cogl_get_update_time (ClutterStageWindow *stage_window)
+-{
+-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+-
+-  if (stage_cogl->pending_swaps)
+-    return -1; /* in the future, indefinite */
+-
+-  return stage_cogl->update_time;
+-}
+-
+ static void
+ clutter_stage_cogl_clear_update_time (ClutterStageWindow *stage_window)
+ {
+@@ -1044,7 +1033,6 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
+   iface->show = clutter_stage_cogl_show;
+   iface->hide = clutter_stage_cogl_hide;
+   iface->schedule_update = clutter_stage_cogl_schedule_update;
+-  iface->get_update_time = clutter_stage_cogl_get_update_time;
+   iface->clear_update_time = clutter_stage_cogl_clear_update_time;
+   iface->get_next_presentation_time = clutter_stage_cogl_get_next_presentation_time;
+   iface->can_redraw = clutter_stage_cogl_can_redraw;
+diff --git a/src/backends/native/meta-stage-native.c b/src/backends/native/meta-stage-native.c
+index 9b9c45ef30e65ec56de4a6952b97db30cd128d48..cb69286c756ba9263f74e5b97a05f5d2eb71d8cb 100644
+--- a/src/backends/native/meta-stage-native.c
++++ b/src/backends/native/meta-stage-native.c
+@@ -205,6 +205,17 @@ meta_stage_native_finish_frame (ClutterStageWindow *stage_window)
+   meta_renderer_native_finish_frame (META_RENDERER_NATIVE (renderer));
+ }
+ 
++static gint64
++meta_stage_native_get_update_time (ClutterStageWindow *stage_window)
++{
++  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
++
++  if (stage_cogl->pending_swaps)
++    return -1; /* in the future, indefinite */
++
++  return stage_cogl->update_time;
++}
++
+ static void
+ meta_stage_native_init (MetaStageNative *stage_native)
+ {
+@@ -227,4 +238,5 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
+   iface->get_views = meta_stage_native_get_views;
+   iface->get_frame_counter = meta_stage_native_get_frame_counter;
+   iface->finish_frame = meta_stage_native_finish_frame;
++  iface->get_update_time = meta_stage_native_get_update_time;
+ }
+diff --git a/src/backends/x11/meta-stage-x11.c b/src/backends/x11/meta-stage-x11.c
+index bf8d0d9555016a72e0ba6580e1608b48958900b0..133953b88306431a8a25d387463c7b6a164d4e32 100644
+--- a/src/backends/x11/meta-stage-x11.c
++++ b/src/backends/x11/meta-stage-x11.c
+@@ -560,6 +560,17 @@ meta_stage_x11_get_frame_counter (ClutterStageWindow *stage_window)
+   return cogl_onscreen_get_frame_counter (stage_x11->onscreen);
+ }
+ 
++static gint64
++meta_stage_x11_get_update_time (ClutterStageWindow *stage_window)
++{
++  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
++
++  if (stage_cogl->pending_swaps)
++    return -1; /* in the future, indefinite */
++
++  return stage_cogl->update_time;
++}
++
+ static void
+ meta_stage_x11_finalize (GObject *object)
+ {
+@@ -610,6 +621,7 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
+   iface->can_clip_redraws = meta_stage_x11_can_clip_redraws;
+   iface->get_views = meta_stage_x11_get_views;
+   iface->get_frame_counter = meta_stage_x11_get_frame_counter;
++  iface->get_update_time = meta_stage_x11_get_update_time;
+ }
+ 
+ static inline void
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index 82565c6b5758d69d1d1368c159bae116fae52ea8..119217ade57ada3c708d37d3d52c16a334c029c6 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -1526,7 +1526,7 @@ _clutter_stage_do_update (ClutterStage *stage)
+ 
+   COGL_TRACE_END (ClutterStageRelayout);
+ 
+-  if (!priv->redraw_pending)
++  if (!priv->redraw_pending || !_clutter_stage_window_can_redraw (priv->impl))
+     return FALSE;
+ 
+   if (stage_was_relayout)
+diff --git a/src/backends/native/meta-stage-native.c b/src/backends/native/meta-stage-native.c
+index cb69286c756ba9263f74e5b97a05f5d2eb71d8cb..f2966ef30acf17c72fe9bf38e731973e41589407 100644
+--- a/src/backends/native/meta-stage-native.c
++++ b/src/backends/native/meta-stage-native.c
+@@ -210,9 +210,6 @@ meta_stage_native_get_update_time (ClutterStageWindow *stage_window)
+ {
+   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+ 
+-  if (stage_cogl->pending_swaps)
+-    return -1; /* in the future, indefinite */
+-
+   return stage_cogl->update_time;
+ }
+ 
