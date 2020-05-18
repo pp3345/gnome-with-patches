@@ -133,6 +133,7 @@ Obsoletes:      python3-caribou < 0.4.21-10
 Conflicts:      gnome-shell-extension-background-logo < 3.34.0
 
 Patch100: 923.diff
+Patch110: 1251.diff
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,

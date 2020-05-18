@@ -1,0 +1,76 @@
+diff --git a/js/ui/windowManager.js b/js/ui/windowManager.js
+index 3dacca2ecaa4e8c93f0dbe2e44ee00cf6ce79590..cd3599c8541a289df932a61482918fe03f2fd7ab 100644
+--- a/js/ui/windowManager.js
++++ b/js/ui/windowManager.js
+@@ -1278,16 +1278,18 @@ var WindowManager = class {
+     }
+ 
+     _sizeChangeWindow(shellwm, actor, whichChange, oldFrameRect, _oldBufferRect) {
+-        let types = [Meta.WindowType.NORMAL];
+-        if (!this._shouldAnimateActor(actor, types)) {
++        const types = [Meta.WindowType.NORMAL];
++        const shouldAnimate =
++            this._shouldAnimateActor(actor, types) &&
++            oldFrameRect.width > 0 &&
++            oldFrameRect.height > 0;
++
++        if (!shouldAnimate) {
+             shellwm.completed_size_change(actor);
+             return;
+         }
+ 
+-        if (oldFrameRect.width > 0 && oldFrameRect.height > 0)
+-            this._prepareAnimationInfo(shellwm, actor, oldFrameRect, whichChange);
+-        else
+-            shellwm.completed_size_change(actor);
++        this._prepareAnimationInfo(shellwm, actor, oldFrameRect, whichChange);
+     }
+ 
+     _prepareAnimationInfo(shellwm, actor, oldFrameRect, _change) {
+@@ -1299,8 +1301,11 @@ var WindowManager = class {
+         actorClone.set_position(oldFrameRect.x, oldFrameRect.y);
+         actorClone.set_size(oldFrameRect.width, oldFrameRect.height);
+ 
+-        if (this._clearAnimationInfo(actor))
++        if (this._clearAnimationInfo(actor)) {
++            log(`Old animationInfo removed from actor '${actor}'`);
++            actor.thaw();
+             this._shellwm.completed_size_change(actor);
++        }
+ 
+         let destroyId = actor.connect('destroy', () => {
+             this._clearAnimationInfo(actor);
+@@ -1310,6 +1315,8 @@ var WindowManager = class {
+         actor.__animationInfo = { clone: actorClone,
+                                   oldRect: oldFrameRect,
+                                   destroyId };
++
++        actor.freeze();
+     }
+ 
+     _sizeChangedWindow(shellwm, actor) {
+@@ -1362,7 +1369,7 @@ var WindowManager = class {
+         // Now unfreeze actor updates, to get it to the new size.
+         // It's important that we don't wait until the animation is completed to
+         // do this, otherwise our scale will be applied to the old texture size.
+-        shellwm.completed_size_change(actor);
++        actor.thaw();
+     }
+ 
+     _clearAnimationInfo(actor) {
+@@ -1383,10 +1390,14 @@ var WindowManager = class {
+             actor.translation_x = 0;
+             actor.translation_y = 0;
+             this._clearAnimationInfo(actor);
++            this._shellwm.completed_size_change(actor);
+         }
+ 
+-        if (this._resizePending.delete(actor))
++        if (this._resizePending.delete(actor)) {
++            this._clearAnimationInfo(actor);
++            actor.thaw();
+             this._shellwm.completed_size_change(actor);
++        }
+     }
+ 
+     _hasAttachedDialogs(window, ignoreWindow) {
