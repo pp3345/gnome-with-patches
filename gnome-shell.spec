@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.2
-Release:        2%{?dist}
+Release:        200%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -217,6 +217,11 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed May 20 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.2-200
+- Add !1251 "Notify mutter about completed size-change animation correctly" @2a8e1875
+- Add !1245 "Remove allocation flags and "allocation-changed" signal" @faaed642
+- Rebase to gnome-3-36@1a045bb2
+
 * Fri May 01 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.2-2
 - Fix a crash
 
