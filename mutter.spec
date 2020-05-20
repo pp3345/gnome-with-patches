@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.2
-Release:       100%{?dist}.pp3345
+Release:       101%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -179,6 +179,17 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed May 20 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.2-101
+- Add !1113 "Cleanup painting stage views" @fbfa136b
+- Add !1237 "Improve stage view damage tracking" @9495f87e (manually rebased)
+- Add !1250 "Decouple window effects from freezing/thawing of window actors" @7fe2d730
+- Add !1259 "clutter/actor: Use priv->parent instead of public API sometimes" @84c82f96
+- Add !1230 "Some wl_output fixes" @d9fb6b5c (manually rebased)
+- Add !1247 "Fixes related to actor allocations and new optimization" @61e758c4
+- Add !1241 "backend/native: Allow stage updates to occur without stage redraws" @a9a60f70 (manually rebased)
+- Add !1245 "Remove allocation flags and the "allocation-changed" signal from Clutter" @e50e14af
+- Rebase to gnome-3-36@493aeb65
+
 * Thu Apr 30 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.2-100
 - Add !1218 "Some Wayland frame callback fixes" @b802d8c8 (manually rebased)
 - Add !798 "Wayland surface fullscreen unredirect" @65a6c4c3 (manually rebased)
