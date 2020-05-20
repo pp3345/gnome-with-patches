@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -19,6 +19,9 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
 Patch4: extension-prefs-compat.patch
 Patch5: 0001-st-theme-Unref-CRStylesheet-after-removing-old-theme.patch
+
+# Avoid crash in extensions
+Patch6: 0001-extensionSystem-Disable-extension-before-unloading-s.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -216,6 +219,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed May 20 2020 Stephen Gallagher <sgallagh@redhat.com> - 3.36.2-3
+- Fix crashes when locking the screen while certain extensions are active
+- Resolves: rhbz#1817082
+
 * Fri May 01 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.2-2
 - Fix a crash
 
