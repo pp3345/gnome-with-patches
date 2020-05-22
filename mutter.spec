@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.2
-Release:       101%{?dist}.pp3345
+Release:       102%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -178,6 +178,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Fri May 22 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.2-102
+- Remove !1230 "Some wl_output fixes" (regression)
+
 * Wed May 20 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.2-101
 - Add !1113 "Cleanup painting stage views" @fbfa136b
 - Add !1237 "Improve stage view damage tracking" @9495f87e (manually rebased)
