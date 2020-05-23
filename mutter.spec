@@ -104,7 +104,6 @@ Patch210: 1113.diff
 Patch220: 1237.diff
 Patch230: 1250.diff
 Patch240: 1259.diff
-Patch255: 1245.diff
 Patch260: 1247.diff
 Patch270: 1241.diff
 
