@@ -2029,9 +2029,10 @@ diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/me
 index 50e606f7e4cb3585fb8c4000934be0beb470d4cb..c4b68f10eb56a7234e7fc4b49ce42cc0450187f7 100644
 --- a/src/backends/native/meta-renderer-native.c
 +++ b/src/backends/native/meta-renderer-native.c
-@@ -2169,6 +2169,9 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
+@@ -2169,7 +2169,10 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
        {
          CoglFramebuffer *dmabuf_fb;
+         CoglDmaBufHandle *dmabuf_handle;
          struct gbm_bo *new_bo;
 +        int stride;
 +        int offset;
@@ -2056,15 +2057,16 @@ index 50e606f7e4cb3585fb8c4000934be0beb470d4cb..c4b68f10eb56a7234e7fc4b49ce42cc0
                                                  DRM_FORMAT_MOD_LINEAR,
                                                  DRM_FORMAT_XRGB8888,
                                                  error);
-@@ -2204,7 +2210,9 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
+@@ -2204,10 +2210,10 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
          if (!dmabuf_fb)
            return NULL;
  
--        return cogl_dma_buf_handle_new (dmabuf_fb, dmabuf_fd, new_bo,
-+        return cogl_dma_buf_handle_new (dmabuf_fb, dmabuf_fd,
-+                                        width, height, stride, offset, bpp,
-+                                        new_bo,
-                                         (GDestroyNotify) gbm_bo_destroy);
+         dmabuf_handle =
+-          cogl_dma_buf_handle_new (dmabuf_fb, dmabuf_fd, new_bo,
++          cogl_dma_buf_handle_new (dmabuf_fb, dmabuf_fd, width, height, stride, offset, bpp, new_bo,
+                                    (GDestroyNotify) gbm_bo_destroy);
+         cogl_object_unref (dmabuf_fb);
+         return dmabuf_handle;
        }
        break;
 @@ -3097,12 +3105,17 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
@@ -2139,18 +2141,6 @@ index 50e606f7e4cb3585fb8c4000934be0beb470d4cb..c4b68f10eb56a7234e7fc4b49ce42cc0
  
    meta_onscreen_native_set_view (onscreen, view);
  
-diff --git a/src/backends/x11/meta-stage-x11.c b/src/backends/x11/meta-stage-x11.c
-index f4d0d3d01707b55efab449f62d81922175397ee5..819330dc4335008df90860b666aef0f1245c0120 100644
---- a/src/backends/x11/meta-stage-x11.c
-+++ b/src/backends/x11/meta-stage-x11.c
-@@ -481,6 +481,7 @@ ensure_legacy_view (ClutterStageWindow *stage_window)
-   _clutter_stage_window_get_geometry (stage_window, &view_layout);
-   framebuffer = COGL_FRAMEBUFFER (stage_x11->onscreen);
-   stage_x11->legacy_view = g_object_new (CLUTTER_TYPE_STAGE_VIEW_COGL,
-+                                         "name", "X11 screen",
-                                          "layout", &view_layout,
-                                          "framebuffer", framebuffer,
-                                          NULL);
 diff --git a/src/backends/x11/nested/meta-renderer-x11-nested.c b/src/backends/x11/nested/meta-renderer-x11-nested.c
 index 6c8b9d63ffcf70569ceada68e5df3258d4b7a4b2..0fe4195e1d6ae1686c505e234302abad8afb3da6 100644
 --- a/src/backends/x11/nested/meta-renderer-x11-nested.c
