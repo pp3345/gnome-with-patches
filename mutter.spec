@@ -7,17 +7,20 @@
 %global mutter_api_version 6
 
 Name:          mutter
-Version:       3.36.2
-Release:       103%{?dist}.pp3345
+Version:       3.36.3
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       mutter-3.36.2-493aeb65.tar.gz
+Source0:       http://download.gnome.org/sources/%{name}/3.36/%{name}-%{version}.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
+
+# Backport missed leak fix
+Patch1:        0001-renderer-native-Don-t-leak-DMA-buffer-CoglFramebuffe.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -176,6 +179,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Jun 03 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.3-2
+- Backport missed memory leak fix.
+
+* Wed Jun 03 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.3-1
+- Update to 3.36.3
+
 * Sat May 23 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.2-103
 - Remove !1245 "Remove allocation flags and the "allocation-changed" signal from Clutter" (extension breakage)
 - Remove !1247 "Fixes related to actor allocations and new optimization" (missing dependency)
