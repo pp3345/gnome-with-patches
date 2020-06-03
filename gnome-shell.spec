@@ -1,13 +1,13 @@
 Name:           gnome-shell
-Version:        3.36.2
-Release:        201%{?dist}.pp3345
+Version:        3.36.3
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
-License:        GPLv2+
+License:        1PLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        gnome-shell-3.36.2-1a045bb2.tar.gz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.36/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -216,8 +216,15 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed Jun 03 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.3-1
+- Update to 3.36.3
+
 * Sat May 23 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.2-201
 - Remove !1245 "Remove allocation flags and "allocation-changed" signal" (missing dependency)
+
+* Wed May 20 2020 Stephen Gallagher <sgallagh@redhat.com> - 3.36.2-3
+- Fix crashes when locking the screen while certain extensions are active
+- Resolves: rhbz#1817082
 
 * Wed May 20 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.2-200
 - Add !1251 "Notify mutter about completed size-change animation correctly" @2a8e1875
