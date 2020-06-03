@@ -17,9 +17,6 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
 Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
-Patch4: extension-prefs-compat.patch
-Patch5: 0001-st-theme-Unref-CRStylesheet-after-removing-old-theme.patch
-
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
 %define glib2_version 2.56.0
@@ -233,7 +230,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 - Fix translated folder names
   Resolves: #1822336
 
-* Tue Mar 31 2020 Florian Müllner <fmuellner@redhat.com - 3.36.1-3
+* Tue Apr 07 2020 Florian Müllner <fmuellner@redhat.com - 3.36.1-3
 - Remove obsolete libcroco require
 - Update files section
 
