@@ -1,9 +1,9 @@
 Name:           gnome-shell
-Version:        3.36.2
+Version:        3.36.3
 Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
-License:        GPLv2+
+License:        1PLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
@@ -19,9 +19,6 @@ Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
 
 Patch4: extension-prefs-compat.patch
 Patch5: 0001-st-theme-Unref-CRStylesheet-after-removing-old-theme.patch
-
-# Avoid crash in extensions
-Patch6: 0001-extensionSystem-Disable-extension-before-unloading-s.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -219,6 +216,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed Jun 03 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.3-1
+- Update to 3.36.3
+
 * Wed May 20 2020 Stephen Gallagher <sgallagh@redhat.com> - 3.36.2-3
 - Fix crashes when locking the screen while certain extensions are active
 - Resolves: rhbz#1817082
