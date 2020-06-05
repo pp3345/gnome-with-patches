@@ -4,8 +4,8 @@
 %global mozjs68_version 68.9.0-1
 
 Name:          gjs
-Version:       1.65.2
-Release:       3%{?dist}
+Version:       1.65.3
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -89,11 +89,14 @@ the functionality of the installed gjs package.
 %{_datadir}/gjs-1.0/valgrind/
 
 %files tests
-%{_libexecdir}/gjs/installed-tests
+%{_libexecdir}/installed-tests/
 %{_datadir}/glib-2.0/schemas/org.gnome.GjsTest.gschema.xml
-%{_datadir}/installed-tests
+%{_datadir}/installed-tests/
 
 %changelog
+* Fri Jun 05 2020 Kalev Lember <klember@redhat.com> - 1.65.3-1
+- Update to 1.65.3
+
 * Tue Jun 02 2020 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.65.2-3
 - Rebuild against mozjs68-68.9.0-1
 
