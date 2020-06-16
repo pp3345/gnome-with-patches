@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.3
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -21,6 +21,9 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 
 # Backport missed leak fix
 Patch1:        0001-renderer-native-Don-t-leak-DMA-buffer-CoglFramebuffe.patch
+
+# Don't crash on heavy touchscreen usage in X11 session
+Patch2:        0001-stage-x11-Check-that-message-is-WM_PROTOCOLS-before-.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -166,6 +169,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Jun 16 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.3-3
+- Don't crash on heavy touchscreen usage in X11 session
+
 * Wed Jun 03 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.3-2
 - Backport missed memory leak fix.
 
