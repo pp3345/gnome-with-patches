@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.3
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -24,6 +24,11 @@ Patch1:        0001-renderer-native-Don-t-leak-DMA-buffer-CoglFramebuffe.patch
 
 # Don't crash on heavy touchscreen usage in X11 session
 Patch2:        0001-stage-x11-Check-that-message-is-WM_PROTOCOLS-before-.patch
+
+# Fix X11 window shadow issue & crash with area screenshot when using fractional scaling
+Patch3:        0001-window-actor-x11-switch-the-signal-callback-argument.patch
+Patch4:        0002-clutter-paint-context-Fix-NO_PAINT_SIGNAL-flag-enum-.patch
+Patch5:        0003-clutter-stage-Make-paint_to_buffer-use-the-correct-t.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -169,6 +174,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Jun 18 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.3-4
+- Fix X11 window shadow issue
+- Fix crash with area screenshot when using fractional scaling
+
 * Tue Jun 16 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.3-3
 - Don't crash on heavy touchscreen usage in X11 session
 
