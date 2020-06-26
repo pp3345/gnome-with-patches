@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.3
-Release:        300%{?dist}.pp3345
+Release:        400%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        1PLv2+
@@ -132,6 +132,7 @@ Conflicts:      gnome-shell-extension-background-logo < 3.34.0
 
 Patch100: 923.diff
 Patch110: 1251.diff
+Patch120: 1329.diff
 
 %description
 GNOME Shell provides core user interface functions for the GNOME 3 desktop,
@@ -216,6 +217,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Fri Jun 26 2020 Grigori Goronzy <greg@kinoho.net> - 3.36.3-400
+- Add !1329
+
 * Wed Jun 03 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.3-300
 - Rebase to 3.36.3-3.fc32
 
