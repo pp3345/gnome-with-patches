@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.3
-Release:       200%{?dist}.pp3345
+Release:       400%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -108,6 +108,9 @@ Patch220: 1237.diff
 Patch230: 1250.diff
 Patch240: 1259.diff
 Patch270: 1241.diff
+Patch280: 1323.diff
+Patch290: 1326.diff
+Patch300: 1331.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages
@@ -179,6 +182,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Fri Jun 26 2020 Grigori Goronzy <greg@kinoho.net> - 3.36.3-400
+- Add !1323
+- Add !1326
+- Add !1331
+
 * Wed Jun 03 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.3-200
 - Rebase to 3.36.3-2.fc32
 

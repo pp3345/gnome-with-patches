@@ -1,0 +1,196 @@
+diff --git a/src/compositor/meta-shaped-texture-private.h b/src/compositor/meta-shaped-texture-private.h
+index 85d94b7534a4fe7aa40d268f0bf0ef7376be9252..c415260c0b74e7db5e64cb13fac0cae3d4217be1 100644
+--- a/src/compositor/meta-shaped-texture-private.h
++++ b/src/compositor/meta-shaped-texture-private.h
+@@ -66,4 +66,7 @@ gboolean meta_shaped_texture_update_area (MetaShapedTexture     *stex,
+ int meta_shaped_texture_get_width (MetaShapedTexture *stex);
+ int meta_shaped_texture_get_height (MetaShapedTexture *stex);
+ 
++void meta_shaped_texture_set_clip_region (MetaShapedTexture *stex,
++                                          cairo_region_t    *clip_region);
++
+ #endif
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index d7066ad038ebda64aeb8ac021074d6017c0e63ab..ed8e3c0bcf97b3353735d79dbe01e1b254d5d93c 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -92,6 +92,9 @@ struct _MetaShapedTexture
+   /* The region containing only fully opaque pixels */
+   cairo_region_t *opaque_region;
+ 
++  /* MetaCullable regions, see that documentation for more details */
++  cairo_region_t *clip_region;
++
+   gboolean size_invalid;
+   MetaMonitorTransform transform;
+   gboolean has_viewport_src_rect;
+@@ -219,6 +222,15 @@ ensure_size_valid (MetaShapedTexture *stex)
+     update_size (stex);
+ }
+ 
++void
++meta_shaped_texture_set_clip_region (MetaShapedTexture *stex,
++                                     cairo_region_t    *clip_region)
++{
++  g_clear_pointer (&stex->clip_region, cairo_region_destroy);
++  if (clip_region)
++    stex->clip_region = cairo_region_reference (clip_region);
++}
++
+ static void
+ meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
+ {
+@@ -244,6 +256,7 @@ meta_shaped_texture_dispose (GObject *object)
+   meta_shaped_texture_reset_pipelines (stex);
+ 
+   g_clear_pointer (&stex->opaque_region, cairo_region_destroy);
++  g_clear_pointer (&stex->clip_region, cairo_region_destroy);
+ 
+   g_clear_pointer (&stex->snippet, cogl_object_unref);
+ 
+@@ -590,12 +603,19 @@ do_paint_content (MetaShapedTexture   *stex,
+ 
+   if (use_opaque_region)
+     {
+-      blended_tex_region = cairo_region_create_rectangle (&content_rect);
++      if (stex->clip_region)
++        blended_tex_region = cairo_region_copy (stex->clip_region);
++      else
++        blended_tex_region = cairo_region_create_rectangle (&content_rect);
++
+       cairo_region_subtract (blended_tex_region, stex->opaque_region);
+     }
+   else
+     {
+-      blended_tex_region = NULL;
++      if (stex->clip_region)
++        blended_tex_region = cairo_region_reference (stex->clip_region);
++      else
++        blended_tex_region = NULL;
+     }
+ 
+   /* Limit to how many separate rectangles we'll draw; beyond this just
+@@ -617,10 +637,21 @@ do_paint_content (MetaShapedTexture   *stex,
+   /* First, paint the unblended parts, which are part of the opaque region. */
+   if (use_opaque_region)
+     {
++      cairo_region_t *region;
+       int n_rects;
+       int i;
+ 
+-      if (!cairo_region_is_empty (stex->opaque_region))
++      if (stex->clip_region)
++        {
++          region = cairo_region_copy (stex->clip_region);
++          cairo_region_intersect (region, stex->opaque_region);
++        }
++      else
++        {
++          region = cairo_region_reference (stex->opaque_region);
++        }
++
++      if (!cairo_region_is_empty (region))
+         {
+           CoglPipeline *opaque_pipeline;
+ 
+@@ -628,16 +659,18 @@ do_paint_content (MetaShapedTexture   *stex,
+           cogl_pipeline_set_layer_texture (opaque_pipeline, 0, paint_tex);
+           cogl_pipeline_set_layer_filters (opaque_pipeline, 0, filter, filter);
+ 
+-          n_rects = cairo_region_num_rectangles (stex->opaque_region);
++          n_rects = cairo_region_num_rectangles (region);
+           for (i = 0; i < n_rects; i++)
+             {
+               cairo_rectangle_int_t rect;
+-              cairo_region_get_rectangle (stex->opaque_region, i, &rect);
++              cairo_region_get_rectangle (region, i, &rect);
+               paint_clipped_rectangle_node (stex, root_node,
+                                             opaque_pipeline,
+                                             &rect, alloc);
+             }
+         }
++
++      cairo_region_destroy (region);
+     }
+ 
+   /* Now, go ahead and paint the blended parts. */
+@@ -762,6 +795,9 @@ meta_shaped_texture_paint_content (ClutterContent      *content,
+   CoglTexture *paint_tex = NULL;
+   uint8_t opacity;
+ 
++  if (stex->clip_region && cairo_region_is_empty (stex->clip_region))
++    return;
++
+   /* The GL EXT_texture_from_pixmap extension does allow for it to be
+    * used together with SGIS_generate_mipmap, however this is very
+    * rarely supported. Also, even when it is supported there
+diff --git a/src/compositor/meta-surface-actor.c b/src/compositor/meta-surface-actor.c
+index 1213f48dff9e25fc3855d6ad5ef367dc52ccc621..ccad4888feedc0f662932345e5938f649fb5f47f 100644
+--- a/src/compositor/meta-surface-actor.c
++++ b/src/compositor/meta-surface-actor.c
+@@ -34,7 +34,6 @@ typedef struct _MetaSurfaceActorPrivate
+   cairo_region_t *input_region;
+ 
+   /* MetaCullable regions, see that documentation for more details */
+-  cairo_region_t *clip_region;
+   cairo_region_t *unobscured_region;
+ 
+   /* Freeze/thaw accounting */
+@@ -128,30 +127,21 @@ set_clip_region (MetaSurfaceActor *surface_actor,
+ {
+   MetaSurfaceActorPrivate *priv =
+     meta_surface_actor_get_instance_private (surface_actor);
++  MetaShapedTexture *stex = priv->texture;
+ 
+-  g_clear_pointer (&priv->clip_region, cairo_region_destroy);
+-  if (clip_region)
++  if (clip_region && !cairo_region_is_empty (clip_region))
+     {
+-      if (cairo_region_is_empty (clip_region))
+-        priv->clip_region = cairo_region_reference (clip_region);
+-      else
+-        priv->clip_region = get_scaled_region (surface_actor, clip_region);
+-    }
+-}
++      cairo_region_t *region;
+ 
+-static void
+-meta_surface_actor_paint (ClutterActor        *actor,
+-                          ClutterPaintContext *paint_context)
+-{
+-  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (actor);
+-  MetaSurfaceActorPrivate *priv =
+-    meta_surface_actor_get_instance_private (surface_actor);
++      region = get_scaled_region (surface_actor, clip_region);
++      meta_shaped_texture_set_clip_region (stex, region);
+ 
+-  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
+-    return;
+-
+-  CLUTTER_ACTOR_CLASS (meta_surface_actor_parent_class)->paint (actor,
+-                                                                paint_context);
++      cairo_region_destroy (region);
++    }
++  else
++    {
++      meta_shaped_texture_set_clip_region (stex, clip_region);
++    }
+ }
+ 
+ static void
+@@ -221,7 +211,6 @@ meta_surface_actor_dispose (GObject *object)
+   g_clear_object (&priv->texture);
+ 
+   set_unobscured_region (self, NULL);
+-  set_clip_region (self, NULL);
+ 
+   G_OBJECT_CLASS (meta_surface_actor_parent_class)->dispose (object);
+ }
+@@ -233,7 +222,6 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
+   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
+ 
+   object_class->dispose = meta_surface_actor_dispose;
+-  actor_class->paint = meta_surface_actor_paint;
+   actor_class->pick = meta_surface_actor_pick;
+   actor_class->get_paint_volume = meta_surface_actor_get_paint_volume;
+ 
