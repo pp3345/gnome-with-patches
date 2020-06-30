@@ -1,0 +1,45 @@
+From 81deb99435fc92a36231144fd3099d9e57485d7e Mon Sep 17 00:00:00 2001
+From: Sebastian Keller <skeller@gnome.org>
+Date: Wed, 17 Jun 2020 13:32:54 +0000
+Subject: [PATCH 3/3] clutter/stage: Make paint_to_buffer use the correct
+ texture/buffer size
+
+The size of the buffer the texture will be written to by
+paint_to_buffer() is determined based on
+meta_screen_cast_area_stream_src_get_specs() which uses roundf() to
+calculate the width and height after scaling. Because the size of the
+texture to be written to that buffer is calculated using ceilf(), it
+might exceed the allocated buffer when using fractional scaling.
+
+In 3.36 paint_to_buffer() is used from capture_view() which also uses
+roundf() to allocate its buffer. Here this leads to a memory corruption
+resulting in a crash when taking screenshots of an area.
+
+Fixes https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/2842
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1320
+
+
+(cherry picked from commit e216d9c6ad377ba5ed51d0edf9805ca7c73a7e63)
+---
+ clutter/clutter/clutter-stage.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index 82565c6b57..e2b63e7fe6 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -4526,8 +4526,8 @@ clutter_stage_paint_to_buffer (ClutterStage                 *stage,
+   CoglFramebuffer *framebuffer;
+   CoglBitmap *bitmap;
+ 
+-  texture_width = (int) ceilf (rect->width * scale);
+-  texture_height = (int) ceilf (rect->height * scale);
++  texture_width = (int) roundf (rect->width * scale);
++  texture_height = (int) roundf (rect->height * scale);
+   texture = cogl_texture_2d_new_with_size (cogl_context,
+                                            texture_width,
+                                            texture_height);
+-- 
+2.26.2
+
