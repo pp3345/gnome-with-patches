@@ -14,21 +14,10 @@ Summary:       Window and compositing manager based on Clutter
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/3.36/%{name}-%{version}.tar.xz
+Source0:       mutter-3.36.3-86d9cd1a.tar.gz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-
-# Backport missed leak fix
-Patch1:        0001-renderer-native-Don-t-leak-DMA-buffer-CoglFramebuffe.patch
-
-# Don't crash on heavy touchscreen usage in X11 session
-Patch2:        0001-stage-x11-Check-that-message-is-WM_PROTOCOLS-before-.patch
-
-# Fix X11 window shadow issue & crash with area screenshot when using fractional scaling
-Patch3:        0001-window-actor-x11-switch-the-signal-callback-argument.patch
-Patch4:        0002-clutter-paint-context-Fix-NO_PAINT_SIGNAL-flag-enum-.patch
-Patch5:        0003-clutter-stage-Make-paint_to_buffer-use-the-correct-t.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
