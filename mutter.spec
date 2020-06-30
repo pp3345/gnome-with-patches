@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.3
-Release:       4%{?dist}
+Release:       400%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -179,6 +179,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Jun 30 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.3-400
+- Add !1309 "Fix Nvidia smoothness issues" @be77651f (manually rebased)
+- Add !1284 "clutter-stage-cogl: Disable urgent frames when swap event support is missing" @a610a557
+- Add !1335 "surface-actor: Add culling offset for geometry scale - take 2" @a1b3cb1a
+- Rebase to gnome-3-36@86d9cd1a
+
 * Thu Jun 18 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.3-4
 - Fix X11 window shadow issue
 - Fix crash with area screenshot when using fractional scaling
