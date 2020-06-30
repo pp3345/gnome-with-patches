@@ -1,0 +1,14 @@
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index db87e39337c39ce54394e0caea75fc44b968c7df..de8055a6782ebcf92fe37bb222b7b63bd31ebdaa 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -173,6 +173,9 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
+   if (stage_cogl->update_time != -1)
+     return;
+ 
++  if (sync_delay < 0 && !clutter_feature_available (CLUTTER_FEATURE_SWAP_EVENTS))
++    sync_delay = 0;
++
+   stage_cogl->last_sync_delay = sync_delay;
+ 
+   now = g_get_monotonic_time ();
