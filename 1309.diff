@@ -1,0 +1,115 @@
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index db87e39337c39ce54394e0caea75fc44b968c7df..78b3e613262ffd394ebe593993ec6495881daee5 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -208,6 +208,10 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
+       return;
+     }
+ 
++  if (stage_cogl->last_presentation_time)
++    stage_cogl->last_known_presentation_phase =
++      stage_cogl->last_presentation_time % refresh_interval;
++
+   if (min_render_time_allowed > max_render_time_allowed)
+     min_render_time_allowed = max_render_time_allowed;
+ 
+@@ -219,11 +223,9 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
+   if (next_presentation_time < now)
+     {
+       int64_t last_virtual_presentation_time = now - now % refresh_interval;
+-      int64_t hardware_clock_phase =
+-        stage_cogl->last_presentation_time % refresh_interval;
+ 
+-      next_presentation_time =
+-        last_virtual_presentation_time + hardware_clock_phase;
++      next_presentation_time = last_virtual_presentation_time +
++                               stage_cogl->last_known_presentation_phase;
+     }
+ 
+   while (next_presentation_time < now + min_render_time_allowed)
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.h b/clutter/clutter/cogl/clutter-stage-cogl.h
+index 1eaa02e8fe3923a3aa8a65b38a7271732dcb3f48..4b87b9068592b31e1493b1597110a388f6f89cd9 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.h
++++ b/clutter/clutter/cogl/clutter-stage-cogl.h
+@@ -45,9 +45,10 @@ struct _ClutterStageCogl
+   float refresh_rate;
+   int pending_swaps;
+ 
+-  gint64 last_presentation_time;
+-  gint64 update_time;
++  int64_t last_presentation_time;
++  int64_t last_known_presentation_phase;
++  int64_t update_time;
+   int64_t last_update_time;
+   int64_t next_presentation_time;
+ 
+   /* We only enable clipped redraws after 2 frames, since we've seen
+diff --git a/cogl/cogl/winsys/cogl-winsys-glx.c b/cogl/cogl/winsys/cogl-winsys-glx.c
+index 86d5acd05f6eabd4af4b89959f4fc4bbb8f86156..0ba42dbc091a67126da4ae12d82e3c2fae5c397a 100644
+--- a/cogl/cogl/winsys/cogl-winsys-glx.c
++++ b/cogl/cogl/winsys/cogl-winsys-glx.c
+@@ -1658,7 +1658,8 @@ _cogl_winsys_onscreen_get_buffer_age (CoglOnscreen *onscreen)
+ 
+ static void
+ set_frame_info_output (CoglOnscreen *onscreen,
+-                       CoglOutput *output)
++                       CoglOutput *output,
++                       int64_t presentation_time /* optional */)
+ {
+   CoglFrameInfo *info = g_queue_peek_tail (&onscreen->pending_frame_infos);
+ 
+@@ -1668,6 +1669,8 @@ set_frame_info_output (CoglOnscreen *onscreen,
+       if (refresh_rate != 0.0)
+         info->refresh_rate = refresh_rate;
+     }
++
++  info->presentation_time = presentation_time;
+ }
+ 
+ static void
+@@ -1861,7 +1864,7 @@ _cogl_winsys_onscreen_swap_region (CoglOnscreen *onscreen,
+                                                 x_max - x_min,
+                                                 y_max - y_min);
+ 
+-    set_frame_info_output (onscreen, output);
++    set_frame_info_output (onscreen, output, 0);
+   }
+ 
+   /* XXX: we don't get SwapComplete events based on how we implement
+@@ -1891,6 +1894,8 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
+   CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
+   gboolean have_counter;
+   GLXDrawable drawable;
++  int64_t swap_start_time, swap_end_time, presentation_time;
++  const int64_t one_millisecond = 1000000;
+ 
+   /* XXX: theoretically this shouldn't be necessary but at least with
+    * the Intel drivers we have see that if we don't call
+@@ -1944,13 +1949,26 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
+         _cogl_winsys_wait_for_vblank (onscreen);
+     }
+ 
++  swap_start_time = _cogl_winsys_get_clock_time (context);
+   glx_renderer->glXSwapBuffers (xlib_renderer->xdpy, drawable);
++  swap_end_time = _cogl_winsys_get_clock_time (context);
++
++  /* glXSwapBuffers takes a minimum of tens to hundreds of microseconds. If it
++   * starts taking milliseconds then that's not CPU time, but means it is
++   * sleeping to throttle to vsync. So on those frames we get a good estimate
++   * of the last presentation time. And on faster frames, the frame clock code
++   * can just extrapolate when it would be.
++   */
++  if ((swap_end_time - swap_start_time) > one_millisecond)
++    presentation_time = swap_end_time;
++  else
++    presentation_time = 0;
+ 
+   if (have_counter)
+     glx_onscreen->last_swap_vsync_counter =
+       _cogl_winsys_get_vsync_counter (context);
+ 
+-  set_frame_info_output (onscreen, xlib_onscreen->output);
++  set_frame_info_output (onscreen, xlib_onscreen->output, presentation_time);
+ }
+ 
+ static uint32_t
