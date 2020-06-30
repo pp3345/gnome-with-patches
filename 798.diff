@@ -2819,15 +2819,13 @@ index eba802e0ccb2cdbcd4796340117fb9fe52bf2dd6..9c5b02e1a42dfb38811b48b6f64f8a10
      {
        wl_resource_post_error (surface->resource,
                                ZXDG_SURFACE_V6_ERROR_UNCONFIGURED_BUFFER,
-@@ -1368,7 +1368,7 @@ meta_wayland_zxdg_surface_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
+@@ -1368,5 +1368,5 @@ meta_wayland_zxdg_surface_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
    if (!window)
      return;
  
 -  if (surface->buffer_ref.buffer)
 +  if (surface->buffer_ref->buffer)
      priv->first_buffer_attached = TRUE;
-   else
-     return;
 @@ -1413,7 +1413,7 @@ meta_wayland_zxdg_surface_v6_assigned (MetaWaylandSurfaceRole *surface_role)
    priv->configure_sent = FALSE;
    priv->first_buffer_attached = FALSE;
@@ -3169,7 +3167,7 @@ index d8f63975787dc75e1ceacaa8f26319316603f9e6..ecad04e120519cc8a42e096912da070c
      {
        wl_resource_post_error (xdg_popup->resource,
                                XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
-@@ -1127,7 +1127,7 @@ meta_wayland_xdg_popup_apply_state (MetaWaylandSurfaceRole  *surface_role,
+@@ -1127,6 +1127,6 @@ meta_wayland_xdg_popup_apply_state (MetaWaylandSurfaceRole  *surface_role,
    if (!pending->newly_attached)
      return;
  
@@ -3177,16 +3175,13 @@ index d8f63975787dc75e1ceacaa8f26319316603f9e6..ecad04e120519cc8a42e096912da070c
 +  if (!surface->buffer_ref->buffer)
      return;
  
-   if (pending->has_acked_configure_serial)
-@@ -1524,7 +1524,7 @@ meta_wayland_xdg_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
+@@ -1524,5 +1524,5 @@ meta_wayland_xdg_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
    if (!window)
      return;
  
 -  if (surface->buffer_ref.buffer)
 +  if (surface->buffer_ref->buffer)
      priv->first_buffer_attached = TRUE;
-   else
-     return;
 @@ -1568,7 +1568,7 @@ meta_wayland_xdg_surface_assigned (MetaWaylandSurfaceRole *surface_role)
    priv->configure_sent = FALSE;
    priv->first_buffer_attached = FALSE;
