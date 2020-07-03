@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.37.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -213,6 +213,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Fri Jul 03 2020 Milan Crha <mcrha@redhat.com> - 3.37.2-2
+- Rebuilt for evolution-data-server soname version bump
+
 * Wed Jun 03 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.2-1
 - Update to 3.37.2
 
