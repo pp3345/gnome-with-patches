@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.36.3
-Release:        3%{?dist}
+Version:        3.36.4
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        1PLv2+
@@ -213,6 +213,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Tue Jul 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.4-1
+- Update to 3.36.4
+
 * Wed Jun 03 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.3-1
 - Update to 3.36.3
 
