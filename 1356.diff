@@ -1,0 +1,16 @@
+diff --git a/js/ui/workspaceSwitcherPopup.js b/js/ui/workspaceSwitcherPopup.js
+index eebf9db3b73a0da97dc8d38afe4ae315079a7d07..4613e96ecfe63460e34eb42edbb160f4d93c1ac2 100644
+--- a/js/ui/workspaceSwitcherPopup.js
++++ b/js/ui/workspaceSwitcherPopup.js
+@@ -11,7 +11,10 @@ var DISPLAY_TIMEOUT = 600;
+ var WorkspaceSwitcherPopupList = GObject.registerClass(
+ class WorkspaceSwitcherPopupList extends St.Widget {
+     _init() {
+-        super._init({ style_class: 'workspace-switcher' });
++        super._init({
++            style_class: 'workspace-switcher',
++            offscreen_redirect: Clutter.OffscreenRedirect.ALWAYS,
++        });
+ 
+         this._itemSpacing = 0;
+         this._childHeight = 0;
