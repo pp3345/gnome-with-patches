@@ -1,9 +1,9 @@
 Name:           gnome-shell
-Version:        3.36.3
-Release:        300%{?dist}.pp3345
+Version:        3.36.4
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
-License:        1PLv2+
+License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
@@ -216,6 +216,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Tue Jul 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.4-1
+- Update to 3.36.4
+
 * Wed Jun 03 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.3-300
 - Rebase to 3.36.3-3.fc32
 
