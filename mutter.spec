@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.4
-Release:       1%{?dist}
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -179,6 +179,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Jul 09 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.4-100
+- Add !1359 "clutter-actor: Cull actors that don't intersect the redraw clip" @4e286244
+- Remove !1335 "surface-actor: Add culling offset for geometry scale - take 2" (merged)
+- Rebase to 3.36.4-1.fc32
+
 * Tue Jul 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.4-1
 - Update to 3.36.4
 
