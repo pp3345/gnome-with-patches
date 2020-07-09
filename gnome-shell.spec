@@ -3,7 +3,7 @@ Version:        3.36.4
 Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
-License:        1PLv2+
+License:        GPLv2+
 Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
