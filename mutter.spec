@@ -7,14 +7,14 @@
 %global mutter_api_version 6
 
 Name:          mutter
-Version:       3.36.3
-Release:       400%{?dist}.pp3345
+Version:       3.36.4
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       mutter-3.36.3-86d9cd1a.tar.gz
+Source0:       http://download.gnome.org/sources/%{name}/3.36/%{name}-%{version}.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
@@ -179,6 +179,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Jul 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.4-1
+- Update to 3.36.4
+
 * Tue Jun 30 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.3-400
 - Add !1309 "Fix Nvidia smoothness issues" @be77651f (manually rebased)
 - Add !1284 "clutter-stage-cogl: Disable urgent frames when swap event support is missing" @a610a557
