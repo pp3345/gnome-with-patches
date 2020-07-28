@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.37.3
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -163,6 +163,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 3.37.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Tue Jul 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.3-1
 - Update to 3.37.3
 
