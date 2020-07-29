@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.8
-Release:   1%{?gitdate:.%{gitdate}}%{?dist}
+Release:   2%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -546,6 +546,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Jul 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.20.8-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
+
 * Mon Mar 30 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.8-1
 - xserver 1.20.8
 - Backport latest Xwayland randr resolution change emulation support
