@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.8
-Release:   2%{?gitdate:.%{gitdate}}%{?dist}
+Release:   3%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -95,6 +95,7 @@ Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 # Backports from current stable "server-1.20-branch":
 
 # Backports from "master" upstream:
+Patch100: 0001-fix-for-ZDI-11426.patch
 
 # Backported Xwayland randr resolution change emulation support
 Patch501: 0001-dix-Add-GetCurrentClient-helper.patch
@@ -546,6 +547,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Jul 31 2020 Adam Jackson <ajax@redhat.com> - 1.20.8-3
+- Fix information disclosure bug in pixmap allocation (CVE-2020-14347)
+
 * Wed Jul 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.20.8-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
