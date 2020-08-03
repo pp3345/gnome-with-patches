@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.36.4
-Release:        100%{?dist}.pp3345
+Release:        101%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -217,6 +217,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Aug 03 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.4-101
+- Rebase to gnome-3-36@c2ba1142
+
 * Thu Jul 09 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.4-100
 - Add !1356 "workspaceSwitcherPopup: Set offscreen redirect always" @9363fd35
 - Rebase to 3.36.4-1.fc32
