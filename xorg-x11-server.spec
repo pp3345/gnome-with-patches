@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.8
-Release:   100%{?gitdate:.%{gitdate}}%{?dist}.pp3345
+Release:   2%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -95,6 +95,7 @@ Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 # Backports from current stable "server-1.20-branch":
 
 # Backports from "master" upstream:
+Patch100: 0001-fix-for-ZDI-11426.patch
 
 # Backported Xwayland randr resolution change emulation support
 Patch501: 0001-dix-Add-GetCurrentClient-helper.patch
@@ -550,6 +551,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Fri Jul 31 2020 Adam Jackson <ajax@redhat.com> - 1.20.8-2
+- Fix information disclosure bug in pixmap allocation (CVE-2020-14347)
+
 * Fri Apr 10 2020 Yussuf Khalil <dev@pp3345.net> - 1.20.8-100
 - Add !361 "Take window border width into account for window buffer updates and recycling" @46e5236b (manually rebased)
 - Rebase !316 "Add multiple buffering to xwl_window"
