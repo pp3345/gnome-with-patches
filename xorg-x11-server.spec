@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.8
-Release:   2%{?gitdate:.%{gitdate}}%{?dist}
+Release:   200%{?gitdate:.%{gitdate}}%{?dist}.pp3345
 URL:       http://www.x.org
 License:   MIT
 
@@ -551,6 +551,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Aug 12 2020 Yussuf Khalil <dev@pp3345.net> - 1.20.8-200
+- Rebase to 1.20.8-2.fc32
+
 * Fri Jul 31 2020 Adam Jackson <ajax@redhat.com> - 1.20.8-2
 - Fix information disclosure bug in pixmap allocation (CVE-2020-14347)
 
