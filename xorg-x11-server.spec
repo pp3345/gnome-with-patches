@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.8
-Release:   3%{?gitdate:.%{gitdate}}%{?dist}
+Release:   4%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -380,6 +380,7 @@ autoreconf -f -v --install || exit 1
         --without-dtrace \
 	--disable-linux-acpi --disable-linux-apm \
 	--enable-xselinux --enable-record --enable-present \
+        --enable-xcsecurity \
 	--enable-config-udev \
 	--disable-unit-tests \
 	--enable-dmx \
@@ -547,6 +548,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Aug 12 2020 Adam Jackson <ajax@redhat.com> - 1.20.8-4
+- Enable XC-SECURITY
+
 * Fri Jul 31 2020 Adam Jackson <ajax@redhat.com> - 1.20.8-3
 - Fix information disclosure bug in pixmap allocation (CVE-2020-14347)
 
