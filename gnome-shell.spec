@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.37.3
-Release:        4%{?dist}
+Version:        3.37.90
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -12,18 +12,13 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.37/%{name}-%{ver
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
-# Implement https://wiki.gnome.org/Design/OS/BootOptions
-# This should go upstream once systemd has a generic interface for this
-Patch2: 0001-endSessionDialog-Immediately-add-buttons-to-the-dial.patch
-Patch3: 0002-endSessionDialog-Support-rebooting-into-the-bootload.patch
-
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
 %define glib2_version 2.56.0
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.57.3
 %define gtk3_version 3.15.0
-%define mutter_version 3.37.3
+%define mutter_version 3.37.90
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.33.1
 %define ibus_version 1.5.2
@@ -188,11 +183,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/dbus-1/interfaces/org.gnome.ShellSearchProvider2.xml
 %{_datadir}/icons/hicolor/scalable/apps/org.gnome.Shell.Extensions.svg
 %{_datadir}/icons/hicolor/symbolic/apps/org.gnome.Shell.Extensions-symbolic.svg
-%{_userunitdir}/gnome-shell-disable-extensions.service
-%{_userunitdir}/gnome-shell-wayland.service
-%{_userunitdir}/gnome-shell-wayland.target
-%{_userunitdir}/gnome-shell-x11.service
-%{_userunitdir}/gnome-shell-x11.target
+%{_userunitdir}/org.gnome.Shell-disable-extensions.service
+%{_userunitdir}/org.gnome.Shell.target
+%{_userunitdir}/org.gnome.Shell@wayland.service
+%{_userunitdir}/org.gnome.Shell@x11.service
 %{_sysconfdir}/xdg/autostart/gnome-shell-overrides-migration.desktop
 # Co own directory instead of pulling in xdg-desktop-portal - we
 # are providing a backend to the portal, not depending on it
@@ -213,6 +207,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Fri Aug 14 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.90-1
+- Update to 3.37.90
+
 * Sat Aug 01 2020 Fedora Release Engineering <releng@fedoraproject.org> - 3.37.3-4
 - Second attempt - Rebuilt for
   https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
