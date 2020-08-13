@@ -12,6 +12,9 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.37/%{name}-%{ver
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
 
+# https://bugzilla.redhat.com/show_bug.cgi?id=1830343
+Patch2: fix-old-style-vpn.patch
+
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
 %define glib2_version 2.56.0
