@@ -1,7 +1,7 @@
 %global glib2_version 2.58.0
 %global gobject_introspection_version 1.61.2
 %global gtk3_version 3.20
-%global mozjs78_version 78.1.0-1
+%global mozjs78_version 78.1.0-2
 
 Name:          gjs
 Version:       1.65.90
