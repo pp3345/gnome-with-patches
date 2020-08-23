@@ -1,0 +1,59 @@
+From 56b6e653175bbf85261712dda96cb99bcd727482 Mon Sep 17 00:00:00 2001
+From: Benjamin Berg <bberg@redhat.com>
+Date: Thu, 20 Aug 2020 10:08:01 +0200
+Subject: [PATCH 1/2] data: Only unset environment when the service actually
+ ran
+
+ExecStopPost= is executed even if ExecCondition= fails. As such, we need
+to add a guard as we would otherwise clear environment variables on X11
+sessions (rendering them utterly useless).
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1418
+---
+ data/org.gnome.Shell@wayland.service.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/data/org.gnome.Shell@wayland.service.in b/data/org.gnome.Shell@wayland.service.in
+index 427e3c8072..692d45bb37 100644
+--- a/data/org.gnome.Shell@wayland.service.in
++++ b/data/org.gnome.Shell@wayland.service.in
+@@ -26,7 +26,7 @@ ExecStart=@bindir@/gnome-shell
+ SuccessExitStatus=1
+ 
+ # unset some environment variables that were set by the shell and won't work now that the shell is gone
+-ExecStopPost=-systemctl --user unset-environment GNOME_SETUP_DISPLAY WAYLAND_DISPLAY DISPLAY XAUTHORITY
++ExecStopPost=-/bin/sh -c 'test "$SERVICE_RESULT" != "exec-condition" && systemctl --user unset-environment GNOME_SETUP_DISPLAY WAYLAND_DISPLAY DISPLAY XAUTHORITY'
+ 
+ # On wayland we cannot restart
+ Restart=no
+-- 
+GitLab
+
+
+From 6ad9c99040cec703cec85c68d1d168d3845ceaaa Mon Sep 17 00:00:00 2001
+From: Benjamin Berg <bberg@redhat.com>
+Date: Thu, 20 Aug 2020 10:09:00 +0200
+Subject: [PATCH 2/2] data: Fix description of org.gnome.Shell.target
+
+The target is generic between X11 and wayland now, so remove the
+reference to wayland.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1418
+---
+ data/org.gnome.Shell.target | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/data/org.gnome.Shell.target b/data/org.gnome.Shell.target
+index 358189f26f..55f9539e98 100644
+--- a/data/org.gnome.Shell.target
++++ b/data/org.gnome.Shell.target
+@@ -1,5 +1,5 @@
+ [Unit]
+-Description=GNOME Shell on Wayland
++Description=GNOME Shell
+ DefaultDependencies=no
+ 
+ Requisite=gnome-session-initialized.target
+-- 
+GitLab
+

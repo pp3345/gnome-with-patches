@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.37.90
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -14,6 +14,9 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1830343
 Patch2: fix-old-style-vpn.patch
+
+# https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1418
+Patch3: fix-x11-login.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -210,6 +213,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Aug 23 2020 Kalev Lember <klember@redhat.com> - 3.37.90-2
+- Backport a fix for launching apps under X11 (#1870234)
+
 * Fri Aug 14 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.90-1
 - Update to 3.37.90
 
