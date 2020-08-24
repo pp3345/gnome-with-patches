@@ -7,7 +7,7 @@
 %global mutter_api_version 7
 
 Name:          mutter
-Version:       3.37.90
+Version:       3.37.91
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -51,8 +51,7 @@ BuildRequires: pkgconfig(glesv2)
 BuildRequires: pkgconfig(graphene-gobject-1.0)
 BuildRequires: pam-devel
 BuildRequires: pkgconfig(libpipewire-0.3) >= %{pipewire_version}
-# Built from submodule for now
-#BuildRequires: pkgconfig(sysprof-capture-4)
+BuildRequires: pkgconfig(sysprof-capture-4)
 BuildRequires: systemd-devel
 BuildRequires: upower-devel
 BuildRequires: xorg-x11-server-Xorg
@@ -164,6 +163,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Aug 24 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.91-1
+- Update to 3.37.91
+
 * Tue Aug 11 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.90-1
 - Update to 3.37.90
 
