@@ -1,11 +1,11 @@
 %global glib2_version 2.58.0
 %global gobject_introspection_version 1.61.2
 %global gtk3_version 3.20
-%global mozjs78_version 78.1.0-2
+%global mozjs78_version 78.2.0-1
 
 Name:          gjs
 Version:       1.65.91
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -94,6 +94,9 @@ the functionality of the installed gjs package.
 %{_datadir}/installed-tests/
 
 %changelog
+* Mon Aug 24 2020 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.65.91-2
+- Rebuild against mozjs78-78.2.0-1
+
 * Sun Aug 23 2020 Kalev Lember <klember@redhat.com> - 1.65.91-1
 - Update to 1.65.91
 
