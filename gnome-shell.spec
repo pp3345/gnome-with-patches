@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.37.91
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -110,6 +110,8 @@ Requires:       bolt%{?_isa}
 # Needed for launching flatpak apps etc
 Requires:       xdg-desktop-portal-gtk
 
+Provides:       PolicyKit-authentication-agent = %{version}-%{release}
+
 %if 0%{?rhel}
 # In Fedora, fedora-obsolete-packages obsoletes caribou
 Obsoletes:      caribou < 0.4.21-10
@@ -207,6 +209,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed Aug 26 2020 Kalev Lember <klember@redhat.com> - 3.37.91-2
+- Add PolicyKit-authentication-agent virtual provides
+
 * Mon Aug 24 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.91-1
 - Update to 3.37.91
 
