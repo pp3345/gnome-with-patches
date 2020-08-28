@@ -5,7 +5,7 @@
 
 Name:          gjs
 Version:       1.65.91
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -15,6 +15,9 @@ Summary:       Javascript Bindings for GNOME
 License:       MIT and (MPLv1.1 or GPLv2+ or LGPLv2+)
 URL:           https://wiki.gnome.org/Projects/Gjs
 Source0:       https://download.gnome.org/sources/%{name}/1.65/%{name}-%{version}.tar.xz
+# Fix frequent "g_variant_unref: assertion 'value != NULL' failed" errors
+# https://gitlab.gnome.org/GNOME/gjs/-/merge_requests/483
+Patch0:        0001-gjs_dbus_implementation_emit_signal-don-t-try-to-unr.patch
 
 BuildRequires: cairo-gobject-devel
 BuildRequires: dbus-daemon
@@ -94,6 +97,9 @@ the functionality of the installed gjs package.
 %{_datadir}/installed-tests/
 
 %changelog
+* Fri Aug 28 2020 Adam Williamson <awilliam@redhat.com> - 1.65.91-3
+- Backport MR #483 to fix frequent g_variant_unref errors in journal
+
 * Mon Aug 24 2020 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.65.91-2
 - Rebuild against mozjs78-78.2.0-1
 

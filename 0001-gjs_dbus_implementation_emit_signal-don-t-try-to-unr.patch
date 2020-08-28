@@ -1,0 +1,35 @@
+From dc15ab81baf589a071b241da90e2ee83c83baef3 Mon Sep 17 00:00:00 2001
+From: Adam Williamson <awilliam@redhat.com>
+Date: Fri, 28 Aug 2020 13:33:04 -0700
+Subject: [PATCH] gjs_dbus_implementation_emit_signal: don't try to unref NULL
+
+07221d6d (which added support for multiple bus connections)
+added a `g_variant_unref(parameters)` call here, but it needs to
+only be done if `parameters` is not `NULL`. This was causing
+frequent "g_variant_unref: assertion 'value != NULL' failed"
+errors in the journal, see
+https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/3102 .
+
+Signed-off-by: Adam Williamson <awilliam@redhat.com>
+---
+ libgjs-private/gjs-gdbus-wrapper.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/libgjs-private/gjs-gdbus-wrapper.c b/libgjs-private/gjs-gdbus-wrapper.c
+index f7361366..eb0516f9 100644
+--- a/libgjs-private/gjs-gdbus-wrapper.c
++++ b/libgjs-private/gjs-gdbus-wrapper.c
+@@ -395,7 +395,9 @@ gjs_dbus_implementation_emit_signal (GjsDBusImplementation *self,
+ 
+         g_object_unref(iter->data);
+     }
+-    g_variant_unref(parameters);
++    if (parameters != NULL)
++        g_variant_unref(parameters);
++
+     g_list_free(connections);
+ }
+ 
+-- 
+2.28.0
+
