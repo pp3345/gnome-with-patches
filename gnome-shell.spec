@@ -4,7 +4,6 @@ Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
-Provides:       desktop-notification-daemon
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
 Source0:        http://download.gnome.org/sources/gnome-shell/3.37/%{name}-%{version}.tar.xz
@@ -110,6 +109,7 @@ Requires:       bolt%{?_isa}
 # Needed for launching flatpak apps etc
 Requires:       xdg-desktop-portal-gtk
 
+Provides:       desktop-notification-daemon = %{version}-%{release}
 Provides:       PolicyKit-authentication-agent = %{version}-%{release}
 
 %if 0%{?rhel}
