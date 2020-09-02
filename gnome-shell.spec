@@ -10,6 +10,8 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.37/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
+# Backported from upstream
+Patch2: 0001-dbusServices-screencast-Save-under-resolved-file-pat.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -219,6 +221,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 * Wed Sep 02 2020 Kalev Lember <klember@redhat.com> - 3.37.91-4
 - Add missing pipewire-gstreamer dependency for screen recorder
 - Set minimum gnome-settings-daemon version for Screencast proxy changes
+- Backport upstream fix to save screencasts under resolved file name
 
 * Wed Sep 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.91-3
 - Add missing pipewire dependency for screen recorder

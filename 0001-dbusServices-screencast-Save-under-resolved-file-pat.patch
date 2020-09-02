@@ -1,0 +1,28 @@
+From b3f35912be8bc3416897ba6d647a7547e21babdb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Wed, 2 Sep 2020 16:26:34 +0200
+Subject: [PATCH] dbusServices/screencast: Save under resolved file path
+
+... instead of using the original template as file name.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/3097
+---
+ js/dbusServices/screencast/screencastService.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/js/dbusServices/screencast/screencastService.js b/js/dbusServices/screencast/screencastService.js
+index f7683d482..dc38b44a1 100644
+--- a/js/dbusServices/screencast/screencastService.js
++++ b/js/dbusServices/screencast/screencastService.js
+@@ -352,7 +352,7 @@ var ScreencastService = class extends ServiceImplementation {
+                 sessionPath,
+                 0, 0,
+                 screenWidth, screenHeight,
+-                fileTemplate,
++                filePath,
+                 options,
+                 invocation,
+                 _recorder => this._removeRecorder(sender));
+-- 
+2.26.2
+
