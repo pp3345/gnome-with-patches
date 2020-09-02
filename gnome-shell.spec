@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.37.91
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -23,6 +23,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define ibus_version 1.5.2
 %define gnome_bluetooth_version 1:3.9.0
 %define gstreamer_version 1.4.5
+%define pipewire_version 0.3.0
 
 BuildRequires:  asciidoc
 BuildRequires:  bash-completion
@@ -49,6 +50,7 @@ BuildRequires:  systemd-devel
 BuildRequires:  sassc
 # for screencast recorder functionality
 BuildRequires:  gstreamer1-devel >= %{gstreamer_version}
+BuildRequires: pkgconfig(libpipewire-0.3) >= %{pipewire_version}
 BuildRequires:  gtk3-devel >= %{gtk3_version}
 BuildRequires:  gettext >= 0.19.6
 BuildRequires:  libcanberra-devel
@@ -176,6 +178,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_datadir}/dbus-1/services/org.gnome.Shell.HotplugSniffer.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.Notifications.service
 %{_datadir}/dbus-1/services/org.gnome.Shell.PortalHelper.service
+%{_datadir}/dbus-1/services/org.gnome.Shell.Screencast.service
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Extensions.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.Introspect.xml
 %{_datadir}/dbus-1/interfaces/org.gnome.Shell.PadOsd.xml
@@ -209,6 +212,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed Sep 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.91-3
+- Add missing pipewire dependency for screen recorder
+
 * Wed Aug 26 2020 Kalev Lember <klember@redhat.com> - 3.37.91-2
 - Add PolicyKit-authentication-agent virtual provides
 
