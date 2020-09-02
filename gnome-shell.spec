@@ -24,6 +24,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gnome_bluetooth_version 1:3.9.0
 %define gstreamer_version 1.4.5
 %define pipewire_version 0.3.0
+%define gnome_settings_daemon_version 3.37.1
 
 BuildRequires:  asciidoc
 BuildRequires:  bash-completion
@@ -89,6 +90,7 @@ Requires:       polkit%{?_isa} >= %{polkit_version}
 Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       glib2%{?_isa} >= %{glib2_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
+Requires:       gnome-settings-daemon%{?_isa} >= %{gnome_settings_daemon_version}
 Requires:       gstreamer1%{?_isa} >= %{gstreamer_version}
 # needed for screen recorder
 Requires:       pipewire-gstreamer%{?_isa}
@@ -216,6 +218,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %changelog
 * Wed Sep 02 2020 Kalev Lember <klember@redhat.com> - 3.37.91-4
 - Add missing pipewire-gstreamer dependency for screen recorder
+- Set minimum gnome-settings-daemon version for Screencast proxy changes
 
 * Wed Sep 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.91-3
 - Add missing pipewire dependency for screen recorder
