@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.37.91
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -50,7 +50,7 @@ BuildRequires:  systemd-devel
 BuildRequires:  sassc
 # for screencast recorder functionality
 BuildRequires:  gstreamer1-devel >= %{gstreamer_version}
-BuildRequires: pkgconfig(libpipewire-0.3) >= %{pipewire_version}
+BuildRequires:  pkgconfig(libpipewire-0.3) >= %{pipewire_version}
 BuildRequires:  gtk3-devel >= %{gtk3_version}
 BuildRequires:  gettext >= 0.19.6
 BuildRequires:  libcanberra-devel
@@ -90,6 +90,8 @@ Requires:       gnome-desktop3%{?_isa} >= %{gnome_desktop_version}
 Requires:       glib2%{?_isa} >= %{glib2_version}
 Requires:       gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires:       gstreamer1%{?_isa} >= %{gstreamer_version}
+# needed for screen recorder
+Requires:       pipewire-gstreamer%{?_isa}
 # needed for schemas
 Requires:       at-spi2-atk%{?_isa}
 # needed for on-screen keyboard
@@ -212,6 +214,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed Sep 02 2020 Kalev Lember <klember@redhat.com> - 3.37.91-4
+- Add missing pipewire-gstreamer dependency for screen recorder
+
 * Wed Sep 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.91-3
 - Add missing pipewire dependency for screen recorder
 
