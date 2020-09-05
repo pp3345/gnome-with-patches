@@ -1,5 +1,5 @@
 Name:           gnome-shell
-Version:        3.37.91
+Version:        3.37.92
 Release:        3%{?dist}
 Summary:        Window management and application launching for GNOME
 
@@ -17,7 +17,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.57.3
 %define gtk3_version 3.15.0
-%define mutter_version 3.37.91
+%define mutter_version 3.37.92
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.33.1
 %define ibus_version 1.5.2
@@ -212,6 +212,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Sep 06 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.92-1
+- Update to 3.37.92
+
 * Wed Sep 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.37.91-3
 - Add missing pipewire dependency for screen recorder
 
