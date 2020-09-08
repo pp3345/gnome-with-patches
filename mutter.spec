@@ -7,8 +7,8 @@
 %global mutter_api_version 6
 
 Name:          mutter
-Version:       3.36.5
-Release:       100%{?dist}.pp3345
+Version:       3.36.6
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -179,6 +179,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Sep 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.6-1
+- Update to 3.36.6
+
 * Wed Aug 12 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.5-100
 - Remove !1394 "Mipmap background texture rendering (3.36 backport)" (merged)
 - Rebase to 3.36.5-1.fc32
