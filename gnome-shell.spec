@@ -1,12 +1,12 @@
 Name:           gnome-shell
-Version:        3.37.92
-Release:        5%{?dist}
+Version:        3.38.0
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.37/%{name}-%{version}.tar.xz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.38/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -17,7 +17,7 @@ Patch1: gnome-shell-favourite-apps-firefox.patch
 %define gobject_introspection_version 1.49.1
 %define gjs_version 1.57.3
 %define gtk3_version 3.15.0
-%define mutter_version 3.37.92
+%define mutter_version 3.38.0
 %define polkit_version 0.100
 %define gsettings_desktop_schemas_version 3.33.1
 %define ibus_version 1.5.2
@@ -216,6 +216,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Sep 14 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.0
+- Update to 3.38.0
+
 * Thu Sep 10 2020 Kalev Lember <klember@redhat.com> - 3.37.92-5
 - Set minimum gnome-settings-daemon version for Screencast proxy changes
 
