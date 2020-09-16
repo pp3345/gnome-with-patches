@@ -1,0 +1,697 @@
+From 27c27e8f546304547f7780c43797bbe103be8324 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Thu, 12 Sep 2019 11:50:34 +0200
+Subject: [PATCH 1/8] renderer/native: Add API to get primary GPU
+
+Will be used when acquiring scanouts from Wayland buffers.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/798
+---
+ src/backends/native/meta-renderer-native.c | 6 ++++++
+ src/backends/native/meta-renderer-native.h | 2 ++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index e94562b28..2b7b40b08 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -313,6 +313,12 @@ meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms)
+   return renderer_gpu_data->gbm.device;
+ }
+ 
++MetaGpuKms *
++meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_native)
++{
++  return renderer_native->primary_gpu_kms;
++}
++
+ static MetaRendererNativeGpuData *
+ meta_create_renderer_native_gpu_data (MetaGpuKms *gpu_kms)
+ {
+diff --git a/src/backends/native/meta-renderer-native.h b/src/backends/native/meta-renderer-native.h
+index 7abe7c152..840ae1a40 100644
+--- a/src/backends/native/meta-renderer-native.h
++++ b/src/backends/native/meta-renderer-native.h
+@@ -51,6 +51,8 @@ MetaRendererNative * meta_renderer_native_new (MetaBackendNative  *backend_nativ
+ 
+ struct gbm_device * meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms);
+ 
++MetaGpuKms * meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_native);
++
+ void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native);
+ 
+ int64_t meta_renderer_native_get_frame_counter (MetaRendererNative *renderer_native);
+-- 
+2.26.2
+
+
+From 51019382936c268c5d935b6596c940812e408be3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 17 Jun 2020 17:46:25 +0200
+Subject: [PATCH 2/8] backend: Add getter for MetaScreenCast
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1318
+(cherry picked from commit 60c8d227eaefc42b5fbfe12e71187ce899ba2ede)
+---
+ src/backends/meta-backend-private.h |  2 ++
+ src/backends/meta-backend.c         | 11 +++++++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/src/backends/meta-backend-private.h b/src/backends/meta-backend-private.h
+index 4678f7768..fbc495f9e 100644
+--- a/src/backends/meta-backend-private.h
++++ b/src/backends/meta-backend-private.h
+@@ -127,6 +127,8 @@ MetaEgl * meta_backend_get_egl (MetaBackend *backend);
+ 
+ #ifdef HAVE_REMOTE_DESKTOP
+ MetaRemoteDesktop * meta_backend_get_remote_desktop (MetaBackend *backend);
++
++MetaScreenCast * meta_backend_get_screen_cast (MetaBackend *backend);
+ #endif
+ 
+ gboolean meta_backend_grab_device (MetaBackend *backend,
+diff --git a/src/backends/meta-backend.c b/src/backends/meta-backend.c
+index f75df806b..3f39b152d 100644
+--- a/src/backends/meta-backend.c
++++ b/src/backends/meta-backend.c
+@@ -1029,6 +1029,17 @@ meta_backend_get_remote_desktop (MetaBackend *backend)
+ 
+   return priv->remote_desktop;
+ }
++
++/**
++ * meta_backend_get_screen_cast: (skip)
++ */
++MetaScreenCast *
++meta_backend_get_screen_cast (MetaBackend *backend)
++{
++  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
++
++  return priv->screen_cast;
++}
+ #endif /* HAVE_REMOTE_DESKTOP */
+ 
+ /**
+-- 
+2.26.2
+
+
+From 82454da090fc425d694bf0c26d80c876234d9553 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 17 Jun 2020 17:48:05 +0200
+Subject: [PATCH 3/8] screen-cast: Move DMA buffer allocation to MetaScreenCast
+
+The aim with centralizing it is to be able to apply global policy to DMA
+buffer allocations, e.g. disabling due to various hueristics.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1318
+(cherry picked from commit d725acb267600f97f9926c4110b23c88399c090d)
+---
+ src/backends/meta-screen-cast-stream-src.c | 18 ++++++--------
+ src/backends/meta-screen-cast.c            | 28 ++++++++++++++++++++++
+ src/backends/meta-screen-cast.h            |  4 ++++
+ 3 files changed, 39 insertions(+), 11 deletions(-)
+
+diff --git a/src/backends/meta-screen-cast-stream-src.c b/src/backends/meta-screen-cast-stream-src.c
+index 7eb99f70d..8ae2b6bba 100644
+--- a/src/backends/meta-screen-cast-stream-src.c
++++ b/src/backends/meta-screen-cast-stream-src.c
+@@ -726,10 +726,10 @@ on_stream_add_buffer (void             *data,
+   MetaScreenCastStreamSrc *src = data;
+   MetaScreenCastStreamSrcPrivate *priv =
+     meta_screen_cast_stream_src_get_instance_private (src);
+-  CoglContext *context =
+-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+-  CoglRenderer *renderer = cogl_context_get_renderer (context);
+-  g_autoptr (GError) error = NULL;
++  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
++  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
++  MetaScreenCast *screen_cast =
++    meta_screen_cast_session_get_screen_cast (session);
+   CoglDmaBufHandle *dmabuf_handle;
+   struct spa_buffer *spa_buffer = buffer->buffer;
+   struct spa_data *spa_data = spa_buffer->datas;
+@@ -741,13 +741,9 @@ on_stream_add_buffer (void             *data,
+   spa_data[0].mapoffset = 0;
+   spa_data[0].maxsize = stride * priv->video_format.size.height;
+ 
+-  dmabuf_handle = cogl_renderer_create_dma_buf (renderer,
+-                                                priv->stream_width,
+-                                                priv->stream_height,
+-                                                &error);
+-
+-  if (error)
+-    g_debug ("Error exporting DMA buffer handle: %s", error->message);
++  dmabuf_handle = meta_screen_cast_create_dma_buf_handle (screen_cast,
++                                                          priv->stream_width,
++                                                          priv->stream_height);
+ 
+   if (dmabuf_handle)
+     {
+diff --git a/src/backends/meta-screen-cast.c b/src/backends/meta-screen-cast.c
+index b473aa8eb..0cf3f90ec 100644
+--- a/src/backends/meta-screen-cast.c
++++ b/src/backends/meta-screen-cast.c
+@@ -69,6 +69,34 @@ meta_screen_cast_get_backend (MetaScreenCast *screen_cast)
+   return screen_cast->backend;
+ }
+ 
++CoglDmaBufHandle *
++meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
++                                        int             width,
++                                        int             height)
++{
++  ClutterBackend *clutter_backend =
++    meta_backend_get_clutter_backend (screen_cast->backend);
++  CoglContext *cogl_context =
++    clutter_backend_get_cogl_context (clutter_backend);
++  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
++  g_autoptr (GError) error = NULL;
++  CoglDmaBufHandle *dmabuf_handle;
++
++  dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
++                                                width, height,
++                                                &error);
++  if (!dmabuf_handle)
++    {
++      g_warning ("Failed to allocate DMA buffer, "
++                 "disabling DMA buffer based screen casting: %s",
++                 error->message);
++      screen_cast->disable_dma_bufs = TRUE;
++      return NULL;
++    }
++
++  return dmabuf_handle;
++}
++
+ static gboolean
+ register_remote_desktop_screen_cast_session (MetaScreenCastSession  *session,
+                                              const char             *remote_desktop_session_id,
+diff --git a/src/backends/meta-screen-cast.h b/src/backends/meta-screen-cast.h
+index 994c40c53..780a7932c 100644
+--- a/src/backends/meta-screen-cast.h
++++ b/src/backends/meta-screen-cast.h
+@@ -46,6 +46,10 @@ GDBusConnection * meta_screen_cast_get_connection (MetaScreenCast *screen_cast);
+ 
+ MetaBackend * meta_screen_cast_get_backend (MetaScreenCast *screen_cast);
+ 
++CoglDmaBufHandle * meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
++                                                           int             width,
++                                                           int             height);
++
+ MetaScreenCast * meta_screen_cast_new (MetaBackend            *backend,
+                                        MetaDbusSessionWatcher *session_watcher);
+ 
+-- 
+2.26.2
+
+
+From a212cc266ec932a7e15d8ecb2f7bb7a69a6b3084 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 17 Jun 2020 17:49:12 +0200
+Subject: [PATCH 4/8] kms/device: Provide driver name and description
+
+Retrieved from drmGetVersion(), to be used to identify what driver a DRM
+device is driven by.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1318
+(cherry picked from commit d73a858dc2878a69ea69a863a6d668037c5fc7c1)
+---
+ src/backends/native/meta-kms-device.c      | 22 ++++++++++++++
+ src/backends/native/meta-kms-device.h      |  4 +++
+ src/backends/native/meta-kms-impl-device.c | 34 ++++++++++++++++++++++
+ src/backends/native/meta-kms-impl-device.h |  4 +++
+ 4 files changed, 64 insertions(+)
+
+diff --git a/src/backends/native/meta-kms-device.c b/src/backends/native/meta-kms-device.c
+index a31dce8bd..635bc9638 100644
+--- a/src/backends/native/meta-kms-device.c
++++ b/src/backends/native/meta-kms-device.c
+@@ -39,6 +39,8 @@ struct _MetaKmsDevice
+ 
+   MetaKmsDeviceFlag flags;
+   char *path;
++  char *driver_name;
++  char *driver_description;
+ 
+   GList *crtcs;
+   GList *connectors;
+@@ -67,6 +69,18 @@ meta_kms_device_get_path (MetaKmsDevice *device)
+   return device->path;
+ }
+ 
++const char *
++meta_kms_device_get_driver_name (MetaKmsDevice *device)
++{
++  return device->driver_name;
++}
++
++const char *
++meta_kms_device_get_driver_description (MetaKmsDevice *device)
++{
++  return device->driver_description;
++}
++
+ MetaKmsDeviceFlag
+ meta_kms_device_get_flags (MetaKmsDevice *device)
+ {
+@@ -247,6 +261,8 @@ typedef struct _CreateImplDeviceData
+   GList *out_connectors;
+   GList *out_planes;
+   MetaKmsDeviceCaps out_caps;
++  char *out_driver_name;
++  char *out_driver_description;
+ } CreateImplDeviceData;
+ 
+ static gpointer
+@@ -266,6 +282,10 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
+   data->out_connectors = meta_kms_impl_device_copy_connectors (impl_device);
+   data->out_planes = meta_kms_impl_device_copy_planes (impl_device);
+   data->out_caps = *meta_kms_impl_device_get_caps (impl_device);
++  data->out_driver_name =
++    g_strdup (meta_kms_impl_device_get_driver_name (impl_device));
++  data->out_driver_description =
++    g_strdup (meta_kms_impl_device_get_driver_description (impl_device));
+ 
+   return GINT_TO_POINTER (TRUE);
+ }
+@@ -309,6 +329,8 @@ meta_kms_device_new (MetaKms            *kms,
+   device->connectors = data.out_connectors;
+   device->planes = data.out_planes;
+   device->caps = data.out_caps;
++  device->driver_name = data.out_driver_name;
++  device->driver_description = data.out_driver_description;
+ 
+   return device;
+ }
+diff --git a/src/backends/native/meta-kms-device.h b/src/backends/native/meta-kms-device.h
+index 9f83d3855..95c16ddfd 100644
+--- a/src/backends/native/meta-kms-device.h
++++ b/src/backends/native/meta-kms-device.h
+@@ -33,6 +33,10 @@ int meta_kms_device_leak_fd (MetaKmsDevice *device);
+ 
+ const char * meta_kms_device_get_path (MetaKmsDevice *device);
+ 
++const char * meta_kms_device_get_driver_name (MetaKmsDevice *device);
++
++const char * meta_kms_device_get_driver_description (MetaKmsDevice *device);
++
+ MetaKmsDeviceFlag meta_kms_device_get_flags (MetaKmsDevice *device);
+ 
+ gboolean meta_kms_device_get_cursor_size (MetaKmsDevice *device,
+diff --git a/src/backends/native/meta-kms-impl-device.c b/src/backends/native/meta-kms-impl-device.c
+index 80d7a8b01..6beef4f52 100644
+--- a/src/backends/native/meta-kms-impl-device.c
++++ b/src/backends/native/meta-kms-impl-device.c
+@@ -45,6 +45,9 @@ struct _MetaKmsImplDevice
+   int fd;
+   GSource *fd_source;
+ 
++  char *driver_name;
++  char *driver_description;
++
+   GList *crtcs;
+   GList *connectors;
+   GList *planes;
+@@ -84,6 +87,18 @@ meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device)
+   return &impl_device->caps;
+ }
+ 
++const char *
++meta_kms_impl_device_get_driver_name (MetaKmsImplDevice *impl_device)
++{
++  return impl_device->driver_name;
++}
++
++const char *
++meta_kms_impl_device_get_driver_description (MetaKmsImplDevice *impl_device)
++{
++  return impl_device->driver_description;
++}
++
+ static void
+ page_flip_handler (int           fd,
+                    unsigned int  sequence,
+@@ -357,6 +372,22 @@ init_planes (MetaKmsImplDevice *impl_device)
+   impl_device->planes = g_list_reverse (impl_device->planes);
+ }
+ 
++static void
++init_info (MetaKmsImplDevice *impl_device)
++{
++  drmVersion *drm_version;
++
++  drm_version = drmGetVersion (impl_device->fd);
++  if (!drm_version)
++    return;
++
++  impl_device->driver_name = g_strndup (drm_version->name,
++                                        drm_version->name_len);
++  impl_device->driver_description = g_strndup (drm_version->desc,
++                                               drm_version->desc_len);
++  drmFreeVersion (drm_version);
++}
++
+ void
+ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
+ {
+@@ -435,6 +466,7 @@ meta_kms_impl_device_new (MetaKmsDevice  *device,
+ 
+   init_crtcs (impl_device, drm_resources);
+   init_planes (impl_device);
++  init_info (impl_device);
+ 
+   update_connectors (impl_device, drm_resources);
+ 
+@@ -484,6 +516,8 @@ meta_kms_impl_device_finalize (GObject *object)
+   g_list_free_full (impl_device->planes, g_object_unref);
+   g_list_free_full (impl_device->crtcs, g_object_unref);
+   g_list_free_full (impl_device->connectors, g_object_unref);
++  g_free (impl_device->driver_name);
++  g_free (impl_device->driver_description);
+ 
+   G_OBJECT_CLASS (meta_kms_impl_device_parent_class)->finalize (object);
+ }
+diff --git a/src/backends/native/meta-kms-impl-device.h b/src/backends/native/meta-kms-impl-device.h
+index e8c08f19f..e55a95b58 100644
+--- a/src/backends/native/meta-kms-impl-device.h
++++ b/src/backends/native/meta-kms-impl-device.h
+@@ -50,6 +50,10 @@ GList * meta_kms_impl_device_copy_planes (MetaKmsImplDevice *impl_device);
+ 
+ const MetaKmsDeviceCaps * meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device);
+ 
++const char * meta_kms_impl_device_get_driver_name (MetaKmsImplDevice *impl_device);
++
++const char * meta_kms_impl_device_get_driver_description (MetaKmsImplDevice *impl_device);
++
+ gboolean meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
+                                         GError            **error);
+ 
+-- 
+2.26.2
+
+
+From 8faa5c2503299b9150bd9a07981e9900bf0ad3a4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 17 Jun 2020 17:50:17 +0200
+Subject: [PATCH 5/8] screen-cast: Disable DMA buffer based screen casting for
+ QXL
+
+QXL doesn't support mmap():ing a DMA buffer allocated in mutter inside
+the PipeWire stream consumer process. To make screen casting work again
+on QXL, disable DMA buffer based screen casting for QXL.
+
+Eventually, it should be the client that renegotiates the supported
+buffer types, but until then we need this list.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1318
+(cherry picked from commit 986066ed407213f3c2ad79d8ddad3cd5bc1548e4)
+---
+ src/backends/meta-screen-cast.c           | 11 +++++++
+ src/backends/meta-screen-cast.h           |  2 ++
+ src/backends/native/meta-backend-native.c | 40 +++++++++++++++++++++++
+ 3 files changed, 53 insertions(+)
+
+diff --git a/src/backends/meta-screen-cast.c b/src/backends/meta-screen-cast.c
+index 0cf3f90ec..19163918d 100644
+--- a/src/backends/meta-screen-cast.c
++++ b/src/backends/meta-screen-cast.c
+@@ -44,6 +44,8 @@ struct _MetaScreenCast
+ 
+   MetaDbusSessionWatcher *session_watcher;
+   MetaBackend *backend;
++
++  gboolean disable_dma_bufs;
+ };
+ 
+ static void
+@@ -69,6 +71,12 @@ meta_screen_cast_get_backend (MetaScreenCast *screen_cast)
+   return screen_cast->backend;
+ }
+ 
++void
++meta_screen_cast_disable_dma_bufs (MetaScreenCast *screen_cast)
++{
++  screen_cast->disable_dma_bufs = TRUE;
++}
++
+ CoglDmaBufHandle *
+ meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
+                                         int             width,
+@@ -82,6 +90,9 @@ meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
+   g_autoptr (GError) error = NULL;
+   CoglDmaBufHandle *dmabuf_handle;
+ 
++  if (screen_cast->disable_dma_bufs)
++    return NULL;
++
+   dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
+                                                 width, height,
+                                                 &error);
+diff --git a/src/backends/meta-screen-cast.h b/src/backends/meta-screen-cast.h
+index 780a7932c..796f7d61a 100644
+--- a/src/backends/meta-screen-cast.h
++++ b/src/backends/meta-screen-cast.h
+@@ -46,6 +46,8 @@ GDBusConnection * meta_screen_cast_get_connection (MetaScreenCast *screen_cast);
+ 
+ MetaBackend * meta_screen_cast_get_backend (MetaScreenCast *screen_cast);
+ 
++void meta_screen_cast_disable_dma_bufs (MetaScreenCast *screen_cast);
++
+ CoglDmaBufHandle * meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
+                                                            int             width,
+                                                            int             height);
+diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
+index 6c4a474e2..59987c702 100644
+--- a/src/backends/native/meta-backend-native.c
++++ b/src/backends/native/meta-backend-native.c
+@@ -63,6 +63,10 @@
+ #include "core/meta-border.h"
+ #include "meta/main.h"
+ 
++#ifdef HAVE_REMOTE_DESKTOP
++#include "backends/meta-screen-cast.h"
++#endif
++
+ struct _MetaBackendNative
+ {
+   MetaBackend parent;
+@@ -337,6 +341,38 @@ meta_backend_native_create_clutter_backend (MetaBackend *backend)
+   return g_object_new (META_TYPE_CLUTTER_BACKEND_NATIVE, NULL);
+ }
+ 
++#ifdef HAVE_REMOTE_DESKTOP
++static void
++maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
++{
++  MetaBackend *backend = META_BACKEND (native);
++  MetaRenderer *renderer = meta_backend_get_renderer (backend);
++  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
++  MetaGpuKms *primary_gpu;
++  MetaKmsDevice *kms_device;
++  const char *driver_name;
++  static const char *disable_dma_buf_drivers[] = {
++    "qxl",
++    NULL,
++  };
++
++  primary_gpu = meta_renderer_native_get_primary_gpu (renderer_native);
++  kms_device = meta_gpu_kms_get_kms_device (primary_gpu);
++  driver_name = meta_kms_device_get_driver_name (kms_device);
++
++  if (g_strv_contains (disable_dma_buf_drivers, driver_name))
++    {
++      MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
++
++      g_message ("The '%s' driver doesn't support DMA buffer screen sharing, disabling.",
++                 driver_name);
++
++      meta_screen_cast_disable_dma_bufs (screen_cast);
++      return;
++    }
++}
++#endif /* HAVE_REMOTE_DESKTOP */
++
+ static void
+ meta_backend_native_post_init (MetaBackend *backend)
+ {
+@@ -366,6 +402,10 @@ meta_backend_native_post_init (MetaBackend *backend)
+       if (retval != 0)
+         g_warning ("Failed to set RT scheduler: %m");
+     }
++
++#ifdef HAVE_REMOTE_DESKTOP
++  maybe_disable_screen_cast_dma_bufs (META_BACKEND_NATIVE (backend));
++#endif
+ }
+ 
+ static MetaMonitorManager *
+-- 
+2.26.2
+
+
+From e1eeb84332697c7eefa2bee388a1ae043940fba0 Mon Sep 17 00:00:00 2001
+From: Grey Christoforo <grey@christoforo.net>
+Date: Wed, 29 Jul 2020 20:02:27 +0000
+Subject: [PATCH 6/8] screen-cast: Add vmwgfx to the DMA buffer deny list
+
+VMWare has the same issues with mmap():ing DMA buffers cross process
+boundaries so fall back to regular shared memory for 'vmwgfx' as well.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1318
+(cherry picked from commit aaf70b28d198811e4fa838f0eeb4e41c8aacc889)
+---
+ src/backends/native/meta-backend-native.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
+index 59987c702..f0b3fc086 100644
+--- a/src/backends/native/meta-backend-native.c
++++ b/src/backends/native/meta-backend-native.c
+@@ -353,6 +353,7 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
+   const char *driver_name;
+   static const char *disable_dma_buf_drivers[] = {
+     "qxl",
++    "vmwgfx",
+     NULL,
+   };
+ 
+-- 
+2.26.2
+
+
+From 5e020bb3840b0be42dbf812fcd754b130cdb3eb5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 14 Sep 2020 11:36:25 +0200
+Subject: [PATCH 7/8] screen-cast: Enable DMA buffers only for i915
+
+Seems DMA buffer based interprocess buffer sharing is more broken than
+not, so for now only enable it when using the i915 driver.
+
+For example vmwgfx, qxl and radeon, it results in mmap() failing to mmap the
+memory region. Other drivers, e.g. amdgpu will function, but may hit
+very slow memory download paths, resulting in worse performance.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1442
+(cherry picked from commit 358d3633bfd581d11b1fc71bb1881ec56a7ae031)
+---
+ src/backends/native/meta-backend-native.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
+
+diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
+index f0b3fc086..5f9658729 100644
+--- a/src/backends/native/meta-backend-native.c
++++ b/src/backends/native/meta-backend-native.c
+@@ -348,29 +348,27 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
+   MetaBackend *backend = META_BACKEND (native);
+   MetaRenderer *renderer = meta_backend_get_renderer (backend);
+   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
++  MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
+   MetaGpuKms *primary_gpu;
+   MetaKmsDevice *kms_device;
+   const char *driver_name;
+-  static const char *disable_dma_buf_drivers[] = {
+-    "qxl",
+-    "vmwgfx",
++  static const char *enable_dma_buf_drivers[] = {
++    "i915",
+     NULL,
+   };
+ 
+   primary_gpu = meta_renderer_native_get_primary_gpu (renderer_native);
+   kms_device = meta_gpu_kms_get_kms_device (primary_gpu);
+   driver_name = meta_kms_device_get_driver_name (kms_device);
++  fprintf(stderr, ":::: %s:%d %s() - driver name '%s'\n", __FILE__, __LINE__, __func__, driver_name);
+ 
+-  if (g_strv_contains (disable_dma_buf_drivers, driver_name))
+-    {
+-      MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
++  if (g_strv_contains (enable_dma_buf_drivers, driver_name))
++    return;
+ 
+-      g_message ("The '%s' driver doesn't support DMA buffer screen sharing, disabling.",
+-                 driver_name);
++  g_message ("Disabling DMA buffer screen sharing for driver '%s'.",
++             driver_name);
+ 
+-      meta_screen_cast_disable_dma_bufs (screen_cast);
+-      return;
+-    }
++  meta_screen_cast_disable_dma_bufs (screen_cast);
+ }
+ #endif /* HAVE_REMOTE_DESKTOP */
+ 
+-- 
+2.26.2
+
+
+From 502b8abfd2bd7430c27f6b1f750875f5f81f7ffd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 14 Sep 2020 18:23:10 +0200
+Subject: [PATCH 8/8] screen-cast: Add 'dma-buf-screen-sharing' experimental
+ feature
+
+It's enabled by default when using the i915 driver, but disabled
+everywhere else until it can be made reliably an improvement. Until
+then, for anyone want to force-enable it, add the string
+'dma-buf-screen-sharing' to the experimental features list in GSettings.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1442
+(cherry picked from commit af9df1e5b62b253e5f1d5f6eff89e45e3bed81b3)
+---
+ src/backends/meta-settings-private.h      | 1 +
+ src/backends/meta-settings.c              | 2 ++
+ src/backends/native/meta-backend-native.c | 5 +++++
+ 3 files changed, 8 insertions(+)
+
+diff --git a/src/backends/meta-settings-private.h b/src/backends/meta-settings-private.h
+index 7d610d5b4..4bd0962d4 100644
+--- a/src/backends/meta-settings-private.h
++++ b/src/backends/meta-settings-private.h
+@@ -35,6 +35,7 @@ typedef enum _MetaExperimentalFeature
+   META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS  = (1 << 1),
+   META_EXPERIMENTAL_FEATURE_RT_SCHEDULER = (1 << 2),
+   META_EXPERIMENTAL_FEATURE_AUTOSTART_XWAYLAND  = (1 << 3),
++  META_EXPERIMENTAL_FEATURE_DMA_BUF_SCREEN_SHARING = (1 << 4),
+ } MetaExperimentalFeature;
+ 
+ #define META_TYPE_SETTINGS (meta_settings_get_type ())
+diff --git a/src/backends/meta-settings.c b/src/backends/meta-settings.c
+index 1cc000e61..30d334f91 100644
+--- a/src/backends/meta-settings.c
++++ b/src/backends/meta-settings.c
+@@ -270,6 +270,8 @@ experimental_features_handler (GVariant *features_variant,
+         feature = META_EXPERIMENTAL_FEATURE_RT_SCHEDULER;
+       else if (g_str_equal (feature_str, "autostart-xwayland"))
+         feature = META_EXPERIMENTAL_FEATURE_AUTOSTART_XWAYLAND;
++      else if (g_str_equal (feature_str, "dma-buf-screen-sharing"))
++        feature = META_EXPERIMENTAL_FEATURE_DMA_BUF_SCREEN_SHARING;
+ 
+       if (feature)
+         g_message ("Enabling experimental feature '%s'", feature_str);
+diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
+index 5f9658729..874d1fe50 100644
+--- a/src/backends/native/meta-backend-native.c
++++ b/src/backends/native/meta-backend-native.c
+@@ -346,6 +346,7 @@ static void
+ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
+ {
+   MetaBackend *backend = META_BACKEND (native);
++  MetaSettings *settings = meta_backend_get_settings (backend);
+   MetaRenderer *renderer = meta_backend_get_renderer (backend);
+   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+   MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
+@@ -365,6 +366,10 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
+   if (g_strv_contains (enable_dma_buf_drivers, driver_name))
+     return;
+ 
++  if (meta_settings_is_experimental_feature_enabled (settings,
++        META_EXPERIMENTAL_FEATURE_DMA_BUF_SCREEN_SHARING))
++    return;
++
+   g_message ("Disabling DMA buffer screen sharing for driver '%s'.",
+              driver_name);
+ 
+-- 
+2.26.2
+

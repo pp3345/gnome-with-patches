@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.6
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,6 +18,13 @@ Source0:       http://download.gnome.org/sources/%{name}/3.36/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
+
+# Disable DMA buffer based screen sharing on non-Intel GPUs
+Patch1:        intel-only-dma-buf-screen-cast.patch
+Patch2:        0001-cogl-renderer-Set-error-in-dmabuf-constructor-fallba.patch
+
+# Fix night light
+Patch3:        fix-gamma.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -163,6 +170,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Sep 16 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.6-2
+- Disable DMA buffer based screen sharing on non-Intel GPUs
+- Fix Night light issues
+
 * Mon Sep 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.6-1
 - Update to 3.36.6
 
