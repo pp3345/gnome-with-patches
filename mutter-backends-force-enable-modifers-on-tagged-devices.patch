@@ -1,0 +1,228 @@
+From 9b9b912765f49553849e8c8aca7d2a75692ca9cc Mon Sep 17 00:00:00 2001
+From: Karol Herbst <kherbst@redhat.com>
+Date: Mon, 14 Sep 2020 20:36:17 +0200
+Subject: [PATCH] backends: force enable modifiers on tagged devices
+
+Some devices can't scanout to linear buffers directly as the hw is not
+capable of eg rendering into a linear depth buffer.
+
+Add code to force kms-modifiers on udev taged devices.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1408
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1443
+---
+ data/61-mutter.rules                       |  1 +
+ data/meson.build                           |  6 ++++++
+ meson.build                                |  2 ++
+ src/backends/native/meta-backend-native.c  |  3 +++
+ src/backends/native/meta-gpu-kms.c         |  9 +++++++++
+ src/backends/native/meta-gpu-kms.h         |  1 +
+ src/backends/native/meta-kms-types.h       |  1 +
+ src/backends/native/meta-renderer-native.c |  9 +++++++++
+ src/backends/native/meta-renderer-native.h |  2 ++
+ src/backends/native/meta-udev.c            | 21 +++++++++++++++++++++
+ src/backends/native/meta-udev.h            |  2 ++
+ src/wayland/meta-wayland-dma-buf.c         |  9 +++++++++
+ 12 files changed, 66 insertions(+)
+ create mode 100644 data/61-mutter.rules
+
+diff --git a/data/61-mutter.rules b/data/61-mutter.rules
+new file mode 100644
+index 0000000000..59cc00007c
+--- /dev/null
++++ b/data/61-mutter.rules
+@@ -0,0 +1 @@
++DRIVER=="tegra-host1x", SUBSYSTEM=="platform", TAG+="mutter-device-requires-kms-modifiers"
+diff --git a/data/meson.build b/data/meson.build
+index 3ac94cff26..bf5c409d70 100644
+--- a/data/meson.build
++++ b/data/meson.build
+@@ -58,3 +58,9 @@ configure_file(
+ install_data(['mutter-schemas.convert'],
+   install_dir: join_paths(datadir, 'GConf/gsettings'),
+ )
++
++if have_libgudev
++  install_data(['61-mutter.rules'],
++    install_dir: join_paths(udevdir, 'rules.d'),
++  )
++endif
+diff --git a/meson.build b/meson.build
+index 85ac8f791a..940bcb9992 100644
+--- a/meson.build
++++ b/meson.build
+@@ -182,6 +182,8 @@ have_libgudev = get_option('udev')
+ if have_libgudev
+   libudev_dep = dependency('libudev', version: udev_req)
+   gudev_dep = dependency('gudev-1.0', version: gudev_req)
++  udev_dep = dependency('udev')
++  udevdir = udev_dep.get_pkgconfig_variable('udevdir')
+ endif
+ 
+ have_native_backend = get_option('native_backend')
+diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
+index 73723ace92..38ff601ce6 100644
+--- a/src/backends/native/meta-backend-native.c
++++ b/src/backends/native/meta-backend-native.c
+@@ -571,6 +571,9 @@ create_gpu_from_udev_device (MetaBackendNative  *native,
+   if (meta_is_udev_device_boot_vga (device))
+     flags |= META_KMS_DEVICE_FLAG_BOOT_VGA;
+ 
++  if (meta_is_udev_device_requires_modifiers (device))
++    flags |= META_KMS_DEVICE_FLAG_REQUIRES_MODIFIERS;
++
+   device_path = g_udev_device_get_device_file (device);
+ 
+   kms_device = meta_kms_create_device (native->kms, device_path, flags,
+diff --git a/src/backends/native/meta-gpu-kms.c b/src/backends/native/meta-gpu-kms.c
+index 65eece375a..819bd2c9a3 100644
+--- a/src/backends/native/meta-gpu-kms.c
++++ b/src/backends/native/meta-gpu-kms.c
+@@ -266,6 +266,15 @@ meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
+   return !!(flags & META_KMS_DEVICE_FLAG_PLATFORM_DEVICE);
+ }
+ 
++gboolean
++meta_gpu_kms_requires_modifiers (MetaGpuKms *gpu_kms)
++{
++  MetaKmsDeviceFlag flags;
++
++  flags = meta_kms_device_get_flags (gpu_kms->kms_device);
++  return !!(flags & META_KMS_DEVICE_FLAG_REQUIRES_MODIFIERS);
++}
++
+ static int
+ compare_outputs (gconstpointer one,
+                  gconstpointer two)
+diff --git a/src/backends/native/meta-gpu-kms.h b/src/backends/native/meta-gpu-kms.h
+index 5ddf31a7ca..9ca4d254a2 100644
+--- a/src/backends/native/meta-gpu-kms.h
++++ b/src/backends/native/meta-gpu-kms.h
+@@ -47,6 +47,7 @@ gboolean meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
+ 
+ gboolean meta_gpu_kms_is_boot_vga (MetaGpuKms *gpu_kms);
+ gboolean meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms);
++gboolean meta_gpu_kms_requires_modifiers (MetaGpuKms *gpu_kms);
+ 
+ MetaKmsDevice * meta_gpu_kms_get_kms_device (MetaGpuKms *gpu_kms);
+ 
+diff --git a/src/backends/native/meta-kms-types.h b/src/backends/native/meta-kms-types.h
+index ec36d226a0..1fed7e332c 100644
+--- a/src/backends/native/meta-kms-types.h
++++ b/src/backends/native/meta-kms-types.h
+@@ -56,6 +56,7 @@ typedef enum _MetaKmsDeviceFlag
+   META_KMS_DEVICE_FLAG_NONE = 0,
+   META_KMS_DEVICE_FLAG_BOOT_VGA = 1 << 0,
+   META_KMS_DEVICE_FLAG_PLATFORM_DEVICE = 1 << 1,
++  META_KMS_DEVICE_FLAG_REQUIRES_MODIFIERS = 1 << 2,
+ } MetaKmsDeviceFlag;
+ 
+ typedef enum _MetaKmsPlaneType MetaKmsPlaneType;
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index b183cbf0e5..eb11be9a51 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -320,6 +320,12 @@ meta_renderer_native_get_egl (MetaRendererNative *renderer_native)
+   return meta_backend_get_egl (meta_renderer_get_backend (renderer));
+ }
+ 
++gboolean
++meta_renderer_native_use_modifiers (MetaRendererNative *renderer_native)
++{
++  return renderer_native->use_modifiers;
++}
++
+ static MetaEgl *
+ meta_onscreen_native_get_egl (MetaOnscreenNative *onscreen_native)
+ {
+@@ -3804,6 +3810,9 @@ meta_renderer_native_initable_init (GInitable     *initable,
+   if (!renderer_native->primary_gpu_kms)
+     return FALSE;
+ 
++  if (meta_gpu_kms_requires_modifiers (renderer_native->primary_gpu_kms))
++    renderer_native->use_modifiers = TRUE;
++
+   return TRUE;
+ }
+ 
+diff --git a/src/backends/native/meta-renderer-native.h b/src/backends/native/meta-renderer-native.h
+index 91afca766e..c0357a7d86 100644
+--- a/src/backends/native/meta-renderer-native.h
++++ b/src/backends/native/meta-renderer-native.h
+@@ -55,6 +55,8 @@ MetaGpuKms * meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_
+ 
+ void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native);
+ 
++gboolean meta_renderer_native_use_modifiers (MetaRendererNative *renderer_native);
++
+ gboolean meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
+                                                             uint32_t      drm_format,
+                                                             uint64_t      drm_modifier,
+diff --git a/src/backends/native/meta-udev.c b/src/backends/native/meta-udev.c
+index 4cf9e379f6..41c686c887 100644
+--- a/src/backends/native/meta-udev.c
++++ b/src/backends/native/meta-udev.c
+@@ -74,6 +74,27 @@ meta_is_udev_device_boot_vga (GUdevDevice *device)
+   return g_udev_device_get_sysfs_attr_as_int (pci_device, "boot_vga") == 1;
+ }
+ 
++gboolean
++meta_is_udev_device_requires_modifiers (GUdevDevice *device)
++{
++  g_autoptr (GUdevDevice) platform_device = NULL;
++  const char * const * tags;
++
++  platform_device = g_udev_device_get_parent_with_subsystem (device,
++                                                             "platform",
++                                                             NULL);
++
++  if (!platform_device)
++    return FALSE;
++
++  tags = g_udev_device_get_tags (platform_device);
++
++  if (!tags)
++    return FALSE;
++
++  return g_strv_contains (tags, "mutter-device-requires-kms-modifiers");
++}
++
+ gboolean
+ meta_udev_is_drm_device (MetaUdev    *udev,
+                          GUdevDevice *device)
+diff --git a/src/backends/native/meta-udev.h b/src/backends/native/meta-udev.h
+index cf72acd1bd..eb90abb093 100644
+--- a/src/backends/native/meta-udev.h
++++ b/src/backends/native/meta-udev.h
+@@ -32,6 +32,8 @@ gboolean meta_is_udev_device_platform_device (GUdevDevice *device);
+ 
+ gboolean meta_is_udev_device_boot_vga (GUdevDevice *device);
+ 
++gboolean meta_is_udev_device_requires_modifiers (GUdevDevice *device);
++
+ gboolean meta_udev_is_drm_device (MetaUdev    *udev,
+                                   GUdevDevice *device);
+ 
+diff --git a/src/wayland/meta-wayland-dma-buf.c b/src/wayland/meta-wayland-dma-buf.c
+index 3c0321ce02..2f9794a5d6 100644
+--- a/src/wayland/meta-wayland-dma-buf.c
++++ b/src/wayland/meta-wayland-dma-buf.c
+@@ -594,6 +594,15 @@ should_send_modifiers (MetaBackend *backend)
+ {
+   MetaSettings *settings = meta_backend_get_settings (backend);
+ 
++#ifdef HAVE_NATIVE_BACKEND
++  if (META_IS_BACKEND_NATIVE (backend))
++    {
++      MetaRenderer *renderer = meta_backend_get_renderer (backend);
++      MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
++      return meta_renderer_native_use_modifiers (renderer_native);
++    }
++#endif
++
+   return meta_settings_is_experimental_feature_enabled (
+            settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS);
+ }
+-- 
+GitLab
