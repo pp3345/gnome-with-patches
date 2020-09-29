@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.38.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -113,7 +113,8 @@ Requires:       libgweather%{?_isa}
 # needed for thunderbolt support
 Requires:       bolt%{?_isa}
 # Needed for launching flatpak apps etc
-Requires:       xdg-desktop-portal-gtk
+# 1.8.0 is needed for source type support in the screencast portal.
+Requires:       xdg-desktop-portal-gtk >= 1.8.0
 
 Provides:       desktop-notification-daemon = %{version}-%{release}
 Provides:       PolicyKit-authentication-agent = %{version}-%{release}
@@ -216,7 +217,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
-* Mon Sep 14 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.0
+* Tue Sep 29 2020 David King <amigadave@amigadave.com> - 3.38.0-2
+- Better specify xdg-desktop-portal-gtk dependency (#1882894)
+
+* Mon Sep 14 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.0-1
 - Update to 3.38.0
 
 * Thu Sep 10 2020 Kalev Lember <klember@redhat.com> - 3.37.92-5
