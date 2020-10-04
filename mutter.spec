@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.6
-Release:       100%{?dist}.pp3345
+Release:       2%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,6 +18,13 @@ Source0:       http://download.gnome.org/sources/%{name}/3.36/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
+
+# Disable DMA buffer based screen sharing on non-Intel GPUs
+Patch1:        intel-only-dma-buf-screen-cast.patch
+Patch2:        0001-cogl-renderer-Set-error-in-dmabuf-constructor-fallba.patch
+
+# Fix night light
+Patch3:        fix-gamma.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -177,6 +184,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Wed Sep 16 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.6-2
+- Disable DMA buffer based screen sharing on non-Intel GPUs
+- Fix Night light issues
+
 * Tue Sep 08 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.6-100
 - Remove !1003 "background: Limit mipmap levels to avoid loss of visible detail" (merged)
 - Remove !983 "clutter/text: Check if attributes are equal before applying" (merged)
