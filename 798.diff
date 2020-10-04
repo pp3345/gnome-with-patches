@@ -524,19 +524,6 @@ diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/me
 index 8d82ad7c42100c7e585ef342557ee1e2a34e53e2..50e606f7e4cb3585fb8c4000934be0beb470d4cb 100644
 --- a/src/backends/native/meta-renderer-native.c
 +++ b/src/backends/native/meta-renderer-native.c
-@@ -313,6 +313,12 @@ meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms)
-   return renderer_gpu_data->gbm.device;
- }
- 
-+MetaGpuKms *
-+meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_native)
-+{
-+  return renderer_native->primary_gpu_kms;
-+}
-+
- static MetaRendererNativeGpuData *
- meta_create_renderer_native_gpu_data (MetaGpuKms *gpu_kms)
- {
 @@ -1621,13 +1627,14 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
        return;
      }
@@ -748,12 +735,12 @@ diff --git a/src/backends/native/meta-renderer-native.h b/src/backends/native/me
 index 7abe7c15218eb904d1b93fae729879f10f51386f..3ea2c9cc0d81fa0fdf70bcbb6716f89270a23cfd 100644
 --- a/src/backends/native/meta-renderer-native.h
 +++ b/src/backends/native/meta-renderer-native.h
-@@ -51,8 +51,15 @@ MetaRendererNative * meta_renderer_native_new (MetaBackendNative  *backend_nativ
+@@ -51,10 +51,15 @@ MetaRendererNative * meta_renderer_native_new (MetaBackendNative  *backend_nativ
  
  struct gbm_device * meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms);
  
-+MetaGpuKms * meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_native);
-+
+ MetaGpuKms * meta_renderer_native_get_primary_gpu (MetaRendererNative *renderer_native);
+ 
  void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native);
  
  int64_t meta_renderer_native_get_frame_counter (MetaRendererNative *renderer_native);
