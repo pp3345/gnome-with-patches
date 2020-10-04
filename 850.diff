@@ -1,0 +1,253 @@
+diff --git a/src/core/stack.c b/src/core/stack.c
+index f7e0f1b90d77818ecfe9fc74755917156630499c..bb14d7bd326edb5055b0b199161be557e4a97df8 100644
+--- a/src/core/stack.c
++++ b/src/core/stack.c
+@@ -34,6 +34,7 @@
+ #include "core/frame.h"
+ #include "core/main-private.h"
+ #include "core/meta-workspace-manager-private.h"
++#include "core/workspace-private.h"
+ #include "core/window-private.h"
+ #include "meta/group.h"
+ #include "meta/prefs.h"
+@@ -1016,7 +1017,8 @@ window_contains_point (MetaWindow *window,
+ }
+ 
+ static gboolean
+-window_can_get_default_focus (MetaWindow *window)
++window_can_get_default_focus (MetaWindow    *window,
++                              MetaWorkspace *workspace)
+ {
+   if (window->unmaps_pending > 0)
+     return FALSE;
+@@ -1027,7 +1029,10 @@ window_can_get_default_focus (MetaWindow *window)
+   if (!meta_window_is_focusable (window))
+     return FALSE;
+ 
+-  if (!meta_window_should_be_showing (window))
++  if (!meta_window_showing_on_its_workspace (window))
++    return FALSE;
++
++  if (!meta_window_located_on_workspace (window, workspace))
+     return FALSE;
+ 
+   if (window->type == META_WINDOW_DOCK)
+@@ -1063,7 +1068,7 @@ get_default_focus_window (MetaStack     *stack,
+       if (window == not_this_one)
+         continue;
+ 
+-      if (!window_can_get_default_focus (window))
++      if (!window_can_get_default_focus (window, workspace))
+         continue;
+ 
+       if (must_be_at_point && !window_contains_point (window, root_x, root_y))
+@@ -1134,7 +1139,7 @@ meta_stack_get_default_focus_candidates (MetaStack     *stack,
+     {
+       GList *next = l->next;
+ 
+-      if (!window_can_get_default_focus (l->data))
++      if (!window_can_get_default_focus (l->data, workspace))
+         windows = g_list_delete_link (windows, l);
+ 
+       l = next;
+diff --git a/src/core/window-private.h b/src/core/window-private.h
+index ed5d8059bd3a6955778095152e323c8252507857..5ead4fa9986fa2a339e480651b56f612d014f6fd 100644
+--- a/src/core/window-private.h
++++ b/src/core/window-private.h
+@@ -550,6 +550,9 @@ struct _MetaWindow
+   guint unmanage_idle_id;
+ 
+   pid_t client_pid;
++
++  /* Prevent blinking when focusing */
++  gboolean focusing;
+ };
+ 
+ struct _MetaWindowClass
+@@ -704,6 +707,8 @@ void        meta_window_get_session_geometry (MetaWindow  *window,
+ 
+ void        meta_window_update_unfocused_button_grabs (MetaWindow *window);
+ 
++void        meta_window_appears_focused_changed (MetaWindow *window);
++
+ void     meta_window_set_focused_internal (MetaWindow *window,
+                                            gboolean    focused);
+ 
+diff --git a/src/core/window.c b/src/core/window.c
+index c660a3b0c0116534903476547be57df392ae29e8..4208061e3249411a3c370eedea74dfaddfb2419f 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -251,6 +251,10 @@ prefs_changed_callback (MetaPreference pref,
+       meta_window_recalc_features (window);
+       meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
+     }
++  else if (pref == META_PREF_FOCUS_MODE)
++    {
++      meta_window_appears_focused_changed (window);
++    }
+ }
+ 
+ static void
+@@ -4778,6 +4782,10 @@ meta_window_focus (MetaWindow  *window,
+       window = modal_transient;
+     }
+ 
++  /* If the window was already appearing focused, but didn't have has_focus set,
++   * it will now briefly appear unfocused on X11. Set a flag to prevent that. */
++  window->focusing = TRUE;
++
+   meta_window_flush_calc_showing (window);
+ 
+   if ((!window->mapped || window->hidden) && !window->shaded)
+@@ -4785,6 +4793,7 @@ meta_window_focus (MetaWindow  *window,
+       meta_topic (META_DEBUG_FOCUS,
+                   "Window %s is not showing, not focusing after all\n",
+                   window->desc);
++      window->focusing = FALSE;
+       return;
+     }
+ 
+@@ -4872,6 +4881,9 @@ set_workspace_state (MetaWindow    *window,
+         }
+     }
+ 
++  if (!window->constructing)
++    meta_window_appears_focused_changed (window);
++
+   /* queue a move_resize since changing workspaces may change
+    * the relevant struts
+    */
+@@ -5171,7 +5183,7 @@ meta_window_change_workspace_by_index (MetaWindow *window,
+     meta_window_change_workspace (window, workspace);
+ }
+ 
+-static void
++void
+ meta_window_appears_focused_changed (MetaWindow *window)
+ {
+   set_net_wm_state (window);
+@@ -5267,6 +5279,8 @@ meta_window_set_focused_internal (MetaWindow *window,
+ {
+   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+ 
++  window->focusing = FALSE;
++
+   if (focused)
+     {
+       window->has_focus = TRUE;
+@@ -7255,7 +7269,17 @@ meta_window_get_frame (MetaWindow *window)
+ gboolean
+ meta_window_appears_focused (MetaWindow *window)
+ {
+-  return window->has_focus || (window->attached_focus_window != NULL);
++  MetaWorkspaceManager *workspace_manager;
++  MetaWorkspace *workspace;
++  MetaWindow *default_window = NULL;
++
++  workspace_manager = window->display->workspace_manager;
++  workspace = meta_window_get_workspace (window);
++
++  if (workspace && workspace != workspace_manager->active_workspace)
++    default_window = meta_workspace_get_default_focus_window (workspace);
++
++  return window->has_focus || window->focusing || (window->attached_focus_window != NULL) || (window == default_window);
+ }
+ 
+ gboolean
+diff --git a/src/core/workspace-private.h b/src/core/workspace-private.h
+index a58b2347d79cabd09df7f13af65e84ab657503e7..2f78f2e2571a62181a26f911a7791bf7bbe82195 100644
+--- a/src/core/workspace-private.h
++++ b/src/core/workspace-private.h
+@@ -92,6 +92,7 @@ GList* meta_workspace_get_onscreen_region       (MetaWorkspace *workspace);
+ GList * meta_workspace_get_onmonitor_region (MetaWorkspace      *workspace,
+                                              MetaLogicalMonitor *logical_monitor);
+ 
++MetaWindow* meta_workspace_get_default_focus_window (MetaWorkspace *workspace);
+ void meta_workspace_focus_default_window (MetaWorkspace *workspace,
+                                           MetaWindow    *not_this_one,
+                                           guint32        timestamp);
+diff --git a/src/core/workspace.c b/src/core/workspace.c
+index 7217ddceee987925d97899d80f01d8f4ed81aad1..75b74707dda434285215a6d2dafe1e6ca14aa5bf 100644
+--- a/src/core/workspace.c
++++ b/src/core/workspace.c
+@@ -365,10 +365,27 @@ meta_workspace_remove (MetaWorkspace *workspace)
+    */
+ }
+ 
++static void
++workspace_default_focus_changed (MetaWorkspace *workspace,
++                                 MetaWindow    *not_this_one)
++{
++  GSList *windows, *l;
++
++  windows = meta_display_list_windows (workspace->display, META_LIST_DEFAULT);
++  for (l = windows; l; l = l->next) {
++    MetaWindow *window = META_WINDOW (l->data);
++
++    if (meta_window_located_on_workspace (window, workspace) && window != not_this_one)
++      meta_window_appears_focused_changed (window);
++  }
++}
++
+ void
+ meta_workspace_add_window (MetaWorkspace *workspace,
+                            MetaWindow    *window)
+ {
++  MetaWorkspaceManager *manager = workspace->display->workspace_manager;
++
+   COGL_TRACE_BEGIN_SCOPED (MetaWorkspaceAddWindow,
+                            "Workspace (add window)");
+ 
+@@ -385,6 +402,9 @@ meta_workspace_add_window (MetaWorkspace *workspace,
+       meta_workspace_invalidate_work_area (workspace);
+     }
+ 
++  if (workspace != manager->active_workspace)
++    workspace_default_focus_changed (workspace, window);
++
+   g_signal_emit (workspace, signals[WINDOW_ADDED], 0, window);
+   g_object_notify_by_pspec (G_OBJECT (workspace), obj_props[PROP_N_WINDOWS]);
+ }
+@@ -393,6 +413,8 @@ void
+ meta_workspace_remove_window (MetaWorkspace *workspace,
+                               MetaWindow    *window)
+ {
++  MetaWorkspaceManager *manager = workspace->display->workspace_manager;
++
+   COGL_TRACE_BEGIN_SCOPED (MetaWorkspaceRemoveWindow,
+                            "Workspace (remove window)");
+ 
+@@ -409,6 +431,9 @@ meta_workspace_remove_window (MetaWorkspace *workspace,
+       meta_workspace_invalidate_work_area (workspace);
+     }
+ 
++  if (workspace != manager->active_workspace)
++    workspace_default_focus_changed (workspace, window);
++
+   g_signal_emit (workspace, signals[WINDOW_REMOVED], 0, window);
+   g_object_notify (G_OBJECT (workspace), "n-windows");
+ }
+@@ -657,6 +682,7 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
+   if (focus_this)
+     {
+       meta_window_activate (focus_this, timestamp);
++      workspace_default_focus_changed (workspace, focus_this);
+     }
+   else if (move_window)
+     {
+@@ -1281,6 +1307,15 @@ meta_workspace_get_name (MetaWorkspace *workspace)
+   return meta_prefs_get_workspace_name (meta_workspace_index (workspace));
+ }
+ 
++MetaWindow *
++meta_workspace_get_default_focus_window (MetaWorkspace *workspace)
++{
++  if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
++    return meta_stack_get_default_focus_window (workspace->display->stack, workspace, NULL);
++
++  return NULL;
++}
++
+ void
+ meta_workspace_focus_default_window (MetaWorkspace *workspace,
+                                      MetaWindow    *not_this_one,
