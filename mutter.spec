@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.6
-Release:       2%{?dist}
+Release:       200%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -184,6 +184,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sun Oct 04 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.6-200
+- Rebase to 3.36.6-2.fc32
+
 * Wed Sep 16 2020 Jonas Ådahl <jadahl@redhat.com> - 3.36.6-2
 - Disable DMA buffer based screen sharing on non-Intel GPUs
 - Fix Night light issues
