@@ -1,0 +1,66 @@
+diff --git a/js/ui/background.js b/js/ui/background.js
+index ddae0de873aa6315cdbddcde0d61e941b4546fd3..7eee0030dcf66184c3dcf042884851a5df60b133 100644
+--- a/js/ui/background.js
++++ b/js/ui/background.js
+@@ -243,6 +243,13 @@ var Background = GObject.registerClass({
+         this.isLoaded = false;
+ 
+         this._clock = new GnomeDesktop.WallClock();
++        /*
++         * Extra _clock.ref() is required to stop toggle references from
++         * triggering garbage collection every time the clock emits a tick,
++         * even though that's a notify::clock and not a notify::timezone.
++         * The reference still toggles internally within Glib.
++         */
++        this._clock.ref();
+         this._timezoneChangedId = this._clock.connect('notify::timezone',
+             () => {
+                 if (this._animation)
+@@ -278,7 +285,10 @@ var Background = GObject.registerClass({
+             this._clock.disconnect(this._timezoneChangedId);
+         this._timezoneChangedId = 0;
+ 
+-        this._clock = null;
++        if (this._clock) {
++            this._clock.unref();
++            this._clock = null;
++        }
+ 
+         if (this._prepareForSleepId != 0)
+             LoginManager.getLoginManager().disconnect(this._prepareForSleepId);
+diff --git a/js/ui/dateMenu.js b/js/ui/dateMenu.js
+index c6c1b5bb5a35cd5e27055c0b07f42fbb7dfc2e74..c994f3b68c83648f17ad6fab996ad821cda5ab4f 100644
+--- a/js/ui/dateMenu.js
++++ b/js/ui/dateMenu.js
+@@ -637,13 +637,30 @@ class DateMenuButton extends PanelMenu.Button {
+         // Done with hbox for calendar and event list
+ 
+         this._clock = new GnomeDesktop.WallClock();
++        /*
++         * Extra _clock.ref() is required to stop toggle references from
++         * triggering garbage collection every time the clock emits a tick.
++         */
++        this._clock.ref();
+         this._clock.bind_property('clock', this._clockDisplay, 'text', GObject.BindingFlags.SYNC_CREATE);
+-        this._clock.connect('notify::timezone', this._updateTimeZone.bind(this));
++        this._timezoneChangedId = this._clock.connect('notify::timezone', this._updateTimeZone.bind(this));
+ 
+         Main.sessionMode.connect('updated', this._sessionUpdated.bind(this));
+         this._sessionUpdated();
+     }
+ 
++    destroy() {
++        if (this._timezoneChangedId) {
++            this._clock.disconnect(this._timezoneChangedId);
++            this._timezoneChangedId = 0;
++        }
++
++        if (this._clock) {
++            this._clock.unref();
++            this._clock = null;
++        }
++    }
++
+     _getEventSource() {
+         return new Calendar.DBusEventSource();
+     }
