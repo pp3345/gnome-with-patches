@@ -502,7 +502,7 @@ diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/met
 index 6c4a474e2dd14db90ac6d3ff0822e02aa12f9305..e5a16f3374ffd1da97b47b3bd0b3439933d418e0 100644
 --- a/src/backends/native/meta-backend-native.c
 +++ b/src/backends/native/meta-backend-native.c
-@@ -366,6 +366,10 @@ meta_backend_native_post_init (MetaBackend *backend)
+@@ -366,5 +366,9 @@ meta_backend_native_post_init (MetaBackend *backend)
        if (retval != 0)
          g_warning ("Failed to set RT scheduler: %m");
      }
@@ -510,9 +510,8 @@ index 6c4a474e2dd14db90ac6d3ff0822e02aa12f9305..e5a16f3374ffd1da97b47b3bd0b34399
 +#ifdef HAVE_WAYLAND
 +  meta_backend_init_wayland (backend);
 +#endif
- }
- 
- static MetaMonitorManager *
+
+ #ifdef HAVE_REMOTE_DESKTOP
 @@ -647,6 +651,10 @@ meta_backend_native_initable_init (GInitable     *initable,
    if (!native->launcher)
      return FALSE;
