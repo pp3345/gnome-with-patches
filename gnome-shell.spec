@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.38.0
-Release:        2%{?dist}
+Release:        200%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -219,6 +219,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Oct 04 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.0-200
+- Add !923 "js/ui: Keep refcounts to WallClock objects above 1." @c599ec7a
+
 * Tue Sep 29 2020 David King <amigadave@amigadave.com> - 3.38.0-2
 - Better specify xdg-desktop-portal-gtk dependency (#1882894)
 
