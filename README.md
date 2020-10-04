@@ -12,4 +12,7 @@ https://copr.fedorainfracloud.org/coprs/pp3345/gnome-with-patches/
 * `f32-mutter`: mutter sources for Fedora 32
 * `f32-gnome-shell`: gnome-shell sources for Fedora 32
 * `f32-xorg-x11-server`: Xorg/Xwayland sources for Fedora 32
+* `f33-mutter`: mutter sources for Fedora 33
+* `f33-gnome-shell`: gnome-shell sources for Fedora 33
+* `f33-xorg-x11-server`: Xorg/Xwayland sources for Fedora 33
 * `info`: this file
