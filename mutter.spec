@@ -95,6 +95,7 @@ Requires:      libinput%{?_isa} >= %{libinput_version}
 
 Patch100: 850.diff
 Patch110: 1309.diff
+Patch120: rt-default.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages
