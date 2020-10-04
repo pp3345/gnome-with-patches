@@ -1,0 +1,726 @@
+diff --git a/hw/xwayland/Makefile.am b/hw/xwayland/Makefile.am
+index 8366cc2223090f1bb9b58207741db252b3e7f3ae..042906074729e58fda7ed87f79df8e1172553551 100644
+--- a/hw/xwayland/Makefile.am
++++ b/hw/xwayland/Makefile.am
+@@ -17,6 +17,8 @@ Xwayland_SOURCES =				\
+ 	xwayland-output.c			\
+ 	xwayland-cvt.c				\
+ 	xwayland-vidmode.c			\
++	xwayland-window-buffers.c		\
++	xwayland-window-buffers.h		\
+ 	xwayland.h				\
+ 	$(top_srcdir)/Xi/stubs.c		\
+ 	$(top_srcdir)/mi/miinitext.c
+diff --git a/hw/xwayland/meson.build b/hw/xwayland/meson.build
+index 4cea5d792d8ea91384910a6be2ca061fe151b52f..6b76c494ec396612ed3e598e3e35bccecfac72c6 100644
+--- a/hw/xwayland/meson.build
++++ b/hw/xwayland/meson.build
+@@ -6,6 +6,8 @@ srcs = [
+     'xwayland-output.c',
+     'xwayland-cvt.c',
+     'xwayland-vidmode.c',
++    'xwayland-window-buffers.c',
++    'xwayland-window-buffers.h',
+     '../../mi/miinitext.c',
+ ]
+ 
+diff --git a/hw/xwayland/xwayland-glamor-eglstream.c b/hw/xwayland/xwayland-glamor-eglstream.c
+index c897c74a8441facf4e0559b2e79238bd121b4a8b..ed10355ed161666b3567f6906f4bcae9f455ca95 100644
+--- a/hw/xwayland/xwayland-glamor-eglstream.c
++++ b/hw/xwayland/xwayland-glamor-eglstream.c
+@@ -305,9 +305,10 @@ xwl_glamor_eglstream_destroy_pixmap(PixmapPtr pixmap)
+ {
+     struct xwl_pixmap *xwl_pixmap = xwl_pixmap_get(pixmap);
+ 
+-    if (xwl_pixmap && pixmap->refcnt == 1)
++    if (xwl_pixmap && pixmap->refcnt == 1) {
++        xwl_pixmap_del_buffer_release_cb(pixmap);
+         xwl_eglstream_unref_pixmap_stream(xwl_pixmap);
+-
++    }
+     return glamor_destroy_pixmap(pixmap);
+ }
+ 
+@@ -475,7 +476,10 @@ xwl_eglstream_queue_pending_stream(struct xwl_screen *xwl_screen,
+ static void
+ xwl_eglstream_buffer_release_callback(void *data, struct wl_buffer *wl_buffer)
+ {
+-    xwl_eglstream_unref_pixmap_stream(data);
++    struct xwl_pixmap *xwl_pixmap = xwl_pixmap_get(data);
++
++    xwl_pixmap_buffer_release_cb(data, wl_buffer);
++    xwl_eglstream_unref_pixmap_stream(xwl_pixmap);
+ }
+ 
+ static const struct wl_buffer_listener xwl_eglstream_buffer_release_listener = {
+@@ -517,7 +521,7 @@ xwl_eglstream_create_pending_stream(struct xwl_screen *xwl_screen,
+ 
+     wl_buffer_add_listener(xwl_pixmap->buffer,
+                            &xwl_eglstream_buffer_release_listener,
+-                           xwl_pixmap);
++                           pixmap);
+ 
+     wl_eglstream_controller_attach_eglstream_consumer(
+         xwl_eglstream->controller, xwl_window->surface, xwl_pixmap->buffer);
+diff --git a/hw/xwayland/xwayland-glamor-gbm.c b/hw/xwayland/xwayland-glamor-gbm.c
+index e3a4ba382eb60efd652b5da861c2fb114fd7402f..9b7d6e286645e0fa9043bfa6741b60e1a7c9ab3b 100644
+--- a/hw/xwayland/xwayland-glamor-gbm.c
++++ b/hw/xwayland/xwayland-glamor-gbm.c
+@@ -260,6 +260,7 @@ xwl_glamor_gbm_destroy_pixmap(PixmapPtr pixmap)
+     struct xwl_pixmap *xwl_pixmap = xwl_pixmap_get(pixmap);
+ 
+     if (xwl_pixmap && pixmap->refcnt == 1) {
++        xwl_pixmap_del_buffer_release_cb(pixmap);
+         if (xwl_pixmap->buffer)
+             wl_buffer_destroy(xwl_pixmap->buffer);
+ 
+@@ -272,6 +273,10 @@ xwl_glamor_gbm_destroy_pixmap(PixmapPtr pixmap)
+     return glamor_destroy_pixmap(pixmap);
+ }
+ 
++static const struct wl_buffer_listener xwl_glamor_gbm_buffer_listener = {
++    xwl_pixmap_buffer_release_cb,
++};
++
+ static struct wl_buffer *
+ xwl_glamor_gbm_get_wl_buffer_for_pixmap(PixmapPtr pixmap,
+                                         Bool *created)
+@@ -348,6 +353,11 @@ xwl_glamor_gbm_get_wl_buffer_for_pixmap(PixmapPtr pixmap,
+     }
+ 
+     close(prime_fd);
++
++    /* Add our listener now */
++    wl_buffer_add_listener(xwl_pixmap->buffer,
++                           &xwl_glamor_gbm_buffer_listener, pixmap);
++
+     return xwl_pixmap->buffer;
+ }
+ 
+diff --git a/hw/xwayland/xwayland-present.c b/hw/xwayland/xwayland-present.c
+index b7da261b779a312887e5ba8e03196ed2077d0cdb..7f0b951ab92481709257b269fa952cdea51215d8 100644
+--- a/hw/xwayland/xwayland-present.c
++++ b/hw/xwayland/xwayland-present.c
+@@ -169,13 +169,14 @@ xwl_present_free_event(struct xwl_present_event *event)
+ }
+ 
+ static void
+-xwl_present_buffer_release(void *data, struct wl_buffer *buffer)
++xwl_present_buffer_release(PixmapPtr pixmap, void *data)
+ {
+     struct xwl_present_event *event = data;
++
+     if (!event)
+         return;
+ 
+-    wl_buffer_set_user_data(buffer, NULL);
++    xwl_pixmap_del_buffer_release_cb(pixmap);
+     event->buffer_released = TRUE;
+ 
+     if (event->abort) {
+@@ -193,10 +194,6 @@ xwl_present_buffer_release(void *data, struct wl_buffer *buffer)
+     }
+ }
+ 
+-static const struct wl_buffer_listener xwl_present_release_listener = {
+-    xwl_present_buffer_release
+-};
+-
+ static void
+ xwl_present_msc_bump(struct xwl_present_window *xwl_present_window)
+ {
+@@ -452,7 +449,6 @@ xwl_present_flip(WindowPtr present_window,
+     struct xwl_window           *xwl_window = xwl_window_from_window(present_window);
+     struct xwl_present_window   *xwl_present_window = xwl_present_window_priv(present_window);
+     BoxPtr                      damage_box;
+-    Bool                        buffer_created;
+     struct wl_buffer            *buffer;
+     struct xwl_present_event    *event;
+ 
+@@ -465,7 +461,7 @@ xwl_present_flip(WindowPtr present_window,
+     if (!event)
+         return FALSE;
+ 
+-    buffer = xwl_glamor_pixmap_get_wl_buffer(pixmap, &buffer_created);
++    buffer = xwl_glamor_pixmap_get_wl_buffer(pixmap, NULL);
+ 
+     event->event_id = event_id;
+     event->xwl_present_window = xwl_present_window;
+@@ -482,9 +478,7 @@ xwl_present_flip(WindowPtr present_window,
+         xorg_list_add(&event->list, &xwl_present_window->release_queue);
+     }
+ 
+-    if (buffer_created)
+-        wl_buffer_add_listener(buffer, &xwl_present_release_listener, NULL);
+-    wl_buffer_set_user_data(buffer, event);
++    xwl_pixmap_set_buffer_release_cb(pixmap, xwl_present_buffer_release, event);
+ 
+     /* We can flip directly to the main surface (full screen window without clips) */
+     wl_surface_attach(xwl_window->surface, buffer, 0, 0);
+diff --git a/hw/xwayland/xwayland-shm.c b/hw/xwayland/xwayland-shm.c
+index bce74fa1d327bf8dc69f09b9c8d7f0d17aad2bcf..b76ab1a8fb4188805129a6f9cb4efe04bbb2486b 100644
+--- a/hw/xwayland/xwayland-shm.c
++++ b/hw/xwayland/xwayland-shm.c
+@@ -189,6 +189,10 @@ shm_format_for_depth(int depth)
+     }
+ }
+ 
++static const struct wl_buffer_listener xwl_shm_buffer_listener = {
++    xwl_pixmap_buffer_release_cb,
++};
++
+ PixmapPtr
+ xwl_shm_create_pixmap(ScreenPtr screen,
+                       int width, int height, int depth, unsigned int hint)
+@@ -241,6 +245,9 @@ xwl_shm_create_pixmap(ScreenPtr screen,
+     wl_shm_pool_destroy(pool);
+     close(fd);
+ 
++    wl_buffer_add_listener(xwl_pixmap->buffer,
++                           &xwl_shm_buffer_listener, pixmap);
++
+     xwl_pixmap_set_private(pixmap, xwl_pixmap);
+ 
+     return pixmap;
+@@ -263,6 +270,7 @@ xwl_shm_destroy_pixmap(PixmapPtr pixmap)
+     struct xwl_pixmap *xwl_pixmap = xwl_pixmap_get(pixmap);
+ 
+     if (xwl_pixmap && pixmap->refcnt == 1) {
++        xwl_pixmap_del_buffer_release_cb(pixmap);
+         if (xwl_pixmap->buffer)
+             wl_buffer_destroy(xwl_pixmap->buffer);
+         munmap(xwl_pixmap->data, xwl_pixmap->size);
+diff --git a/hw/xwayland/xwayland-window-buffers.c b/hw/xwayland/xwayland-window-buffers.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..62999091de48e93769e456de6452b433b191415e
+--- /dev/null
++++ b/hw/xwayland/xwayland-window-buffers.c
+@@ -0,0 +1,330 @@
++/*
++ * Copyright © 2019 Red Hat, Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice (including the next
++ * paragraph) shall be included in all copies or substantial portions of the
++ * Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *      Olivier Fourdan <ofourdan@redhat.com>
++ */
++
++#include "xwayland-window-buffers.h"
++
++#define BUFFER_TIMEOUT 1 * 1000 /* ms */
++
++struct xwl_window_buffer {
++    struct xwl_window *xwl_window;
++    PixmapPtr pixmap;
++    RegionPtr damage_region;
++    Bool recycle_on_release;
++    uint32_t time;
++    struct xorg_list link_buffer;
++};
++
++static Bool
++copy_pixmap_area(PixmapPtr src_pixmap, PixmapPtr dst_pixmap,
++                 int x, int y, int width, int height)
++{
++    GCPtr pGC;
++    pGC = GetScratchGC(dst_pixmap->drawable.depth,
++                       dst_pixmap->drawable.pScreen);
++    if (pGC) {
++        ValidateGC(&dst_pixmap->drawable, pGC);
++        (void) (*pGC->ops->CopyArea) (&src_pixmap->drawable,
++                                      &dst_pixmap->drawable,
++                                      pGC,
++                                      x, y,
++                                      width, height,
++                                      x, y);
++        FreeScratchGC(pGC);
++
++        return TRUE;
++    }
++
++    return FALSE;
++}
++
++static struct xwl_window_buffer *
++xwl_window_buffer_new(struct xwl_window *xwl_window)
++{
++    struct xwl_window_buffer *xwl_window_buffer;
++
++    xwl_window_buffer = calloc (1, sizeof(struct xwl_window_buffer));
++    if (!xwl_window_buffer)
++        return NULL;
++
++    xwl_window_buffer->xwl_window = xwl_window;
++    xwl_window_buffer->damage_region = RegionCreate(NullBox, 1);
++    xwl_window_buffer->pixmap = NullPixmap;
++
++    xorg_list_append(&xwl_window_buffer->link_buffer,
++                     &xwl_window->window_buffers_available);
++
++    return xwl_window_buffer;
++}
++
++static void
++xwl_window_buffer_destroy_pixmap(struct xwl_window_buffer *xwl_window_buffer)
++{
++    ScreenPtr pScreen = xwl_window_buffer->pixmap->drawable.pScreen;
++
++    xwl_pixmap_del_buffer_release_cb(xwl_window_buffer->pixmap);
++    (*pScreen->DestroyPixmap) (xwl_window_buffer->pixmap);
++    xwl_window_buffer->pixmap = NullPixmap;
++}
++
++static void
++xwl_window_buffer_dispose(struct xwl_window_buffer *xwl_window_buffer)
++{
++    RegionDestroy(xwl_window_buffer->damage_region);
++
++    if (xwl_window_buffer->pixmap)
++        xwl_window_buffer_destroy_pixmap (xwl_window_buffer);
++
++    xorg_list_del(&xwl_window_buffer->link_buffer);
++    free(xwl_window_buffer);
++}
++
++static void
++xwl_window_buffer_recycle(struct xwl_window_buffer *xwl_window_buffer)
++{
++    RegionEmpty(xwl_window_buffer->damage_region);
++    xwl_window_buffer->recycle_on_release = FALSE;
++
++    if (xwl_window_buffer->pixmap)
++        xwl_window_buffer_destroy_pixmap (xwl_window_buffer);
++}
++
++static void
++xwl_window_buffer_add_damage_region(struct xwl_window *xwl_window,
++                                    RegionPtr damage_region)
++{
++    struct xwl_window_buffer *xwl_window_buffer;
++
++    /* Add damage region to all buffers */
++    xorg_list_for_each_entry(xwl_window_buffer,
++                             &xwl_window->window_buffers_available,
++                             link_buffer) {
++        RegionUnion(xwl_window_buffer->damage_region,
++                    xwl_window_buffer->damage_region,
++                    damage_region);
++    }
++    xorg_list_for_each_entry(xwl_window_buffer,
++                             &xwl_window->window_buffers_unavailable,
++                             link_buffer) {
++        RegionUnion(xwl_window_buffer->damage_region,
++                    xwl_window_buffer->damage_region,
++                    damage_region);
++    }
++}
++
++static struct xwl_window_buffer *
++xwl_window_buffer_get_available(struct xwl_window *xwl_window)
++{
++    if (xorg_list_is_empty(&xwl_window->window_buffers_available))
++        return xwl_window_buffer_new(xwl_window);
++
++    return xorg_list_last_entry(&xwl_window->window_buffers_available,
++                                struct xwl_window_buffer,
++                                link_buffer);
++}
++
++static CARD32
++xwl_window_buffer_timer_callback(OsTimerPtr timer, CARD32 time, void *arg)
++{
++    struct xwl_window *xwl_window = arg;
++    struct xwl_window_buffer *xwl_window_buffer, *tmp;
++
++    /* Dispose older available buffers */
++    xorg_list_for_each_entry_safe(xwl_window_buffer, tmp,
++                                  &xwl_window->window_buffers_available,
++                                  link_buffer) {
++        if ((int64_t)(time - xwl_window_buffer->time) >= BUFFER_TIMEOUT)
++            xwl_window_buffer_dispose(xwl_window_buffer);
++    }
++
++    /* If there are still available buffers, re-arm the timer */
++    if (!xorg_list_is_empty(&xwl_window->window_buffers_available)) {
++        struct xwl_window_buffer *oldest_available_buffer =
++            xorg_list_first_entry(&xwl_window->window_buffers_available,
++                                  struct xwl_window_buffer,
++                                  link_buffer);
++
++        return oldest_available_buffer->time + BUFFER_TIMEOUT - time;
++    }
++
++    /* Don't re-arm the timer */
++    return 0;
++}
++
++static void
++xwl_window_buffer_release_callback(PixmapPtr pixmap, void *data)
++{
++    struct xwl_window_buffer *xwl_window_buffer = data;
++    struct xwl_window *xwl_window = xwl_window_buffer->xwl_window;
++    struct xwl_window_buffer *oldest_available_buffer;
++
++    if (xwl_window_buffer->recycle_on_release)
++        xwl_window_buffer_recycle(xwl_window_buffer);
++
++    /* We append the buffers to the end of the list, as we pick the last
++     * entry again when looking for new available buffers, that means the
++     * least used buffers will remain at the beginning of the list so that
++     * they can be garbage collected automatically after some time unused.
++     */
++
++    xorg_list_del(&xwl_window_buffer->link_buffer);
++    xorg_list_append(&xwl_window_buffer->link_buffer,
++                     &xwl_window->window_buffers_available);
++    xwl_window_buffer->time = (uint32_t) GetTimeInMillis();
++
++    oldest_available_buffer =
++        xorg_list_first_entry(&xwl_window->window_buffers_available,
++                             struct xwl_window_buffer,
++                             link_buffer);
++
++    /* Schedule next timer based on time of the oldest buffer */
++    xwl_window->window_buffers_timer =
++        TimerSet(xwl_window->window_buffers_timer,
++                 TimerAbsolute,
++                 oldest_available_buffer->time + BUFFER_TIMEOUT,
++                 &xwl_window_buffer_timer_callback,
++                 xwl_window);
++}
++
++void
++xwl_window_buffers_init(struct xwl_window *xwl_window)
++{
++    xorg_list_init(&xwl_window->window_buffers_available);
++    xorg_list_init(&xwl_window->window_buffers_unavailable);
++}
++
++void
++xwl_window_buffers_recycle(struct xwl_window *xwl_window)
++{
++    struct xwl_window_buffer *xwl_window_buffer, *tmp;
++
++    /* Dispose available buffers */
++    xorg_list_for_each_entry_safe(xwl_window_buffer, tmp,
++                                  &xwl_window->window_buffers_available,
++                                  link_buffer) {
++        xwl_window_buffer_dispose(xwl_window_buffer);
++    }
++
++    if (xwl_window->window_buffers_timer)
++        TimerCancel(xwl_window->window_buffers_timer);
++
++    /* Mark the others for recycle on release */
++    xorg_list_for_each_entry(xwl_window_buffer,
++                             &xwl_window->window_buffers_unavailable,
++                             link_buffer) {
++        xwl_window_buffer->recycle_on_release = TRUE;
++    }
++}
++
++void
++xwl_window_buffers_dispose(struct xwl_window *xwl_window)
++{
++    struct xwl_window_buffer *xwl_window_buffer, *tmp;
++
++    xorg_list_for_each_entry_safe(xwl_window_buffer, tmp,
++                                  &xwl_window->window_buffers_available,
++                                  link_buffer) {
++        xwl_window_buffer_dispose(xwl_window_buffer);
++    }
++
++    xorg_list_for_each_entry_safe(xwl_window_buffer, tmp,
++                                  &xwl_window->window_buffers_unavailable,
++                                  link_buffer) {
++        xwl_window_buffer_dispose(xwl_window_buffer);
++    }
++
++    if (xwl_window->window_buffers_timer) {
++        TimerFree(xwl_window->window_buffers_timer);
++        xwl_window->window_buffers_timer = 0;
++    }
++}
++
++PixmapPtr
++xwl_window_buffers_get_pixmap(struct xwl_window *xwl_window,
++                              RegionPtr damage_region)
++{
++    struct xwl_screen *xwl_screen = xwl_window->xwl_screen;
++    struct xwl_window_buffer *xwl_window_buffer;
++    PixmapPtr window_pixmap;
++    RegionPtr full_damage;
++
++    window_pixmap = (*xwl_screen->screen->GetWindowPixmap) (xwl_window->window);
++
++    xwl_window_buffer = xwl_window_buffer_get_available(xwl_window);
++    if (!xwl_window_buffer)
++        return window_pixmap;
++
++    xwl_window_buffer_add_damage_region(xwl_window, damage_region);
++
++    full_damage = xwl_window_buffer->damage_region;
++
++    if (xwl_window_buffer->pixmap) {
++        BoxPtr pBox = RegionRects(full_damage);
++        int nBox = RegionNumRects(full_damage);
++        while (nBox--) {
++            if (!copy_pixmap_area(window_pixmap,
++                                  xwl_window_buffer->pixmap,
++                                  pBox->x1, pBox->y1,
++                                  pBox->x2 - pBox->x1, pBox->y2 - pBox->y1))
++                return window_pixmap;
++
++            pBox++;
++        }
++    } else {
++        xwl_window_buffer->pixmap =
++            (*xwl_screen->screen->CreatePixmap) (window_pixmap->drawable.pScreen,
++                                                 window_pixmap->drawable.width,
++                                                 window_pixmap->drawable.height,
++                                                 window_pixmap->drawable.depth,
++                                                 CREATE_PIXMAP_USAGE_BACKING_PIXMAP);
++
++        if (!xwl_window_buffer->pixmap)
++            return window_pixmap;
++
++        if (!copy_pixmap_area(window_pixmap,
++                              xwl_window_buffer->pixmap,
++                              0, 0,
++                              window_pixmap->drawable.width,
++                              window_pixmap->drawable.height)) {
++            xwl_window_buffer_recycle(xwl_window_buffer);
++            return window_pixmap;
++        }
++    }
++
++    RegionEmpty(xwl_window_buffer->damage_region);
++
++    xwl_pixmap_set_buffer_release_cb(xwl_window_buffer->pixmap,
++                                     xwl_window_buffer_release_callback,
++                                     xwl_window_buffer);
++
++    xorg_list_del(&xwl_window_buffer->link_buffer);
++    xorg_list_append(&xwl_window_buffer->link_buffer,
++                     &xwl_window->window_buffers_unavailable);
++
++    if (xorg_list_is_empty(&xwl_window->window_buffers_available))
++        TimerCancel(xwl_window->window_buffers_timer);
++
++    return xwl_window_buffer->pixmap;
++}
+diff --git a/hw/xwayland/xwayland-window-buffers.h b/hw/xwayland/xwayland-window-buffers.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..c6b2092e3d722206f6b42d94af811ea90471c120
+--- /dev/null
++++ b/hw/xwayland/xwayland-window-buffers.h
+@@ -0,0 +1,38 @@
++/*
++ * Copyright © 2019 Red Hat, Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice (including the next
++ * paragraph) shall be included in all copies or substantial portions of the
++ * Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *      Olivier Fourdan <ofourdan@redhat.com>
++ */
++
++#include "xwayland.h"
++
++#ifndef XWAYLAND_WINDOW_BUFFERS_H
++#define XWAYLAND_WINDOW_BUFFERS_H
++
++void xwl_window_buffers_init(struct xwl_window *xwl_window);
++void xwl_window_buffers_recycle(struct xwl_window *xwl_window);
++void xwl_window_buffers_dispose(struct xwl_window *xwl_window);
++PixmapPtr xwl_window_buffers_get_pixmap(struct xwl_window *xwl_window,
++                                        RegionPtr damage_region);
++
++#endif /* XWAYLAND_WINDOW_BUFFERS_H */
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index acb77a63814da6e1e07a07e1a5ed292d07444e8f..fc7932f67dd16031c8c8b620a0644798c4f17a43 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -24,6 +24,7 @@
+  */
+ 
+ #include "xwayland.h"
++#include "xwayland-window-buffers.h"
+ 
+ #include <stdio.h>
+ 
+@@ -169,6 +170,7 @@ static DevPrivateKeyRec xwl_client_private_key;
+ static DevPrivateKeyRec xwl_window_private_key;
+ static DevPrivateKeyRec xwl_screen_private_key;
+ static DevPrivateKeyRec xwl_pixmap_private_key;
++static DevPrivateKeyRec xwl_pixmap_cb_private_key;
+ static DevPrivateKeyRec xwl_damage_private_key;
+ 
+ struct xwl_client *
+@@ -298,6 +300,64 @@ xwl_property_callback(CallbackListPtr *pcbl, void *closure,
+         xwl_window_property_allow_commits(xwl_window, rec);
+ }
+ 
++struct xwl_pixmap_buffer_release_cb {
++    xwl_pixmap_cb callback;
++    void *data;
++};
++
++Bool
++xwl_pixmap_set_buffer_release_cb(PixmapPtr pixmap,
++                                 xwl_pixmap_cb func, void *data)
++{
++    struct xwl_pixmap_buffer_release_cb *xwl_pixmap_buffer_release_cb;
++
++    xwl_pixmap_buffer_release_cb = dixLookupPrivate(&pixmap->devPrivates,
++                                                    &xwl_pixmap_cb_private_key);
++
++    if (xwl_pixmap_buffer_release_cb == NULL) {
++        xwl_pixmap_buffer_release_cb =
++            calloc(1, sizeof (struct xwl_pixmap_buffer_release_cb));
++
++        if (xwl_pixmap_buffer_release_cb == NULL) {
++            ErrorF("Failed to allocate pixmap callback data\n");
++            return FALSE;
++        }
++        dixSetPrivate(&pixmap->devPrivates, &xwl_pixmap_cb_private_key,
++                      xwl_pixmap_buffer_release_cb);
++    }
++
++    xwl_pixmap_buffer_release_cb->callback = func;
++    xwl_pixmap_buffer_release_cb->data = data;
++
++    return TRUE;
++}
++
++void
++xwl_pixmap_del_buffer_release_cb(PixmapPtr pixmap)
++{
++    struct xwl_pixmap_buffer_release_cb *xwl_pixmap_buffer_release_cb;
++
++    xwl_pixmap_buffer_release_cb = dixLookupPrivate(&pixmap->devPrivates,
++                                                    &xwl_pixmap_cb_private_key);
++    if (xwl_pixmap_buffer_release_cb) {
++        dixSetPrivate(&pixmap->devPrivates, &xwl_pixmap_cb_private_key, NULL);
++        free(xwl_pixmap_buffer_release_cb);
++    }
++}
++
++void
++xwl_pixmap_buffer_release_cb(void *data, struct wl_buffer *wl_buffer)
++{
++    PixmapPtr pixmap = data;
++    struct xwl_pixmap_buffer_release_cb *xwl_pixmap_buffer_release_cb;
++
++    xwl_pixmap_buffer_release_cb = dixLookupPrivate(&pixmap->devPrivates,
++                                                    &xwl_pixmap_cb_private_key);
++    if (xwl_pixmap_buffer_release_cb)
++        (*xwl_pixmap_buffer_release_cb->callback)
++            (pixmap, xwl_pixmap_buffer_release_cb->data);
++}
++
+ static Bool
+ xwl_close_screen(ScreenPtr screen)
+ {
+@@ -843,4 +903,6 @@ ensure_surface_for_window(WindowPtr window)
+     xorg_list_init(&xwl_window->link_damage);
+     xorg_list_add(&xwl_window->link_window, &xwl_screen->window_list);
+ 
++    xwl_window_buffers_init(xwl_window);
++
+ #ifdef GLAMOR_HAS_GBM
+@@ -946,6 +1008,8 @@ xwl_unrealize_window(WindowPtr window)
+     xorg_list_del(&xwl_window->link_window);
+     unregister_damage(window);
+ 
++    xwl_window_buffers_dispose(xwl_window);
++
+     if (xwl_window->frame_callback)
+         wl_callback_destroy(xwl_window->frame_callback);
+ 
+@@ -1065,7 +1130,7 @@ xwl_window_post_damage(struct xwl_window *xwl_window)
+     assert(!xwl_window->frame_callback);
+ 
+     region = DamageRegion(window_get_damage(xwl_window->window));
+-    pixmap = (*xwl_screen->screen->GetWindowPixmap) (xwl_window->window);
++    pixmap = xwl_window_buffers_get_pixmap(xwl_window, region);
+ 
+ #ifdef XWL_HAS_GLAMOR
+     if (xwl_screen->glamor)
+@@ -1348,6 +1413,8 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
+         return FALSE;
+     if (!dixRegisterPrivateKey(&xwl_pixmap_private_key, PRIVATE_PIXMAP, 0))
+         return FALSE;
++    if (!dixRegisterPrivateKey(&xwl_pixmap_cb_private_key, PRIVATE_PIXMAP, 0))
++        return FALSE;
+     if (!dixRegisterPrivateKey(&xwl_damage_private_key, PRIVATE_WINDOW, 0))
+         return FALSE;
+     /* There are no easy to use new / delete client hooks, we could use a
+diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
+index 9728cc5125566b68fc0e418b16579f20ff703f7b..132dfc10a59d82c75361b6bab855098d616cb3da 100644
+--- a/hw/xwayland/xwayland.h
++++ b/hw/xwayland/xwayland.h
+@@ -60,6 +60,8 @@ struct xwl_pixmap;
+ struct xwl_window;
+ struct xwl_screen;
+ 
++typedef void (*xwl_pixmap_cb) (PixmapPtr pixmap, void *data);
++
+ struct xwl_egl_backend {
+     /* Set by the backend if available */
+     Bool is_available;
+@@ -187,7 +189,10 @@ struct xwl_window {
+     struct xorg_list link_window;
+     struct wl_callback *frame_callback;
+     Bool allow_commits;
++    struct xorg_list window_buffers_available;
++    struct xorg_list window_buffers_unavailable;
++    OsTimerPtr window_buffers_timer;
+ #ifdef GLAMOR_HAS_GBM
+     struct xorg_list frame_callback_list;
+     Bool present_flipped;
+ #endif
+@@ -461,6 +466,10 @@ RRModePtr xwayland_cvt(int HDisplay, int VDisplay,
+ 
+ void xwl_pixmap_set_private(PixmapPtr pixmap, struct xwl_pixmap *xwl_pixmap);
+ struct xwl_pixmap *xwl_pixmap_get(PixmapPtr pixmap);
++Bool xwl_pixmap_set_buffer_release_cb(PixmapPtr pixmap,
++                                      xwl_pixmap_cb func, void *data);
++void xwl_pixmap_del_buffer_release_cb(PixmapPtr pixmap);
++void xwl_pixmap_buffer_release_cb(void *data, struct wl_buffer *wl_buffer);
+ 
+ struct xwl_window *xwl_window_from_window(WindowPtr window);
+ 

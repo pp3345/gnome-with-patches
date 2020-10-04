@@ -123,6 +123,10 @@ Patch522: 0022-xwayland-Call-xwl_window_check_resolution_change_emu.patch
 Patch523: 0023-xwayland-Fix-setting-of-_XWAYLAND_RANDR_EMU_MONITOR_.patch
 Patch524: 0024-xwayland-Remove-unnecessary-xwl_window_is_toplevel-c.patch
 
+Patch1000: 316.diff
+Patch1010: 389.diff
+Patch1020: 361.diff
+
 BuildRequires: systemtap-sdt-devel
 BuildRequires: git
 BuildRequires: automake autoconf libtool pkgconfig
@@ -547,6 +551,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Wed Aug 12 2020 Yussuf Khalil <dev@pp3345.net> - 1.20.8-200
+- Rebase to 1.20.8-2.fc32
+
 * Fri Jul 31 2020 Adam Jackson <ajax@redhat.com> - 1.20.8-3
 - Fix information disclosure bug in pixmap allocation (CVE-2020-14347)
 
@@ -557,6 +564,10 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 - xserver 1.20.8
 - Backport latest Xwayland randr resolution change emulation support
   patches.
+
+* Fri Mar 20 2020 Yussuf Khalil <dev@pp3345.net> - 1.20.7-200
+- Add !389 "xwayland/glamor-gbm: Add xwl_glamor_gbm_post_damage hook" @9e85aa9c (manually rebased)
+- Add !316 "Add multiple buffering to xwl_window" @cd999f08 (manually rebased)
 
 * Wed Mar 18 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.7-2
 - Fix a crash on closing a window using Present found upstream:
