@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.0
-Release:       2%{?dist}
+Release:       200%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -168,6 +168,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sun Oct 04 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.0-200
+- Enable real-time scheduling by default
+- Add !1309 "cogl-winsys-glx: Add a heuristically calculated presentation_time" @4b27cacc
+- Add !850 "Make default focus window on each workspace appear focused" @0c037021
+- Rebase to master@505b3481
+
 * Mon Sep 28 2020 Peter Robinson <pbrobinson@fedoraproject.org> - 3.38.0-2
 - Upstream fix for NVidia Jetson devices
 
