@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.8
-Release:   3%{?gitdate:.%{gitdate}}%{?dist}
+Release:   300%{?gitdate:.%{gitdate}}%{?dist}.pp3345
 URL:       http://www.x.org
 License:   MIT
 
@@ -551,6 +551,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Sun Oct 04 2020 Yussuf Khalil <dev@pp3345.net> - 1.20.8-300
+- Rebase to 1.20.8-3.fc33
+
 * Wed Aug 12 2020 Yussuf Khalil <dev@pp3345.net> - 1.20.8-200
 - Rebase to 1.20.8-2.fc32
 
