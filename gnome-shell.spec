@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.38.0
-Release:        2%{?dist}
+Version:        3.38.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -217,6 +217,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Oct 05 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.1-1
+- Update to 3.38.1
+
 * Tue Sep 29 2020 David King <amigadave@amigadave.com> - 3.38.0-2
 - Better specify xdg-desktop-portal-gtk dependency (#1882894)
 
