@@ -7,8 +7,8 @@
 %global mutter_api_version 7
 
 Name:          mutter
-Version:       3.38.0
-Release:       2%{?dist}
+Version:       3.38.1
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -18,8 +18,6 @@ Source0:       http://download.gnome.org/sources/%{name}/3.38/%{name}-%{version}
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-# https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1443
-Patch1:        mutter-backends-force-enable-modifers-on-tagged-devices.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -166,6 +164,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Oct 05 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.1-1
+- Update to 3.38.1
+
 * Mon Sep 28 2020 Peter Robinson <pbrobinson@fedoraproject.org> - 3.38.0-2
 - Upstream fix for NVidia Jetson devices
 
