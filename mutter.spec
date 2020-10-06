@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.1
-Release:       1%{?dist}
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -169,6 +169,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Tue Oct 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-100
+- Update !1309 "cogl-winsys-glx: Add a heuristically calculated presentation_time" @39cd1d55
+- Add !1470 "backend: Don't pull generated headers (indirectly)" @ff379fb9
+- Rebase to 3.38.1-1.fc33
+
 * Mon Oct 05 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.1-1
 - Update to 3.38.1
 
