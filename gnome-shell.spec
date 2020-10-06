@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.38.0
-Release:        200%{?dist}.pp3345
+Version:        3.38.1
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -219,6 +219,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Mon Oct 05 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.1-1
+- Update to 3.38.1
+
 * Sun Oct 04 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.0-200
 - Add !923 "js/ui: Keep refcounts to WallClock objects above 1." @c599ec7a
 
