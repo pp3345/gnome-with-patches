@@ -1,4 +1,4 @@
-From 27c27e8f546304547f7780c43797bbe103be8324 Mon Sep 17 00:00:00 2001
+From 16b16d2a616ab097e30f95b162c5026be036331c Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Thu, 12 Sep 2019 11:50:34 +0200
 Subject: [PATCH 1/8] renderer/native: Add API to get primary GPU
@@ -42,10 +42,10 @@ index 7abe7c152..840ae1a40 100644
  
  int64_t meta_renderer_native_get_frame_counter (MetaRendererNative *renderer_native);
 -- 
-2.26.2
+2.28.0
 
 
-From 51019382936c268c5d935b6596c940812e408be3 Mon Sep 17 00:00:00 2001
+From b1bd8f98e242dcee2a412c88e6b8d0025c24e6bb Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Wed, 17 Jun 2020 17:46:25 +0200
 Subject: [PATCH 2/8] backend: Add getter for MetaScreenCast
@@ -58,10 +58,10 @@ https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1318
  2 files changed, 13 insertions(+)
 
 diff --git a/src/backends/meta-backend-private.h b/src/backends/meta-backend-private.h
-index 4678f7768..fbc495f9e 100644
+index 5b0c849ec..289817784 100644
 --- a/src/backends/meta-backend-private.h
 +++ b/src/backends/meta-backend-private.h
-@@ -127,6 +127,8 @@ MetaEgl * meta_backend_get_egl (MetaBackend *backend);
+@@ -135,6 +135,8 @@ MetaEgl * meta_backend_get_egl (MetaBackend *backend);
  
  #ifdef HAVE_REMOTE_DESKTOP
  MetaRemoteDesktop * meta_backend_get_remote_desktop (MetaBackend *backend);
@@ -71,10 +71,10 @@ index 4678f7768..fbc495f9e 100644
  
  gboolean meta_backend_grab_device (MetaBackend *backend,
 diff --git a/src/backends/meta-backend.c b/src/backends/meta-backend.c
-index f75df806b..3f39b152d 100644
+index b1c6aa86c..39aa63940 100644
 --- a/src/backends/meta-backend.c
 +++ b/src/backends/meta-backend.c
-@@ -1029,6 +1029,17 @@ meta_backend_get_remote_desktop (MetaBackend *backend)
+@@ -1151,6 +1151,17 @@ meta_backend_get_remote_desktop (MetaBackend *backend)
  
    return priv->remote_desktop;
  }
@@ -93,10 +93,10 @@ index f75df806b..3f39b152d 100644
  
  /**
 -- 
-2.26.2
+2.28.0
 
 
-From 82454da090fc425d694bf0c26d80c876234d9553 Mon Sep 17 00:00:00 2001
+From b6cad30b596423def2f20251f7f8c9e5e76901cd Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Wed, 17 Jun 2020 17:48:05 +0200
 Subject: [PATCH 3/8] screen-cast: Move DMA buffer allocation to MetaScreenCast
@@ -203,10 +203,10 @@ index 994c40c53..780a7932c 100644
                                         MetaDbusSessionWatcher *session_watcher);
  
 -- 
-2.26.2
+2.28.0
 
 
-From a212cc266ec932a7e15d8ecb2f7bb7a69a6b3084 Mon Sep 17 00:00:00 2001
+From 08821fae3645d957ef18ab4096a4a934f132ff0b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Wed, 17 Jun 2020 17:49:12 +0200
 Subject: [PATCH 4/8] kms/device: Provide driver name and description
@@ -388,10 +388,10 @@ index e8c08f19f..e55a95b58 100644
                                          GError            **error);
  
 -- 
-2.26.2
+2.28.0
 
 
-From 8faa5c2503299b9150bd9a07981e9900bf0ad3a4 Mon Sep 17 00:00:00 2001
+From be0ab2366568c64b2a8abbcd5f15e0f1adcea6e0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Wed, 17 Jun 2020 17:50:17 +0200
 Subject: [PATCH 5/8] screen-cast: Disable DMA buffer based screen casting for
@@ -462,7 +462,7 @@ index 780a7932c..796f7d61a 100644
                                                             int             width,
                                                             int             height);
 diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
-index 6c4a474e2..59987c702 100644
+index e5a16f337..607dc7c82 100644
 --- a/src/backends/native/meta-backend-native.c
 +++ b/src/backends/native/meta-backend-native.c
 @@ -63,6 +63,10 @@
@@ -515,22 +515,22 @@ index 6c4a474e2..59987c702 100644
  static void
  meta_backend_native_post_init (MetaBackend *backend)
  {
-@@ -366,6 +402,10 @@ meta_backend_native_post_init (MetaBackend *backend)
-       if (retval != 0)
+@@ -367,6 +403,10 @@ meta_backend_native_post_init (MetaBackend *backend)
          g_warning ("Failed to set RT scheduler: %m");
      }
-+
+ 
 +#ifdef HAVE_REMOTE_DESKTOP
 +  maybe_disable_screen_cast_dma_bufs (META_BACKEND_NATIVE (backend));
 +#endif
- }
- 
- static MetaMonitorManager *
++
+ #ifdef HAVE_WAYLAND
+   meta_backend_init_wayland (backend);
+ #endif
 -- 
-2.26.2
+2.28.0
 
 
-From e1eeb84332697c7eefa2bee388a1ae043940fba0 Mon Sep 17 00:00:00 2001
+From eb27a2f0cc4c0b8a4a0c3aad00167110ca57b523 Mon Sep 17 00:00:00 2001
 From: Grey Christoforo <grey@christoforo.net>
 Date: Wed, 29 Jul 2020 20:02:27 +0000
 Subject: [PATCH 6/8] screen-cast: Add vmwgfx to the DMA buffer deny list
@@ -545,7 +545,7 @@ https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1318
  1 file changed, 1 insertion(+)
 
 diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
-index 59987c702..f0b3fc086 100644
+index 607dc7c82..47ce77c45 100644
 --- a/src/backends/native/meta-backend-native.c
 +++ b/src/backends/native/meta-backend-native.c
 @@ -353,6 +353,7 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
@@ -557,10 +557,10 @@ index 59987c702..f0b3fc086 100644
    };
  
 -- 
-2.26.2
+2.28.0
 
 
-From 5e020bb3840b0be42dbf812fcd754b130cdb3eb5 Mon Sep 17 00:00:00 2001
+From bce1dd982dbf1d32f628cf13641d819f980cb70e Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Mon, 14 Sep 2020 11:36:25 +0200
 Subject: [PATCH 7/8] screen-cast: Enable DMA buffers only for i915
@@ -579,7 +579,7 @@ https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1442
  1 file changed, 9 insertions(+), 11 deletions(-)
 
 diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
-index f0b3fc086..5f9658729 100644
+index 47ce77c45..6961793cf 100644
 --- a/src/backends/native/meta-backend-native.c
 +++ b/src/backends/native/meta-backend-native.c
 @@ -348,29 +348,27 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
@@ -622,10 +622,10 @@ index f0b3fc086..5f9658729 100644
  #endif /* HAVE_REMOTE_DESKTOP */
  
 -- 
-2.26.2
+2.28.0
 
 
-From 502b8abfd2bd7430c27f6b1f750875f5f81f7ffd Mon Sep 17 00:00:00 2001
+From 9ae0cb93ebb454ad96b98cfe7369adf5730c1612 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Mon, 14 Sep 2020 18:23:10 +0200
 Subject: [PATCH 8/8] screen-cast: Add 'dma-buf-screen-sharing' experimental
@@ -670,7 +670,7 @@ index 1cc000e61..30d334f91 100644
        if (feature)
          g_message ("Enabling experimental feature '%s'", feature_str);
 diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
-index 5f9658729..874d1fe50 100644
+index 6961793cf..a534517ad 100644
 --- a/src/backends/native/meta-backend-native.c
 +++ b/src/backends/native/meta-backend-native.c
 @@ -346,6 +346,7 @@ static void
@@ -693,5 +693,5 @@ index 5f9658729..874d1fe50 100644
               driver_name);
  
 -- 
-2.26.2
+2.28.0
 
