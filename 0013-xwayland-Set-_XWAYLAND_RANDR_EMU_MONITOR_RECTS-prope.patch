@@ -1,4 +1,4 @@
-From dda4a8b2f672eb5791f39222dd0996e07b416eb7 Mon Sep 17 00:00:00 2001
+From e40d94637207543481769fb570515b782225ff09 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 2 Sep 2019 17:32:45 +0200
 Subject: [PATCH xserver 13/24] xwayland: Set _XWAYLAND_RANDR_EMU_MONITOR_RECTS
@@ -37,7 +37,7 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  3 files changed, 103 insertions(+)
 
 diff --git a/hw/xwayland/xwayland-output.c b/hw/xwayland/xwayland-output.c
-index 99ab1b288..20c254962 100644
+index e09d00108..0d6b9ac9f 100644
 --- a/hw/xwayland/xwayland-output.c
 +++ b/hw/xwayland/xwayland-output.c
 @@ -29,6 +29,7 @@
@@ -46,9 +46,9 @@ index 99ab1b288..20c254962 100644
  #include <randrstr.h>
 +#include <X11/Xatom.h>
  
- #define DEFAULT_DPI 96
  #define ALL_ROTATIONS (RR_Rotate_0   | \
-@@ -428,6 +429,80 @@ xwl_output_find_mode(struct xwl_output *xwl_output,
+                        RR_Rotate_90  | \
+@@ -391,6 +392,80 @@ xwl_output_find_mode(struct xwl_output *xwl_output,
      return NULL;
  }
  
@@ -129,7 +129,7 @@ index 99ab1b288..20c254962 100644
  void
  xwl_output_set_emulated_mode(struct xwl_output *xwl_output, ClientPtr client,
                               RRModePtr mode, Bool from_vidmode)
-@@ -442,6 +517,8 @@ xwl_output_set_emulated_mode(struct xwl_output *xwl_output, ClientPtr client,
+@@ -405,6 +480,8 @@ xwl_output_set_emulated_mode(struct xwl_output *xwl_output, ClientPtr client,
          xwl_output_add_emulated_mode_for_client(xwl_output, client, mode, from_vidmode);
  
      xwl_screen_check_resolution_change_emulation(xwl_output->xwl_screen);
@@ -139,10 +139,10 @@ index 99ab1b288..20c254962 100644
  
  static void
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 85036adfe..e43f3de96 100644
+index 2e01822fd..ac4d98e6a 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -690,6 +690,27 @@ xwl_screen_check_resolution_change_emulation(struct xwl_screen *xwl_screen)
+@@ -692,6 +692,27 @@ xwl_screen_check_resolution_change_emulation(struct xwl_screen *xwl_screen)
          xwl_window_check_resolution_change_emulation(xwl_window);
  }
  
@@ -170,7 +170,7 @@ index 85036adfe..e43f3de96 100644
  static void
  xwl_window_init_allow_commits(struct xwl_window *xwl_window)
  {
-@@ -855,6 +876,8 @@ xwl_realize_window(WindowPtr window)
+@@ -857,6 +878,8 @@ xwl_realize_window(WindowPtr window)
              return FALSE;
      }
  
@@ -180,10 +180,10 @@ index 85036adfe..e43f3de96 100644
  }
  
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 9adf3af76..eb8c4bd70 100644
+index 36c4c4c8b..1317ae5bb 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
-@@ -418,6 +418,7 @@ Bool xwl_screen_has_resolution_change_emulation(struct xwl_screen *xwl_screen);
+@@ -420,6 +420,7 @@ Bool xwl_screen_has_resolution_change_emulation(struct xwl_screen *xwl_screen);
  struct xwl_output *xwl_screen_get_first_output(struct xwl_screen *xwl_screen);
  void xwl_screen_check_resolution_change_emulation(struct xwl_screen *xwl_screen);
  Bool xwl_window_has_viewport_enabled(struct xwl_window *xwl_window);
@@ -191,7 +191,7 @@ index 9adf3af76..eb8c4bd70 100644
  
  void xwl_tablet_tool_set_cursor(struct xwl_tablet_tool *tool);
  void xwl_seat_set_cursor(struct xwl_seat *xwl_seat);
-@@ -456,6 +457,8 @@ RRModePtr xwl_output_find_mode(struct xwl_output *xwl_output,
+@@ -458,6 +459,8 @@ RRModePtr xwl_output_find_mode(struct xwl_output *xwl_output,
  void xwl_output_set_emulated_mode(struct xwl_output *xwl_output,
                                    ClientPtr client, RRModePtr mode,
                                    Bool from_vidmode);
@@ -201,5 +201,5 @@ index 9adf3af76..eb8c4bd70 100644
  RRModePtr xwayland_cvt(int HDisplay, int VDisplay,
                         float VRefresh, Bool Reduced, Bool Interlaced);
 -- 
-2.25.2
+2.26.2
 

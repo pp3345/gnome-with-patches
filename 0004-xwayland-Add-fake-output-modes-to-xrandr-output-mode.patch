@@ -1,4 +1,4 @@
-From 6ff9bf9f005ce81b587d3b4345232c73fc12da53 Mon Sep 17 00:00:00 2001
+From c0595515c65571d6304530c51331013381eea1dd Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 26 Jun 2019 16:46:54 +0200
 Subject: [PATCH xserver 04/24] xwayland: Add fake output modes to xrandr
@@ -25,10 +25,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  3 files changed, 124 insertions(+), 6 deletions(-)
 
 diff --git a/hw/xwayland/xwayland-output.c b/hw/xwayland/xwayland-output.c
-index aa6f37864..2ccc3ca60 100644
+index ae646c663..4036ba681 100644
 --- a/hw/xwayland/xwayland-output.c
 +++ b/hw/xwayland/xwayland-output.c
-@@ -245,14 +245,110 @@ update_screen_size(struct xwl_output *xwl_output, int width, int height)
+@@ -208,14 +208,110 @@ update_screen_size(struct xwl_output *xwl_output, int width, int height)
      update_desktop_dimensions();
  }
  
@@ -141,7 +141,7 @@ index aa6f37864..2ccc3ca60 100644
      Bool need_rotate;
  
      /* Clear out the "done" received flags */
-@@ -271,12 +367,16 @@ apply_output_change(struct xwl_output *xwl_output)
+@@ -234,12 +330,16 @@ apply_output_change(struct xwl_output *xwl_output)
          mode_height = xwl_output->width;
      }
  
@@ -163,10 +163,10 @@ index aa6f37864..2ccc3ca60 100644
      xorg_list_for_each_entry(it, &xwl_screen->output_list, link) {
          /* output done event is sent even when some property
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 942981834..3c50396f1 100644
+index f7fcd1e32..ffd4809df 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -152,6 +152,23 @@ xwl_screen_get(ScreenPtr screen)
+@@ -154,6 +154,23 @@ xwl_screen_get(ScreenPtr screen)
      return dixLookupPrivate(&screen->devPrivates, &xwl_screen_private_key);
  }
  
@@ -191,10 +191,10 @@ index 942981834..3c50396f1 100644
  xwl_window_set_allow_commits(struct xwl_window *xwl_window, Bool allow,
                               const char *debug_msg)
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index fa78b5ab9..c66997f00 100644
+index 1244d2e91..200e18a8d 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
-@@ -389,6 +389,7 @@ void xwl_surface_damage(struct xwl_screen *xwl_screen,
+@@ -391,6 +391,7 @@ void xwl_screen_roundtrip (struct xwl_screen *xwl_screen);
  Bool xwl_screen_init_cursor(struct xwl_screen *xwl_screen);
  
  struct xwl_screen *xwl_screen_get(ScreenPtr screen);
@@ -203,5 +203,5 @@ index fa78b5ab9..c66997f00 100644
  void xwl_tablet_tool_set_cursor(struct xwl_tablet_tool *tool);
  void xwl_seat_set_cursor(struct xwl_seat *xwl_seat);
 -- 
-2.25.2
+2.26.2
 

@@ -1,0 +1,73 @@
+From d108c2c82cba242ea5998d7c91254d90d3a5db71 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Fri, 11 Sep 2020 11:30:18 +0200
+Subject: [PATCH xserver 10/16] xwayland: Do not discard frame callbacks on
+ allow commits
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Currently, when a X11 client (usually the X11 window manager from a
+Wayland compositor) changes the value of the X11 property
+`_XWAYLAND_ALLOW_COMMITS` from `false` to `true`, all pending frame
+callbacks on the window are discarded so that the commit occurs
+immediately.
+
+Weston uses that mechanism to prevent the content of the window from
+showing before it's ready when mapping the window initially, but
+discarding the pending frame callbacks has no effect on the initial
+mapping of the X11 window since at that point there cannot be any frame
+callback on a surface which hasn't been committed yet anyway.
+
+However, discarding pending frame callbacks can be problematic if we
+were to use the same `_XWAYLAND_ALLOW_COMMITS` mechanism to prevent
+damages to be posted before the X11 toplevel is updated completely
+(including the window decorations from the X11 window manager).
+
+Remove the portion of code discarding the pending frame callback,
+Xwayland should always wait for a pending frame callback if there's one
+before posting new damages.
+
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+Reviewed-by: Pekka Paalanen <pekka.paalanen@collabora.com>
+Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
+https://gitlab.freedesktop.org/xorg/xserver/merge_requests/333
+(cherry picked from commit 66da95a172c4941b75ffedcdaa0138c0a48f11fb)
+---
+ hw/xwayland/xwayland.c | 13 -------------
+ 1 file changed, 13 deletions(-)
+
+diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
+index d02934cd5..a69188c0f 100644
+--- a/hw/xwayland/xwayland.c
++++ b/hw/xwayland/xwayland.c
+@@ -193,8 +193,6 @@ static void
+ xwl_window_property_allow_commits(struct xwl_window *xwl_window,
+                                   PropertyStateRec *propstate)
+ {
+-    Bool old_allow_commits = xwl_window->allow_commits;
+-
+     switch (propstate->state) {
+     case PropertyNewValue:
+         xwl_window_set_allow_commits_from_property(xwl_window, propstate->prop);
+@@ -207,17 +205,6 @@ xwl_window_property_allow_commits(struct xwl_window *xwl_window,
+     default:
+         break;
+     }
+-
+-    /* If allow_commits turned from off to on, discard any frame
+-     * callback we might be waiting for so that a new buffer is posted
+-     * immediately through block_handler() if there is damage to post.
+-     */
+-    if (!old_allow_commits && xwl_window->allow_commits) {
+-        if (xwl_window->frame_callback) {
+-            wl_callback_destroy(xwl_window->frame_callback);
+-            xwl_window->frame_callback = NULL;
+-        }
+-    }
+ }
+ 
+ static void
+-- 
+2.28.0
+

@@ -45,8 +45,8 @@
 
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
-Version:   1.20.8
-Release:   4%{?gitdate:.%{gitdate}}%{?dist}
+Version:   1.20.9
+Release:   1%{?gitdate:.%{gitdate}}%{?dist}
 URL:       http://www.x.org
 License:   MIT
 
@@ -93,9 +93,24 @@ Patch5: 0001-autobind-GPUs-to-the-screen.patch
 Patch6: 0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
 
 # Backports from current stable "server-1.20-branch":
+Patch101: 0001-Revert-linux-Fix-platform-device-probe-for-DT-based-.patch
+Patch102: 0002-Revert-linux-Fix-platform-device-PCI-detection-for-c.patch
+Patch103: 0003-Revert-linux-Make-platform-device-probe-less-fragile.patch
+Patch104: 0004-include-Increase-the-number-of-max.-input-devices-to.patch
+Patch105: 0005-glamor-Fix-glamor_poly_fill_rect_gl-xRectangle-width.patch
+Patch106: 0006-xfree86-Take-second-reference-for-SavedCursor-in-xf8.patch
+Patch107: 0007-present-wnmd-Can-t-use-page-flipping-for-windows-cli.patch
+Patch108: 0008-xwayland-Check-window-pixmap-in-xwl_present_check_fl.patch
+Patch109: 0009-present-wnmd-Remove-dead-check-from-present_wnmd_che.patch
+Patch110: 0010-xwayland-Do-not-discard-frame-callbacks-on-allow-com.patch
+Patch111: 0011-xwayland-use-drmGetNodeTypeFromFd-for-checking-if-a-.patch
+Patch112: 0012-xwayland-Remove-pending-stream-reference-when-freein.patch
+Patch113: 0013-present-Move-flip-target_msc-adjustment-out-of-prese.patch
+Patch114: 0014-present-Add-present_vblank-exec_msc-field.patch
+Patch115: 0015-present-wnmd-Move-up-present_wnmd_queue_vblank.patch
+Patch116: 0016-present-wnmd-Execute-copies-at-target_msc-1-already.patch
 
 # Backports from "master" upstream:
-Patch100: 0001-fix-for-ZDI-11426.patch
 
 # Backported Xwayland randr resolution change emulation support
 Patch501: 0001-dix-Add-GetCurrentClient-helper.patch
@@ -548,6 +563,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Thu Oct  8 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.9-1
+- xserver 1.20.9 + all current fixes from upstream
+
 * Wed Aug 12 2020 Adam Jackson <ajax@redhat.com> - 1.20.8-4
 - Enable XC-SECURITY
 

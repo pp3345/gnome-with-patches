@@ -1,4 +1,4 @@
-From 62e8b2ff7471f1a48b8bac9f41cceecea4931c03 Mon Sep 17 00:00:00 2001
+From 0efb1df3a2ef4bc2dd329af63e1bd3dbda3445e4 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 8 Jul 2019 14:00:27 +0200
 Subject: [PATCH xserver 09/24] xwayland: Add xwlRRModeToDisplayMode() helper
@@ -20,7 +20,7 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 28 insertions(+), 23 deletions(-)
 
 diff --git a/hw/xwayland/xwayland-vidmode.c b/hw/xwayland/xwayland-vidmode.c
-index 0bcd11401..a59c9f6a9 100644
+index d25d1aca1..428af716d 100644
 --- a/hw/xwayland/xwayland-vidmode.c
 +++ b/hw/xwayland/xwayland-vidmode.c
 @@ -78,13 +78,37 @@ mode_refresh(const xRRModeInfo *mode_info)
@@ -97,5 +97,5 @@ index 0bcd11401..a59c9f6a9 100644
      return TRUE;
  }
 -- 
-2.25.2
+2.26.2
 

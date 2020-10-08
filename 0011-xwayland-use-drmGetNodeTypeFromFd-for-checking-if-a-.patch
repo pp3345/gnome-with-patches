@@ -1,0 +1,68 @@
+From 1ac389dda89b2882c80767c91bbe88e01818491c Mon Sep 17 00:00:00 2001
+From: Greg V <greg@unrelenting.technology>
+Date: Tue, 15 Sep 2020 17:41:04 +0300
+Subject: [PATCH xserver 11/16] xwayland: use drmGetNodeTypeFromFd for checking
+ if a node is a render one
+
+Major/minor numbers are a.. major (ha) source of pain in FreeBSD porting.
+In this case, Xwayland was thinking that /dev/dri/card0 is already a render node,
+because the st_rdev on FreeBSD was passing the Linux-style check,
+and because of the assumption, acceleration would fail because
+various ioctls like AMDGPU_INFO would be denied on the non-render node.
+
+Switch to libdrm's function that already works correctly on all platforms.
+
+Signed-off-by: Greg V <greg@unrelenting.technology>
+Reviewed-by: Emmanuel Vadot <manu@FreeBSD.org>
+(cherry picked from commit 239ebdc9e447d4f836d0c2aa6068c6064fffb46c)
+---
+ hw/xwayland/xwayland-glamor-gbm.c | 19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
+
+diff --git a/hw/xwayland/xwayland-glamor-gbm.c b/hw/xwayland/xwayland-glamor-gbm.c
+index ebff70a00..b519492cc 100644
+--- a/hw/xwayland/xwayland-glamor-gbm.c
++++ b/hw/xwayland/xwayland-glamor-gbm.c
+@@ -110,21 +110,6 @@ wl_drm_format_for_depth(int depth)
+     }
+ }
+ 
+-static char
+-is_fd_render_node(int fd)
+-{
+-    struct stat render;
+-
+-    if (fstat(fd, &render))
+-        return 0;
+-    if (!S_ISCHR(render.st_mode))
+-        return 0;
+-    if (render.st_rdev & 0x80)
+-        return 1;
+-
+-    return 0;
+-}
+-
+ static char
+ is_device_path_render_node (const char *device_path)
+ {
+@@ -135,7 +120,7 @@ is_device_path_render_node (const char *device_path)
+     if (fd < 0)
+         return 0;
+ 
+-    is_render_node = is_fd_render_node(fd);
++    is_render_node = (drmGetNodeTypeFromFd(fd) == DRM_NODE_RENDER);
+     close(fd);
+ 
+     return is_render_node;
+@@ -767,7 +752,7 @@ xwl_drm_handle_device(void *data, struct wl_drm *drm, const char *device)
+        return;
+    }
+ 
+-   if (is_fd_render_node(xwl_gbm->drm_fd)) {
++   if (drmGetNodeTypeFromFd(xwl_gbm->drm_fd) == DRM_NODE_RENDER) {
+        xwl_gbm->fd_render_node = 1;
+        xwl_screen->expecting_event--;
+    } else {
+-- 
+2.28.0
+
