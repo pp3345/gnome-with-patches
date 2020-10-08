@@ -1,0 +1,71 @@
+From 8c3c8bda2c44fb3d62b954b02b08e3b1771ef5bc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Tue, 25 Aug 2020 17:26:56 +0200
+Subject: [PATCH xserver 05/16] glamor: Fix glamor_poly_fill_rect_gl
+ xRectangle::width/height handling
+
+(Using GLSL 1.30 or newer)
+
+The width/height members of xRectangle are unsigned, but they were
+being interpreted as signed when converting to floating point for the
+vertex shader, producing incorrect drawing for values > 32767.
+
+v2:
+* Use separate GL_UNSIGNED_SHORT vertex attribute for width/height.
+  (Eric Anholt)
+
+Reviewed-by: Eric Anholt <eric@anholt.net>
+(cherry picked from commit 032af35657aa95c6bbdb74ff8c72e535b9b56cfa)
+---
+ glamor/glamor_rects.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/glamor/glamor_rects.c b/glamor/glamor_rects.c
+index 6cbb040c1..ae4fe8bcc 100644
+--- a/glamor/glamor_rects.c
++++ b/glamor/glamor_rects.c
+@@ -27,8 +27,10 @@
+ static const glamor_facet glamor_facet_polyfillrect_130 = {
+     .name = "poly_fill_rect",
+     .version = 130,
+-    .vs_vars = "attribute vec4 primitive;\n",
+-    .vs_exec = ("       vec2 pos = primitive.zw * vec2(gl_VertexID&1, (gl_VertexID&2)>>1);\n"
++    .source_name = "size",
++    .vs_vars = "attribute vec2 primitive;\n"
++               "attribute vec2 size;\n",
++    .vs_exec = ("       vec2 pos = size * vec2(gl_VertexID&1, (gl_VertexID&2)>>1);\n"
+                 GLAMOR_POS(gl_Position, (primitive.xy + pos))),
+ };
+ 
+@@ -81,9 +83,14 @@ glamor_poly_fill_rect_gl(DrawablePtr drawable,
+ 
+         glEnableVertexAttribArray(GLAMOR_VERTEX_POS);
+         glVertexAttribDivisor(GLAMOR_VERTEX_POS, 1);
+-        glVertexAttribPointer(GLAMOR_VERTEX_POS, 4, GL_SHORT, GL_FALSE,
++        glVertexAttribPointer(GLAMOR_VERTEX_POS, 2, GL_SHORT, GL_FALSE,
+                               4 * sizeof (short), vbo_offset);
+ 
++        glEnableVertexAttribArray(GLAMOR_VERTEX_SOURCE);
++        glVertexAttribDivisor(GLAMOR_VERTEX_SOURCE, 1);
++        glVertexAttribPointer(GLAMOR_VERTEX_SOURCE, 2, GL_UNSIGNED_SHORT, GL_FALSE,
++                              4 * sizeof (short), vbo_offset + 2 * sizeof (short));
++
+         memcpy(v, prect, nrect * sizeof (xRectangle));
+ 
+         glamor_put_vbo_space(screen);
+@@ -156,8 +163,11 @@ glamor_poly_fill_rect_gl(DrawablePtr drawable,
+ 
+ bail:
+     glDisable(GL_SCISSOR_TEST);
+-    if (glamor_priv->glsl_version >= 130)
++    if (glamor_priv->glsl_version >= 130) {
++        glVertexAttribDivisor(GLAMOR_VERTEX_SOURCE, 0);
++        glDisableVertexAttribArray(GLAMOR_VERTEX_SOURCE);
+         glVertexAttribDivisor(GLAMOR_VERTEX_POS, 0);
++    }
+     glDisableVertexAttribArray(GLAMOR_VERTEX_POS);
+ 
+     return ret;
+-- 
+2.28.0
+

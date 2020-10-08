@@ -1,0 +1,43 @@
+From 1930ed233fdec5d22e4fc192769a0126faabb3ea Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Mon, 14 Sep 2020 15:39:10 +0200
+Subject: [PATCH xserver 12/16] xwayland: Remove pending stream reference when
+ freeing
+
+The EGLStream backend keeps a queue of pending streams for each Xwayland
+window.
+
+However, when this pending queue is freed, the corresponding private
+data may not be cleared (typically if the pixmap for this window has
+changed before the compositor finished attaching the consumer for the
+window's pixmap's original eglstream), leading to a use-after-free and a
+crash when trying to use that data as the window pixmap.
+
+Make sure to clear the private data when the pending stream is freed.
+
+Closes: https://gitlab.freedesktop.org/xorg/xserver/-/issues/1055
+Signed-off-by: Olivier Fourdan <ofourdan@redhat.com>
+Tested-by: Karol Szuster <karolsz9898@gmail.com>
+Reviewed-by: Adam Jackson <ajax@redhat.com>
+(cherry picked from commit a5f439dcd21b4fda093cb382bb1a758b434a1444)
+---
+ hw/xwayland/xwayland-glamor-eglstream.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/xwayland/xwayland-glamor-eglstream.c b/hw/xwayland/xwayland-glamor-eglstream.c
+index 36b749aaf..0c32fff4d 100644
+--- a/hw/xwayland/xwayland-glamor-eglstream.c
++++ b/hw/xwayland/xwayland-glamor-eglstream.c
+@@ -431,8 +431,8 @@ xwl_eglstream_consumer_ready_callback(void *data,
+     DebugF("eglstream: win %d completes eglstream for pixmap %p, congrats!\n",
+            pending->window->drawable.id, pending->pixmap);
+ 
+-    xwl_eglstream_window_set_pending(pending->window, NULL);
+ out:
++    xwl_eglstream_window_set_pending(pending->window, NULL);
+     xorg_list_del(&pending->link);
+     free(pending);
+ }
+-- 
+2.28.0
+

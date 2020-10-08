@@ -1,4 +1,4 @@
-From fd95c9a52e35e994e140a925cfc01587257d4511 Mon Sep 17 00:00:00 2001
+From a090b038c45732676d9b7e367848d5bee7ab0ea5 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 26 Aug 2019 12:26:34 +0200
 Subject: [PATCH xserver 12/24] xwayland: xwl_window_should_enable_viewport:
@@ -25,10 +25,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 17 insertions(+)
 
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 1ab5b3a28..85036adfe 100644
+index 9c6cf7cf5..2e01822fd 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -649,6 +649,23 @@ xwl_window_should_enable_viewport(struct xwl_window *xwl_window,
+@@ -651,6 +651,23 @@ xwl_window_should_enable_viewport(struct xwl_window *xwl_window,
          }
      }
  
@@ -53,5 +53,5 @@ index 1ab5b3a28..85036adfe 100644
  }
  
 -- 
-2.25.2
+2.26.2
 

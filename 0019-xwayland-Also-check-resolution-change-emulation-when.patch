@@ -1,4 +1,4 @@
-From 63b0c0d76d1020f0cac331f3eff30fba07f79965 Mon Sep 17 00:00:00 2001
+From 09eb525863ab6c08fd743a637f7da9d10c0c01eb Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Wed, 15 Jan 2020 14:36:45 +0100
 Subject: [PATCH xserver 19/24] xwayland: Also check
@@ -28,10 +28,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 14227a327..298ef3ac8 100644
+index 898a291fd..b40502dad 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -1004,7 +1004,7 @@ xwl_resize_window(WindowPtr window,
+@@ -1006,7 +1006,7 @@ xwl_resize_window(WindowPtr window,
      xwl_screen->ResizeWindow = screen->ResizeWindow;
      screen->ResizeWindow = xwl_resize_window;
  
@@ -41,5 +41,5 @@ index 14227a327..298ef3ac8 100644
  }
  
 -- 
-2.25.2
+2.26.2
 
