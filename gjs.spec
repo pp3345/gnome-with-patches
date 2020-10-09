@@ -4,8 +4,8 @@
 %global mozjs78_version 78.3.0-1
 
 Name:          gjs
-Version:       1.66.0
-Release:       2%{?dist}
+Version:       1.66.1
+Release:       1%{?dist}
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -94,6 +94,9 @@ the functionality of the installed gjs package.
 %{_datadir}/installed-tests/
 
 %changelog
+* Fri Oct  9 2020 Kalev Lember <klember@redhat.com> - 1.66.1-1
+- Update to 1.66.1
+
 * Tue Sep 22 2020 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.66.0-2
 - Rebuild against mozjs78-78.3.0-1
 
