@@ -1,0 +1,29 @@
+diff --git a/clutter/clutter/clutter-text.c b/clutter/clutter/clutter-text.c
+index 54bc566f31b4e9d99f42ccca39cb1b4c668a5038..4967b0258881e7cf8f9e5673aa89a6a6536c7601 100644
+--- a/clutter/clutter/clutter-text.c
++++ b/clutter/clutter/clutter-text.c
+@@ -6001,10 +6001,7 @@ clutter_text_set_attributes (ClutterText   *self,
+ 
+   priv = self->priv;
+ 
+-  /* While we should probably test for equality, Pango doesn't
+-   * provide us an easy method to check for AttrList equality.
+-   */
+-  if (priv->attrs == attrs)
++  if (pango_attr_list_equal (priv->attrs, attrs))
+     return;
+ 
+   if (attrs)
+diff --git a/meson.build b/meson.build
+index 247bbb91b9cb1b8cd3cc7c1af306a7d249070693..bde3395d4d2bcdff1464a64eb2acde42964ec632 100644
+--- a/meson.build
++++ b/meson.build
+@@ -19,7 +19,7 @@ graphene_req = '>= 1.10.2'
+ gtk3_req = '>= 3.19.8'
+ gdk_pixbuf_req = '>= 2.0'
+ uprof_req = '>= 0.3'
+-pango_req = '>= 1.2.0'
++pango_req = '>= 1.46.0'
+ cairo_req = '>= 1.10.0'
+ pangocairo_req = '>= 1.20'
+ gsettings_desktop_schemas_req = '>= 3.37.2'
