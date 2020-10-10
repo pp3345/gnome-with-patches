@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.1
-Release:       100%{?dist}.pp3345
+Release:       101%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -170,6 +170,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Oct 10 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-101
+- Add !1050 "clutter/text: Use new pango API to compare attribute lists" @097b2d17
+
 * Tue Oct 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-100
 - Update !1309 "cogl-winsys-glx: Add a heuristically calculated presentation_time" @39cd1d55
 - Add !1470 "backend: Don't pull generated headers (indirectly)" @ff379fb9
