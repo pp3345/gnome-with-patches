@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.36.7
-Release:       1%{?dist}
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -177,6 +177,13 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sat Oct 10 2020 Yussuf Khalil <dev@pp3345.net> - 3.36.7-100
+- Remove !1237 "Improve stage view damage tracking" (needs manual rebase)
+- Remove !1218 "Some Wayland frame callback fixes" (merged)
+- Remove !798 "Wayland surface fullscreen unredirect" (needs manual rebase)
+- Remove !1074 "clutter/stage: Cache get_update_time results" (obsoleted)
+- Rebase to 3.36.7-1.fc32
+
 * Wed Oct 07 2020 Florian Müllner <fmuellner@redhat.com> - 3.36.7-1
 - Update to 3.36.7
 
