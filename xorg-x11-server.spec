@@ -46,7 +46,7 @@
 Summary:   X.Org X11 X server
 Name:      xorg-x11-server
 Version:   1.20.9
-Release:   1%{?gitdate:.%{gitdate}}%{?dist}
+Release:   100%{?gitdate:.%{gitdate}}%{?dist}.pp3345
 URL:       http://www.x.org
 License:   MIT
 
@@ -566,6 +566,9 @@ find %{inst_srcdir}/hw/xfree86 -name \*.c -delete
 
 
 %changelog
+* Tue Oct 13 2020 Yussuf Khalil <dev@pp3345.net> - 1.20.9-100
+- Rebase to 1.20.9-1.fc32
+
 * Thu Oct  8 2020 Olivier Fourdan <ofourdan@redhat.com> - 1.20.9-1
 - xserver 1.20.9 + all current fixes from upstream
 
