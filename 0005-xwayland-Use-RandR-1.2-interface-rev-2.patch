@@ -1,4 +1,4 @@
-From d837f7003d22c5e0d5bd05d41e872e7ee331dfa4 Mon Sep 17 00:00:00 2001
+From 19e725dd368e25c057770530cdd622234303003e Mon Sep 17 00:00:00 2001
 From: Robert Mader <robert.mader@posteo.de>
 Date: Mon, 22 Jan 2018 17:57:38 +0100
 Subject: [PATCH xserver 05/24] xwayland: Use RandR 1.2 interface (rev 2)
@@ -29,10 +29,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 81 insertions(+)
 
 diff --git a/hw/xwayland/xwayland-output.c b/hw/xwayland/xwayland-output.c
-index 2ccc3ca60..67e99bdab 100644
+index 4036ba681..633ebb89e 100644
 --- a/hw/xwayland/xwayland-output.c
 +++ b/hw/xwayland/xwayland-output.c
-@@ -561,12 +561,80 @@ xwl_randr_get_info(ScreenPtr pScreen, Rotation * rotations)
+@@ -524,12 +524,80 @@ xwl_randr_get_info(ScreenPtr pScreen, Rotation * rotations)
      return TRUE;
  }
  
@@ -113,7 +113,7 @@ index 2ccc3ca60..67e99bdab 100644
  
  Bool
  xwl_screen_init_output(struct xwl_screen *xwl_screen)
-@@ -580,7 +648,20 @@ xwl_screen_init_output(struct xwl_screen *xwl_screen)
+@@ -543,7 +611,20 @@ xwl_screen_init_output(struct xwl_screen *xwl_screen)
  
      rp = rrGetScrPriv(xwl_screen->screen);
      rp->rrGetInfo = xwl_randr_get_info;
@@ -135,5 +135,5 @@ index 2ccc3ca60..67e99bdab 100644
      return TRUE;
  }
 -- 
-2.25.2
+2.26.2
 

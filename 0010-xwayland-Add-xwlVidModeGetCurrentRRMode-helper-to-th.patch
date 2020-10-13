@@ -1,4 +1,4 @@
-From 3ecabb250841ff0423744cd2291aaebf87b4239a Mon Sep 17 00:00:00 2001
+From fdbc9904d5af48db56877369f8b4671985ffc363 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 8 Jul 2019 18:35:27 +0200
 Subject: [PATCH xserver 10/24] xwayland: Add xwlVidModeGetCurrentRRMode helper
@@ -30,7 +30,7 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 56 insertions(+), 34 deletions(-)
 
 diff --git a/hw/xwayland/xwayland-vidmode.c b/hw/xwayland/xwayland-vidmode.c
-index a59c9f6a9..e9aea7269 100644
+index 428af716d..7cf982fcc 100644
 --- a/hw/xwayland/xwayland-vidmode.c
 +++ b/hw/xwayland/xwayland-vidmode.c
 @@ -103,26 +103,56 @@ xwlRRModeToDisplayMode(RRModePtr rrmode, DisplayModePtr mode)
@@ -189,5 +189,5 @@ index a59c9f6a9..e9aea7269 100644
  
  static void
 -- 
-2.25.2
+2.26.2
 

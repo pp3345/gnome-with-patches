@@ -1,4 +1,4 @@
-From c5d9cb5f4bc4f703b66fc524a76247c742490b30 Mon Sep 17 00:00:00 2001
+From da3e06f4bed7fa60838ce89a0b45ea73c7d9615c Mon Sep 17 00:00:00 2001
 From: Roman Gilg <subdiff@gmail.com>
 Date: Fri, 3 Jan 2020 17:55:28 +0100
 Subject: [PATCH xserver 18/24] xwayland: Check emulation on client toplevel
@@ -25,10 +25,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  2 files changed, 11 insertions(+), 17 deletions(-)
 
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index d70d729ae..14227a327 100644
+index c60a2ce67..898a291fd 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -609,6 +609,7 @@ xwl_window_should_enable_viewport(struct xwl_window *xwl_window,
+@@ -611,6 +611,7 @@ xwl_window_should_enable_viewport(struct xwl_window *xwl_window,
      struct xwl_output *xwl_output;
      ClientPtr owner;
      WindowPtr window;
@@ -36,7 +36,7 @@ index d70d729ae..14227a327 100644
  
      if (!xwl_screen_has_resolution_change_emulation(xwl_screen))
          return FALSE;
-@@ -618,6 +619,7 @@ xwl_window_should_enable_viewport(struct xwl_window *xwl_window,
+@@ -620,6 +621,7 @@ xwl_window_should_enable_viewport(struct xwl_window *xwl_window,
          return FALSE;
  
      owner = wClient(window);
@@ -44,7 +44,7 @@ index d70d729ae..14227a327 100644
  
      /* 1. Test if the window matches the emulated mode on one of the outputs
       * This path gets hit by most games / libs (e.g. SDL, SFML, OGRE)
-@@ -627,10 +629,10 @@ xwl_window_should_enable_viewport(struct xwl_window *xwl_window,
+@@ -629,10 +631,10 @@ xwl_window_should_enable_viewport(struct xwl_window *xwl_window,
          if (!emulated_mode)
              continue;
  
@@ -59,7 +59,7 @@ index d70d729ae..14227a327 100644
  
              *emulated_mode_ret = emulated_mode;
              *xwl_output_ret = xwl_output;
-@@ -646,9 +648,9 @@ xwl_window_should_enable_viewport(struct xwl_window *xwl_window,
+@@ -648,9 +650,9 @@ xwl_window_should_enable_viewport(struct xwl_window *xwl_window,
      emulated_mode = xwl_output_get_emulated_mode_for_client(xwl_output, owner);
      if (xwl_output && xwl_window->window->overrideRedirect &&
          emulated_mode && emulated_mode->from_vidmode &&
@@ -72,7 +72,7 @@ index d70d729ae..14227a327 100644
  
          *emulated_mode_ret = emulated_mode;
          *xwl_output_ret = xwl_output;
-@@ -768,8 +770,6 @@ ensure_surface_for_window(WindowPtr window)
+@@ -770,8 +772,6 @@ ensure_surface_for_window(WindowPtr window)
  
      xwl_window->xwl_screen = xwl_screen;
      xwl_window->window = window;
@@ -81,7 +81,7 @@ index d70d729ae..14227a327 100644
      xwl_window->surface = wl_compositor_create_surface(xwl_screen->compositor);
      if (xwl_window->surface == NULL) {
          ErrorF("wl_display_create_surface failed\n");
-@@ -997,20 +997,15 @@ xwl_resize_window(WindowPtr window,
+@@ -999,20 +999,15 @@ xwl_resize_window(WindowPtr window,
      struct xwl_window *xwl_window;
  
      xwl_screen = xwl_screen_get(screen);
@@ -105,7 +105,7 @@ index d70d729ae..14227a327 100644
  
  static void
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 126af8823..01aef27d2 100644
+index f5ffadfcc..0d0baac9b 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
 @@ -184,7 +184,6 @@ struct xwl_window {
@@ -117,5 +117,5 @@ index 126af8823..01aef27d2 100644
      struct wl_shell_surface *shell_surface;
      WindowPtr window;
 -- 
-2.25.2
+2.26.2
 

@@ -1,0 +1,236 @@
+From 669e40390c3679b649db33f0aa4ae4cfdd17e2a9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Fri, 11 Sep 2020 17:00:35 +0200
+Subject: [PATCH xserver 14/16] present: Add present_vblank::exec_msc field
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+For tracking the MSC when the present can be executed separately from
+the target MSC.
+
+Allows removing the requeue field instead, plus more later.
+
+v2:
+* Rename wait_msc → exec_msc (Roman Gilg)
+* Use exec_msc = target_msc instead of exec_msc++, for clarity.
+* Bug fix: Set exec_msc = target_msc also if present_flip returned
+  false in present_execute.
+v3:
+* Set exec_msc = target_msc also if present_wnmd_flip returned
+  false in present_wnmd_execute, for consistency.
+v4:
+* Specifically check for exec_msc == crtc_msc + 1 in
+  present_execute_wait/copy, to avoid re-introducing
+  https://bugs.freedesktop.org/show_bug.cgi?id=94596 .
+
+Reviewed-by: Roman Gilg <subdiff@gmail.com>
+Tested-by: Roman Gilg <subdiff@gmail.com>
+(cherry picked from commit b0b3159abd8001fa3f6dfc44a288a95a62aa5cf6)
+---
+ present/present_execute.c | 23 ++++++++++-------------
+ present/present_priv.h    |  4 ++--
+ present/present_scmd.c    | 13 +++++++------
+ present/present_vblank.c  |  9 +++++----
+ present/present_wnmd.c    | 13 +++++++------
+ 5 files changed, 31 insertions(+), 31 deletions(-)
+
+diff --git a/present/present_execute.c b/present/present_execute.c
+index 8d1ef4a8c..58066db86 100644
+--- a/present/present_execute.c
++++ b/present/present_execute.c
+@@ -48,16 +48,13 @@ present_execute_wait(present_vblank_ptr vblank, uint64_t crtc_msc)
+     ScreenPtr                   screen = window->drawable.pScreen;
+     present_screen_priv_ptr screen_priv = present_screen_priv(screen);
+ 
+-    if (vblank->requeue) {
+-        vblank->requeue = FALSE;
+-        if (msc_is_after(vblank->target_msc, crtc_msc) &&
+-            Success == screen_priv->queue_vblank(screen,
+-                                                 window,
+-                                                 vblank->crtc,
+-                                                 vblank->event_id,
+-                                                 vblank->target_msc))
+-            return TRUE;
+-    }
++    /* We may have to requeue for the next MSC if check_flip_window prevented
++     * using a flip.
++     */
++    if (vblank->exec_msc == crtc_msc + 1 &&
++        screen_priv->queue_vblank(screen, window, vblank->crtc, vblank->event_id,
++                                  vblank->exec_msc) == Success)
++        return TRUE;
+ 
+     if (vblank->wait_fence) {
+         if (!present_fence_check_triggered(vblank->wait_fence)) {
+@@ -75,13 +72,13 @@ present_execute_copy(present_vblank_ptr vblank, uint64_t crtc_msc)
+     ScreenPtr                   screen = window->drawable.pScreen;
+     present_screen_priv_ptr screen_priv = present_screen_priv(screen);
+ 
+-    /* If present_flip failed, we may have to requeue for the target MSC */
+-    if (vblank->target_msc == crtc_msc + 1 &&
++    /* If present_flip failed, we may have to requeue for the next MSC */
++    if (vblank->exec_msc == crtc_msc + 1 &&
+         Success == screen_priv->queue_vblank(screen,
+                                              window,
+                                              vblank->crtc,
+                                              vblank->event_id,
+-                                             vblank->target_msc)) {
++                                             vblank->exec_msc)) {
+         vblank->queued = TRUE;
+         return;
+     }
+diff --git a/present/present_priv.h b/present/present_priv.h
+index 90c3f4e79..f34edd5cf 100644
+--- a/present/present_priv.h
++++ b/present/present_priv.h
+@@ -70,14 +70,14 @@ struct present_vblank {
+     int16_t             y_off;
+     CARD16              kind;
+     uint64_t            event_id;
+-    uint64_t            target_msc;
++    uint64_t            target_msc;     /* target MSC when present should complete */
++    uint64_t            exec_msc;       /* MSC at which present can be executed */
+     uint64_t            msc_offset;
+     present_fence_ptr   idle_fence;
+     present_fence_ptr   wait_fence;
+     present_notify_ptr  notifies;
+     int                 num_notifies;
+     Bool                queued;         /* on present_exec_queue */
+-    Bool                requeue;        /* on queue, but target_msc has changed */
+     Bool                flip;           /* planning on using flip */
+     Bool                flip_ready;     /* wants to flip, but waiting for previous flip or unflip */
+     Bool                flip_idler;     /* driver explicitly permitted idling */
+diff --git a/present/present_scmd.c b/present/present_scmd.c
+index a4d046ca8..3e3ae3477 100644
+--- a/present/present_scmd.c
++++ b/present/present_scmd.c
+@@ -361,8 +361,8 @@ present_flip_notify(present_vblank_ptr vblank, uint64_t ust, uint64_t crtc_msc)
+     ScreenPtr                   screen = vblank->screen;
+     present_screen_priv_ptr     screen_priv = present_screen_priv(screen);
+ 
+-    DebugPresent(("\tn %" PRIu64 " %p %" PRIu64 ": %08" PRIx32 " -> %08" PRIx32 "\n",
+-                  vblank->event_id, vblank, vblank->target_msc,
++    DebugPresent(("\tn %" PRIu64 " %p %" PRIu64 " %" PRIu64 ": %08" PRIx32 " -> %08" PRIx32 "\n",
++                  vblank->event_id, vblank, vblank->exec_msc, vblank->target_msc,
+                   vblank->pixmap ? vblank->pixmap->drawable.id : 0,
+                   vblank->window ? vblank->window->drawable.id : 0));
+ 
+@@ -482,7 +482,7 @@ present_check_flip_window (WindowPtr window)
+             vblank->flip = FALSE;
+             vblank->reason = reason;
+             if (vblank->sync_flip)
+-                vblank->requeue = TRUE;
++                vblank->exec_msc = vblank->target_msc;
+         }
+     }
+ }
+@@ -608,6 +608,7 @@ present_execute(present_vblank_ptr vblank, uint64_t ust, uint64_t crtc_msc)
+               */
+             screen_priv->flip_pending = NULL;
+             vblank->flip = FALSE;
++            vblank->exec_msc = vblank->target_msc;
+         }
+         DebugPresent(("\tc %p %" PRIu64 ": %08" PRIx32 " -> %08" PRIx32 "\n",
+                       vblank, crtc_msc, vblank->pixmap->drawable.id, vblank->window->drawable.id));
+@@ -752,12 +753,12 @@ present_scmd_pixmap(WindowPtr window,
+         return BadAlloc;
+ 
+     if (vblank->flip && vblank->sync_flip)
+-        target_msc--;
++        vblank->exec_msc--;
+ 
+     xorg_list_append(&vblank->event_queue, &present_exec_queue);
+     vblank->queued = TRUE;
+-    if (msc_is_after(target_msc, crtc_msc)) {
+-        ret = present_queue_vblank(screen, window, target_crtc, vblank->event_id, target_msc);
++    if (msc_is_after(vblank->exec_msc, crtc_msc)) {
++        ret = present_queue_vblank(screen, window, target_crtc, vblank->event_id, vblank->exec_msc);
+         if (ret == Success)
+             return Success;
+ 
+diff --git a/present/present_vblank.c b/present/present_vblank.c
+index a4b70c0d9..af14fe134 100644
+--- a/present/present_vblank.c
++++ b/present/present_vblank.c
+@@ -101,6 +101,7 @@ present_vblank_create(WindowPtr window,
+     vblank->x_off = x_off;
+     vblank->y_off = y_off;
+     vblank->target_msc = target_msc;
++    vblank->exec_msc = target_msc;
+     vblank->crtc = target_crtc;
+     vblank->msc_offset = window_priv->msc_offset;
+     vblank->notifies = notifies;
+@@ -152,8 +153,8 @@ no_mem:
+ void
+ present_vblank_scrap(present_vblank_ptr vblank)
+ {
+-    DebugPresent(("\tx %" PRIu64 " %p %" PRIu64 ": %08" PRIx32 " -> %08" PRIx32 " (crtc %p)\n",
+-                  vblank->event_id, vblank, vblank->target_msc,
++    DebugPresent(("\tx %" PRIu64 " %p %" PRIu64 " %" PRIu64 ": %08" PRIx32 " -> %08" PRIx32 " (crtc %p)\n",
++                  vblank->event_id, vblank, vblank->exec_msc, vblank->target_msc,
+                   vblank->pixmap->drawable.id, vblank->window->drawable.id,
+                   vblank->crtc));
+ 
+@@ -174,8 +175,8 @@ present_vblank_destroy(present_vblank_ptr vblank)
+     /* Also make sure vblank is removed from event queue (wnmd) */
+     xorg_list_del(&vblank->event_queue);
+ 
+-    DebugPresent(("\td %" PRIu64 " %p %" PRIu64 ": %08" PRIx32 " -> %08" PRIx32 "\n",
+-                  vblank->event_id, vblank, vblank->target_msc,
++    DebugPresent(("\td %" PRIu64 " %p %" PRIu64 " %" PRIu64 ": %08" PRIx32 " -> %08" PRIx32 "\n",
++                  vblank->event_id, vblank, vblank->exec_msc, vblank->target_msc,
+                   vblank->pixmap ? vblank->pixmap->drawable.id : 0,
+                   vblank->window ? vblank->window->drawable.id : 0));
+ 
+diff --git a/present/present_wnmd.c b/present/present_wnmd.c
+index 31e83d6ee..339e93edb 100644
+--- a/present/present_wnmd.c
++++ b/present/present_wnmd.c
+@@ -168,8 +168,8 @@ present_wnmd_flip_notify(present_vblank_ptr vblank, uint64_t ust, uint64_t crtc_
+     WindowPtr                   window = vblank->window;
+     present_window_priv_ptr     window_priv = present_window_priv(window);
+ 
+-    DebugPresent(("\tn %" PRIu64 " %p %" PRIu64 ": %08" PRIx32 " -> %08" PRIx32 "\n",
+-                  vblank->event_id, vblank, vblank->target_msc,
++    DebugPresent(("\tn %" PRIu64 " %p %" PRIu64 " %" PRIu64 ": %08" PRIx32 " -> %08" PRIx32 "\n",
++                  vblank->event_id, vblank, vblank->exec_msc, vblank->target_msc,
+                   vblank->pixmap ? vblank->pixmap->drawable.id : 0,
+                   vblank->window ? vblank->window->drawable.id : 0));
+ 
+@@ -343,7 +343,7 @@ present_wnmd_check_flip_window (WindowPtr window)
+             vblank->flip = FALSE;
+             vblank->reason = reason;
+             if (vblank->sync_flip)
+-                vblank->requeue = TRUE;
++                vblank->exec_msc = vblank->target_msc;
+         }
+     }
+ }
+@@ -491,6 +491,7 @@ present_wnmd_execute(present_vblank_ptr vblank, uint64_t ust, uint64_t crtc_msc)
+               */
+             window_priv->flip_pending = NULL;
+             vblank->flip = FALSE;
++            vblank->exec_msc = vblank->target_msc;
+         }
+         DebugPresent(("\tc %p %" PRIu64 ": %08" PRIx32 " -> %08" PRIx32 "\n",
+                       vblank, crtc_msc, vblank->pixmap->drawable.id, vblank->window->drawable.id));
+@@ -632,12 +633,12 @@ present_wnmd_pixmap(WindowPtr window,
+         return BadAlloc;
+ 
+     if (vblank->flip && vblank->sync_flip)
+-        target_msc--;
++        vblank->exec_msc--;
+ 
+     xorg_list_append(&vblank->event_queue, &window_priv->exec_queue);
+     vblank->queued = TRUE;
+-    if (crtc_msc < target_msc) {
+-        if (present_wnmd_queue_vblank(screen, window, target_crtc, vblank->event_id, target_msc) == Success) {
++    if (crtc_msc < vblank->exec_msc) {
++        if (present_wnmd_queue_vblank(screen, window, target_crtc, vblank->event_id, vblank->exec_msc) == Success) {
+             return Success;
+         }
+         DebugPresent(("present_queue_vblank failed\n"));
+-- 
+2.28.0
+

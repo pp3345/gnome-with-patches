@@ -1,4 +1,4 @@
-From 87a1a7b9f8f7d848302057b9ca54f6729e82bbe7 Mon Sep 17 00:00:00 2001
+From 94fc11313b34e3b35aa275dad1c3bc2455a24ec3 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 4 Nov 2019 14:32:29 +0100
 Subject: [PATCH xserver 23/24] xwayland: Fix setting of
@@ -35,10 +35,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 6b86e56bd..e721d6cb5 100644
+index 734e76b2e..a7c4f82df 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -749,6 +749,7 @@ ensure_surface_for_window(WindowPtr window)
+@@ -751,6 +751,7 @@ ensure_surface_for_window(WindowPtr window)
      struct xwl_screen *xwl_screen;
      struct xwl_window *xwl_window;
      struct wl_region *region;
@@ -46,7 +46,7 @@ index 6b86e56bd..e721d6cb5 100644
  
      if (xwl_window_get(window))
          return TRUE;
-@@ -819,7 +820,14 @@ ensure_surface_for_window(WindowPtr window)
+@@ -821,7 +822,14 @@ ensure_surface_for_window(WindowPtr window)
  
      xwl_window_init_allow_commits(xwl_window);
  
@@ -62,7 +62,7 @@ index 6b86e56bd..e721d6cb5 100644
          /* CSD or O-R toplevel window, check viewport on creation */
          xwl_window_check_resolution_change_emulation(xwl_window);
      }
-@@ -868,8 +876,6 @@ xwl_realize_window(WindowPtr window)
+@@ -870,8 +878,6 @@ xwl_realize_window(WindowPtr window)
              return FALSE;
      }
  
@@ -72,5 +72,5 @@ index 6b86e56bd..e721d6cb5 100644
  }
  
 -- 
-2.25.2
+2.26.2
 

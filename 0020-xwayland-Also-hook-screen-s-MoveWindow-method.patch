@@ -1,4 +1,4 @@
-From 309e6e549adc5a164541d16822745c022cd8574b Mon Sep 17 00:00:00 2001
+From 9f2ebb5f07dc3fff8e061b21fa175d3d958d0ee4 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 9 Jan 2020 11:00:36 +0100
 Subject: [PATCH xserver 20/24] xwayland: Also hook screen's MoveWindow method
@@ -24,10 +24,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  2 files changed, 26 insertions(+)
 
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index 298ef3ac8..1294ff1d8 100644
+index b40502dad..7111e20ae 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -1008,6 +1008,28 @@ xwl_resize_window(WindowPtr window,
+@@ -1010,6 +1010,28 @@ xwl_resize_window(WindowPtr window,
          xwl_window_check_resolution_change_emulation(xwl_window);
  }
  
@@ -56,7 +56,7 @@ index 298ef3ac8..1294ff1d8 100644
  static void
  frame_callback(void *data,
                 struct wl_callback *callback,
-@@ -1564,6 +1586,9 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
+@@ -1588,6 +1610,9 @@ xwl_screen_init(ScreenPtr pScreen, int argc, char **argv)
      xwl_screen->ResizeWindow = pScreen->ResizeWindow;
      pScreen->ResizeWindow = xwl_resize_window;
  
@@ -67,7 +67,7 @@ index 298ef3ac8..1294ff1d8 100644
          xwl_screen->SetWindowPixmap = pScreen->SetWindowPixmap;
          pScreen->SetWindowPixmap = xwl_set_window_pixmap;
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 01aef27d2..72225374b 100644
+index 0d0baac9b..451c08e23 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
 @@ -138,6 +138,7 @@ struct xwl_screen {
@@ -79,5 +79,5 @@ index 01aef27d2..72225374b 100644
      struct xorg_list output_list;
      struct xorg_list seat_list;
 -- 
-2.25.2
+2.26.2
 

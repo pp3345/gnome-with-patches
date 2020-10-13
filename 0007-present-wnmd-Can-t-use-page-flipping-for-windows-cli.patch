@@ -1,0 +1,37 @@
+From f4006d795cb199bf7deeb00f542c592db6a5becb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Mon, 7 Sep 2020 18:35:10 +0200
+Subject: [PATCH xserver 07/16] present/wnmd: Can't use page flipping for
+ windows clipped by children
+
+Noticed this was missing while working on the following fix.
+
+v2:
+* Dropped present_wnmd_can_window_flip hunk (that function is never
+  called, will be cleaned up in a follow-up MR).
+
+Reviewed-by: Olivier Fourdan <ofourdan@redhat.com> # v1
+Reviewed-by: Roman Gilg <subdiff@gmail.com>
+(cherry picked from commit 7ac303c7b1e3b1be79ba3648e217798683e65a99)
+---
+ present/present_wnmd.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/present/present_wnmd.c b/present/present_wnmd.c
+index 32c4d55f1..6a3d1035b 100644
+--- a/present/present_wnmd.c
++++ b/present/present_wnmd.c
+@@ -291,6 +291,10 @@ present_wnmd_check_flip(RRCrtcPtr           crtc,
+     if ( !RegionEqual(&window->winSize, &toplvl_window->winSize) )
+         return FALSE;
+ 
++    /* Can't flip if window clipped by children */
++    if (!RegionEqual(&window->clipList, &window->winSize))
++        return FALSE;
++
+     /* Ask the driver for permission */
+     if (screen_priv->wnmd_info->check_flip2) {
+         if (!(*screen_priv->wnmd_info->check_flip2) (crtc, window, pixmap, sync_flip, reason)) {
+-- 
+2.28.0
+
