@@ -1,4 +1,4 @@
-From 879fed575deea57462217fc31eb331db8d23637c Mon Sep 17 00:00:00 2001
+From 575c8b49a715d45115625643b8495ad786961e38 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 29 Aug 2019 23:04:36 +0200
 Subject: [PATCH xserver 07/24] xwayland: Add support for storing per client
@@ -31,10 +31,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  2 files changed, 84 insertions(+)
 
 diff --git a/hw/xwayland/xwayland-output.c b/hw/xwayland/xwayland-output.c
-index 67e99bdab..82ff5db70 100644
+index 633ebb89e..64794dee7 100644
 --- a/hw/xwayland/xwayland-output.c
 +++ b/hw/xwayland/xwayland-output.c
-@@ -245,6 +245,73 @@ update_screen_size(struct xwl_output *xwl_output, int width, int height)
+@@ -208,6 +208,73 @@ update_screen_size(struct xwl_output *xwl_output, int width, int height)
      update_desktop_dimensions();
  }
  
@@ -109,7 +109,7 @@ index 67e99bdab..82ff5db70 100644
  const int32_t xwl_output_fake_modes[][2] = {
      /* 4:3 (1.33) */
 diff --git a/hw/xwayland/xwayland.h b/hw/xwayland/xwayland.h
-index 593e92b64..0e6f92e63 100644
+index 19626d394..c886d77e9 100644
 --- a/hw/xwayland/xwayland.h
 +++ b/hw/xwayland/xwayland.h
 @@ -379,7 +379,21 @@ struct xwl_output {
@@ -134,7 +134,7 @@ index 593e92b64..0e6f92e63 100644
  };
  
  void xwl_window_create_frame_callback(struct xwl_window *xwl_window);
-@@ -425,6 +439,9 @@ void xwl_output_destroy(struct xwl_output *xwl_output);
+@@ -427,6 +441,9 @@ void xwl_output_destroy(struct xwl_output *xwl_output);
  
  void xwl_output_remove(struct xwl_output *xwl_output);
  
@@ -145,5 +145,5 @@ index 593e92b64..0e6f92e63 100644
                         float VRefresh, Bool Reduced, Bool Interlaced);
  
 -- 
-2.25.2
+2.26.2
 

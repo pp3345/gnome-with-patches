@@ -1,4 +1,4 @@
-From 52bbef1f55d17229684b0d76a478ec639c4032ed Mon Sep 17 00:00:00 2001
+From 958b34ce3cab02219457d5dcc25217e7c9a0beba Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 7 Oct 2019 14:27:49 +0200
 Subject: [PATCH xserver 21/24] xwayland: Fix emulated modes not being removed
@@ -32,10 +32,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/hw/xwayland/xwayland-output.c b/hw/xwayland/xwayland-output.c
-index 20c254962..7d705d919 100644
+index 0d6b9ac9f..4bc9cd6b8 100644
 --- a/hw/xwayland/xwayland-output.c
 +++ b/hw/xwayland/xwayland-output.c
-@@ -309,8 +309,11 @@ xwl_output_remove_emulated_mode_for_client(struct xwl_output *xwl_output,
+@@ -272,8 +272,11 @@ xwl_output_remove_emulated_mode_for_client(struct xwl_output *xwl_output,
      struct xwl_emulated_mode *emulated_mode;
  
      emulated_mode = xwl_output_get_emulated_mode_for_client(xwl_output, client);
@@ -48,7 +48,7 @@ index 20c254962..7d705d919 100644
  }
  
  /* From hw/xfree86/common/xf86DefModeSet.c with some obscure modes dropped */
-@@ -511,7 +514,8 @@ xwl_output_set_emulated_mode(struct xwl_output *xwl_output, ClientPtr client,
+@@ -474,7 +477,8 @@ xwl_output_set_emulated_mode(struct xwl_output *xwl_output, ClientPtr client,
             from_vidmode ? "vidmode" : "randr",
             mode->mode.width, mode->mode.height);
  
@@ -59,5 +59,5 @@ index 20c254962..7d705d919 100644
      else
          xwl_output_add_emulated_mode_for_client(xwl_output, client, mode, from_vidmode);
 -- 
-2.25.2
+2.26.2
 

@@ -1,4 +1,4 @@
-From 231d5e2da2e1b0aee3cfe6febc54daf7a0e4b4c7 Mon Sep 17 00:00:00 2001
+From 2d078b3372e26278e687399a39699c495bfe16d4 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Mon, 4 Nov 2019 15:01:18 +0100
 Subject: [PATCH xserver 24/24] xwayland: Remove unnecessary
@@ -21,10 +21,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/hw/xwayland/xwayland-output.c b/hw/xwayland/xwayland-output.c
-index 7d705d919..084b669e4 100644
+index 4bc9cd6b8..9d3372c8e 100644
 --- a/hw/xwayland/xwayland-output.c
 +++ b/hw/xwayland/xwayland-output.c
-@@ -468,9 +468,6 @@ static void
+@@ -431,9 +431,6 @@ static void
  xwl_output_set_randr_emu_prop(WindowPtr window,
                                struct xwl_output_randr_emu_prop *prop)
  {
@@ -34,7 +34,7 @@ index 7d705d919..084b669e4 100644
      if (prop->rect_count) {
          dixChangeWindowProperty(serverClient, window, prop->atom,
                                  XA_CARDINAL, 32, PropModeReplace,
-@@ -483,7 +480,8 @@ xwl_output_set_randr_emu_prop(WindowPtr window,
+@@ -446,7 +443,8 @@ xwl_output_set_randr_emu_prop(WindowPtr window,
  static void
  xwl_output_set_randr_emu_prop_callback(void *resource, XID id, void *user_data)
  {
@@ -45,5 +45,5 @@ index 7d705d919..084b669e4 100644
  
  static void
 -- 
-2.25.2
+2.26.2
 

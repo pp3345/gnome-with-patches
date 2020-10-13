@@ -1,4 +1,4 @@
-From 1f39cb2ef51c72ec0c448c5d9571540bb0d9f3eb Mon Sep 17 00:00:00 2001
+From e4d8f7770e27ed56e23e0ef2a87bed8cb4fa28e0 Mon Sep 17 00:00:00 2001
 From: Roman Gilg <subdiff@gmail.com>
 Date: Fri, 3 Jan 2020 17:12:14 +0100
 Subject: [PATCH xserver 15/24] xwayland: Reuse viewport instead of recreating
@@ -17,10 +17,10 @@ Signed-off-by: Hans de Goede <hdegoede@redhat.com>
  1 file changed, 7 insertions(+), 11 deletions(-)
 
 diff --git a/hw/xwayland/xwayland.c b/hw/xwayland/xwayland.c
-index f4d433bca..320589dde 100644
+index c16da330c..ac301ae4a 100644
 --- a/hw/xwayland/xwayland.c
 +++ b/hw/xwayland/xwayland.c
-@@ -550,17 +550,13 @@ xwl_window_enable_viewport(struct xwl_window *xwl_window,
+@@ -552,17 +552,13 @@ xwl_window_enable_viewport(struct xwl_window *xwl_window,
                             struct xwl_output *xwl_output,
                             struct xwl_emulated_mode *emulated_mode)
  {
@@ -46,5 +46,5 @@ index f4d433bca..320589dde 100644
      wp_viewport_set_source(xwl_window->viewport,
                             wl_fixed_from_int(0),
 -- 
-2.25.2
+2.26.2
 

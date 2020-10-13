@@ -1,0 +1,58 @@
+From 96ef31e0f20fcffb2edfe4cb9510f994c188785f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Tue, 28 Jul 2020 18:53:45 +0200
+Subject: [PATCH xserver 15/16] present/wnmd: Move up present_wnmd_queue_vblank
+
+Allowing it to be called from more functions than before. No functional
+change.
+
+Reviewed-by: Roman Gilg <subdiff@gmail.com>
+Tested-by: Roman Gilg <subdiff@gmail.com>
+(cherry picked from commit d14ea667feccf085c7d66a7c63f380975e07af66)
+---
+ present/present_wnmd.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/present/present_wnmd.c b/present/present_wnmd.c
+index 339e93edb..2c11e53f5 100644
+--- a/present/present_wnmd.c
++++ b/present/present_wnmd.c
+@@ -42,6 +42,17 @@
+ static void
+ present_wnmd_execute(present_vblank_ptr vblank, uint64_t ust, uint64_t crtc_msc);
+ 
++static int
++present_wnmd_queue_vblank(ScreenPtr screen,
++                          WindowPtr window,
++                          RRCrtcPtr crtc,
++                          uint64_t event_id,
++                          uint64_t msc)
++{
++    present_screen_priv_ptr screen_priv = present_screen_priv(screen);
++    return (*screen_priv->wnmd_info->queue_vblank) (window, crtc, event_id, msc);
++}
++
+ static void
+ present_wnmd_create_event_id(present_window_priv_ptr window_priv, present_vblank_ptr vblank)
+ {
+@@ -511,17 +522,6 @@ present_wnmd_execute(present_vblank_ptr vblank, uint64_t ust, uint64_t crtc_msc)
+     present_execute_post(vblank, ust, crtc_msc);
+ }
+ 
+-static int
+-present_wnmd_queue_vblank(ScreenPtr screen,
+-                             WindowPtr window,
+-                             RRCrtcPtr crtc,
+-                             uint64_t event_id,
+-                             uint64_t msc)
+-{
+-    present_screen_priv_ptr screen_priv = present_screen_priv(screen);
+-    return (*screen_priv->wnmd_info->queue_vblank) (window, crtc, event_id, msc);
+-}
+-
+ static uint64_t
+ present_wnmd_window_to_crtc_msc(WindowPtr window, RRCrtcPtr crtc, uint64_t window_msc, uint64_t new_msc)
+ {
+-- 
+2.28.0
+

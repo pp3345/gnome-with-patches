@@ -1,4 +1,4 @@
-From e78e96157efb523272404a85a9433c7b9803c1db Mon Sep 17 00:00:00 2001
+From 3d78af269556f554c517801d0de481ba56d4e603 Mon Sep 17 00:00:00 2001
 From: Hans de Goede <hdegoede@redhat.com>
 Date: Thu, 29 Aug 2019 14:18:28 +0200
 Subject: [PATCH xserver 01/24] dix: Add GetCurrentClient helper
@@ -112,5 +112,5 @@ index b6e2bcfde..d65060cb6 100644
  extern _X_EXPORT void SetInputCheck(HWEventQueuePtr /*c0 */ ,
                                      HWEventQueuePtr /*c1 */ );
 -- 
-2.25.2
+2.26.2
 
