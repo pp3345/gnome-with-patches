@@ -137,10 +137,7 @@ index b7da261b779a312887e5ba8e03196ed2077d0cdb..7f0b951ab92481709257b269fa952cde
      struct wl_buffer            *buffer;
      struct xwl_present_event    *event;
  
-@@ -465,7 +461,7 @@ xwl_present_flip(WindowPtr present_window,
-     if (!event)
-         return FALSE;
- 
+@@ -465,4 +461,4 @@ xwl_present_flip(WindowPtr present_window,
 -    buffer = xwl_glamor_pixmap_get_wl_buffer(pixmap, &buffer_created);
 +    buffer = xwl_glamor_pixmap_get_wl_buffer(pixmap, NULL);
  
