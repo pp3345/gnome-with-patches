@@ -1,0 +1,811 @@
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 68290b986d2ff33816bdcca6661b2fa47e5ca4e3..f4b8b617808b572e98fa0f954cdf3778cc9fe66a 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -1294,6 +1294,9 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
+                                           &vertices[v].y,
+                                           &z,
+                                           &w);
++
++      clutter_round_to_256ths (&vertices[v].x);
++      clutter_round_to_256ths (&vertices[v].y);
+     }
+ 
+   return TRUE;
+@@ -3162,9 +3165,8 @@ ensure_valid_actor_transform (ClutterActor *actor)
+   graphene_matrix_init_identity (&priv->transform);
+ 
+   CLUTTER_ACTOR_GET_CLASS (actor)->apply_transform (actor, &priv->transform);
+-  priv->has_inverse_transform =
+-    cogl_graphene_matrix_get_inverse (&priv->transform,
+-                                      &priv->inverse_transform);
++  priv->has_inverse_transform = graphene_matrix_inverse (&priv->transform,
++                                                         &priv->inverse_transform);
+ 
+   priv->transform_valid = TRUE;
+ }
+@@ -3362,12 +3364,18 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
+ 
+   if (success)
+     {
+-      if (result == CLUTTER_CULL_RESULT_IN)
+-        clutter_color_init (&color, 0, 255, 0, 255);
+-      else if (result == CLUTTER_CULL_RESULT_OUT)
+-        clutter_color_init (&color, 0, 0, 255, 255);
+-      else
+-        clutter_color_init (&color, 0, 255, 255, 255);
++      switch (result)
++        {
++        case CLUTTER_CULL_RESULT_IN:
++          clutter_color_init (&color, 0, 255, 0, 255);
++          break;
++        case CLUTTER_CULL_RESULT_OUT:
++          clutter_color_init (&color, 0, 0, 255, 255);
++          break;
++        default:
++          clutter_color_init (&color, 0, 255, 255, 255);
++          break;
++        }
+     }
+   else
+     clutter_color_init (&color, 255, 255, 255, 255);
+@@ -3441,8 +3449,9 @@ cull_actor (ClutterActor        *self,
+             ClutterCullResult   *result_out)
+ {
+   ClutterActorPrivate *priv = self->priv;
+-  ClutterStage *stage;
+-  const ClutterPlane *stage_clip;
++  const GArray *clip_frusta;
++  ClutterCullResult result;
++  int i;
+ 
+   if (!priv->last_paint_volume_valid)
+     {
+@@ -3455,16 +3464,6 @@ cull_actor (ClutterActor        *self,
+   if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_CULLING))
+     return FALSE;
+ 
+-  stage = (ClutterStage *) _clutter_actor_get_stage_internal (self);
+-  stage_clip = _clutter_stage_get_clip (stage);
+-  if (G_UNLIKELY (!stage_clip))
+-    {
+-      CLUTTER_NOTE (CLIPPING, "Bail from cull_actor without culling (%s): "
+-                    "No stage clip set",
+-                    _clutter_actor_get_debug_name (self));
+-      return FALSE;
+-    }
+-
+   if (clutter_paint_context_is_drawing_off_stage (paint_context))
+     {
+       CLUTTER_NOTE (CLIPPING, "Bail from cull_actor without culling (%s): "
+@@ -3473,46 +3472,27 @@ cull_actor (ClutterActor        *self,
+       return FALSE;
+     }
+ 
+-  *result_out =
+-    _clutter_paint_volume_cull (&priv->last_paint_volume, stage_clip);
++  clip_frusta = clutter_paint_context_get_clip_frusta (paint_context);
++  if (!clip_frusta)
++    {
++      *result_out = CLUTTER_CULL_RESULT_IN;
++      return TRUE;
++    }
+ 
+-  if (*result_out != CLUTTER_CULL_RESULT_OUT)
++  for (i = 0; i < clip_frusta->len; i++)
+     {
+-      const cairo_region_t *redraw_clip;
++      const graphene_frustum_t *clip_frustum =
++        &g_array_index (clip_frusta, graphene_frustum_t, i);
+ 
+-      redraw_clip = clutter_paint_context_get_redraw_clip (paint_context);
+-      if (redraw_clip)
+-        {
+-          ClutterActorBox paint_box;
+-          cairo_rectangle_int_t paint_box_bounds;
+-          cairo_region_overlap_t overlap;
+-
+-          _clutter_paint_volume_get_stage_paint_box (&priv->last_paint_volume,
+-                                                     stage,
+-                                                     &paint_box);
+-
+-          paint_box_bounds.x = floorf (paint_box.x1);
+-          paint_box_bounds.y = floorf (paint_box.y1);
+-          paint_box_bounds.width = ceilf (paint_box.x2 - paint_box_bounds.x);
+-          paint_box_bounds.height = ceilf (paint_box.y2 - paint_box_bounds.y);
+-
+-          overlap = cairo_region_contains_rectangle (redraw_clip,
+-                                                     &paint_box_bounds);
+-          switch (overlap)
+-            {
+-            case CAIRO_REGION_OVERLAP_IN:
+-              *result_out = CLUTTER_CULL_RESULT_IN;
+-              break;
+-            case CAIRO_REGION_OVERLAP_PART:
+-              *result_out = CLUTTER_CULL_RESULT_PARTIAL;
+-              break;
+-            case CAIRO_REGION_OVERLAP_OUT:
+-              *result_out = CLUTTER_CULL_RESULT_OUT;
+-              break;
+-            }
+-        }
++      result = _clutter_paint_volume_cull (&priv->last_paint_volume,
++                                           clip_frustum);
++
++      if (result != CLUTTER_CULL_RESULT_OUT)
++        break;
+     }
+ 
++  *result_out = result;
++
+   return TRUE;
+ }
+ 
+diff --git a/clutter/clutter/clutter-paint-context-private.h b/clutter/clutter/clutter-paint-context-private.h
+index 1e6f3fa00f61100843671c2d3d2a9bde0620069b..25592a6fefb215bb7c30572f6460df5f2f82bc39 100644
+--- a/clutter/clutter/clutter-paint-context-private.h
++++ b/clutter/clutter/clutter-paint-context-private.h
+@@ -20,12 +20,17 @@
+ 
+ #include "clutter-paint-context.h"
+ 
+-ClutterPaintContext * clutter_paint_context_new_for_view (ClutterStageView     *view,
+-                                                          const cairo_region_t *redraw_clip,
+-                                                          ClutterPaintFlag      paint_flags);
++ClutterPaintContext *
++clutter_paint_context_new_for_view (ClutterStageView     *view,
++                                    const cairo_region_t *redraw_clip,
++                                    GArray               *clip_frusta,
++                                    ClutterPaintFlag      paint_flags);
+ 
+ gboolean clutter_paint_context_is_drawing_off_stage (ClutterPaintContext *paint_context);
+ 
+ CoglFramebuffer * clutter_paint_context_get_base_framebuffer (ClutterPaintContext *paint_context);
+ 
++const GArray *
++clutter_paint_context_get_clip_frusta (ClutterPaintContext *paint_context);
++
+ #endif /* CLUTTER_PAINT_CONTEXT_PRIVATE_H */
+diff --git a/clutter/clutter/clutter-paint-context.c b/clutter/clutter/clutter-paint-context.c
+index 5e348581c18bc8faeeaccec0e90bd88d5bab1560..b56d92aa784400779dc3fe5cc40f69aa657d7038 100644
+--- a/clutter/clutter/clutter-paint-context.c
++++ b/clutter/clutter/clutter-paint-context.c
+@@ -30,6 +30,7 @@ struct _ClutterPaintContext
+   ClutterStageView *view;
+ 
+   cairo_region_t *redraw_clip;
++  GArray *clip_frusta;
+ };
+ 
+ G_DEFINE_BOXED_TYPE (ClutterPaintContext, clutter_paint_context,
+@@ -39,6 +40,7 @@ G_DEFINE_BOXED_TYPE (ClutterPaintContext, clutter_paint_context,
+ ClutterPaintContext *
+ clutter_paint_context_new_for_view (ClutterStageView     *view,
+                                     const cairo_region_t *redraw_clip,
++                                    GArray               *clip_frusta,
+                                     ClutterPaintFlag      paint_flags)
+ {
+   ClutterPaintContext *paint_context;
+@@ -48,6 +50,7 @@ clutter_paint_context_new_for_view (ClutterStageView     *view,
+   g_ref_count_init (&paint_context->ref_count);
+   paint_context->view = view;
+   paint_context->redraw_clip = cairo_region_copy (redraw_clip);
++  paint_context->clip_frusta = g_array_ref (clip_frusta);
+   paint_context->paint_flags = paint_flags;
+ 
+   framebuffer = clutter_stage_view_get_framebuffer (view);
+@@ -89,5 +92,6 @@ clutter_paint_context_dispose (ClutterPaintContext *paint_context)
+   paint_context->framebuffers = NULL;
+   g_clear_pointer (&paint_context->redraw_clip, cairo_region_destroy);
++  g_clear_pointer (&paint_context->clip_frusta, g_array_unref);
+ }
+ 
+ void
+@@ -133,6 +137,12 @@ clutter_paint_context_get_redraw_clip (ClutterPaintContext *paint_context)
+   return paint_context->redraw_clip;
+ }
+ 
++const GArray *
++clutter_paint_context_get_clip_frusta (ClutterPaintContext *paint_context)
++{
++  return paint_context->clip_frusta;
++}
++
+ /**
+  * clutter_paint_context_get_framebuffer:
+  * @paint_context: The #ClutterPaintContext
+diff --git a/clutter/clutter/clutter-paint-volume-private.h b/clutter/clutter/clutter-paint-volume-private.h
+index 48524f4223aecdc878db5d10775f3bbf175811dd..5d51e5bf31b8db76b3da16d876cb130066a64f1a 100644
+--- a/clutter/clutter/clutter-paint-volume-private.h
++++ b/clutter/clutter/clutter-paint-volume-private.h
+@@ -123,8 +123,8 @@ void                _clutter_paint_volume_axis_align           (ClutterPaintVolu
+ void                _clutter_paint_volume_set_reference_actor  (ClutterPaintVolume *pv,
+                                                                 ClutterActor *actor);
+ 
+-ClutterCullResult   _clutter_paint_volume_cull                 (ClutterPaintVolume *pv,
+-                                                                const ClutterPlane       *planes);
++ClutterCullResult   _clutter_paint_volume_cull                 (ClutterPaintVolume       *pv,
++                                                                const graphene_frustum_t *frustum);
+ 
+ void                _clutter_paint_volume_get_stage_paint_box  (ClutterPaintVolume *pv,
+                                                                 ClutterStage *stage,
+diff --git a/clutter/clutter/clutter-paint-volume.c b/clutter/clutter/clutter-paint-volume.c
+index c78bfb6c951933e0c2484a0844947befd59c3e51..413be47a83fd55045d2deb6007187593ab6591e9 100644
+--- a/clutter/clutter/clutter-paint-volume.c
++++ b/clutter/clutter/clutter-paint-volume.c
+@@ -1071,14 +1071,11 @@ _clutter_paint_volume_set_reference_actor (ClutterPaintVolume *pv,
+ }
+ 
+ ClutterCullResult
+-_clutter_paint_volume_cull (ClutterPaintVolume *pv,
+-                            const ClutterPlane *planes)
++_clutter_paint_volume_cull (ClutterPaintVolume       *pv,
++                            const graphene_frustum_t *frustum)
+ {
+   int vertex_count;
+-  graphene_point3d_t *vertices = pv->vertices;
+-  gboolean partial = FALSE;
+-  int i;
+-  int j;
++  graphene_box_t box;
+ 
+   if (pv->is_empty)
+     return CLUTTER_CULL_RESULT_OUT;
+@@ -1095,33 +1092,12 @@ _clutter_paint_volume_cull (ClutterPaintVolume *pv,
+   else
+     vertex_count = 8;
+ 
+-  for (i = 0; i < 4; i++)
+-    {
+-      const ClutterPlane *plane = &planes[i];
+-      int out = 0;
+-      for (j = 0; j < vertex_count; j++)
+-        {
+-          graphene_vec3_t v;
+-
+-          graphene_vec3_init (&v,
+-                              vertices[j].x - graphene_vec3_get_x (&plane->v0),
+-                              vertices[j].y - graphene_vec3_get_y (&plane->v0),
+-                              vertices[j].z - graphene_vec3_get_z (&plane->v0));
+-
+-          if (graphene_vec3_dot (&plane->n, &v) < 0)
+-            out++;
+-        }
+-
+-      if (out == vertex_count)
+-        return CLUTTER_CULL_RESULT_OUT;
+-      else if (out != 0)
+-        partial = TRUE;
+-    }
++  graphene_box_init_from_points (&box, vertex_count, pv->vertices);
+ 
+-  if (partial)
+-    return CLUTTER_CULL_RESULT_PARTIAL;
+-  else
++  if (graphene_frustum_intersects_box (frustum, &box))
+     return CLUTTER_CULL_RESULT_IN;
++  else
++    return CLUTTER_CULL_RESULT_OUT;
+ }
+ 
+ void
+diff --git a/clutter/clutter/clutter-private.h b/clutter/clutter/clutter-private.h
+index a504b74ba8b4b4f1addd07a0c3879a8d7fbcac2e..cc310edb26cfb8fe80a1dbb4a15ece1f0355704a 100644
+--- a/clutter/clutter/clutter-private.h
++++ b/clutter/clutter/clutter-private.h
+@@ -245,18 +245,11 @@ PangoDirection _clutter_pango_unichar_direction (gunichar ch);
+ PangoDirection _clutter_pango_find_base_dir     (const gchar *text,
+                                                  gint         length);
+ 
+-typedef struct _ClutterPlane
+-{
+-  graphene_vec3_t v0;
+-  graphene_vec3_t n;
+-} ClutterPlane;
+-
+ typedef enum _ClutterCullResult
+ {
+   CLUTTER_CULL_RESULT_UNKNOWN,
+   CLUTTER_CULL_RESULT_IN,
+   CLUTTER_CULL_RESULT_OUT,
+-  CLUTTER_CULL_RESULT_PARTIAL
+ } ClutterCullResult;
+ 
+ gboolean        _clutter_has_progress_function  (GType gtype);
+@@ -268,4 +261,10 @@ gboolean        _clutter_run_progress_function  (GType gtype,
+ 
+ void            clutter_timeline_cancel_delay (ClutterTimeline *timeline);
+ 
++static inline void
++clutter_round_to_256ths (float *f)
++{
++  *f = roundf ((*f) * 256) / 256;
++}
++
+ static inline uint64_t
+diff --git a/clutter/clutter/clutter-stage-private.h b/clutter/clutter/clutter-stage-private.h
+index ef5ce1da492463813c830b985eb8c648ee3ff222..a80539666b4cab0de8538d577f866453d63ffe97 100644
+--- a/clutter/clutter/clutter-stage-private.h
++++ b/clutter/clutter/clutter-stage-private.h
+@@ -98,8 +98,6 @@ ClutterActor *_clutter_stage_do_pick (ClutterStage    *stage,
+ ClutterPaintVolume *_clutter_stage_paint_volume_stack_allocate (ClutterStage *stage);
+ void                _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage);
+ 
+-const ClutterPlane *_clutter_stage_get_clip (ClutterStage *stage);
+-
+ ClutterStageQueueRedrawEntry *_clutter_stage_queue_actor_redraw            (ClutterStage                 *stage,
+                                                                             ClutterStageQueueRedrawEntry *entry,
+                                                                             ClutterActor                 *actor,
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index 26cc9e0e581175f7c20791f538496f0adca56570..70661ede0c1712ebb5b9cbd37f1adbc98c1dcf49 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -77,6 +77,8 @@
+ 
+ #include "cogl/cogl.h"
+ 
++#define MAX_FRUSTA 64
++
+ struct _ClutterStageQueueRedrawEntry
+ {
+   ClutterActor *actor;
+@@ -115,8 +117,6 @@ struct _ClutterStagePrivate
+ 
+   GArray *paint_volume_stack;
+ 
+-  ClutterPlane current_clip_planes[4];
+-
+   GSList *pending_relayouts;
+   GList *pending_queue_redraws;
+ 
+@@ -653,143 +653,76 @@ clutter_stage_allocate (ClutterActor           *self,
+   clutter_stage_set_viewport (CLUTTER_STAGE (self), new_width, new_height);
+ }
+ 
+-typedef struct _Vector4
+-{
+-  float x, y, z, w;
+-} Vector4;
+-
+ static void
+-_cogl_util_get_eye_planes_for_screen_poly (float *polygon,
+-                                           int n_vertices,
+-                                           float *viewport,
+-                                           const graphene_matrix_t *projection,
+-                                           const graphene_matrix_t *inverse_project,
+-                                           ClutterPlane *planes)
+-{
+-  float Wc;
+-  Vector4 *tmp_poly;
+-  ClutterPlane *plane;
++setup_clip_frustum (ClutterStage                *stage,
++                    const cairo_rectangle_int_t *clip,
++                    graphene_frustum_t          *frustum)
++{
++  ClutterStagePrivate *priv = stage->priv;
++  cairo_rectangle_int_t geom;
++  graphene_point3d_t camera_position;
++  graphene_point3d_t p[4];
++  graphene_plane_t planes[6];
++  graphene_vec4_t v;
+   int i;
+-  Vector4 *poly;
+-  graphene_vec3_t b;
+-  graphene_vec3_t c;
+-  float zw, ww;
+-  int count;
+-
+-  tmp_poly = g_alloca (sizeof (Vector4) * n_vertices * 2);
+ 
+-#define DEPTH -50
+-
+-  /* Determine W in clip-space (Wc) for a point (0, 0, DEPTH, 1)
+-   *
+-   * Note: the depth could be anything except 0.
+-   *
+-   * We will transform the polygon into clip coordinates using this
+-   * depth and then into eye coordinates. Our clip planes will be
+-   * defined by triangles that extend between points of the polygon at
+-   * DEPTH and corresponding points of the same polygon at DEPTH * 2.
+-   *
+-   * NB: Wc defines the position of the clip planes in clip
+-   * coordinates. Given a screen aligned cross section through the
+-   * frustum; coordinates range from [-Wc,Wc] left to right on the
+-   * x-axis and [Wc,-Wc] top to bottom on the y-axis.
+-   */
+-  zw = graphene_matrix_get_value (projection, 2, 3);
+-  ww = graphene_matrix_get_value (projection, 3, 3);
+-  Wc = DEPTH * zw + ww;
++  _clutter_stage_window_get_geometry (priv->impl, &geom);
+ 
+-#define CLIP_X(X) ((((float)X - viewport[0]) * (2.0 / viewport[2])) - 1) * Wc
+-#define CLIP_Y(Y) ((((float)Y - viewport[1]) * (2.0 / viewport[3])) - 1) * -Wc
++  CLUTTER_NOTE (CLIPPING, "Creating stage clip frustum for "
++                "x=%d, y=%d, width=%d, height=%d",
++                clip->x, clip->y, clip->width, clip->height);
+ 
+-  for (i = 0; i < n_vertices; i++)
+-    {
+-      tmp_poly[i].x = CLIP_X (polygon[i * 2]);
+-      tmp_poly[i].y = CLIP_Y (polygon[i * 2 + 1]);
+-      tmp_poly[i].z = DEPTH;
+-      tmp_poly[i].w = Wc;
+-    }
++  camera_position = GRAPHENE_POINT3D_INIT_ZERO;
+ 
+-  Wc = DEPTH * 2 * zw + ww;
++  p[0] = GRAPHENE_POINT3D_INIT (MAX (clip->x, 0), MAX (clip->y, 0), 0.f);
++  p[2] = GRAPHENE_POINT3D_INIT (MIN (clip->x + clip->width, geom.width),
++                                MIN (clip->y + clip->height, geom.height),
++                                0.f);
+ 
+-  /* FIXME: technically we don't need to project all of the points
+-   * twice, it would be enough project every other point since
+-   * we can share points in this set to define the plane vectors. */
+-  for (i = 0; i < n_vertices; i++)
++  for (i = 0; i < 2; i++)
+     {
+-      tmp_poly[n_vertices + i].x = CLIP_X (polygon[i * 2]);
+-      tmp_poly[n_vertices + i].y = CLIP_Y (polygon[i * 2 + 1]);
+-      tmp_poly[n_vertices + i].z = DEPTH * 2;
+-      tmp_poly[n_vertices + i].w = Wc;
++      float w = 1.0;
++      cogl_graphene_matrix_project_point (&priv->view,
++                                          &p[2 * i].x,
++                                          &p[2 * i].y,
++                                          &p[2 * i].z,
++                                          &w);
+     }
+ 
+-#undef CLIP_X
+-#undef CLIP_Y
++  graphene_point3d_init (&p[1], p[2].x, p[0].y, p[0].z);
++  graphene_point3d_init (&p[3], p[0].x, p[2].y, p[0].z);
+ 
+-  cogl_graphene_matrix_project_points (inverse_project,
+-                                       4,
+-                                       sizeof (Vector4),
+-                                       tmp_poly,
+-                                       sizeof (Vector4),
+-                                       tmp_poly,
+-                                       n_vertices * 2);
+-
+-  /* XXX: It's quite ugly that we end up with these casts between
+-   * Vector4 types and CoglVector3s, it might be better if the
+-   * cogl_vector APIs just took pointers to floats.
+-   */
+-
+-  count = n_vertices - 1;
+-  for (i = 0; i < count; i++)
++  for (i = 0; i < 4; i++)
+     {
+-      plane = &planes[i];
+-
+-      poly = &tmp_poly[i];
+-      graphene_vec3_init (&plane->v0, poly->x, poly->y, poly->z);
+-
+-      poly = &tmp_poly[n_vertices + i];
+-      graphene_vec3_init (&b, poly->x, poly->y, poly->z);
+-
+-      poly = &tmp_poly[n_vertices + i + 1];
+-      graphene_vec3_init (&c, poly->x, poly->y, poly->z);
+-
+-      graphene_vec3_subtract (&b, &plane->v0, &b);
+-      graphene_vec3_subtract (&c, &plane->v0, &c);
+-      graphene_vec3_cross (&b, &c, &plane->n);
+-      graphene_vec3_normalize (&plane->n, &plane->n);
++      graphene_plane_init_from_points (&planes[i],
++                                       &camera_position,
++                                       &p[i],
++                                       &p[(i + 1) % 4]);
+     }
+ 
+-  plane = &planes[n_vertices - 1];
++  graphene_vec4_init (&v, 0.f, 0.f, -1.f, priv->perspective.z_near);
++  graphene_plane_init_from_vec4 (&planes[4], &v);
+ 
+-  poly = &tmp_poly[0];
+-  graphene_vec3_init (&plane->v0, poly->x, poly->y, poly->z);
++  graphene_vec4_init (&v, 0.f, 0.f, 1.f, priv->perspective.z_far);
++  graphene_plane_init_from_vec4 (&planes[5], &v);
+ 
+-  poly = &tmp_poly[2 * n_vertices - 1];
+-  graphene_vec3_init (&b, poly->x, poly->y, poly->z);
+-
+-  poly = &tmp_poly[n_vertices];
+-  graphene_vec3_init (&c, poly->x, poly->y, poly->z);
+-
+-  graphene_vec3_subtract (&b, &plane->v0, &b);
+-  graphene_vec3_subtract (&c, &plane->v0, &c);
+-  graphene_vec3_cross (&b, &c, &plane->n);
+-  graphene_vec3_normalize (&plane->n, &plane->n);
++  graphene_frustum_init (frustum,
++                         &planes[0], &planes[1],
++                         &planes[2], &planes[3],
++                         &planes[4], &planes[5]);
+ }
+ 
+-/* XXX: Instead of having a toplevel 2D clip region, it might be
+- * better to have a clip volume within the view frustum. This could
+- * allow us to avoid projecting actors into window coordinates to
+- * be able to cull them.
+- */
+ static void
+-setup_view_for_pick_or_paint (ClutterStage                *stage,
+-                              ClutterStageView            *view,
+-                              const cairo_rectangle_int_t *clip)
++clutter_stage_do_paint_view (ClutterStage         *stage,
++                             ClutterStageView     *view,
++                             const cairo_region_t *redraw_clip)
+ {
+   ClutterStagePrivate *priv = stage->priv;
+-  cairo_rectangle_int_t view_layout;
+-  float clip_poly[8];
+-  float viewport[4];
+-  cairo_rectangle_int_t geom;
++  ClutterPaintContext *paint_context;
++  cairo_rectangle_int_t clip_rect;
++  g_autoptr (GArray) clip_frusta = NULL;
++  graphene_frustum_t clip_frustum;
++  int n_rectangles;
+ 
+   /* Any mode of painting/picking invalidates the pick cache, unless we're
+    * in the middle of building it. So we reset the cached flag but don't
+@@ -797,61 +730,43 @@ setup_view_for_pick_or_paint (ClutterStage                *stage,
+    */
+   priv->cached_pick_mode = CLUTTER_PICK_NONE;
+ 
+-  _clutter_stage_window_get_geometry (priv->impl, &geom);
+-
+-  viewport[0] = priv->viewport[0];
+-  viewport[1] = priv->viewport[1];
+-  viewport[2] = priv->viewport[2];
+-  viewport[3] = priv->viewport[3];
+-
+-  if (!clip)
++  n_rectangles = redraw_clip ? cairo_region_num_rectangles (redraw_clip) : 0;
++  if (redraw_clip && n_rectangles < MAX_FRUSTA)
+     {
+-      clutter_stage_view_get_layout (view, &view_layout);
+-      clip = &view_layout;
+-    }
++      int i;
+ 
+-  clip_poly[0] = MAX (clip->x, 0);
+-  clip_poly[1] = MAX (clip->y, 0);
++      clip_frusta = g_array_sized_new (FALSE, FALSE,
++                                       sizeof (graphene_frustum_t),
++                                       n_rectangles);
+ 
+-  clip_poly[2] = MIN (clip->x + clip->width, geom.width);
+-  clip_poly[3] = clip_poly[1];
+-
+-  clip_poly[4] = clip_poly[2];
+-  clip_poly[5] = MIN (clip->y + clip->height, geom.height);
+-
+-  clip_poly[6] = clip_poly[0];
+-  clip_poly[7] = clip_poly[5];
+-
+-  CLUTTER_NOTE (CLIPPING, "Setting stage clip too: "
+-                "x=%f, y=%f, width=%f, height=%f",
+-                clip_poly[0], clip_poly[1],
+-                clip_poly[2] - clip_poly[0],
+-                clip_poly[5] - clip_poly[1]);
++      for (i = 0; i < n_rectangles; i++)
++        {
++          cairo_region_get_rectangle (redraw_clip, i, &clip_rect);
++          setup_clip_frustum (stage, &clip_rect, &clip_frustum);
++          g_array_append_val (clip_frusta, clip_frustum);
++        }
++    }
++  else
++    {
++      clip_frusta = g_array_sized_new (FALSE, FALSE,
++                                       sizeof (graphene_frustum_t),
++                                       1);
++      if (redraw_clip)
++        cairo_region_get_extents (redraw_clip, &clip_rect);
++      else
++        clutter_stage_view_get_layout (view, &clip_rect);
+ 
+-  _cogl_util_get_eye_planes_for_screen_poly (clip_poly,
+-                                             4,
+-                                             viewport,
+-                                             &priv->projection,
+-                                             &priv->inverse_projection,
+-                                             priv->current_clip_planes);
++      setup_clip_frustum (stage, &clip_rect, &clip_frustum);
++      g_array_append_val (clip_frusta, clip_frustum);
++    }
+ 
+   _clutter_stage_paint_volume_stack_free_all (stage);
+-}
+ 
+-static void
+-clutter_stage_do_paint_view (ClutterStage         *stage,
+-                             ClutterStageView     *view,
+-                             const cairo_region_t *redraw_clip)
+-{
+-  ClutterPaintContext *paint_context;
+-  cairo_rectangle_int_t clip_rect;
+-
+-  paint_context = clutter_paint_context_new_for_view (view, redraw_clip,
++  paint_context = clutter_paint_context_new_for_view (view,
++                                                      redraw_clip,
++                                                      clip_frusta,
+                                                       CLUTTER_PAINT_FLAG_NONE);
+ 
+-  cairo_region_get_extents (redraw_clip, &clip_rect);
+-  setup_view_for_pick_or_paint (stage, view, &clip_rect);
+-
+   clutter_actor_paint (CLUTTER_ACTOR (stage), paint_context);
+   clutter_paint_context_destroy (paint_context);
+ }
+@@ -1492,7 +1407,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
+       pick_context = clutter_pick_context_new_for_view (view);
+ 
+       context->pick_mode = mode;
+-      setup_view_for_pick_or_paint (stage, view, NULL);
++      priv->cached_pick_mode = CLUTTER_PICK_NONE;
+       clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
+       context->pick_mode = CLUTTER_PICK_NONE;
+       priv->cached_pick_mode = mode;
+@@ -2068,8 +1983,8 @@ clutter_stage_set_perspective (ClutterStage       *stage,
+                                     priv->perspective.aspect,
+                                     priv->perspective.z_near,
+                                     priv->perspective.z_far);
+-  cogl_graphene_matrix_get_inverse (&priv->projection,
+-                                    &priv->inverse_projection);
++  graphene_matrix_inverse (&priv->projection,
++                           &priv->inverse_projection);
+ 
+   _clutter_stage_dirty_projection (stage);
+   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
+@@ -2797,7 +2712,7 @@ clutter_stage_update_view_perspective (ClutterStage *stage)
+   perspective = priv->perspective;
+ 
+   perspective.fovy = 60.0; /* 60 Degrees */
+-  perspective.z_near = 0.1;
++  perspective.z_near = 1.0;
+   perspective.aspect = priv->viewport[2] / priv->viewport[3];
+   z_2d = calculate_z_translation (perspective.z_near);
+ 
+@@ -3097,14 +3012,6 @@ _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage)
+   g_array_set_size (paint_volume_stack, 0);
+ }
+ 
+-/* The is an out-of-band parameter available while painting that
+- * can be used to cull actors. */
+-const ClutterPlane *
+-_clutter_stage_get_clip (ClutterStage *stage)
+-{
+-  return stage->priv->current_clip_planes;
+-}
+-
+ /* When an actor queues a redraw we add it to a list on the stage that
+  * gets processed once all updates to the stage have been finished.
+  *
+diff --git a/clutter/clutter/clutter-util.c b/clutter/clutter/clutter-util.c
+index f598332c8f7da6c0a3974ee1571cb9b5cc063c90..5f7fab0e158f07e0c7619932f3ba4040222f0697 100644
+--- a/clutter/clutter/clutter-util.c
++++ b/clutter/clutter/clutter-util.c
+@@ -47,8 +47,6 @@
+ #define MTX_GL_SCALE_Y(y,w,v1,v2) ((v1) - (((((y) / (w)) + 1.0f) / 2.0f) * (v1)) + (v2))
+ #define MTX_GL_SCALE_Z(z,w,v1,v2) (MTX_GL_SCALE_X ((z), (w), (v1), (v2)))
+ 
+-#define ROUND_TO_256THS(x) (roundf ((x) * 256) / 256)
+-
+ typedef struct
+ {
+   float x;
+@@ -108,14 +106,16 @@ _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
+       ClutterVertex4 vertex_tmp = vertices_tmp[i];
+       graphene_point3d_t *vertex_out = &vertices_out[i];
+       /* Finally translate from OpenGL coords to window coords */
+-      vertex_out->x = ROUND_TO_256THS (MTX_GL_SCALE_X (vertex_tmp.x,
+-                                                       vertex_tmp.w,
+-                                                       viewport[2],
+-                                                       viewport[0]));
+-      vertex_out->y = ROUND_TO_256THS (MTX_GL_SCALE_Y (vertex_tmp.y,
+-                                                       vertex_tmp.w,
+-                                                       viewport[3],
+-                                                       viewport[1]));
++      vertex_out->x = MTX_GL_SCALE_X (vertex_tmp.x,
++                                      vertex_tmp.w,
++                                      viewport[2],
++                                      viewport[0]);
++      vertex_out->y = MTX_GL_SCALE_Y (vertex_tmp.y,
++                                      vertex_tmp.w,
++                                      viewport[3],
++                                      viewport[1]);
++      clutter_round_to_256ths (&vertex_out->x);
++      clutter_round_to_256ths (&vertex_out->y);
+     }
+ }
+ 
+diff --git a/cogl/cogl/cogl-graphene.c b/cogl/cogl/cogl-graphene.c
+index 90e1f5b86b1563013fe540bea9191bbb40dc5948..d9bd3bd42caa8410a14062aa2c4f5683c6fd7d53 100644
+--- a/cogl/cogl/cogl-graphene.c
++++ b/cogl/cogl/cogl-graphene.c
+@@ -274,38 +274,3 @@ cogl_graphene_matrix_project_points (const graphene_matrix_t *matrix,
+                          n_points);
+     }
+ }
+-
+-gboolean
+-cogl_graphene_matrix_get_inverse (const graphene_matrix_t *matrix,
+-                                  graphene_matrix_t       *inverse)
+-{
+-  graphene_matrix_t scaled;
+-  graphene_matrix_t m;
+-  gboolean invertible;
+-  float pivot = G_MAXFLOAT;
+-  float v[16];
+-  float scale;
+-
+-  graphene_matrix_init_from_matrix (&m, matrix);
+-  graphene_matrix_to_float (&m, v);
+-
+-  pivot = MIN (pivot, v[0]);
+-  pivot = MIN (pivot, v[5]);
+-  pivot = MIN (pivot, v[10]);
+-  pivot = MIN (pivot, v[15]);
+-  scale = 1.f / pivot;
+-
+-  graphene_matrix_init_scale (&scaled, scale, scale, scale);
+-
+-  /* Float precision is a limiting factor */
+-  graphene_matrix_multiply (&m, &scaled, &m);
+-
+-  invertible = graphene_matrix_inverse (&m, inverse);
+-
+-  if (invertible)
+-    graphene_matrix_multiply (&scaled, inverse, inverse);
+-  else
+-    graphene_matrix_init_identity (inverse);
+-
+-  return invertible;
+-}
+diff --git a/cogl/cogl/cogl-graphene.h b/cogl/cogl/cogl-graphene.h
+index 4a561f6d84bd282a6af69ce365291d6c97407f4f..4206297108f220cf97a155fe5530216f92f483c1 100644
+--- a/cogl/cogl/cogl-graphene.h
++++ b/cogl/cogl/cogl-graphene.h
+@@ -163,22 +163,6 @@ cogl_graphene_matrix_project_points (const graphene_matrix_t *matrix,
+                                      void                    *points_out,
+                                      int                      n_points);
+ 
+-/**
+- * cogl_graphene_matrix_get_inverse:
+- * @matrix: A 4x4 transformation matrix
+- * @inverse: (out): The destination for a 4x4 inverse transformation matrix
+- *
+- * Gets the inverse transform of a given matrix and uses it to initialize
+- * a new #graphene_matrix_t.
+- *
+- * Return value: %TRUE if the inverse was successfully calculated or %FALSE
+- *   for degenerate transformations that can't be inverted (in this case the
+- *   @inverse matrix will simply be initialized with the identity matrix)
+- */
+-COGL_EXPORT gboolean
+-cogl_graphene_matrix_get_inverse (const graphene_matrix_t *matrix,
+-                                  graphene_matrix_t       *inverse);
+-
+ G_END_DECLS
+ 
+ #endif /* COGL_GRAPHENE_H */
+diff --git a/cogl/cogl/cogl-matrix-stack.c b/cogl/cogl/cogl-matrix-stack.c
+index 3f688306813b0843017f8343e984624fa2cc18b1..4e132baf5cbe0b71ad51d7ec35fd8f68ffc2ca2f 100644
+--- a/cogl/cogl/cogl-matrix-stack.c
++++ b/cogl/cogl/cogl-matrix-stack.c
+@@ -358,9 +358,9 @@ cogl_matrix_stack_get_inverse (CoglMatrixStack   *stack,
+   graphene_matrix_t *internal = cogl_matrix_stack_get (stack, &matrix);
+ 
+   if (internal)
+-    return cogl_graphene_matrix_get_inverse (internal, inverse);
++    return graphene_matrix_inverse (internal, inverse);
+   else
+-    return cogl_graphene_matrix_get_inverse (&matrix, inverse);
++    return graphene_matrix_inverse (&matrix, inverse);
+ }
+ 
+ /* In addition to writing the stack matrix into the give @matrix
