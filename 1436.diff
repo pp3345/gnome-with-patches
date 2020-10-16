@@ -1,0 +1,70 @@
+diff --git a/src/shell-blur-effect.c b/src/shell-blur-effect.c
+index 1bdb4caa19d79ed3bef65cecc1c0ff72f813746b..7647e1530f0ce711fb32434cffde3ee404abde16 100644
+--- a/src/shell-blur-effect.c
++++ b/src/shell-blur-effect.c
+@@ -330,17 +330,13 @@ setup_projection_matrix (CoglFramebuffer *framebuffer,
+                          float            width,
+                          float            height)
+ {
+-  CoglMatrix projection;
+-
+-  cogl_matrix_init_identity (&projection);
+-  cogl_matrix_scale (&projection,
+-                     2.0 / width,
+-                     -2.0 / height,
+-                     1.f);
+-  cogl_matrix_translate (&projection,
+-                         -width / 2.0,
+-                         -height / 2.0,
+-                         0);
++  graphene_matrix_t projection;
++
++  graphene_matrix_init_translate (&projection,
++                                  &GRAPHENE_POINT3D_INIT (-width / 2.0,
++                                                          -height / 2.0,
++                                                          0.f));
++  graphene_matrix_scale (&projection, 2.0 / width, -2.0 / height, 1.f);
+ 
+   cogl_framebuffer_set_projection_matrix (framebuffer, &projection);
+ }
+diff --git a/src/st/st-viewport.c b/src/st/st-viewport.c
+index 0eb1868ab977a5f54e76402690a1e4b05ecc0da4..864b0440459bff0b13ea8a368ad0c0af727911cc 100644
+--- a/src/st/st-viewport.c
++++ b/src/st/st-viewport.c
+@@ -325,28 +325,24 @@ get_hadjustment_value (StViewport *viewport)
+ }
+ 
+ static void
+-st_viewport_apply_transform (ClutterActor *actor,
+-                             CoglMatrix   *matrix)
++st_viewport_apply_transform (ClutterActor      *actor,
++                             graphene_matrix_t *matrix)
+ {
+   StViewport *viewport = ST_VIEWPORT (actor);
+   StViewportPrivate *priv = st_viewport_get_instance_private (viewport);
+   ClutterActorClass *parent_class =
+     CLUTTER_ACTOR_CLASS (st_viewport_parent_class);
+-  double x, y;
+-
+-  parent_class->apply_transform (actor, matrix);
++  graphene_point3d_t p = GRAPHENE_POINT3D_INIT_ZERO;
+ 
+   if (priv->hadjustment)
+-    x = get_hadjustment_value (viewport);
+-  else
+-    x = 0;
++    p.x = -get_hadjustment_value (viewport);
+ 
+   if (priv->vadjustment)
+-    y = st_adjustment_get_value (priv->vadjustment);
+-  else
+-    y = 0;
++    p.y = -st_adjustment_get_value (priv->vadjustment);
++
++  graphene_matrix_translate (matrix, &p);
+ 
+-  cogl_matrix_translate (matrix, (int) -x, (int) -y, 0);
++  parent_class->apply_transform (actor, matrix);
+ }
+ 
+ /* If we are translated, then we need to translate back before chaining
