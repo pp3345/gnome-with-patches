@@ -82,14 +82,12 @@ index da610f4cf9aed952e626f7a5d314225a282901e4..68290b986d2ff33816bdcca6661b2fa4
  
  static void     clutter_actor_realize_internal          (ClutterActor *self);
  static void     clutter_actor_unrealize_internal        (ClutterActor *self);
-@@ -1080,6 +1082,7 @@ static void clutter_actor_push_in_cloned_branch (ClutterActor *self,
+@@ -1080,4 +1082,5 @@ static void clutter_actor_push_in_cloned_branch (ClutterActor *self,
                                                   gulong        count);
  static void clutter_actor_pop_in_cloned_branch (ClutterActor *self,
                                                  gulong        count);
 +static void ensure_valid_actor_transform (ClutterActor *actor);
  
- static GQuark quark_actor_layout_info = 0;
- static GQuark quark_actor_transform_info = 0;
 @@ -1253,17 +1256,21 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
                                               const ClutterActorBox *box,
                                               graphene_point_t       vertices[4])
