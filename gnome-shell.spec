@@ -6,11 +6,10 @@ Summary:        Window management and application launching for GNOME
 License:        GPLv2+
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        http://download.gnome.org/sources/gnome-shell/3.38/%{name}-%{version}.tar.xz
+Source0:        gnome-shell-3.38.1-c555f19b.tar.gz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
-Patch2: 0001-windowManager-Avoid-calling-meta_window_actor_thaw-w.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
