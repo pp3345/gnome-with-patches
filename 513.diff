@@ -1,0 +1,237 @@
+diff --git a/gi/boxed.cpp b/gi/boxed.cpp
+index ed8794064632ccdc3f86e95fafa3c60e357c6cca..208b888d1822d907e31c6978f70e33c0b4a757ad 100644
+--- a/gi/boxed.cpp
++++ b/gi/boxed.cpp
+@@ -50,11 +50,18 @@ BoxedInstance::BoxedInstance(JSContext* cx, JS::HandleObject obj)
+ 
+ // See GIWrapperBase::resolve().
+ bool BoxedPrototype::resolve_impl(JSContext* cx, JS::HandleObject obj,
+-                                  JS::HandleId, const char* prop_name,
+-                                  bool* resolved) {
++                                  JS::HandleId id, bool* resolved) {
++    JS::UniqueChars prop_name;
++    if (!gjs_get_string_id(cx, id, &prop_name))
++        return false;
++    if (!prop_name) {
++        *resolved = false;
++        return true;  // not resolved, but no error
++    }
++
+     // Look for methods and other class properties
+     GjsAutoFunctionInfo method_info =
+-        g_struct_info_find_method(info(), prop_name);
++        g_struct_info_find_method(info(), prop_name.get());
+     if (!method_info) {
+         *resolved = false;
+         return true;
+diff --git a/gi/boxed.h b/gi/boxed.h
+index 3167711a2b46c1c058cc64d83cdc3e343f5e6358..98b192a8bf7803cf814cace4881ec5e59decc50a 100644
+--- a/gi/boxed.h
++++ b/gi/boxed.h
+@@ -123,7 +123,7 @@ class BoxedPrototype : public GIWrapperPrototype<BoxedBase, BoxedPrototype,
+  private:
+     GJS_JSAPI_RETURN_CONVENTION
+     bool resolve_impl(JSContext* cx, JS::HandleObject obj, JS::HandleId id,
+-                      const char* prop_name, bool* resolved);
++                      bool* resolved);
+ 
+     GJS_JSAPI_RETURN_CONVENTION
+     bool new_enumerate_impl(JSContext* cx, JS::HandleObject obj,
+diff --git a/gi/fundamental.cpp b/gi/fundamental.cpp
+index 5722997d36975fbf4b3ab314f4610340dfea6037..8e690a465904f784c05d8f848afe2fa30e5337b7 100644
+--- a/gi/fundamental.cpp
++++ b/gi/fundamental.cpp
+@@ -123,11 +123,18 @@ bool FundamentalPrototype::resolve_interface(JSContext* cx,
+ 
+ // See GIWrapperBase::resolve().
+ bool FundamentalPrototype::resolve_impl(JSContext* cx, JS::HandleObject obj,
+-                                        JS::HandleId, const char* prop_name,
+-                                        bool* resolved) {
++                                        JS::HandleId id, bool* resolved) {
++    JS::UniqueChars prop_name;
++    if (!gjs_get_string_id(cx, id, &prop_name))
++        return false;
++    if (!prop_name) {
++        *resolved = false;
++        return true;  // not resolved, but no error
++    }
++
+     /* We are the prototype, so look for methods and other class properties */
+     GjsAutoFunctionInfo method_info =
+-        g_object_info_find_method(info(), prop_name);
++        g_object_info_find_method(info(), prop_name.get());
+ 
+     if (method_info) {
+ #if GJS_VERBOSE_ENABLE_GI_USAGE
+@@ -157,7 +164,7 @@ bool FundamentalPrototype::resolve_impl(JSContext* cx, JS::HandleObject obj,
+         *resolved = false;
+     }
+ 
+-    return resolve_interface(cx, obj, resolved, prop_name);
++    return resolve_interface(cx, obj, resolved, prop_name.get());
+ }
+ 
+ /*
+diff --git a/gi/fundamental.h b/gi/fundamental.h
+index 1c8148229e087e957707d1f345686d168632ae3d..d3429783035da539f65160fe4aab74e7149fa08d 100644
+--- a/gi/fundamental.h
++++ b/gi/fundamental.h
+@@ -109,7 +109,7 @@ class FundamentalPrototype
+ 
+     GJS_JSAPI_RETURN_CONVENTION
+     bool resolve_impl(JSContext* cx, JS::HandleObject obj, JS::HandleId id,
+-                      const char* prop_name, bool* resolved);
++                      bool* resolved);
+ 
+     // Public API
+  public:
+diff --git a/gi/interface.cpp b/gi/interface.cpp
+index 39dfe20eadc653b91961aec8998313306a2e03c9..4c309f505a92ab587c1184dbf953d2f440c17547 100644
+--- a/gi/interface.cpp
++++ b/gi/interface.cpp
+@@ -32,8 +32,7 @@ InterfacePrototype::~InterfacePrototype(void) {
+ 
+ // See GIWrapperBase::resolve().
+ bool InterfacePrototype::resolve_impl(JSContext* context, JS::HandleObject obj,
+-                                      JS::HandleId, const char* name,
+-                                      bool* resolved) {
++                                      JS::HandleId id, bool* resolved) {
+     /* If we have no GIRepository information then this interface was defined
+      * from within GJS. In that case, it has no properties that need to be
+      * resolved from within C code, as interfaces cannot inherit. */
+@@ -42,8 +41,16 @@ bool InterfacePrototype::resolve_impl(JSContext* context, JS::HandleObject obj,
+         return true;
+     }
+ 
++    JS::UniqueChars prop_name;
++    if (!gjs_get_string_id(context, id, &prop_name))
++        return false;
++    if (!prop_name) {
++        *resolved = false;
++        return true;  // not resolved, but no error
++    }
++
+     GjsAutoFunctionInfo method_info =
+-        g_interface_info_find_method(m_info, name);
++        g_interface_info_find_method(m_info, prop_name.get());
+ 
+     if (method_info) {
+         if (g_function_info_get_flags (method_info) & GI_FUNCTION_IS_METHOD) {
+diff --git a/gi/interface.h b/gi/interface.h
+index 512c776256f02c782a63fab9b0ddeda338673604..309207cb4ba2b79ee05bf5918652b207a4e9c153 100644
+--- a/gi/interface.h
++++ b/gi/interface.h
+@@ -91,7 +91,7 @@ class InterfacePrototype
+ 
+     GJS_JSAPI_RETURN_CONVENTION
+     bool resolve_impl(JSContext* cx, JS::HandleObject obj, JS::HandleId id,
+-                      const char* name, bool* resolved);
++                      bool* resolved);
+ 
+     // JS methods
+ 
+diff --git a/gi/object.cpp b/gi/object.cpp
+index fd3380905ad5085c434e4e77538bcc8083fe89bb..9d6be712b13d40c1c42c88a244642760278c2f5e 100644
+--- a/gi/object.cpp
++++ b/gi/object.cpp
+@@ -759,14 +759,21 @@ bool ObjectBase::id_is_never_lazy(jsid name, const GjsAtoms& atoms) {
+ }
+ 
+ bool ObjectPrototype::resolve_impl(JSContext* context, JS::HandleObject obj,
+-                                   JS::HandleId id, const char* name,
+-                                   bool* resolved) {
++                                   JS::HandleId id, bool* resolved) {
+     if (m_unresolvable_cache.has(id)) {
+         *resolved = false;
+         return true;
+     }
+ 
+-    if (!uncached_resolve(context, obj, id, name, resolved))
++    JS::UniqueChars prop_name;
++    if (!gjs_get_string_id(context, id, &prop_name))
++        return false;
++    if (!prop_name) {
++        *resolved = false;
++        return true;  // not resolved, but no error
++    }
++
++    if (!uncached_resolve(context, obj, id, prop_name.get(), resolved))
+         return false;
+ 
+     if (!*resolved && !m_unresolvable_cache.putNew(id)) {
+diff --git a/gi/object.h b/gi/object.h
+index e56140725ab336ec656d4a7a378342e0dd612b22..3930aebcf945a155d19d1afcf2919ee7c61a5be4 100644
+--- a/gi/object.h
++++ b/gi/object.h
+@@ -274,7 +274,7 @@ class ObjectPrototype
+  private:
+     GJS_JSAPI_RETURN_CONVENTION
+     bool resolve_impl(JSContext* cx, JS::HandleObject obj, JS::HandleId id,
+-                      const char* prop_name, bool* resolved);
++                      bool* resolved);
+ 
+     GJS_JSAPI_RETURN_CONVENTION
+     bool new_enumerate_impl(JSContext* cx, JS::HandleObject obj,
+diff --git a/gi/union.cpp b/gi/union.cpp
+index 207be70405e7ea352fc7eefe3d9a20a27ab63e4c..6a01833db7f36ad9946a13e73c052667876d3138 100644
+--- a/gi/union.cpp
++++ b/gi/union.cpp
+@@ -42,11 +42,18 @@ UnionInstance::~UnionInstance(void) {
+ 
+ // See GIWrapperBase::resolve().
+ bool UnionPrototype::resolve_impl(JSContext* context, JS::HandleObject obj,
+-                                  JS::HandleId, const char* prop_name,
+-                                  bool* resolved) {
++                                  JS::HandleId id, bool* resolved) {
++    JS::UniqueChars prop_name;
++    if (!gjs_get_string_id(context, id, &prop_name))
++        return false;
++    if (!prop_name) {
++        *resolved = false;
++        return true;  // not resolved, but no error
++    }
++
+     // Look for methods and other class properties
+     GjsAutoFunctionInfo method_info =
+-        g_union_info_find_method(info(), prop_name);
++        g_union_info_find_method(info(), prop_name.get());
+ 
+     if (method_info) {
+ #if GJS_VERBOSE_ENABLE_GI_USAGE
+diff --git a/gi/union.h b/gi/union.h
+index f562af501ce47ae7021c08fb175c911edbdd567c..b46530bc9a6819968c0789fe4d1824ce6f867bd0 100644
+--- a/gi/union.h
++++ b/gi/union.h
+@@ -55,7 +55,7 @@ class UnionPrototype : public GIWrapperPrototype<UnionBase, UnionPrototype,
+ 
+     GJS_JSAPI_RETURN_CONVENTION
+     bool resolve_impl(JSContext* cx, JS::HandleObject obj, JS::HandleId id,
+-                      const char* prop_name, bool* resolved);
++                      bool* resolved);
+ 
+     // Overrides GIWrapperPrototype::constructor_nargs().
+     [[nodiscard]] unsigned constructor_nargs(void) const { return 0; }
+diff --git a/gi/wrapperutils.h b/gi/wrapperutils.h
+index 89b773423739a48d8d90816456ae6d114cd1f48b..0ff4efaa37f0d0724d181b7ffeab8b515228188b 100644
+--- a/gi/wrapperutils.h
++++ b/gi/wrapperutils.h
+@@ -417,18 +417,7 @@ class GIWrapperBase {
+             return true;
+         }
+ 
+-        // A GObject-introspection lazy property will always be a string, so
+-        // also bail out if trying to resolve an integer or symbol property.
+-        JS::UniqueChars prop_name;
+-        if (!gjs_get_string_id(cx, id, &prop_name))
+-            return false;
+-        if (!prop_name) {
+-            *resolved = false;
+-            return true;  // not resolved, but no error
+-        }
+-
+-        return priv->to_prototype()->resolve_impl(cx, obj, id, prop_name.get(),
+-                                                  resolved);
++        return priv->to_prototype()->resolve_impl(cx, obj, id, resolved);
+     }
+ 
+     /*
