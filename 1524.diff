@@ -1,0 +1,19 @@
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 08031cb4a673018bd7e17cbcd6280896824dbd56..e43e434c73f351f145e16d86975381e162188022 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -16137,12 +16137,8 @@ update_stage_views (ClutterActor *self)
+                                                         &bounding_rect);
+ 
+ out:
+-  if (g_signal_has_handler_pending (self, actor_signals[STAGE_VIEWS_CHANGED],
+-                                    0, TRUE))
+-    {
+-      if (!sorted_lists_equal (old_stage_views, priv->stage_views))
+-        g_signal_emit (self, actor_signals[STAGE_VIEWS_CHANGED], 0);
+-    }
++  if (!sorted_lists_equal (old_stage_views, priv->stage_views))
++    g_signal_emit (self, actor_signals[STAGE_VIEWS_CHANGED], 0);
+ }
+ 
+ static void
