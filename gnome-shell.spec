@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.38.1
-Release:        2%{?dist}
+Release:        200%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -223,6 +223,13 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Oct 25 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-200
+- Add !1436 "graphene_matrix_t" @2321ce28
+- Add !1470 "Adapt to pick changes" @d6206c6
+- Add !1481 "Make sure to allocate all children in allocate vfuncs" @2f8206bb
+- Add !1465 "Adapt to CoglFramebuffers turning into GObjects" @bd710ff4
+- Rebase to gnome-3-38@c555f19b
+
 * Tue Oct 13 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.1-2
 - Fix crash on size change (non-)transitions
 
