@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.38.1
-Release:        100%{?dist}.pp3345
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -10,6 +10,7 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.38/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
+Patch2: 0001-windowManager-Avoid-calling-meta_window_actor_thaw-w.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -220,6 +221,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Tue Oct 13 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.1-2
+- Fix crash on size change (non-)transitions
+
 * Tue Oct 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-100
 - Rebase to 3.38.1-1.fc33
 
