@@ -5,7 +5,7 @@
 
 Name:          gjs
 Version:       1.66.1
-Release:       2%{?dist}
+Release:       200%{?dist}.pp3345
 Summary:       Javascript Bindings for GNOME
 
 # The following files contain code from Mozilla which
@@ -97,6 +97,10 @@ the functionality of the installed gjs package.
 %{_datadir}/installed-tests/
 
 %changelog
+* Sun Oct 25 2020 Yussuf Khalil <dev@pp3345.net> - 1.66.1-200
+- Add !512 "Revert "arg-cache: Save space by not caching GType"" @d526bf89
+- Add !513 "gi/wrapperutils: Move gjs_get_string_id() into resolve() implementations" @6aec0972
+
 * Mon Oct 19 2020 Frantisek Zatloukal <fzatlouk@redhat.com> - 1.66.1-2
 - Rebuild against mozjs78-78.4.0-1
 
