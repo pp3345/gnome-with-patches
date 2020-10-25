@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.1
-Release:       102%{?dist}.pp3345
+Release:       103%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -181,6 +181,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Oct 26 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-103
+- Add !1510 "renderer-native: Fix GObjectify oversight" @b2f2050b
+
 * Sun Oct 25 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-102
 - Add !1439 "graphene_matrix_t" @b5749a8b
 - Add !1489 "Clip Frusta" @bc41a88c
