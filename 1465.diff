@@ -1,0 +1,143 @@
+diff --git a/src/shell-blur-effect.c b/src/shell-blur-effect.c
+index 7647e1530f0ce711fb32434cffde3ee404abde16..24cf971dba71a2f78fc75765ad66ce7c8f8bc487 100644
+--- a/src/shell-blur-effect.c
++++ b/src/shell-blur-effect.c
+@@ -351,7 +351,7 @@ update_fbo (FramebufferData *data,
+     clutter_backend_get_cogl_context (clutter_get_default_backend ());
+ 
+   g_clear_pointer (&data->texture, cogl_object_unref);
+-  g_clear_pointer (&data->framebuffer, cogl_object_unref);
++  g_clear_object (&data->framebuffer);
+ 
+   float new_width = floorf (width / downscale_factor);
+   float new_height = floorf (height / downscale_factor);
+@@ -362,7 +362,8 @@ update_fbo (FramebufferData *data,
+ 
+   cogl_pipeline_set_layer_texture (data->pipeline, 0, data->texture);
+ 
+-  data->framebuffer = cogl_offscreen_new_with_texture (data->texture);
++  data->framebuffer =
++    COGL_FRAMEBUFFER (cogl_offscreen_new_with_texture (data->texture));
+   if (!data->framebuffer)
+     {
+       g_warning ("%s: Unable to create an Offscreen buffer", G_STRLOC);
+@@ -451,7 +452,7 @@ static void
+ clear_framebuffer_data (FramebufferData *fb_data)
+ {
+   g_clear_pointer (&fb_data->texture, cogl_object_unref);
+-  g_clear_pointer (&fb_data->framebuffer, cogl_object_unref);
++  g_clear_object (&fb_data->framebuffer);
+ }
+ 
+ static float
+diff --git a/src/st/st-private.c b/src/st/st-private.c
+index 129c87f51eb8a85495b9d6d35c87cc6ba6377864..65ad250452135fbb684ec565d0c977d6a44ee04b 100644
+--- a/src/st/st-private.c
++++ b/src/st/st-private.c
+@@ -501,7 +501,7 @@ _st_create_shadow_pipeline_from_actor (StShadow     *shadow_spec,
+       if (!cogl_framebuffer_allocate (fb, &catch_error))
+         {
+           g_error_free (catch_error);
+-          cogl_object_unref (offscreen);
++          g_object_unref (offscreen);
+           cogl_object_unref (buffer);
+           return NULL;
+         }
+@@ -526,7 +526,7 @@ _st_create_shadow_pipeline_from_actor (StShadow     *shadow_spec,
+ 
+       clutter_actor_set_opacity_override (actor, -1);
+ 
+-      cogl_object_unref (fb);
++      g_object_unref (fb);
+ 
+       shadow_pipeline = _st_create_shadow_pipeline (shadow_spec, buffer,
+                                                     resource_scale);
+diff --git a/src/st/st-theme-node-drawing.c b/src/st/st-theme-node-drawing.c
+index c5df5fc62dabb13387b058e3cf9779267a828562..1e00a06f3739df8d3043019245029072d62fb142 100644
+--- a/src/st/st-theme-node-drawing.c
++++ b/src/st/st-theme-node-drawing.c
+@@ -2281,7 +2281,8 @@ st_theme_node_prerender_shadow (StThemeNodePaintState *state)
+   CoglContext *ctx;
+   int fb_width, fb_height;
+   CoglTexture *buffer;
+-  CoglFramebuffer *offscreen = NULL;
++  CoglOffscreen *offscreen = NULL;
++  CoglFramebuffer *framebuffer;
+   GError *error = NULL;
+ 
+   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+@@ -2294,26 +2295,27 @@ st_theme_node_prerender_shadow (StThemeNodePaintState *state)
+     return;
+ 
+   offscreen = cogl_offscreen_new_with_texture (buffer);
++  framebuffer = COGL_FRAMEBUFFER (offscreen);
+ 
+-  if (cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error))
++  if (cogl_framebuffer_allocate (framebuffer, &error))
+     {
+       ClutterActorBox box = { 0, 0, state->box_shadow_width, state->box_shadow_height};
+ 
+-      cogl_framebuffer_orthographic (offscreen, 0, 0,
++      cogl_framebuffer_orthographic (framebuffer, 0, 0,
+                                      fb_width, fb_height, 0, 1.0);
+-      cogl_framebuffer_scale (offscreen,
++      cogl_framebuffer_scale (framebuffer,
+                               state->resource_scale,
+                               state->resource_scale, 1);
+-      cogl_framebuffer_clear4f (offscreen, COGL_BUFFER_BIT_COLOR, 0, 0, 0, 0);
++      cogl_framebuffer_clear4f (framebuffer, COGL_BUFFER_BIT_COLOR, 0, 0, 0, 0);
+ 
+-      st_theme_node_paint_borders (state, offscreen, &box, 0xFF);
++      st_theme_node_paint_borders (state, framebuffer, &box, 0xFF);
+ 
+       state->box_shadow_pipeline = _st_create_shadow_pipeline (st_theme_node_get_box_shadow (node),
+                                                                buffer, state->resource_scale);
+     }
+ 
+   g_clear_error (&error);
+-  cogl_clear_object (&offscreen);
++  g_clear_object (&offscreen);
+   cogl_clear_object (&buffer);
+ }
+ 
+diff --git a/src/st/st-theme-node-transition.c b/src/st/st-theme-node-transition.c
+index b7366653d4ac8d94bde360e03d3b1d071189f518..61199b437ebbece353698e9174fe6956c6dae53e 100644
+--- a/src/st/st-theme-node-transition.c
++++ b/src/st/st-theme-node-transition.c
+@@ -274,21 +274,21 @@ setup_framebuffers (StThemeNodeTransition *transition,
+   if (priv->new_texture == NULL)
+     return FALSE;
+ 
+-  cogl_clear_object (&priv->old_offscreen);
++  g_clear_object (&priv->old_offscreen);
+   priv->old_offscreen = COGL_FRAMEBUFFER (cogl_offscreen_new_with_texture (priv->old_texture));
+   if (!cogl_framebuffer_allocate (priv->old_offscreen, &catch_error))
+     {
+       g_error_free (catch_error);
+-      cogl_clear_object (&priv->old_offscreen);
++      g_clear_object (&priv->old_offscreen);
+       return FALSE;
+     }
+ 
+-  cogl_clear_object (&priv->new_offscreen);
++  g_clear_object (&priv->new_offscreen);
+   priv->new_offscreen = COGL_FRAMEBUFFER (cogl_offscreen_new_with_texture (priv->new_texture));
+   if (!cogl_framebuffer_allocate (priv->new_offscreen, &catch_error))
+     {
+       g_error_free (catch_error);
+-      cogl_clear_object (&priv->new_offscreen);
++      g_clear_object (&priv->new_offscreen);
+       return FALSE;
+     }
+ 
+@@ -404,8 +404,8 @@ st_theme_node_transition_dispose (GObject *object)
+   cogl_clear_object (&priv->old_texture);
+   cogl_clear_object (&priv->new_texture);
+ 
+-  cogl_clear_object (&priv->old_offscreen);
+-  cogl_clear_object (&priv->new_offscreen);
++  g_clear_object (&priv->old_offscreen);
++  g_clear_object (&priv->new_offscreen);
+ 
+   cogl_clear_object (&priv->material);
+ 
