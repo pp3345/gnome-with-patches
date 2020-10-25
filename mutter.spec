@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.1
-Release:       101%{?dist}.pp3345
+Release:       102%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -180,6 +180,20 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sun Oct 25 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-102
+- Add !1439 "graphene_matrix_t" @b5749a8b
+- Add !1489 "Clip Frusta" @bc41a88c
+- Update !1309 "cogl-winsys-glx: Add a heuristically calculated presentation_time" @8d9a94cd
+- Add !1498 "Small Clutter allocation cleanup and fix" @de610a13
+- Add !1474 "Effects cleanups" @c7ab5f3f
+- Add !1496 "Make CoglFramebuffer a GObject" @5a58ccbe
+- Add !1509 "Raycast Pick" @08fcaa74
+- Add !984 "Ignore monitor connector ID when possible" @26a3b841
+- Add !1524 "clutter/actor: Don't check handlers when emitting stage-views-changed" @3d246ec0
+- Add !1507 "clutter/paint-volume: Use graphene for computing union of paint volumes" @d2f8a306
+- Add !1468 "wayland/compositor: Only emit frame callbacks for the best suited stage view" @3d40d94c
+- Rebase to gnome-3-38@d9e34ebb
+
 * Sat Oct 10 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-101
 - Add !1050 "clutter/text: Use new pango API to compare attribute lists" @097b2d17
 
