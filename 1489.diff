@@ -194,7 +194,8 @@ index 5e348581c18bc8faeeaccec0e90bd88d5bab1560..b56d92aa784400779dc3fe5cc40f69aa
    paint_context->paint_flags = paint_flags;
  
    framebuffer = clutter_stage_view_get_framebuffer (view);
-@@ -89,5 +92,6 @@ clutter_paint_context_dispose (ClutterPaintContext *paint_context)
+@@ -89,6 +92,7 @@ clutter_paint_context_dispose (ClutterPaintContext *paint_context)
+   g_list_free_full (paint_context->framebuffers, g_object_unref);
    paint_context->framebuffers = NULL;
    g_clear_pointer (&paint_context->redraw_clip, cairo_region_destroy);
 +  g_clear_pointer (&paint_context->clip_frusta, g_array_unref);
@@ -312,7 +313,7 @@ index a504b74ba8b4b4f1addd07a0c3879a8d7fbcac2e..cc310edb26cfb8fe80a1dbb4a15ece1f
  } ClutterCullResult;
  
  gboolean        _clutter_has_progress_function  (GType gtype);
-@@ -268,4 +261,10 @@ gboolean        _clutter_run_progress_function  (GType gtype,
+@@ -268,6 +261,12 @@ gboolean        _clutter_run_progress_function  (GType gtype,
  
  void            clutter_timeline_cancel_delay (ClutterTimeline *timeline);
  
@@ -323,6 +324,8 @@ index a504b74ba8b4b4f1addd07a0c3879a8d7fbcac2e..cc310edb26cfb8fe80a1dbb4a15ece1f
 +}
 +
  static inline uint64_t
+ us (uint64_t us)
+ {
 diff --git a/clutter/clutter/clutter-stage-private.h b/clutter/clutter/clutter-stage-private.h
 index ef5ce1da492463813c830b985eb8c648ee3ff222..a80539666b4cab0de8538d577f866453d63ffe97 100644
 --- a/clutter/clutter/clutter-stage-private.h
