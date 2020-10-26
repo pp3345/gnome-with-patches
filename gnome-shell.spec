@@ -136,9 +136,9 @@ Conflicts:      gnome-shell-extension-background-logo < 3.34.0
 
 Patch100: 923.diff
 Patch110: 1436.diff
-Patch120: 1470.diff
+#Patch120: 1470.diff
 Patch130: 1481.diff
-Patch140: 1465.diff
+#Patch140: 1465.diff
 Patch150: 1475.diff
 
 %description
