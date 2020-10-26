@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.1
-Release:       103%{?dist}.pp3345
+Release:       104%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -181,6 +181,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Oct 26 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-104
+- Remove !1496 "Make CoglFramebuffer a GObject" (regression)
+- Remove !1489 "Clip Frusta" (missing dependency)
+- Remove !1509 "Raycast Pick" (missing dependency)
+- Remove !1510 "renderer-native: Fix GObjectify oversight" (missing dependency)
+
 * Mon Oct 26 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-103
 - Add !1510 "renderer-native: Fix GObjectify oversight" @b2f2050b
 
