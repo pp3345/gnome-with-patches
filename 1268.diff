@@ -1,0 +1,589 @@
+diff --git a/src/core/display-private.h b/src/core/display-private.h
+index 994bc45dcd8d74305f978e045d9007349ca5f5fa..78f25fdb6c780a38161d0c13dd3af929c7e3ed7a 100644
+--- a/src/core/display-private.h
++++ b/src/core/display-private.h
+@@ -192,7 +192,7 @@ struct _MetaDisplay
+   gboolean    grab_threshold_movement_reached; /* raise_on_click == FALSE.    */
+   int64_t     grab_last_moveresize_time;
+   MetaEdgeResistanceData *grab_edge_resistance_data;
+-  unsigned int grab_last_user_action_was_snap;
++  unsigned int grab_last_edge_resistance_flags;
+ 
+   int	      grab_resize_timeout_id;
+ 
+diff --git a/src/core/display.c b/src/core/display.c
+index 2fc32da71543a384ca7404b85f29386a5918a240..35ba540b6aec712b6e5492bdb64fc24657c42c7e 100644
+--- a/src/core/display.c
++++ b/src/core/display.c
+@@ -1903,7 +1903,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
+   display->grab_latest_motion_x = root_x;
+   display->grab_latest_motion_y = root_y;
+   display->grab_last_moveresize_time = 0;
+-  display->grab_last_user_action_was_snap = FALSE;
++  display->grab_last_edge_resistance_flags = META_EDGE_RESISTANCE_DEFAULT;
+   display->grab_frame_action = frame_action;
+ 
+   meta_display_update_cursor (display);
+diff --git a/src/core/edge-resistance.c b/src/core/edge-resistance.c
+index 0baed077e9a4ee5364b7ea118d532dab1851e1c0..3e42936e734f56621cdd6d6243ed10e551eaa4eb 100644
+--- a/src/core/edge-resistance.c
++++ b/src/core/edge-resistance.c
+@@ -334,6 +334,7 @@ apply_edge_resistance (MetaWindow                *window,
+                        ResistanceDataForAnEdge   *resistance_data,
+                        GSourceFunc                timeout_func,
+                        gboolean                   xdir,
++                       gboolean                   include_windows,
+                        gboolean                   keyboard_op)
+ {
+   int i, begin, end;
+@@ -420,7 +421,8 @@ apply_edge_resistance (MetaWindow                *window,
+               switch (edge->edge_type)
+                 {
+                 case META_EDGE_WINDOW:
+-                  timeout_length_ms = TIMEOUT_RESISTANCE_LENGTH_MS_WINDOW;
++                  if (include_windows)
++                    timeout_length_ms = TIMEOUT_RESISTANCE_LENGTH_MS_WINDOW;
+                   break;
+                 case META_EDGE_MONITOR:
+                   timeout_length_ms = TIMEOUT_RESISTANCE_LENGTH_MS_MONITOR;
+@@ -464,6 +466,8 @@ apply_edge_resistance (MetaWindow                *window,
+           switch (edge->edge_type)
+             {
+             case META_EDGE_WINDOW:
++              if (!include_windows)
++                break;
+               if (movement_towards_edge (edge->side_type, increment))
+                 threshold = PIXEL_DISTANCE_THRESHOLD_TOWARDS_WINDOW;
+               else
+@@ -537,19 +541,22 @@ apply_edge_snapping (int                  old_pos,
+  * function will cause a crash.
+  */
+ static gboolean
+-apply_edge_resistance_to_each_side (MetaDisplay         *display,
+-                                    MetaWindow          *window,
+-                                    const MetaRectangle *old_outer,
+-                                    MetaRectangle       *new_outer,
+-                                    GSourceFunc          timeout_func,
+-                                    gboolean             auto_snap,
+-                                    gboolean             keyboard_op,
+-                                    gboolean             is_resize)
++apply_edge_resistance_to_each_side (MetaDisplay             *display,
++                                    MetaWindow              *window,
++                                    const MetaRectangle     *old_outer,
++                                    MetaRectangle           *new_outer,
++                                    GSourceFunc              timeout_func,
++                                    MetaEdgeResistanceFlags  flags,
++                                    gboolean                 is_resize)
+ {
+   MetaEdgeResistanceData *edge_data;
+   MetaRectangle           modified_rect;
+   gboolean                modified;
+   int new_left, new_right, new_top, new_bottom;
++  gboolean auto_snap, keyboard_op;
++
++  auto_snap = flags & META_EDGE_RESISTANCE_SNAP;
++  keyboard_op = flags & META_EDGE_RESISTANCE_KEYBOARD_OP;
+ 
+   if (display->grab_edge_resistance_data == NULL)
+     compute_resistance_and_snapping_edges (display);
+@@ -637,6 +644,8 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
+     }
+   else
+     {
++      gboolean include_windows = flags & META_EDGE_RESISTANCE_WINDOWS;
++
+       /* Disable edge resistance for resizes when windows have size
+        * increment hints; see #346782.  For all other cases, apply
+        * them.
+@@ -653,6 +662,7 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
+                                               &edge_data->left_data,
+                                               timeout_func,
+                                               TRUE,
++                                              include_windows,
+                                               keyboard_op);
+           new_right  = apply_edge_resistance (window,
+                                               BOX_RIGHT (*old_outer),
+@@ -663,6 +673,7 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
+                                               &edge_data->right_data,
+                                               timeout_func,
+                                               TRUE,
++                                              include_windows,
+                                               keyboard_op);
+         }
+       else
+@@ -682,6 +693,7 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
+                                               &edge_data->top_data,
+                                               timeout_func,
+                                               FALSE,
++                                              include_windows,
+                                               keyboard_op);
+           new_bottom = apply_edge_resistance (window,
+                                               BOX_BOTTOM (*old_outer),
+@@ -692,6 +704,7 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
+                                               &edge_data->bottom_data,
+                                               timeout_func,
+                                               FALSE,
++                                              include_windows,
+                                               keyboard_op);
+         }
+       else
+@@ -1174,15 +1187,15 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
+ }
+ 
+ void
+-meta_window_edge_resistance_for_move (MetaWindow  *window,
+-                                      int         *new_x,
+-                                      int         *new_y,
+-                                      GSourceFunc  timeout_func,
+-                                      gboolean     snap,
+-                                      gboolean     is_keyboard_op)
++meta_window_edge_resistance_for_move (MetaWindow              *window,
++                                      int                     *new_x,
++                                      int                     *new_y,
++                                      GSourceFunc              timeout_func,
++                                      MetaEdgeResistanceFlags  flags)
+ {
+   MetaRectangle old_outer, proposed_outer, new_outer;
+-  gboolean is_resize;
++  MetaEdgeResistanceFlags saved_flags;
++  gboolean is_resize, is_keyboard_op, snap;
+ 
+   meta_window_get_frame_rect (window, &old_outer);
+ 
+@@ -1191,15 +1204,18 @@ meta_window_edge_resistance_for_move (MetaWindow  *window,
+   proposed_outer.y = *new_y;
+   new_outer = proposed_outer;
+ 
+-  window->display->grab_last_user_action_was_snap = snap;
++  snap = flags & META_EDGE_RESISTANCE_SNAP;
++  is_keyboard_op = flags & META_EDGE_RESISTANCE_KEYBOARD_OP;
++  saved_flags = flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
++
++  window->display->grab_last_edge_resistance_flags = saved_flags;
+   is_resize = FALSE;
+   if (apply_edge_resistance_to_each_side (window->display,
+                                           window,
+                                           &old_outer,
+                                           &new_outer,
+                                           timeout_func,
+-                                          snap,
+-                                          is_keyboard_op,
++                                          flags,
+                                           is_resize))
+     {
+       /* apply_edge_resistance_to_each_side independently applies
+@@ -1252,15 +1268,15 @@ meta_window_edge_resistance_for_move (MetaWindow  *window,
+ }
+ 
+ void
+-meta_window_edge_resistance_for_resize (MetaWindow  *window,
+-                                        int         *new_width,
+-                                        int         *new_height,
+-                                        MetaGravity  gravity,
+-                                        GSourceFunc  timeout_func,
+-                                        gboolean     snap,
+-                                        gboolean     is_keyboard_op)
++meta_window_edge_resistance_for_resize (MetaWindow              *window,
++                                        int                     *new_width,
++                                        int                     *new_height,
++                                        MetaGravity              gravity,
++                                        GSourceFunc              timeout_func,
++                                        MetaEdgeResistanceFlags  flags)
+ {
+   MetaRectangle old_outer, new_outer;
++  MetaEdgeResistanceFlags saved_flags;
+   int proposed_outer_width, proposed_outer_height;
+ 
+   meta_window_get_frame_rect (window, &old_outer);
+@@ -1272,14 +1288,15 @@ meta_window_edge_resistance_for_resize (MetaWindow  *window,
+                                       proposed_outer_width,
+                                       proposed_outer_height);
+ 
+-  window->display->grab_last_user_action_was_snap = snap;
++  saved_flags = flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
++  window->display->grab_last_edge_resistance_flags = saved_flags;
++
+   if (apply_edge_resistance_to_each_side (window->display,
+                                           window,
+                                           &old_outer,
+                                           &new_outer,
+                                           timeout_func,
+-                                          snap,
+-                                          is_keyboard_op,
++                                          flags,
+                                           TRUE))
+     {
+       *new_width = new_outer.width;
+diff --git a/src/core/edge-resistance.h b/src/core/edge-resistance.h
+index c980030c72122d6096c1e04abf581d448b6ca4cf..4eb6abdca3fa1043fc65f088d067df2e2f739f56 100644
+--- a/src/core/edge-resistance.h
++++ b/src/core/edge-resistance.h
+@@ -24,19 +24,17 @@
+ 
+ #include "core/window-private.h"
+ 
+-void        meta_window_edge_resistance_for_move   (MetaWindow  *window,
+-                                                    int         *new_x,
+-                                                    int         *new_y,
+-                                                    GSourceFunc  timeout_func,
+-                                                    gboolean     snap,
+-                                                    gboolean     is_keyboard_op);
+-void        meta_window_edge_resistance_for_resize (MetaWindow  *window,
+-                                                    int         *new_width,
+-                                                    int         *new_height,
+-                                                    MetaGravity  gravity,
+-                                                    GSourceFunc  timeout_func,
+-                                                    gboolean     snap,
+-                                                    gboolean     is_keyboard_op);
++void meta_window_edge_resistance_for_move   (MetaWindow              *window,
++                                             int                     *new_x,
++                                             int                     *new_y,
++                                             GSourceFunc              timeout_func,
++                                             MetaEdgeResistanceFlags  flags);
++void meta_window_edge_resistance_for_resize (MetaWindow              *window,
++                                             int                     *new_width,
++                                             int                     *new_height,
++                                             MetaGravity              gravity,
++                                             GSourceFunc              timeout_func,
++                                             MetaEdgeResistanceFlags  flags);
+ 
+ #endif /* META_EDGE_RESISTANCE_H */
+ 
+diff --git a/src/core/keybindings.c b/src/core/keybindings.c
+index 5ccacb86377c7c2cf103ba31cbee6f7438eb9959..f649093c9c17c21cbf6d76402ca919d957221cc7 100644
+--- a/src/core/keybindings.c
++++ b/src/core/keybindings.c
+@@ -2400,11 +2400,11 @@ process_keyboard_move_grab (MetaDisplay     *display,
+                             MetaWindow      *window,
+                             ClutterKeyEvent *event)
+ {
++  MetaEdgeResistanceFlags flags;
+   gboolean handled;
+   MetaRectangle frame_rect;
+   int x, y;
+   int incr;
+-  gboolean smart_snap;
+ 
+   handled = FALSE;
+ 
+@@ -2420,12 +2420,15 @@ process_keyboard_move_grab (MetaDisplay     *display,
+   x = frame_rect.x;
+   y = frame_rect.y;
+ 
+-  smart_snap = (event->modifier_state & CLUTTER_SHIFT_MASK) != 0;
++  flags = META_EDGE_RESISTANCE_KEYBOARD_OP | META_EDGE_RESISTANCE_WINDOWS;
++
++  if ((event->modifier_state & CLUTTER_SHIFT_MASK) != 0)
++    flags |= META_EDGE_RESISTANCE_SNAP;
+ 
+ #define SMALL_INCREMENT 1
+ #define NORMAL_INCREMENT 10
+ 
+-  if (smart_snap)
++  if (flags & META_EDGE_RESISTANCE_SNAP)
+     incr = 1;
+   else if (event->modifier_state & CLUTTER_CONTROL_MASK)
+     incr = SMALL_INCREMENT;
+@@ -2501,8 +2504,7 @@ process_keyboard_move_grab (MetaDisplay     *display,
+                                             &x,
+                                             &y,
+                                             NULL,
+-                                            smart_snap,
+-                                            TRUE);
++                                            flags);
+ 
+       meta_window_move_frame (window, TRUE, x, y);
+       meta_window_update_keyboard_move (window);
+@@ -2641,7 +2643,7 @@ process_keyboard_resize_grab (MetaDisplay     *display,
+   int height_inc;
+   int width_inc;
+   int width, height;
+-  gboolean smart_snap;
++  MetaEdgeResistanceFlags flags;
+   MetaGravity gravity;
+ 
+   handled = FALSE;
+@@ -2679,12 +2681,15 @@ process_keyboard_resize_grab (MetaDisplay     *display,
+ 
+   gravity = meta_resize_gravity_from_grab_op (display->grab_op);
+ 
+-  smart_snap = (event->modifier_state & CLUTTER_SHIFT_MASK) != 0;
++  flags = META_EDGE_RESISTANCE_KEYBOARD_OP;
++
++  if ((event->modifier_state & CLUTTER_SHIFT_MASK) != 0)
++    flags |= META_EDGE_RESISTANCE_SNAP;
+ 
+ #define SMALL_INCREMENT 1
+ #define NORMAL_INCREMENT 10
+ 
+-  if (smart_snap)
++  if (flags & META_EDGE_RESISTANCE_SNAP)
+     {
+       height_inc = 1;
+       width_inc = 1;
+@@ -2853,8 +2858,7 @@ process_keyboard_resize_grab (MetaDisplay     *display,
+                                               &height,
+                                               gravity,
+                                               NULL,
+-                                              smart_snap,
+-                                              TRUE);
++                                              flags);
+ 
+       meta_window_resize_frame_with_gravity (window,
+                                              TRUE,
+diff --git a/src/core/window-private.h b/src/core/window-private.h
+index 3872479aae8d9295d56d3bf27fc6345705c21d74..2ef0db71409968d69faa8d58ab8092897ad727ac 100644
+--- a/src/core/window-private.h
++++ b/src/core/window-private.h
+@@ -157,6 +157,14 @@ typedef enum
+   META_EDGE_CONSTRAINT_MONITOR = 2,
+ } MetaEdgeConstraint;
+ 
++typedef enum
++{
++  META_EDGE_RESISTANCE_DEFAULT     = 0,
++  META_EDGE_RESISTANCE_SNAP        = 1 << 0,
++  META_EDGE_RESISTANCE_KEYBOARD_OP = 1 << 1,
++  META_EDGE_RESISTANCE_WINDOWS     = 1 << 2,
++} MetaEdgeResistanceFlags;
++
+ struct _MetaWindow
+ {
+   GObject parent_instance;
+@@ -843,7 +851,7 @@ void meta_window_set_urgent (MetaWindow *window,
+                              gboolean    urgent);
+ 
+ void meta_window_update_resize (MetaWindow *window,
+-                                gboolean    snap,
++                                MetaEdgeResistanceFlags flags,
+                                 int x, int y,
+                                 gboolean force);
+ 
+diff --git a/src/core/window.c b/src/core/window.c
+index ce6b01bfdfa53ba73564560b9544c6d9f2fc6585..149a6fa62cfb17745e166b13b04e2e2a14e00584 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -131,16 +131,16 @@ static void meta_window_move_resize_now (MetaWindow  *window);
+ 
+ static void meta_window_unqueue (MetaWindow *window, guint queuebits);
+ 
+-static void     update_move           (MetaWindow   *window,
+-                                       gboolean      snap,
+-                                       int           x,
+-                                       int           y);
++static void     update_move           (MetaWindow              *window,
++                                       MetaEdgeResistanceFlags  flags,
++                                       int                      x,
++                                       int                      y);
+ static gboolean update_move_timeout   (gpointer data);
+-static void     update_resize         (MetaWindow   *window,
+-                                       gboolean      snap,
+-                                       int           x,
+-                                       int           y,
+-                                       gboolean      force);
++static void     update_resize         (MetaWindow              *window,
++                                       MetaEdgeResistanceFlags  flags,
++                                       int                      x,
++                                       int                      y,
++                                       gboolean                 force);
+ static gboolean update_resize_timeout (gpointer data);
+ static gboolean should_be_on_all_workspaces (MetaWindow *window);
+ 
+@@ -5980,7 +5980,7 @@ update_move_timeout (gpointer data)
+   MetaWindow *window = data;
+ 
+   update_move (window,
+-               window->display->grab_last_user_action_was_snap,
++               window->display->grab_last_edge_resistance_flags,
+                window->display->grab_latest_motion_x,
+                window->display->grab_latest_motion_y);
+ 
+@@ -6043,10 +6043,10 @@ update_move_maybe_tile (MetaWindow *window,
+ }
+ 
+ static void
+-update_move (MetaWindow  *window,
+-             gboolean     snap,
+-             int          x,
+-             int          y)
++update_move (MetaWindow              *window,
++             MetaEdgeResistanceFlags  flags,
++             int                      x,
++             int                      y)
+ {
+   int dx, dy;
+   int new_x, new_y;
+@@ -6086,7 +6086,7 @@ update_move (MetaWindow  *window,
+   shake_threshold = meta_prefs_get_drag_threshold () *
+     DRAG_THRESHOLD_TO_SHAKE_THRESHOLD_FACTOR;
+ 
+-  if (snap)
++  if (flags & META_EDGE_RESISTANCE_SNAP)
+     {
+       /* We don't want to tile while snapping. Also, clear any previous tile
+          request. */
+@@ -6222,8 +6222,7 @@ update_move (MetaWindow  *window,
+                                         &new_x,
+                                         &new_y,
+                                         update_move_timeout,
+-                                        snap,
+-                                        FALSE);
++                                        flags);
+ 
+   meta_window_move_frame (window, TRUE, new_x, new_y);
+ }
+@@ -6234,7 +6233,7 @@ update_resize_timeout (gpointer data)
+   MetaWindow *window = data;
+ 
+   update_resize (window,
+-                 window->display->grab_last_user_action_was_snap,
++                 window->display->grab_last_edge_resistance_flags,
+                  window->display->grab_latest_motion_x,
+                  window->display->grab_latest_motion_y,
+                  TRUE);
+@@ -6242,8 +6241,9 @@ update_resize_timeout (gpointer data)
+ }
+ 
+ static void
+-update_resize (MetaWindow *window,
+-               gboolean    snap,
+-               int x, int y,
+-               gboolean force)
++update_resize (MetaWindow              *window,
++               MetaEdgeResistanceFlags  flags,
++               int                      x,
++               int                      y,
++               gboolean                 force)
+ {
+@@ -6359,6 +6359,5 @@ update_resize (MetaWindow *window,
+                                           &new_rect.height,
+                                           gravity,
+                                           update_resize_timeout,
+-                                          snap,
+-                                          FALSE);
++                                          flags);
+ 
+@@ -6389,11 +6388,11 @@ maybe_maximize_tiled_window (MetaWindow *window)
+ 
+ void
+ meta_window_update_resize (MetaWindow *window,
+-                           gboolean    snap,
++                           MetaEdgeResistanceFlags flags,
+                            int x, int y,
+                            gboolean force)
+ {
+-  update_resize (window, snap, x, y, force);
++  update_resize (window, flags, x, y, force);
+ }
+ 
+ static void
+@@ -6401,6 +6400,7 @@ end_grab_op (MetaWindow *window,
+              const ClutterEvent *event)
+ {
+   ClutterModifierType modifiers;
++  MetaEdgeResistanceFlags last_flags;
+   gfloat x, y;
+ 
+   clutter_event_get_coords (event, &x, &y);
+@@ -6413,23 +6413,30 @@ end_grab_op (MetaWindow *window,
+    * not want a non-snapped movement to occur from the button
+    * release.
+    */
+-  if (!window->display->grab_last_user_action_was_snap)
++  last_flags = window->display->grab_last_edge_resistance_flags;
++  if ((last_flags & META_EDGE_RESISTANCE_SNAP) == 0)
+     {
++      MetaEdgeResistanceFlags flags = META_EDGE_RESISTANCE_DEFAULT;
++
++      if (modifiers & CLUTTER_SHIFT_MASK)
++        flags |= META_EDGE_RESISTANCE_SNAP;
++
++      if (modifiers & CLUTTER_CONTROL_MASK)
++        flags |= META_EDGE_RESISTANCE_WINDOWS;
++
+       if (meta_grab_op_is_moving (window->display->grab_op))
+         {
+           if (window->display->preview_tile_mode != META_TILE_NONE)
+             meta_window_tile (window, window->display->preview_tile_mode);
+           else
+-            update_move (window,
+-                         modifiers & CLUTTER_SHIFT_MASK,
+-                         x, y);
++            update_move (window, flags, x, y);
+         }
+       else if (meta_grab_op_is_resizing (window->display->grab_op))
+         {
+-          update_resize (window,
+-                         modifiers & CLUTTER_SHIFT_MASK || window->tile_match != NULL,
+-                         x, y,
+-                         TRUE);
++          if (window->tile_match != NULL)
++            flags |= (META_EDGE_RESISTANCE_SNAP | META_EDGE_RESISTANCE_WINDOWS);
++
++          update_resize (window, flags, x, y, TRUE);
+           maybe_maximize_tiled_window (window);
+         }
+     }
+@@ -6443,6 +6450,7 @@ meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
+ {
+   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+   ClutterModifierType modifier_state;
++  MetaEdgeResistanceFlags flags;
+   gfloat x, y;
+ 
+   switch (event->type)
+@@ -6493,20 +6501,25 @@ meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
+     case CLUTTER_MOTION:
+       modifier_state = clutter_event_get_state (event);
+       clutter_event_get_coords (event, &x, &y);
++      flags = META_EDGE_RESISTANCE_DEFAULT;
++
++      if (modifier_state & CLUTTER_SHIFT_MASK)
++        flags |= META_EDGE_RESISTANCE_SNAP;
++
++      if (modifier_state & CLUTTER_CONTROL_MASK)
++        flags |= META_EDGE_RESISTANCE_WINDOWS;
+ 
+       meta_display_check_threshold_reached (window->display, x, y);
+       if (meta_grab_op_is_moving (window->display->grab_op))
+         {
+-          update_move (window,
+-                       modifier_state & CLUTTER_SHIFT_MASK,
+-                       x, y);
++          update_move (window, flags, x, y);
+         }
+       else if (meta_grab_op_is_resizing (window->display->grab_op))
+         {
+-          update_resize (window,
+-                         modifier_state & CLUTTER_SHIFT_MASK || window->tile_match != NULL,
+-                         x, y,
+-                         FALSE);
++          if (window->tile_match != NULL)
++            flags |= (META_EDGE_RESISTANCE_SNAP | META_EDGE_RESISTANCE_WINDOWS);
++
++          update_resize (window, flags, x, y, FALSE);
+         }
+       return TRUE;
+ 
+diff --git a/src/x11/window-x11.c b/src/x11/window-x11.c
+index 0d85a0d0aadb8f0cbac19d8fad425c51804226ef..2b191c2a1f85710dfad45013a1908a20e8b957b6 100644
+--- a/src/x11/window-x11.c
++++ b/src/x11/window-x11.c
+@@ -1226,7 +1226,7 @@ sync_request_timeout (gpointer data)
+       meta_grab_op_is_resizing (window->display->grab_op))
+     {
+       meta_window_update_resize (window,
+-                                 window->display->grab_last_user_action_was_snap,
++                                 window->display->grab_last_edge_resistance_flags,
+                                  window->display->grab_latest_motion_x,
+                                  window->display->grab_latest_motion_y,
+                                  TRUE);
+@@ -4028,7 +4028,7 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
+           /* This means we are ready for another configure;
+            * no pointer round trip here, to keep in sync */
+           meta_window_update_resize (window,
+-                                     window->display->grab_last_user_action_was_snap,
++                                     window->display->grab_last_edge_resistance_flags,
+                                      window->display->grab_latest_motion_x,
+                                      window->display->grab_latest_motion_y,
+                                      TRUE);
