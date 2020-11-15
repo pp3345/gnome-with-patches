@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.38.1
-Release:        202%{?dist}.pp3345
+Release:        203%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -224,6 +224,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Nov 15 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-203
+- Remove !1436 "graphene_matrix_t" (missing dependency)
+
 * Mon Oct 26 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-202
 - Remove !1470 "Adapt to pick changes" (missing dependency)
 - Remove !1465 "Adapt to CoglFramebuffers turning into GObjects" (missing dependency)
