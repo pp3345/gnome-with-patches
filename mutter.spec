@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.1
-Release:       104%{?dist}.pp3345
+Release:       105%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -182,6 +182,14 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sun Nov 15 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-105
+- Add !1268 "window: "Hide" edge resistance behind modifier key" @22902a5e
+- Update !1309 "cogl-winsys-glx: Add a heuristically calculated presentation_time" @40300c94
+- Remove !1439 "graphene_matrix_t" (regression)
+- Remove !1498 "Small Clutter allocation cleanup and fix" (missing dependency)
+- Remove !1474 "Effects cleanups" (missing dependency)
+- Rebase to gnome-3-38@067af969
+
 * Mon Oct 26 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-104
 - Remove !1496 "Make CoglFramebuffer a GObject" (regression)
 - Remove !1489 "Clip Frusta" (missing dependency)
