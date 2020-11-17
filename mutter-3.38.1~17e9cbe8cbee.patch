@@ -1,0 +1,3817 @@
+From 911958cce765ea1f379151453dc5aafc154a8d62 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 7 Oct 2020 14:01:17 +0000
+Subject: [PATCH 01/36] window/wayland: Offset position with size mismatch when
+ resizing
+
+When we resize a window we send it configure requests with size
+suggestion. Some clients, e.g. gnome-terminal will limit its size to a
+discrete set given the font size resulting in the size often not being
+respected completely, but used as a hint to find a size as large as
+possible but not larger than the configured size.
+
+When doing an interactive resize dragging the right or top side of a
+window, this caused issues with the configured window size not matching
+the one used by the client, as the configured position wouldn't be
+correct for the actual size. Fix this by offsetting the position given
+the size mismatch offset, making the position again in sync with the
+size.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1447
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1477
+
+
+(cherry picked from commit 8bdd2aa7dbb80594b37fa384cf6a4c1007e29852)
+---
+ src/wayland/meta-window-wayland.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/src/wayland/meta-window-wayland.c b/src/wayland/meta-window-wayland.c
+index a942dc9a3f..9a33f73e00 100644
+--- a/src/wayland/meta-window-wayland.c
++++ b/src/wayland/meta-window-wayland.c
+@@ -956,8 +956,31 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
+     {
+       if (acked_configuration)
+         {
++          int offset_x;
++          int offset_y;
++
+           rect.x = acked_configuration->x;
+           rect.y = acked_configuration->y;
++
++          offset_x = acked_configuration->width - new_geom.width;
++          offset_y = acked_configuration->height - new_geom.height;
++          switch (acked_configuration->gravity)
++            {
++            case META_GRAVITY_SOUTH:
++            case META_GRAVITY_SOUTH_WEST:
++              rect.y += offset_y;
++              break;
++            case META_GRAVITY_EAST:
++            case META_GRAVITY_NORTH_EAST:
++              rect.x += offset_x;
++              break;
++            case META_GRAVITY_SOUTH_EAST:
++              rect.x += offset_x;
++              rect.y += offset_y;
++              break;
++            default:
++              break;
++            }
+         }
+     }
+ 
+-- 
+2.28.0
+
+
+From 103d798775de27bce10fc8827b2b7b5f79fb2ff7 Mon Sep 17 00:00:00 2001
+From: Juliano de Souza Camargo <julianosc@protonmail.com>
+Date: Fri, 9 Oct 2020 12:03:49 +0000
+Subject: [PATCH 02/36] Update Portuguese translation
+
+---
+ po/pt.po | 169 ++++++++++++++++---------------------------------------
+ 1 file changed, 49 insertions(+), 120 deletions(-)
+
+diff --git a/po/pt.po b/po/pt.po
+index 0395d6760a..419f7a164d 100644
+--- a/po/pt.po
++++ b/po/pt.po
+@@ -5,21 +5,23 @@
+ # Pedro Albuquerque <palbuquerque73@openmailbox.com>, 2015.
+ # Tiago Santos <tiagofsantos81@sapo.pt>, 2016.
+ # Juliano de Souza Camargo <julianosc@protonmail.com>, 2020.
++# Hugo Carvalho <hugokarvalho@hotmail.com>, 2020.
+ #
+ msgid ""
+ msgstr ""
+ "Project-Id-Version: 3.10\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
+-"POT-Creation-Date: 2020-05-29 14:52+0000\n"
+-"PO-Revision-Date: 2020-09-14 21:15-0300\n"
+-"Last-Translator: Juliano de Souza Camargo <julianosc@protonmail.com>\n"
+-"Language-Team: Portuguese <>\n"
++"POT-Creation-Date: 2020-10-06 15:26+0000\n"
++"PO-Revision-Date: 2020-10-07 13:31+0100\n"
++"Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
++"Language-Team: Portuguese < >\n"
+ "Language: pt\n"
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+-"X-Generator: Gtranslator 3.36.0\n"
+ "Plural-Forms: nplurals=2; plural=(n != 1)\n"
++"X-DamnedLies-Scope: partial\n"
++"X-Generator: Gtranslator 3.36.0\n"
+ 
+ #: data/50-mutter-navigation.xml:6
+ msgid "Navigation"
+@@ -171,7 +173,7 @@ msgstr "Mostrar o resumo de atividades"
+ 
+ #: data/50-mutter-wayland.xml:8
+ msgid "Restore the keyboard shortcuts"
+-msgstr "Redefinir os atalhos de teclado"
++msgstr "Redefinir as teclas de atalho"
+ 
+ #: data/50-mutter-windows.xml:6
+ msgid "Windows"
+@@ -183,7 +185,7 @@ msgstr "Ativar o menu de janela"
+ 
+ #: data/50-mutter-windows.xml:10
+ msgid "Toggle fullscreen mode"
+-msgstr "Alternar modo de ecrã completo"
++msgstr "Alternar modo de ecrã inteiro"
+ 
+ #: data/50-mutter-windows.xml:12
+ msgid "Toggle maximization state"
+@@ -203,7 +205,7 @@ msgstr "Fechar a janela"
+ 
+ #: data/50-mutter-windows.xml:20
+ msgid "Hide window"
+-msgstr "Esconder a janela"
++msgstr "Ocultar a janela"
+ 
+ #: data/50-mutter-windows.xml:22
+ msgid "Move window"
+@@ -254,11 +256,6 @@ msgid "Modifier to use for extended window management operations"
+ msgstr "Modificador a utilizar para operações estendidas de gestão de janelas"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:8
+-#| msgid ""
+-#| "This key will initiate the \"overlay\", which is a combination window "
+-#| "overview and application launching system. The default is intended to be "
+-#| "the \"Windows key\" on PC hardware. It's expected that this binding "
+-#| "either the default or set to the empty string."
+ msgid ""
+ "This key will initiate the “overlay”, which is a combination window overview "
+ "and application launching system. The default is intended to be the “Windows "
+@@ -281,8 +278,8 @@ msgid ""
+ "the parent window."
+ msgstr ""
+ "Quando verdadeiro, em vez de terem barras de título independentes, os "
+-"diálogos modais surgem anexados à barra de título da janela-mãe e são "
+-"movidos juntamente com a janela-mãe."
++"diálogos modais surgem anexados à barra de título da janela-principal e são "
++"movidos juntamente com a janela-principal."
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:30
+ msgid "Enable edge tiling when dropping windows on screen edges"
+@@ -304,10 +301,6 @@ msgid "Workspaces are managed dynamically"
+ msgstr "Áreas de trabalho geridas dinamicamente"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:41
+-#| msgid ""
+-#| "Determines whether workspaces are managed dynamically or whether there's "
+-#| "a static number of workspaces (determined by the num-workspaces key in "
+-#| "org.gnome.desktop.wm.preferences)."
+ msgid ""
+ "Determines whether workspaces are managed dynamically or whether there’s a "
+ "static number of workspaces (determined by the num-workspaces key in org."
+@@ -346,10 +339,6 @@ msgid "Delay focus changes until the pointer stops moving"
+ msgstr "Adiar as alterações de foco até que o ponteiro pare de se mover"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:69
+-#| msgid ""
+-#| "If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
+-#| "the focus will not be changed immediately when entering a window, but "
+-#| "only after the pointer stops moving."
+ msgid ""
+ "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
+ "focus will not be changed immediately when entering a window, but only after "
+@@ -364,9 +353,6 @@ msgid "Draggable border width"
+ msgstr "Largura da margem de arrasto"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:80
+-#| msgid ""
+-#| "The amount of total draggable borders. If the theme's visible borders are "
+-#| "not enough, invisible borders will be added to meet this value."
+ msgid ""
+ "The amount of total draggable borders. If the theme’s visible borders are "
+ "not enough, invisible borders will be added to meet this value."
+@@ -404,7 +390,6 @@ msgid "Enable experimental features"
+ msgstr "Ativar as funcionalidades experimentais"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:108
+-#, fuzzy
+ msgid ""
+ "To enable experimental features, add the feature keyword to the list. "
+ "Whether the feature requires restarting the compositor depends on the given "
+@@ -422,26 +407,27 @@ msgstr ""
+ "funcionalidade na lista. Se deve reiniciar o compositor após ativá-la, "
+ "depende de cada funcionalidade. Qualquer funcionalidade experimental não "
+ "necessita de estar disponível ou configurável. Não espere que adicionar algo "
+-"nas definições seja mantido pode tempo indeterminado. Atualmente as palavras-"
+-"chave são: • “scale-monitor-framebuffer” — makes mutter default to layout "
+-"logical monitors in a logical pixel coordinate space, while scaling monitor "
+-"framebuffers instead of window content, to manage HiDPI monitors. Does not "
+-"require a restart. • “rt-scheduler” — makes mutter request a low priority "
+-"real-time scheduling. The executable or user must have CAP_SYS_NICE. "
+-"Requires a restart. • “autostart-xwayland” — initializes Xwayland lazily if "
+-"there are X11 clients. Requires restart."
++"nas definições seja mantido por tempo indeterminado. Atualmente as palavras-"
++"chave são: • “scale-monitor-framebuffer” — torna o mutter padrão para a "
++"disposição de monitores lógicos num espaço de coordenadas de pixel lógico, "
++"enquanto dimensiona os framebuffers do monitor em vez do conteúdo da janela, "
++"para gerir monitores HiDPI. Não requer um reinício. - \"rt-scheduler\" - "
++"torna o pedido do mutter uma programação em tempo real de baixa prioridade. "
++"O executável ou utilizador deve ter CAP_SYS_NICE. Requer um reinício. - "
++"\"autostart-xwayland\" - inicia o Xwayland lentamente se houver clientes "
++"X11. Necessita de reiniciar."
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:134
+ msgid "Modifier to use to locate the pointer"
+-msgstr "Modificador para localizar o ponteiro"
++msgstr "Modificador para localizar o cursor"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:135
+ msgid "This key will initiate the “locate pointer” action."
+-msgstr "Esta chave inicializa a ação “localizar ponteiro”"
++msgstr "Esta chave inicializa a ação “localizar cursor”"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:142
+ msgid "Timeout for check-alive ping"
+-msgstr "Expirou o teste de atividade "
++msgstr "Expirou o teste de atividade"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:143
+ msgid ""
+@@ -458,10 +444,9 @@ msgstr "Selecionar a janela no popup de tabulador"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:170
+ msgid "Cancel tab popup"
+-msgstr "Cancelar o popup de tabulador"
++msgstr "Cancelar a exibição do tab"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:175
+-#| msgid "Switch monitor"
+ msgid "Switch monitor configurations"
+ msgstr "Alternar configurações de ecrã"
+ 
+@@ -469,136 +454,98 @@ msgstr "Alternar configurações de ecrã"
+ msgid "Rotates the built-in monitor configuration"
+ msgstr "Alternar as configurações nativas do ecrã"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
++#: data/org.gnome.mutter.wayland.gschema.xml.in:12
+ msgid "Switch to VT 1"
+ msgstr "Alternar para a área de trabalho 1"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
++#: data/org.gnome.mutter.wayland.gschema.xml.in:16
+ msgid "Switch to VT 2"
+ msgstr "Alternar para a área de trabalho 2"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
++#: data/org.gnome.mutter.wayland.gschema.xml.in:20
+ msgid "Switch to VT 3"
+ msgstr "Alternar para a área de trabalho 3"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
++#: data/org.gnome.mutter.wayland.gschema.xml.in:24
+ msgid "Switch to VT 4"
+ msgstr "Alternar para a área de trabalho 4"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
++#: data/org.gnome.mutter.wayland.gschema.xml.in:28
+ msgid "Switch to VT 5"
+ msgstr "Mover para a área de trabalho 5"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
++#: data/org.gnome.mutter.wayland.gschema.xml.in:32
+ msgid "Switch to VT 6"
+ msgstr "Mover para a área de trabalho 6"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
++#: data/org.gnome.mutter.wayland.gschema.xml.in:36
+ msgid "Switch to VT 7"
+ msgstr "Mover para a área de trabalho 7"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
++#: data/org.gnome.mutter.wayland.gschema.xml.in:40
+ msgid "Switch to VT 8"
+ msgstr "Mover para a área de trabalho 8"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
++#: data/org.gnome.mutter.wayland.gschema.xml.in:44
+ msgid "Switch to VT 9"
+ msgstr "Mover para a área de trabalho 9"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
++#: data/org.gnome.mutter.wayland.gschema.xml.in:48
+ msgid "Switch to VT 10"
+ msgstr "Mover para a área de trabalho 10"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
++#: data/org.gnome.mutter.wayland.gschema.xml.in:52
+ msgid "Switch to VT 11"
+ msgstr "Mover para a área de trabalho 11"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
++#: data/org.gnome.mutter.wayland.gschema.xml.in:56
+ msgid "Switch to VT 12"
+ msgstr "Mover para a área de trabalho 12"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
++#: data/org.gnome.mutter.wayland.gschema.xml.in:60
+ msgid "Re-enable shortcuts"
+ msgstr "Reativar os atalhos"
+ 
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+-msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+-msgstr ""
+-
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+-msgid ""
+-"Allow all keyboard events to be routed to X11 “override redirect” windows "
+-"with a grab when running in Xwayland. This option is to support X11 clients "
+-"which map an “override redirect” window (which do not receive keyboard "
+-"focus) and issue a keyboard grab to force all keyboard events to that "
+-"window. This option is seldom used and has no effect on regular X11 windows "
+-"which can receive keyboard focus under normal circumstances. For a X11 grab "
+-"to be taken into account under Wayland, the client must also either send a "
+-"specific X11 ClientMessage to the root window or be among the applications "
+-"white-listed in key “xwayland-grab-access-rules”."
+-msgstr ""
+-
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+-msgid "Xwayland applications allowed to issue keyboard grabs"
+-msgstr ""
+-
+-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+-msgid ""
+-"List the resource names or resource class of X11 windows either allowed or "
+-"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+-"resource class of a given X11 window can be obtained using the command "
+-"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
+-"Values starting with “!” are blacklisted, which has precedence over the "
+-"whitelist, to revoke applications from the default system list. The default "
+-"system list includes the following applications: "
+-"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
+-"using the specific keyboard shortcut defined by the keybinding key “restore-"
+-"shortcuts”."
+-msgstr ""
+-
+ #. TRANSLATORS: This string refers to a button that switches between
+ #. * different modes.
+ #.
+-#: src/backends/meta-input-settings.c:2631
++#: src/backends/meta-input-settings.c:2683
+ #, c-format
+-#| msgid "Mode Switch: Mode %d"
+ msgid "Mode Switch (Group %d)"
+ msgstr "Alteração de modo (Grupo %d)"
+ 
+ #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+ #. * mapping through the available outputs.
+ #.
+-#: src/backends/meta-input-settings.c:2654
++#: src/backends/meta-input-settings.c:2706
+ msgid "Switch monitor"
+ msgstr "Alternar monitor"
+ 
+-#: src/backends/meta-input-settings.c:2656
++#: src/backends/meta-input-settings.c:2708
+ msgid "Show on-screen help"
+ msgstr "Mostrar ajuda no ecrã"
+ 
+-#: src/backends/meta-monitor.c:226
++#: src/backends/meta-monitor.c:235
+ msgid "Built-in display"
+ msgstr "Ecrã embutido"
+ 
+-#: src/backends/meta-monitor.c:255
++#: src/backends/meta-monitor.c:264
+ msgid "Unknown"
+ msgstr "Desconhecido"
+ 
+-#: src/backends/meta-monitor.c:257
++#: src/backends/meta-monitor.c:266
+ msgid "Unknown Display"
+ msgstr "Ecrã desconhecido"
+ 
+-#: src/backends/meta-monitor.c:265
++#: src/backends/meta-monitor.c:274
+ #, c-format
+-#| msgid "%s %s"
+ msgctxt ""
+ "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+ msgid "%s %s"
+ msgstr "%s %s"
+ 
+-#: src/backends/meta-monitor.c:273
++#: src/backends/meta-monitor.c:282
+ #, c-format
+-#| msgid "%s %s"
+ msgctxt ""
+ "This is a monitor vendor name followed by product/model name where size in "
+ "inches could not be calculated, e.g. Dell U2414H"
+@@ -607,17 +554,13 @@ msgstr "%s %s"
+ 
+ #. Translators: this string will appear in Sysprof
+ #: src/backends/meta-profiler.c:79
+-#| msgid "Compositing Manager"
+ msgid "Compositor"
+ msgstr "Compositor"
+ 
+ #. This probably means that a non-WM compositor like xcompmgr is running;
+ #. * we have no way to get it to exit
+-#: src/compositor/compositor.c:533
++#: src/compositor/compositor.c:516
+ #, c-format
+-#| msgid ""
+-#| "Another compositing manager is already running on screen %i on display "
+-#| "\"%s\"."
+ msgid ""
+ "Another compositing manager is already running on screen %i on display “%s”."
+ msgstr ""
+@@ -699,12 +642,6 @@ msgstr "_Aguardar"
+ 
+ #: src/core/mutter.c:38
+ #, c-format
+-#| msgid ""
+-#| "mutter %s\n"
+-#| "Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+-#| "This is free software; see the source for copying conditions.\n"
+-#| "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+-#| "PARTICULAR PURPOSE.\n"
+ msgid ""
+ "mutter %s\n"
+ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+@@ -732,7 +669,7 @@ msgstr "Extensão Mutter a utilizar"
+ msgid "Workspace %d"
+ msgstr "Área de trabalho %d"
+ 
+-#: src/core/util.c:122
++#: src/core/util.c:118
+ msgid "Mutter was compiled without support for verbose mode\n"
+ msgstr "O Mutter foi compilado sem suporte para modo verboso\n"
+ 
+@@ -743,9 +680,6 @@ msgstr "Alteração de Modo: Modo %d"
+ 
+ #: src/x11/meta-x11-display.c:676
+ #, c-format
+-#| msgid ""
+-#| "Display \"%s\" already has a window manager; try using the --replace "
+-#| "option to replace the current window manager."
+ msgid ""
+ "Display “%s” already has a window manager; try using the --replace option to "
+ "replace the current window manager."
+@@ -759,13 +693,11 @@ msgstr "Falhou ao iniciar o GDK\n"
+ 
+ #: src/x11/meta-x11-display.c:1113
+ #, c-format
+-#| msgid "Failed to open X Window System display '%s'\n"
+ msgid "Failed to open X Window System display “%s”\n"
+ msgstr "Falha ao abrir ecrã “%s” do sistema Janelas X\n"
+ 
+ #: src/x11/meta-x11-display.c:1196
+ #, c-format
+-#| msgid "Screen %d on display '%s' is invalid\n"
+ msgid "Screen %d on display “%s” is invalid\n"
+ msgstr "Ecrã %d no monitor “%s” é inválido\n"
+ 
+@@ -775,9 +707,6 @@ msgid "Format %s not supported"
+ msgstr "O formato “%s” não é suportado"
+ 
+ #: src/x11/session.c:1821
+-#| msgid ""
+-#| "These windows do not support &quot;save current setup&quot; and will have "
+-#| "to be restarted manually next time you log in."
+ msgid ""
+ "These windows do not support “save current setup” and will have to be "
+ "restarted manually next time you log in."
+@@ -785,7 +714,7 @@ msgstr ""
+ "Estas janelas não suportam “gravar configuração atual” e terão de ser "
+ "reiniciadas manualmente da próxima vez que iniciar sessão."
+ 
+-#: src/x11/window-props.c:569
++#: src/x11/window-props.c:548
+ #, c-format
+ msgid "%s (on %s)"
+ msgstr "%s (em %s)"
+-- 
+2.28.0
+
+
+From 8f1718be0e29ccf91e8d1ab0a170ac16e562289d Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 3 Mar 2020 14:26:06 +0000
+Subject: [PATCH 03/36] meson: Fail if initfd is enabled but Xwayland doesn't
+ support it
+
+Fedora's mutter is built with --auto-features=enabled which enables
+-initfd support. But the current meson code doesn't check whether
+-initfd is available in Xwayland, leading to the wayland session not
+starting up.
+
+Check for -initfd's availability before enabling it.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1103
+
+
+(cherry picked from commit f79d40077ecfe7b7f471a8d750f1e9ef65058e54)
+---
+ meson.build | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/meson.build b/meson.build
+index c3d9d3c116..a510b621a3 100644
+--- a/meson.build
++++ b/meson.build
+@@ -411,11 +411,14 @@ if have_wayland
+ 
+   # For Xwayland -initfd usage
+   use_initfd = get_option('xwayland_initfd')
++  xwayland_options = run_command(xwayland_path, '-help')
+   if use_initfd.auto()
+-    xwayland_options = run_command(xwayland_path, '-help')
+     have_xwayland_initfd = xwayland_options.stderr().contains('-initfd')
+   else
+     have_xwayland_initfd = use_initfd.enabled()
++    if have_xwayland_initfd and not xwayland_options.stderr().contains('-initfd')
++      error('XWayland -initfd support requested but not available')
++    endif
+   endif
+ 
+   if (have_xwayland_initfd)
+-- 
+2.28.0
+
+
+From dd4a3b97f7270fb1b15c8ecae08bce33caa0ea8f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 8 Jul 2020 14:53:14 +0000
+Subject: [PATCH 04/36] compositor: Make sure _NET_WM_FRAME_DRAWN timestamp has
+ the right scope
+
+The timestamp sent with _NET_WM_FRAME_DRAWN should be in "high
+resolution X server timestamps", meaning they should have the same scope
+as the built in X11 32 bit unsigned integer timestamps, i.e. overflow at
+the same time.
+
+This was not done correctly when mutter had determined the X server used
+the monotonic clock, where it'd just forward the monotonic clock,
+confusing any client using _NET_WM_FRAME_DRAWN and friends.
+
+Fix this by 1) splitting the timestamp conversiot into an X11 case and a
+display server case, where the display server case simply clamps the
+monotonic clock, as it is assumed Xwayland is always usign the monotonic
+clock, and 2) if we're a X11 compositing manager, if the X server is
+using the monotonic clock, apply the same semantics as the display
+server case and always just clamp, or if not, calculate the offset every
+10 seconds, and offset the monotonic clock timestamp with the calculated
+X server timestamp offset.
+
+This fixes an issue that would occur if mutter (or rather GNOME Shell)
+would have been started before a X11 timestamp overflow, after the
+overflow happened. In this case, GTK3 clients would get unclamped
+timestamps, and get very confused, resulting in frames queued several
+weeks into the future.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1494
+
+
+(cherry picked from commit bf6dde87f862bebce595d7cb35c74981a909cfe8)
+---
+ clutter/clutter/clutter-private.h       |  6 +++
+ src/compositor/compositor-private.h     | 23 ++++++++-
+ src/compositor/compositor.c             | 39 +++------------
+ src/compositor/meta-compositor-server.c |  9 ++++
+ src/compositor/meta-compositor-x11.c    | 65 +++++++++++++++++++++++++
+ src/compositor/meta-window-actor-x11.c  | 21 +++++---
+ 6 files changed, 121 insertions(+), 42 deletions(-)
+
+diff --git a/clutter/clutter/clutter-private.h b/clutter/clutter/clutter-private.h
+index e4119b99fa..3211cb9d7c 100644
+--- a/clutter/clutter/clutter-private.h
++++ b/clutter/clutter/clutter-private.h
+@@ -337,6 +337,12 @@ ns2us (uint64_t ns)
+   return us (ns / 1000);
+ }
+ 
++static inline int64_t
++s2us (int64_t s)
++{
++  return ms2us (s * 1000);
++}
++
+ G_END_DECLS
+ 
+ #endif /* __CLUTTER_PRIVATE_H__ */
+diff --git a/src/compositor/compositor-private.h b/src/compositor/compositor-private.h
+index feb60b7e6b..b81e77d4cf 100644
+--- a/src/compositor/compositor-private.h
++++ b/src/compositor/compositor-private.h
+@@ -5,6 +5,7 @@
+ 
+ #include <X11/extensions/Xfixes.h>
+ 
++#include "clutter/clutter-mutter.h"
+ #include "clutter/clutter.h"
+ #include "compositor/meta-plugin-manager.h"
+ #include "compositor/meta-window-actor-private.h"
+@@ -29,6 +30,8 @@ struct _MetaCompositorClass
+                         ClutterStageView *stage_view);
+   void (* remove_window) (MetaCompositor *compositor,
+                           MetaWindow     *window);
++  int64_t (* monotonic_to_high_res_xserver_time) (MetaCompositor *compositor,
++                                                  int64_t         time_us);
+ };
+ 
+ gboolean meta_compositor_do_manage (MetaCompositor  *compositor,
+@@ -49,8 +52,8 @@ void     meta_end_modal_for_plugin   (MetaCompositor   *compositor,
+ 
+ MetaPluginManager * meta_compositor_get_plugin_manager (MetaCompositor *compositor);
+ 
+-gint64 meta_compositor_monotonic_time_to_server_time (MetaDisplay *display,
+-                                                      gint64       monotonic_time);
++int64_t meta_compositor_monotonic_to_high_res_xserver_time (MetaCompositor *compositor,
++                                                            int64_t         monotonic_time_us);
+ 
+ void meta_compositor_flash_window (MetaCompositor *compositor,
+                                    MetaWindow     *window);
+@@ -77,4 +80,20 @@ gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
+ 
+ MetaLaters * meta_compositor_get_laters (MetaCompositor *compositor);
+ 
++/*
++ * This function takes a 64 bit time stamp from the monotonic clock, and clamps
++ * it to the scope of the X server clock, without losing the granularity.
++ */
++static inline int64_t
++meta_translate_to_high_res_xserver_time (int64_t time_us)
++{
++  int64_t us;
++  int64_t ms;
++
++  us = time_us % 1000;
++  ms = time_us / 1000;
++
++  return ms2us (ms & 0xffffffff) + us;
++}
++
+ #endif /* META_COMPOSITOR_PRIVATE_H */
+diff --git a/src/compositor/compositor.c b/src/compositor/compositor.c
+index e5fc844a42..4206ced8dd 100644
+--- a/src/compositor/compositor.c
++++ b/src/compositor/compositor.c
+@@ -1458,7 +1458,7 @@ meta_compositor_flash_window (MetaCompositor *compositor,
+ }
+ 
+ /**
+- * meta_compositor_monotonic_time_to_server_time:
++ * meta_compositor_monotonic_to_high_res_xserver_time:
+  * @display: a #MetaDisplay
+  * @monotonic_time: time in the units of g_get_monotonic_time()
+  *
+@@ -1471,40 +1471,13 @@ meta_compositor_flash_window (MetaCompositor *compositor,
+  * a time representation with high accuracy. If there is not a common
+  * time source, then the time synchronization will be less accurate.
+  */
+-gint64
+-meta_compositor_monotonic_time_to_server_time (MetaDisplay *display,
+-                                               gint64       monotonic_time)
++int64_t
++meta_compositor_monotonic_to_high_res_xserver_time (MetaCompositor *compositor,
++                                                   int64_t         monotonic_time_us)
+ {
+-  MetaCompositor *compositor = display->compositor;
+-  MetaCompositorPrivate *priv =
+-    meta_compositor_get_instance_private (compositor);
+-
+-  if (priv->server_time_query_time == 0 ||
+-      (!priv->server_time_is_monotonic_time &&
+-       monotonic_time > priv->server_time_query_time + 10*1000*1000)) /* 10 seconds */
+-    {
+-      guint32 server_time = meta_display_get_current_time_roundtrip (display);
+-      gint64 server_time_usec = (gint64)server_time * 1000;
+-      gint64 current_monotonic_time = g_get_monotonic_time ();
+-      priv->server_time_query_time = current_monotonic_time;
+-
+-      /* If the server time is within a second of the monotonic time,
+-       * we assume that they are identical. This seems like a big margin,
+-       * but we want to be as robust as possible even if the system
+-       * is under load and our processing of the server response is
+-       * delayed.
+-       */
+-      if (server_time_usec > current_monotonic_time - 1000*1000 &&
+-          server_time_usec < current_monotonic_time + 1000*1000)
+-        priv->server_time_is_monotonic_time = TRUE;
+-
+-      priv->server_time_offset = server_time_usec - current_monotonic_time;
+-    }
++  MetaCompositorClass *klass = META_COMPOSITOR_GET_CLASS (compositor);
+ 
+-  if (priv->server_time_is_monotonic_time)
+-    return monotonic_time;
+-  else
+-    return monotonic_time + priv->server_time_offset;
++  return klass->monotonic_to_high_res_xserver_time (compositor, monotonic_time_us);
+ }
+ 
+ void
+diff --git a/src/compositor/meta-compositor-server.c b/src/compositor/meta-compositor-server.c
+index f53c10a196..2dbaf34eb5 100644
+--- a/src/compositor/meta-compositor-server.c
++++ b/src/compositor/meta-compositor-server.c
+@@ -36,6 +36,13 @@ meta_compositor_server_unmanage (MetaCompositor *compositor)
+ {
+ }
+ 
++static int64_t
++meta_compositor_server_monotonic_to_high_res_xserver_time (MetaCompositor *compositor,
++                                                           int64_t         monotonic_time_us)
++{
++  return meta_translate_to_high_res_xserver_time (monotonic_time_us);
++}
++
+ MetaCompositorServer *
+ meta_compositor_server_new (MetaDisplay *display,
+                             MetaBackend *backend)
+@@ -58,4 +65,6 @@ meta_compositor_server_class_init (MetaCompositorServerClass *klass)
+ 
+   compositor_class->manage = meta_compositor_server_manage;
+   compositor_class->unmanage = meta_compositor_server_unmanage;
++  compositor_class->monotonic_to_high_res_xserver_time =
++   meta_compositor_server_monotonic_to_high_res_xserver_time;
+ }
+diff --git a/src/compositor/meta-compositor-x11.c b/src/compositor/meta-compositor-x11.c
+index fcd292a1f3..e7da103e3a 100644
+--- a/src/compositor/meta-compositor-x11.c
++++ b/src/compositor/meta-compositor-x11.c
+@@ -45,6 +45,10 @@ struct _MetaCompositorX11
+   gboolean have_x11_sync_object;
+ 
+   MetaWindow *unredirected_window;
++
++  gboolean xserver_uses_monotonic_clock;
++  int64_t xserver_time_query_time_us;
++  int64_t xserver_time_offset_us;
+ };
+ 
+ G_DEFINE_TYPE (MetaCompositorX11, meta_compositor_x11, META_TYPE_COMPOSITOR)
+@@ -102,6 +106,32 @@ meta_compositor_x11_process_xevent (MetaCompositorX11 *compositor_x11,
+     meta_x11_handle_event (xevent);
+ }
+ 
++static void
++determine_server_clock_source (MetaCompositorX11 *compositor_x11)
++{
++  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
++  MetaDisplay *display = meta_compositor_get_display (compositor);
++  MetaX11Display *x11_display = display->x11_display;
++  uint32_t server_time_ms;
++  int64_t server_time_us;
++  int64_t translated_monotonic_now_us;
++
++  server_time_ms = meta_x11_display_get_current_time_roundtrip (x11_display);
++  server_time_us = ms2us (server_time_ms);
++  translated_monotonic_now_us =
++    meta_translate_to_high_res_xserver_time (g_get_monotonic_time ());
++
++  /* If the server time offset is within a second of the monotonic time, we
++   * assume that they are identical. This seems like a big margin, but we want
++   * to be as robust as possible even if the system is under load and our
++   * processing of the server response is delayed.
++   */
++  if (ABS (server_time_us - translated_monotonic_now_us) < s2us (1))
++    compositor_x11->xserver_uses_monotonic_clock = TRUE;
++  else
++    compositor_x11->xserver_uses_monotonic_clock = FALSE;
++}
++
+ static gboolean
+ meta_compositor_x11_manage (MetaCompositor  *compositor,
+                             GError         **error)
+@@ -135,6 +165,8 @@ meta_compositor_x11_manage (MetaCompositor  *compositor,
+       return FALSE;
+     }
+ 
++  determine_server_clock_source (compositor_x11);
++
+   meta_x11_display_set_cm_selection (display->x11_display);
+ 
+   compositor_x11->output = display->x11_display->composite_overlay_window;
+@@ -376,6 +408,37 @@ meta_compositor_x11_remove_window (MetaCompositor *compositor,
+   parent_class->remove_window (compositor, window);
+ }
+ 
++static int64_t
++meta_compositor_x11_monotonic_to_high_res_xserver_time (MetaCompositor *compositor,
++                                                        int64_t         monotonic_time_us)
++{
++  MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
++  int64_t now_us;
++
++  if (compositor_x11->xserver_uses_monotonic_clock)
++    return meta_translate_to_high_res_xserver_time (monotonic_time_us);
++
++  now_us = g_get_monotonic_time ();
++
++  if (compositor_x11->xserver_time_query_time_us == 0 ||
++      now_us > (compositor_x11->xserver_time_query_time_us + s2us (10)))
++    {
++      MetaDisplay *display = meta_compositor_get_display (compositor);
++      MetaX11Display *x11_display = display->x11_display;
++      uint32_t xserver_time_ms;
++      int64_t xserver_time_us;
++
++      compositor_x11->xserver_time_query_time_us = now_us;
++
++      xserver_time_ms =
++        meta_x11_display_get_current_time_roundtrip (x11_display);
++      xserver_time_us = ms2us (xserver_time_ms);
++      compositor_x11->xserver_time_offset_us = xserver_time_us - now_us;
++    }
++
++  return monotonic_time_us + compositor_x11->xserver_time_offset_us;
++}
++
+ Window
+ meta_compositor_x11_get_output_xwindow (MetaCompositorX11 *compositor_x11)
+ {
+@@ -443,4 +506,6 @@ meta_compositor_x11_class_init (MetaCompositorX11Class *klass)
+   compositor_class->before_paint = meta_compositor_x11_before_paint;
+   compositor_class->after_paint = meta_compositor_x11_after_paint;
+   compositor_class->remove_window = meta_compositor_x11_remove_window;
++  compositor_class->monotonic_to_high_res_xserver_time =
++   meta_compositor_x11_monotonic_to_high_res_xserver_time;
+ }
+diff --git a/src/compositor/meta-window-actor-x11.c b/src/compositor/meta-window-actor-x11.c
+index f9577e752e..566aac4ec9 100644
+--- a/src/compositor/meta-window-actor-x11.c
++++ b/src/compositor/meta-window-actor-x11.c
+@@ -163,12 +163,14 @@ do_send_frame_drawn (MetaWindowActorX11 *actor_x11,
+     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
+   MetaDisplay *display = meta_window_get_display (window);
+   Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
++  int64_t now_us;
+ 
+   XClientMessageEvent ev = { 0, };
+ 
++  now_us = g_get_monotonic_time ();
+   frame->frame_drawn_time =
+-    meta_compositor_monotonic_time_to_server_time (display,
+-                                                   g_get_monotonic_time ());
++    meta_compositor_monotonic_to_high_res_xserver_time (display->compositor,
++                                                        now_us);
+   actor_x11->frame_drawn_time = frame->frame_drawn_time;
+ 
+   ev.type = ClientMessage;
+@@ -208,9 +210,12 @@ do_send_frame_timings (MetaWindowActorX11 *actor_x11,
+ 
+   if (presentation_time != 0)
+     {
+-      int64_t presentation_time_server =
+-        meta_compositor_monotonic_time_to_server_time (display,
+-                                                       presentation_time);
++      MetaCompositor *compositor = display->compositor;
++      int64_t presentation_time_server;
++
++      presentation_time_server =
++        meta_compositor_monotonic_to_high_res_xserver_time (compositor,
++                                                            presentation_time);
+       int64_t presentation_time_offset = presentation_time_server - frame->frame_drawn_time;
+       if (presentation_time_offset == 0)
+         presentation_time_offset = 1;
+@@ -283,6 +288,7 @@ queue_send_frame_messages_timeout (MetaWindowActorX11 *actor_x11)
+     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
+   MetaDisplay *display = meta_window_get_display (window);
+   MetaLogicalMonitor *logical_monitor;
++  int64_t now_us;
+   int64_t current_time;
+   float refresh_rate;
+   int interval, offset;
+@@ -307,9 +313,10 @@ queue_send_frame_messages_timeout (MetaWindowActorX11 *actor_x11)
+       refresh_rate = 60.0f;
+     }
+ 
++  now_us = g_get_monotonic_time ();
+   current_time =
+-    meta_compositor_monotonic_time_to_server_time (display,
+-                                                   g_get_monotonic_time ());
++    meta_compositor_monotonic_to_high_res_xserver_time (display->compositor,
++                                                        now_us);
+   interval = (int) (1000000 / refresh_rate) * 6;
+   offset = MAX (0, actor_x11->frame_drawn_time + interval - current_time) / 1000;
+ 
+-- 
+2.28.0
+
+
+From 9ba6f9f8d69e7816e1a524b4315f1d3f827db4fc Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Thu, 30 Apr 2020 14:23:09 +0000
+Subject: [PATCH 05/36] cally: fix state set leak
+
+cally_actor_action_do_action leaks a state set object in the
+case where the actor is defunct, insensitive, or hidden.
+
+This commit plugs the leak.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1225
+
+
+(cherry picked from commit 79e5ec57d24f1650cdb2f23e68c9f8bf6a494283)
+---
+ clutter/clutter/cally/cally-actor.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
+
+diff --git a/clutter/clutter/cally/cally-actor.c b/clutter/clutter/cally/cally-actor.c
+index fa02575485..44f4f64bb5 100644
+--- a/clutter/clutter/cally/cally-actor.c
++++ b/clutter/clutter/cally/cally-actor.c
+@@ -767,10 +767,11 @@ static gboolean
+ cally_actor_action_do_action (AtkAction *action,
+                              gint       index)
+ {
+-  CallyActor           *cally_actor = NULL;
+-  AtkStateSet          *set         = NULL;
+-  CallyActorPrivate    *priv        = NULL;
+-  CallyActorActionInfo *info        = NULL;
++  CallyActor *cally_actor = NULL;
++  AtkStateSet *set = NULL;
++  CallyActorPrivate *priv = NULL;
++  CallyActorActionInfo *info = NULL;
++  gboolean did_action = FALSE;
+ 
+   cally_actor = CALLY_ACTOR (action);
+   priv = cally_actor->priv;
+@@ -778,21 +779,19 @@ cally_actor_action_do_action (AtkAction *action,
+   set = atk_object_ref_state_set (ATK_OBJECT (cally_actor));
+ 
+   if (atk_state_set_contains_state (set, ATK_STATE_DEFUNCT))
+-    return FALSE;
++    goto out;
+ 
+   if (!atk_state_set_contains_state (set, ATK_STATE_SENSITIVE) ||
+       !atk_state_set_contains_state (set, ATK_STATE_SHOWING))
+-    return FALSE;
+-
+-  g_object_unref (set);
++    goto out;
+ 
+   info = _cally_actor_get_action_info (cally_actor, index);
+ 
+   if (info == NULL)
+-    return FALSE;
++    goto out;
+ 
+   if (info->do_action_func == NULL)
+-    return FALSE;
++    goto out;
+ 
+   if (!priv->action_queue)
+     priv->action_queue = g_queue_new ();
+@@ -802,7 +801,12 @@ cally_actor_action_do_action (AtkAction *action,
+   if (!priv->action_idle_handler)
+     priv->action_idle_handler = g_idle_add (idle_do_action, cally_actor);
+ 
+-  return TRUE;
++  did_action = TRUE;
++
++out:
++  g_clear_object (&set);
++
++  return did_action;
+ }
+ 
+ static gboolean
+-- 
+2.28.0
+
+
+From b8b647f401f08ed6b9d0c3e010373820cb086a0e Mon Sep 17 00:00:00 2001
+From: Robert Mader <robert.mader@posteo.de>
+Date: Wed, 7 Oct 2020 19:58:47 +0200
+Subject: [PATCH 06/36] window/wayland: Offset position with size mismatch when
+ finishing a resize
+
+Analogous to commit 8bdd2aa7dbb80594b3, calculate the size missmatch offset
+also when finishing a resize.
+
+Closes https://gitlab.gnome.org/GNOME/mutter/-/issues/396
+
+(cherry picked from commit 554f7984e9e4912762628723408ed114d61fdc5c)
+---
+ src/wayland/meta-window-wayland.c | 67 +++++++++++++++++--------------
+ 1 file changed, 37 insertions(+), 30 deletions(-)
+
+diff --git a/src/wayland/meta-window-wayland.c b/src/wayland/meta-window-wayland.c
+index 9a33f73e00..e2d2d71da5 100644
+--- a/src/wayland/meta-window-wayland.c
++++ b/src/wayland/meta-window-wayland.c
+@@ -59,6 +59,7 @@ struct _MetaWindowWayland
+   int last_sent_height;
+   int last_sent_rel_x;
+   int last_sent_rel_y;
++  MetaGravity last_sent_gravity;
+ 
+   gboolean has_been_shown;
+ };
+@@ -192,7 +193,7 @@ surface_state_changed (MetaWindow *window)
+                                            wl_window->last_sent_width,
+                                            wl_window->last_sent_height,
+                                            META_MOVE_RESIZE_STATE_CHANGED,
+-                                           META_GRAVITY_NONE);
++                                           wl_window->last_sent_gravity);
+ 
+   meta_window_wayland_configure (wl_window, configuration);
+ }
+@@ -400,6 +401,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
+   wl_window->last_sent_y = configured_y;
+   wl_window->last_sent_width = configured_width;
+   wl_window->last_sent_height = configured_height;
++  wl_window->last_sent_gravity = gravity;
+ 
+   if (can_move_now)
+     {
+@@ -877,6 +879,38 @@ meta_window_wayland_get_geometry_scale (MetaWindow *window)
+   return get_window_geometry_scale_for_logical_monitor (window->monitor);
+ }
+ 
++static void
++calculate_offset (MetaWaylandWindowConfiguration *configuration,
++                  MetaRectangle                  *geometry,
++                  MetaRectangle                  *rect)
++{
++  int offset_x;
++  int offset_y;
++
++  rect->x = configuration->x;
++  rect->y = configuration->y;
++
++  offset_x = configuration->width - geometry->width;
++  offset_y = configuration->height - geometry->height;
++  switch (configuration->gravity)
++    {
++    case META_GRAVITY_SOUTH:
++    case META_GRAVITY_SOUTH_WEST:
++      rect->y += offset_y;
++      break;
++    case META_GRAVITY_EAST:
++    case META_GRAVITY_NORTH_EAST:
++      rect->x += offset_x;
++      break;
++    case META_GRAVITY_SOUTH_EAST:
++      rect->x += offset_x;
++      rect->y += offset_y;
++      break;
++    default:
++      break;
++    }
++}
++
+ /**
+  * meta_window_move_resize_wayland:
+  *
+@@ -939,8 +973,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
+             }
+           else
+             {
+-              rect.x = acked_configuration->x;
+-              rect.y = acked_configuration->y;
++              calculate_offset (acked_configuration, &new_geom, &rect);
+             }
+         }
+       else
+@@ -955,33 +988,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
+   else
+     {
+       if (acked_configuration)
+-        {
+-          int offset_x;
+-          int offset_y;
+-
+-          rect.x = acked_configuration->x;
+-          rect.y = acked_configuration->y;
+-
+-          offset_x = acked_configuration->width - new_geom.width;
+-          offset_y = acked_configuration->height - new_geom.height;
+-          switch (acked_configuration->gravity)
+-            {
+-            case META_GRAVITY_SOUTH:
+-            case META_GRAVITY_SOUTH_WEST:
+-              rect.y += offset_y;
+-              break;
+-            case META_GRAVITY_EAST:
+-            case META_GRAVITY_NORTH_EAST:
+-              rect.x += offset_x;
+-              break;
+-            case META_GRAVITY_SOUTH_EAST:
+-              rect.x += offset_x;
+-              rect.y += offset_y;
+-              break;
+-            default:
+-              break;
+-            }
+-        }
++        calculate_offset (acked_configuration, &new_geom, &rect);
+     }
+ 
+   if (rect.x != window->rect.x || rect.y != window->rect.y)
+-- 
+2.28.0
+
+
+From 8f4cc6a10287aa8643fa18d47ed58644f8b315e6 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Tue, 13 Oct 2020 17:59:38 +0200
+Subject: [PATCH 07/36] window: Do not go past size hints on resize
+
+On interactive resize, mutter calculates the difference in size based on
+the pointer location and relies on window constraints to ensure the
+minimum size is honored.
+
+Wayland however does asynchronous window configuration, meaning that not
+checking for size hints early enough may lead to the window moving as
+the locations was initially computed on a size which will be invalidate
+by the client eventually.
+
+Make sure to respect the client size hint on update_resize() so that we
+don't end up with a window moving unexpectedly when the client
+eventually acked the configuration.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1495
+
+(cherry picked from commit 03c69ed8cf8059d98089929b9d79b92df0167fbe)
+---
+ src/core/window.c | 35 ++++++++++++++++++++---------------
+ 1 file changed, 20 insertions(+), 15 deletions(-)
+
+diff --git a/src/core/window.c b/src/core/window.c
+index 681805c06c..de8159f266 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -6248,9 +6248,9 @@ update_resize (MetaWindow *window,
+                gboolean force)
+ {
+   int dx, dy;
+-  int new_w, new_h;
+   MetaGravity gravity;
+-  MetaRectangle old;
++  MetaRectangle new_rect;
++  MetaRectangle old_rect;
+   double remaining = 0;
+ 
+   window->display->grab_latest_motion_x = x;
+@@ -6269,8 +6269,8 @@ update_resize (MetaWindow *window,
+       dy *= 2;
+     }
+ 
+-  new_w = window->display->grab_anchor_window_pos.width;
+-  new_h = window->display->grab_anchor_window_pos.height;
++  new_rect.width = window->display->grab_anchor_window_pos.width;
++  new_rect.height = window->display->grab_anchor_window_pos.height;
+ 
+   /* Don't bother doing anything if no move has been specified.  (This
+    * happens often, even in keyboard resizing, due to the warping of the
+@@ -6299,14 +6299,16 @@ update_resize (MetaWindow *window,
+     }
+ 
+   if (window->display->grab_op & META_GRAB_OP_WINDOW_DIR_EAST)
+-    new_w += dx;
++    new_rect.width += dx;
+   else if (window->display->grab_op & META_GRAB_OP_WINDOW_DIR_WEST)
+-    new_w -= dx;
++    new_rect.width -= dx;
+ 
+   if (window->display->grab_op & META_GRAB_OP_WINDOW_DIR_SOUTH)
+-    new_h += dy;
++    new_rect.height += dy;
+   else if (window->display->grab_op & META_GRAB_OP_WINDOW_DIR_NORTH)
+-    new_h -= dy;
++    new_rect.height -= dy;
++
++  ensure_size_hints_satisfied (&new_rect, &window->size_hints);
+ 
+   /* If we're waiting for a request for _NET_WM_SYNC_REQUEST, we'll
+    * resize the window when the window responds, or when we time
+@@ -6336,7 +6338,7 @@ update_resize (MetaWindow *window,
+   /* Remove any scheduled compensation events */
+   g_clear_handle_id (&window->display->grab_resize_timeout_id, g_source_remove);
+ 
+-  meta_window_get_frame_rect (window, &old);
++  meta_window_get_frame_rect (window, &old_rect);
+ 
+   /* One sided resizing ought to actually be one-sided, despite the fact that
+    * aspect ratio windows don't interact nicely with the above stuff.  So,
+@@ -6344,10 +6346,10 @@ update_resize (MetaWindow *window,
+    */
+ 
+   if ((window->display->grab_op & (META_GRAB_OP_WINDOW_DIR_WEST | META_GRAB_OP_WINDOW_DIR_EAST)) == 0)
+-    new_w = old.width;
++    new_rect.width = old_rect.width;
+ 
+   if ((window->display->grab_op & (META_GRAB_OP_WINDOW_DIR_NORTH | META_GRAB_OP_WINDOW_DIR_SOUTH)) == 0)
+-    new_h = old.height;
++    new_rect.height = old_rect.height;
+ 
+   /* compute gravity of client during operation */
+   gravity = meta_resize_gravity_from_grab_op (window->display->grab_op);
+@@ -6355,17 +6357,20 @@ update_resize (MetaWindow *window,
+ 
+   /* Do any edge resistance/snapping */
+   meta_window_edge_resistance_for_resize (window,
+-                                          &new_w,
+-                                          &new_h,
++                                          &new_rect.width,
++                                          &new_rect.height,
+                                           gravity,
+                                           update_resize_timeout,
+                                           snap,
+                                           FALSE);
+ 
+-  meta_window_resize_frame_with_gravity (window, TRUE, new_w, new_h, gravity);
++  meta_window_resize_frame_with_gravity (window, TRUE,
++                                         new_rect.width, new_rect.height,
++                                         gravity);
+ 
+   /* Store the latest resize time, if we actually resized. */
+-  if (window->rect.width != old.width || window->rect.height != old.height)
++  if (window->rect.width != old_rect.width ||
++      window->rect.height != old_rect.height)
+     window->display->grab_last_moveresize_time = g_get_real_time ();
+ }
+ 
+-- 
+2.28.0
+
+
+From e28c1ab4ae7edd8913e788a37f5f58b9338fc67d Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Thu, 15 Oct 2020 14:23:41 +0200
+Subject: [PATCH 08/36] window-props: Check for actual size hints changes
+
+The XSizeHints set by X11 clients give a hint to the window manager
+about size increment, aspect ratio, base, minimum and maximum size, etc.
+
+When an X11 client changes those values, there is a good chance that it
+will affect the actual window size in some way, and mutter rightfully
+queue a window resize in that case.
+
+However, mutter does not check if any of the hints have actually changed
+and unconditionally queue a window resize whenever a client changes its
+WM_NORMAL_HINTS property.
+
+That can be a problem when a zealous client such as xterm decides to
+update its WM_NORMAL_HINTS property on resize, because in return mutter
+will queue a non-user driven resize in the middle of user-driven events,
+hence defeating the purpose of the META_MOVE_RESIZE_USER_ACTION flag.
+
+To avoid that issue, make mutter a bit smarter and avoid queuing a
+window resize if the XSizeHints haven't actually changed.
+
+https://gitlab.gnome.org/GNOME/mutter/-/issues/543
+
+(cherry picked from commit deaa9480a84938cc0120e433fa9f3607acdfa29c)
+---
+ src/x11/window-props.c | 31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
+
+diff --git a/src/x11/window-props.c b/src/x11/window-props.c
+index 11bf50c881..d919a2a0e1 100644
+--- a/src/x11/window-props.c
++++ b/src/x11/window-props.c
+@@ -1138,6 +1138,22 @@ spew_size_hints_differences (const XSizeHints *old,
+                 old->win_gravity, new->win_gravity);
+ }
+ 
++static gboolean
++hints_have_changed (const XSizeHints *old,
++                    const XSizeHints *new)
++{
++  return FLAG_CHANGED (old, new, USPosition) ||
++         FLAG_CHANGED (old, new, USSize) ||
++         FLAG_CHANGED (old, new, PPosition) ||
++         FLAG_CHANGED (old, new, PSize) ||
++         FLAG_CHANGED (old, new, PMinSize) ||
++         FLAG_CHANGED (old, new, PMaxSize) ||
++         FLAG_CHANGED (old, new, PResizeInc) ||
++         FLAG_CHANGED (old, new, PAspect) ||
++         FLAG_CHANGED (old, new, PBaseSize) ||
++         FLAG_CHANGED (old, new, PWinGravity);
++}
++
+ void
+ meta_set_normal_hints (MetaWindow *window,
+                        XSizeHints *hints)
+@@ -1488,6 +1504,7 @@ reload_normal_hints (MetaWindow    *window,
+   if (value->type != META_PROP_VALUE_INVALID)
+     {
+       XSizeHints old_hints;
++      gboolean hints_have_differences;
+ 
+       meta_topic (META_DEBUG_GEOMETRY, "Updating WM_NORMAL_HINTS for %s\n", window->desc);
+ 
+@@ -1495,12 +1512,16 @@ reload_normal_hints (MetaWindow    *window,
+ 
+       meta_set_normal_hints (window, value->v.size_hints.hints);
+ 
+-      spew_size_hints_differences (&old_hints, &window->size_hints);
+-
+-      meta_window_recalc_features (window);
++      hints_have_differences = hints_have_changed (&old_hints,
++                                                   &window->size_hints);
++      if (hints_have_differences)
++        {
++          spew_size_hints_differences (&old_hints, &window->size_hints);
++          meta_window_recalc_features (window);
+ 
+-      if (!initial)
+-        meta_window_queue(window, META_QUEUE_MOVE_RESIZE);
++          if (!initial)
++            meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
++        }
+     }
+ }
+ 
+-- 
+2.28.0
+
+
+From 54936263cdfda48b5bf38d79b6f218d59e2c7f07 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Wed, 14 Oct 2020 10:30:53 +0200
+Subject: [PATCH 09/36] constraints: Use "orig" rectangle for interactive
+ resize
+
+Bug 448183 fixed an issue with _NET_WM_MOVERESIZE_WINDOW not moving a
+window by basing the resize on the current (new) rectangle instead of
+the original rectangle.
+
+While this fixes the issue with _NET_WM_MOVERESIZE_WINDOW, this also
+causes windows with a size increment to move when the resize also
+implies a move, such windows might drift while resizing.
+
+Make sure to use the current rectangle for non-interactive resizes only.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/-/issues/543
+
+(cherry picked from commit 7ab3eac0e27e62642bdd8dc1ddad3bf9acf5a02d)
+---
+ src/core/constraints.c | 34 +++++++++++++---------------------
+ 1 file changed, 13 insertions(+), 21 deletions(-)
+
+diff --git a/src/core/constraints.c b/src/core/constraints.c
+index 168a55b8af..90e9a035ad 100644
+--- a/src/core/constraints.c
++++ b/src/core/constraints.c
+@@ -469,6 +469,16 @@ setup_constraint_info (ConstraintInfo      *info,
+                 info->entire_monitor.width, info->entire_monitor.height);
+ }
+ 
++static MetaRectangle *
++get_start_rect_for_resize (MetaWindow     *window,
++                           ConstraintInfo *info)
++{
++  if (!info->is_user_action && info->action_type == ACTION_MOVE_AND_RESIZE)
++    return &info->current;
++  else
++    return &info->orig;
++}
++
+ static void
+ place_window_if_needed(MetaWindow     *window,
+                        ConstraintInfo *info)
+@@ -1368,13 +1378,7 @@ constrain_size_increments (MetaWindow         *window,
+     new_height = client_rect.height;
+   }
+ 
+-  /* Figure out what original rect to pass to meta_rectangle_resize_with_gravity
+-   * See bug 448183
+-   */
+-  if (info->action_type == ACTION_MOVE_AND_RESIZE)
+-    start_rect = &info->current;
+-  else
+-    start_rect = &info->orig;
++  start_rect = get_start_rect_for_resize (window, info);
+ 
+   /* Resize to the new size */
+   meta_rectangle_resize_with_gravity (start_rect,
+@@ -1424,13 +1428,7 @@ constrain_size_limits (MetaWindow         *window,
+   new_width  = CLAMP (info->current.width,  min_size.width,  max_size.width);
+   new_height = CLAMP (info->current.height, min_size.height, max_size.height);
+ 
+-  /* Figure out what original rect to pass to meta_rectangle_resize_with_gravity
+-   * See bug 448183
+-   */
+-  if (info->action_type == ACTION_MOVE_AND_RESIZE)
+-    start_rect = &info->current;
+-  else
+-    start_rect = &info->orig;
++  start_rect = get_start_rect_for_resize (window, info);
+ 
+   meta_rectangle_resize_with_gravity (start_rect,
+                                       &info->current,
+@@ -1570,13 +1568,7 @@ constrain_aspect_ratio (MetaWindow         *window,
+     new_height = client_rect.height;
+   }
+ 
+-  /* Figure out what original rect to pass to meta_rectangle_resize_with_gravity
+-   * See bug 448183
+-   */
+-  if (info->action_type == ACTION_MOVE_AND_RESIZE)
+-    start_rect = &info->current;
+-  else
+-    start_rect = &info->orig;
++  start_rect = get_start_rect_for_resize (window, info);
+ 
+   meta_rectangle_resize_with_gravity (start_rect,
+                                       &info->current,
+-- 
+2.28.0
+
+
+From 127573e5faba62fc9c8a0e0ad170e34cc3b3436c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Thu, 2 Jul 2020 16:41:43 +0000
+Subject: [PATCH 10/36] clutter/actor: Alway call queue_relayout() when showing
+ actors
+
+clutter_actor_queue_relayout() detects whether a parent has the
+NO_LAYOUT flag set by itself and then queues a shallow relayout for us.
+There's no need to duplicate that logic when showing actors, so simply
+call clutter_actor_queue_relayout() and let that handle it.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1366
+
+
+(cherry picked from commit 734a7cc16f9fba91a4b21ce1f8defec0cfddcbc5)
+---
+ clutter/clutter/clutter-actor.c | 26 +++++---------------------
+ 1 file changed, 5 insertions(+), 21 deletions(-)
+
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index da610f4cf9..2198b96d83 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -1788,28 +1788,12 @@ clutter_actor_real_show (ClutterActor *self)
+    */
+   clutter_actor_update_map_state (self, MAP_STATE_CHECK);
+ 
+-  /* we queue a relayout unless the actor is inside a
+-   * container that explicitly told us not to
+-   */
+-  if (priv->parent != NULL &&
+-      (!(priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)))
+-    {
+-      /* While an actor is hidden the parent may not have
+-       * allocated/requested so we need to start from scratch
+-       * and avoid the short-circuiting in
+-       * clutter_actor_queue_relayout().
+-       */
+-      priv->needs_width_request  = FALSE;
+-      priv->needs_height_request = FALSE;
+-      priv->needs_allocation     = FALSE;
++  /* Avoid the early return in clutter_actor_queue_relayout() */
++  priv->needs_width_request = FALSE;
++  priv->needs_height_request = FALSE;
++  priv->needs_allocation = FALSE;
+ 
+-      clutter_actor_queue_relayout (self);
+-    }
+-  else  /* but still don't leave the actor un-allocated before showing it */
+-    {
+-      clutter_actor_queue_shallow_relayout (self);
+-      clutter_actor_queue_redraw (self);
+-    }
++  clutter_actor_queue_relayout (self);
+ }
+ 
+ static inline void
+-- 
+2.28.0
+
+
+From 122a6bab57227be2e23757a9259f70f3ae2fb1d0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Sat, 11 Jul 2020 09:59:47 +0000
+Subject: [PATCH 11/36] clutter/actor: Introduce counter for painting in an
+ unmapped branch
+
+Just like the existing in_cloned_branch counter, add a property which
+tracks whether the actor is part of a subtree that's being painted while
+unmapped. This is going to be useful for a few things, for example
+changing the clutter_actor_is_in_clone_paint() API to use
+enable_paint_unmapped instead of in_clone_paint.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1366
+
+
+(cherry picked from commit bf7cfb877c9d88e9995b56e6e82fa103bad39015)
+---
+ clutter/clutter/clutter-actor.c | 49 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 48 insertions(+), 1 deletion(-)
+
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 2198b96d83..47c9171849 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -804,6 +804,8 @@ struct _ClutterActorPrivate
+    */
+   gulong in_cloned_branch;
+ 
++  guint unmapped_paint_branch_counter;
++
+   GListModel *child_model;
+   ClutterActorCreateChildFunc create_child_func;
+   gpointer create_child_data;
+@@ -1081,6 +1083,11 @@ static void clutter_actor_push_in_cloned_branch (ClutterActor *self,
+ static void clutter_actor_pop_in_cloned_branch (ClutterActor *self,
+                                                 gulong        count);
+ 
++static void push_in_paint_unmapped_branch (ClutterActor *self,
++                                           guint         count);
++static void pop_in_paint_unmapped_branch (ClutterActor *self,
++                                          guint         count);
++
+ static GQuark quark_actor_layout_info = 0;
+ static GQuark quark_actor_transform_info = 0;
+ static GQuark quark_actor_animation_info = 0;
+@@ -4354,6 +4361,9 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
+   if (self->priv->in_cloned_branch)
+     clutter_actor_pop_in_cloned_branch (child, self->priv->in_cloned_branch);
+ 
++  if (self->priv->unmapped_paint_branch_counter)
++    pop_in_paint_unmapped_branch (child, self->priv->unmapped_paint_branch_counter);
++
+   /* if the child that got removed was visible and set to
+    * expand then we want to reset the parent's state in
+    * case the child was the only thing that was making it
+@@ -11998,6 +12008,9 @@ clutter_actor_add_child_internal (ClutterActor              *self,
+   if (self->priv->in_cloned_branch)
+     clutter_actor_push_in_cloned_branch (child, self->priv->in_cloned_branch);
+ 
++  if (self->priv->unmapped_paint_branch_counter)
++    push_in_paint_unmapped_branch (child, self->priv->unmapped_paint_branch_counter);
++
+   /* children may cause their parent to expand, if they are set
+    * to expand; if a child is not expanded then it cannot change
+    * its parent's state. any further change later on will queue
+@@ -14595,10 +14608,15 @@ _clutter_actor_set_enable_paint_unmapped (ClutterActor *self,
+ 
+   priv = self->priv;
+ 
++  if (priv->enable_paint_unmapped == enable)
++    return;
++
+   priv->enable_paint_unmapped = enable;
+ 
+-  if (priv->enable_paint_unmapped)
++  if (enable)
+     {
++      push_in_paint_unmapped_branch (self, 1);
++
+       /* Make sure that the parents of the widget are realized first;
+        * otherwise checks in clutter_actor_update_map_state() will
+        * fail.
+@@ -14614,6 +14632,7 @@ _clutter_actor_set_enable_paint_unmapped (ClutterActor *self,
+   else
+     {
+       clutter_actor_update_map_state (self, MAP_STATE_CHECK);
++      pop_in_paint_unmapped_branch (self, 1);
+     }
+ }
+ 
+@@ -19600,6 +19619,34 @@ clutter_actor_has_mapped_clones (ClutterActor *self)
+   return FALSE;
+ }
+ 
++static void
++push_in_paint_unmapped_branch (ClutterActor *self,
++                               guint         count)
++{
++  ClutterActor *iter;
++
++  for (iter = self->priv->first_child;
++       iter != NULL;
++       iter = iter->priv->next_sibling)
++    push_in_paint_unmapped_branch (iter, count);
++
++  self->priv->unmapped_paint_branch_counter += count;
++}
++
++static void
++pop_in_paint_unmapped_branch (ClutterActor *self,
++                              guint         count)
++{
++  ClutterActor *iter;
++
++  self->priv->unmapped_paint_branch_counter -= count;
++
++  for (iter = self->priv->first_child;
++       iter != NULL;
++       iter = iter->priv->next_sibling)
++    pop_in_paint_unmapped_branch (iter, count);
++}
++
+ static void
+ clutter_actor_child_model__items_changed (GListModel *model,
+                                           guint       position,
+-- 
+2.28.0
+
+
+From bfc617c255cbf7f7d591893f3f9d277a8947dede Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Sat, 11 Jul 2020 10:18:59 +0000
+Subject: [PATCH 12/36] clutter/actor: Add private API to get whether we're
+ painting unmapped
+
+Add new private API to ClutterActor, returning TRUE in case the actor is
+being painted while unmapped. This is useful for implementations of the
+paint() vfunc or for signal handlers of the "notify::mapped" signal.
+
+Use this API in CallyActor to properly detect "notify::mapped" emissions
+while painting unmapped, this fixes detecting the case where
+painting-unmapped is used for screencasting.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1366
+
+
+(cherry picked from commit cbf3001bc2c43b3d9c0becde6b43e0f6b5474fea)
+---
+ clutter/clutter/cally/cally-actor.c     | 4 +++-
+ clutter/clutter/clutter-actor-private.h | 2 ++
+ clutter/clutter/clutter-actor.c         | 8 ++++++++
+ 3 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/clutter/clutter/cally/cally-actor.c b/clutter/clutter/cally/cally-actor.c
+index 44f4f64bb5..2c4c1f34da 100644
+--- a/clutter/clutter/cally/cally-actor.c
++++ b/clutter/clutter/cally/cally-actor.c
+@@ -72,6 +72,8 @@
+ #include <glib.h>
+ #include <clutter/clutter.h>
+ 
++#include "clutter/clutter-actor-private.h"
++
+ #ifdef CLUTTER_WINDOWING_X11
+ #include <clutter/x11/clutter-x11.h>
+ #endif
+@@ -972,7 +974,7 @@ cally_actor_real_notify_clutter (GObject    *obj,
+        * paint it; we don't want this to generate an ATK
+        * state change
+        */
+-      if (clutter_actor_is_in_clone_paint (actor))
++      if (clutter_actor_is_painting_unmapped (actor))
+         return;
+ 
+       state = ATK_STATE_SHOWING;
+diff --git a/clutter/clutter/clutter-actor-private.h b/clutter/clutter/clutter-actor-private.h
+index 16ab012b6f..197f27b5bf 100644
+--- a/clutter/clutter/clutter-actor-private.h
++++ b/clutter/clutter/clutter-actor-private.h
+@@ -293,6 +293,8 @@ void clutter_actor_update_stage_views (ClutterActor *self,
+ 
+ void clutter_actor_queue_immediate_relayout (ClutterActor *self);
+ 
++gboolean clutter_actor_is_painting_unmapped (ClutterActor *self);
++
+ G_END_DECLS
+ 
+ #endif /* __CLUTTER_ACTOR_PRIVATE_H__ */
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 47c9171849..d06138b576 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -14909,6 +14909,14 @@ clutter_actor_is_in_clone_paint (ClutterActor *self)
+   return FALSE;
+ }
+ 
++gboolean
++clutter_actor_is_painting_unmapped (ClutterActor *self)
++{
++  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
++
++  return self->priv->unmapped_paint_branch_counter > 0;
++}
++
+ gboolean
+ clutter_actor_has_damage (ClutterActor *actor)
+ {
+-- 
+2.28.0
+
+
+From 2b97850611e32bbe13e144461298f317349ab943 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Fri, 10 Jul 2020 11:05:21 +0000
+Subject: [PATCH 13/36] tests/conform/actor-pivot-point: Show stage before
+ allocating
+
+We're going to enforce some invariants a bit stricter and will only
+allow allocating if an actor is mapped, not only visible.
+
+Since actors are only mapped if their parent is mapped and stages are
+hidden by default, we need to show the stage to ensure the actors are
+mapped before we allocate them. So do that and call clutter_actor_show()
+on the stage before fake-allocating the test actors.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1366
+
+
+(cherry picked from commit 650efb6445e2e76cb3cd47189b8d0d45b1da495e)
+---
+ src/tests/clutter/conform/actor-pivot-point.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/tests/clutter/conform/actor-pivot-point.c b/src/tests/clutter/conform/actor-pivot-point.c
+index fc196b03f5..38481bada0 100644
+--- a/src/tests/clutter/conform/actor-pivot-point.c
++++ b/src/tests/clutter/conform/actor-pivot-point.c
+@@ -22,6 +22,8 @@ actor_pivot (void)
+   clutter_actor_add_child (stage, actor_implicit);
+   clutter_actor_add_child (stage, actor_explicit);
+ 
++  clutter_actor_show (stage);
++
+   /* Fake allocation or pivot-point will not have any effect */
+   clutter_actor_allocate (actor_implicit, &allocation);
+   clutter_actor_allocate (actor_explicit, &allocation);
+-- 
+2.28.0
+
+
+From 078ef8acd08d0c33d7fd428a062fe3f5f8042e9f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Wed, 8 Jul 2020 12:38:57 +0000
+Subject: [PATCH 14/36] clutter/actor: Handle getting (un-)mapped during
+ painting differently
+
+We currently support only one case where an actor can get mapped or
+unmapped during painting, that is using
+_clutter_actor_enable_paint_unmapped() (although we could arguably do a
+better job explicitely forbidding it in other cases). This function is
+called when painting ClutterClone or MetaWindowActors during
+screensharing. It temporarily (fake) realizes and maps the actor and all
+its children so it can get painted.
+
+Now a problem will appear when we'll start coupling layout and the
+mapped state of actors more closely with the next commit: Since
+enable_paint_unmapped() is meant to be enabled and disabled during every
+clone paint, we also notify the "mapped" property twice on every clone
+paint. That means with the next commit we would queue a relayout for the
+source actor on every clone paint.
+
+To avoid this unnecessary work, check whether we're being painted while
+unmapped using the new unmapped_paint_branch_counter. Then avoid queuing
+relayouts or invalidating paint volumes in that case.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1366
+
+
+(cherry picked from commit 9b502150088de067ce6625f262cb7fd402074997)
+---
+ clutter/clutter/clutter-actor.c | 38 +++++++++++++++++++--------------
+ 1 file changed, 22 insertions(+), 16 deletions(-)
+
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index d06138b576..db3bcc06af 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -1609,18 +1609,21 @@ clutter_actor_real_map (ClutterActor *self)
+ 
+   CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
+ 
+-  self->priv->needs_paint_volume_update = TRUE;
+-
+-  /* We skip unmapped actors when updating the stage-views list, so if
+-   * an actors list got invalidated while it was unmapped make sure to
+-   * set priv->needs_update_stage_views to TRUE for all actors up the
+-   * hierarchy now.
+-   */
+-  if (self->priv->needs_update_stage_views)
++  if (self->priv->unmapped_paint_branch_counter == 0)
+     {
+-      /* Avoid the early return in queue_update_stage_views() */
+-      self->priv->needs_update_stage_views = FALSE;
+-      queue_update_stage_views (self);
++      self->priv->needs_paint_volume_update = TRUE;
++
++      /* We skip unmapped actors when updating the stage-views list, so if
++       * an actors list got invalidated while it was unmapped make sure to
++       * set priv->needs_update_stage_views to TRUE for all actors up the
++       * hierarchy now.
++       */
++      if (self->priv->needs_update_stage_views)
++        {
++          /* Avoid the early return in queue_update_stage_views() */
++          self->priv->needs_update_stage_views = FALSE;
++          queue_update_stage_views (self);
++        }
+     }
+ 
+   /* notify on parent mapped before potentially mapping
+@@ -1721,11 +1724,14 @@ clutter_actor_real_unmap (ClutterActor *self)
+ 
+   CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
+ 
+-  /* clear the contents of the last paint volume, so that hiding + moving +
+-   * showing will not result in the wrong area being repainted
+-   */
+-  _clutter_paint_volume_init_static (&priv->last_paint_volume, NULL);
+-  priv->last_paint_volume_valid = TRUE;
++  if (self->priv->unmapped_paint_branch_counter == 0)
++    {
++      /* clear the contents of the last paint volume, so that hiding + moving +
++       * showing will not result in the wrong area being repainted
++       */
++     _clutter_paint_volume_init_static (&priv->last_paint_volume, NULL);
++      priv->last_paint_volume_valid = TRUE;
++    }
+ 
+   /* notify on parent mapped after potentially unmapping
+    * children, so apps see a bottom-up notification.
+-- 
+2.28.0
+
+
+From 5aca454d926a6f89de36c17b28ca4457edd88528 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Fri, 16 Oct 2020 21:27:04 +0000
+Subject: [PATCH 15/36] clutter/actor: Use separate priv pointer in
+ clutter_actor_real_(un)map
+
+We're accessing self->priv quite often in those functions, it makes
+sense to use a separate variable for it.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1366
+
+
+(cherry picked from commit 717b857bd8e9142354dfac4107946e8179eda2b7)
+---
+ clutter/clutter/clutter-actor.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index db3bcc06af..4e5496a0ec 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -1600,6 +1600,7 @@ queue_update_stage_views (ClutterActor *actor)
+ static void
+ clutter_actor_real_map (ClutterActor *self)
+ {
++  ClutterActorPrivate *priv = self->priv;
+   ClutterActor *iter;
+ 
+   g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
+@@ -1609,19 +1610,19 @@ clutter_actor_real_map (ClutterActor *self)
+ 
+   CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
+ 
+-  if (self->priv->unmapped_paint_branch_counter == 0)
++  if (priv->unmapped_paint_branch_counter == 0)
+     {
+-      self->priv->needs_paint_volume_update = TRUE;
++      priv->needs_paint_volume_update = TRUE;
+ 
+       /* We skip unmapped actors when updating the stage-views list, so if
+        * an actors list got invalidated while it was unmapped make sure to
+        * set priv->needs_update_stage_views to TRUE for all actors up the
+        * hierarchy now.
+        */
+-      if (self->priv->needs_update_stage_views)
++      if (priv->needs_update_stage_views)
+         {
+           /* Avoid the early return in queue_update_stage_views() */
+-          self->priv->needs_update_stage_views = FALSE;
++          priv->needs_update_stage_views = FALSE;
+           queue_update_stage_views (self);
+         }
+     }
+@@ -1631,7 +1632,7 @@ clutter_actor_real_map (ClutterActor *self)
+    */
+   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_MAPPED]);
+ 
+-  for (iter = self->priv->first_child;
++  for (iter = priv->first_child;
+        iter != NULL;
+        iter = iter->priv->next_sibling)
+     {
+@@ -1715,7 +1716,7 @@ clutter_actor_real_unmap (ClutterActor *self)
+   CLUTTER_NOTE (ACTOR, "Unmapping actor '%s'",
+                 _clutter_actor_get_debug_name (self));
+ 
+-  for (iter = self->priv->first_child;
++  for (iter = priv->first_child;
+        iter != NULL;
+        iter = iter->priv->next_sibling)
+     {
+@@ -1724,7 +1725,7 @@ clutter_actor_real_unmap (ClutterActor *self)
+ 
+   CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
+ 
+-  if (self->priv->unmapped_paint_branch_counter == 0)
++  if (priv->unmapped_paint_branch_counter == 0)
+     {
+       /* clear the contents of the last paint volume, so that hiding + moving +
+        * showing will not result in the wrong area being repainted
+-- 
+2.28.0
+
+
+From 29351b3a60938e6ef9b22323831b05be36438cd5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Fri, 16 Oct 2020 21:29:02 +0000
+Subject: [PATCH 16/36] clutter/actor: Only allocate when actor is mapped, not
+ only visible
+
+In theory there's no big difference between only handling mapped actors
+vs only handling visible actors in clutter_actor_allocate(): The
+function is called recursively starting with an actor that is attached
+to a stage, so it should only be called on mapped actors anyway.
+
+The behavior of skipping hidden actors was introduced as an optimization
+with commit 0eab73dc. Since the last commit, we handle
+enable_paint_unmapped a bit better and don't do unnecessary work when
+mapping or unmapping, so we can now be a bit stricter enforcing our
+invariants and only allow mapped actors in clutter_actor_allocate().
+
+We need to exclude toplevel actors from this check since the stage has a
+very different mapped state than normal actors, depending on the
+mappedness of the x11 window. Also we need to make an exception for
+clones (of course...): Those need their source actor to have an
+allocation, which means they might try to force-allocate it, and in that
+case we shouldn't bail out of clutter_actor_allocate().
+
+Also moving the clutter_actor_queue_relayout() call from
+clutter_actor_real_show() to clutter_actor_real_map() seems to fix a bug
+where we don't queue redraws/relayouts on children when a parent gets
+shown.
+
+Fixes https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/2973
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1366
+
+
+(cherry picked from commit 3bca29f3038d58f5f42978b2f7d3103f6119d565)
+---
+ clutter/clutter/clutter-actor.c | 33 ++++++++++++++-------------------
+ 1 file changed, 14 insertions(+), 19 deletions(-)
+
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 4e5496a0ec..cc07d1adca 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -1625,6 +1625,13 @@ clutter_actor_real_map (ClutterActor *self)
+           priv->needs_update_stage_views = FALSE;
+           queue_update_stage_views (self);
+         }
++
++      /* Avoid the early return in clutter_actor_queue_relayout() */
++      priv->needs_width_request = FALSE;
++      priv->needs_height_request = FALSE;
++      priv->needs_allocation = FALSE;
++
++      clutter_actor_queue_relayout (self);
+     }
+ 
+   /* notify on parent mapped before potentially mapping
+@@ -1732,6 +1739,10 @@ clutter_actor_real_unmap (ClutterActor *self)
+        */
+      _clutter_paint_volume_init_static (&priv->last_paint_volume, NULL);
+       priv->last_paint_volume_valid = TRUE;
++
++      if (priv->parent && !CLUTTER_ACTOR_IN_DESTRUCTION (priv->parent) &&
++          (!(priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)))
++        clutter_actor_queue_relayout (priv->parent);
+     }
+ 
+   /* notify on parent mapped after potentially unmapping
+@@ -1789,8 +1800,6 @@ clutter_actor_queue_shallow_relayout (ClutterActor *self)
+ static void
+ clutter_actor_real_show (ClutterActor *self)
+ {
+-  ClutterActorPrivate *priv = self->priv;
+-
+   if (CLUTTER_ACTOR_IS_VISIBLE (self))
+     return;
+ 
+@@ -1801,13 +1810,6 @@ clutter_actor_real_show (ClutterActor *self)
+    * and the branch of the scene graph is in a stable state
+    */
+   clutter_actor_update_map_state (self, MAP_STATE_CHECK);
+-
+-  /* Avoid the early return in clutter_actor_queue_relayout() */
+-  priv->needs_width_request = FALSE;
+-  priv->needs_height_request = FALSE;
+-  priv->needs_allocation = FALSE;
+-
+-  clutter_actor_queue_relayout (self);
+ }
+ 
+ static inline void
+@@ -1928,8 +1930,6 @@ clutter_actor_is_visible (ClutterActor *self)
+ static void
+ clutter_actor_real_hide (ClutterActor *self)
+ {
+-  ClutterActorPrivate *priv = self->priv;
+-
+   if (!CLUTTER_ACTOR_IS_VISIBLE (self))
+     return;
+ 
+@@ -1940,13 +1940,6 @@ clutter_actor_real_hide (ClutterActor *self)
+    * and the branch of the scene graph is in a stable state
+    */
+   clutter_actor_update_map_state (self, MAP_STATE_CHECK);
+-
+-  /* we queue a relayout unless the actor is inside a
+-   * container that explicitly told us not to
+-   */
+-  if (priv->parent != NULL &&
+-      (!(priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)))
+-    clutter_actor_queue_relayout (priv->parent);
+ }
+ 
+ /**
+@@ -9564,7 +9557,9 @@ clutter_actor_allocate (ClutterActor          *self,
+                                 ? priv->parent->priv->absolute_origin_changed
+                                 : FALSE;
+ 
+-  if (!CLUTTER_ACTOR_IS_VISIBLE (self))
++  if (!CLUTTER_ACTOR_IS_TOPLEVEL (self) &&
++      !CLUTTER_ACTOR_IS_MAPPED (self) &&
++      !clutter_actor_has_mapped_clones (self))
+     {
+       if (priv->absolute_origin_changed)
+         {
+-- 
+2.28.0
+
+
+From 1eec141c81e6972e25942f4c0357841927960358 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Fri, 3 Jul 2020 12:03:09 +0000
+Subject: [PATCH 17/36] clutter/actor: Don't queue relayouts inside
+ add/remove_child_internal
+
+Since we now moved the queuing of relayouts into the mapping and
+unmapping functions, we no longer need to do it when adding or removing
+a child, that's because removing a child always unmaps the child, and
+adding it to a stage (if it's visible) will map it.
+
+So remove those calls to queue_relayout() since they're no longer
+needed.
+
+With the above we no longer queue a relayout in
+clutter_actor_add_child_internal(), that means there's one place where
+we need to explicitely queue relayouts now: That's when using the
+set_child_at_index/above/below() APIs, those are special because they
+avoid unmapping and mapping of actors and would now no longer get a
+relayout.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1366
+
+
+(cherry picked from commit 29caa5bea576ed056aa6c82de192426abe6019ae)
+---
+ clutter/clutter/clutter-actor.c | 38 ++-------------------------------
+ 1 file changed, 2 insertions(+), 36 deletions(-)
+
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index cc07d1adca..503907adff 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -4281,7 +4281,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
+   gboolean destroy_meta, emit_parent_set, emit_actor_removed, check_state;
+   gboolean flush_queue;
+   gboolean notify_first_last;
+-  gboolean was_mapped;
+   gboolean stop_transitions;
+   gboolean clear_stage_views;
+   GObject *obj;
+@@ -4313,8 +4312,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
+ 
+   if (check_state)
+     {
+-      was_mapped = CLUTTER_ACTOR_IS_MAPPED (child);
+-
+       /* we need to unrealize *before* we set parent_actor to NULL,
+        * because in an unrealize method actors are dissociating from the
+        * stage, which means they need to be able to
+@@ -4324,8 +4321,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
+        */
+       clutter_actor_update_map_state (child, MAP_STATE_MAKE_UNREALIZED);
+     }
+-  else
+-    was_mapped = FALSE;
+ 
+   if (flush_queue)
+     {
+@@ -4387,12 +4382,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
+   if (emit_parent_set && !CLUTTER_ACTOR_IN_DESTRUCTION (child))
+     g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
+ 
+-  /* if the child was mapped then we need to relayout ourselves to account
+-   * for the removed child
+-   */
+-  if (was_mapped)
+-    clutter_actor_queue_relayout (self);
+-
+   /* we need to emit the signal before dropping the reference */
+   if (emit_actor_removed)
+     _clutter_container_emit_actor_removed (CLUTTER_CONTAINER (self), child);
+@@ -12061,29 +12050,6 @@ clutter_actor_add_child_internal (ClutterActor              *self,
+   if (CLUTTER_ACTOR_IS_MAPPED (child))
+     clutter_actor_queue_redraw (child);
+ 
+-  /* maintain the invariant that if an actor needs layout,
+-   * its parents do as well
+-   */
+-  if (clutter_actor_needs_relayout (child))
+-    {
+-      /* we work around the short-circuiting we do
+-       * in clutter_actor_queue_relayout() since we
+-       * want to force a relayout
+-       */
+-      child->priv->needs_width_request = TRUE;
+-      child->priv->needs_height_request = TRUE;
+-      child->priv->needs_allocation = TRUE;
+-
+-      if (CLUTTER_ACTOR_IS_MAPPED (child))
+-        child->priv->needs_paint_volume_update = TRUE;
+-
+-      /* we only queue a relayout here, because any possible
+-       * redraw has already been queued either by show() or
+-       * by our call to queue_redraw() above
+-       */
+-      _clutter_actor_queue_only_relayout (child->priv->parent);
+-    }
+-
+   if (emit_actor_added)
+     _clutter_container_emit_actor_added (CLUTTER_CONTAINER (self), child);
+ 
+@@ -12558,7 +12524,7 @@ clutter_actor_set_child_above_sibling (ClutterActor *self,
+                                     sibling);
+   g_object_unref(child);
+ 
+-  clutter_actor_queue_redraw_on_parent (child);
++  clutter_actor_queue_relayout (self);
+ }
+ 
+ /**
+@@ -12605,7 +12571,7 @@ clutter_actor_set_child_below_sibling (ClutterActor *self,
+                                     sibling);
+   g_object_unref(child);
+ 
+-  clutter_actor_queue_redraw_on_parent (child);
++  clutter_actor_queue_relayout (self);
+ }
+ 
+ /**
+-- 
+2.28.0
+
+
+From ea2192c4899ac7897efca31e8e85c157895950ac Mon Sep 17 00:00:00 2001
+From: James Henstridge <james@jamesh.id.au>
+Date: Sat, 17 Oct 2020 11:50:31 +0800
+Subject: [PATCH 18/36] Revert "wayland: Drop Xwayland abstract socket"
+
+This reverts commit e2123768f635ee892702c8c515cf987261ba5518.  Various
+container/chroot (e.g. Snaps, pressure-vessel) systems still depend on
+the presence of the abstract X11 socket.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1508
+---
+ src/wayland/meta-wayland-private.h |  1 +
+ src/wayland/meta-xwayland.c        | 70 ++++++++++++++++++++++++++----
+ 2 files changed, 63 insertions(+), 8 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-private.h b/src/wayland/meta-wayland-private.h
+index 074644ebb5..727009b07e 100644
+--- a/src/wayland/meta-wayland-private.h
++++ b/src/wayland/meta-wayland-private.h
+@@ -46,6 +46,7 @@ typedef struct
+ {
+   int display_index;
+   char *lock_file;
++  int abstract_fd;
+   int unix_fd;
+   char *name;
+ } MetaXWaylandConnection;
+diff --git a/src/wayland/meta-xwayland.c b/src/wayland/meta-xwayland.c
+index f2d193e95e..4a9d07ea99 100644
+--- a/src/wayland/meta-xwayland.c
++++ b/src/wayland/meta-xwayland.c
+@@ -237,6 +237,46 @@ create_lock_file (int display, int *display_out)
+   return filename;
+ }
+ 
++static int
++bind_to_abstract_socket (int       display,
++                         gboolean *fatal)
++{
++  struct sockaddr_un addr;
++  socklen_t size, name_size;
++  int fd;
++
++  fd = socket (PF_LOCAL, SOCK_STREAM | SOCK_CLOEXEC, 0);
++  if (fd < 0)
++    {
++      *fatal = TRUE;
++      g_warning ("Failed to create socket: %m");
++      return -1;
++    }
++
++  addr.sun_family = AF_LOCAL;
++  name_size = snprintf (addr.sun_path, sizeof addr.sun_path,
++                        "%c/tmp/.X11-unix/X%d", 0, display);
++  size = offsetof (struct sockaddr_un, sun_path) + name_size;
++  if (bind (fd, (struct sockaddr *) &addr, size) < 0)
++    {
++      *fatal = errno != EADDRINUSE;
++      g_warning ("failed to bind to @%s: %m", addr.sun_path + 1);
++      close (fd);
++      return -1;
++    }
++
++  if (listen (fd, 1) < 0)
++    {
++      *fatal = errno != EADDRINUSE;
++      g_warning ("Failed to listen on abstract socket @%s: %m",
++                 addr.sun_path + 1);
++      close (fd);
++      return -1;
++    }
++
++  return fd;
++}
++
+ static int
+ bind_to_unix_socket (int display)
+ {
+@@ -343,18 +383,26 @@ meta_xwayland_override_display_number (int number)
+ static gboolean
+ open_display_sockets (MetaXWaylandManager *manager,
+                       int                  display_index,
++                      int                 *abstract_fd_out,
+                       int                 *unix_fd_out,
+                       gboolean            *fatal)
+ {
+-  int unix_fd;
++  int abstract_fd, unix_fd;
++
++  abstract_fd = bind_to_abstract_socket (display_index,
++                                         fatal);
++  if (abstract_fd < 0)
++    return FALSE;
+ 
+   unix_fd = bind_to_unix_socket (display_index);
+   if (unix_fd < 0)
+     {
+       *fatal = FALSE;
++      close (abstract_fd);
+       return FALSE;
+     }
+ 
++  *abstract_fd_out = abstract_fd;
+   *unix_fd_out = unix_fd;
+ 
+   return TRUE;
+@@ -383,6 +431,7 @@ choose_xdisplay (MetaXWaylandManager    *manager,
+         }
+ 
+       if (!open_display_sockets (manager, display,
++                                 &connection->abstract_fd,
+                                  &connection->unix_fd,
+                                  &fatal))
+         {
+@@ -588,9 +637,10 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
+   launcher = g_subprocess_launcher_new (flags);
+ 
+   g_subprocess_launcher_take_fd (launcher, xwayland_client_fd[1], 3);
+-  g_subprocess_launcher_take_fd (launcher, manager->public_connection.unix_fd, 4);
+-  g_subprocess_launcher_take_fd (launcher, displayfd[1], 5);
+-  g_subprocess_launcher_take_fd (launcher, manager->private_connection.unix_fd, 6);
++  g_subprocess_launcher_take_fd (launcher, manager->public_connection.abstract_fd, 4);
++  g_subprocess_launcher_take_fd (launcher, manager->public_connection.unix_fd, 5);
++  g_subprocess_launcher_take_fd (launcher, displayfd[1], 6);
++  g_subprocess_launcher_take_fd (launcher, manager->private_connection.abstract_fd, 7);
+ 
+   g_subprocess_launcher_setenv (launcher, "WAYLAND_SOCKET", "3", TRUE);
+ 
+@@ -605,14 +655,16 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
+   args[i++] = manager->auth_file;
+   args[i++] = "-listen";
+   args[i++] = "4";
+-  args[i++] = "-displayfd";
++  args[i++] = "-listen";
+   args[i++] = "5";
++  args[i++] = "-displayfd";
++  args[i++] = "6",
+ #ifdef HAVE_XWAYLAND_INITFD
+   args[i++] = "-initfd";
+-  args[i++] = "6";
++  args[i++] = "7";
+ #else
+   args[i++] = "-listen";
+-  args[i++] = "6";
++  args[i++] = "7";
+ #endif
+   for (j = 0; j <  G_N_ELEMENTS (x11_extension_names); j++)
+     {
+@@ -747,12 +799,14 @@ meta_xwayland_init (MetaXWaylandManager *manager,
+     {
+       if (!open_display_sockets (manager,
+                                  manager->public_connection.display_index,
++                                 &manager->public_connection.abstract_fd,
+                                  &manager->public_connection.unix_fd,
+                                  &fatal))
+         return FALSE;
+ 
+       if (!open_display_sockets (manager,
+                                  manager->private_connection.display_index,
++                                 &manager->private_connection.abstract_fd,
+                                  &manager->private_connection.unix_fd,
+                                  &fatal))
+         return FALSE;
+@@ -763,7 +817,7 @@ meta_xwayland_init (MetaXWaylandManager *manager,
+ 
+   if (policy == META_DISPLAY_POLICY_ON_DEMAND)
+     {
+-      g_unix_fd_add (manager->public_connection.unix_fd, G_IO_IN,
++      g_unix_fd_add (manager->public_connection.abstract_fd, G_IO_IN,
+                      xdisplay_connection_activity_cb, manager);
+     }
+ 
+-- 
+2.28.0
+
+
+From 7b2815077fa1053069e00c0a21b2c3038f4b0d1c Mon Sep 17 00:00:00 2001
+From: James Henstridge <james@jamesh.id.au>
+Date: Sat, 17 Oct 2020 12:01:44 +0800
+Subject: [PATCH 19/36] wayland: start Xwayland on connection to either public
+ X11 socket
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1454
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1508
+---
+ src/wayland/meta-wayland-private.h |  3 +++
+ src/wayland/meta-xwayland.c        | 13 +++++++++++--
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-private.h b/src/wayland/meta-wayland-private.h
+index 727009b07e..da0b56571d 100644
+--- a/src/wayland/meta-wayland-private.h
++++ b/src/wayland/meta-wayland-private.h
+@@ -56,6 +56,9 @@ typedef struct
+   MetaXWaylandConnection private_connection;
+   MetaXWaylandConnection public_connection;
+ 
++  guint abstract_fd_watch_id;
++  guint unix_fd_watch_id;
++
+   guint xserver_grace_period_id;
+   struct wl_display *wayland_display;
+   struct wl_client *client;
+diff --git a/src/wayland/meta-xwayland.c b/src/wayland/meta-xwayland.c
+index 4a9d07ea99..fc184426ad 100644
+--- a/src/wayland/meta-xwayland.c
++++ b/src/wayland/meta-xwayland.c
+@@ -716,11 +716,16 @@ xdisplay_connection_activity_cb (gint         fd,
+                                  GIOCondition cond,
+                                  gpointer     user_data)
+ {
++  MetaXWaylandManager *manager = user_data;
+   MetaDisplay *display = meta_get_display ();
+ 
+   meta_display_init_x11 (display, NULL,
+                          (GAsyncReadyCallback) on_init_x11_cb, NULL);
+ 
++  /* Stop watching both file descriptors */
++  g_clear_handle_id (&manager->abstract_fd_watch_id, g_source_remove);
++  g_clear_handle_id (&manager->unix_fd_watch_id, g_source_remove);
++
+   return G_SOURCE_REMOVE;
+ }
+ 
+@@ -817,8 +822,12 @@ meta_xwayland_init (MetaXWaylandManager *manager,
+ 
+   if (policy == META_DISPLAY_POLICY_ON_DEMAND)
+     {
+-      g_unix_fd_add (manager->public_connection.abstract_fd, G_IO_IN,
+-                     xdisplay_connection_activity_cb, manager);
++      manager->abstract_fd_watch_id =
++        g_unix_fd_add (manager->public_connection.abstract_fd, G_IO_IN,
++                       xdisplay_connection_activity_cb, manager);
++      manager->unix_fd_watch_id =
++        g_unix_fd_add (manager->public_connection.unix_fd, G_IO_IN,
++                       xdisplay_connection_activity_cb, manager);
+     }
+ 
+   return TRUE;
+-- 
+2.28.0
+
+
+From f0476f9cf24df665c638650b89f5ee92b95d6584 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Mon, 12 Oct 2020 12:08:28 +0000
+Subject: [PATCH 20/36] window: Don't override tile monitor
+
+Commit 033f0d11bf added a fallback in case the tile monitor wasn't
+set before, but didn't actually check for a previously set value.
+As a result, the "fallback" is not set unconditionally, which may
+differ from the expected monitor: The tile monitor is determined
+by the pointer position, while the window's monitor is the one
+where the biggest part of the window resides on.
+
+https://gitlab.gnome.org/GNOME/mutter/-/issues/1389
+
+
+(cherry picked from commit 64ced1632e277e4fc0b1f4de3f5bf229c6cf885b)
+---
+ src/core/window.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/core/window.c b/src/core/window.c
+index de8159f266..71295c5894 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -3158,7 +3158,7 @@ meta_window_tile (MetaWindow   *window,
+       window->tile_monitor_number = -1;
+       return;
+     }
+-  else
++  else if (window->tile_monitor_number < 0)
+     {
+       window->tile_monitor_number = window->monitor->number;
+     }
+-- 
+2.28.0
+
+
+From ced6b3341e177652d94ade428502e1f106c093d9 Mon Sep 17 00:00:00 2001
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Tue, 20 Oct 2020 09:49:26 +0000
+Subject: [PATCH 21/36] background-content: Assume background clones are always
+ transformed
+
+Because clones may not have identical geometry to their source actors.
+So we can't use the geometry of the source actor to decide to take the
+more optimized (more clipped) path.
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1480
+
+
+(cherry picked from commit a24b2f4b0fc72ebe262988a14a6fcd58d531e2bb)
+---
+ src/compositor/meta-background-content.c | 41 ++++++++++++++----------
+ 1 file changed, 24 insertions(+), 17 deletions(-)
+
+diff --git a/src/compositor/meta-background-content.c b/src/compositor/meta-background-content.c
+index ce6ee2fff1..7990ad47b5 100644
+--- a/src/compositor/meta-background-content.c
++++ b/src/compositor/meta-background-content.c
+@@ -511,29 +511,36 @@ meta_background_content_paint_content (ClutterContent      *content,
+   if ((self->clip_region && cairo_region_is_empty (self->clip_region)))
+     return;
+ 
+-  clutter_actor_get_transformed_position (actor,
+-                                          &transformed_x,
+-                                          &transformed_y);
+-  rect_within_stage.x = floorf (transformed_x);
+-  rect_within_stage.y = floorf (transformed_y);
+-
+-  clutter_actor_get_transformed_size (actor,
+-                                      &transformed_width,
+-                                      &transformed_height);
+-  rect_within_stage.width = roundf (transformed_width);
+-  rect_within_stage.height = roundf (transformed_height);
+-
+   clutter_actor_get_content_box (actor, &actor_box);
+   rect_within_actor.x = actor_box.x1;
+   rect_within_actor.y = actor_box.y1;
+   rect_within_actor.width = actor_box.x2 - actor_box.x1;
+   rect_within_actor.height = actor_box.y2 - actor_box.y1;
+ 
+-  untransformed =
+-    rect_within_actor.x == rect_within_stage.x &&
+-    rect_within_actor.y == rect_within_stage.y &&
+-    rect_within_actor.width == rect_within_stage.width &&
+-    rect_within_actor.height == rect_within_stage.height;
++  if (clutter_actor_is_in_clone_paint (actor))
++    {
++      untransformed = FALSE;
++    }
++  else
++    {
++      clutter_actor_get_transformed_position (actor,
++                                              &transformed_x,
++                                              &transformed_y);
++      rect_within_stage.x = floorf (transformed_x);
++      rect_within_stage.y = floorf (transformed_y);
++
++      clutter_actor_get_transformed_size (actor,
++                                          &transformed_width,
++                                          &transformed_height);
++      rect_within_stage.width = roundf (transformed_width);
++      rect_within_stage.height = roundf (transformed_height);
++
++      untransformed =
++        rect_within_actor.x == rect_within_stage.x &&
++        rect_within_actor.y == rect_within_stage.y &&
++        rect_within_actor.width == rect_within_stage.width &&
++        rect_within_actor.height == rect_within_stage.height;
++    }
+ 
+   if (untransformed) /* actor and stage space are the same */
+     {
+-- 
+2.28.0
+
+
+From d9e34ebbb8d9fafbce2f2e9ed9be542a71699d10 Mon Sep 17 00:00:00 2001
+From: Juliano de Souza Camargo <julianosc@protonmail.com>
+Date: Sat, 24 Oct 2020 14:05:54 +0000
+Subject: [PATCH 22/36] Update Portuguese translation
+
+---
+ po/pt.po | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/po/pt.po b/po/pt.po
+index 419f7a164d..9c804a21aa 100644
+--- a/po/pt.po
++++ b/po/pt.po
+@@ -11,17 +11,17 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: 3.10\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
+-"POT-Creation-Date: 2020-10-06 15:26+0000\n"
+-"PO-Revision-Date: 2020-10-07 13:31+0100\n"
++"POT-Creation-Date: 2020-10-20 15:53+0000\n"
++"PO-Revision-Date: 2020-10-23 15:55+0100\n"
+ "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
+-"Language-Team: Portuguese < >\n"
++"Language-Team: https://l10n.gnome.org/teams/pt/\n"
+ "Language: pt\n"
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
++"Plural-Forms: nplurals=2; plural=(n != 1);\n"
++"X-Generator: Poedit 2.4.1\n"
+ "X-DamnedLies-Scope: partial\n"
+-"X-Generator: Gtranslator 3.36.0\n"
+ 
+ #: data/50-mutter-navigation.xml:6
+ msgid "Navigation"
+@@ -149,7 +149,7 @@ msgstr "Mudar para a área de trabalho 4"
+ 
+ #: data/50-mutter-navigation.xml:120
+ msgid "Switch to last workspace"
+-msgstr "Mudar para a última área de trabalho 1"
++msgstr "Mudar para a última área de trabalho"
+ 
+ #: data/50-mutter-navigation.xml:123
+ msgid "Move to workspace above"
+@@ -278,8 +278,8 @@ msgid ""
+ "the parent window."
+ msgstr ""
+ "Quando verdadeiro, em vez de terem barras de título independentes, os "
+-"diálogos modais surgem anexados à barra de título da janela-principal e são "
+-"movidos juntamente com a janela-principal."
++"diálogos modais surgem anexados à barra de título da janela principal e são "
++"movidos juntamente com a janela principal."
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:30
+ msgid "Enable edge tiling when dropping windows on screen edges"
+@@ -324,7 +324,7 @@ msgstr ""
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:59
+ msgid "No tab popup"
+-msgstr "Sem popup ao utilizar tabulador"
++msgstr "Sem popup ao utilizar a tecla tab"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:60
+ msgid ""
+@@ -423,7 +423,7 @@ msgstr "Modificador para localizar o cursor"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:135
+ msgid "This key will initiate the “locate pointer” action."
+-msgstr "Esta chave inicializa a ação “localizar cursor”"
++msgstr "Esta chave iniciará a ação “localizar cursor”."
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:142
+ msgid "Timeout for check-alive ping"
+-- 
+2.28.0
+
+
+From d247c0b2f05e5250b16831652650415eb64b3cd3 Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Mon, 26 Oct 2020 18:34:05 +0100
+Subject: [PATCH 23/36] backend: Keep a refcount on backend's current_device
+
+Otherwise we might run into a use-after-free and crash on (virtual)
+device removal:
+
+ Invalid read of size 8
+   at clutter_input_device_get_device_type (clutter-input-device.c:811)
+   by update_last_device (meta-backend.c:1282)
+   by g_main_dispatch (gmain.c:3325)
+   by g_main_context_dispatch (gmain.c:4016)
+   by g_main_context_iterate.constprop.0 (gmain.c:4092)
+   by g_main_loop_run (gmain.c:4290)
+   by meta_run_main_loop (main.c:708)
+   by meta_run (main.c:723)
+   by main (main.c:550)
+ Address is 32 bytes inside a block of size 504 free'd
+   at free (vg_replace_malloc.c:538)
+   by g_type_free_instance (gtype.c:1939)
+   by clutter_event_free (clutter-event.c:1420)
+   by _clutter_stage_process_queued_events (clutter-stage.c:830)
+   by handle_frame_clock_before_frame (clutter-stage-view.c:1064)
+   by clutter_frame_clock_dispatch (clutter-frame-clock.c:405)
+   by frame_clock_source_dispatch (clutter-frame-clock.c:456)
+   by g_main_dispatch (gmain.c:3325)
+   by g_main_context_dispatch (gmain.c:4016)
+   by g_main_context_iterate.constprop.0 (gmain.c:4092)
+   by g_main_loop_run (gmain.c:4290)
+   by meta_run_main_loop (main.c:708)
+   by meta_run (main.c:723)
+ Block was alloc'd at
+   at malloc (vg_replace_malloc.c:307)
+   by g_malloc (gmem.c:106)
+   by g_slice_alloc (gslice.c:1025)
+   by g_slice_alloc0 (gslice.c:1051)
+   by g_type_create_instance (gtype.c:1839)
+   by g_object_new_internal (gobject.c:1939)
+   by g_object_new_valist (gobject.c:2264)
+   by g_object_new (gobject.c:1782)
+   by meta_input_device_native_new_virtual (meta-input-device-native.c:1365)
+   by meta_virtual_input_device_native_constructed (meta-virtual-input-device-native.c:705)
+   by g_object_new_internal (gobject.c:1979)
+   by g_object_new_valist (gobject.c:2264)
+
+Suggested-by: Carlos Garnacho <carlosg@gnome.org>
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1529
+(cherry picked from commit 8711d8d5914df8e19a907105d9fa7139221f21b4)
+---
+ src/backends/meta-backend.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/backends/meta-backend.c b/src/backends/meta-backend.c
+index 97c7714076..9c61a02b9a 100644
+--- a/src/backends/meta-backend.c
++++ b/src/backends/meta-backend.c
+@@ -199,6 +199,7 @@ meta_backend_finalize (GObject *object)
+ 
+   g_list_free_full (priv->gpus, g_object_unref);
+ 
++  g_clear_object (&priv->current_device);
+   g_clear_object (&priv->monitor_manager);
+   g_clear_object (&priv->orientation_manager);
+   g_clear_object (&priv->input_settings);
+@@ -437,7 +438,7 @@ on_device_removed (ClutterSeat        *seat,
+       gboolean has_touchscreen, has_pointing_device;
+       ClutterInputDeviceType device_type;
+ 
+-      priv->current_device = NULL;
++      g_clear_object (&priv->current_device);
+       g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
+ 
+       device_type = clutter_input_device_get_device_type (device);
+@@ -1322,7 +1323,7 @@ meta_backend_update_last_device (MetaBackend        *backend,
+       clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
+     return;
+ 
+-  priv->current_device = device;
++  g_set_object (&priv->current_device, device);
+ 
+   if (priv->device_update_idle_id == 0)
+     {
+-- 
+2.28.0
+
+
+From 01e2a54f3358c3ff50c583585cffa53f725bee3d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Thu, 29 Oct 2020 10:11:15 +0100
+Subject: [PATCH 24/36] wayland/window: Don't lose precision in
+ MetaWaylandWindowConfiguration
+
+Commit 8bdd2aa7 would offset the window position by the difference
+between the configured window size and the committed size from the
+client to prevent the window from drifting while resizing.
+
+This, however, did not take into account the actual geometry scale, so
+when using any scale greater than 1, the window would rapidly drift away
+due to that offset.
+
+In order to solve this, we need to make sure we store away the pending
+window configuration in the stage coordinate space, in order to not
+loose precision. When we then calculate the offset given the result from
+the client, it'll use the right scalars, while before, one scalar was in
+surface coordinates, while the other in stage coordinates.
+
+https://gitlab.gnome.org/GNOME/mutter/-/issues/1490
+(cherry picked from commit eaa6efef56d3a251e864c7064d7c6ad5d1329c78)
+---
+ src/wayland/meta-wayland-legacy-xdg-shell.c     |  7 ++++---
+ src/wayland/meta-wayland-window-configuration.c |  8 +++++++-
+ src/wayland/meta-wayland-window-configuration.h |  5 ++++-
+ src/wayland/meta-wayland-wl-shell.c             |  3 ++-
+ src/wayland/meta-wayland-xdg-shell.c            | 13 ++++++++-----
+ src/wayland/meta-window-wayland.c               | 11 ++++++++---
+ 6 files changed, 33 insertions(+), 14 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-legacy-xdg-shell.c b/src/wayland/meta-wayland-legacy-xdg-shell.c
+index c9c0df6e6e..926ee14e32 100644
+--- a/src/wayland/meta-wayland-legacy-xdg-shell.c
++++ b/src/wayland/meta-wayland-legacy-xdg-shell.c
+@@ -609,8 +609,8 @@ meta_wayland_zxdg_toplevel_v6_send_configure (MetaWaylandZxdgToplevelV6      *xd
+   fill_states (&states, window);
+ 
+   zxdg_toplevel_v6_send_configure (xdg_toplevel->resource,
+-                                   configuration->width,
+-                                   configuration->height,
++                                   configuration->width / configuration->scale,
++                                   configuration->height / configuration->scale,
+                                    &states);
+   wl_array_release (&states);
+ 
+@@ -1075,7 +1075,8 @@ meta_wayland_zxdg_popup_v6_configure (MetaWaylandShellSurface        *shell_surf
+ 
+   zxdg_popup_v6_send_configure (xdg_popup->resource,
+                                 x, y,
+-                                configuration->width, configuration->height);
++                                configuration->width / configuration->scale,
++                                configuration->height / configuration->scale);
+   meta_wayland_zxdg_surface_v6_send_configure (xdg_surface, configuration);
+ }
+ 
+diff --git a/src/wayland/meta-wayland-window-configuration.c b/src/wayland/meta-wayland-window-configuration.c
+index 013f10a732..a0ee8f805c 100644
+--- a/src/wayland/meta-wayland-window-configuration.c
++++ b/src/wayland/meta-wayland-window-configuration.c
+@@ -29,6 +29,7 @@ meta_wayland_window_configuration_new (int                 x,
+                                        int                 y,
+                                        int                 width,
+                                        int                 height,
++                                       int                 scale,
+                                        MetaMoveResizeFlags flags,
+                                        MetaGravity         gravity)
+ {
+@@ -46,6 +47,7 @@ meta_wayland_window_configuration_new (int                 x,
+     .width = width,
+     .height = height,
+ 
++    .scale = scale,
+     .gravity = gravity,
+     .flags = flags,
+   };
+@@ -57,7 +59,8 @@ MetaWaylandWindowConfiguration *
+ meta_wayland_window_configuration_new_relative (int rel_x,
+                                                 int rel_y,
+                                                 int width,
+-                                                int height)
++                                                int height,
++                                                int scale)
+ {
+   MetaWaylandWindowConfiguration *configuration;
+ 
+@@ -72,6 +75,8 @@ meta_wayland_window_configuration_new_relative (int rel_x,
+     .has_size = TRUE,
+     .width = width,
+     .height = height,
++
++    .scale = scale,
+   };
+ 
+   return configuration;
+@@ -85,6 +90,7 @@ meta_wayland_window_configuration_new_empty (void)
+   configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
+   *configuration = (MetaWaylandWindowConfiguration) {
+     .serial = ++global_serial_counter,
++    .scale = 1,
+   };
+ 
+   return configuration;
+diff --git a/src/wayland/meta-wayland-window-configuration.h b/src/wayland/meta-wayland-window-configuration.h
+index 61672d5e43..b524f431fc 100644
+--- a/src/wayland/meta-wayland-window-configuration.h
++++ b/src/wayland/meta-wayland-window-configuration.h
+@@ -43,6 +43,7 @@ struct _MetaWaylandWindowConfiguration
+   int width;
+   int height;
+ 
++  int scale;
+   MetaGravity gravity;
+   MetaMoveResizeFlags flags;
+ };
+@@ -51,13 +52,15 @@ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new (int
+                                                                         int                 y,
+                                                                         int                 width,
+                                                                         int                 height,
++                                                                        int                 scale,
+                                                                         MetaMoveResizeFlags flags,
+                                                                         MetaGravity         gravity);
+ 
+ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_relative (int rel_x,
+                                                                                  int rel_y,
+                                                                                  int width,
+-                                                                                 int height);
++                                                                                 int height,
++                                                                                 int scale);
+ 
+ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_empty (void);
+ 
+diff --git a/src/wayland/meta-wayland-wl-shell.c b/src/wayland/meta-wayland-wl-shell.c
+index f677347990..2388afd287 100644
+--- a/src/wayland/meta-wayland-wl-shell.c
++++ b/src/wayland/meta-wayland-wl-shell.c
+@@ -657,7 +657,8 @@ wl_shell_surface_role_configure (MetaWaylandShellSurface        *shell_surface,
+ 
+   wl_shell_surface_send_configure (wl_shell_surface->resource,
+                                    0,
+-                                   configuration->width, configuration->height);
++                                   configuration->width / configuration->scale,
++                                   configuration->height / configuration->scale);
+ 
+   wl_shell_surface->emulated_ack_configure_serial = configuration->serial;
+ }
+diff --git a/src/wayland/meta-wayland-xdg-shell.c b/src/wayland/meta-wayland-xdg-shell.c
+index 768b909acb..176f8a908f 100644
+--- a/src/wayland/meta-wayland-xdg-shell.c
++++ b/src/wayland/meta-wayland-xdg-shell.c
+@@ -700,8 +700,8 @@ meta_wayland_xdg_toplevel_send_configure (MetaWaylandXdgToplevel         *xdg_to
+   fill_states (xdg_toplevel, &states);
+ 
+   xdg_toplevel_send_configure (xdg_toplevel->resource,
+-                               configuration->width,
+-                               configuration->height,
++                               configuration->width / configuration->scale,
++                               configuration->height / configuration->scale,
+                                &states);
+   wl_array_release (&states);
+ 
+@@ -1250,7 +1250,8 @@ meta_wayland_xdg_popup_configure (MetaWaylandShellSurface        *shell_surface,
+     }
+   xdg_popup_send_configure (xdg_popup->resource,
+                             x, y,
+-                            configuration->width, configuration->height);
++                            configuration->width / configuration->scale,
++                            configuration->height / configuration->scale);
+ 
+   meta_wayland_xdg_surface_send_configure (xdg_surface, configuration);
+ }
+@@ -2046,8 +2047,10 @@ meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_position
+                 }
+               if (configuration->has_size)
+                 {
+-                  parent_rect.width = configuration->width;
+-                  parent_rect.height = configuration->height;
++                  parent_rect.width =
++                    configuration->width / configuration->scale;
++                  parent_rect.height =
++                    configuration->height / configuration->scale;
+                 }
+             }
+           else if (xdg_positioner->has_parent_size)
+diff --git a/src/wayland/meta-window-wayland.c b/src/wayland/meta-window-wayland.c
+index e2d2d71da5..b4329d452a 100644
+--- a/src/wayland/meta-window-wayland.c
++++ b/src/wayland/meta-window-wayland.c
+@@ -59,6 +59,7 @@ struct _MetaWindowWayland
+   int last_sent_height;
+   int last_sent_rel_x;
+   int last_sent_rel_y;
++  int last_sent_geometry_scale;
+   MetaGravity last_sent_gravity;
+ 
+   gboolean has_been_shown;
+@@ -192,6 +193,7 @@ surface_state_changed (MetaWindow *window)
+                                            wl_window->last_sent_y,
+                                            wl_window->last_sent_width,
+                                            wl_window->last_sent_height,
++                                           wl_window->last_sent_geometry_scale,
+                                            META_MOVE_RESIZE_STATE_CHANGED,
+                                            wl_window->last_sent_gravity);
+ 
+@@ -271,8 +273,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
+     }
+   else
+     {
+-      configured_width = constrained_rect.width / geometry_scale;
+-      configured_height = constrained_rect.height / geometry_scale;
++      configured_width = constrained_rect.width;
++      configured_height = constrained_rect.height;
+     }
+ 
+   /* For wayland clients, the size is completely determined by the client,
+@@ -334,7 +336,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
+                       meta_wayland_window_configuration_new_relative (rel_x,
+                                                                       rel_y,
+                                                                       configured_width,
+-                                                                      configured_height);
++                                                                      configured_height,
++                                                                      geometry_scale);
+                     meta_window_wayland_configure (wl_window, configuration);
+ 
+                     wl_window->last_sent_rel_x = rel_x;
+@@ -386,6 +389,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
+                                                    configured_y,
+                                                    configured_width,
+                                                    configured_height,
++                                                   geometry_scale,
+                                                    flags,
+                                                    gravity);
+           meta_window_wayland_configure (wl_window, configuration);
+@@ -401,6 +405,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
+   wl_window->last_sent_y = configured_y;
+   wl_window->last_sent_width = configured_width;
+   wl_window->last_sent_height = configured_height;
++  wl_window->last_sent_geometry_scale = geometry_scale;
+   wl_window->last_sent_gravity = gravity;
+ 
+   if (can_move_now)
+-- 
+2.28.0
+
+
+From 32769c120896e566e6c78bc8a2d744fc0d4c272b Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Tue, 27 Oct 2020 10:27:48 +0100
+Subject: [PATCH 25/36] clutter/backend: Don't dispatch libinput events too
+ early
+
+At startup, libinput dispatch is called from the MetaSeatNative
+constructed callback.
+
+That means that we may get libinput events even before the default seat
+is set.
+
+In turn, processing those events may trigger the use the default seat
+while it's still not set yet, and cause a crash of gnome-shell/mutter
+at startup.
+
+A simple reproducer for this is to start gnome-shell/mutter with a
+tablet connected and the stylus in proximity, the proximity event will
+cause gnome-shell/mutter to crash at startup.
+
+To avoid that issue, avoid dispatching libinput events early from the
+MetaSeatNative constructed callback, those events will eventually get
+processed when the seat and the backend are all setup.
+
+https://gitlab.gnome.org/GNOME/mutter/-/issues/1501
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1534
+(cherry picked from commit c618b8a0eb1919219da29934945b303fd0a311ed)
+---
+ src/backends/native/meta-seat-native.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/src/backends/native/meta-seat-native.c b/src/backends/native/meta-seat-native.c
+index 022f56983f..2b8261df42 100644
+--- a/src/backends/native/meta-seat-native.c
++++ b/src/backends/native/meta-seat-native.c
+@@ -2486,8 +2486,6 @@ meta_seat_native_constructed (GObject *object)
+ 
+   seat->udev_client = g_udev_client_new ((const gchar *[]) { "input", NULL });
+ 
+-  dispatch_libinput (seat);
+-
+   source = meta_event_source_new (seat);
+   seat->event_source = source;
+ 
+-- 
+2.28.0
+
+
+From 33605179a4a3c9d84e6f87b5c8cafa7d677eba0c Mon Sep 17 00:00:00 2001
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Fri, 30 Oct 2020 15:44:52 +0100
+Subject: [PATCH 26/36] backend: Update cursor visibility on device added
+
+Not calling libinput dispatch in the backend constructor defeats the
+logic in post init as the device added events have not been processed
+yet.
+
+So instead of trying to guess the cursor initial visibility, simply
+update it along when devices get added.
+
+Additional benefit, we do not need to walk the all device list looking
+for touchscreens anymore, we just need to check the device being added
+since the current logic is to hide the cursor as soon as a touchscreen
+is found.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1534
+(cherry picked from commit 9b881729821b360cc6e6f06f37fee0fe9b417a27)
+---
+ src/backends/meta-backend.c | 47 +++++++++++--------------------------
+ 1 file changed, 14 insertions(+), 33 deletions(-)
+
+diff --git a/src/backends/meta-backend.c b/src/backends/meta-backend.c
+index 9c61a02b9a..9f9dba5baf 100644
+--- a/src/backends/meta-backend.c
++++ b/src/backends/meta-backend.c
+@@ -350,16 +350,6 @@ meta_backend_monitor_device (MetaBackend        *backend,
+   create_device_monitor (backend, device);
+ }
+ 
+-static void
+-on_device_added (ClutterSeat        *seat,
+-                 ClutterInputDevice *device,
+-                 gpointer            user_data)
+-{
+-  MetaBackend *backend = META_BACKEND (user_data);
+-
+-  create_device_monitor (backend, device);
+-}
+-
+ static inline gboolean
+ device_is_physical_touchscreen (ClutterInputDevice *device)
+ {
+@@ -419,6 +409,20 @@ check_has_physical_touchscreen (ClutterSeat *seat)
+   return found;
+ }
+ 
++static void
++on_device_added (ClutterSeat        *seat,
++                 ClutterInputDevice *device,
++                 gpointer            user_data)
++{
++  MetaBackend *backend = META_BACKEND (user_data);
++  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
++
++  create_device_monitor (backend, device);
++
++  if (device_is_physical_touchscreen (device))
++    meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, FALSE);
++}
++
+ static void
+ on_device_removed (ClutterSeat        *seat,
+                    ClutterInputDevice *device,
+@@ -482,27 +486,6 @@ create_device_monitors (MetaBackend *backend,
+   g_list_free (devices);
+ }
+ 
+-static void
+-set_initial_pointer_visibility (MetaBackend *backend,
+-                                ClutterSeat *seat)
+-{
+-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+-  GList *l, *devices;
+-  gboolean has_touchscreen = FALSE;
+-
+-  devices = clutter_seat_list_devices (seat);
+-  for (l = devices; l; l = l->next)
+-    {
+-      ClutterInputDevice *device = l->data;
+-
+-      has_touchscreen |= device_is_physical_touchscreen (device);
+-    }
+-
+-  g_list_free (devices);
+-  meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker,
+-                                           !has_touchscreen);
+-}
+-
+ static MetaInputSettings *
+ meta_backend_create_input_settings (MetaBackend *backend)
+ {
+@@ -537,8 +520,6 @@ meta_backend_real_post_init (MetaBackend *backend)
+                            G_CALLBACK (on_device_removed), backend,
+                            G_CONNECT_AFTER);
+ 
+-  set_initial_pointer_visibility (backend, seat);
+-
+   priv->input_settings = meta_backend_create_input_settings (backend);
+ 
+   if (priv->input_settings)
+-- 
+2.28.0
+
+
+From 0caae95ad756e42343fd09e29cf526f61b6781c2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>
+Date: Sun, 1 Nov 2020 11:33:59 +0000
+Subject: [PATCH 27/36] clutter/actor: Queue redraw on no-layout parents when
+ unmapping
+
+As explained in https://gitlab.gnome.org/GNOME/mutter/-/issues/1494,
+with commit 29caa5bea576ed056aa6c82de192426abe6019ae we stopped queueing
+a relayout for the parent of the removed actor in
+clutter_actor_remove_child_internal(). This relayout was, as opposed to
+the relayout in clutter_actor_real_hide()/clutter_actor_real_unmap(),
+queued unconditionally without looking at the parents NO_LAYOUT flag.
+
+Now while that relayout in clutter_actor_remove_child_internal() would
+do unnecessary work if the parent had the NO_LAYOUT flag set, it did
+also queue a redraw of the parent, which is necessary in any case.
+
+So by removing that relayout in clutter_actor_remove_child_internal(),
+we stopped queueing redraws for NO_LAYOUT parents when a child gets
+removed from the scenegraph. This caused bugs where the texture of the
+child would be left visible on the screen even though the child got
+destroyed.
+
+To fix this, make sure again that we always queue a redraw on the parent
+when unmapping a child.
+
+Fixes https://gitlab.gnome.org/GNOME/mutter/-/issues/1494
+
+
+(cherry picked from commit c88615aac869bf94a0e9ebc372396eabc640c0a3)
+---
+ clutter/clutter/clutter-actor.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 503907adff..febfb31918 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -1740,9 +1740,13 @@ clutter_actor_real_unmap (ClutterActor *self)
+      _clutter_paint_volume_init_static (&priv->last_paint_volume, NULL);
+       priv->last_paint_volume_valid = TRUE;
+ 
+-      if (priv->parent && !CLUTTER_ACTOR_IN_DESTRUCTION (priv->parent) &&
+-          (!(priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)))
+-        clutter_actor_queue_relayout (priv->parent);
++      if (priv->parent && !CLUTTER_ACTOR_IN_DESTRUCTION (priv->parent))
++        {
++          if (G_UNLIKELY (priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT))
++            clutter_actor_queue_redraw (priv->parent);
++          else
++            clutter_actor_queue_relayout (priv->parent);
++        }
+     }
+ 
+   /* notify on parent mapped after potentially unmapping
+-- 
+2.28.0
+
+
+From 23a9fdf6d80c0b3fcab7a3e307843a14f165ead2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Thu, 5 Nov 2020 07:46:40 +0000
+Subject: [PATCH 28/36] x11/output: Fix init tile info guard
+
+Monitor tile info is possible to fetch when RANDR version 15 is exposed
+by the X11 server. We had inverted the check meaning that only if older
+versions were advertised would we attempt to init the tile information.
+Fix this guard, thus fix monitor tiling on X11.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1524
+
+
+(cherry picked from commit 4ecc80fd8025842452262001fc4d6b7047696d4e)
+---
+ src/backends/x11/meta-output-xrandr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/backends/x11/meta-output-xrandr.c b/src/backends/x11/meta-output-xrandr.c
+index 3a85cb7aa4..b7d18a0d3f 100644
+--- a/src/backends/x11/meta-output-xrandr.c
++++ b/src/backends/x11/meta-output-xrandr.c
+@@ -848,7 +848,7 @@ meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
+       output_info->height_mm = xrandr_output->mm_height;
+     }
+ 
+-  if (!meta_monitor_manager_xrandr_has_randr15 (monitor_manager_xrandr))
++  if (meta_monitor_manager_xrandr_has_randr15 (monitor_manager_xrandr))
+     output_info_init_tile_info (output_info, xdisplay, output_id);
+   output_info_init_modes (output_info, gpu, xrandr_output);
+   output_info_init_crtcs (output_info, gpu, xrandr_output);
+-- 
+2.28.0
+
+
+From a0a4c3e52a0d3db7c7d43abc535326cac4760b24 Mon Sep 17 00:00:00 2001
+From: Robert Mader <robert.mader@posteo.de>
+Date: Wed, 4 Nov 2020 19:32:21 +0100
+Subject: [PATCH 29/36] wayland/subsurface: Check for circular relationships
+
+If a subsurface is equal to or an ancestor of the parent surface
+we currently crash. Check for that case and terminate the client.
+
+Closes https://gitlab.gnome.org/GNOME/mutter/-/issues/1521
+
+(cherry picked from commit 4e9a67acc6e09b012b6034b1928c2cc6ba0cb1bf)
+---
+ src/wayland/meta-wayland-subsurface.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/src/wayland/meta-wayland-subsurface.c b/src/wayland/meta-wayland-subsurface.c
+index bf14e0e3c9..5df3e58154 100644
+--- a/src/wayland/meta-wayland-subsurface.c
++++ b/src/wayland/meta-wayland-subsurface.c
+@@ -530,6 +530,17 @@ surface_handle_parent_surface_destroyed (struct wl_listener *listener,
+   surface->sub.parent = NULL;
+ }
+ 
++static gboolean
++is_same_or_ancestor (MetaWaylandSurface *surface,
++                     MetaWaylandSurface *other_surface)
++{
++  if (surface == other_surface)
++    return TRUE;
++  if (other_surface->sub.parent)
++    return is_same_or_ancestor (surface, other_surface->sub.parent);
++  return FALSE;
++}
++
+ static void
+ wl_subcompositor_get_subsurface (struct wl_client   *client,
+                                  struct wl_resource *resource,
+@@ -549,6 +560,16 @@ wl_subcompositor_get_subsurface (struct wl_client   *client,
+       return;
+     }
+ 
++  if (is_same_or_ancestor (surface, parent))
++    {
++      wl_resource_post_error (resource, WL_SUBCOMPOSITOR_ERROR_BAD_SURFACE,
++                              "Circular relationship between wl_surface@%d "
++                              "and parent surface wl_surface@%d",
++                              wl_resource_get_id (surface->resource),
++                              wl_resource_get_id (parent->resource));
++      return;
++    }
++
+   if (!meta_wayland_surface_assign_role (surface,
+                                          META_TYPE_WAYLAND_SUBSURFACE,
+                                          NULL))
+-- 
+2.28.0
+
+
+From 17daa356813e9aa1f01fbe7176f993306aa7f90b Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Fri, 6 Nov 2020 17:59:33 +0100
+Subject: [PATCH 30/36] clutter/event: Do not filter out DEVICE_ADDED/REMOVED
+ events
+
+These devices in x11 are "disabled", that doesn't mean we should refrain
+from notifying about them.
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1476
+Fixes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1496
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1553
+
+(cherry-picked from commit 34710eabc0dc2154d26296f3121728683af4afe6)
+---
+ clutter/clutter/clutter-event.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/clutter/clutter/clutter-event.c b/clutter/clutter/clutter-event.c
+index 51bec88812..9fa32dfd80 100644
+--- a/clutter/clutter/clutter-event.c
++++ b/clutter/clutter/clutter-event.c
+@@ -1577,7 +1577,9 @@ _clutter_event_push (const ClutterEvent *event,
+   device = clutter_event_get_device (event);
+   if (device != NULL)
+     {
+-      if (!clutter_input_device_get_enabled (device))
++      if (event->type != CLUTTER_DEVICE_ADDED &&
++          event->type != CLUTTER_DEVICE_REMOVED &&
++          !clutter_input_device_get_enabled (device))
+         return;
+     }
+ 
+-- 
+2.28.0
+
+
+From 979eb80dc1560c288482f919752c47b233b8a36f Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Fri, 6 Nov 2020 18:00:55 +0100
+Subject: [PATCH 31/36] backends/x11: Emit CLUTTER_DEVICE_ADDED events for
+ initial devices
+
+This is similar to commit b9e5a2d6e23, but for the X11 backend.
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1466
+Fixes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1495
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1553
+
+(cherry-picked from commit b6211bb6842fd7f88bc4f70f0d268614b85f4b3d)
+---
+ src/backends/x11/meta-backend-x11.c |  7 +++++++
+ src/backends/x11/meta-seat-x11.c    | 19 +++++++++++++++++++
+ src/backends/x11/meta-seat-x11.h    |  2 ++
+ 3 files changed, 28 insertions(+)
+
+diff --git a/src/backends/x11/meta-backend-x11.c b/src/backends/x11/meta-backend-x11.c
+index 69e4ed85f9..06dad02613 100644
+--- a/src/backends/x11/meta-backend-x11.c
++++ b/src/backends/x11/meta-backend-x11.c
+@@ -525,6 +525,8 @@ meta_backend_x11_post_init (MetaBackend *backend)
+   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
+   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+   MetaMonitorManager *monitor_manager;
++  ClutterBackend *clutter_backend;
++  ClutterSeat *seat;
+   int major, minor;
+   gboolean has_xi = FALSE;
+ 
+@@ -577,6 +579,11 @@ meta_backend_x11_post_init (MetaBackend *backend)
+   priv->touch_replay_sync_atom = XInternAtom (priv->xdisplay,
+                                               "_MUTTER_TOUCH_SEQUENCE_SYNC",
+                                               False);
++
++  clutter_backend = meta_backend_get_clutter_backend (backend);
++  seat = clutter_backend_get_default_seat (clutter_backend);
++  meta_seat_x11_notify_devices (META_SEAT_X11 (seat),
++                                CLUTTER_STAGE (meta_backend_get_stage (backend)));
+ }
+ 
+ static ClutterBackend *
+diff --git a/src/backends/x11/meta-seat-x11.c b/src/backends/x11/meta-seat-x11.c
+index 39885230a0..cfea494fca 100644
+--- a/src/backends/x11/meta-seat-x11.c
++++ b/src/backends/x11/meta-seat-x11.c
+@@ -1383,6 +1383,25 @@ meta_seat_x11_get_property (GObject    *object,
+     }
+ }
+ 
++void
++meta_seat_x11_notify_devices (MetaSeatX11  *seat_x11,
++			      ClutterStage *stage)
++{
++  GHashTableIter iter;
++  ClutterInputDevice *device;
++
++  g_hash_table_iter_init (&iter, seat_x11->devices_by_id);
++  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &device))
++    {
++      ClutterEvent *event;
++
++      event = clutter_event_new (CLUTTER_DEVICE_ADDED);
++      clutter_event_set_device (event, device);
++      clutter_event_set_stage (event, stage);
++      clutter_do_event (event);
++    }
++}
++
+ static void
+ meta_seat_x11_constructed (GObject *object)
+ {
+diff --git a/src/backends/x11/meta-seat-x11.h b/src/backends/x11/meta-seat-x11.h
+index 0573f64b8c..326db4a459 100644
+--- a/src/backends/x11/meta-seat-x11.h
++++ b/src/backends/x11/meta-seat-x11.h
+@@ -36,6 +36,8 @@ ClutterInputDevice * meta_seat_x11_lookup_device_id (MetaSeatX11 *seat_x11,
+                                                      int          device_id);
+ void meta_seat_x11_select_stage_events (MetaSeatX11  *seat,
+                                         ClutterStage *stage);
++void meta_seat_x11_notify_devices (MetaSeatX11  *seat_x11,
++                                   ClutterStage *stage);
+ 
+ G_END_DECLS
+ 
+-- 
+2.28.0
+
+
+From 29776c99a85c071c48336e04b6e8e7191b2bc3b5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Thu, 12 Nov 2020 14:40:06 +0100
+Subject: [PATCH 32/36] window/wayland: Warn when attempted to resend
+ uninitialized state
+
+This happens due to Qt doing wierd things, committing incomplete and
+incorrect state.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1559
+---
+ src/wayland/meta-window-wayland.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/wayland/meta-window-wayland.c b/src/wayland/meta-window-wayland.c
+index b4329d452a..4ddecb4327 100644
+--- a/src/wayland/meta-window-wayland.c
++++ b/src/wayland/meta-window-wayland.c
+@@ -53,6 +53,7 @@ struct _MetaWindowWayland
+   GList *pending_configurations;
+   gboolean has_pending_state_change;
+ 
++  gboolean has_last_sent_configuration;
+   int last_sent_x;
+   int last_sent_y;
+   int last_sent_width;
+@@ -188,6 +189,10 @@ surface_state_changed (MetaWindow *window)
+   if (window->unmanaging)
+     return;
+ 
++  g_return_if_fail (wl_window->has_last_sent_configuration);
++  if (!wl_window->has_last_sent_configuration)
++    return;
++
+   configuration =
+     meta_wayland_window_configuration_new (wl_window->last_sent_x,
+                                            wl_window->last_sent_y,
+@@ -401,6 +406,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
+         }
+     }
+ 
++  wl_window->has_last_sent_configuration = TRUE;
+   wl_window->last_sent_x = configured_x;
+   wl_window->last_sent_y = configured_y;
+   wl_window->last_sent_width = configured_width;
+-- 
+2.28.0
+
+
+From 067af969c03c31a2b7380b14f3344ef7d2258313 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Thu, 12 Nov 2020 14:06:43 +0100
+Subject: [PATCH 33/36] wayland/xdg-shell: Imitate undefined behavior Qt relies
+ upon
+
+Qt sets window geometry without in the same commit providing actual
+content matching it, and relies on the compositor being able to adapt
+without a new window geometry on a later commit. Other compositors do
+this, so do the same, even though it's not guaranteed according to spec.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1557
+(cherry picked from commit f5b44be9f22efd59b34dd8c3a98328306f979eea)
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1559
+---
+ src/wayland/meta-wayland-xdg-shell.c | 13 +++++++++++--
+ src/wayland/meta-window-wayland.c    |  9 ++++++++-
+ 2 files changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-xdg-shell.c b/src/wayland/meta-wayland-xdg-shell.c
+index 176f8a908f..43505932dc 100644
+--- a/src/wayland/meta-wayland-xdg-shell.c
++++ b/src/wayland/meta-wayland-xdg-shell.c
+@@ -89,6 +89,7 @@ typedef struct _MetaWaylandXdgSurfacePrivate
+   struct wl_resource *resource;
+   MetaWaylandXdgShellClient *shell_client;
+   MetaRectangle geometry;
++  MetaRectangle unconstrained_geometry;
+ 
+   guint configure_sent : 1;
+   guint first_buffer_attached : 1;
+@@ -810,7 +811,7 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
+     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_xdg_toplevel_parent_class);
+   surface_role_class->post_apply_state (surface_role, pending);
+ 
+-  if (!pending->newly_attached)
++  if (!surface->buffer_ref->buffer)
+     return;
+ 
+   window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
+@@ -1536,6 +1537,7 @@ meta_wayland_xdg_surface_real_reset (MetaWaylandXdgSurface *xdg_surface)
+   priv->first_buffer_attached = FALSE;
+   priv->configure_sent = FALSE;
+   priv->geometry = (MetaRectangle) { 0 };
++  priv->unconstrained_geometry = (MetaRectangle) { 0 };
+   priv->has_set_geometry = FALSE;
+ }
+ 
+@@ -1578,12 +1580,19 @@ meta_wayland_xdg_surface_post_apply_state (MetaWaylandSurfaceRole  *surface_role
+ 
+   if (pending->has_new_geometry)
+     {
++      priv->unconstrained_geometry = pending->new_geometry;
+       meta_wayland_shell_surface_determine_geometry (shell_surface,
+                                                      &pending->new_geometry,
+                                                      &priv->geometry);
+       priv->has_set_geometry = TRUE;
+     }
+-  else if (!priv->has_set_geometry)
++  else if (priv->has_set_geometry)
++    {
++      meta_wayland_shell_surface_determine_geometry (shell_surface,
++                                                     &priv->unconstrained_geometry,
++                                                     &priv->geometry);
++    }
++  else
+     {
+       MetaRectangle new_geometry = { 0 };
+ 
+diff --git a/src/wayland/meta-window-wayland.c b/src/wayland/meta-window-wayland.c
+index 4ddecb4327..89ee0c292c 100644
+--- a/src/wayland/meta-window-wayland.c
++++ b/src/wayland/meta-window-wayland.c
+@@ -999,7 +999,14 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
+   else
+     {
+       if (acked_configuration)
+-        calculate_offset (acked_configuration, &new_geom, &rect);
++        {
++          calculate_offset (acked_configuration, &new_geom, &rect);
++        }
++      else
++        {
++          rect.x = window->rect.x;
++          rect.y = window->rect.y;
++        }
+     }
+ 
+   if (rect.x != window->rect.x || rect.y != window->rect.y)
+-- 
+2.28.0
+
+
+From 965c94d46788188a3fe24e64056e39ad28469d18 Mon Sep 17 00:00:00 2001
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Mon, 5 Oct 2020 10:13:07 +0000
+Subject: [PATCH 34/36] backend: Don't pull generated headers (indirectly)
+
+Use a typedef for MetaRemoteDesktop, so tests poking MetaBackend don't
+indirectly depend upon generated headers. This is arguably a code fix
+for a build system bug.
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1470
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1449
+(or something...)
+
+
+(cherry picked from commit e0944b6097566dee3a09a919ba49a071e0137f26)
+---
+ src/backends/meta-backend-private.h | 4 ----
+ src/backends/meta-backend-types.h   | 4 ++++
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/backends/meta-backend-private.h b/src/backends/meta-backend-private.h
+index 6d7d3ad758..5f4981fda5 100644
+--- a/src/backends/meta-backend-private.h
++++ b/src/backends/meta-backend-private.h
+@@ -42,10 +42,6 @@
+ #include "backends/meta-settings-private.h"
+ #include "core/util-private.h"
+ 
+-#ifdef HAVE_REMOTE_DESKTOP
+-#include "backends/meta-remote-desktop.h"
+-#endif
+-
+ #define DEFAULT_XKB_RULES_FILE "evdev"
+ #define DEFAULT_XKB_MODEL "pc105+inet"
+ 
+diff --git a/src/backends/meta-backend-types.h b/src/backends/meta-backend-types.h
+index 4753c07440..146a8c3d7c 100644
+--- a/src/backends/meta-backend-types.h
++++ b/src/backends/meta-backend-types.h
+@@ -59,4 +59,8 @@ typedef struct _MetaScreenCastStream MetaScreenCastStream;
+ 
+ typedef struct _MetaWaylandCompositor MetaWaylandCompositor;
+ 
++#ifdef HAVE_REMOTE_DESKTOP
++typedef struct _MetaRemoteDesktop MetaRemoteDesktop;
++#endif
++
+ #endif /* META_BACKEND_TYPE_H */
+-- 
+2.28.0
+
+
+From a61d3b68352120a068c188f3e0f7f8821cf25404 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 16 Nov 2020 11:03:31 +0100
+Subject: [PATCH 35/36] cursor-sprite/xcursor: Fall back to gray square if
+ missing theme
+
+Instead of aborting with an error, display a half transparent gray
+square instead of cursors and log a warning in the journal, allowing the
+user to fix their system withotu having to rely on switching to a TTY.
+
+It will be immediately obvious the cursor is silly looking, which will
+be a better hint than just aborting.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1428
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1563>
+
+(cherry picked from commit 83360a4aede860d0e6ad5a29ab374fd4f26f3882)
+---
+ src/backends/meta-cursor-sprite-xcursor.c | 25 ++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
+
+diff --git a/src/backends/meta-cursor-sprite-xcursor.c b/src/backends/meta-cursor-sprite-xcursor.c
+index 730d323519..d20edcc833 100644
+--- a/src/backends/meta-cursor-sprite-xcursor.c
++++ b/src/backends/meta-cursor-sprite-xcursor.c
+@@ -155,12 +155,29 @@ meta_create_x_cursor (Display    *xdisplay,
+ static XcursorImages *
+ load_cursor_on_client (MetaCursor cursor, int scale)
+ {
++  XcursorImages *xcursor_images;
++  int fallback_size;
++
+   if (cursor == META_CURSOR_BLANK)
+     return create_blank_cursor_images ();
+ 
+-  return XcursorLibraryLoadImages (translate_meta_cursor (cursor),
+-                                   meta_prefs_get_cursor_theme (),
+-                                   meta_prefs_get_cursor_size () * scale);
++  xcursor_images =
++    XcursorLibraryLoadImages (translate_meta_cursor (cursor),
++                              meta_prefs_get_cursor_theme (),
++                              meta_prefs_get_cursor_size () * scale);
++  if (xcursor_images)
++    return xcursor_images;
++
++  g_warning_once ("No cursor theme available, please install a cursor theme");
++
++  fallback_size = 24 * scale;
++  xcursor_images = XcursorImagesCreate (1);
++  xcursor_images->images[0] = XcursorImageCreate (fallback_size, fallback_size);
++  xcursor_images->images[0]->xhot = 0;
++  xcursor_images->images[0]->yhot = 0;
++  memset (xcursor_images->images[0]->pixels, 0xc0,
++          fallback_size * fallback_size * sizeof (int32_t));
++  return xcursor_images;
+ }
+ 
+ static void
+@@ -295,8 +312,6 @@ load_cursor_from_theme (MetaCursorSprite *sprite)
+   sprite_xcursor->xcursor_images =
+     load_cursor_on_client (sprite_xcursor->cursor,
+                            sprite_xcursor->theme_scale);
+-  if (!sprite_xcursor->xcursor_images)
+-    g_error ("Could not find cursor. Perhaps set XCURSOR_PATH?");
+ 
+   load_from_current_xcursor_image (sprite_xcursor);
+ }
+-- 
+2.28.0
+
+
+From 17e9cbe8cbeeedf4b50fe7a8af4d7adbde03dda0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Sat, 14 Nov 2020 09:41:23 +0000
+Subject: [PATCH 36/36] renderer/native: Add udev rule to select primary GPU
+
+Sometimes the automatically selected primary GPU isn't suitable with no
+way to make an well educated guess to do it better. To make it possible
+for the user to override the automatically calculated default, make it
+possible to override it using a udev rule.
+
+E.g. to select /dev/dri/card1 as the primary GPU, add a file e.g.
+/usr/lib/udev/rules.d/61-mutter-primary-gpu.rules (path my vary
+depending on distribution) containing the fellowing line:
+
+ENV{DEVNAME}=="/dev/dri/card1", TAG+="mutter-device-preferred-primary"
+
+Reboot or manual triggering of udev rules to make it take effect may be
+required.
+
+Related: https://gitlab.gnome.org/GNOME/mutter/merge_requests/1057
+
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1562
+
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1562>
+
+
+(cherry picked from commit d622960429b2a10bc19d43a8fb56a73f99ecef10)
+---
+ src/backends/native/meta-backend-native.c  |  3 ++
+ src/backends/native/meta-kms-types.h       |  1 +
+ src/backends/native/meta-renderer-native.c | 34 ++++++++++++++++++++--
+ src/backends/native/meta-udev.c            | 12 ++++++++
+ src/backends/native/meta-udev.h            |  2 ++
+ 5 files changed, 49 insertions(+), 3 deletions(-)
+
+diff --git a/src/backends/native/meta-backend-native.c b/src/backends/native/meta-backend-native.c
+index 38ff601ce6..ed795ccb18 100644
+--- a/src/backends/native/meta-backend-native.c
++++ b/src/backends/native/meta-backend-native.c
+@@ -574,6 +574,9 @@ create_gpu_from_udev_device (MetaBackendNative  *native,
+   if (meta_is_udev_device_requires_modifiers (device))
+     flags |= META_KMS_DEVICE_FLAG_REQUIRES_MODIFIERS;
+ 
++  if (meta_is_udev_device_preferred_primary (device))
++    flags |= META_KMS_DEVICE_FLAG_PREFERRED_PRIMARY;
++
+   device_path = g_udev_device_get_device_file (device);
+ 
+   kms_device = meta_kms_create_device (native->kms, device_path, flags,
+diff --git a/src/backends/native/meta-kms-types.h b/src/backends/native/meta-kms-types.h
+index 1fed7e332c..1d59025053 100644
+--- a/src/backends/native/meta-kms-types.h
++++ b/src/backends/native/meta-kms-types.h
+@@ -57,6 +57,7 @@ typedef enum _MetaKmsDeviceFlag
+   META_KMS_DEVICE_FLAG_BOOT_VGA = 1 << 0,
+   META_KMS_DEVICE_FLAG_PLATFORM_DEVICE = 1 << 1,
+   META_KMS_DEVICE_FLAG_REQUIRES_MODIFIERS = 1 << 2,
++  META_KMS_DEVICE_FLAG_PREFERRED_PRIMARY = 1 << 3,
+ } MetaKmsDeviceFlag;
+ 
+ typedef enum _MetaKmsPlaneType MetaKmsPlaneType;
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index eb11be9a51..87ca84bc89 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -64,6 +64,7 @@
+ #include "backends/native/meta-drm-buffer-import.h"
+ #include "backends/native/meta-drm-buffer.h"
+ #include "backends/native/meta-gpu-kms.h"
++#include "backends/native/meta-kms-device.h"
+ #include "backends/native/meta-kms-update.h"
+ #include "backends/native/meta-kms-utils.h"
+ #include "backends/native/meta-kms.h"
+@@ -3725,6 +3726,21 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
+    */
+   for (allow_sw = 0; allow_sw < 2; allow_sw++)
+   {
++    /* First check if one was explicitly configured. */
++    for (l = gpus; l; l = l->next)
++      {
++        MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
++        MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
++
++        if (meta_kms_device_get_flags (kms_device) &
++            META_KMS_DEVICE_FLAG_PREFERRED_PRIMARY)
++          {
++            g_message ("GPU %s selected primary given udev rule",
++                       meta_gpu_kms_get_file_path (gpu_kms));
++            return gpu_kms;
++          }
++      }
++
+     /* Prefer a platform device */
+     for (l = gpus; l; l = l->next)
+       {
+@@ -3733,7 +3749,11 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
+         if (meta_gpu_kms_is_platform_device (gpu_kms) &&
+             (allow_sw == 1 ||
+              gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
+-          return gpu_kms;
++          {
++            g_message ("Integrated GPU %s selected as primary",
++                       meta_gpu_kms_get_file_path (gpu_kms));
++            return gpu_kms;
++          }
+       }
+ 
+     /* Otherwise a device we booted with */
+@@ -3744,7 +3764,11 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
+         if (meta_gpu_kms_is_boot_vga (gpu_kms) &&
+             (allow_sw == 1 ||
+              gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
+-          return gpu_kms;
++          {
++            g_message ("Boot VGA GPU %s selected as primary",
++                       meta_gpu_kms_get_file_path (gpu_kms));
++            return gpu_kms;
++          }
+       }
+ 
+     /* Fall back to any device */
+@@ -3754,7 +3778,11 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
+ 
+         if (allow_sw == 1 ||
+             gpu_kms_is_hardware_rendering (renderer_native, gpu_kms))
+-          return gpu_kms;
++          {
++            g_message ("GPU %s selected as primary",
++                       meta_gpu_kms_get_file_path (gpu_kms));
++            return gpu_kms;
++          }
+       }
+   }
+ 
+diff --git a/src/backends/native/meta-udev.c b/src/backends/native/meta-udev.c
+index 41c686c887..9568698595 100644
+--- a/src/backends/native/meta-udev.c
++++ b/src/backends/native/meta-udev.c
+@@ -95,6 +95,18 @@ meta_is_udev_device_requires_modifiers (GUdevDevice *device)
+   return g_strv_contains (tags, "mutter-device-requires-kms-modifiers");
+ }
+ 
++gboolean
++meta_is_udev_device_preferred_primary (GUdevDevice *device)
++{
++  const char * const * tags;
++
++  tags = g_udev_device_get_tags (device);
++  if (!tags)
++    return FALSE;
++
++  return g_strv_contains (tags, "mutter-device-preferred-primary");
++}
++
+ gboolean
+ meta_udev_is_drm_device (MetaUdev    *udev,
+                          GUdevDevice *device)
+diff --git a/src/backends/native/meta-udev.h b/src/backends/native/meta-udev.h
+index eb90abb093..453cce9a71 100644
+--- a/src/backends/native/meta-udev.h
++++ b/src/backends/native/meta-udev.h
+@@ -34,6 +34,8 @@ gboolean meta_is_udev_device_boot_vga (GUdevDevice *device);
+ 
+ gboolean meta_is_udev_device_requires_modifiers (GUdevDevice *device);
+ 
++gboolean meta_is_udev_device_preferred_primary (GUdevDevice *device);
++
+ gboolean meta_udev_is_drm_device (MetaUdev    *udev,
+                                   GUdevDevice *device);
+ 
+-- 
+2.28.0
+
