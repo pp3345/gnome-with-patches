@@ -169,6 +169,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %changelog
 * Tue Nov 17 2020 Jonas Ådahl <jadahl@redhat.com> - 3.38.1-2
 - Backport fixes from gnome-3-38 stable branch
+  Resolves: #1893375
+  Resolves: #1894316
+  Resolves: #1896097
+  Resolves: #1896265
 
 * Mon Oct 05 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.1-1
 - Update to 3.38.1
