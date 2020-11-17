@@ -1,0 +1,2040 @@
+From 9f247879a88024478c81dae19c1899eee7668092 Mon Sep 17 00:00:00 2001
+From: Juliano de Souza Camargo <julianosc@protonmail.com>
+Date: Wed, 7 Oct 2020 12:55:57 +0000
+Subject: [PATCH 01/19] Update Portuguese translation
+
+---
+ po/pt.po | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
+
+diff --git a/po/pt.po b/po/pt.po
+index 909c4990f5..f9ad12528a 100644
+--- a/po/pt.po
++++ b/po/pt.po
+@@ -15,8 +15,8 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: 3.14\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gnome-shell/issues\n"
+-"POT-Creation-Date: 2020-09-15 17:51+0000\n"
+-"PO-Revision-Date: 2020-09-20 03:37+0100\n"
++"POT-Creation-Date: 2020-10-06 15:29+0000\n"
++"PO-Revision-Date: 2020-10-07 11:02+0100\n"
+ "Last-Translator: Juliano de Souza Camargo <julianosc@pm.me>\n"
+ "Language-Team: Portuguese <>\n"
+ "Language: pt\n"
+@@ -445,7 +445,7 @@ msgstr "Sítio web"
+ msgid "Visit extension homepage"
+ msgstr "Visitar o sítio web da extensão"
+ 
+-#: js/gdm/authPrompt.js:136 js/ui/audioDeviceSelection.js:57
++#: js/gdm/authPrompt.js:137 js/ui/audioDeviceSelection.js:57
+ #: js/ui/components/networkAgent.js:111 js/ui/components/polkitAgent.js:139
+ #: js/ui/endSessionDialog.js:438 js/ui/extensionDownloader.js:183
+ #: js/ui/shellMountOperation.js:376 js/ui/shellMountOperation.js:386
+@@ -454,7 +454,7 @@ msgid "Cancel"
+ msgstr "Cancelar"
+ 
+ #. Cisco LEAP
+-#: js/gdm/authPrompt.js:238 js/ui/components/networkAgent.js:206
++#: js/gdm/authPrompt.js:239 js/ui/components/networkAgent.js:206
+ #: js/ui/components/networkAgent.js:222 js/ui/components/networkAgent.js:246
+ #: js/ui/components/networkAgent.js:267 js/ui/components/networkAgent.js:287
+ #: js/ui/components/networkAgent.js:297 js/ui/components/polkitAgent.js:277
+@@ -468,7 +468,7 @@ msgstr "Escolher sessão"
+ 
+ #: js/gdm/loginDialog.js:457
+ msgid "Not listed?"
+-msgstr "Não está listada?"
++msgstr "Não está listado?"
+ 
+ #. Translators: this message is shown below the username entry field
+ #. to clue the user in on how to login to the local network realm
+@@ -743,36 +743,36 @@ msgstr "Negar acesso"
+ msgid "Grant Access"
+ msgstr "Conceder acesso"
+ 
+-#: js/ui/appDisplay.js:1305
++#: js/ui/appDisplay.js:1346
+ msgid "Unnamed Folder"
+ msgstr "Pasta sem nome"
+ 
+ #. Translators: This is the heading of a list of open windows
+-#: js/ui/appDisplay.js:2774 js/ui/panel.js:75
++#: js/ui/appDisplay.js:2870 js/ui/panel.js:75
+ msgid "Open Windows"
+ msgstr "Janelas abertas"
+ 
+-#: js/ui/appDisplay.js:2793 js/ui/panel.js:82
++#: js/ui/appDisplay.js:2889 js/ui/panel.js:82
+ msgid "New Window"
+ msgstr "Nova janela"
+ 
+-#: js/ui/appDisplay.js:2809
++#: js/ui/appDisplay.js:2905
+ msgid "Launch using Integrated Graphics Card"
+ msgstr "Iniciar usando placa de vídeo integrada"
+ 
+-#: js/ui/appDisplay.js:2810
++#: js/ui/appDisplay.js:2906
+ msgid "Launch using Discrete Graphics Card"
+ msgstr "Iniciar usando placa de vídeo dedicada"
+ 
+-#: js/ui/appDisplay.js:2838 js/ui/dash.js:239
++#: js/ui/appDisplay.js:2934 js/ui/dash.js:239
+ msgid "Remove from Favorites"
+ msgstr "Remover dos favoritos"
+ 
+-#: js/ui/appDisplay.js:2844
++#: js/ui/appDisplay.js:2940
+ msgid "Add to Favorites"
+ msgstr "Adicionar aos favoritos"
+ 
+-#: js/ui/appDisplay.js:2854 js/ui/panel.js:93
++#: js/ui/appDisplay.js:2950 js/ui/panel.js:93
+ msgid "Show Details"
+ msgstr "Mostrar detalhes"
+ 
+@@ -1437,7 +1437,7 @@ msgstr "Deixar desativado"
+ 
+ #: js/ui/keyboard.js:226
+ msgid "Region & Language Settings"
+-msgstr "Definições de Região & Idioma"
++msgstr "Definições de Região e Idioma"
+ 
+ #: js/ui/lookingGlass.js:664
+ msgid "No extensions installed"
+@@ -1463,7 +1463,7 @@ msgstr "Ativo"
+ 
+ #. translators:
+ #. * The device has been disabled
+-#: js/ui/lookingGlass.js:741 subprojects/gvc/gvc-mixer-control.c:1892
++#: js/ui/lookingGlass.js:741 subprojects/gvc/gvc-mixer-control.c:1900
+ msgid "Disabled"
+ msgstr "Inativo"
+ 
+@@ -2957,7 +2957,7 @@ msgstr "Adicionar um ícone à barra superior"
+ 
+ #. translators:
+ #. * The number of sound outputs on a particular device
+-#: subprojects/gvc/gvc-mixer-control.c:1899
++#: subprojects/gvc/gvc-mixer-control.c:1907
+ #, c-format
+ msgid "%u Output"
+ msgid_plural "%u Outputs"
+@@ -2966,14 +2966,14 @@ msgstr[1] "%u saídas"
+ 
+ #. translators:
+ #. * The number of sound inputs on a particular device
+-#: subprojects/gvc/gvc-mixer-control.c:1909
++#: subprojects/gvc/gvc-mixer-control.c:1917
+ #, c-format
+ msgid "%u Input"
+ msgid_plural "%u Inputs"
+ msgstr[0] "%u entrada"
+ msgstr[1] "%u entradas"
+ 
+-#: subprojects/gvc/gvc-mixer-control.c:2766
++#: subprojects/gvc/gvc-mixer-control.c:2867
+ msgid "System Sounds"
+ msgstr "Sons de sistema"
+ 
+-- 
+2.28.0
+
+
+From 78372345b54673ece1e86072815feedad9645de6 Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Tue, 6 Oct 2020 14:29:00 +0000
+Subject: [PATCH 02/19] panel: Disconnect destroy signal handler when needed
+
+The panel corners try to match their style to the buttons closest
+to them. In order to make sure the corner styles stay in sync with
+their neighboring buttons, they connect to the style-changed signals
+of the buttons.
+
+In order to make sure the style-changed signal handler isn't leaked,
+it gets disconnected when the button is destroyed.
+
+Unfortunately, the destroy signal handler connection itself gets leaked!
+
+This commit ensures the destroy signal handler gets disconnected any
+time the neighboring button is re-determined.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1460
+
+
+(cherry picked from commit b41ef2f6e3b2a801331d846ac5fbfd5d349eb4e5)
+---
+ js/ui/panel.js | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/js/ui/panel.js b/js/ui/panel.js
+index b168907def..272368a4b0 100644
+--- a/js/ui/panel.js
++++ b/js/ui/panel.js
+@@ -591,14 +591,19 @@ class PanelCorner extends St.DrawingArea {
+             button = this._findRightmostButton(box);
+ 
+         if (button) {
+-            if (this._button && this._buttonStyleChangedSignalId) {
+-                this._button.disconnect(this._buttonStyleChangedSignalId);
+-                this._button.style = null;
++            if (this._button) {
++                if (this._buttonStyleChangedSignalId) {
++                    this._button.disconnect(this._buttonStyleChangedSignalId);
++                    this._button.style = null;
++                }
++
++                if (this._buttonDestroySignalId)
++                    this._button.disconnect(this._buttonDestroySignalId);
+             }
+ 
+             this._button = button;
+ 
+-            button.connect('destroy', () => {
++            this._buttonDestroySignalId = button.connect('destroy', () => {
+                 if (this._button == button) {
+                     this._button = null;
+                     this._buttonStyleChangedSignalId = 0;
+-- 
+2.28.0
+
+
+From f231efe01582997c6beb44e53b6bef240f940afb Mon Sep 17 00:00:00 2001
+From: Andre Moreira Magalhaes <andre@endlessm.com>
+Date: Wed, 7 Oct 2020 23:21:04 +0000
+Subject: [PATCH 03/19] environment: Handle @content for property transitions
+
+When using `Actor.ease_property` if the property starts with '@' and the
+duration of the transition is zero (which may happen if the actor is not
+mapped even if a non-zero duration was passed to `ease_property`), the
+impl will try getting the actual target object where the property should
+be set.
+
+This works fine for most cases but it currently throws an error when
+passing '@content.*' properties. Fix this by handling '@content' as
+a property of `actor.content` (used by MetaBackgroundActor when
+showing the overview).
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1461
+
+
+(cherry picked from commit cc9f66d78463b69840958d1997800a7a72b0ceb0)
+---
+ js/ui/environment.js | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/js/ui/environment.js b/js/ui/environment.js
+index af0300dc78..e777d653ad 100644
+--- a/js/ui/environment.js
++++ b/js/ui/environment.js
+@@ -97,6 +97,8 @@ function _getPropertyTarget(actor, propName) {
+         return [actor.get_action(name), prop];
+     case '@constraints':
+         return [actor.get_constraint(name), prop];
++    case '@content':
++        return [actor.content, name];
+     case '@effects':
+         return [actor.get_effect(name), prop];
+     }
+-- 
+2.28.0
+
+
+From 98234acd5b48a58c2d112b5edb3dddb85e04a643 Mon Sep 17 00:00:00 2001
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Fri, 2 Oct 2020 08:33:31 +0000
+Subject: [PATCH 04/19] windowManager: Avoid calling meta_window_actor_thaw
+ when not frozen
+
+Because that tends to crash in:
+```
+g_error ("Error in freeze/thaw accounting");
+```
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1431
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1453
+
+
+(cherry picked from commit 6ba3ca5f9548ba0a87a9e3ffa129716d0a062e1e)
+---
+ js/ui/windowManager.js | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/js/ui/windowManager.js b/js/ui/windowManager.js
+index ab86a2e6a3..91b764ea8d 100644
+--- a/js/ui/windowManager.js
++++ b/js/ui/windowManager.js
+@@ -1378,6 +1378,10 @@ var WindowManager = class {
+             onStopped: () => this._sizeChangeWindowDone(shellwm, actor),
+         });
+ 
++        // ease didn't animate and cleared the info, we are done
++        if (!actor.__animationInfo)
++            return;
++
+         // Now unfreeze actor updates, to get it to the new size.
+         // It's important that we don't wait until the animation is completed to
+         // do this, otherwise our scale will be applied to the old texture size.
+-- 
+2.28.0
+
+
+From c19056ef08de96cb3f30333cf83e13e0aaf21746 Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Thu, 8 Oct 2020 09:36:30 -0400
+Subject: [PATCH 05/19] screenShield: Use identity operator when matching for
+ motion events
+
+The screen shield watches for motion events to know to display
+the pointer when the user wiggles their mouse.
+
+It checks for motion events by looking at the event type and
+seeing if it is of type `Clutter.EventType.MOTION`.  To do this
+comparison it uses the equality operator (==).  Using the equality
+operator isn't considered best practice, because it can returns true
+when comparing disparate types, if those types happen to be equivalent
+after coersion.
+
+From a code resiliance point of view, it's better to use the
+identity operator (===), which requires both sides of the comparison
+to be of the same type.
+
+As a policy, any legacy code that gets changed or moved should be
+switched away from the equality operator to the identity operator, if
+appropriate.
+
+This commit makes that change as prep work for a fix to that part of
+the code.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1459
+---
+ js/ui/screenShield.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/js/ui/screenShield.js b/js/ui/screenShield.js
+index b368162ce8..9beece6465 100644
+--- a/js/ui/screenShield.js
++++ b/js/ui/screenShield.js
+@@ -436,7 +436,7 @@ var ScreenShield = class {
+ 
+     _lockScreenShown(params) {
+         let motionId = global.stage.connect('captured-event', (stage, event) => {
+-            if (event.type() == Clutter.EventType.MOTION) {
++            if (event.type() === Clutter.EventType.MOTION) {
+                 this._cursorTracker.set_pointer_visible(true);
+                 global.stage.disconnect(motionId);
+             }
+-- 
+2.28.0
+
+
+From dddac39d1fb5d1a8b40799f684143c622b91b11f Mon Sep 17 00:00:00 2001
+From: Ray Strode <rstrode@redhat.com>
+Date: Mon, 28 Sep 2020 22:28:08 -0400
+Subject: [PATCH 06/19] screenShield: Fix pointer motion signal handler leak
+
+The screen shield code listens for motion events on the stage
+so that it can hide the pointer until the user moves the mouse.
+
+Unfortunately, if the user never moves the mouse, the signal
+handler connection gets leaked.
+
+This commit makes sure the connection gets disconnected when the
+shield goes away.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1459
+---
+ js/ui/screenShield.js | 31 +++++++++++++++++++++----------
+ 1 file changed, 21 insertions(+), 10 deletions(-)
+
+diff --git a/js/ui/screenShield.js b/js/ui/screenShield.js
+index 9beece6465..fa3a7a8167 100644
+--- a/js/ui/screenShield.js
++++ b/js/ui/screenShield.js
+@@ -336,6 +336,25 @@ var ScreenShield = class {
+         }
+     }
+ 
++    _showPointer() {
++        this._cursorTracker.set_pointer_visible(true);
++
++        if (this._motionId) {
++            global.stage.disconnect(this._motionId);
++            this._motionId = 0;
++        }
++    }
++
++    _hidePointerUntilMotion() {
++        this._motionId = global.stage.connect('captured-event', (stage, event) => {
++            if (event.type() === Clutter.EventType.MOTION)
++                this._showPointer();
++
++            return Clutter.EVENT_PROPAGATE;
++        });
++        this._cursorTracker.set_pointer_visible(false);
++    }
++
+     _hideLockScreen(animate) {
+         if (this._lockScreenState == MessageTray.State.HIDDEN)
+             return;
+@@ -364,7 +383,7 @@ var ScreenShield = class {
+             this._hideLockScreenComplete();
+         }
+ 
+-        this._cursorTracker.set_pointer_visible(true);
++        this._showPointer();
+     }
+ 
+     _ensureUnlockDialog(allowCancel) {
+@@ -435,15 +454,7 @@ var ScreenShield = class {
+     }
+ 
+     _lockScreenShown(params) {
+-        let motionId = global.stage.connect('captured-event', (stage, event) => {
+-            if (event.type() === Clutter.EventType.MOTION) {
+-                this._cursorTracker.set_pointer_visible(true);
+-                global.stage.disconnect(motionId);
+-            }
+-
+-            return Clutter.EVENT_PROPAGATE;
+-        });
+-        this._cursorTracker.set_pointer_visible(false);
++        this._hidePointerUntilMotion();
+ 
+         this._lockScreenState = MessageTray.State.SHOWN;
+ 
+-- 
+2.28.0
+
+
+From 30da6bcc7ababf56ca1e7dbaad859bbf61846519 Mon Sep 17 00:00:00 2001
+From: Fabio Tomat <f.t.public@gmail.com>
+Date: Fri, 9 Oct 2020 11:48:16 +0000
+Subject: [PATCH 07/19] Update Friulian translation
+
+---
+ po/fur.po | 68 +++++++++++++++++++++++++++----------------------------
+ 1 file changed, 34 insertions(+), 34 deletions(-)
+
+diff --git a/po/fur.po b/po/fur.po
+index cfd11e510b..301606dcd4 100644
+--- a/po/fur.po
++++ b/po/fur.po
+@@ -7,8 +7,8 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: video-subtitles master\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gnome-shell/issues\n"
+-"POT-Creation-Date: 2020-08-24 16:58+0000\n"
+-"PO-Revision-Date: 2020-08-28 12:42+0200\n"
++"POT-Creation-Date: 2020-10-08 00:42+0000\n"
++"PO-Revision-Date: 2020-10-09 13:47+0200\n"
+ "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
+ "Language-Team: Friulian <fur@li.org>\n"
+ "Language: fur\n"
+@@ -435,7 +435,7 @@ msgstr "Pagjine principâl"
+ msgid "Visit extension homepage"
+ msgstr "Visite la pagjine principâl de estension"
+ 
+-#: js/gdm/authPrompt.js:136 js/ui/audioDeviceSelection.js:57
++#: js/gdm/authPrompt.js:137 js/ui/audioDeviceSelection.js:57
+ #: js/ui/components/networkAgent.js:111 js/ui/components/polkitAgent.js:139
+ #: js/ui/endSessionDialog.js:438 js/ui/extensionDownloader.js:183
+ #: js/ui/shellMountOperation.js:376 js/ui/shellMountOperation.js:386
+@@ -444,7 +444,7 @@ msgid "Cancel"
+ msgstr "Anule"
+ 
+ #. Cisco LEAP
+-#: js/gdm/authPrompt.js:238 js/ui/components/networkAgent.js:206
++#: js/gdm/authPrompt.js:239 js/ui/components/networkAgent.js:206
+ #: js/ui/components/networkAgent.js:222 js/ui/components/networkAgent.js:246
+ #: js/ui/components/networkAgent.js:267 js/ui/components/networkAgent.js:287
+ #: js/ui/components/networkAgent.js:297 js/ui/components/polkitAgent.js:277
+@@ -493,82 +493,82 @@ msgid "(or swipe finger)"
+ msgstr "(o passe cul dêt)"
+ 
+ #. Translators: The name of the power-off action in search
+-#: js/misc/systemActions.js:91
++#: js/misc/systemActions.js:82
+ msgctxt "search-result"
+ msgid "Power Off"
+ msgstr "Distudâ"
+ 
+ #. Translators: A list of keywords that match the power-off action, separated by semicolons
+-#: js/misc/systemActions.js:94
++#: js/misc/systemActions.js:85
+ msgid "power off;shutdown;halt;stop"
+ msgstr "distudâ;studâ;fermâ"
+ 
+ #. Translators: The name of the restart action in search
+-#: js/misc/systemActions.js:99
++#: js/misc/systemActions.js:90
+ msgctxt "search-result"
+ msgid "Restart"
+ msgstr "Torne invie"
+ 
+ #. Translators: A list of keywords that match the restart action, separated by semicolons
+-#: js/misc/systemActions.js:102
++#: js/misc/systemActions.js:93
+ msgid "reboot;restart;"
+ msgstr "torne invie;torne fâs partî;"
+ 
+ #. Translators: The name of the lock screen action in search
+-#: js/misc/systemActions.js:107
++#: js/misc/systemActions.js:98
+ msgctxt "search-result"
+ msgid "Lock Screen"
+ msgstr "Bloc schermi"
+ 
+ #. Translators: A list of keywords that match the lock screen action, separated by semicolons
+-#: js/misc/systemActions.js:110
++#: js/misc/systemActions.js:101
+ msgid "lock screen"
+ msgstr "bloc schermi"
+ 
+ #. Translators: The name of the logout action in search
+-#: js/misc/systemActions.js:115
++#: js/misc/systemActions.js:106
+ msgctxt "search-result"
+ msgid "Log Out"
+ msgstr "Jessî"
+ 
+ #. Translators: A list of keywords that match the logout action, separated by semicolons
+-#: js/misc/systemActions.js:118
++#: js/misc/systemActions.js:109
+ msgid "logout;log out;sign off"
+ msgstr "jessî;sierâ session;disconeti"
+ 
+ #. Translators: The name of the suspend action in search
+-#: js/misc/systemActions.js:123
++#: js/misc/systemActions.js:114
+ msgctxt "search-result"
+ msgid "Suspend"
+ msgstr "Sospindi"
+ 
+ #. Translators: A list of keywords that match the suspend action, separated by semicolons
+-#: js/misc/systemActions.js:126
++#: js/misc/systemActions.js:117
+ msgid "suspend;sleep"
+ msgstr "sospindi;polse"
+ 
+ #. Translators: The name of the switch user action in search
+-#: js/misc/systemActions.js:131
++#: js/misc/systemActions.js:122
+ msgctxt "search-result"
+ msgid "Switch User"
+ msgstr "Cambi Utent"
+ 
+ #. Translators: A list of keywords that match the switch user action, separated by semicolons
+-#: js/misc/systemActions.js:134
++#: js/misc/systemActions.js:125
+ msgid "switch user"
+ msgstr "cambiâ utent"
+ 
+ #. Translators: A list of keywords that match the lock orientation action, separated by semicolons
+-#: js/misc/systemActions.js:141
++#: js/misc/systemActions.js:132
+ msgid "lock orientation;unlock orientation;screen;rotation"
+ msgstr "bloc orientament;sbloc orientament;schermi;rotazion"
+ 
+-#: js/misc/systemActions.js:266
++#: js/misc/systemActions.js:240
+ msgctxt "search-result"
+ msgid "Unlock Screen Rotation"
+ msgstr "Sbloche rotazion schermi"
+ 
+-#: js/misc/systemActions.js:267
++#: js/misc/systemActions.js:241
+ msgctxt "search-result"
+ msgid "Lock Screen Rotation"
+ msgstr "Bloche rotazion schermi"
+@@ -734,36 +734,36 @@ msgstr "Dinee acès"
+ msgid "Grant Access"
+ msgstr "Garantìs l'acès"
+ 
+-#: js/ui/appDisplay.js:1297
++#: js/ui/appDisplay.js:1346
+ msgid "Unnamed Folder"
+ msgstr "Cartele cence non"
+ 
+ #. Translators: This is the heading of a list of open windows
+-#: js/ui/appDisplay.js:2766 js/ui/panel.js:75
++#: js/ui/appDisplay.js:2870 js/ui/panel.js:75
+ msgid "Open Windows"
+ msgstr "Barcons vierts"
+ 
+-#: js/ui/appDisplay.js:2785 js/ui/panel.js:82
++#: js/ui/appDisplay.js:2889 js/ui/panel.js:82
+ msgid "New Window"
+ msgstr "Gnûf barcon"
+ 
+-#: js/ui/appDisplay.js:2801
++#: js/ui/appDisplay.js:2905
+ msgid "Launch using Integrated Graphics Card"
+ msgstr "Invie doprant la schede grafiche integrade"
+ 
+-#: js/ui/appDisplay.js:2802
++#: js/ui/appDisplay.js:2906
+ msgid "Launch using Discrete Graphics Card"
+ msgstr "Invie doprant une schede grafiche discrete"
+ 
+-#: js/ui/appDisplay.js:2830 js/ui/dash.js:239
++#: js/ui/appDisplay.js:2934 js/ui/dash.js:239
+ msgid "Remove from Favorites"
+ msgstr "Gjave dai preferîts"
+ 
+-#: js/ui/appDisplay.js:2836
++#: js/ui/appDisplay.js:2940
+ msgid "Add to Favorites"
+ msgstr "Zonte tai preferîts"
+ 
+-#: js/ui/appDisplay.js:2846 js/ui/panel.js:93
++#: js/ui/appDisplay.js:2950 js/ui/panel.js:93
+ msgid "Show Details"
+ msgstr "Mostre Detais"
+ 
+@@ -1200,7 +1200,7 @@ msgstr "Instale inzornaments e distude"
+ msgid "The system will power off automatically in %d second."
+ msgid_plural "The system will power off automatically in %d seconds."
+ msgstr[0] "Il sisteme si distudarà in automatic chi di %d secont."
+-msgstr[1] "Il sisteme si studarà in automatic chi di %d seconts."
++msgstr[1] "Il sisteme si distudarà in automatic chi di %d seconts."
+ 
+ #: js/ui/endSessionDialog.js:70 js/ui/endSessionDialog.js:89
+ msgctxt "checkbox"
+@@ -1456,7 +1456,7 @@ msgstr "Abilitât"
+ 
+ #. translators:
+ #. * The device has been disabled
+-#: js/ui/lookingGlass.js:741 subprojects/gvc/gvc-mixer-control.c:1892
++#: js/ui/lookingGlass.js:741 subprojects/gvc/gvc-mixer-control.c:1900
+ msgid "Disabled"
+ msgstr "Disabilitât"
+ 
+@@ -1586,12 +1586,12 @@ msgstr "Jes"
+ msgid "Activities"
+ msgstr "Ativitâts"
+ 
+-#: js/ui/panel.js:714
++#: js/ui/panel.js:719
+ msgctxt "System menu in the top bar"
+ msgid "System"
+ msgstr "Sisteme"
+ 
+-#: js/ui/panel.js:825
++#: js/ui/panel.js:830
+ msgid "Top Bar"
+ msgstr "Sbare parsore"
+ 
+@@ -2947,7 +2947,7 @@ msgstr "Zonte une icone te sbare superiôr"
+ 
+ #. translators:
+ #. * The number of sound outputs on a particular device
+-#: subprojects/gvc/gvc-mixer-control.c:1899
++#: subprojects/gvc/gvc-mixer-control.c:1907
+ #, c-format
+ msgid "%u Output"
+ msgid_plural "%u Outputs"
+@@ -2956,14 +2956,14 @@ msgstr[1] "%u jessudis"
+ 
+ #. translators:
+ #. * The number of sound inputs on a particular device
+-#: subprojects/gvc/gvc-mixer-control.c:1909
++#: subprojects/gvc/gvc-mixer-control.c:1917
+ #, c-format
+ msgid "%u Input"
+ msgid_plural "%u Inputs"
+ msgstr[0] "%u jentrade"
+ msgstr[1] "%u jentradis"
+ 
+-#: subprojects/gvc/gvc-mixer-control.c:2766
++#: subprojects/gvc/gvc-mixer-control.c:2867
+ msgid "System Sounds"
+ msgstr "Suns di sisteme"
+ 
+-- 
+2.28.0
+
+
+From 59dd5d58ae6952c599f8fc73d4e0fc27d8363892 Mon Sep 17 00:00:00 2001
+From: Juliano de Souza Camargo <julianosc@protonmail.com>
+Date: Sat, 10 Oct 2020 00:21:48 +0000
+Subject: [PATCH 08/19] Update Portuguese translation
+
+---
+ po/pt.po | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/po/pt.po b/po/pt.po
+index f9ad12528a..28d590da3c 100644
+--- a/po/pt.po
++++ b/po/pt.po
+@@ -9,16 +9,16 @@
+ # Pedro Albuquerque <palbuquerque73@gmail.com>, 2014, 2015.
+ # Sérgio Cardeira <cardeira dot sergio at gmail dot com>, 2016.
+ # José Vieira <jvieira33@sapo.pt>, 2020.
+-# Juliano de Souza Camargo <julianosc@pm.me>, 2020.
++# Juliano de Souza Camargo <julianosc@protonmail.com>, 2020.
+ #
+ msgid ""
+ msgstr ""
+ "Project-Id-Version: 3.14\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gnome-shell/issues\n"
+-"POT-Creation-Date: 2020-10-06 15:29+0000\n"
+-"PO-Revision-Date: 2020-10-07 11:02+0100\n"
+-"Last-Translator: Juliano de Souza Camargo <julianosc@pm.me>\n"
+-"Language-Team: Portuguese <>\n"
++"POT-Creation-Date: 2020-10-08 00:42+0000\n"
++"PO-Revision-Date: 2020-10-09 21:06-0300\n"
++"Last-Translator: Juliano de Souza Camargo <julianosc@protonmail.com>\n"
++"Language-Team: Portuguese < >\n"
+ "Language: pt\n"
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+@@ -665,7 +665,7 @@ msgstr "Ontem às %H∶%M"
+ #: js/misc/util.js:249
+ #, no-c-format
+ msgid "%A, %H∶%M"
+-msgstr "%A às %H∶%M"
++msgstr "%A, %H∶%M"
+ 
+ #. Translators: this is the month name and day number
+ #. followed by a time string in 24h format.
+@@ -673,7 +673,7 @@ msgstr "%A às %H∶%M"
+ #: js/misc/util.js:255
+ #, no-c-format
+ msgid "%B %-d, %H∶%M"
+-msgstr "%d de %B às %H∶%M"
++msgstr "%d de %B, %H∶%M"
+ 
+ #. Translators: this is the month name, day number, year
+ #. number followed by a time string in 24h format.
+@@ -681,7 +681,7 @@ msgstr "%d de %B às %H∶%M"
+ #: js/misc/util.js:261
+ #, no-c-format
+ msgid "%B %-d %Y, %H∶%M"
+-msgstr "%d de %B de %Y às %H∶%M"
++msgstr "%d de %B de %Y, %H∶%M"
+ 
+ #. Show only the time if date is on today
+ #. eslint-disable-line no-lonely-if
+@@ -702,7 +702,7 @@ msgstr "Ontem às %l∶%M %p"
+ #: js/misc/util.js:278
+ #, no-c-format
+ msgid "%A, %l∶%M %p"
+-msgstr "%A às %l∶%M %p"
++msgstr "%A, %l∶%M %p"
+ 
+ #. Translators: this is the month name and day number
+ #. followed by a time string in 12h format.
+@@ -710,7 +710,7 @@ msgstr "%A às %l∶%M %p"
+ #: js/misc/util.js:284
+ #, no-c-format
+ msgid "%B %-d, %l∶%M %p"
+-msgstr "%d de %B às %l∶%M %p"
++msgstr "%d de %B, %l∶%M %p"
+ 
+ #. Translators: this is the month name, day number, year
+ #. number followed by a time string in 12h format.
+@@ -718,7 +718,7 @@ msgstr "%d de %B às %l∶%M %p"
+ #: js/misc/util.js:290
+ #, no-c-format
+ msgid "%B %-d %Y, %l∶%M %p"
+-msgstr "%d de %B de %Y às %l∶%M %p"
++msgstr "%d de %B de %Y, %l∶%M %p"
+ 
+ #. TRANSLATORS: this is the title of the wifi captive portal login window
+ #: js/portalHelper/main.js:41
+@@ -1592,12 +1592,12 @@ msgstr "Sair"
+ msgid "Activities"
+ msgstr "Atividades"
+ 
+-#: js/ui/panel.js:714
++#: js/ui/panel.js:719
+ msgctxt "System menu in the top bar"
+ msgid "System"
+ msgstr "Sistema"
+ 
+-#: js/ui/panel.js:825
++#: js/ui/panel.js:830
+ msgid "Top Bar"
+ msgstr "Barra superior"
+ 
+@@ -2241,7 +2241,7 @@ msgstr "Apenas interno"
+ #. long format
+ #: js/ui/unlockDialog.js:371
+ msgid "%A %B %-d"
+-msgstr "%d de %B de %A"
++msgstr "%A, %d de %B"
+ 
+ #: js/ui/unlockDialog.js:377
+ msgid "Swipe up to unlock"
+-- 
+2.28.0
+
+
+From 610db2703e5495d468d9b9370c587d0bd9c8b7bc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Thu, 8 Oct 2020 18:47:18 +0000
+Subject: [PATCH 09/19] polkitAgent: Drop separate user icon style
+
+It should use the same style as used elsewhere (like the lock screen),
+so stop using a separate style class to pick up the defaults.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/3252
+
+
+(cherry picked from commit 9d5165b1aa5ad11662c9c02cbf161fd7004e3f05)
+---
+ data/theme/gnome-shell-sass/widgets/_dialogs.scss | 4 ----
+ js/ui/components/polkitAgent.js                   | 1 -
+ 2 files changed, 5 deletions(-)
+
+diff --git a/data/theme/gnome-shell-sass/widgets/_dialogs.scss b/data/theme/gnome-shell-sass/widgets/_dialogs.scss
+index fc77920235..0f568b73a6 100644
+--- a/data/theme/gnome-shell-sass/widgets/_dialogs.scss
++++ b/data/theme/gnome-shell-sass/widgets/_dialogs.scss
+@@ -135,10 +135,6 @@
+   spacing: 8px;
+   margin-bottom: 6px;
+ 
+-  .polkit-dialog-user-icon {
+-    border-radius: 99px;
+-    background-size: contain;
+-  }
+   .polkit-dialog-user-root-label { color: $warning_color; }
+ }
+ 
+diff --git a/js/ui/components/polkitAgent.js b/js/ui/components/polkitAgent.js
+index 5515963917..ae75f3c00f 100644
+--- a/js/ui/components/polkitAgent.js
++++ b/js/ui/components/polkitAgent.js
+@@ -65,7 +65,6 @@ var AuthenticationDialog = GObject.registerClass({
+ 
+         this._userAvatar = new UserWidget.Avatar(this._user, {
+             iconSize: DIALOG_ICON_SIZE,
+-            styleClass: 'polkit-dialog-user-icon',
+         });
+         this._userAvatar.x_align = Clutter.ActorAlign.CENTER;
+         userBox.add_child(this._userAvatar);
+-- 
+2.28.0
+
+
+From 296af6e1e8c80d400cec91926adcf71b4ec1aec1 Mon Sep 17 00:00:00 2001
+From: Akarshan Biswas <akarshan.biswas@hotmail.com>
+Date: Sun, 11 Oct 2020 07:04:50 +0000
+Subject: [PATCH 10/19] Update Bengali (India) translation
+
+---
+ po/bn_IN.po | 126 ++++++++++++++++++++++++++--------------------------
+ 1 file changed, 63 insertions(+), 63 deletions(-)
+
+diff --git a/po/bn_IN.po b/po/bn_IN.po
+index f57308b5ed..6146ae0256 100644
+--- a/po/bn_IN.po
++++ b/po/bn_IN.po
+@@ -8,17 +8,17 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: unnamed project\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gnome-shell/issues\n"
+-"POT-Creation-Date: 2020-08-14 15:48+0000\n"
+-"PO-Revision-Date: 2020-08-15 17:11+0530\n"
++"POT-Creation-Date: 2020-10-08 00:42+0000\n"
++"PO-Revision-Date: 2020-10-11 12:33+0530\n"
+ "Last-Translator: Akarshan Biswas <akarshan.biswas@hotmail.com>\n"
+-"Language-Team: Bengali (India) <anubad@lists.ankur.org.in>\n"
++"Language-Team: Bengali <anubad@lists.ankur.org.in>\n"
+ "Language: bn_IN\n"
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+ "Plural-Forms: nplurals=2; plural=(n != 1)\n"
+ "X-DamnedLies-Scope: partial\n"
+-"X-Generator: Gtranslator 3.36.0\n"
++"X-Generator: Gtranslator 3.38.0\n"
+ 
+ #: data/50-gnome-shell-system.xml:6
+ msgid "System"
+@@ -98,7 +98,6 @@ msgstr ""
+ "অগ্রাধিকার নেয়।"
+ 
+ #: data/org.gnome.shell.gschema.xml.in:37
+-#| msgid "Disable extension"
+ msgid "Disable user extensions"
+ msgstr "ব্যবহারকারীর এক্সটেনশনগুলি অক্ষম করুন"
+ 
+@@ -198,7 +197,6 @@ msgstr ""
+ "সাথে যুক্ত ডিভাইস না দেখা গেলে এটি পুনরায় সেট করা হবে।"
+ 
+ #: data/org.gnome.shell.gschema.xml.in:106
+-#| msgid "Enable an extension"
+ msgid "Enable introspection API"
+ msgstr "আত্মবিজ্ঞাপন API সক্ষম করুন"
+ 
+@@ -420,7 +418,7 @@ msgstr "হোমপেজ "
+ msgid "Visit extension homepage"
+ msgstr "এক্সটেনশন হোমপেজে যান"
+ 
+-#: js/gdm/authPrompt.js:135 js/ui/audioDeviceSelection.js:57
++#: js/gdm/authPrompt.js:137 js/ui/audioDeviceSelection.js:57
+ #: js/ui/components/networkAgent.js:111 js/ui/components/polkitAgent.js:139
+ #: js/ui/endSessionDialog.js:438 js/ui/extensionDownloader.js:183
+ #: js/ui/shellMountOperation.js:376 js/ui/shellMountOperation.js:386
+@@ -429,7 +427,7 @@ msgid "Cancel"
+ msgstr "বাতিল"
+ 
+ #. Cisco LEAP
+-#: js/gdm/authPrompt.js:237 js/ui/components/networkAgent.js:206
++#: js/gdm/authPrompt.js:239 js/ui/components/networkAgent.js:206
+ #: js/ui/components/networkAgent.js:222 js/ui/components/networkAgent.js:246
+ #: js/ui/components/networkAgent.js:267 js/ui/components/networkAgent.js:287
+ #: js/ui/components/networkAgent.js:297 js/ui/components/polkitAgent.js:277
+@@ -475,88 +473,85 @@ msgstr "অনুমোদন সংক্রান্ত সমস্যা"
+ #. to indicate the user can swipe their finger instead
+ #: js/gdm/util.js:481
+ msgid "(or swipe finger)"
+-msgstr "(  আঙুল চালানো)"
++msgstr "(বা আঙুল চালানো)"
+ 
+ #. Translators: The name of the power-off action in search
+-#: js/misc/systemActions.js:91
++#: js/misc/systemActions.js:82
+ msgctxt "search-result"
+ msgid "Power Off"
+ msgstr "পাওয়ার বন্ধ"
+ 
+ #. Translators: A list of keywords that match the power-off action, separated by semicolons
+-#: js/misc/systemActions.js:94
+-#| msgid "power off;shutdown;reboot;restart;halt;stop"
++#: js/misc/systemActions.js:85
+ msgid "power off;shutdown;halt;stop"
+ msgstr "পাওয়ার অফ;শাটডাউন;থাম;বন্ধ করুন"
+ 
+ #. Translators: The name of the restart action in search
+-#: js/misc/systemActions.js:99
+-#| msgctxt "button"
+-#| msgid "Restart"
++#: js/misc/systemActions.js:90
+ msgctxt "search-result"
+ msgid "Restart"
+ msgstr "পুনরায় আরম্ভ করুন"
+ 
+ #. Translators: A list of keywords that match the restart action, separated by semicolons
+-#: js/misc/systemActions.js:102
++#: js/misc/systemActions.js:93
+ msgid "reboot;restart;"
+ msgstr "রিবুট;পুনরায় আরম্ভ;"
+ 
+ #. Translators: The name of the lock screen action in search
+-#: js/misc/systemActions.js:107
++#: js/misc/systemActions.js:98
+ msgctxt "search-result"
+ msgid "Lock Screen"
+ msgstr "লক স্ক্রীন"
+ 
+ #. Translators: A list of keywords that match the lock screen action, separated by semicolons
+-#: js/misc/systemActions.js:110
++#: js/misc/systemActions.js:101
+ msgid "lock screen"
+ msgstr "লক স্ক্রীন"
+ 
+ #. Translators: The name of the logout action in search
+-#: js/misc/systemActions.js:115
++#: js/misc/systemActions.js:106
+ msgctxt "search-result"
+ msgid "Log Out"
+ msgstr "লগ আউট"
+ 
+ #. Translators: A list of keywords that match the logout action, separated by semicolons
+-#: js/misc/systemActions.js:118
++#: js/misc/systemActions.js:109
+ msgid "logout;log out;sign off"
+ msgstr "লগআউট; লগ আউট; সাইন অফ"
+ 
+ #. Translators: The name of the suspend action in search
+-#: js/misc/systemActions.js:123
++#: js/misc/systemActions.js:114
+ msgctxt "search-result"
+ msgid "Suspend"
+ msgstr "থামানো"
+ 
+ #. Translators: A list of keywords that match the suspend action, separated by semicolons
+-#: js/misc/systemActions.js:126
++#: js/misc/systemActions.js:117
+ msgid "suspend;sleep"
+ msgstr "থামানো; ঘুমানো"
+ 
+ #. Translators: The name of the switch user action in search
+-#: js/misc/systemActions.js:131
++#: js/misc/systemActions.js:122
+ msgctxt "search-result"
+ msgid "Switch User"
+ msgstr "ব্যবহারকারী পাল্টান"
+ 
+ #. Translators: A list of keywords that match the switch user action, separated by semicolons
+-#: js/misc/systemActions.js:134
++#: js/misc/systemActions.js:125
+ msgid "switch user"
+ msgstr "ব্যবহারকারী পাল্টান"
+ 
+ #. Translators: A list of keywords that match the lock orientation action, separated by semicolons
+-#: js/misc/systemActions.js:141
++#: js/misc/systemActions.js:132
+ msgid "lock orientation;unlock orientation;screen;rotation"
+ msgstr "লক ওরিয়েন্টেশন; আনলক ওরিয়েন্টেশন; স্ক্রিন; রোটেশন"
+ 
+-#: js/misc/systemActions.js:266
++#: js/misc/systemActions.js:240
+ msgctxt "search-result"
+ msgid "Unlock Screen Rotation"
+ msgstr "স্ক্রিন রোটেশন আনলক করুন"
+ 
+-#: js/misc/systemActions.js:267
++#: js/misc/systemActions.js:241
+ msgctxt "search-result"
+ msgid "Lock Screen Rotation"
+ msgstr "স্ক্রিন রোটেশন লক করুন"
+@@ -721,36 +716,36 @@ msgstr "প্রবেশ নিষেধ"
+ msgid "Grant Access"
+ msgstr "অনুদান অ্যাক্সেস"
+ 
+-#: js/ui/appDisplay.js:1297
++#: js/ui/appDisplay.js:1346
+ msgid "Unnamed Folder"
+ msgstr "নামহীন ফোল্ডার"
+ 
+ #. Translators: This is the heading of a list of open windows
+-#: js/ui/appDisplay.js:2766 js/ui/panel.js:75
++#: js/ui/appDisplay.js:2870 js/ui/panel.js:75
+ msgid "Open Windows"
+ msgstr "উইন্ডোজ খুলুন"
+ 
+-#: js/ui/appDisplay.js:2785 js/ui/panel.js:82
++#: js/ui/appDisplay.js:2889 js/ui/panel.js:82
+ msgid "New Window"
+ msgstr "নতুন উইন্ডো"
+ 
+-#: js/ui/appDisplay.js:2801
++#: js/ui/appDisplay.js:2905
+ msgid "Launch using Integrated Graphics Card"
+ msgstr "ইন্টিগ্রেটেড গ্রাফিক্স কার্ড ব্যবহার করে লঞ্চ করুন"
+ 
+-#: js/ui/appDisplay.js:2802
++#: js/ui/appDisplay.js:2906
+ msgid "Launch using Discrete Graphics Card"
+ msgstr "বিচ্ছিন্ন গ্রাফিক্স কার্ড ব্যবহার করে চালু করুন"
+ 
+-#: js/ui/appDisplay.js:2830 js/ui/dash.js:239
++#: js/ui/appDisplay.js:2934 js/ui/dash.js:239
+ msgid "Remove from Favorites"
+ msgstr "পছন্দসই থেকে সরান"
+ 
+-#: js/ui/appDisplay.js:2836
++#: js/ui/appDisplay.js:2940
+ msgid "Add to Favorites"
+ msgstr "পছন্দসইতে যোগ করুন"
+ 
+-#: js/ui/appDisplay.js:2846 js/ui/panel.js:93
++#: js/ui/appDisplay.js:2950 js/ui/panel.js:93
+ msgid "Show Details"
+ msgstr "বিবরণ প্রদর্শন করা হবে"
+ 
+@@ -762,7 +757,7 @@ msgstr "%s   আপনার পছন্দসইতে যোগ করা হ
+ #: js/ui/appFavorites.js:197
+ #, javascript-format
+ msgid "%s has been removed from your favorites."
+-msgstr "  আপনার পছন্দসই থেকে %s সরানো হয়েছে।"
++msgstr "আপনার পছন্দসই থেকে %s সরানো হয়েছে।"
+ 
+ #: js/ui/audioDeviceSelection.js:41
+ msgid "Select Audio Device"
+@@ -889,15 +884,15 @@ msgstr "%d"
+ msgid "Week %V"
+ msgstr "সপ্তাহ %V"
+ 
+-#: js/ui/calendar.js:895
++#: js/ui/calendar.js:896
+ msgid "No Notifications"
+ msgstr "কোন বিজ্ঞপ্তি নেই"
+ 
+-#: js/ui/calendar.js:949
++#: js/ui/calendar.js:950
+ msgid "Do Not Disturb"
+ msgstr "বিরক্ত করবেন না"
+ 
+-#: js/ui/calendar.js:968
++#: js/ui/calendar.js:969
+ msgid "Clear"
+ msgstr "পরিষ্কার"
+ 
+@@ -956,7 +951,7 @@ msgstr "সংযোগ করুন"
+ 
+ #: js/ui/components/networkAgent.js:212
+ msgid "Key"
+-msgstr "কি"
++msgstr "কী"
+ 
+ #: js/ui/components/networkAgent.js:250 js/ui/components/networkAgent.js:273
+ msgid "Private key password"
+@@ -1143,31 +1138,31 @@ msgstr "আবহাওয়ার অবস্থান নির্বাচ
+ #, javascript-format
+ msgctxt "title"
+ msgid "Log Out %s"
+-msgstr "%s লগ   আউট করুন"
++msgstr "%s লগ আউট করুন"
+ 
+ #: js/ui/endSessionDialog.js:40
+ msgctxt "title"
+ msgid "Log Out"
+-msgstr "লগ   আউট করুন"
++msgstr "লগ আউট করুন"
+ 
+ #: js/ui/endSessionDialog.js:43
+ #, javascript-format
+ msgid "%s will be logged out automatically in %d second."
+ msgid_plural "%s will be logged out automatically in %d seconds."
+-msgstr[0] "%s %d -এর মধ্যে স্বয়ংক্রিয় ভাবে লগ   আউট হবে।"
+-msgstr[1] "%s %d সেকেন্ডের মধ্যে স্বয়ংক্রিয় ভাবে লগ   আউট হবে।"
++msgstr[0] "%s %d -এর মধ্যে স্বয়ংক্রিয় ভাবে লগ আউট হবে।"
++msgstr[1] "%s %d সেকেন্ডের মধ্যে স্বয়ংক্রিয় ভাবে লগ আউট হবে।"
+ 
+ #: js/ui/endSessionDialog.js:49
+ #, javascript-format
+ msgid "You will be logged out automatically in %d second."
+ msgid_plural "You will be logged out automatically in %d seconds."
+-msgstr[0] "  আপনি %d সেকেন্ডের মধ্যে স্বয়ংক্রিয় ভাবে লগ   আউট হবেন।"
+-msgstr[1] "  আপনি %d সেকেন্ডের মধ্যে স্বয়ংক্রিয় ভাবে লগ   আউট হবেন।"
++msgstr[0] "আপনি %d সেকেন্ডের মধ্যে স্বয়ংক্রিয় ভাবে লগ আউট হবেন।"
++msgstr[1] "আপনি %d সেকেন্ডের মধ্যে স্বয়ংক্রিয় ভাবে লগ আউট হবেন।"
+ 
+ #: js/ui/endSessionDialog.js:56
+ msgctxt "button"
+ msgid "Log Out"
+-msgstr "লগ   আউট করুন"
++msgstr "লগ আউট করুন"
+ 
+ #: js/ui/endSessionDialog.js:62
+ msgctxt "title"
+@@ -1177,7 +1172,7 @@ msgstr "পাওয়ার বন্ধ"
+ #: js/ui/endSessionDialog.js:63
+ msgctxt "title"
+ msgid "Install Updates & Power Off"
+-msgstr "  আপডেট ইনস্টল করুন এবং পাওয়ার বন্ধ করুন"
++msgstr "আপডেট ইনস্টল করুন এবং পাওয়ার বন্ধ করুন"
+ 
+ #: js/ui/endSessionDialog.js:66
+ #, javascript-format
+@@ -1202,8 +1197,6 @@ msgid "Restart"
+ msgstr "পুনরায় আরম্ভ করুন"
+ 
+ #: js/ui/endSessionDialog.js:82
+-#| msgctxt "title"
+-#| msgid "Install Updates & Power Off"
+ msgctxt "title"
+ msgid "Install Updates & Restart"
+ msgstr "আপডেট ইনস্টল করুন এবং পুনরায় আরম্ভ করুন"
+@@ -1223,7 +1216,7 @@ msgstr "পুনরায় আরম্ভ করুন"
+ #: js/ui/endSessionDialog.js:101
+ msgctxt "title"
+ msgid "Restart & Install Updates"
+-msgstr "  আবার চালু করুন ও   আপডেটগুলি ইনস্টল করুন"
++msgstr "আবার চালু করুন ও আপডেটগুলি ইনস্টল করুন"
+ 
+ #: js/ui/endSessionDialog.js:104
+ #, javascript-format
+@@ -1238,7 +1231,7 @@ msgstr[1] ""
+ #: js/ui/endSessionDialog.js:111 js/ui/endSessionDialog.js:132
+ msgctxt "button"
+ msgid "Restart &amp; Install"
+-msgstr "  আবার চালু করুন ও ইনস্টল করুন"
++msgstr "আবার চালু করুন ও ইনস্টল করুন"
+ 
+ #: js/ui/endSessionDialog.js:113
+ msgctxt "button"
+@@ -1248,7 +1241,7 @@ msgstr "ইনস্টল করুন ও পাওয়ার বন্ধ ক
+ #: js/ui/endSessionDialog.js:114
+ msgctxt "checkbox"
+ msgid "Power off after updates are installed"
+-msgstr "  আপডেটগুলি ইনস্টল হয়ে যাওয়ার পরে পাওয়ার বন্ধ করুন"
++msgstr "আপডেটগুলি ইনস্টল হয়ে যাওয়ার পরে পাওয়ার বন্ধ করুন"
+ 
+ #: js/ui/endSessionDialog.js:121
+ msgctxt "title"
+@@ -1268,7 +1261,6 @@ msgstr ""
+ "পারে: আপনি ব্যাক আপ নিয়ে এসেছেন এবং কম্পিউটারটি প্লাগ ইন হয়েছে তা নিশ্চিত করুন।"
+ 
+ #: js/ui/endSessionDialog.js:284
+-#| msgid "Running on battery power: Please plug in before installing updates."
+ msgid "Low battery power: please plug in before installing updates."
+ msgstr "লো ব্যাটারি শক্তি: আপডেট ইনস্টল করার আগে প্লাগ ইন করুন।"
+ 
+@@ -1436,7 +1428,7 @@ msgstr "সক্রিয়"
+ 
+ #. translators:
+ #. * The device has been disabled
+-#: js/ui/lookingGlass.js:741 subprojects/gvc/gvc-mixer-control.c:1892
++#: js/ui/lookingGlass.js:741 subprojects/gvc/gvc-mixer-control.c:1900
+ msgid "Disabled"
+ msgstr "নিষ্ক্রিয়"
+ 
+@@ -1565,12 +1557,12 @@ msgstr "প্রস্থান"
+ msgid "Activities"
+ msgstr "ক্রিয়াকলাপ"
+ 
+-#: js/ui/panel.js:714
++#: js/ui/panel.js:719
+ msgctxt "System menu in the top bar"
+ msgid "System"
+ msgstr "সিস্টেম"
+ 
+-#: js/ui/panel.js:825
++#: js/ui/panel.js:830
+ msgid "Top Bar"
+ msgstr "শীর্ষ দন্ড"
+ 
+@@ -1675,7 +1667,7 @@ msgstr "পাসওয়ার্ড মনে রাখুন"
+ 
+ #: js/ui/shellMountOperation.js:380
+ msgid "Unlock"
+-msgstr "  আন-লক"
++msgstr "আন-লক"
+ 
+ #. Translators: %s is the Disks application
+ #: js/ui/shellMountOperation.js:391
+@@ -1751,6 +1743,15 @@ msgstr "ব্লুটুথ"
+ msgid "Bluetooth Settings"
+ msgstr "ব্লুটুথ সেটিং"
+ 
++#. Translators: this is the number of connected bluetooth devices
++#: js/ui/status/bluetooth.js:148
++#, javascript-format
++#| msgid "%s Connected"
++msgid "%d Connected"
++msgid_plural "%d Connected"
++msgstr[0] "%d সংযুক্ত"
++msgstr[1] "%d সংযুক্ত"
++
+ #: js/ui/status/bluetooth.js:152
+ msgid "Bluetooth Off"
+ msgstr "ব্লুটুথ নিষ্ক্রিয়"
+@@ -2114,7 +2115,6 @@ msgid "Suspend"
+ msgstr "থামানো"
+ 
+ #: js/ui/status/system.js:130
+-#| msgid "Restarting…"
+ msgid "Restart…"
+ msgstr "পুনরায় আরম্ভ করুন..."
+ 
+@@ -2271,7 +2271,7 @@ msgstr "ছোট করুন"
+ 
+ #: js/ui/windowMenu.js:34
+ msgid "Unmaximize"
+-msgstr "  আন-ম্যাক্সিমাইজ"
++msgstr "আন-ম্যাক্সিমাইজ"
+ 
+ #: js/ui/windowMenu.js:38
+ msgid "Maximize"
+@@ -2908,7 +2908,7 @@ msgstr "উপরের বারে একটি আইকন যুক্ত 
+ 
+ #. translators:
+ #. * The number of sound outputs on a particular device
+-#: subprojects/gvc/gvc-mixer-control.c:1899
++#: subprojects/gvc/gvc-mixer-control.c:1907
+ #, c-format
+ msgid "%u Output"
+ msgid_plural "%u Outputs"
+@@ -2917,14 +2917,14 @@ msgstr[1] "%u   আউটপুট"
+ 
+ #. translators:
+ #. * The number of sound inputs on a particular device
+-#: subprojects/gvc/gvc-mixer-control.c:1909
++#: subprojects/gvc/gvc-mixer-control.c:1917
+ #, c-format
+ msgid "%u Input"
+ msgid_plural "%u Inputs"
+ msgstr[0] "%u ইনপুট"
+ msgstr[1] "%u ইনপুট"
+ 
+-#: subprojects/gvc/gvc-mixer-control.c:2766
++#: subprojects/gvc/gvc-mixer-control.c:2867
+ msgid "System Sounds"
+ msgstr "সিস্টেম সাউন্ড"
+ 
+-- 
+2.28.0
+
+
+From b35d081022428b7cbf79eaac21412fc212122d53 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 13 Oct 2020 14:28:51 +0000
+Subject: [PATCH 11/19] remoteAccess: Ignore all but the screen record handles
+ on X11
+
+We still want to show the red dot when recording the screen on X11, so
+only drop the "screen-is-shared" handles when using the X11 session.
+
+Closes: https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/3279
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1466
+
+
+(cherry picked from commit a0e87b53ffe8ccf0530f87382ca0cc712a7b993e)
+---
+ js/ui/status/remoteAccess.js | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/js/ui/status/remoteAccess.js b/js/ui/status/remoteAccess.js
+index feafe61550..21f6581b61 100644
+--- a/js/ui/status/remoteAccess.js
++++ b/js/ui/status/remoteAccess.js
+@@ -16,13 +16,6 @@ class RemoteAccessApplet extends PanelMenu.SystemIndicator {
+         if (!controller)
+             return;
+ 
+-        // We can't possibly know about all types of screen sharing on X11, so
+-        // showing these controls on X11 might give a false sense of security.
+-        // Thus, only enable these controls when using Wayland, where we are
+-        // in control of sharing.
+-        if (!Meta.is_wayland_compositor())
+-            return;
+-
+         this._handles = new Set();
+         this._sharedIndicator = null;
+         this._recordingIndicator = null;
+@@ -85,6 +78,16 @@ class RemoteAccessApplet extends PanelMenu.SystemIndicator {
+     }
+ 
+     _onNewHandle(handle) {
++        // We can't possibly know about all types of screen sharing on X11, so
++        // showing these controls on X11 might give a false sense of security.
++        // Thus, only enable these controls when using Wayland, where we are
++        // in control of sharing.
++        //
++        // We still want to show screen recordings though, to indicate when
++        // the built in screen recorder is active, no matter the session type.
++        if (!Meta.is_wayland_compositor() && !handle.is_recording)
++            return;
++
+         this._handles.add(handle);
+         handle.connect('stopped', this._onStopped.bind(this));
+ 
+-- 
+2.28.0
+
+
+From fef32dcf1bc06b30dde564ff770ac9ca0246dd4b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Sun, 18 Oct 2020 16:01:05 +0200
+Subject: [PATCH 12/19] screenshot: Handle window screenshot failures
+ gracefully
+
+meta_window_actor_get_image() may return NULL. Instead of crashing,
+catch that case and return a proper error.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/3258
+
+(cherry picked from commit d72da7d2465628150d83a9a152df2525691de1b0)
+---
+ src/shell-screenshot.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/shell-screenshot.c b/src/shell-screenshot.c
+index 3a1c92ccec..2505fc11da 100644
+--- a/src/shell-screenshot.c
++++ b/src/shell-screenshot.c
+@@ -292,6 +292,15 @@ grab_window_screenshot (ShellScreenshot     *screenshot,
+ 
+   priv->image = meta_window_actor_get_image (META_WINDOW_ACTOR (window_actor),
+                                              NULL);
++
++  if (!priv->image)
++    {
++      g_task_report_new_error (screenshot, on_screenshot_written, result, NULL,
++                               G_IO_ERROR, G_IO_ERROR_FAILED,
++                               "Capturing window failed");
++      return;
++    }
++
+   priv->datetime = g_date_time_new_now_local ();
+ 
+   if (flags & SHELL_SCREENSHOT_FLAG_INCLUDE_CURSOR)
+-- 
+2.28.0
+
+
+From 436b090f0aec565916ae99f7afafac862f4c015e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Wed, 21 Oct 2020 03:29:18 +0200
+Subject: [PATCH 13/19] audioDeviceSelection: Center-align icons
+
+When the icon area gets allocated additional space, we want the
+icons centered rather than left-aligned. This may happen in locales
+with long-ish translations for the title or buttons when only a
+subset of possible icons is shown.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/3307
+---
+ js/ui/audioDeviceSelection.js | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/js/ui/audioDeviceSelection.js b/js/ui/audioDeviceSelection.js
+index 1e9cb11fec..07b8171339 100644
+--- a/js/ui/audioDeviceSelection.js
++++ b/js/ui/audioDeviceSelection.js
+@@ -43,6 +43,7 @@ var AudioDeviceSelectionDialog = GObject.registerClass({
+ 
+         this._selectionBox = new St.BoxLayout({
+             style_class: 'audio-selection-box',
++            x_align: Clutter.ActorAlign.CENTER,
+             x_expand: true,
+         });
+         content.add_child(this._selectionBox);
+-- 
+2.28.0
+
+
+From 68c06c85ea18e2ed95bb73eb0759623201fe5bf7 Mon Sep 17 00:00:00 2001
+From: Daniel Mustieles <daniel.mustieles@gmail.com>
+Date: Thu, 22 Oct 2020 08:56:35 +0200
+Subject: [PATCH 14/19] Updated Spanish translation
+
+---
+ po/es.po | 92 ++++++++++++++++++++++++++++----------------------------
+ 1 file changed, 46 insertions(+), 46 deletions(-)
+
+diff --git a/po/es.po b/po/es.po
+index 79dfe8154c..ce5630b8da 100644
+--- a/po/es.po
++++ b/po/es.po
+@@ -9,7 +9,7 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: gnome-shell.master\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gnome-shell/issues\n"
+-"POT-Creation-Date: 2020-09-01 09:04+0000\n"
++"POT-Creation-Date: 2020-10-21 11:39+0000\n"
+ "PO-Revision-Date: 2020-09-02 14:49+0200\n"
+ "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
+ "Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
+@@ -444,8 +444,8 @@ msgstr "Página web"
+ msgid "Visit extension homepage"
+ msgstr "Visitar la página web de la extensión"
+ 
+-#: js/gdm/authPrompt.js:136 js/ui/audioDeviceSelection.js:57
+-#: js/ui/components/networkAgent.js:111 js/ui/components/polkitAgent.js:139
++#: js/gdm/authPrompt.js:137 js/ui/audioDeviceSelection.js:58
++#: js/ui/components/networkAgent.js:111 js/ui/components/polkitAgent.js:138
+ #: js/ui/endSessionDialog.js:438 js/ui/extensionDownloader.js:183
+ #: js/ui/shellMountOperation.js:376 js/ui/shellMountOperation.js:386
+ #: js/ui/status/network.js:940 subprojects/extensions-app/js/main.js:149
+@@ -453,10 +453,10 @@ msgid "Cancel"
+ msgstr "Cancelar"
+ 
+ #. Cisco LEAP
+-#: js/gdm/authPrompt.js:238 js/ui/components/networkAgent.js:206
++#: js/gdm/authPrompt.js:239 js/ui/components/networkAgent.js:206
+ #: js/ui/components/networkAgent.js:222 js/ui/components/networkAgent.js:246
+ #: js/ui/components/networkAgent.js:267 js/ui/components/networkAgent.js:287
+-#: js/ui/components/networkAgent.js:297 js/ui/components/polkitAgent.js:277
++#: js/ui/components/networkAgent.js:297 js/ui/components/polkitAgent.js:276
+ #: js/ui/shellMountOperation.js:326
+ msgid "Password"
+ msgstr "Contraseña"
+@@ -502,82 +502,82 @@ msgid "(or swipe finger)"
+ msgstr "(o pase el dedo)"
+ 
+ #. Translators: The name of the power-off action in search
+-#: js/misc/systemActions.js:91
++#: js/misc/systemActions.js:82
+ msgctxt "search-result"
+ msgid "Power Off"
+ msgstr "Apagar"
+ 
+ #. Translators: A list of keywords that match the power-off action, separated by semicolons
+-#: js/misc/systemActions.js:94
++#: js/misc/systemActions.js:85
+ msgid "power off;shutdown;halt;stop"
+ msgstr "apagar;apagado;reinicio;reiniciar;detener;parar"
+ 
+ #. Translators: The name of the restart action in search
+-#: js/misc/systemActions.js:99
++#: js/misc/systemActions.js:90
+ msgctxt "search-result"
+ msgid "Restart"
+ msgstr "Reiniciar"
+ 
+ #. Translators: A list of keywords that match the restart action, separated by semicolons
+-#: js/misc/systemActions.js:102
++#: js/misc/systemActions.js:93
+ msgid "reboot;restart;"
+ msgstr "reiniciar;rebotar;"
+ 
+ #. Translators: The name of the lock screen action in search
+-#: js/misc/systemActions.js:107
++#: js/misc/systemActions.js:98
+ msgctxt "search-result"
+ msgid "Lock Screen"
+ msgstr "Bloquear la pantalla"
+ 
+ #. Translators: A list of keywords that match the lock screen action, separated by semicolons
+-#: js/misc/systemActions.js:110
++#: js/misc/systemActions.js:101
+ msgid "lock screen"
+ msgstr "bloquear;pantalla"
+ 
+ #. Translators: The name of the logout action in search
+-#: js/misc/systemActions.js:115
++#: js/misc/systemActions.js:106
+ msgctxt "search-result"
+ msgid "Log Out"
+ msgstr "Cerrar la sesión"
+ 
+ #. Translators: A list of keywords that match the logout action, separated by semicolons
+-#: js/misc/systemActions.js:118
++#: js/misc/systemActions.js:109
+ msgid "logout;log out;sign off"
+ msgstr "cerrar;sesión;salir"
+ 
+ #. Translators: The name of the suspend action in search
+-#: js/misc/systemActions.js:123
++#: js/misc/systemActions.js:114
+ msgctxt "search-result"
+ msgid "Suspend"
+ msgstr "Suspender"
+ 
+ #. Translators: A list of keywords that match the suspend action, separated by semicolons
+-#: js/misc/systemActions.js:126
++#: js/misc/systemActions.js:117
+ msgid "suspend;sleep"
+ msgstr "suspender;dormir"
+ 
+ #. Translators: The name of the switch user action in search
+-#: js/misc/systemActions.js:131
++#: js/misc/systemActions.js:122
+ msgctxt "search-result"
+ msgid "Switch User"
+ msgstr "Cambiar de usuario"
+ 
+ #. Translators: A list of keywords that match the switch user action, separated by semicolons
+-#: js/misc/systemActions.js:134
++#: js/misc/systemActions.js:125
+ msgid "switch user"
+ msgstr "cambiar;usuario"
+ 
+ #. Translators: A list of keywords that match the lock orientation action, separated by semicolons
+-#: js/misc/systemActions.js:141
++#: js/misc/systemActions.js:132
+ msgid "lock orientation;unlock orientation;screen;rotation"
+ msgstr "bloquear orientación;desbloquear orientación;pantalla;rotación"
+ 
+-#: js/misc/systemActions.js:266
++#: js/misc/systemActions.js:240
+ msgctxt "search-result"
+ msgid "Unlock Screen Rotation"
+ msgstr "Desbloquear la rotación de la pantalla"
+ 
+-#: js/misc/systemActions.js:267
++#: js/misc/systemActions.js:241
+ msgctxt "search-result"
+ msgid "Lock Screen Rotation"
+ msgstr "Bloquear la rotación de la pantalla"
+@@ -742,36 +742,36 @@ msgstr "Denegar acceso"
+ msgid "Grant Access"
+ msgstr "Conceder acceso"
+ 
+-#: js/ui/appDisplay.js:1297
++#: js/ui/appDisplay.js:1346
+ msgid "Unnamed Folder"
+ msgstr "Carpeta sin nombre"
+ 
+ #. Translators: This is the heading of a list of open windows
+-#: js/ui/appDisplay.js:2772 js/ui/panel.js:75
++#: js/ui/appDisplay.js:2870 js/ui/panel.js:75
+ msgid "Open Windows"
+ msgstr "Ventanas abiertas"
+ 
+-#: js/ui/appDisplay.js:2791 js/ui/panel.js:82
++#: js/ui/appDisplay.js:2889 js/ui/panel.js:82
+ msgid "New Window"
+ msgstr "Ventana nueva"
+ 
+-#: js/ui/appDisplay.js:2807
++#: js/ui/appDisplay.js:2905
+ msgid "Launch using Integrated Graphics Card"
+ msgstr "Lanzar usando la tarjeta gráfica integrada"
+ 
+-#: js/ui/appDisplay.js:2808
++#: js/ui/appDisplay.js:2906
+ msgid "Launch using Discrete Graphics Card"
+ msgstr "Lanzar usando la tarjeta gráfica discreta"
+ 
+-#: js/ui/appDisplay.js:2836 js/ui/dash.js:239
++#: js/ui/appDisplay.js:2934 js/ui/dash.js:239
+ msgid "Remove from Favorites"
+ msgstr "Quitar de los favoritos"
+ 
+-#: js/ui/appDisplay.js:2842
++#: js/ui/appDisplay.js:2940
+ msgid "Add to Favorites"
+ msgstr "Añadir a los favoritos"
+ 
+-#: js/ui/appDisplay.js:2852 js/ui/panel.js:93
++#: js/ui/appDisplay.js:2950 js/ui/panel.js:93
+ msgid "Show Details"
+ msgstr "Mostrar detalles"
+ 
+@@ -789,19 +789,19 @@ msgstr "Se ha quitado %s de sus favoritos."
+ msgid "Select Audio Device"
+ msgstr "Seleccionar dispositivo de sonido"
+ 
+-#: js/ui/audioDeviceSelection.js:54
++#: js/ui/audioDeviceSelection.js:55
+ msgid "Sound Settings"
+ msgstr "Configuración de sonido"
+ 
+-#: js/ui/audioDeviceSelection.js:64
++#: js/ui/audioDeviceSelection.js:65
+ msgid "Headphones"
+ msgstr "Auriculares"
+ 
+-#: js/ui/audioDeviceSelection.js:66
++#: js/ui/audioDeviceSelection.js:67
+ msgid "Headset"
+ msgstr "Manos libres"
+ 
+-#: js/ui/audioDeviceSelection.js:68 js/ui/status/volume.js:272
++#: js/ui/audioDeviceSelection.js:69 js/ui/status/volume.js:272
+ msgid "Microphone"
+ msgstr "Micrófono"
+ 
+@@ -1049,11 +1049,11 @@ msgstr "Contraseña de la VPN"
+ msgid "Authentication Required"
+ msgstr "Se necesita autenticación"
+ 
+-#: js/ui/components/polkitAgent.js:80
++#: js/ui/components/polkitAgent.js:79
+ msgid "Administrator"
+ msgstr "Administrador"
+ 
+-#: js/ui/components/polkitAgent.js:142
++#: js/ui/components/polkitAgent.js:141
+ msgid "Authenticate"
+ msgstr "Autenticar"
+ 
+@@ -1061,7 +1061,7 @@ msgstr "Autenticar"
+ #. * requested authentication was not gained; this can happen
+ #. * because of an authentication error (like invalid password),
+ #. * for instance.
+-#: js/ui/components/polkitAgent.js:254 js/ui/shellMountOperation.js:402
++#: js/ui/components/polkitAgent.js:253 js/ui/shellMountOperation.js:402
+ msgid "Sorry, that didn’t work. Please try again."
+ msgstr "Eso no ha funcionado. Inténtelo de nuevo."
+ 
+@@ -1422,7 +1422,7 @@ msgstr "Dejar activada"
+ #: js/ui/kbdA11yDialog.js:55 js/ui/status/bluetooth.js:156
+ #: js/ui/status/network.js:1315
+ msgid "Turn On"
+-msgstr "Encendido"
++msgstr "Encender"
+ 
+ #: js/ui/kbdA11yDialog.js:63 js/ui/status/bluetooth.js:156
+ #: js/ui/status/network.js:160 js/ui/status/network.js:344
+@@ -1464,7 +1464,7 @@ msgstr "Activado"
+ 
+ #. translators:
+ #. * The device has been disabled
+-#: js/ui/lookingGlass.js:741 subprojects/gvc/gvc-mixer-control.c:1892
++#: js/ui/lookingGlass.js:741 subprojects/gvc/gvc-mixer-control.c:1900
+ msgid "Disabled"
+ msgstr "Desactivado"
+ 
+@@ -1593,12 +1593,12 @@ msgstr "Salir"
+ msgid "Activities"
+ msgstr "Actividades"
+ 
+-#: js/ui/panel.js:714
++#: js/ui/panel.js:719
+ msgctxt "System menu in the top bar"
+ msgid "System"
+ msgstr "Sistema"
+ 
+-#: js/ui/panel.js:825
++#: js/ui/panel.js:830
+ msgid "Top Bar"
+ msgstr "Barra superior"
+ 
+@@ -1629,11 +1629,11 @@ msgstr "GNOME necesita bloquear la pantalla"
+ #.
+ #. XXX: another option is to kick the user into the gdm login
+ #. screen, where we're not affected by grabs
+-#: js/ui/screenShield.js:244 js/ui/screenShield.js:602
++#: js/ui/screenShield.js:244 js/ui/screenShield.js:613
+ msgid "Unable to lock"
+ msgstr "No se pudo bloquear"
+ 
+-#: js/ui/screenShield.js:245 js/ui/screenShield.js:603
++#: js/ui/screenShield.js:245 js/ui/screenShield.js:614
+ msgid "Lock was blocked by an application"
+ msgstr "Una aplicación impidió el bloqueo"
+ 
+@@ -2123,11 +2123,11 @@ msgstr "%d∶%02d para la carga completa (%d %%)"
+ msgid "%d %%"
+ msgstr "%d %%"
+ 
+-#: js/ui/status/remoteAccess.js:45
++#: js/ui/status/remoteAccess.js:38
+ msgid "Screen is Being Shared"
+ msgstr "Se está compartiendo la pantalla"
+ 
+-#: js/ui/status/remoteAccess.js:47
++#: js/ui/status/remoteAccess.js:40
+ msgid "Turn off"
+ msgstr "Apagar"
+ 
+@@ -2952,7 +2952,7 @@ msgstr "Añadir un icono a la barra superior"
+ 
+ #. translators:
+ #. * The number of sound outputs on a particular device
+-#: subprojects/gvc/gvc-mixer-control.c:1899
++#: subprojects/gvc/gvc-mixer-control.c:1907
+ #, c-format
+ msgid "%u Output"
+ msgid_plural "%u Outputs"
+@@ -2961,14 +2961,14 @@ msgstr[1] "%u salidas"
+ 
+ #. translators:
+ #. * The number of sound inputs on a particular device
+-#: subprojects/gvc/gvc-mixer-control.c:1909
++#: subprojects/gvc/gvc-mixer-control.c:1917
+ #, c-format
+ msgid "%u Input"
+ msgid_plural "%u Inputs"
+ msgstr[0] "%u entrada"
+ msgstr[1] "%u entradas"
+ 
+-#: subprojects/gvc/gvc-mixer-control.c:2766
++#: subprojects/gvc/gvc-mixer-control.c:2867
+ msgid "System Sounds"
+ msgstr "Sonidos del sistema"
+ 
+-- 
+2.28.0
+
+
+From c555f19b10c3193e02815f13951348a437034113 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Thu, 22 Oct 2020 19:09:35 +0000
+Subject: [PATCH 15/19] telepathyClient: Promisify the right class
+
+send_message_async() is a method of TpTextChannel, not the generic
+TpChannel parent class.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/3226
+
+
+(cherry picked from commit f5d1a2858d2a54f0344648ead219c553cd482737)
+---
+ js/ui/components/telepathyClient.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/js/ui/components/telepathyClient.js b/js/ui/components/telepathyClient.js
+index b51bedc4c2..0c9514e2b5 100644
+--- a/js/ui/components/telepathyClient.js
++++ b/js/ui/components/telepathyClient.js
+@@ -9,7 +9,7 @@ try {
+     ({ TelepathyGLib: Tp, TelepathyLogger: Tpl } = imports.gi);
+ 
+     Gio._promisify(Tp.Channel.prototype, 'close_async', 'close_finish');
+-    Gio._promisify(Tp.Channel.prototype,
++    Gio._promisify(Tp.TextChannel.prototype,
+         'send_message_async', 'send_message_finish');
+     Gio._promisify(Tp.ChannelDispatchOperation.prototype,
+         'claim_with_async', 'claim_with_finish');
+-- 
+2.28.0
+
+
+From f359ac52b13e4769a0ddf7c9769ce5363a2d4734 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Tue, 27 Oct 2020 00:03:43 +0000
+Subject: [PATCH 16/19] messageTray: Don't play sound when banners are disabled
+
+When support for notification sounds was added, it made some sense
+to keep the 'enable-sound' setting independent from 'show-banners'.
+
+However that changed when 'show-banners' was rebranded in the UI as
+"Do Not Disturb", as sounds are at least as disturbing as the banners.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/2873
+
+
+(cherry picked from commit 709c226fc3f48e6a3f5175a49b09e15bdc2dc05b)
+---
+ js/ui/messageTray.js | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/js/ui/messageTray.js b/js/ui/messageTray.js
+index d89af2b83e..7aac503ec3 100644
+--- a/js/ui/messageTray.js
++++ b/js/ui/messageTray.js
+@@ -784,8 +784,6 @@ var Source = GObject.registerClass({
+ 
+         if (this.policy.showBanners || notification.urgency == Urgency.CRITICAL)
+             this.emit('notification-show', notification);
+-        else
+-            notification.playSound();
+     }
+ 
+     notify(propName) {
+-- 
+2.28.0
+
+
+From 920538ec5d25f3ac782e42b9ee2b7a584b23d3f2 Mon Sep 17 00:00:00 2001
+From: Ian Douglas Scott <idscott@system76.com>
+Date: Fri, 30 Oct 2020 16:57:40 +0000
+Subject: [PATCH 17/19] appDisplay: Only show add/remove favorite when
+ shouldShowApp() is true
+
+`shouldShowApp()` is called in `_addFavorite`, so adding a favorite when
+this isn't true won't work. Also, it seems when this is false, favorites
+that do exist won't be shown anyway.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/3342
+
+
+(cherry picked from commit c86c294d2a8cf29be95a98881bbee4a25e92524b)
+---
+ js/ui/appDisplay.js | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/js/ui/appDisplay.js b/js/ui/appDisplay.js
+index 56b4a58714..920fde3e95 100644
+--- a/js/ui/appDisplay.js
++++ b/js/ui/appDisplay.js
+@@ -2843,6 +2843,8 @@ var AppIconMenu = class AppIconMenu extends PopupMenu.PopupMenu {
+ 
+         this._source = source;
+ 
++        this._parentalControlsManager = ParentalControlsManager.getDefault();
++
+         this.actor.add_style_class_name('app-well-menu');
+ 
+         // Chain our visibility and lifecycle to that of the source
+@@ -2923,7 +2925,8 @@ var AppIconMenu = class AppIconMenu extends PopupMenu.PopupMenu {
+                 });
+             }
+ 
+-            let canFavorite = global.settings.is_writable('favorite-apps');
++            let canFavorite = global.settings.is_writable('favorite-apps') &&
++                              this._parentalControlsManager.shouldShowApp(this._source.app.app_info);
+ 
+             if (canFavorite) {
+                 this._appendSeparator();
+-- 
+2.28.0
+
+
+From 25ad32d6d1d2d78860db102e6d4a5d50891a7bce Mon Sep 17 00:00:00 2001
+From: Popax21 <matthias.pleschinger@gmail.com>
+Date: Thu, 15 Oct 2020 15:14:55 +0000
+Subject: [PATCH 18/19] modemManager: Add property getters
+
+gjs improved its default property getter/setters, and as a result it
+is no longer possible to set read-only properties.
+
+Add proper getters (backed by private properties) to fix the resulting
+errors.
+
+https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/3203
+
+
+(cherry picked from commit 461bbcff153d7167d22bbf0e80ecbc5397d724cd)
+---
+ js/misc/modemManager.js | 24 ++++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
+
+diff --git a/js/misc/modemManager.js b/js/misc/modemManager.js
+index 0de0b24e2f..5f727f3ca2 100644
+--- a/js/misc/modemManager.js
++++ b/js/misc/modemManager.js
+@@ -111,17 +111,33 @@ var ModemBase = GObject.registerClass({
+             0, 100, 0),
+     },
+ }, class ModemBase extends GObject.Object {
++    _init() {
++        super._init();
++        this._operatorName = null;
++        this._signalQuality = 0;
++    }
++
++    // eslint-disable-next-line camelcase
++    get operator_name() {
++        return this._operatorName;
++    }
++
++    // eslint-disable-next-line camelcase
++    get signal_quality() {
++        return this._signalQuality;
++    }
++
+     _setOperatorName(operatorName) {
+-        if (this.operator_name == operatorName)
++        if (this._operatorName == operatorName)
+             return;
+-        this.operator_name = operatorName;
++        this._operatorName = operatorName;
+         this.notify('operator-name');
+     }
+ 
+     _setSignalQuality(signalQuality) {
+-        if (this.signal_quality == signalQuality)
++        if (this._signalQuality == signalQuality)
+             return;
+-        this.signal_quality = signalQuality;
++        this._signalQuality = signalQuality;
+         this.notify('signal-quality');
+     }
+ });
+-- 
+2.28.0
+
+
+From e93b8263b03ed8bbb3829ad82ebf3664197740c9 Mon Sep 17 00:00:00 2001
+From: Juliano de Souza Camargo <julianosc@protonmail.com>
+Date: Wed, 11 Nov 2020 14:29:12 +0000
+Subject: [PATCH 19/19] Update Portuguese translation
+
+---
+ po/pt.po | 38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
+
+diff --git a/po/pt.po b/po/pt.po
+index 28d590da3c..4349c3752b 100644
+--- a/po/pt.po
++++ b/po/pt.po
+@@ -15,10 +15,10 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: 3.14\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gnome-shell/issues\n"
+-"POT-Creation-Date: 2020-10-08 00:42+0000\n"
+-"PO-Revision-Date: 2020-10-09 21:06-0300\n"
++"POT-Creation-Date: 2020-10-21 11:39+0000\n"
++"PO-Revision-Date: 2020-11-11 11:25-0300\n"
+ "Last-Translator: Juliano de Souza Camargo <julianosc@protonmail.com>\n"
+-"Language-Team: Portuguese < >\n"
++"Language-Team: Portuguese <>\n"
+ "Language: pt\n"
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+@@ -445,8 +445,8 @@ msgstr "Sítio web"
+ msgid "Visit extension homepage"
+ msgstr "Visitar o sítio web da extensão"
+ 
+-#: js/gdm/authPrompt.js:137 js/ui/audioDeviceSelection.js:57
+-#: js/ui/components/networkAgent.js:111 js/ui/components/polkitAgent.js:139
++#: js/gdm/authPrompt.js:137 js/ui/audioDeviceSelection.js:58
++#: js/ui/components/networkAgent.js:111 js/ui/components/polkitAgent.js:138
+ #: js/ui/endSessionDialog.js:438 js/ui/extensionDownloader.js:183
+ #: js/ui/shellMountOperation.js:376 js/ui/shellMountOperation.js:386
+ #: js/ui/status/network.js:940 subprojects/extensions-app/js/main.js:149
+@@ -457,7 +457,7 @@ msgstr "Cancelar"
+ #: js/gdm/authPrompt.js:239 js/ui/components/networkAgent.js:206
+ #: js/ui/components/networkAgent.js:222 js/ui/components/networkAgent.js:246
+ #: js/ui/components/networkAgent.js:267 js/ui/components/networkAgent.js:287
+-#: js/ui/components/networkAgent.js:297 js/ui/components/polkitAgent.js:277
++#: js/ui/components/networkAgent.js:297 js/ui/components/polkitAgent.js:276
+ #: js/ui/shellMountOperation.js:326
+ msgid "Password"
+ msgstr "Palavra-passe"
+@@ -790,19 +790,19 @@ msgstr "%s foi removida dos favoritos."
+ msgid "Select Audio Device"
+ msgstr "Selecione o dispositivo de áudio"
+ 
+-#: js/ui/audioDeviceSelection.js:54
++#: js/ui/audioDeviceSelection.js:55
+ msgid "Sound Settings"
+ msgstr "Definições de som"
+ 
+-#: js/ui/audioDeviceSelection.js:64
++#: js/ui/audioDeviceSelection.js:65
+ msgid "Headphones"
+ msgstr "Auscultadores"
+ 
+-#: js/ui/audioDeviceSelection.js:66
++#: js/ui/audioDeviceSelection.js:67
+ msgid "Headset"
+ msgstr "Auscultadores com microfone"
+ 
+-#: js/ui/audioDeviceSelection.js:68 js/ui/status/volume.js:272
++#: js/ui/audioDeviceSelection.js:69 js/ui/status/volume.js:272
+ msgid "Microphone"
+ msgstr "Microfone"
+ 
+@@ -927,7 +927,7 @@ msgstr "Limpar"
+ #: js/ui/closeDialog.js:42
+ #, javascript-format
+ msgid "“%s” is not responding."
+-msgstr "“%s” está a responder."
++msgstr "“%s” não está a responder."
+ 
+ #: js/ui/closeDialog.js:43
+ msgid ""
+@@ -1050,11 +1050,11 @@ msgstr "Palavra-passe de VPN"
+ msgid "Authentication Required"
+ msgstr "Necessária autenticação"
+ 
+-#: js/ui/components/polkitAgent.js:80
++#: js/ui/components/polkitAgent.js:79
+ msgid "Administrator"
+ msgstr "Administrador"
+ 
+-#: js/ui/components/polkitAgent.js:142
++#: js/ui/components/polkitAgent.js:141
+ msgid "Authenticate"
+ msgstr "Autenticar"
+ 
+@@ -1062,9 +1062,9 @@ msgstr "Autenticar"
+ #. * requested authentication was not gained; this can happen
+ #. * because of an authentication error (like invalid password),
+ #. * for instance.
+-#: js/ui/components/polkitAgent.js:254 js/ui/shellMountOperation.js:402
++#: js/ui/components/polkitAgent.js:253 js/ui/shellMountOperation.js:402
+ msgid "Sorry, that didn’t work. Please try again."
+-msgstr "Não funcionou. Tentar novamente."
++msgstr "Desculpe, mas não funcionou. Tente novamente."
+ 
+ #. Translators: this is the other person changing their old IM name to their new
+ #. IM name.
+@@ -1628,11 +1628,11 @@ msgstr "O GNOME precisa de bloquear o ecrã"
+ #.
+ #. XXX: another option is to kick the user into the gdm login
+ #. screen, where we're not affected by grabs
+-#: js/ui/screenShield.js:244 js/ui/screenShield.js:602
++#: js/ui/screenShield.js:244 js/ui/screenShield.js:613
+ msgid "Unable to lock"
+ msgstr "Impossível bloquear"
+ 
+-#: js/ui/screenShield.js:245 js/ui/screenShield.js:603
++#: js/ui/screenShield.js:245 js/ui/screenShield.js:614
+ msgid "Lock was blocked by an application"
+ msgstr "Bloquear foi bloqueado por uma aplicação"
+ 
+@@ -2122,11 +2122,11 @@ msgstr "%d∶%02d até estar cheio (%d%%)"
+ msgid "%d %%"
+ msgstr "%d%%"
+ 
+-#: js/ui/status/remoteAccess.js:45
++#: js/ui/status/remoteAccess.js:38
+ msgid "Screen is Being Shared"
+ msgstr "O ecrã está a ser partilhado"
+ 
+-#: js/ui/status/remoteAccess.js:47
++#: js/ui/status/remoteAccess.js:40
+ msgid "Turn off"
+ msgstr "Desligar"
+ 
+-- 
+2.28.0
+
