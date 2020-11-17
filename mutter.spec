@@ -22,6 +22,9 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 # Backports after 3.38.1 (2020-11-17) before 3.38.2
 Patch1:        mutter-3.38.1~17e9cbe8cbee.patch
 
+# To make s390x build pass
+Patch2:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
+
 BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
