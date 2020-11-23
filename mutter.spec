@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.1
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -24,6 +24,9 @@ Patch1:        mutter-3.38.1~17e9cbe8cbee.patch
 
 # To make s390x build pass
 Patch2:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
+
+# Fix fullscreen regression (backport from gnome-3-38)
+Patch3:        0001-window-props-Also-check-for-actual-values-change.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -170,6 +173,10 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Nov 23 2020 Jonas Ådahl <jadahl@redhat.com> - 3.38.1-3
+- Fix fullscreen window regression
+  Resolves: #1900187
+
 * Tue Nov 17 2020 Jonas Ådahl <jadahl@redhat.com> - 3.38.1-2
 - Backport fixes from gnome-3-38 stable branch
   Resolves: #1893375
