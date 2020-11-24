@@ -16,9 +16,6 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       mutter-3.38.1-067af969.tar.gz
 
-# Work-around for OpenJDK's compliance test
-Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-
 BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -93,23 +90,6 @@ Requires: zenity
 Requires:      json-glib%{?_isa} >= %{json_glib_version}
 Requires:      libinput%{?_isa} >= %{libinput_version}
 
-Patch100: 850.diff
-Patch110: 1309.diff
-Patch120: rt-default.diff
-Patch130: 1470.diff
-Patch140: 1050.diff
-#Patch150: 1439.diff
-#Patch151: 1498.diff
-#Patch152: 1474.diff
-#Patch153: 1496.diff
-#Patch160: 1489.diff
-#Patch170: 1509.diff
-Patch180: 984.diff
-Patch190: 1524.diff
-Patch200: 1507.diff
-Patch210: 1468.diff
-#Patch220: 1510.diff
-Patch230: 1268.diff
 Patch240: 1441.diff
 
 %description
