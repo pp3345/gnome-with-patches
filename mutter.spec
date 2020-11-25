@@ -14,7 +14,7 @@ Summary:       Window and compositing manager based on Clutter
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       mutter-3.38.1.tar.xz
+Source0:       mutter-3.38.1-067af969.tar.gz
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -90,6 +90,7 @@ Requires: zenity
 Requires:      json-glib%{?_isa} >= %{json_glib_version}
 Requires:      libinput%{?_isa} >= %{libinput_version}
 
+Patch240: 1309.diff
 Patch240: 1441.diff
 
 %description
