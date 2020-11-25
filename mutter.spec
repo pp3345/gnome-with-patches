@@ -90,7 +90,7 @@ Requires: zenity
 Requires:      json-glib%{?_isa} >= %{json_glib_version}
 Requires:      libinput%{?_isa} >= %{libinput_version}
 
-Patch240: 1309.diff
+Patch230: 1309.diff
 Patch240: 1441.diff
 
 %description
