@@ -1,0 +1,294 @@
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 20070df4e4f3319c75d78aed72be5630e069f80c..0d5eae78248785561ee35034c95a63d405e7feea 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -635,6 +635,7 @@
+ #include "clutter-paint-nodes.h"
+ #include "clutter-paint-node-private.h"
+ #include "clutter-paint-volume-private.h"
++#include "clutter-pick-context-private.h"
+ #include "clutter-private.h"
+ #include "clutter-property-transition.h"
+ #include "clutter-scriptable.h"
+@@ -3959,6 +3960,15 @@ clutter_actor_pick (ClutterActor       *actor,
+   /* mark that we are in the paint process */
+   CLUTTER_SET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
+ 
++  if (priv->paint_volume_valid && priv->last_paint_volume_valid)
++    {
++      graphene_box_t box;
++
++      clutter_paint_volume_to_box (&priv->last_paint_volume, &box);
++      if (!clutter_pick_context_intersects_box (pick_context, &box))
++        goto out;
++    }
++
+   if (priv->enable_model_view_transform)
+     {
+       graphene_matrix_t matrix;
+@@ -4007,6 +4017,7 @@ clutter_actor_pick (ClutterActor       *actor,
+   if (transform_pushed)
+     clutter_pick_context_pop_transform (pick_context);
+ 
++out:
+   /* paint sequence complete */
+   CLUTTER_UNSET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
+ }
+diff --git a/clutter/clutter/clutter-paint-volume-private.h b/clutter/clutter/clutter-paint-volume-private.h
+index 5d51e5bf31b8db76b3da16d876cb130066a64f1a..0a52b60c4be1a67b63923a604487f401bca17f7a 100644
+--- a/clutter/clutter/clutter-paint-volume-private.h
++++ b/clutter/clutter/clutter-paint-volume-private.h
+@@ -133,6 +133,9 @@ void                _clutter_paint_volume_get_stage_paint_box  (ClutterPaintVolu
+ void                _clutter_paint_volume_transform_relative   (ClutterPaintVolume *pv,
+                                                                 ClutterActor *relative_to_ancestor);
+ 
++void                clutter_paint_volume_to_box                (ClutterPaintVolume *pv,
++                                                                graphene_box_t     *box);
++
+ G_END_DECLS
+ 
+ #endif /* __CLUTTER_PAINT_VOLUME_PRIVATE_H__ */
+diff --git a/clutter/clutter/clutter-paint-volume.c b/clutter/clutter/clutter-paint-volume.c
+index 97077f7d1d27be3de1446a3b9d53fad2a64daff1..a55c5a8e4e42ab4f82c7c16a3c509a71987f9589 100644
+--- a/clutter/clutter/clutter-paint-volume.c
++++ b/clutter/clutter/clutter-paint-volume.c
+@@ -1131,3 +1131,25 @@ _clutter_paint_volume_transform_relative (ClutterPaintVolume *pv,
+ 
+   _clutter_paint_volume_transform (pv, &matrix);
+ }
++
++void
++clutter_paint_volume_to_box (ClutterPaintVolume *pv,
++                             graphene_box_t     *box)
++{
++  int vertex_count;
++
++  if (pv->is_empty)
++    {
++      graphene_box_init_from_box (box, graphene_box_empty ());
++      return;
++    }
++
++  _clutter_paint_volume_complete (pv);
++
++  if (G_LIKELY (pv->is_2d))
++    vertex_count = 4;
++  else
++    vertex_count = 8;
++
++  graphene_box_init_from_points (box, vertex_count, pv->vertices);
++}
+diff --git a/clutter/clutter/clutter-pick-context-private.h b/clutter/clutter/clutter-pick-context-private.h
+index cfbfce6eb4967bf1005046a520cf6f6bdaabcdc0..f40de6f3dfec62b489bcc1b34c3b0df4254d60c1 100644
+--- a/clutter/clutter/clutter-pick-context-private.h
++++ b/clutter/clutter/clutter-pick-context-private.h
+@@ -21,10 +21,17 @@
+ #include "clutter-pick-context.h"
+ #include "clutter-pick-stack-private.h"
+ 
+-ClutterPickContext * clutter_pick_context_new_for_view (ClutterStageView *view,
+-                                                        ClutterPickMode   mode);
++ClutterPickContext *
++clutter_pick_context_new_for_view (ClutterStageView         *view,
++                                   ClutterPickMode           mode,
++                                   const graphene_point3d_t *point,
++                                   const graphene_ray_t     *ray);
+ 
+ ClutterPickStack *
+ clutter_pick_context_steal_stack (ClutterPickContext *pick_context);
+ 
++gboolean
++clutter_pick_context_intersects_box (ClutterPickContext   *pick_context,
++                                     const graphene_box_t *box);
++
+ #endif /* CLUTTER_PICK_CONTEXT_PRIVATE_H */
+diff --git a/clutter/clutter/clutter-pick-context.c b/clutter/clutter/clutter-pick-context.c
+index 4e6fb7a88210198b03782a6101fae50402ac260a..2f054d318fc3bb345d2d26112d9d800382508e82 100644
+--- a/clutter/clutter/clutter-pick-context.c
++++ b/clutter/clutter/clutter-pick-context.c
+@@ -26,6 +26,9 @@ struct _ClutterPickContext
+ 
+   ClutterPickMode mode;
+   ClutterPickStack *pick_stack;
++
++  graphene_ray_t ray;
++  graphene_point3d_t point;
+ };
+ 
+ G_DEFINE_BOXED_TYPE (ClutterPickContext, clutter_pick_context,
+@@ -33,8 +36,10 @@ G_DEFINE_BOXED_TYPE (ClutterPickContext, clutter_pick_context,
+                      clutter_pick_context_unref)
+ 
+ ClutterPickContext *
+-clutter_pick_context_new_for_view (ClutterStageView *view,
+-                                   ClutterPickMode   mode)
++clutter_pick_context_new_for_view (ClutterStageView         *view,
++                                   ClutterPickMode           mode,
++                                   const graphene_point3d_t *point,
++                                   const graphene_ray_t     *ray)
+ {
+   ClutterPickContext *pick_context;
+   CoglContext *context;
+@@ -42,6 +47,8 @@ clutter_pick_context_new_for_view (ClutterStageView *view,
+   pick_context = g_new0 (ClutterPickContext, 1);
+   g_ref_count_init (&pick_context->ref_count);
+   pick_context->mode = mode;
++  graphene_ray_init_from_ray (&pick_context->ray, ray);
++  graphene_point3d_init_from_point (&pick_context->point, point);
+ 
+   context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+   pick_context->pick_stack = clutter_pick_stack_new (context);
+@@ -182,3 +189,11 @@ clutter_pick_context_pop_transform (ClutterPickContext *pick_context)
+ {
+   clutter_pick_stack_pop_transform (pick_context->pick_stack);
+ }
++
++gboolean
++clutter_pick_context_intersects_box (ClutterPickContext   *pick_context,
++                                     const graphene_box_t *box)
++{
++  return graphene_box_contains_point (box, &pick_context->point) ||
++         graphene_ray_intersects_box (&pick_context->ray, box);
++}
+diff --git a/clutter/clutter/clutter-pick-stack-private.h b/clutter/clutter/clutter-pick-stack-private.h
+index 159b8c4ebba9d0b63ef2f8ba78770e1be42847a6..0523fcafe6955696fbdfad67efc072206edd36c0 100644
+--- a/clutter/clutter/clutter-pick-stack-private.h
++++ b/clutter/clutter/clutter-pick-stack-private.h
+@@ -61,6 +61,8 @@ clutter_pick_stack_search_actor (ClutterPickStack         *pick_stack,
+                                  const graphene_point3d_t *point,
+                                  const graphene_ray_t     *ray);
+ 
++G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPickStack, clutter_pick_stack_unref)
++
+ G_END_DECLS
+ 
+ #endif /* CLUTTER_PICK_STACK_PRIVATE_H */
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index 430233534eb7e34bbac6ccbf66b22fbf85c5b49f..f520e3b23a678ddd4131dacc24ecbbc9cdacccff 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -124,9 +124,6 @@ struct _ClutterStagePrivate
+   GTimer *fps_timer;
+   gint32 timer_n_frames;
+ 
+-  ClutterPickStack *pick_stack;
+-  ClutterPickMode cached_pick_mode;
+-
+   ClutterStageState current_state;
+ 
+   int update_freeze_count;
+@@ -228,15 +225,6 @@ clutter_stage_get_preferred_height (ClutterActor *self,
+     *natural_height_p = geom.height;
+ }
+ 
+-static void
+-_clutter_stage_clear_pick_stack (ClutterStage *stage)
+-{
+-  ClutterStagePrivate *priv = stage->priv;
+-
+-  g_clear_pointer (&priv->pick_stack, clutter_pick_stack_unref);
+-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
+-}
+-
+ static void
+ clutter_stage_add_redraw_clip (ClutterStage          *stage,
+                                cairo_rectangle_int_t *clip)
+@@ -457,19 +445,12 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
+                              ClutterStageView     *view,
+                              const cairo_region_t *redraw_clip)
+ {
+-  ClutterStagePrivate *priv = stage->priv;
+   ClutterPaintContext *paint_context;
+   cairo_rectangle_int_t clip_rect;
+   g_autoptr (GArray) clip_frusta = NULL;
+   graphene_frustum_t clip_frustum;
+   int n_rectangles;
+ 
+-  /* Any mode of painting/picking invalidates the pick cache, unless we're
+-   * in the middle of building it. So we reset the cached flag but don't
+-   * completely clear the pick stack.
+-   */
+-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
+-
+   n_rectangles = redraw_clip ? cairo_region_num_rectangles (redraw_clip) : 0;
+   if (redraw_clip && n_rectangles < MAX_FRUSTA)
+     {
+@@ -632,7 +613,6 @@ clutter_stage_hide (ClutterActor *self)
+   ClutterStagePrivate *priv = CLUTTER_STAGE (self)->priv;
+ 
+   g_assert (priv->impl != NULL);
+-  _clutter_stage_clear_pick_stack (CLUTTER_STAGE (self));
+   _clutter_stage_window_hide (priv->impl);
+ 
+   CLUTTER_ACTOR_CLASS (clutter_stage_parent_class)->hide (self);
+@@ -1100,31 +1080,23 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
+                                 ClutterPickMode   mode,
+                                 ClutterStageView *view)
+ {
+-  ClutterStagePrivate *priv = stage->priv;
++  g_autoptr (ClutterPickStack) pick_stack = NULL;
++  ClutterPickContext *pick_context;
+   graphene_point3d_t p;
+   graphene_ray_t ray;
+   ClutterActor *actor;
+ 
+   COGL_TRACE_BEGIN_SCOPED (ClutterStagePickView, "Pick (view)");
+ 
+-  if (!priv->pick_stack || mode != priv->cached_pick_mode)
+-    {
+-      ClutterPickContext *pick_context;
+-
+-      _clutter_stage_clear_pick_stack (stage);
+-
+-      pick_context = clutter_pick_context_new_for_view (view, mode);
++  setup_ray_for_coordinates (stage, x, y, &p, &ray);
+ 
+-      clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
+-      priv->pick_stack = clutter_pick_context_steal_stack (pick_context);
+-      priv->cached_pick_mode = mode;
++  pick_context = clutter_pick_context_new_for_view (view, mode, &p, &ray);
+ 
+-      clutter_pick_context_destroy (pick_context);
+-    }
++  clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
++  pick_stack = clutter_pick_context_steal_stack (pick_context);
++  clutter_pick_context_destroy (pick_context);
+ 
+-  setup_ray_for_coordinates (stage, x, y, &p, &ray);
+-
+-  actor = clutter_pick_stack_search_actor (priv->pick_stack, &p, &ray);
++  actor = clutter_pick_stack_search_actor (pick_stack, &p, &ray);
+   return actor ? actor : CLUTTER_ACTOR (stage);
+ }
+ 
+@@ -1334,8 +1306,6 @@ clutter_stage_finalize (GObject *object)
+ 
+   g_array_free (priv->paint_volume_stack, TRUE);
+ 
+-  _clutter_stage_clear_pick_stack (stage);
+-
+   if (priv->fps_timer != NULL)
+     g_timer_destroy (priv->fps_timer);
+ 
+@@ -1653,8 +1623,6 @@ clutter_stage_init (ClutterStage *self)
+ 
+   priv->paint_volume_stack =
+     g_array_new (FALSE, FALSE, sizeof (ClutterPaintVolume));
+-
+-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
+ }
+ 
+ static void
+@@ -2727,12 +2695,6 @@ clutter_stage_queue_actor_redraw (ClutterStage             *stage,
+   CLUTTER_NOTE (CLIPPING, "stage_queue_actor_redraw (actor=%s, clip=%p): ",
+                 _clutter_actor_get_debug_name (actor), clip);
+ 
+-  /* Queuing a redraw or clip change invalidates the pick cache, unless we're
+-   * in the middle of building it. So we reset the cached flag but don't
+-   * completely clear the pick stack...
+-   */
+-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
+-
+   if (!priv->pending_finish_queue_redraws)
+     {
+       GList *l;
