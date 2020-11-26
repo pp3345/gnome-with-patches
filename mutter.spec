@@ -6,7 +6,7 @@
 %global pipewire_version 0.3.0
 %global mutter_api_version 7
 
-Name:          mutter
+Name:          mutter-patched
 Version:       3.38.1
 Release:       106%{?dist}.shrisha
 Summary:       Window and compositing manager based on Clutter
