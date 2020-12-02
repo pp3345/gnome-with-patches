@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.38.1
-Release:        3%{?dist}
+Version:        3.38.2
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -10,9 +10,6 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.38/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
-
-# Patches after 3.38.1 until e93b8263b03e (2020-11-17)
-Patch2: gnome-shell-3.38.1~e93b8263b03e.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -220,6 +217,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed Dec 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.2-1
+- Update to 3.38.2
+
 * Tue Nov 17 2020 Jonas Ådahl <jadahl@redhat.com> - 3.38.1-3
 - Backport current patches from gnome-3-38
   Resolves: #1896586
