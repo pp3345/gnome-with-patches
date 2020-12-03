@@ -1,0 +1,24 @@
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index a7261d36dd084eba657ec61a5707f6d586fc0311..31f23872c0234052c0de79e172dfb4554d2b45a4 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -2819,6 +2819,8 @@ clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
+       QueueRedrawEntry *entry = value;
+       ClutterPaintVolume old_actor_pv, new_actor_pv;
+ 
++      g_hash_table_iter_steal (&iter);
++
+       _clutter_paint_volume_init_static (&old_actor_pv, NULL);
+       _clutter_paint_volume_init_static (&new_actor_pv, NULL);
+ 
+@@ -2848,7 +2850,9 @@ clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
+           add_to_stage_clip (stage, NULL);
+         }
+ 
+-      g_hash_table_iter_remove (&iter);
++      g_object_unref (redraw_actor);
++      free_queue_redraw_entry (entry);
++      g_hash_table_iter_init (&iter, priv->pending_queue_redraws);
+     }
+ }
+ 
