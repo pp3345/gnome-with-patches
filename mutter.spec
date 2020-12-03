@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.1
-Release:       106%{?dist}.shrisha
+Release:       107%{?dist}.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -92,6 +92,7 @@ Requires:      libinput%{?_isa} >= %{libinput_version}
 
 Patch230: 1309.diff
 Patch240: 1441.diff
+Patch250: 1615.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages
