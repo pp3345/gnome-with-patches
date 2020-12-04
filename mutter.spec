@@ -16,6 +16,8 @@ License:       GPLv2+
 URL:           http://www.gnome.org
 Source0:       mutter-3.38.1.tar.xz
 
+Patch0:        168.patch
+
 BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -92,7 +94,6 @@ Requires:      libinput%{?_isa} >= %{libinput_version}
 
 Patch230: 1309.diff
 Patch240: 1441.diff
-Patch250: 1620.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages
