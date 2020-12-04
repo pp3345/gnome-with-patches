@@ -1,0 +1,111 @@
+From ab0ba368e3caa6004bc810f18e18123c6e04044d Mon Sep 17 00:00:00 2001
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Wed, 18 Jul 2018 17:37:44 +0800
+Subject: [PATCH] clutter: Deliver events sooner when possible.
+
+Previously all events would be queued and their processing deferred till
+the next master clock tick, at which point supersesed input events would
+be dropped and only the latest of each type used. This was great for
+minimizing CPU usage but had two drawbacks:
+
+ * Clients would receive the next input event after it is already too
+   late to make it to the next compositor frame.
+ * Clients would receive a lower resolution event stream than the hardware
+   is capable of.
+
+We now instead scale performance dynamically according to available time.
+If there is enough idle time available then that will be used to deliver
+events immediately without delay. Otherwise event delivery will scale down
+to the old minimal-CPU behaviour.
+
+This allows clients to receive input events sufficiently in advance of the
+next compositor frame that they can respond and redraw with one frame
+lower latency than before. It also allows clients higher resolution input,
+in case they are able to use it.
+---
+ clutter/clutter/clutter-stage.c | 41 ++++++++++++++++++++++++++++++---
+ 1 file changed, 38 insertions(+), 3 deletions(-)
+
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index 3808d29559..d60ce7481e 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -114,6 +114,7 @@ struct _ClutterStagePrivate
+   ClutterActor *key_focused_actor;
+ 
+   GQueue *event_queue;
++  guint event_flushing_idle_source;
+ 
+   GArray *paint_volume_stack;
+ 
+@@ -639,6 +640,18 @@ clutter_stage_hide (ClutterActor *self)
+   CLUTTER_ACTOR_CLASS (clutter_stage_parent_class)->hide (self);
+ }
+ 
++static gboolean
++_clutter_stage_flush_events (gpointer user_data)
++{
++  ClutterStage *stage = CLUTTER_STAGE (user_data);
++  ClutterStagePrivate *priv = stage->priv;
++
++  priv->event_flushing_idle_source = 0;
++  _clutter_stage_process_queued_events (stage);
++
++  return G_SOURCE_REMOVE;
++}
++
+ static void
+ clutter_stage_emit_key_focus_event (ClutterStage *stage,
+                                     gboolean      focus_in)
+@@ -715,8 +728,27 @@ _clutter_stage_queue_event (ClutterStage *stage,
+ 
+   g_queue_push_tail (priv->event_queue, event);
+ 
+-  if (first_event)
+-    clutter_stage_schedule_update (stage);
++  if (!priv->throttle_motion_events)
++    {
++      if (!priv->event_flushing_idle_source)
++        {
++          /* Process events ASAP, but never at the expense of rendering
++           * performance. So a sufficiently fast machine will process all
++           * events synchronously. But in the worst case a slow machine will
++           * batch and throttle them to the refresh rate on the next master
++           * clock tick.
++           */
++          priv->event_flushing_idle_source =
++            g_idle_add_full (CLUTTER_PRIORITY_REDRAW + 1,
++                             _clutter_stage_flush_events,
++                             stage,
++                             NULL);
++        }
++    }
++  else if (first_event)
++    {
++      clutter_stage_schedule_update (stage);
++    }
+ }
+ 
+ gboolean
+@@ -1392,6 +1424,9 @@ clutter_stage_finalize (GObject *object)
+   ClutterStage *stage = CLUTTER_STAGE (object);
+   ClutterStagePrivate *priv = stage->priv;
+ 
++  if (priv->event_flushing_idle_source)
++    g_source_remove (priv->event_flushing_idle_source);
++
+   g_queue_foreach (priv->event_queue, (GFunc) clutter_event_free, NULL);
+   g_queue_free (priv->event_queue);
+ 
+@@ -1691,7 +1726,7 @@ clutter_stage_init (ClutterStage *self)
+ 
+   priv->event_queue = g_queue_new ();
+ 
+-  priv->throttle_motion_events = TRUE;
++  priv->throttle_motion_events = FALSE;
+   priv->min_size_changed = FALSE;
+   priv->sync_delay = -1;
+   priv->motion_events_enabled = TRUE;
+-- 
+GitLab
+
