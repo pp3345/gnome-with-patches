@@ -1,0 +1,2798 @@
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 0d5eae78248785561ee35034c95a63d405e7feea..8b31a3193bf9cbcb33624d97dd8170321a9b96c8 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -609,7 +609,6 @@
+ #include <cogl/cogl.h>
+ 
+ #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+ 
+ #include "clutter-actor-private.h"
+ 
+diff --git a/clutter/clutter/clutter-backend.c b/clutter/clutter/clutter-backend.c
+index 91298c964c1e0ec4f304af252307e501c1df2e3a..977e7da94c0621fc21fac2a180f1ec80dc0a98b1 100644
+--- a/clutter/clutter/clutter-backend.c
++++ b/clutter/clutter/clutter-backend.c
+@@ -40,8 +40,6 @@
+ 
+ #include "clutter-build-config.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+-
+ #include "clutter-backend-private.h"
+ #include "clutter-debug.h"
+ #include "clutter-event-private.h"
+diff --git a/clutter/clutter/clutter-blur-effect.c b/clutter/clutter/clutter-blur-effect.c
+index 5236042de28edb48f902a6543bb662e08d2b850b..0a21af4f924a5e4e99826df2c69ddc606375ca2d 100644
+--- a/clutter/clutter/clutter-blur-effect.c
++++ b/clutter/clutter/clutter-blur-effect.c
+@@ -39,8 +39,6 @@
+ 
+ #include "clutter-build-config.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+-
+ #include "clutter-blur-effect.h"
+ 
+ #include "cogl/cogl.h"
+diff --git a/clutter/clutter/clutter-brightness-contrast-effect.c b/clutter/clutter/clutter-brightness-contrast-effect.c
+index be1df01cc65e70cf2008fc80f2ad4d388ad4d6af..7184d9a2806be9767eec3c48a4537f4e21bb9e7b 100644
+--- a/clutter/clutter/clutter-brightness-contrast-effect.c
++++ b/clutter/clutter/clutter-brightness-contrast-effect.c
+@@ -41,8 +41,6 @@
+ 
+ #include <math.h>
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+-
+ #include "clutter-brightness-contrast-effect.h"
+ 
+ #include <cogl/cogl.h>
+diff --git a/clutter/clutter/clutter-canvas.c b/clutter/clutter/clutter-canvas.c
+index 43af0b98ff8ddc7fe146209fba6186620e439198..220daa7b2709d8efa51cb4a68e41962dc5e045df 100644
+--- a/clutter/clutter/clutter-canvas.c
++++ b/clutter/clutter/clutter-canvas.c
+@@ -50,8 +50,6 @@
+ 
+ #include "clutter-canvas.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+-
+ #include "clutter-actor-private.h"
+ #include "clutter-backend.h"
+ #include "clutter-cairo.h"
+diff --git a/clutter/clutter/clutter-clone.c b/clutter/clutter/clutter-clone.c
+index 86f124e6da336a2e3e988fc7c9f416c437ccedc5..42e3e07cdb438046c873eab2cad10efffd12c66d 100644
+--- a/clutter/clutter/clutter-clone.c
++++ b/clutter/clutter/clutter-clone.c
+@@ -39,7 +39,6 @@
+ 
+ #include "clutter-build-config.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+ #include "clutter-actor-private.h"
+ #include "clutter-clone.h"
+ #include "clutter-debug.h"
+diff --git a/clutter/clutter/clutter-colorize-effect.c b/clutter/clutter/clutter-colorize-effect.c
+index db372a9cb55d86cff0540740015523d3b6ba9b84..e6dd0363703c2e238cb4ded86c45f48680a3ebe7 100644
+--- a/clutter/clutter/clutter-colorize-effect.c
++++ b/clutter/clutter/clutter-colorize-effect.c
+@@ -39,8 +39,6 @@
+ 
+ #include "clutter-build-config.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+-
+ #include "clutter-colorize-effect.h"
+ 
+ #include "cogl/cogl.h"
+diff --git a/clutter/clutter/clutter-deform-effect.c b/clutter/clutter/clutter-deform-effect.c
+index e92d10600b3dee81f021af4cebacae6e70bb3c20..bac84d2801a7a4552629c2314d31eec258b82c3f 100644
+--- a/clutter/clutter/clutter-deform-effect.c
++++ b/clutter/clutter/clutter-deform-effect.c
+@@ -53,7 +53,6 @@
+ 
+ #include "clutter-build-config.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+ #include "clutter-deform-effect.h"
+ 
+ #include <cogl/cogl.h>
+diff --git a/clutter/clutter/clutter-desaturate-effect.c b/clutter/clutter/clutter-desaturate-effect.c
+index 0f498acb38e8db598b7e855db401663b28ec91a1..4863718b63ccf2885cf933f90473d351304aff0d 100644
+--- a/clutter/clutter/clutter-desaturate-effect.c
++++ b/clutter/clutter/clutter-desaturate-effect.c
+@@ -41,8 +41,6 @@
+ 
+ #include "clutter-build-config.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+-
+ #include <math.h>
+ 
+ #include "clutter-desaturate-effect.h"
+diff --git a/clutter/clutter/clutter-frame-clock.c b/clutter/clutter/clutter-frame-clock.c
+index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19ba81af2bc 100644
+--- a/clutter/clutter/clutter-frame-clock.c
++++ b/clutter/clutter/clutter-frame-clock.c
+@@ -19,11 +19,14 @@
+ 
+ #include "clutter/clutter-frame-clock.h"
+ 
++#include "clutter/clutter-debug.h"
+ #include "clutter/clutter-main.h"
+ #include "clutter/clutter-private.h"
+ #include "clutter/clutter-timeline-private.h"
+ #include "cogl/cogl-trace.h"
+ 
++#define DISPATCH_DURATION_QUEUE_LENGTH 16
++
+ enum
+ {
+   DESTROY,
+@@ -33,9 +36,6 @@ enum
+ 
+ static guint signals[N_SIGNALS];
+ 
+-/* Wait 2ms after vblank before starting to draw next frame */
+-#define SYNC_DELAY_US ms2us (2)
+-
+ typedef struct _ClutterFrameListener
+ {
+   const ClutterFrameListenerIface *iface;
+@@ -75,6 +75,17 @@ struct _ClutterFrameClock
+   gboolean is_next_presentation_time_valid;
+   int64_t next_presentation_time_us;
+ 
++  /*
++   * How long the frame clock dispatch took from start to buffer swap
++   * the last few times.
++   */
++  int64_t dispatch_durations_us[DISPATCH_DURATION_QUEUE_LENGTH];
++  int dispatch_duration_next_index;
++  /* Time of the last buffer swap. */
++  int64_t last_flip_time_us;
++  /* Estimate of minimum allowed time from buffer swap to presentation. */
++  int min_flip_to_delayed_presentation;
++
+   gboolean pending_reschedule;
+   gboolean pending_reschedule_now;
+ 
+@@ -92,6 +103,18 @@ clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock)
+   return frame_clock->refresh_rate;
+ }
+ 
++int64_t
++clutter_frame_clock_get_refresh_interval_us (ClutterFrameClock *frame_clock)
++{
++  return (int64_t) (0.5 + G_USEC_PER_SEC / frame_clock->refresh_rate);
++}
++
++int64_t
++clutter_frame_clock_get_next_presentation_time_us (ClutterFrameClock *frame_clock)
++{
++  return frame_clock->next_presentation_time_us;
++}
++
+ void
+ clutter_frame_clock_add_timeline (ClutterFrameClock *frame_clock,
+                                   ClutterTimeline   *timeline)
+@@ -181,20 +204,44 @@ void
+ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
+                                       ClutterFrameInfo  *frame_info)
+ {
+-  int64_t presentation_time_us = frame_info->presentation_time;
+-
+-  if (presentation_time_us > frame_clock->last_presentation_time_us ||
+-      ((presentation_time_us - frame_clock->last_presentation_time_us) >
+-       INT64_MAX / 2))
+-    {
+-      frame_clock->last_presentation_time_us = presentation_time_us;
+-    }
+-  else
++  /*
++   * Update last presentation time only if we got a real presentation time
++   * because synthetic presentation time is not aligned to display refresh
++   * interval.
++   */
++  if ((frame_info->flags & CLUTTER_FRAME_INFO_SYNTHETIC) == 0)
+     {
+-      g_warning_once ("Bogus presentation time %" G_GINT64_FORMAT
+-                      " travelled back in time, using current time.",
+-                      presentation_time_us);
+-      frame_clock->last_presentation_time_us = g_get_monotonic_time ();
++      int64_t presentation_time_us = frame_info->presentation_time;
++      int64_t flip_to_presentation_duration_us;
++      int64_t refresh_interval_us;
++
++      refresh_interval_us =
++        clutter_frame_clock_get_refresh_interval_us(frame_clock);
++
++      flip_to_presentation_duration_us =
++        presentation_time_us - frame_clock->last_flip_time_us;
++
++      if (flip_to_presentation_duration_us > refresh_interval_us)
++        /*
++         * We missed a frame. Assume we aimed for the previous refresh and
++         * didn't make it, therefore raise the estimate up.
++         */
++        frame_clock->min_flip_to_delayed_presentation =
++          MAX (frame_clock->min_flip_to_delayed_presentation,
++               flip_to_presentation_duration_us - refresh_interval_us);
++
++      /* We successfully refreshed, so we can lower the estimate. */
++      frame_clock->min_flip_to_delayed_presentation =
++        MIN (frame_clock->min_flip_to_delayed_presentation,
++             flip_to_presentation_duration_us);
++
++      /* Make sure we didn't travel back in time. */
++      if (presentation_time_us > frame_clock->last_presentation_time_us ||
++          ((presentation_time_us - frame_clock->last_presentation_time_us) >
++           INT64_MAX / 2))
++        {
++          frame_clock->last_presentation_time_us = presentation_time_us;
++        }
+     }
+ 
+   if (frame_info->refresh_rate > 1)
+@@ -222,7 +269,6 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
+ {
+   int64_t last_presentation_time_us;
+   int64_t now_us;
+-  float refresh_rate;
+   int64_t refresh_interval_us;
+   int64_t min_render_time_allowed_us;
+   int64_t max_render_time_allowed_us;
+@@ -233,11 +279,12 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
+ 
+   now_us = g_get_monotonic_time ();
+ 
+-  refresh_rate = frame_clock->refresh_rate;
+-  refresh_interval_us = (int64_t) (0.5 + G_USEC_PER_SEC / refresh_rate);
++  refresh_interval_us =
++    clutter_frame_clock_get_refresh_interval_us(frame_clock);
+ 
+   min_render_time_allowed_us = refresh_interval_us / 2;
+-  max_render_time_allowed_us = refresh_interval_us - SYNC_DELAY_US;
++  max_render_time_allowed_us =
++    clutter_frame_clock_max_render_time_us (frame_clock);
+ 
+   if (min_render_time_allowed_us > max_render_time_allowed_us)
+     min_render_time_allowed_us = max_render_time_allowed_us;
+@@ -248,18 +295,63 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
+   /* Skip ahead to get close to the actual next presentation time. */
+   if (next_presentation_time_us < now_us)
+     {
++      int64_t hw_clock_offset_us;
+       int64_t logical_clock_offset_us;
+       int64_t logical_clock_phase_us;
+-      int64_t hw_clock_offset_us;
+ 
+-      logical_clock_offset_us = now_us % refresh_interval_us;
+-      logical_clock_phase_us = now_us - logical_clock_offset_us;
++      /*
++       * Let's say we're just past next_presentation_time_us.
++       *
++       * First, we compute hw_clock_offset_us. Real presentation times don't
++       * have to be exact multiples of refresh_interval_us and
++       * hw_clock_offset_us represents this difference. Next, we compute offset
++       * and phase. Phase is aligned with the last presentation before now_us.
++       * Finally, add hw_clock_offset_us and a refresh interval to get the next
++       * presentation after now_us.
++       *
++       *        last_presentation_time_us
++       *       /       next_presentation_time_us
++       *      /       /   now_us
++       *     /       /   /   new next_presentation_time_us
++       * |--|-------|---o---|-------|--> presentation times
++       * |        __|
++       * |       |hw_clock_offset_us
++       * |       |
++       * |       |     now_us - hw_clock_offset_us
++       * |       |    /
++       * |-------|---o---|-------|-----> integer multiples of refresh_interval_us
++       * |       \__/
++       * |       |logical_clock_offset_us
++       * |       \
++       * |        logical_clock_phase_us
++       * 0
++       *
++       */
++
+       hw_clock_offset_us = last_presentation_time_us % refresh_interval_us;
++      logical_clock_offset_us =
++        (now_us - hw_clock_offset_us) % refresh_interval_us;
++      logical_clock_phase_us =
++        now_us - hw_clock_offset_us - logical_clock_offset_us;
+ 
+-      next_presentation_time_us = logical_clock_phase_us + hw_clock_offset_us;
++      next_presentation_time_us =
++        logical_clock_phase_us + hw_clock_offset_us + refresh_interval_us;
+     }
+ 
+-  /* Skip one interval if we got an early presented event. */
++  /*
++   * Skip one interval if we got an early presented event.
++   *
++   *        last frame this was last_presentation_time
++   *       /       frame_clock->next_presentation_time_us
++   *      /       /
++   * |---|-o-----|-x----->
++   *       |       \
++   *       \        next_presentation_time_us is thus right after the last one
++   *        but got an unexpected early presentation
++   *             \_/
++   *             time_since_last_next_presentation_time_us
++   *
++   */
+   last_next_presentation_time_us = frame_clock->next_presentation_time_us;
+   time_since_last_next_presentation_time_us =
+       next_presentation_time_us - last_next_presentation_time_us;
+@@ -392,7 +484,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
+   int64_t frame_count;
+   ClutterFrameResult result;
+ 
+-  COGL_TRACE_BEGIN_SCOPED (ClutterFrameCLockDispatch, "Frame Clock (dispatch)");
++  COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockDispatch, "Frame Clock (dispatch)");
+ 
+   g_source_set_ready_time (frame_clock->source, -1);
+ 
+@@ -459,6 +551,63 @@ frame_clock_source_dispatch (GSource     *source,
+   return G_SOURCE_CONTINUE;
+ }
+ 
++void
++clutter_frame_clock_record_dispatch_timing (ClutterFrameClock *frame_clock,
++                                            int64_t            dispatch_time_us,
++                                            int64_t            flip_time_us)
++{
++  frame_clock->dispatch_durations_us[frame_clock->dispatch_duration_next_index] =
++    flip_time_us - dispatch_time_us;
++  frame_clock->dispatch_duration_next_index =
++    (frame_clock->dispatch_duration_next_index + 1) %
++    DISPATCH_DURATION_QUEUE_LENGTH;
++
++  frame_clock->last_flip_time_us = flip_time_us;
++}
++
++__attribute__((visibility("default"))) int max_render_time_constant = 2000;
++
++int
++clutter_frame_clock_max_render_time_us (ClutterFrameClock *frame_clock)
++{
++  int refresh_interval_us;
++  int64_t max_dispatch_duration_us = 0;
++  int max_render_time_us;
++
++  refresh_interval_us =
++    clutter_frame_clock_get_refresh_interval_us(frame_clock);
++
++  if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME))
++    return refresh_interval_us - 2000;
++
++  if (frame_clock->dispatch_durations_us[0] == 0)
++    /* No data yet. */
++    return refresh_interval_us;
++
++  for (int i = 0; i < DISPATCH_DURATION_QUEUE_LENGTH; ++i)
++    max_dispatch_duration_us =
++      MAX (max_dispatch_duration_us, frame_clock->dispatch_durations_us[i]);
++
++  /*
++   * Max render time shows how early the frame clock needs to be dispatched
++   * to make it to the predicted next presentation time. It is composed of:
++   * - An estimate of compositing duration (frame clock dispatch to buffer swap).
++   * - An estimate of minimum allowed time from buffer swap to presentation
++   *   (how late can we swap buffers to still make it to the display refresh).
++   * - A constant to account for variations in the above durations.
++   */
++  max_render_time_us =
++    max_dispatch_duration_us +
++    frame_clock->min_flip_to_delayed_presentation +
++    max_render_time_constant;
++
++  /* Sanity checks. */
++  max_render_time_us = MIN (max_render_time_us, refresh_interval_us);
++  max_render_time_us = MAX (max_render_time_us, 0);
++
++  return max_render_time_us;
++}
++
+ static GSourceFuncs frame_clock_source_funcs = {
+   NULL,
+   NULL,
+diff --git a/clutter/clutter/clutter-frame-clock.h b/clutter/clutter/clutter-frame-clock.h
+index cf6c5c8569897f0fd73ce173a7cc0bd0b54e2fe6..e0f362c8a502fd77eda4c1d4cebb5d95f7f7ed32 100644
+--- a/clutter/clutter/clutter-frame-clock.h
++++ b/clutter/clutter/clutter-frame-clock.h
+@@ -87,4 +87,17 @@ void clutter_frame_clock_remove_timeline (ClutterFrameClock *frame_clock,
+ CLUTTER_EXPORT
+ float clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock);
+ 
++CLUTTER_EXPORT
++int64_t clutter_frame_clock_get_refresh_interval_us (ClutterFrameClock *frame_clock);
++
++CLUTTER_EXPORT
++int64_t clutter_frame_clock_get_next_presentation_time_us (ClutterFrameClock *frame_clock);
++
++void clutter_frame_clock_record_dispatch_timing (ClutterFrameClock *frame_clock,
++                                                 int64_t            dispatch_time_us,
++                                                 int64_t            flip_time_us);
++
++CLUTTER_EXPORT
++int clutter_frame_clock_max_render_time_us (ClutterFrameClock *frame_clock);
++
+ #endif /* CLUTTER_FRAME_CLOCK_H */
+diff --git a/clutter/clutter/clutter-image.c b/clutter/clutter/clutter-image.c
+index eb6c2f50aa3cc33fb0324ca2b6e6544ee955ae96..9d368e68d01f7646af06d0e11e77969db32dd35e 100644
+--- a/clutter/clutter/clutter-image.c
++++ b/clutter/clutter/clutter-image.c
+@@ -38,8 +38,6 @@
+ 
+ #include "clutter-build-config.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+-
+ #include "clutter-image.h"
+ 
+ #include "clutter-actor-private.h"
+diff --git a/clutter/clutter/clutter-main.c b/clutter/clutter/clutter-main.c
+index e21d3d3fa04022ff963646c6b9cf8830ae9bcb49..cd9b9c6edbcf131f694ee5ba705302bae1b6b9b9 100644
+--- a/clutter/clutter/clutter-main.c
++++ b/clutter/clutter/clutter-main.c
+@@ -128,6 +128,8 @@ static const GDebugKey clutter_paint_debug_keys[] = {
+   { "continuous-redraw", CLUTTER_DEBUG_CONTINUOUS_REDRAW },
+   { "paint-deform-tiles", CLUTTER_DEBUG_PAINT_DEFORM_TILES },
+   { "damage-region", CLUTTER_DEBUG_PAINT_DAMAGE_REGION },
++  { "paint-max-render-time", CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME },
++  { "disable-dynamic-max-render-time", CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME },
+ };
+ 
+ #define ENVIRONMENT_GROUP       "Environment"
+diff --git a/clutter/clutter/clutter-main.h b/clutter/clutter/clutter-main.h
+index 10e2aca997930062047449eec28e177daaabdab6..7f64548dcf6925eceeb75ae847aa2426333fdf0d 100644
+--- a/clutter/clutter/clutter-main.h
++++ b/clutter/clutter/clutter-main.h
+@@ -62,15 +62,17 @@ typedef enum
+ 
+ typedef enum
+ {
+-  CLUTTER_DEBUG_DISABLE_SWAP_EVENTS        = 1 << 0,
+-  CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS    = 1 << 1,
+-  CLUTTER_DEBUG_REDRAWS                    = 1 << 2,
+-  CLUTTER_DEBUG_PAINT_VOLUMES              = 1 << 3,
+-  CLUTTER_DEBUG_DISABLE_CULLING            = 1 << 4,
+-  CLUTTER_DEBUG_DISABLE_OFFSCREEN_REDIRECT = 1 << 5,
+-  CLUTTER_DEBUG_CONTINUOUS_REDRAW          = 1 << 6,
+-  CLUTTER_DEBUG_PAINT_DEFORM_TILES         = 1 << 7,
+-  CLUTTER_DEBUG_PAINT_DAMAGE_REGION        = 1 << 8,
++  CLUTTER_DEBUG_DISABLE_SWAP_EVENTS             = 1 << 0,
++  CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS         = 1 << 1,
++  CLUTTER_DEBUG_REDRAWS                         = 1 << 2,
++  CLUTTER_DEBUG_PAINT_VOLUMES                   = 1 << 3,
++  CLUTTER_DEBUG_DISABLE_CULLING                 = 1 << 4,
++  CLUTTER_DEBUG_DISABLE_OFFSCREEN_REDIRECT      = 1 << 5,
++  CLUTTER_DEBUG_CONTINUOUS_REDRAW               = 1 << 6,
++  CLUTTER_DEBUG_PAINT_DEFORM_TILES              = 1 << 7,
++  CLUTTER_DEBUG_PAINT_DAMAGE_REGION             = 1 << 8,
++  CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME           = 1 << 9,
++  CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME = 1 << 10,
+ } ClutterDrawDebugFlag;
+ 
+ /**
+diff --git a/clutter/clutter/clutter-paint-node.c b/clutter/clutter/clutter-paint-node.c
+index c91182bd06dce2095c860c84f317fa38a987a03b..e9d6d6dd8a744fd20a3364b344d845e9712baaf2 100644
+--- a/clutter/clutter/clutter-paint-node.c
++++ b/clutter/clutter/clutter-paint-node.c
+@@ -60,8 +60,6 @@
+ 
+ #include "clutter-build-config.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+-
+ #include <pango/pango.h>
+ #include <cogl/cogl.h>
+ #include <json-glib/json-glib.h>
+diff --git a/clutter/clutter/clutter-paint-nodes.c b/clutter/clutter/clutter-paint-nodes.c
+index 41e789a0721e90837b77122fe32ccb2857d915db..cf09cd1453cfda637dcd2bffbaa15884bec60576 100644
+--- a/clutter/clutter/clutter-paint-nodes.c
++++ b/clutter/clutter/clutter-paint-nodes.c
+@@ -33,8 +33,6 @@
+ 
+ #include "clutter-build-config.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+-
+ #include "clutter-paint-node-private.h"
+ 
+ #include <pango/pango.h>
+diff --git a/clutter/clutter/clutter-stage-view.c b/clutter/clutter/clutter-stage-view.c
+index 8123eb7db507808851722c3d10f5c50a122cdcce..e259fb0a47cd583da8fc860248399df6c4132d37 100644
+--- a/clutter/clutter/clutter-stage-view.c
++++ b/clutter/clutter/clutter-stage-view.c
+@@ -1097,6 +1097,8 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
+ 
+   if (clutter_stage_view_has_redraw_clip (view))
+     {
++      int64_t flip_time_us;
++
+       ClutterStageWindow *stage_window;
+ 
+       clutter_stage_emit_before_paint (stage, view);
+@@ -1104,6 +1106,11 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
+       stage_window = _clutter_stage_get_window (stage);
+       _clutter_stage_window_redraw_view (stage_window, view);
+ 
++      flip_time_us = g_get_monotonic_time ();
++      clutter_frame_clock_record_dispatch_timing (frame_clock,
++                                                  time_us,
++                                                  flip_time_us);
++
+       clutter_stage_emit_after_paint (stage, view);
+ 
+       _clutter_stage_window_finish_frame (stage_window);
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index a7261d36dd084eba657ec61a5707f6d586fc0311..22389c9031a5291976e50fd1f2f1a0237162cb67 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -48,7 +48,6 @@
+ #include <cairo-gobject.h>
+ 
+ #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+ 
+ #include "clutter-stage.h"
+ #include "deprecated/clutter-container.h"
+@@ -119,8 +118,6 @@ struct _ClutterStagePrivate
+   GSList *pending_relayouts;
+   GHashTable *pending_queue_redraws;
+ 
+-  gint sync_delay;
+-
+   ClutterStageState current_state;
+ 
+   int update_freeze_count;
+@@ -1296,6 +1293,52 @@ clutter_stage_real_paint_view (ClutterStage         *stage,
+   clutter_stage_do_paint_view (stage, view, redraw_clip);
+ }
+ 
++static void
++clutter_stage_paint (ClutterActor        *actor,
++                     ClutterPaintContext *paint_context)
++{
++  ClutterStageView *view;
++
++  CLUTTER_ACTOR_CLASS (clutter_stage_parent_class)->paint (actor, paint_context);
++
++  view = clutter_paint_context_get_stage_view (paint_context);
++  if (view &&
++      G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME))
++    {
++      cairo_rectangle_int_t view_layout;
++      ClutterFrameClock *frame_clock;
++      g_autoptr (GString) string = NULL;
++      PangoLayout *layout;
++      PangoRectangle logical;
++      ClutterColor color;
++      g_autoptr (ClutterPaintNode) node = NULL;
++      ClutterActorBox box;
++
++      clutter_stage_view_get_layout (view, &view_layout);
++      frame_clock = clutter_stage_view_get_frame_clock (view);
++
++      string = g_string_new (NULL);
++      g_string_append_printf (string, "Max render time (µs): %d",
++                              clutter_frame_clock_max_render_time_us (frame_clock));
++
++      layout = clutter_actor_create_pango_layout (actor, string->str);
++      pango_layout_get_pixel_extents (layout, NULL, &logical);
++
++      clutter_color_init (&color, 255, 255, 255, 255);
++      node = clutter_text_node_new (layout, &color);
++
++      box.x1 = view_layout.x;
++      box.y1 = view_layout.y + 30;
++      box.x2 = box.x1 + logical.width;
++      box.y2 = box.y1 + logical.height;
++      clutter_paint_node_add_rectangle (node, &box);
++
++      clutter_paint_node_paint (node, paint_context);
++
++      g_object_unref (layout);
++    }
++}
++
+ static void
+ clutter_stage_class_init (ClutterStageClass *klass)
+ {
+@@ -1319,6 +1362,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
+   actor_class->hide_all = clutter_stage_hide_all;
+   actor_class->queue_relayout = clutter_stage_real_queue_relayout;
+   actor_class->apply_transform = clutter_stage_real_apply_transform;
++  actor_class->paint = clutter_stage_paint;
+ 
+   klass->paint_view = clutter_stage_real_paint_view;
+ 
+@@ -1573,7 +1617,6 @@ clutter_stage_init (ClutterStage *self)
+ 
+   priv->throttle_motion_events = TRUE;
+   priv->min_size_changed = FALSE;
+-  priv->sync_delay = -1;
+   priv->motion_events_enabled = TRUE;
+ 
+   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
+@@ -3095,40 +3138,6 @@ _clutter_stage_update_state (ClutterStage      *stage,
+   return TRUE;
+ }
+ 
+-/**
+- * clutter_stage_set_sync_delay:
+- * @stage: a #ClutterStage
+- * @sync_delay: number of milliseconds after frame presentation to wait
+- *   before painting the next frame. If less than zero, restores the
+- *   default behavior where redraw is throttled to the refresh rate but
+- *   not synchronized to it.
+- *
+- * This function enables an alternate behavior where Clutter draws at
+- * a fixed point in time after the frame presentation time (also known
+- * as the VBlank time). This is most useful when the application
+- * wants to show incoming data with predictable latency. (The primary
+- * example of this would be a window system compositor.) By synchronizing
+- * to provide new data before Clutter redraws, an external source of
+- * updates (in the compositor, an application) can get a reliable latency.
+- *
+- * The appropriate value of @sync_delay depends on the complexity of
+- * drawing the stage's scene graph - in general a value of between 0
+- * and 8 ms (up to one-half of a typical 60hz frame rate) is appropriate.
+- * using a larger value will reduce latency but risks skipping a frame if
+- * drawing the stage takes too long.
+- *
+- * Since: 1.14
+- * Stability: unstable
+- */
+-void
+-clutter_stage_set_sync_delay (ClutterStage *stage,
+-                              gint          sync_delay)
+-{
+-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
+-
+-  stage->priv->sync_delay = sync_delay;
+-}
+-
+ int64_t
+ clutter_stage_get_frame_counter (ClutterStage          *stage)
+ {
+diff --git a/clutter/clutter/clutter-stage.h b/clutter/clutter/clutter-stage.h
+index 59a4ad145a5282b5ccd57f982da57541b3595c98..87206e71465b1c7cc08b9bc8f7ee4a8d57ef9f82 100644
+--- a/clutter/clutter/clutter-stage.h
++++ b/clutter/clutter/clutter-stage.h
+@@ -114,14 +114,39 @@ struct _ClutterPerspective
+   gfloat z_far;
+ };
+ 
++typedef enum
++{
++  /* presentation_time timestamp was provided by the hardware */
++  CLUTTER_FRAME_INFO_HW_CLOCK = (1 << 0),
++  /*
++   * The presentation of this frame was done zero-copy. This means the buffer
++   * from the client was given to display hardware as is, without copying it.
++   * Compositing with OpenGL counts as copying, even if textured directly from
++   * the client buffer. Possible zero-copy cases include direct scanout of a
++   * fullscreen surface and a surface on a hardware overlay.
++   */
++  CLUTTER_FRAME_INFO_ZERO_COPY = (1 << 1),
++  /*
++   * This frame info is synthetic, as in, there was no actual presentation. For
++   * example, page flipping might have failed. The presentation event is still
++   * generated as to not freeze the frame clock.
++   */
++  CLUTTER_FRAME_INFO_SYNTHETIC = (1 << 2),
++} ClutterFrameInfoFlags;
++
+ /**
+  * ClutterFrameInfo: (skip)
+  */
+ struct _ClutterFrameInfo
+ {
+   int64_t frame_counter;
+-  int64_t presentation_time;
++  int64_t presentation_time; /* microseconds; CLOCK_MONOTONIC */
+   float refresh_rate;
++
++  ClutterFrameInfoFlags flags;
++
++  /* delta between this frame's and the last frame's sequence */
++  unsigned int sequence_delta;
+ };
+ 
+ typedef struct _ClutterCapture
+@@ -195,15 +220,6 @@ void            clutter_stage_ensure_viewport                   (ClutterStage
+ CLUTTER_EXPORT
+ gboolean        clutter_stage_is_redraw_queued_on_view          (ClutterStage          *stage,
+                                                                  ClutterStageView      *view);
+-
+-#ifdef CLUTTER_ENABLE_EXPERIMENTAL_API
+-CLUTTER_EXPORT
+-void            clutter_stage_set_sync_delay                    (ClutterStage          *stage,
+-                                                                 gint                   sync_delay);
+-CLUTTER_EXPORT
+-void            clutter_stage_skip_sync_delay                   (ClutterStage          *stage);
+-#endif
+-
+ CLUTTER_EXPORT
+ void clutter_stage_schedule_update (ClutterStage *stage);
+ 
+diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
+index ffc13bad7c8adcd28310df7a421ac01cb959675c..00a6a520e47e24784b6fa4a44d349fdede1c7724 100644
+--- a/clutter/clutter/cogl/clutter-stage-cogl.c
++++ b/clutter/clutter/cogl/clutter-stage-cogl.c
+@@ -27,8 +27,6 @@
+ 
+ #include "clutter-build-config.h"
+ 
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+-
+ #include "clutter-config.h"
+ 
+ #include "clutter-stage-cogl.h"
+@@ -317,6 +315,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
+         .frame_counter = priv->global_frame_counter,
+         .refresh_rate = clutter_stage_view_get_refresh_rate (view),
+         .presentation_time = g_get_monotonic_time (),
++        .flags = 0,
++        .sequence_delta = 0,
+       };
+       priv->global_frame_counter++;
+ 
+@@ -773,14 +773,26 @@ frame_cb (CoglOnscreen  *onscreen,
+ {
+   ClutterStageView *view = user_data;
+   ClutterFrameInfo clutter_frame_info;
++  ClutterFrameInfoFlags flags = 0;
+ 
+   if (frame_event == COGL_FRAME_EVENT_SYNC)
+     return;
+ 
++  if (cogl_frame_info_is_hw_clock (frame_info))
++    flags |= CLUTTER_FRAME_INFO_HW_CLOCK;
++
++  if (cogl_frame_info_is_zero_copy (frame_info))
++    flags |= CLUTTER_FRAME_INFO_ZERO_COPY;
++
++  if (cogl_frame_info_is_synthetic (frame_info))
++    flags |= CLUTTER_FRAME_INFO_SYNTHETIC;
++
+   clutter_frame_info = (ClutterFrameInfo) {
+     .frame_counter = cogl_frame_info_get_global_frame_counter (frame_info),
+     .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),
+-    .presentation_time = ns2us (cogl_frame_info_get_presentation_time (frame_info)),
++    .presentation_time = cogl_frame_info_get_presentation_time (frame_info),
++    .flags = flags,
++    .sequence_delta = cogl_frame_info_get_sequence_delta (frame_info),
+   };
+ 
+   clutter_stage_view_notify_presented (view, &clutter_frame_info);
+diff --git a/cogl/cogl/cogl-context.c b/cogl/cogl/cogl-context.c
+index 85002cdec2f4a791d4c1e71ff937b9d843175ab5..b7bf14f87e8efcbed73f3572e4be4fa27c6aeac9 100644
+--- a/cogl/cogl/cogl-context.c
++++ b/cogl/cogl/cogl-context.c
+@@ -449,17 +449,6 @@ _cogl_context_set_current_modelview_entry (CoglContext *context,
+   context->current_modelview_entry = entry;
+ }
+ 
+-int64_t
+-cogl_get_clock_time (CoglContext *context)
+-{
+-  const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
+-
+-  if (winsys->context_get_clock_time)
+-    return winsys->context_get_clock_time (context);
+-  else
+-    return 0;
+-}
+-
+ CoglGraphicsResetStatus
+ cogl_get_graphics_reset_status (CoglContext *context)
+ {
+diff --git a/cogl/cogl/cogl-context.h b/cogl/cogl/cogl-context.h
+index b6e8b81521e67859ed9fb8008ee3ab3e5a01d5a7..20b9561b94f3006ad8d4603a6db2e52706bd0913 100644
+--- a/cogl/cogl/cogl-context.h
++++ b/cogl/cogl/cogl-context.h
+@@ -286,29 +286,6 @@ cogl_foreach_feature (CoglContext *context,
+                       CoglFeatureCallback callback,
+                       void *user_data);
+ 
+-/**
+- * cogl_get_clock_time:
+- * @context: a #CoglContext pointer
+- *
+- * Returns the current time value from Cogl's internal clock. This
+- * clock is used for measuring times such as the presentation time
+- * in a #CoglFrameInfo.
+- *
+- * This method is meant for converting timestamps retrieved from Cogl
+- * to other time systems, and is not meant to be used as a standalone
+- * timing system. For that reason, if this function is called without
+- * having retrieved a valid (non-zero) timestamp from Cogl first, it
+- * may return 0 to indicate that Cogl has no active internal clock.
+- *
+- * Return value: the time value for the Cogl clock, in nanoseconds
+- *  from an arbitrary point in time, or 0 if Cogl doesn't have an
+- *  active internal clock.
+- * Since: 1.14
+- * Stability: unstable
+- */
+-COGL_EXPORT int64_t
+-cogl_get_clock_time (CoglContext *context);
+-
+ /**
+  * CoglGraphicsResetStatus:
+  * @COGL_GRAPHICS_RESET_STATUS_NO_ERROR:
+diff --git a/cogl/cogl/cogl-frame-info-private.h b/cogl/cogl/cogl-frame-info-private.h
+index 13d856175090bd9114d54a8a75eafa084c962607..75313194de94af5d4bd7e40806d6c09ba7b7b44b 100644
+--- a/cogl/cogl/cogl-frame-info-private.h
++++ b/cogl/cogl/cogl-frame-info-private.h
+@@ -34,15 +34,40 @@
+ #include "cogl-frame-info.h"
+ #include "cogl-object-private.h"
+ 
++typedef enum
++{
++  /* presentation_time timestamp was provided by the hardware */
++  COGL_FRAME_INFO_HW_CLOCK = (1 << 0),
++  /*
++   * The presentation of this frame was done zero-copy. This means the buffer
++   * from the client was given to display hardware as is, without copying it.
++   * Compositing with OpenGL counts as copying, even if textured directly from
++   * the client buffer. Possible zero-copy cases include direct scanout of a
++   * fullscreen surface and a surface on a hardware overlay.
++   */
++  COGL_FRAME_INFO_ZERO_COPY = (1 << 1),
++  /*
++   * This frame info is synthetic, as in, there was no actual presentation. For
++   * example, page flipping might have failed. The presentation event is still
++   * generated as to not freeze the frame clock.
++   */
++  COGL_FRAME_INFO_SYNTHETIC = (1 << 2),
++} CoglFrameInfoFlags;
++
+ struct _CoglFrameInfo
+ {
+   CoglObject _parent;
+ 
+   int64_t frame_counter;
+-  int64_t presentation_time;
++  int64_t presentation_time_us; /* microseconds; CLOCK_MONOTONIC */
+   float refresh_rate;
+ 
+   int64_t global_frame_counter;
++
++  CoglFrameInfoFlags flags;
++
++  /* delta between this frame's and the last frame's sequence */
++  unsigned int sequence_delta;
+ };
+ 
+ COGL_EXPORT
+diff --git a/cogl/cogl/cogl-frame-info.c b/cogl/cogl/cogl-frame-info.c
+index b5da21110f331745dab2cef0c40be8733dbca555..d1063634f70626ce9c1f18170198a8265c43fbba 100644
+--- a/cogl/cogl/cogl-frame-info.c
++++ b/cogl/cogl/cogl-frame-info.c
+@@ -64,7 +64,7 @@ cogl_frame_info_get_frame_counter (CoglFrameInfo *info)
+ int64_t
+ cogl_frame_info_get_presentation_time (CoglFrameInfo *info)
+ {
+-  return info->presentation_time;
++  return info->presentation_time_us;
+ }
+ 
+ float
+@@ -78,3 +78,27 @@ cogl_frame_info_get_global_frame_counter (CoglFrameInfo *info)
+ {
+   return info->global_frame_counter;
+ }
++
++gboolean
++cogl_frame_info_is_hw_clock (CoglFrameInfo *info)
++{
++  return info->flags & COGL_FRAME_INFO_HW_CLOCK;
++}
++
++gboolean
++cogl_frame_info_is_zero_copy (CoglFrameInfo *info)
++{
++  return info->flags & COGL_FRAME_INFO_ZERO_COPY;
++}
++
++gboolean
++cogl_frame_info_is_synthetic (CoglFrameInfo *info)
++{
++  return info->flags & COGL_FRAME_INFO_SYNTHETIC;
++}
++
++unsigned int
++cogl_frame_info_get_sequence_delta (CoglFrameInfo *info)
++{
++  return info->sequence_delta;
++}
+diff --git a/cogl/cogl/cogl-frame-info.h b/cogl/cogl/cogl-frame-info.h
+index 2204bafdb0e6da42bef55deef37845692a84aee4..64a0836722ed94df4f1923d57a68958cd1e9ca0e 100644
+--- a/cogl/cogl/cogl-frame-info.h
++++ b/cogl/cogl/cogl-frame-info.h
+@@ -96,12 +96,10 @@ int64_t cogl_frame_info_get_frame_counter (CoglFrameInfo *info);
+  * Gets the presentation time for the frame. This is the time at which
+  * the frame became visible to the user.
+  *
+- * The presentation time measured in nanoseconds, is based on
+- * cogl_get_clock_time().
++ * The presentation time measured in microseconds, is based on
++ * CLOCK_MONOTONIC.
+  *
+- * <note>Linux kernel version less that 3.8 can result in
+- * non-monotonic timestamps being reported when using a drm based
+- * OpenGL driver. Also some buggy Mesa drivers up to 9.0.1 may also
++ * <note>Some buggy Mesa drivers up to 9.0.1 may
+  * incorrectly report non-monotonic timestamps.</note>
+  *
+  * Return value: the presentation time for the frame
+@@ -137,6 +135,30 @@ float cogl_frame_info_get_refresh_rate (CoglFrameInfo *info);
+ COGL_EXPORT
+ int64_t cogl_frame_info_get_global_frame_counter (CoglFrameInfo *info);
+ 
++/**
++ * cogl_frame_info_is_hw_clock: (skip)
++ */
++COGL_EXPORT
++gboolean cogl_frame_info_is_hw_clock (CoglFrameInfo *info);
++
++/**
++ * cogl_frame_info_is_zero_copy: (skip)
++ */
++COGL_EXPORT
++gboolean cogl_frame_info_is_zero_copy (CoglFrameInfo *info);
++
++/**
++ * cogl_frame_info_is_synthetic: (skip)
++ */
++COGL_EXPORT
++gboolean cogl_frame_info_is_synthetic (CoglFrameInfo *info);
++
++/**
++ * cogl_frame_info_get_sequence_delta: (skip)
++ */
++COGL_EXPORT
++unsigned int cogl_frame_info_get_sequence_delta (CoglFrameInfo *info);
++
+ G_END_DECLS
+ 
+ #endif /* __COGL_FRAME_INFO_H */
+diff --git a/cogl/cogl/cogl-onscreen.c b/cogl/cogl/cogl-onscreen.c
+index f6d21cf0647897b48f73561c06270e27995aa3a1..30b93b838b44486eceb5c62503df0061c0e6d0d7 100644
+--- a/cogl/cogl/cogl-onscreen.c
++++ b/cogl/cogl/cogl-onscreen.c
+@@ -431,7 +431,12 @@ cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
+   g_warn_if_fail (COGL_IS_ONSCREEN (framebuffer));
+   g_warn_if_fail (_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT));
+ 
++  /*
++   * If scanout fails, info is popped from the queue
++   * and then unreffed in the caller.
++   */
+   info->frame_counter = onscreen->frame_counter;
++  info->flags |= COGL_FRAME_INFO_ZERO_COPY;
+   g_queue_push_tail (&onscreen->pending_frame_infos, info);
+ 
+   winsys = _cogl_framebuffer_get_winsys (framebuffer);
+diff --git a/cogl/cogl/winsys/cogl-winsys-glx.c b/cogl/cogl/winsys/cogl-winsys-glx.c
+index 759a15c715a44e25f3f649071abf97d3afd45018..a3397e2479769efc54215f54d4a206e8f62679f8 100644
+--- a/cogl/cogl/winsys/cogl-winsys-glx.c
++++ b/cogl/cogl/winsys/cogl-winsys-glx.c
+@@ -99,6 +99,7 @@ typedef struct _CoglOnscreenGLX
+   uint32_t pending_sync_notify;
+   uint32_t pending_complete_notify;
+   uint32_t pending_resize_notify;
++  int64_t last_msc;
+ } CoglOnscreenGLX;
+ 
+ typedef struct _CoglPixmapTextureEyeGLX
+@@ -190,15 +191,6 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
+   return NULL;
+ }
+ 
+-static int64_t
+-get_monotonic_time_ns (void)
+-{
+-  struct timespec ts;
+-
+-  clock_gettime (CLOCK_MONOTONIC, &ts);
+-  return ts.tv_sec * G_GINT64_CONSTANT (1000000000) + ts.tv_nsec;
+-}
+-
+ static void
+ ensure_ust_type (CoglRenderer *renderer,
+                  GLXDrawable drawable)
+@@ -238,7 +230,7 @@ ensure_ust_type (CoglRenderer *renderer,
+ 
+   /* This is the time source that the newer (fixed) linux drm
+    * drivers use (Linux >= 3.8) */
+-  current_monotonic_time = get_monotonic_time_ns () / 1000;
++  current_monotonic_time = g_get_monotonic_time ();
+ 
+   if (current_monotonic_time > ust - 1000000 &&
+       current_monotonic_time < ust + 1000000)
+@@ -256,11 +248,11 @@ ensure_ust_type (CoglRenderer *renderer,
+ }
+ 
+ static int64_t
+-ust_to_nanoseconds (CoglRenderer *renderer,
+-                    GLXDrawable drawable,
+-                    int64_t ust)
++ust_to_microseconds (CoglRenderer *renderer,
++                     GLXDrawable   drawable,
++                     int64_t       ust)
+ {
+-  CoglGLXRenderer *glx_renderer =  renderer->winsys;
++  CoglGLXRenderer *glx_renderer = renderer->winsys;
+ 
+   ensure_ust_type (renderer, drawable);
+ 
+@@ -271,10 +263,10 @@ ust_to_nanoseconds (CoglRenderer *renderer,
+       break;
+     case COGL_GLX_UST_IS_GETTIMEOFDAY:
+     case COGL_GLX_UST_IS_MONOTONIC_TIME:
+-      return 1000 * ust;
++      return ust;
+     case COGL_GLX_UST_IS_OTHER:
+       /* In this case the scale of UST is undefined so we can't easily
+-       * scale to nanoseconds.
++       * scale to microseconds.
+        *
+        * For example the driver may be reporting the rdtsc CPU counter
+        * as UST values and so the scale would need to be determined
+@@ -289,40 +281,15 @@ ust_to_nanoseconds (CoglRenderer *renderer,
+   return 0;
+ }
+ 
+-static int64_t
+-_cogl_winsys_get_clock_time (CoglContext *context)
++static gboolean
++is_ust_monotonic (CoglRenderer *renderer,
++                  GLXDrawable   drawable)
+ {
+-  CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
+-
+-  if (!glx_renderer->glXWaitForMsc)
+-    return get_monotonic_time_ns ();
+-
+-  /* We don't call ensure_ust_type() because we don't have a drawable
+-   * to work with. cogl_get_clock_time() is documented to only work
+-   * once a valid, non-zero, timestamp has been retrieved from Cogl.
+-   */
+-
+-  switch (glx_renderer->ust_type)
+-    {
+-    case COGL_GLX_UST_IS_UNKNOWN:
+-    case COGL_GLX_UST_IS_OTHER:
+-      return 0;
+-    case COGL_GLX_UST_IS_GETTIMEOFDAY:
+-      {
+-        struct timeval tv;
++  CoglGLXRenderer *glx_renderer = renderer->winsys;
+ 
+-        gettimeofday(&tv, NULL);
+-        return tv.tv_sec * G_GINT64_CONSTANT (1000000000) +
+-          tv.tv_usec * G_GINT64_CONSTANT (1000);
+-      }
+-    case COGL_GLX_UST_IS_MONOTONIC_TIME:
+-      {
+-        return get_monotonic_time_ns ();
+-      }
+-    }
++  ensure_ust_type (renderer, drawable);
+ 
+-  g_assert_not_reached();
+-  return 0;
++  return (glx_renderer->ust_type == COGL_GLX_UST_IS_MONOTONIC_TIME);
+ }
+ 
+ static void
+@@ -433,11 +400,25 @@ set_complete_pending (CoglOnscreen *onscreen)
+   glx_onscreen->pending_complete_notify++;
+ }
+ 
++static unsigned int
++cogl_onscreen_glx_update_msc_and_get_delta (CoglOnscreenGLX *glx_onscreen,
++                                            int64_t          msc)
++{
++  unsigned int delta;
++
++  delta = msc - glx_onscreen->last_msc;
++  glx_onscreen->last_msc = msc;
++
++  return delta;
++}
++
+ static void
+ notify_swap_buffers (CoglContext *context, GLXBufferSwapComplete *swap_event)
+ {
+   CoglOnscreen *onscreen = find_onscreen_for_xid (context, (uint32_t)swap_event->drawable);
+   CoglOnscreenGLX *glx_onscreen;
++  gboolean ust_is_monotonic;
++  CoglFrameInfo *info;
+ 
+   if (!onscreen)
+     return;
+@@ -448,16 +429,24 @@ notify_swap_buffers (CoglContext *context, GLXBufferSwapComplete *swap_event)
+      notifying we'll set a flag to remember to notify later */
+   set_sync_pending (onscreen);
+ 
+-  if (swap_event->ust != 0)
+-    {
+-      CoglFrameInfo *info = g_queue_peek_head (&onscreen->pending_frame_infos);
++  info = g_queue_peek_head (&onscreen->pending_frame_infos);
++
++  ust_is_monotonic = is_ust_monotonic (context->display->renderer,
++                                       glx_onscreen->glxwin);
+ 
+-      info->presentation_time =
+-        ust_to_nanoseconds (context->display->renderer,
+-                            glx_onscreen->glxwin,
+-                            swap_event->ust);
++  if (swap_event->ust != 0 && ust_is_monotonic)
++    {
++      info->presentation_time_us =
++        ust_to_microseconds (context->display->renderer,
++                             glx_onscreen->glxwin,
++                             swap_event->ust);
++      info->flags |= COGL_FRAME_INFO_HW_CLOCK;
+     }
+ 
++  info->sequence_delta =
++    cogl_onscreen_glx_update_msc_and_get_delta (glx_onscreen,
++                                                swap_event->msc);
++
+   set_complete_pending (onscreen);
+ }
+ 
+@@ -1564,9 +1553,22 @@ _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
+           glx_renderer->glXWaitForMsc (xlib_renderer->xdpy, drawable,
+                                        0, 1, 0,
+                                        &ust, &msc, &sbc);
+-          info->presentation_time = ust_to_nanoseconds (ctx->display->renderer,
+-                                                        drawable,
+-                                                        ust);
++
++          if (is_ust_monotonic (ctx->display->renderer, drawable))
++            {
++              info->presentation_time_us =
++                ust_to_microseconds (ctx->display->renderer,
++                                     drawable,
++                                     ust);
++              info->flags |= COGL_FRAME_INFO_HW_CLOCK;
++            }
++          else
++            {
++              info->presentation_time_us = g_get_monotonic_time ();
++            }
++
++          info->sequence_delta =
++            cogl_onscreen_glx_update_msc_and_get_delta (glx_onscreen, msc);
+         }
+       else
+         {
+@@ -1577,7 +1579,7 @@ _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
+                                           (current_count + 1) % 2,
+                                           &current_count);
+ 
+-          info->presentation_time = get_monotonic_time_ns ();
++          info->presentation_time_us = g_get_monotonic_time ();
+         }
+     }
+ }
+@@ -2502,7 +2504,6 @@ static CoglWinsysVtable _cogl_winsys_vtable =
+     .display_destroy = _cogl_winsys_display_destroy,
+     .context_init = _cogl_winsys_context_init,
+     .context_deinit = _cogl_winsys_context_deinit,
+-    .context_get_clock_time = _cogl_winsys_get_clock_time,
+     .onscreen_init = _cogl_winsys_onscreen_init,
+     .onscreen_deinit = _cogl_winsys_onscreen_deinit,
+     .onscreen_bind = _cogl_winsys_onscreen_bind,
+diff --git a/cogl/cogl/winsys/cogl-winsys-private.h b/cogl/cogl/winsys/cogl-winsys-private.h
+index 2cf88f39b2d47b19e4c093a67b24ce98c8d9aad0..433f0701adcf07e3ad725d88cedc322ce43a50c0 100644
+--- a/cogl/cogl/winsys/cogl-winsys-private.h
++++ b/cogl/cogl/winsys/cogl-winsys-private.h
+@@ -131,9 +131,6 @@ typedef struct _CoglWinsysVtable
+ 
+   /* Optional functions */
+ 
+-  int64_t
+-  (*context_get_clock_time) (CoglContext *context);
+-
+   void
+   (*onscreen_swap_region) (CoglOnscreen *onscreen,
+                            const int *rectangles,
+diff --git a/src/backends/native/meta-gpu-kms.c b/src/backends/native/meta-gpu-kms.c
+index 819bd2c9a3e619b76d42fb88143f09e5a72496a8..29b253dea36c32a7a35c71c24bd5d208adc536e2 100644
+--- a/src/backends/native/meta-gpu-kms.c
++++ b/src/backends/native/meta-gpu-kms.c
+@@ -175,14 +175,6 @@ meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
+   return TRUE;
+ }
+ 
+-static int64_t
+-timespec_to_nanoseconds (const struct timespec *ts)
+-{
+-  const int64_t one_billion = 1000000000;
+-
+-  return ((int64_t) ts->tv_sec) * one_billion + ts->tv_nsec;
+-}
+-
+ MetaKmsDevice *
+ meta_gpu_kms_get_kms_device (MetaGpuKms *gpu_kms)
+ {
+@@ -207,15 +199,10 @@ meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms)
+   return meta_kms_device_get_path (gpu_kms->kms_device);
+ }
+ 
+-int64_t
+-meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms)
++gboolean
++meta_gpu_kms_is_clock_monotonic (MetaGpuKms *gpu_kms)
+ {
+-  struct timespec ts;
+-
+-  if (clock_gettime (gpu_kms->clock_id, &ts))
+-    return 0;
+-
+-  return timespec_to_nanoseconds (&ts);
++  return gpu_kms->clock_id == CLOCK_MONOTONIC;
+ }
+ 
+ void
+diff --git a/src/backends/native/meta-gpu-kms.h b/src/backends/native/meta-gpu-kms.h
+index 9ca4d254a2fbb4fee01ab28540421b2701e8e7c9..0cde973a4fe36d2b705fcf8ee004db0621276df1 100644
+--- a/src/backends/native/meta-gpu-kms.h
++++ b/src/backends/native/meta-gpu-kms.h
+@@ -57,7 +57,7 @@ uint32_t meta_gpu_kms_get_id (MetaGpuKms *gpu_kms);
+ 
+ const char * meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms);
+ 
+-int64_t meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms);
++gboolean meta_gpu_kms_is_clock_monotonic (MetaGpuKms *gpu_kms);
+ 
+ void meta_gpu_kms_set_power_save_mode (MetaGpuKms    *gpu_kms,
+                                        uint64_t       state,
+diff --git a/src/backends/native/meta-kms-crtc-private.h b/src/backends/native/meta-kms-crtc-private.h
+index f9a3a6e0aef637b28ac3fd0d9a9f84afaff02c86..160ba6541026f68a88d040c34ac5b5f2ba0ff463 100644
+--- a/src/backends/native/meta-kms-crtc-private.h
++++ b/src/backends/native/meta-kms-crtc-private.h
+@@ -33,4 +33,7 @@ void meta_kms_crtc_update_state (MetaKmsCrtc *crtc);
+ void meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
+                                   MetaKmsUpdate *update);
+ 
++unsigned meta_kms_crtc_update_sequence_and_get_delta (MetaKmsCrtc *crtc,
++                                                      unsigned int sequence);
++
+ #endif /* META_KMS_CRTC_PRIVATE_H */
+diff --git a/src/backends/native/meta-kms-crtc.c b/src/backends/native/meta-kms-crtc.c
+index ebdd8ed9d571b02235fa138e75d4f8fcf9c57294..e044e422214c9cddb8912327308ffcba020808aa 100644
+--- a/src/backends/native/meta-kms-crtc.c
++++ b/src/backends/native/meta-kms-crtc.c
+@@ -36,6 +36,8 @@ struct _MetaKmsCrtc
+   int idx;
+ 
+   MetaKmsCrtcState current_state;
++
++  unsigned int last_sequence;
+ };
+ 
+ G_DEFINE_TYPE (MetaKmsCrtc, meta_kms_crtc, G_TYPE_OBJECT)
+@@ -211,6 +213,18 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
+     }
+ }
+ 
++unsigned int
++meta_kms_crtc_update_sequence_and_get_delta (MetaKmsCrtc *crtc,
++                                             unsigned int sequence)
++{
++  unsigned int delta;
++
++  delta = sequence - crtc->last_sequence;
++  crtc->last_sequence = sequence;
++
++  return delta;
++}
++
+ MetaKmsCrtc *
+ meta_kms_crtc_new (MetaKmsImplDevice *impl_device,
+                    drmModeCrtc       *drm_crtc,
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab057ce8d9 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -64,6 +64,7 @@
+ #include "backends/native/meta-drm-buffer-import.h"
+ #include "backends/native/meta-drm-buffer.h"
+ #include "backends/native/meta-gpu-kms.h"
++#include "backends/native/meta-kms-crtc-private.h"
+ #include "backends/native/meta-kms-device.h"
+ #include "backends/native/meta-kms-update.h"
+ #include "backends/native/meta-kms-utils.h"
+@@ -1054,7 +1055,10 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
+ static void
+ maybe_update_frame_info (MetaCrtc      *crtc,
+                          CoglFrameInfo *frame_info,
+-                         int64_t        time_ns)
++                         int64_t        time_us,
++                         gboolean       hw_clock,
++                         gboolean       synthetic,
++                         unsigned int   sequence_delta)
+ {
+   const MetaCrtcConfig *crtc_config;
+   const MetaCrtcModeInfo *crtc_mode_info;
+@@ -1070,15 +1074,25 @@ maybe_update_frame_info (MetaCrtc      *crtc,
+   refresh_rate = crtc_mode_info->refresh_rate;
+   if (refresh_rate >= frame_info->refresh_rate)
+     {
+-      frame_info->presentation_time = time_ns;
++      frame_info->presentation_time_us = time_us;
+       frame_info->refresh_rate = refresh_rate;
++      frame_info->sequence_delta = sequence_delta;
++
++      if (hw_clock)
++        frame_info->flags |= COGL_FRAME_INFO_HW_CLOCK;
++
++      if (synthetic)
++        frame_info->flags |= COGL_FRAME_INFO_SYNTHETIC;
+     }
+ }
+ 
+ static void
+ notify_view_crtc_presented (MetaRendererView *view,
+                             MetaKmsCrtc      *kms_crtc,
+-                            int64_t           time_ns)
++                            int64_t           time_us,
++                            gboolean          hw_clock,
++                            gboolean          synthetic,
++                            unsigned int      sequence_delta)
+ {
+   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
+   CoglFramebuffer *framebuffer =
+@@ -1094,7 +1108,12 @@ notify_view_crtc_presented (MetaRendererView *view,
+   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
+ 
+   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
+-  maybe_update_frame_info (crtc, frame_info, time_ns);
++  maybe_update_frame_info (crtc,
++                           frame_info,
++                           time_us,
++                           hw_clock,
++                           synthetic,
++                           sequence_delta);
+ 
+   meta_onscreen_native_queue_swap_notify (onscreen);
+ 
+@@ -1114,12 +1133,9 @@ notify_view_crtc_presented (MetaRendererView *view,
+ }
+ 
+ static int64_t
+-timeval_to_nanoseconds (const struct timeval *tv)
++timeval_to_microseconds (const struct timeval *tv)
+ {
+-  int64_t usec = ((int64_t) tv->tv_sec) * G_USEC_PER_SEC + tv->tv_usec;
+-  int64_t nsec = usec * 1000;
+-
+-  return nsec;
++  return ((int64_t) tv->tv_sec) * G_USEC_PER_SEC + tv->tv_usec;
+ }
+ 
+ static void
+@@ -1131,14 +1147,39 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
+ {
+   MetaRendererView *view = user_data;
+   struct timeval page_flip_time;
++  MetaCrtc *crtc;
++  MetaGpuKms *gpu_kms;
++  int64_t presentation_time_us;
++  gboolean hw_clock = TRUE;
++  unsigned int sequence_delta;
+ 
+   page_flip_time = (struct timeval) {
+     .tv_sec = tv_sec,
+     .tv_usec = tv_usec,
+   };
+ 
++  presentation_time_us = timeval_to_microseconds (&page_flip_time);
++
++  crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
++  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
++  if (!meta_gpu_kms_is_clock_monotonic (gpu_kms))
++    {
++      /*
++       * If the device clock isn't MONOTONIC, fall back to just getting the
++       * current monotonic time.
++       */
++      presentation_time_us = g_get_monotonic_time ();
++      hw_clock = FALSE;
++    }
++
++  sequence_delta =
++    meta_kms_crtc_update_sequence_and_get_delta (kms_crtc, sequence);
++
+   notify_view_crtc_presented (view, kms_crtc,
+-                              timeval_to_nanoseconds (&page_flip_time));
++                              presentation_time_us,
++                              hw_clock,
++                              FALSE,
++                              sequence_delta);
+ 
+   g_object_unref (view);
+ }
+@@ -1148,20 +1189,16 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
+                                       gpointer     user_data)
+ {
+   MetaRendererView *view = user_data;
+-  MetaCrtc *crtc;
+-  MetaGpuKms *gpu_kms;
+-  int64_t now_ns;
++  int64_t now_us;
+ 
+   /*
+    * We ended up not page flipping, thus we don't have a presentation time to
+    * use. Lets use the next best thing: the current time.
+    */
+ 
+-  crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
+-  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+-  now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
++  now_us = g_get_monotonic_time ();
+ 
+-  notify_view_crtc_presented (view, kms_crtc, now_ns);
++  notify_view_crtc_presented (view, kms_crtc, now_us, FALSE, TRUE, 0);
+ 
+   g_object_unref (view);
+ }
+@@ -1172,9 +1209,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
+                               const GError *error)
+ {
+   MetaRendererView *view = user_data;
+-  MetaCrtc *crtc;
+-  MetaGpuKms *gpu_kms;
+-  int64_t now_ns;
++  int64_t now_us;
+ 
+   /*
+    * Page flipping failed, but we want to fail gracefully, so to avoid freezing
+@@ -1184,11 +1219,9 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
+   if (error)
+     g_warning ("Page flip discarded: %s", error->message);
+ 
+-  crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
+-  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+-  now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
++  now_us = g_get_monotonic_time ();
+ 
+-  notify_view_crtc_presented (view, kms_crtc, now_ns);
++  notify_view_crtc_presented (view, kms_crtc, now_us, FALSE, TRUE, 0);
+ 
+   g_object_unref (view);
+ }
+@@ -2844,15 +2877,6 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer,
+   return fb;
+ }
+ 
+-static int64_t
+-meta_renderer_native_get_clock_time (CoglContext *context)
+-{
+-  CoglRenderer *cogl_renderer = cogl_context_get_renderer (context);
+-  MetaGpuKms *gpu_kms = cogl_renderer->custom_winsys_user_data;
+-
+-  return meta_gpu_kms_get_current_time_ns (gpu_kms);
+-}
+-
+ static const CoglWinsysVtable *
+ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
+ {
+@@ -2883,8 +2907,6 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
+         meta_onscreen_native_swap_buffers_with_damage;
+       vtable.onscreen_direct_scanout = meta_onscreen_native_direct_scanout;
+ 
+-      vtable.context_get_clock_time = meta_renderer_native_get_clock_time;
+-
+       vtable_inited = TRUE;
+     }
+ 
+diff --git a/src/compositor/compositor.c b/src/compositor/compositor.c
+index 3be8d2e9eeb34718d1bd04ff6c6231e9093ef890..9bd5326fb33b673af9a4972b38e5a6a9844491e6 100644
+--- a/src/compositor/compositor.c
++++ b/src/compositor/compositor.c
+@@ -548,8 +548,6 @@ meta_compositor_do_manage (MetaCompositor  *compositor,
+                       G_CALLBACK (on_presented),
+                       compositor);
+ 
+-  clutter_stage_set_sync_delay (CLUTTER_STAGE (stage), META_SYNC_DELAY);
+-
+   priv->window_group = meta_window_group_new (display);
+   priv->top_window_group = meta_window_group_new (display);
+   priv->feedback_group = meta_window_group_new (display);
+@@ -1041,36 +1039,9 @@ on_presented (ClutterStage     *stage,
+ {
+   MetaCompositorPrivate *priv =
+     meta_compositor_get_instance_private (compositor);
+-  int64_t presentation_time_cogl = frame_info->presentation_time;
+-  int64_t presentation_time;
++  int64_t presentation_time = frame_info->presentation_time;
+   GList *l;
+ 
+-  if (presentation_time_cogl != 0)
+-    {
+-      int64_t current_cogl_time;
+-      int64_t current_monotonic_time;
+-
+-      /* Cogl reports presentation in terms of its own clock, which is
+-       * guaranteed to be in nanoseconds but with no specified base. The
+-       * normal case with the open source GPU drivers on Linux 3.8 and
+-       * newer is that the base of cogl_get_clock_time() is that of
+-       * clock_gettime(CLOCK_MONOTONIC), so the same as g_get_monotonic_time),
+-       * but there's no exposure of that through the API. clock_gettime()
+-       * is fairly fast, so calling it twice and subtracting to get a
+-       * nearly-zero number is acceptable, if a little ugly.
+-       */
+-      current_cogl_time = cogl_get_clock_time (priv->context);
+-      current_monotonic_time = g_get_monotonic_time ();
+-
+-      presentation_time =
+-        current_monotonic_time +
+-        (presentation_time_cogl - current_cogl_time) / 1000;
+-    }
+-  else
+-    {
+-      presentation_time = 0;
+-    }
+-
+   for (l = priv->windows; l; l = l->next)
+     {
+       ClutterActor *actor = l->data;
+diff --git a/src/compositor/meta-surface-actor-wayland.c b/src/compositor/meta-surface-actor-wayland.c
+index eba68fe496036a789a11f37d51799f08acc1216e..14d8dc10e4665decc1ceccb976f2892751554a7b 100644
+--- a/src/compositor/meta-surface-actor-wayland.c
++++ b/src/compositor/meta-surface-actor-wayland.c
+@@ -33,6 +33,7 @@
+ #include "cogl/cogl-wayland-server.h"
+ #include "compositor/meta-shaped-texture-private.h"
+ #include "compositor/region-utils.h"
++#include "wayland/meta-wayland-actor-surface.h"
+ #include "wayland/meta-wayland-buffer.h"
+ #include "wayland/meta-wayland-private.h"
+ #include "wayland/meta-window-wayland.h"
+@@ -137,6 +138,48 @@ meta_surface_actor_wayland_get_current_primary_view (MetaSurfaceActor *actor,
+   return current_primary_view;
+ }
+ 
++static void
++meta_surface_actor_wayland_paint_node (ClutterActor     *clutter_actor,
++                                       ClutterPaintNode *root)
++{
++  MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (clutter_actor);
++  MetaWaylandActorSurface *actor_surface;
++  g_autoptr (GString) string = NULL;
++  int64_t max_frame_to_post_apply_us;
++  PangoLayout *layout;
++  PangoRectangle logical;
++  ClutterColor color;
++  g_autoptr (ClutterPaintNode) node = NULL;
++  ClutterActorBox box;
++
++  if (!G_UNLIKELY (meta_get_debug_paint_flags () & META_DEBUG_PAINT_SURFACE_TIMINGS))
++    return;
++
++  if (!self->surface)
++    return;
++
++  actor_surface = META_WAYLAND_ACTOR_SURFACE (self->surface->role);
++  max_frame_to_post_apply_us =
++    meta_wayland_actor_surface_get_max_frame_to_post_apply_us (actor_surface);
++
++  string = g_string_new (NULL);
++  g_string_append_printf (string, "Max frame to post apply (µs): %ld",
++                          max_frame_to_post_apply_us);
++
++  layout = clutter_actor_create_pango_layout (clutter_actor, string->str);
++  pango_layout_get_pixel_extents (layout, NULL, &logical);
++
++  clutter_color_init (&color, 255, 255, 255, 255);
++  node = clutter_text_node_new (layout, &color);
++
++  box.x1 = 0;
++  box.y1 = 0;
++  box.x2 = logical.width;
++  box.y2 = logical.height;
++  clutter_paint_node_add_rectangle (node, &box);
++  clutter_paint_node_add_child (root, node);
++}
++
+ static void
+ meta_surface_actor_wayland_dispose (GObject *object)
+ {
+@@ -161,11 +204,14 @@ static void
+ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
+ {
+   MetaSurfaceActorClass *surface_actor_class = META_SURFACE_ACTOR_CLASS (klass);
++  ClutterActorClass *clutter_actor_class = CLUTTER_ACTOR_CLASS (klass);
+   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+ 
+   surface_actor_class->process_damage = meta_surface_actor_wayland_process_damage;
+   surface_actor_class->is_opaque = meta_surface_actor_wayland_is_opaque;
+ 
++  clutter_actor_class->paint_node = meta_surface_actor_wayland_paint_node;
++
+   object_class->dispose = meta_surface_actor_wayland_dispose;
+ }
+ 
+diff --git a/src/compositor/meta-surface-actor-wayland.h b/src/compositor/meta-surface-actor-wayland.h
+index 10eb3326ae892b6b4c5d24d2efc4e9d362581c81..d2c90116d1fb0bb8b4e7d3b7fc009e69302c71f7 100644
+--- a/src/compositor/meta-surface-actor-wayland.h
++++ b/src/compositor/meta-surface-actor-wayland.h
+@@ -42,15 +42,6 @@ G_DECLARE_FINAL_TYPE (MetaSurfaceActorWayland,
+ 
+ MetaSurfaceActor * meta_surface_actor_wayland_new (MetaWaylandSurface *surface);
+ MetaWaylandSurface * meta_surface_actor_wayland_get_surface (MetaSurfaceActorWayland *self);
+-void meta_surface_actor_wayland_surface_destroyed (MetaSurfaceActorWayland *self);
+-
+-double meta_surface_actor_wayland_get_scale (MetaSurfaceActorWayland *actor);
+-
+-void meta_surface_actor_wayland_get_subsurface_rect (MetaSurfaceActorWayland *self,
+-                                                     MetaRectangle           *rect);
+-
+-void meta_surface_actor_wayland_add_frame_callbacks (MetaSurfaceActorWayland *self,
+-                                                     struct wl_list *frame_callbacks);
+ 
+ CoglScanout * meta_surface_actor_wayland_try_acquire_scanout (MetaSurfaceActorWayland *self,
+                                                               CoglOnscreen            *onscreen);
+diff --git a/src/core/util.c b/src/core/util.c
+index 1a77927d188da7d45e4c4d512d521377ba80eb46..f1054209cf8b9303f397fd4f6570efecdd284189 100644
+--- a/src/core/util.c
++++ b/src/core/util.c
+@@ -730,6 +730,14 @@ meta_remove_debug_paint_flag (MetaDebugPaintFlag flag)
+   debug_paint_flags &= ~flag;
+ }
+ 
++extern int max_render_time_constant;
++
++void
++meta_set_max_render_time_constant (int value)
++{
++  max_render_time_constant = value;
++}
++
+ MetaDebugPaintFlag
+ meta_get_debug_paint_flags (void)
+ {
+diff --git a/src/meson.build b/src/meson.build
+index 6db0462fe774d32bd2f036fb56fe70b754800951..e7d55222b1f0c826bac6ad7cc1529a318a6eef45 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -147,7 +147,6 @@ mutter_deps = [
+ 
+ mutter_c_args = [
+   '-DCLUTTER_ENABLE_COMPOSITOR_API',
+-  '-DCLUTTER_ENABLE_EXPERIMENTAL_API',
+   '-DCOGL_ENABLE_EXPERIMENTAL_API',
+   '-DCOGL_ENABLE_EXPERIMENTAL_2_0_API',
+   '-DCOGL_ENABLE_MUTTER_API',
+@@ -561,6 +560,8 @@ if have_wayland
+     'wayland/meta-wayland-pointer.h',
+     'wayland/meta-wayland-popup.c',
+     'wayland/meta-wayland-popup.h',
++    'wayland/meta-wayland-presentation-time.c',
++    'wayland/meta-wayland-presentation-time-private.h',
+     'wayland/meta-wayland-private.h',
+     'wayland/meta-wayland-region.c',
+     'wayland/meta-wayland-region.h',
+@@ -842,6 +843,7 @@ if have_wayland
+     ['linux-dmabuf', 'unstable', 'v1', ],
+     ['pointer-constraints', 'unstable', 'v1', ],
+     ['pointer-gestures', 'unstable', 'v1', ],
++    ['presentation-time', 'stable', ],
+     ['primary-selection', 'unstable', 'v1', ],
+     ['relative-pointer', 'unstable', 'v1', ],
+     ['tablet', 'unstable', 'v2', ],
+diff --git a/src/meta/util.h b/src/meta/util.h
+index 1bf80d86847651db17b2e012274f6b32affae34e..1e5bb32e70dfe78d22979330202bf95bf5713822 100644
+--- a/src/meta/util.h
++++ b/src/meta/util.h
+@@ -110,8 +110,10 @@ typedef enum
+  */
+ typedef enum
+ {
+-  META_DEBUG_PAINT_NONE          = 0,
+-  META_DEBUG_PAINT_OPAQUE_REGION = 1 << 0,
++  META_DEBUG_PAINT_NONE            = 0,
++  META_DEBUG_PAINT_OPAQUE_REGION   = 1 << 0,
++  META_DEBUG_PAINT_SURFACE_TIMINGS = 1 << 1,
++  META_DEBUG_PAINT_DISABLE_FRAME_CALLBACK_DELAYING = 1 << 2,
+ } MetaDebugPaintFlag;
+ 
+ META_EXPORT
+@@ -222,6 +224,9 @@ void meta_add_debug_paint_flag (MetaDebugPaintFlag flag);
+ META_EXPORT
+ void meta_remove_debug_paint_flag (MetaDebugPaintFlag flag);
+ 
++META_EXPORT
++void meta_set_max_render_time_constant (int value);
++
+ META_EXPORT
+ MetaDebugPaintFlag meta_get_debug_paint_flags (void);
+ 
+diff --git a/src/tests/clutter/conform/actor-shader-effect.c b/src/tests/clutter/conform/actor-shader-effect.c
+index 79b792dc703a7d1bd983b980d18bcb7ed00214bf..fa2a3434ead2c179f011667c22930cd4a8beb935 100644
+--- a/src/tests/clutter/conform/actor-shader-effect.c
++++ b/src/tests/clutter/conform/actor-shader-effect.c
+@@ -1,4 +1,3 @@
+-#define CLUTTER_ENABLE_EXPERIMENTAL_API
+ #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
+ #include <clutter/clutter.h>
+ 
+diff --git a/src/tests/clutter/conform/frame-clock-timeline.c b/src/tests/clutter/conform/frame-clock-timeline.c
+index 7e5798b4e27ac6be6053c990d2f4fffad4164c37..9fcc5bd37ad0fb19b63fe63d6ef377904e29bfa6 100644
+--- a/src/tests/clutter/conform/frame-clock-timeline.c
++++ b/src/tests/clutter/conform/frame-clock-timeline.c
+@@ -14,6 +14,8 @@ timeline_frame_clock_frame (ClutterFrameClock *frame_clock,
+   frame_info = (ClutterFrameInfo) {
+     .presentation_time = g_get_monotonic_time (),
+     .refresh_rate = refresh_rate,
++    .flags = 0,
++    .sequence_delta = 0,
+   };
+   clutter_frame_clock_notify_presented (frame_clock, &frame_info);
+   clutter_frame_clock_schedule_update (frame_clock);
+diff --git a/src/tests/clutter/conform/frame-clock.c b/src/tests/clutter/conform/frame-clock.c
+index 62a4176722b19add8900ea94bd63253f826f562f..9d365e7d5d0cb604cdf19dd8e0ccd2a7bd1c3f04 100644
+--- a/src/tests/clutter/conform/frame-clock.c
++++ b/src/tests/clutter/conform/frame-clock.c
+@@ -32,6 +32,8 @@ init_frame_info (ClutterFrameInfo *frame_info,
+   *frame_info = (ClutterFrameInfo) {
+     .presentation_time = presentation_time_us,
+     .refresh_rate = refresh_rate,
++    .flags = 0,
++    .sequence_delta = 0,
+   };
+ }
+ 
+diff --git a/src/wayland/meta-wayland-actor-surface.c b/src/wayland/meta-wayland-actor-surface.c
+index 50af540a23971bfc93bffae739e29fbc752f9afd..a43fd76b19d9bcbdda15762fd83dc801124742ef 100644
+--- a/src/wayland/meta-wayland-actor-surface.c
++++ b/src/wayland/meta-wayland-actor-surface.c
+@@ -23,6 +23,7 @@
+ 
+ #include "wayland/meta-wayland-actor-surface.h"
+ 
++#include "clutter/clutter-frame-clock.h"
+ #include "backends/meta-backend-private.h"
+ #include "backends/meta-logical-monitor.h"
+ #include "compositor/meta-surface-actor-wayland.h"
+@@ -33,6 +34,8 @@
+ #include "wayland/meta-window-wayland.h"
+ #include "wayland/meta-xwayland-surface.h"
+ 
++#define FRAME_TO_POST_APPLY_QUEUE_LENGTH 16
++
+ typedef struct _MetaWaylandActorSurfacePrivate MetaWaylandActorSurfacePrivate;
+ 
+ struct _MetaWaylandActorSurfacePrivate
+@@ -42,6 +45,19 @@ struct _MetaWaylandActorSurfacePrivate
+   gulong actor_destroyed_handler_id;
+ 
+   struct wl_list frame_callback_list;
++
++  int64_t frame_callback_refresh_interval_us;
++  int64_t frame_callback_sent_at_us;
++
++  /*
++   * Duration between frame callback being sent to a surface and post_apply
++   * being called the last few times. As in, how long it took from frame
++   * callback to having a buffer for compositing.
++   */
++  int64_t frame_to_post_apply_us[FRAME_TO_POST_APPLY_QUEUE_LENGTH];
++  int frame_to_post_apply_index;
++
++  guint frame_callback_timeout_id;
+ };
+ 
+ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaWaylandActorSurface,
+@@ -96,6 +112,9 @@ meta_wayland_actor_surface_dispose (GObject *object)
+   wl_list_for_each_safe (cb, next, &priv->frame_callback_list, link)
+     wl_resource_destroy (cb->resource);
+ 
++  if (priv->frame_callback_timeout_id)
++    g_source_remove (priv->frame_callback_timeout_id);
++
+   G_OBJECT_CLASS (meta_wayland_actor_surface_parent_class)->dispose (object);
+ }
+ 
+@@ -140,21 +159,109 @@ meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *actor
+                                                       surface);
+ }
+ 
+-void
+-meta_wayland_actor_surface_emit_frame_callbacks (MetaWaylandActorSurface *actor_surface,
+-                                                 uint32_t                 timestamp_ms)
++static gboolean
++emit_frame_callbacks (gpointer data)
+ {
++  MetaWaylandActorSurface *actor_surface = data;
+   MetaWaylandActorSurfacePrivate *priv =
+     meta_wayland_actor_surface_get_instance_private (actor_surface);
++  int64_t timestamp_us;
++
++  timestamp_us = g_get_monotonic_time ();
++  priv->frame_callback_sent_at_us = timestamp_us;
+ 
+   while (!wl_list_empty (&priv->frame_callback_list))
+     {
+       MetaWaylandFrameCallback *callback =
+         wl_container_of (priv->frame_callback_list.next, callback, link);
+ 
+-      wl_callback_send_done (callback->resource, timestamp_ms);
++      wl_callback_send_done (callback->resource, timestamp_us / 1000);
+       wl_resource_destroy (callback->resource);
+     }
++
++  priv->frame_callback_timeout_id = 0;
++
++  return FALSE;
++}
++
++void
++meta_wayland_actor_surface_schedule_frame_callbacks (MetaWaylandActorSurface *actor_surface,
++                                                     ClutterFrameClock       *frame_clock)
++{
++  MetaWaylandActorSurfacePrivate *priv =
++    meta_wayland_actor_surface_get_instance_private (actor_surface);
++  int64_t refresh_interval_us;
++  int64_t next_presentation_time_us;
++  int64_t max_render_time_us;
++  int64_t max_frame_to_post_apply_us;
++  int64_t delay_us = 0;
++
++  refresh_interval_us =
++    clutter_frame_clock_get_refresh_interval_us (frame_clock);
++
++  /*
++   * Since presentation hasn't happened yet, this is based on a previous-frame
++   * estimate.
++   */
++  next_presentation_time_us =
++    clutter_frame_clock_get_next_presentation_time_us (frame_clock) +
++    refresh_interval_us;
++  max_render_time_us =
++    clutter_frame_clock_max_render_time_us (frame_clock);
++
++  max_frame_to_post_apply_us =
++    meta_wayland_actor_surface_get_max_frame_to_post_apply_us (actor_surface);
++
++  if (max_frame_to_post_apply_us > 0 &&
++      max_frame_to_post_apply_us < refresh_interval_us &&
++      !G_UNLIKELY (meta_get_debug_paint_flags () & META_DEBUG_PAINT_DISABLE_FRAME_CALLBACK_DELAYING))
++    {
++      /*
++       * We want to send the frame callback as late as possible, but early
++       * enough for the application to render and commit before the next
++       * compositing start. We therefore take the next compositing start
++       * (next_presentation_time_us - max_render_time_us), subtract our
++       * estimate of how long it takes for the surface to commit
++       * (max_frame_to_post_apply_us) and an additional 2 ms to account for
++       * variation in the above estimates. Finally, subtract the current time
++       * to go from timestamp to delay.
++       *
++       *                                      next_presentation_time_us
++       *                                     /
++       *                                    |
++       *                         max_render_time_us
++       *                               /----\
++       * ---|---------------|---------------|---> presentations
++       *             D----S            D--S
++       *                  |       F--A-X
++       *                  |       \___/
++       *                  | max_frame_to_post_apply_us
++       *                  \_______/
++       *                  |delay_us
++       *                  |
++       *                  g_get_monotonic_time ()
++       *
++       *  D - frame clock dispatch
++       *  S - buffer swap (we are essentially here in time)
++       *  F - frame callback
++       *  A - application commits a new buffer
++       *  X - the buffer is sampled by the next compositing
++       *
++       */
++      delay_us =
++        next_presentation_time_us -
++        max_render_time_us -
++        max_frame_to_post_apply_us -
++        2000 -
++        g_get_monotonic_time ();
++    }
++
++  if (delay_us < 0 || delay_us > refresh_interval_us)
++    delay_us = 0;
++
++  priv->frame_callback_refresh_interval_us = refresh_interval_us;
++  priv->frame_callback_timeout_id =
++    g_timeout_add (delay_us / 1000, emit_frame_callbacks, actor_surface);
+ }
+ 
+ double
+@@ -376,6 +483,44 @@ meta_wayland_actor_surface_get_relative_coordinates (MetaWaylandSurfaceRole *sur
+                                        out_sx, out_sy);
+ }
+ 
++static void
++meta_wayland_actor_surface_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
++                                             MetaWaylandSurfaceState *pending)
++{
++  MetaWaylandActorSurface *actor_surface =
++    META_WAYLAND_ACTOR_SURFACE (surface_role);
++  MetaWaylandActorSurfacePrivate *priv =
++    meta_wayland_actor_surface_get_instance_private (actor_surface);
++
++  if (priv->frame_callback_sent_at_us != 0)
++    {
++      int64_t duration_us;
++
++      duration_us = g_get_monotonic_time () - priv->frame_callback_sent_at_us;
++
++      /*
++       * We cannot tell the following two cases apart:
++       * - frame callback sent, client did heavy rendering and committed late
++       * - frame callback sent, client had nothing to draw for a while,
++       *   then got an update and committed
++       *
++       * Therefore, employ a simple heuristic. If duration is too long (more
++       * than 2 frames), assume the client had nothing to draw, not that it was
++       * slow, and don't save the duration.
++       */
++      if (duration_us < 2 * priv->frame_callback_refresh_interval_us)
++        {
++          priv->frame_to_post_apply_us[priv->frame_to_post_apply_index] =
++            duration_us;
++
++          priv->frame_to_post_apply_index =
++            (priv->frame_to_post_apply_index + 1) % FRAME_TO_POST_APPLY_QUEUE_LENGTH;
++        }
++    }
++
++  priv->frame_callback_sent_at_us = 0;
++}
++
+ static void
+ meta_wayland_actor_surface_init (MetaWaylandActorSurface *actor_surface)
+ {
+@@ -397,6 +542,7 @@ meta_wayland_actor_surface_class_init (MetaWaylandActorSurfaceClass *klass)
+ 
+   surface_role_class->assigned = meta_wayland_actor_surface_assigned;
+   surface_role_class->apply_state = meta_wayland_actor_surface_apply_state;
++  surface_role_class->post_apply_state = meta_wayland_actor_surface_post_apply_state;
+   surface_role_class->is_on_logical_monitor =
+     meta_wayland_actor_surface_is_on_logical_monitor;
+   surface_role_class->get_relative_coordinates =
+@@ -457,3 +603,17 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
+                             G_CALLBACK (meta_wayland_surface_update_outputs),
+                             surface);
+ }
++
++int64_t
++meta_wayland_actor_surface_get_max_frame_to_post_apply_us (MetaWaylandActorSurface *actor_surface)
++{
++  MetaWaylandActorSurfacePrivate *priv =
++    meta_wayland_actor_surface_get_instance_private (actor_surface);
++  int64_t max_frame_to_post_apply_us = 0;
++
++  for (int i = 0; i < FRAME_TO_POST_APPLY_QUEUE_LENGTH; ++i)
++    max_frame_to_post_apply_us =
++      MAX (max_frame_to_post_apply_us, priv->frame_to_post_apply_us[i]);
++
++  return max_frame_to_post_apply_us;
++}
+diff --git a/src/wayland/meta-wayland-actor-surface.h b/src/wayland/meta-wayland-actor-surface.h
+index bd0cca275373ca77052831de2a3be6416046c63e..5e2b73298367139fa4b0b8b88d12dafc455f32a4 100644
+--- a/src/wayland/meta-wayland-actor-surface.h
++++ b/src/wayland/meta-wayland-actor-surface.h
+@@ -48,7 +48,9 @@ void meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surf
+ void meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *actor_surface,
+                                                        MetaWaylandSurfaceState *pending);
+ 
+-void meta_wayland_actor_surface_emit_frame_callbacks (MetaWaylandActorSurface *actor_surface,
+-                                                      uint32_t                 timestamp_ms);
++void meta_wayland_actor_surface_schedule_frame_callbacks (MetaWaylandActorSurface *actor_surface,
++                                                          ClutterFrameClock       *frame_clock);
++
++int64_t meta_wayland_actor_surface_get_max_frame_to_post_apply_us (MetaWaylandActorSurface *actor_surface);
+ 
+ #endif /* META_WAYLAND_ACTOR_SURFACE_H */
+diff --git a/src/wayland/meta-wayland-legacy-xdg-shell.c b/src/wayland/meta-wayland-legacy-xdg-shell.c
+index 926ee14e3275d60dd218afb91c7042c1f3849b95..5c487e8cc0ea1ecf222102257c37fa2f39246804 100644
+--- a/src/wayland/meta-wayland-legacy-xdg-shell.c
++++ b/src/wayland/meta-wayland-legacy-xdg-shell.c
+@@ -1412,6 +1412,11 @@ meta_wayland_zxdg_surface_v6_post_apply_state (MetaWaylandSurfaceRole  *surface_
+     meta_wayland_zxdg_surface_v6_get_instance_private (xdg_surface);
+   MetaWaylandShellSurface *shell_surface =
+     META_WAYLAND_SHELL_SURFACE (xdg_surface);
++  MetaWaylandSurfaceRoleClass *surface_role_class;
++
++  surface_role_class =
++    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_zxdg_surface_v6_parent_class);
++  surface_role_class->post_apply_state (surface_role, pending);
+ 
+   if (pending->has_new_geometry)
+     {
+diff --git a/src/wayland/meta-wayland-outputs.c b/src/wayland/meta-wayland-outputs.c
+index 9a1b833fb3ddfa6ac8d347d87118d86baa2a7b87..4a7c0ba5e47b17c3aafc74b8ead02598410b6f9e 100644
+--- a/src/wayland/meta-wayland-outputs.c
++++ b/src/wayland/meta-wayland-outputs.c
+@@ -750,3 +750,45 @@ meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
+                     NULL,
+                     bind_xdg_output_manager);
+ }
++
++typedef struct _IsMainStageViewData
++{
++  MetaCrtc *crtc_to_check;
++  gboolean is_main;
++} IsMainStageViewData;
++
++static void
++has_cursor_plane (MetaLogicalMonitor *logical_monitor,
++                  MetaMonitor        *monitor,
++                  MetaOutput         *output,
++                  MetaCrtc           *crtc,
++                  gpointer            user_data)
++{
++  IsMainStageViewData *data = user_data;
++
++  if (crtc != data->crtc_to_check)
++    return;
++
++  data->is_main = (meta_output_get_id (output) == logical_monitor->winsys_id);
++}
++
++gboolean
++meta_wayland_output_is_main_stage_view (MetaWaylandOutput *output,
++                                        ClutterStageView  *stage_view)
++{
++  IsMainStageViewData data;
++
++  if (!output->logical_monitor)
++    return FALSE;
++
++  data = (IsMainStageViewData) {
++    .crtc_to_check = meta_renderer_view_get_crtc (META_RENDERER_VIEW (stage_view)),
++    .is_main = FALSE,
++  };
++
++  meta_logical_monitor_foreach_crtc (output->logical_monitor,
++                                     has_cursor_plane,
++                                     &data);
++
++  return data.is_main;
++}
+diff --git a/src/wayland/meta-wayland-outputs.h b/src/wayland/meta-wayland-outputs.h
+index 381febcdb6ef300bdbcb6618c9e0dbf38c15a349..6fc806804cd563be135e48174515d375419306da 100644
+--- a/src/wayland/meta-wayland-outputs.h
++++ b/src/wayland/meta-wayland-outputs.h
+@@ -48,8 +48,27 @@ struct _MetaWaylandOutput
+   GList                    *xdg_output_resources;
+ 
+   uint64_t                  winsys_id;
++
++  /*
++   * Sequence, or MSC, which is updated by adding the sequence delta when
++   * this output is presented. If the presentation happens on a device which
++   * does not provide the sequence, the deltas will be zero, and so this
++   * last_sequence will also stay zero, making it applicable for the
++   * presentation-time protocol.
++   */
++  uint64_t                  last_sequence;
+ };
+ 
+ void meta_wayland_outputs_init (MetaWaylandCompositor *compositor);
+ 
++/**
++ * meta_wayland_output_is_main_stage_view:
++ *
++ * Returns %TRUE if stage_view is the main stage view for this output. E.g.
++ * when the output is mirrored, this will return %TRUE only for one of the
++ * stage views.
++ */
++gboolean meta_wayland_output_is_main_stage_view (MetaWaylandOutput *output,
++                                                 ClutterStageView  *stage_view);
++
+ #endif /* META_WAYLAND_OUTPUTS_H */
+diff --git a/src/wayland/meta-wayland-presentation-time-private.h b/src/wayland/meta-wayland-presentation-time-private.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..02ae4100a0415c9192f8a8f25038b412170ba971
+--- /dev/null
++++ b/src/wayland/meta-wayland-presentation-time-private.h
+@@ -0,0 +1,61 @@
++/*
++ * presentation-time protocol
++ *
++ * Copyright (C) 2020 Ivan Molodetskikh <yalterz@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of the
++ * License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++ * 02111-1307, USA.
++ *
++ */
++
++#ifndef META_WAYLAND_PRESENTATION_TIME_PRIVATE_H
++#define META_WAYLAND_PRESENTATION_TIME_PRIVATE_H
++
++#include <wayland-server.h>
++
++#include "clutter/clutter.h"
++#include "wayland/meta-wayland-types.h"
++
++typedef struct _MetaWaylandPresentationFeedback
++{
++  struct wl_list link;
++  struct wl_resource *resource;
++} MetaWaylandPresentationFeedback;
++
++typedef struct _MetaWaylandPresentationTime
++{
++  /* Surfaces that might have presentation feedbacks registered. */
++  GList *feedback_surfaces;
++
++  /*
++   * A mapping from (ClutterStageView *) to a
++   * (MetaWaylandPresentationFeedback *) wl_list of presentation-time feedbacks
++   * that are scheduled to be presented.
++   */
++  GHashTable *feedbacks;
++} MetaWaylandPresentationTime;
++
++void meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor);
++
++void meta_wayland_presentation_feedback_discard (MetaWaylandPresentationFeedback *feedback);
++
++void meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback *feedback,
++                                                 ClutterFrameInfo                *frame_info,
++                                                 MetaWaylandOutput               *output);
++
++struct wl_list * meta_wayland_presentation_time_get_feedbacks (MetaWaylandPresentationTime *presentation_time,
++                                                               ClutterStageView            *stage_view);
++
++#endif /* META_WAYLAND_PRESENTATION_TIME_PRIVATE_H */
+diff --git a/src/wayland/meta-wayland-presentation-time.c b/src/wayland/meta-wayland-presentation-time.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..f850e864de357305e6052e9950728bd344933c74
+--- /dev/null
++++ b/src/wayland/meta-wayland-presentation-time.c
+@@ -0,0 +1,201 @@
++/*
++ * presentation-time protocol
++ *
++ * Copyright (C) 2020 Ivan Molodetskikh <yalterz@gmail.com>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of the
++ * License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++ * 02111-1307, USA.
++ *
++ */
++
++#include "config.h"
++
++#include "meta-wayland-presentation-time-private.h"
++
++#include <glib.h>
++
++#include "wayland/meta-wayland-private.h"
++#include "wayland/meta-wayland-surface.h"
++#include "wayland/meta-wayland-outputs.h"
++#include "wayland/meta-wayland-versions.h"
++
++#include "presentation-time-server-protocol.h"
++
++static void
++wp_presentation_feedback_destructor (struct wl_resource *resource)
++{
++  MetaWaylandPresentationFeedback *feedback =
++    wl_resource_get_user_data (resource);
++
++  wl_list_remove (&feedback->link);
++  g_free (feedback);
++}
++
++static void
++wp_presentation_destroy (struct wl_client   *client,
++                         struct wl_resource *resource)
++{
++  wl_resource_destroy (resource);
++}
++
++static void
++wp_presentation_feedback (struct wl_client   *client,
++                          struct wl_resource *resource,
++                          struct wl_resource *surface_resource,
++                          uint32_t            callback_id)
++{
++  MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
++  MetaWaylandSurfaceState *pending;
++  MetaWaylandPresentationFeedback *feedback;
++
++  feedback = g_new0 (MetaWaylandPresentationFeedback, 1);
++  wl_list_init (&feedback->link);
++  feedback->resource = wl_resource_create (client,
++                                           &wp_presentation_feedback_interface,
++                                           wl_resource_get_version (resource),
++                                           callback_id);
++  wl_resource_set_implementation (feedback->resource,
++                                  NULL,
++                                  feedback,
++                                  wp_presentation_feedback_destructor);
++
++  if (surface == NULL)
++    {
++      g_warn_if_reached ();
++      meta_wayland_presentation_feedback_discard (feedback);
++      return;
++    }
++
++  pending = meta_wayland_surface_get_pending_state (surface);
++  wl_list_insert (&pending->presentation_feedback_list, &feedback->link);
++}
++
++static const struct wp_presentation_interface
++meta_wayland_presentation_interface = {
++  wp_presentation_destroy,
++  wp_presentation_feedback,
++};
++
++static void
++wp_presentation_bind (struct wl_client *client,
++                      void             *data,
++                      uint32_t          version,
++                      uint32_t          id)
++{
++  struct wl_resource *resource;
++
++  resource = wl_resource_create (client,
++                                 &wp_presentation_interface,
++                                 version,
++                                 id);
++  wl_resource_set_implementation (resource,
++                                  &meta_wayland_presentation_interface,
++                                  NULL,
++                                  NULL);
++
++  /* Presentation timestamps in Mutter are guaranteed to be CLOCK_MONOTONIC. */
++  wp_presentation_send_clock_id (resource, CLOCK_MONOTONIC);
++}
++
++void
++meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor)
++{
++  if (wl_global_create (compositor->wayland_display,
++                        &wp_presentation_interface,
++                        META_WP_PRESENTATION_VERSION,
++                        NULL,
++                        wp_presentation_bind) == NULL)
++    g_error ("Failed to register a global wp_presentation object");
++}
++
++void
++meta_wayland_presentation_feedback_discard (MetaWaylandPresentationFeedback *feedback)
++{
++  wp_presentation_feedback_send_discarded (feedback->resource);
++  wl_resource_destroy (feedback->resource);
++}
++
++void
++meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback *feedback,
++                                            ClutterFrameInfo                *frame_info,
++                                            MetaWaylandOutput               *output)
++{
++  int64_t time = frame_info->presentation_time;
++  uint64_t time_s;
++  uint32_t tv_sec_hi, tv_sec_lo, tv_nsec,
++           refresh_interval_ns,
++           seq_hi, seq_lo,
++           flags;
++  GList *l;
++
++  time_s = time / G_USEC_PER_SEC;
++
++  tv_sec_hi = time_s >> 32;
++  tv_sec_lo = time_s;
++  tv_nsec = (uint32_t) (time - time_s * G_USEC_PER_SEC) * 1000;
++
++  refresh_interval_ns =
++    (uint32_t) (0.5 + 1000000000. / frame_info->refresh_rate);
++
++  seq_hi = output->last_sequence >> 32;
++  seq_lo = output->last_sequence;
++
++  flags = (WP_PRESENTATION_FEEDBACK_KIND_VSYNC |
++           WP_PRESENTATION_FEEDBACK_KIND_HW_COMPLETION);
++
++  if (frame_info->flags & CLUTTER_FRAME_INFO_HW_CLOCK)
++    flags |= WP_PRESENTATION_FEEDBACK_KIND_HW_CLOCK;
++
++  if (frame_info->flags & CLUTTER_FRAME_INFO_ZERO_COPY)
++    flags |= WP_PRESENTATION_FEEDBACK_KIND_ZERO_COPY;
++
++  for (l = output->resources; l; l = l->next)
++    {
++      struct wl_resource *output_resource = l->data;
++
++      if (feedback->resource->client == output_resource->client)
++        wp_presentation_feedback_send_sync_output (feedback->resource,
++                                                   output_resource);
++    }
++
++  wp_presentation_feedback_send_presented (feedback->resource,
++                                           tv_sec_hi,
++                                           tv_sec_lo,
++                                           tv_nsec,
++                                           refresh_interval_ns,
++                                           seq_hi,
++                                           seq_lo,
++                                           flags);
++
++  wl_resource_destroy (feedback->resource);
++}
++
++struct wl_list *
++meta_wayland_presentation_time_get_feedbacks (MetaWaylandPresentationTime *presentation_time,
++                                              ClutterStageView            *stage_view)
++{
++  if (!g_hash_table_contains (presentation_time->feedbacks, stage_view))
++    {
++      struct wl_list *list;
++
++      list = g_new0 (struct wl_list, 1);
++      wl_list_init (list);
++      g_hash_table_insert (presentation_time->feedbacks, stage_view, list);
++
++      return list;
++    }
++
++  return g_hash_table_lookup (presentation_time->feedbacks, stage_view);
++}
+diff --git a/src/wayland/meta-wayland-private.h b/src/wayland/meta-wayland-private.h
+index 074644ebb56f7e9322e3de10f095b47d9b15b44e..c5850e1d2c63ce49a78ad4fb05192a3a9a70e98c 100644
+--- a/src/wayland/meta-wayland-private.h
++++ b/src/wayland/meta-wayland-private.h
+@@ -26,6 +26,7 @@
+ #include "clutter/clutter.h"
+ #include "core/window-private.h"
+ #include "meta/meta-cursor-tracker.h"
++#include "wayland/meta-wayland-presentation-time-private.h"
+ #include "wayland/meta-wayland-pointer-gestures.h"
+ #include "wayland/meta-wayland-seat.h"
+ #include "wayland/meta-wayland-surface.h"
+@@ -86,6 +87,8 @@ struct _MetaWaylandCompositor
+   MetaWaylandTabletManager *tablet_manager;
+ 
+   GHashTable *scheduled_surface_associations;
++
++  MetaWaylandPresentationTime presentation_time;
+ };
+ 
+ #define META_TYPE_WAYLAND_COMPOSITOR (meta_wayland_compositor_get_type ())
+diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
+index 91684cc52b0e0cb1085bd6054ec91bdeef436c36..94b3f286bbbae9ea8160018b701807fdd2ff636b 100644
+--- a/src/wayland/meta-wayland-surface.c
++++ b/src/wayland/meta-wayland-surface.c
+@@ -46,6 +46,7 @@
+ #include "wayland/meta-wayland-legacy-xdg-shell.h"
+ #include "wayland/meta-wayland-outputs.h"
+ #include "wayland/meta-wayland-pointer.h"
++#include "wayland/meta-wayland-presentation-time-private.h"
+ #include "wayland/meta-wayland-private.h"
+ #include "wayland/meta-wayland-region.h"
+ #include "wayland/meta-wayland-seat.h"
+@@ -466,6 +467,20 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
+   state->has_new_buffer_transform = FALSE;
+   state->has_new_viewport_src_rect = FALSE;
+   state->has_new_viewport_dst_size = FALSE;
++
++  wl_list_init (&state->presentation_feedback_list);
++}
++
++static void
++meta_wayland_surface_state_discard_presentation_feedback (MetaWaylandSurfaceState *state)
++{
++  while (!wl_list_empty (&state->presentation_feedback_list))
++    {
++      MetaWaylandPresentationFeedback *feedback =
++        wl_container_of (state->presentation_feedback_list.next, feedback, link);
++
++      meta_wayland_presentation_feedback_discard (feedback);
++    }
+ }
+ 
+ static void
+@@ -483,6 +498,8 @@ meta_wayland_surface_state_clear (MetaWaylandSurfaceState *state)
+ 
+   wl_list_for_each_safe (cb, next, &state->frame_callback_list, link)
+     wl_resource_destroy (cb->resource);
++
++  meta_wayland_surface_state_discard_presentation_feedback (state);
+ }
+ 
+ static void
+@@ -592,6 +609,10 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
+                           to);
+     }
+ 
++  wl_list_insert_list (&to->presentation_feedback_list,
++                       &from->presentation_feedback_list);
++  wl_list_init (&from->presentation_feedback_list);
++
+   meta_wayland_surface_state_reset (from);
+ }
+ 
+@@ -627,6 +648,18 @@ meta_wayland_surface_state_class_init (MetaWaylandSurfaceStateClass *klass)
+                   G_TYPE_NONE, 0);
+ }
+ 
++static void
++meta_wayland_surface_discard_presentation_feedback (MetaWaylandSurface *surface)
++{
++  while (!wl_list_empty (&surface->presentation_feedback_list))
++    {
++      MetaWaylandPresentationFeedback *feedback =
++        wl_container_of (surface->presentation_feedback_list.next, feedback, link);
++
++      meta_wayland_presentation_feedback_discard (feedback);
++    }
++}
++
+ static void
+ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
+                                   MetaWaylandSurfaceState *state)
+@@ -755,6 +788,19 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
+         surface->input_region = NULL;
+     }
+ 
++  /*
++   * A new commit indicates a new content update, so any previous
++   * content update did not go on screen and needs to be discarded.
++   */
++  meta_wayland_surface_discard_presentation_feedback (surface);
++
++  wl_list_insert_list (&surface->presentation_feedback_list,
++                       &state->presentation_feedback_list);
++  wl_list_init (&state->presentation_feedback_list);
++
++  meta_wayland_compositor_add_presentation_feedback_surface (surface->compositor,
++                                                             surface);
++
+   if (surface->role)
+     {
+       meta_wayland_surface_role_apply_state (surface->role, state);
+@@ -870,6 +916,13 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
+       MetaWaylandSurfaceState *cached_state;
+ 
+       cached_state = meta_wayland_surface_ensure_cached_state (surface);
++
++      /*
++       * A new commit indicates a new content update, so any previous
++       * cached content update did not go on screen and needs to be discarded.
++       */
++      meta_wayland_surface_state_discard_presentation_feedback (cached_state);
++
+       meta_wayland_surface_state_merge_into (pending, cached_state);
+     }
+   else
+@@ -1339,6 +1392,7 @@ wl_surface_destructor (struct wl_resource *resource)
+     cairo_region_destroy (surface->input_region);
+ 
+   meta_wayland_compositor_remove_frame_callback_surface (compositor, surface);
++  meta_wayland_compositor_remove_presentation_feedback_surface (compositor, surface);
+ 
+   g_hash_table_foreach (surface->outputs,
+                         surface_output_disconnect_signals,
+@@ -1350,6 +1404,8 @@ wl_surface_destructor (struct wl_resource *resource)
+                          link)
+     wl_resource_destroy (cb->resource);
+ 
++  meta_wayland_surface_discard_presentation_feedback (surface);
++
+   if (surface->resource)
+     wl_resource_set_user_data (surface->resource, NULL);
+ 
+@@ -1399,6 +1455,8 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
+   surface->outputs = g_hash_table_new (NULL, NULL);
+   surface->shortcut_inhibited_seats = g_hash_table_new (NULL, NULL);
+ 
++  wl_list_init (&surface->presentation_feedback_list);
++
+   meta_wayland_compositor_notify_surface_id (compositor, id, surface);
+ 
+   return surface;
+diff --git a/src/wayland/meta-wayland-surface.h b/src/wayland/meta-wayland-surface.h
+index 0c7298886d861dd3ae2dabbca143bfc2ea95ba82..83a46ce0f031d648899f1f168346bbf2d14d22d3 100644
+--- a/src/wayland/meta-wayland-surface.h
++++ b/src/wayland/meta-wayland-surface.h
+@@ -120,6 +120,9 @@ struct _MetaWaylandSurfaceState
+   gboolean has_new_viewport_dst_size;
+   int viewport_dst_width;
+   int viewport_dst_height;
++
++  /* presentation-time */
++  struct wl_list presentation_feedback_list;
+ };
+ 
+ struct _MetaWaylandDragDestFuncs
+@@ -227,6 +230,9 @@ struct _MetaWaylandSurface
+ 
+   /* table of seats for which shortcuts are inhibited */
+   GHashTable *shortcut_inhibited_seats;
++
++  /* presentation-time */
++  struct wl_list presentation_feedback_list;
+ };
+ 
+ void                meta_wayland_shell_init     (MetaWaylandCompositor *compositor);
+diff --git a/src/wayland/meta-wayland-versions.h b/src/wayland/meta-wayland-versions.h
+index 7a750413f1537d59995bcb3407e2e646b01c80a8..917461c4c3313db9e142733db1849dadfb943f94 100644
+--- a/src/wayland/meta-wayland-versions.h
++++ b/src/wayland/meta-wayland-versions.h
+@@ -57,5 +57,6 @@
+ #define META_WP_VIEWPORTER_VERSION          1
+ #define META_GTK_PRIMARY_SELECTION_VERSION  1
+ #define META_ZWP_PRIMARY_SELECTION_V1_VERSION 1
++#define META_WP_PRESENTATION_VERSION        1
+ 
+ #endif
+diff --git a/src/wayland/meta-wayland-xdg-shell.c b/src/wayland/meta-wayland-xdg-shell.c
+index 176f8a908fdc7a29fc6535a67375467d9cfada61..cd40c8cb3acd7412b35183b4e34aa13d5965bf6f 100644
+--- a/src/wayland/meta-wayland-xdg-shell.c
++++ b/src/wayland/meta-wayland-xdg-shell.c
+@@ -1575,6 +1575,11 @@ meta_wayland_xdg_surface_post_apply_state (MetaWaylandSurfaceRole  *surface_role
+     meta_wayland_xdg_surface_get_instance_private (xdg_surface);
+   MetaWaylandShellSurface *shell_surface =
+     META_WAYLAND_SHELL_SURFACE (surface_role);
++  MetaWaylandSurfaceRoleClass *surface_role_class;
++
++  surface_role_class =
++    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_xdg_surface_parent_class);
++  surface_role_class->post_apply_state (surface_role, pending);
+ 
+   if (pending->has_new_geometry)
+     {
+diff --git a/src/wayland/meta-wayland.c b/src/wayland/meta-wayland.c
+index e5e9d900bbd3da83678421bb381858059237cbfc..ef4d81a3f6d0afea1fa17a71d7a3a6ae22b1efaf 100644
+--- a/src/wayland/meta-wayland.c
++++ b/src/wayland/meta-wayland.c
+@@ -39,6 +39,7 @@
+ #include "wayland/meta-wayland-inhibit-shortcuts-dialog.h"
+ #include "wayland/meta-wayland-inhibit-shortcuts.h"
+ #include "wayland/meta-wayland-outputs.h"
++#include "wayland/meta-wayland-presentation-time-private.h"
+ #include "wayland/meta-wayland-private.h"
+ #include "wayland/meta-wayland-region.h"
+ #include "wayland/meta-wayland-seat.h"
+@@ -202,9 +203,9 @@ on_after_update (ClutterStage          *stage,
+                  MetaWaylandCompositor *compositor)
+ {
+   GList *l;
+-  int64_t now_us;
++  ClutterFrameClock *frame_clock;
+ 
+-  now_us = g_get_monotonic_time ();
++  frame_clock = clutter_stage_view_get_frame_clock (stage_view);
+ 
+   l = compositor->frame_callback_surfaces;
+   while (l)
+@@ -227,12 +228,112 @@ on_after_update (ClutterStage          *stage,
+         continue;
+ 
+       actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);
+-      meta_wayland_actor_surface_emit_frame_callbacks (actor_surface,
+-                                                       now_us / 1000);
++      meta_wayland_actor_surface_schedule_frame_callbacks (actor_surface,
++                                                           frame_clock);
+ 
+       compositor->frame_callback_surfaces =
+         g_list_delete_link (compositor->frame_callback_surfaces, l_cur);
+     }
++
++  l = compositor->presentation_time.feedback_surfaces;
++  while (l)
++    {
++      GList *l_cur = l;
++      MetaWaylandSurface *surface = l->data;
++      MetaSurfaceActor *actor;
++      ClutterStageView *surface_primary_view;
++
++      l = l->next;
++
++      actor = meta_wayland_surface_get_actor (surface);
++      if (!actor)
++        continue;
++
++      surface_primary_view =
++        meta_surface_actor_wayland_get_current_primary_view (actor, stage);
++      if (stage_view != surface_primary_view)
++        continue;
++
++      if (!wl_list_empty (&surface->presentation_feedback_list)) {
++        /* Add feedbacks to the list to be fired on presentation. */
++        struct wl_list *feedbacks;
++
++        feedbacks =
++          meta_wayland_presentation_time_get_feedbacks (&compositor->presentation_time,
++                                                        stage_view);
++        wl_list_insert_list (feedbacks, &surface->presentation_feedback_list);
++        wl_list_init (&surface->presentation_feedback_list);
++      }
++
++      compositor->presentation_time.feedback_surfaces =
++        g_list_delete_link (compositor->presentation_time.feedback_surfaces,
++                            l_cur);
++    }
++}
++
++static MetaWaylandOutput *
++meta_wayland_compositor_get_output_for_stage_view (MetaWaylandCompositor *compositor,
++                                                   ClutterStageView      *stage_view)
++{
++  MetaRectangle view_layout;
++  GHashTableIter iter;
++  gpointer key, value;
++
++  clutter_stage_view_get_layout (stage_view, &view_layout);
++
++  g_hash_table_iter_init (&iter, compositor->outputs);
++  while (g_hash_table_iter_next (&iter, &key, &value))
++    {
++      MetaWaylandOutput *output = META_WAYLAND_OUTPUT (value);
++      MetaLogicalMonitor *logical_monitor = output->logical_monitor;
++      MetaRectangle logical_monitor_layout =
++        meta_logical_monitor_get_layout (logical_monitor);
++
++      if (meta_rectangle_overlap (&logical_monitor_layout, &view_layout))
++        return output;
++    }
++
++  return NULL;
++}
++
++static void
++on_presented (ClutterStage          *stage,
++              ClutterStageView      *stage_view,
++              ClutterFrameInfo      *frame_info,
++              MetaWaylandCompositor *compositor)
++{
++  MetaWaylandPresentationFeedback *feedback, *next;
++  struct wl_list *feedbacks;
++  MetaWaylandOutput *output =
++    meta_wayland_compositor_get_output_for_stage_view (compositor, stage_view);
++
++  if (output != NULL)
++    {
++      /*
++       * Update the sequence only for the "main" stage view.
++       *
++       * When an output is mirrored to multiple monitors, we still only want to
++       * update the sequence once. This "main" check serves that purpose.
++       */
++      if (meta_wayland_output_is_main_stage_view (output, stage_view))
++        output->last_sequence += frame_info->sequence_delta;
++   }
++
++  feedbacks =
++    meta_wayland_presentation_time_get_feedbacks (&compositor->presentation_time,
++                                                  stage_view);
++
++  wl_list_for_each_safe (feedback, next, feedbacks, link)
++    {
++      gboolean synthetic = (frame_info->flags & CLUTTER_FRAME_INFO_SYNTHETIC);
++
++      if (output == NULL || synthetic)
++        meta_wayland_presentation_feedback_discard (feedback);
++      else
++        meta_wayland_presentation_feedback_present (feedback,
++                                                    frame_info,
++                                                    output);
++    }
+ }
+ 
+ /**
+@@ -296,6 +397,25 @@ meta_wayland_compositor_remove_frame_callback_surface (MetaWaylandCompositor *co
+     g_list_remove (compositor->frame_callback_surfaces, surface);
+ }
+ 
++void
++meta_wayland_compositor_add_presentation_feedback_surface (MetaWaylandCompositor *compositor,
++                                                           MetaWaylandSurface    *surface)
++{
++  if (g_list_find (compositor->presentation_time.feedback_surfaces, surface))
++    return;
++
++  compositor->presentation_time.feedback_surfaces =
++    g_list_prepend (compositor->presentation_time.feedback_surfaces, surface);
++}
++
++void
++meta_wayland_compositor_remove_presentation_feedback_surface (MetaWaylandCompositor *compositor,
++                                                              MetaWaylandSurface    *surface)
++{
++  compositor->presentation_time.feedback_surfaces =
++    g_list_remove (compositor->presentation_time.feedback_surfaces, surface);
++}
++
+ static void
+ set_gnome_env (const char *name,
+ 	       const char *value)
+@@ -349,6 +469,7 @@ static void
+ meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
+ {
+   compositor->scheduled_surface_associations = g_hash_table_new (NULL, NULL);
++  compositor->presentation_time.feedbacks = g_hash_table_new (NULL, NULL);
+ 
+   wl_log_set_handler_server (meta_wayland_log_func);
+ 
+@@ -424,6 +545,8 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
+ 
+   g_signal_connect (stage, "after-update",
+                     G_CALLBACK (on_after_update), compositor);
++  g_signal_connect (stage, "presented",
++                    G_CALLBACK (on_presented), compositor);
+ 
+   if (!wl_global_create (compositor->wayland_display,
+ 			 &wl_compositor_interface,
+@@ -450,6 +573,7 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
+   meta_wayland_surface_inhibit_shortcuts_dialog_init ();
+   meta_wayland_text_input_init (compositor);
+   meta_wayland_gtk_text_input_init (compositor);
++  meta_wayland_init_presentation_time (compositor);
+ 
+   /* Xwayland specific protocol, needs to be filtered out for all other clients */
+   if (meta_xwayland_grab_keyboard_init (compositor))
+diff --git a/src/wayland/meta-wayland.h b/src/wayland/meta-wayland.h
+index 3549fb2d5b8cb7d6dfa55c86b20a99821f1d09b3..01dd2107a26746a182fa6eb8ea8eca5d525e64d2 100644
+--- a/src/wayland/meta-wayland.h
++++ b/src/wayland/meta-wayland.h
+@@ -68,6 +68,12 @@ void                    meta_wayland_compositor_add_frame_callback_surface (Meta
+ void                    meta_wayland_compositor_remove_frame_callback_surface (MetaWaylandCompositor *compositor,
+                                                                                MetaWaylandSurface    *surface);
+ 
++void                    meta_wayland_compositor_add_presentation_feedback_surface (MetaWaylandCompositor *compositor,
++                                                                                   MetaWaylandSurface    *surface);
++
++void                    meta_wayland_compositor_remove_presentation_feedback_surface (MetaWaylandCompositor *compositor,
++                                                                                      MetaWaylandSurface    *surface);
++
+ META_EXPORT_TEST
+ const char             *meta_wayland_get_wayland_display_name   (MetaWaylandCompositor *compositor);
+ 
