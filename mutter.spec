@@ -99,7 +99,6 @@ Requires:      libinput%{?_isa} >= %{libinput_version}
 Patch100: 850.diff
 Patch110: 1309.diff
 Patch120: rt-default.diff
-Patch140: 1050.diff
 #Patch150: 1439.diff
 #Patch151: 1498.diff
 #Patch152: 1474.diff
@@ -109,7 +108,6 @@ Patch140: 1050.diff
 Patch180: 984.diff
 Patch190: 1524.diff
 Patch200: 1507.diff
-Patch210: 1468.diff
 #Patch220: 1510.diff
 Patch230: 1268.diff
 
