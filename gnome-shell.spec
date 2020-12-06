@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.38.2
-Release:        1%{?dist}
+Release:        100%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -223,6 +223,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Dec 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.2-100
+- Remove !1481 "Make sure to allocate all children in allocate vfuncs" (merged)
+- Rebase to 3.38.2-1.fc33
+
 * Wed Dec 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.2-1
 - Update to 3.38.2
 
