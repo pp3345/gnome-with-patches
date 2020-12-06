@@ -1,12 +1,12 @@
 Name:           gnome-shell
-Version:        3.38.1
-Release:        203%{?dist}.pp3345
+Version:        3.38.2
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
 URL:            https://wiki.gnome.org/Projects/GnomeShell
 #VCS:           git:git://git.gnome.org/gnome-shell
-Source0:        gnome-shell-3.38.1-c555f19b.tar.gz
+Source0:        http://download.gnome.org/sources/gnome-shell/3.38/%{name}-%{version}.tar.xz
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
@@ -224,6 +224,13 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Wed Dec 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.2-1
+- Update to 3.38.2
+
+* Tue Nov 17 2020 Jonas Ådahl <jadahl@redhat.com> - 3.38.1-3
+- Backport current patches from gnome-3-38
+  Resolves: #1896586
+
 * Sun Nov 15 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-203
 - Remove !1436 "graphene_matrix_t" (missing dependency)
 
