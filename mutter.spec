@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.2
-Release:       1%{?dist}
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -182,6 +182,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sun Dec 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.2-100
+- Remove !1468 "wayland/compositor: Only emit frame callbacks for the primary stage view" (merged)
+- Remove !1450 "clutter/text: Use new pango API to compare attribute lists" (obsoleted)
+- Remove !1470 "backend: Don't pull generated headers (indirectly)" (merged)
+- Rebase to 3.38.2-1.fc33
+
 * Wed Dec 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.2-1
 - Update to 3.38.2
 
