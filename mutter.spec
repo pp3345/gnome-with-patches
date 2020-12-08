@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.2
-Release:       100%{?dist}.pp3345
+Release:       100%{?dist}.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
