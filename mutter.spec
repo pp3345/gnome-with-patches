@@ -7,16 +7,20 @@
 %global mutter_api_version 7
 
 Name:          mutter
-Version:       3.38.1
-Release:       107%{?dist}.shrisha
+Version:       3.38.2
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       mutter-3.38.1.tar.xz
+Source0:       http://download.gnome.org/sources/%{name}/3.38/%{name}-%{version}.tar.xz
 
-Patch0:        168.patch
+# Work-around for OpenJDK's compliance test
+Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
+
+# To make s390x build pass
+Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -92,8 +96,21 @@ Requires: zenity
 Requires:      json-glib%{?_isa} >= %{json_glib_version}
 Requires:      libinput%{?_isa} >= %{libinput_version}
 
-Patch230: 1309.diff
-Patch240: 1441.diff
+Patch100: 850.diff
+Patch110: 1309.diff
+Patch120: rt-default.diff
+#Patch150: 1439.diff
+#Patch151: 1498.diff
+#Patch152: 1474.diff
+#Patch153: 1496.diff
+#Patch160: 1489.diff
+#Patch170: 1509.diff
+Patch180: 984.diff
+Patch190: 1524.diff
+Patch200: 1507.diff
+#Patch220: 1510.diff
+Patch230: 1268.diff
+Patch230: 1441.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages
@@ -166,6 +183,26 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Sun Dec 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.2-100
+- Remove !1468 "wayland/compositor: Only emit frame callbacks for the primary stage view" (merged)
+- Remove !1450 "clutter/text: Use new pango API to compare attribute lists" (obsoleted)
+- Remove !1470 "backend: Don't pull generated headers (indirectly)" (merged)
+- Rebase to 3.38.2-1.fc33
+
+* Wed Dec 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.2-1
+- Update to 3.38.2
+
+* Mon Nov 23 2020 Jonas Ådahl <jadahl@redhat.com> - 3.38.1-3
+- Fix fullscreen window regression
+  Resolves: #1900187
+
+* Tue Nov 17 2020 Jonas Ådahl <jadahl@redhat.com> - 3.38.1-2
+- Backport fixes from gnome-3-38 stable branch
+  Resolves: #1893375
+  Resolves: #1894316
+  Resolves: #1896097
+  Resolves: #1896265
+
 * Sun Nov 15 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-105
 - Add !1268 "window: "Hide" edge resistance behind modifier key" @22902a5e
 - Update !1309 "cogl-winsys-glx: Add a heuristically calculated presentation_time" @40300c94
