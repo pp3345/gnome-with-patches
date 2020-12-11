@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.38.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -10,6 +10,8 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.38/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
+
+Patch2: 0001-Revert-appDisplay-baseAppView-Cleanup-animate.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -217,6 +219,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Fri Dec 11 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.2-2
+- Fix vanishing app picker icons
+
 * Wed Dec 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.2-1
 - Update to 3.38.2
 
