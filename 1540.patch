@@ -1,0 +1,118 @@
+From e6369547dd86f395a8d44eea71f999fa1e5fbe42 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 9 Dec 2020 19:02:55 +0100
+Subject: [PATCH 1/2] st/viewport: Don't trigger relayout when picking
+
+Calling clutter_actor_get_allocation_box() might still implicitly
+trigger a full relayout, which has many side effects not expected to
+occur during picking. Avoid a particular case which caused a reentry
+issue by using the current allocation instead of forcing a relayout when
+picking in StViewport.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/-/issues/1436
+(cherry picked from commit 4e57119f40259ab5ecfd013256ac9fc81f234646)
+
+Part-of: <https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1540>
+---
+ src/st/st-viewport.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/st/st-viewport.c b/src/st/st-viewport.c
+index 0eb1868ab9..5556a772ff 100644
+--- a/src/st/st-viewport.c
++++ b/src/st/st-viewport.c
+@@ -435,7 +435,7 @@ st_viewport_pick (ClutterActor       *actor,
+   StViewportPrivate *priv = st_viewport_get_instance_private (viewport);
+   StThemeNode *theme_node = st_widget_get_theme_node (ST_WIDGET (actor));
+   double x, y;
+-  ClutterActorBox allocation_box;
++  g_autoptr (ClutterActorBox) allocation_box = NULL;
+   ClutterActorBox content_box;
+   ClutterActor *child;
+   CoglFramebuffer *fb = clutter_pick_context_get_framebuffer (pick_context);
+@@ -455,8 +455,8 @@ st_viewport_pick (ClutterActor       *actor,
+   if (clutter_actor_get_n_children (actor) == 0)
+     return;
+ 
+-  clutter_actor_get_allocation_box (actor, &allocation_box);
+-  st_theme_node_get_content_box (theme_node, &allocation_box, &content_box);
++  g_object_get (actor, "allocation", &allocation_box, NULL);
++  st_theme_node_get_content_box (theme_node, allocation_box, &content_box);
+ 
+   content_box.x1 += x;
+   content_box.y1 += y;
+-- 
+GitLab
+
+
+From f60ca05191ad5c335bbe9b1417a4f158814fc308 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 9 Dec 2020 19:32:01 +0100
+Subject: [PATCH 2/2] workspacesView: Don't update scroll position when
+ allocating
+
+Updating scroll position may have significant side effects, e.g.
+switching workspace; this should never happen during allocation, as
+we're in the middle of painting a frame. So, put it in an idle callback
+if we're doing it from an allocation to have the side effects happen the
+right time.
+
+(cherry picked from commit 78d6b13c2920cadfb6efa8fb42490cd0b5f65add)
+
+Part-of: <https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1540>
+---
+ js/ui/workspacesView.js | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/js/ui/workspacesView.js b/js/ui/workspacesView.js
+index 4aac1cc1cd..cccd447e26 100644
+--- a/js/ui/workspacesView.js
++++ b/js/ui/workspacesView.js
+@@ -78,6 +78,7 @@ class WorkspacesView extends WorkspacesViewBase {
+ 
+         this._animating = false; // tweening
+         this._gestureActive = false; // touch(pad) gestures
++        this._updateScrollPositionId = 0;
+ 
+         this._scrollAdjustment = scrollAdjustment;
+         this._onScrollId = this._scrollAdjustment.connect('notify::value',
+@@ -124,7 +125,14 @@ class WorkspacesView extends WorkspacesViewBase {
+             child.allocate_available_size(x, y, box.get_width(), box.get_height());
+         });
+ 
+-        this._updateScrollPosition();
++        // Update scroll position in an idle callback to avoid unintended
++        // side effects (e.g. workspace switch) during layout.
++        this._updateScrollPositionId =
++            GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
++                this._updateScrollPositionId = 0;
++                this._updateScrollPosition();
++                return GLib.SOURCE_REMOVE;
++            });
+     }
+ 
+     getActiveWorkspace() {
+@@ -227,6 +235,8 @@ class WorkspacesView extends WorkspacesViewBase {
+     _onDestroy() {
+         super._onDestroy();
+ 
++        if (this._updateScrollPositionId)
++            GLib.source_remove(this._updateScrollPositionId);
+         this._scrollAdjustment.disconnect(this._onScrollId);
+         global.window_manager.disconnect(this._switchWorkspaceNotifyId);
+         let workspaceManager = global.workspace_manager;
+@@ -254,6 +264,11 @@ class WorkspacesView extends WorkspacesViewBase {
+         if (!this.has_allocation())
+             return;
+ 
++        if (this._updateScrollPositionId) {
++            GLib.source_remove(this._updateScrollPositionId);
++            this._updateScrollPositionId = 0;
++        }
++
+         const adj = this._scrollAdjustment;
+         const allowSwitch =
+             adj.get_transition('value') === null && !this._gestureActive;
+-- 
+GitLab
+
