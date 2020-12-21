@@ -1,0 +1,1019 @@
+diff --git a/clutter/clutter/clutter-actor-private.h b/clutter/clutter/clutter-actor-private.h
+index 3269f66ad439561d277c9ee5d15bc74f0d02d172..16ab012b6f6a9daa6e5399d8a47e934f95ae62bf 100644
+--- a/clutter/clutter/clutter-actor-private.h
++++ b/clutter/clutter/clutter-actor-private.h
+@@ -283,13 +283,15 @@ void                            _clutter_actor_queue_relayout_on_clones
+ void                            _clutter_actor_queue_only_relayout                      (ClutterActor *actor);
+ void                            clutter_actor_clear_stage_views_recursive               (ClutterActor *actor);
+ 
+-gboolean                        _clutter_actor_get_real_resource_scale                  (ClutterActor *actor,
+-                                                                                         float        *resource_scale);
++float                           clutter_actor_get_real_resource_scale                   (ClutterActor *actor);
+ 
+ ClutterPaintNode *              clutter_actor_create_texture_paint_node                 (ClutterActor *self,
+                                                                                          CoglTexture  *texture);
+ 
+-void clutter_actor_update_stage_views (ClutterActor *self);
++void clutter_actor_update_stage_views (ClutterActor *self,
++                                       int           phase);
++
++void clutter_actor_queue_immediate_relayout (ClutterActor *self);
+ 
+ G_END_DECLS
+ 
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 061d516b604d108eda26af047dfa19257bd55b8a..86ffe2f1f0667de794dc314004cfb752db9afcff 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -854,7 +854,6 @@ struct _ClutterActorPrivate
+   guint needs_y_expand              : 1;
+   guint needs_paint_volume_update   : 1;
+   guint had_effects_on_last_paint_volume_update : 1;
+-  guint needs_compute_resource_scale : 1;
+   guint absolute_origin_changed     : 1;
+   guint needs_update_stage_views    : 1;
+ };
+@@ -924,7 +923,6 @@ enum
+   PROP_SCALE_X,
+   PROP_SCALE_Y,
+   PROP_SCALE_Z,
+-  PROP_RESOURCE_SCALE,
+ 
+   PROP_ROTATION_ANGLE_X, /* XXX:2.0 rename to rotation-x */
+   PROP_ROTATION_ANGLE_Y, /* XXX:2.0 rename to rotation-y */
+@@ -1005,6 +1003,7 @@ enum
+   TOUCH_EVENT,
+   TRANSITION_STOPPED,
+   STAGE_VIEWS_CHANGED,
++  RESOURCE_SCALE_CHANGED,
+ 
+   LAST_SIGNAL
+ };
+@@ -1075,8 +1074,6 @@ static void clutter_actor_set_child_transform_internal (ClutterActor        *sel
+ 
+ static void     clutter_actor_realize_internal          (ClutterActor *self);
+ static void     clutter_actor_unrealize_internal        (ClutterActor *self);
+-static gboolean clutter_actor_update_resource_scale     (ClutterActor *self);
+-static void     clutter_actor_ensure_resource_scale     (ClutterActor *self);
+ 
+ static void clutter_actor_push_in_cloned_branch (ClutterActor *self,
+                                                  gulong        count);
+@@ -1618,8 +1615,6 @@ clutter_actor_real_map (ClutterActor *self)
+       queue_update_stage_views (self);
+     }
+ 
+-  clutter_actor_ensure_resource_scale (self);
+-
+   /* notify on parent mapped before potentially mapping
+    * children, so apps see a top-down notification.
+    */
+@@ -2530,7 +2525,6 @@ clutter_actor_notify_if_geometry_changed (ClutterActor          *self,
+ static void
+ absolute_allocation_changed (ClutterActor *actor)
+ {
+-  actor->priv->needs_compute_resource_scale = TRUE;
+   queue_update_stage_views (actor);
+ }
+ 
+@@ -3731,8 +3725,6 @@ clutter_actor_paint (ClutterActor        *self,
+   if (!CLUTTER_ACTOR_IS_MAPPED (self))
+     return;
+ 
+-  clutter_actor_ensure_resource_scale (self);
+-
+   actor_node = clutter_actor_node_new (self);
+   root_node = clutter_paint_node_ref (actor_node);
+ 
+@@ -4014,8 +4006,6 @@ clutter_actor_pick (ClutterActor       *actor,
+   if (!CLUTTER_ACTOR_IS_MAPPED (actor))
+     return;
+ 
+-  clutter_actor_ensure_resource_scale (actor);
+-
+   /* mark that we are in the paint process */
+   CLUTTER_SET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
+ 
+@@ -4342,10 +4332,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
+     clutter_actor_clear_stage_views_recursive (child);
+ 
+   if (emit_parent_set && !CLUTTER_ACTOR_IN_DESTRUCTION (child))
+-    {
+-      child->priv->needs_compute_resource_scale = TRUE;
+-      g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
+-    }
++    g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
+ 
+   /* if the child was mapped then we need to relayout ourselves to account
+    * for the removed child
+@@ -5375,16 +5362,6 @@ clutter_actor_get_property (GObject    *object,
+       }
+       break;
+ 
+-    case PROP_RESOURCE_SCALE:
+-      if (priv->needs_compute_resource_scale)
+-        {
+-          if (!clutter_actor_update_resource_scale (actor))
+-            g_warning ("Getting invalid resource scale property");
+-        }
+-
+-      g_value_set_float (value, priv->resource_scale);
+-      break;
+-
+     case PROP_REACTIVE:
+       g_value_set_boolean (value, clutter_actor_get_reactive (actor));
+       break;
+@@ -5926,6 +5903,25 @@ clutter_actor_real_has_overlaps (ClutterActor *self)
+   return TRUE;
+ }
+ 
++static float
++clutter_actor_real_calculate_resource_scale (ClutterActor *self,
++                                             int           phase)
++{
++  ClutterActorPrivate *priv = self->priv;
++  GList *l;
++  float new_resource_scale = -1.f;
++
++  for (l = priv->stage_views; l; l = l->next)
++    {
++      ClutterStageView *view = l->data;
++
++      new_resource_scale = MAX (clutter_stage_view_get_scale (view),
++                                new_resource_scale);
++    }
++
++  return new_resource_scale;
++}
++
+ static void
+ clutter_actor_real_destroy (ClutterActor *actor)
+ {
+@@ -6011,6 +6007,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
+   klass->get_accessible = clutter_actor_real_get_accessible;
+   klass->get_paint_volume = clutter_actor_real_get_paint_volume;
+   klass->has_overlaps = clutter_actor_real_has_overlaps;
++  klass->calculate_resource_scale = clutter_actor_real_calculate_resource_scale;
+   klass->paint = clutter_actor_real_paint;
+   klass->destroy = clutter_actor_real_destroy;
+ 
+@@ -6678,19 +6675,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
+                          G_PARAM_STATIC_STRINGS |
+                          CLUTTER_PARAM_ANIMATABLE);
+ 
+-  /**
+-   * ClutterActor:resource-scale:
+-   *
+-   * The resource-scale of the #ClutterActor if any or -1 if not available
+-   */
+-  obj_props[PROP_RESOURCE_SCALE] =
+-    g_param_spec_float ("resource-scale",
+-                        P_("Resource Scale"),
+-                        P_("The Scaling factor for resources painting"),
+-                        -1.0f, G_MAXFLOAT,
+-                        1.0f,
+-                        CLUTTER_PARAM_READABLE);
+-
+   /**
+    * ClutterActor:rotation-angle-x:
+    *
+@@ -7981,6 +7965,23 @@ clutter_actor_class_init (ClutterActorClass *klass)
+                   NULL, NULL, NULL,
+                   G_TYPE_NONE, 0);
+ 
++  /**
++   * ClutterActor::resource-scale-changed:
++   * @actor: a #ClutterActor
++   *
++   * The ::resource-scale-changed signal is emitted when the resource scale
++   * value returned by clutter_actor_get_resource_scale() changes.
++   *
++   * This signal can be used to get notified about the correct resource scale
++   * when the scale had to be queried outside of the paint cycle.
++   */
++  actor_signals[RESOURCE_SCALE_CHANGED] =
++    g_signal_new (I_("resource-scale-changed"),
++                  G_TYPE_FROM_CLASS (object_class),
++                  G_SIGNAL_RUN_LAST,
++                  G_STRUCT_OFFSET (ClutterActorClass, resource_scale_changed),
++                  NULL, NULL, NULL,
++                  G_TYPE_NONE, 0);
+ }
+ 
+ static void
+@@ -8000,7 +8001,6 @@ clutter_actor_init (ClutterActor *self)
+   priv->needs_height_request = TRUE;
+   priv->needs_allocation = TRUE;
+   priv->needs_paint_volume_update = TRUE;
+-  priv->needs_compute_resource_scale = TRUE;
+   priv->needs_update_stage_views = TRUE;
+ 
+   priv->cached_width_age = 1;
+@@ -11901,10 +11901,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
+     }
+ 
+   if (emit_parent_set)
+-    {
+-      child->priv->needs_compute_resource_scale = TRUE;
+-      g_signal_emit (child, actor_signals[PARENT_SET], 0, NULL);
+-    }
++    g_signal_emit (child, actor_signals[PARENT_SET], 0, NULL);
+ 
+   if (check_state)
+     {
+@@ -15964,107 +15961,6 @@ clutter_actor_get_paint_box (ClutterActor    *self,
+   return TRUE;
+ }
+ 
+-static gboolean
+-_clutter_actor_get_resource_scale_for_rect (ClutterActor    *self,
+-                                            graphene_rect_t *bounding_rect,
+-                                            float           *resource_scale)
+-{
+-  ClutterActor *stage;
+-  g_autoptr (GList) views = NULL;
+-  GList *l;
+-  float max_scale = 0;
+-
+-  stage = _clutter_actor_get_stage_internal (self);
+-  if (!stage)
+-    return FALSE;
+-
+-  views = clutter_stage_get_views_for_rect (CLUTTER_STAGE (stage),
+-                                            bounding_rect);
+-
+-  if (!views)
+-    return FALSE;
+-
+-  for (l = views; l; l = l->next)
+-    {
+-      ClutterStageView *view = l->data;
+-
+-      max_scale = MAX (clutter_stage_view_get_scale (view), max_scale);
+-    }
+-
+-  *resource_scale = max_scale;
+-
+-  return TRUE;
+-}
+-
+-static gboolean
+-_clutter_actor_compute_resource_scale (ClutterActor *self,
+-                                       float        *resource_scale)
+-{
+-  graphene_rect_t bounding_rect;
+-  ClutterActorPrivate *priv = self->priv;
+-
+-  if (CLUTTER_ACTOR_IN_DESTRUCTION (self) ||
+-      CLUTTER_ACTOR_IN_PREF_SIZE (self) ||
+-      !clutter_actor_is_mapped (self))
+-    {
+-      return FALSE;
+-    }
+-
+-  clutter_actor_get_transformed_position (self,
+-                                          &bounding_rect.origin.x,
+-                                          &bounding_rect.origin.y);
+-  clutter_actor_get_transformed_size (self,
+-                                      &bounding_rect.size.width,
+-                                      &bounding_rect.size.height);
+-
+-  if (bounding_rect.size.width == 0.0 ||
+-      bounding_rect.size.height == 0.0 ||
+-      !_clutter_actor_get_resource_scale_for_rect (self,
+-                                                   &bounding_rect,
+-                                                   resource_scale))
+-    {
+-      if (priv->parent)
+-        {
+-          gboolean in_clone_paint;
+-          gboolean was_parent_in_clone_paint;
+-          gboolean was_parent_unmapped;
+-          gboolean was_parent_paint_unmapped;
+-          gboolean ret;
+-
+-          in_clone_paint = clutter_actor_is_in_clone_paint (self);
+-          was_parent_unmapped = !clutter_actor_is_mapped (priv->parent);
+-          was_parent_in_clone_paint =
+-            clutter_actor_is_in_clone_paint (priv->parent);
+-          was_parent_paint_unmapped = priv->parent->priv->enable_paint_unmapped;
+-
+-          if (in_clone_paint && was_parent_unmapped)
+-            {
+-              _clutter_actor_set_in_clone_paint (priv->parent, TRUE);
+-              _clutter_actor_set_enable_paint_unmapped (priv->parent, TRUE);
+-            }
+-
+-          ret = _clutter_actor_compute_resource_scale (priv->parent,
+-                                                       resource_scale);
+-
+-          if (in_clone_paint && was_parent_unmapped)
+-            {
+-              _clutter_actor_set_in_clone_paint (priv->parent,
+-                                                 was_parent_in_clone_paint);
+-              _clutter_actor_set_enable_paint_unmapped (priv->parent,
+-                                                        was_parent_paint_unmapped);
+-            }
+-
+-          return ret;
+-        }
+-      else
+-        {
+-          return FALSE;
+-        }
+-    }
+-
+-  return TRUE;
+-}
+-
+ static ClutterActorTraverseVisitFlags
+ clear_stage_views_cb (ClutterActor *actor,
+                       int           depth,
+@@ -16073,7 +15969,6 @@ clear_stage_views_cb (ClutterActor *actor,
+   g_autoptr (GList) old_stage_views = NULL;
+ 
+   actor->priv->needs_update_stage_views = TRUE;
+-  actor->priv->needs_compute_resource_scale = TRUE;
+ 
+   old_stage_views = g_steal_pointer (&actor->priv->stage_views);
+ 
+@@ -16093,66 +15988,65 @@ clutter_actor_clear_stage_views_recursive (ClutterActor *self)
+                            NULL);
+ }
+ 
+-static gboolean
+-clutter_actor_update_resource_scale (ClutterActor *self)
++float
++clutter_actor_get_real_resource_scale (ClutterActor *self)
+ {
+-  ClutterActorPrivate *priv;
+-  float resource_scale;
+-  float old_resource_scale;
+-  priv = self->priv;
++  ClutterActorPrivate *priv = self->priv;
++  float guessed_scale;
+ 
+-  g_return_val_if_fail (priv->needs_compute_resource_scale, FALSE);
++  if (priv->resource_scale != -1.f)
++    return priv->resource_scale;
+ 
+-  old_resource_scale = priv->resource_scale;
+-  priv->resource_scale = -1.0f;
++  /* If the scale hasn't been computed yet, we return a best guess */
+ 
+-  if (_clutter_actor_compute_resource_scale (self, &resource_scale))
++  if (priv->parent != NULL)
+     {
+-      priv->resource_scale = resource_scale;
+-      priv->needs_compute_resource_scale = FALSE;
+-
+-      return fabsf (old_resource_scale - resource_scale) > FLT_EPSILON;
++      /* If the scale hasn't been calculated yet, assume this actor is located
++       * inside its parents box and go up the hierarchy.
++       */
++      guessed_scale = clutter_actor_get_real_resource_scale (priv->parent);
+     }
++  else if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
++    {
++      /* This must be the first allocation cycle and the resource scale of
++       * the stage has not been updated yet, so return it manually.
++       */
++      GList *l;
++      ClutterStage *stage = CLUTTER_STAGE (self);
++      float max_scale = -1.f;
+ 
+-  return FALSE;
+-}
+-
+-static void
+-clutter_actor_ensure_resource_scale (ClutterActor *self)
+-{
+-  ClutterActorPrivate *priv = self->priv;
++      for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
++        {
++          ClutterStageView *view = l->data;
+ 
+-  if (!priv->needs_compute_resource_scale)
+-    return;
++          max_scale = MAX (clutter_stage_view_get_scale (view), max_scale);
++        }
+ 
+-  if (clutter_actor_update_resource_scale (self))
+-    g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_RESOURCE_SCALE]);
+-}
++      guessed_scale = max_scale;
++    }
++  else
++    {
++      ClutterBackend *backend = clutter_get_default_backend ();
+ 
+-gboolean
+-_clutter_actor_get_real_resource_scale (ClutterActor *self,
+-                                        gfloat       *resource_scale)
+-{
+-  ClutterActorPrivate *priv = self->priv;
++      guessed_scale = clutter_backend_get_fallback_resource_scale (backend);
++    }
+ 
+-  clutter_actor_ensure_resource_scale (self);
++  g_assert (guessed_scale >= 1.f);
+ 
+-  if (!priv->needs_compute_resource_scale)
+-    {
+-      *resource_scale = priv->resource_scale;
+-      return TRUE;
+-    }
++  /* Always return this value until we compute the correct one later.
++   * If our guess turns out to be wrong, we'll emit "resource-scale-changed"
++   * and correct it before painting.
++   */
++  priv->resource_scale = guessed_scale;
+ 
+-  *resource_scale = -1.0f;
+-  return FALSE;
++  return priv->resource_scale;
+ }
+ 
+ /**
+  * clutter_actor_get_resource_scale:
+  * @self: A #ClutterActor
+- * @resource_scale: (out): return location for the resource scale
+  *
+- * Retrieves the resource scale for this actor, if available.
++ * Retrieves the resource scale for this actor.
+  *
+  * The resource scale refers to the scale the actor should use for its resources.
+  * For example if an actor draws a a picture of size 100 x 100 in the stage
+@@ -16162,22 +16056,32 @@ _clutter_actor_get_real_resource_scale (ClutterActor *self,
+  * The resource scale is determined by calculating the highest #ClutterStageView
+  * scale the actor will get painted on.
+  *
+- * Returns: TRUE if resource scale is set for the actor, otherwise FALSE
++ * Note that the scale returned by this function is only guaranteed to be
++ * correct when queried during the paint cycle, in all other cases this
++ * function will only return a best guess. If your implementation really
++ * needs to get a resource scale outside of the paint cycle, make sure to
++ * subscribe to the "resource-scale-changed" signal to get notified about
++ * the new, correct resource scale before painting.
++ *
++ * Also avoid getting the resource scale for actors that are not attached
++ * to a stage. There's no sane way for Clutter to guess which #ClutterStageView
++ * the actor is going to be painted on, so you'll probably end up receiving
++ * the "resource-scale-changed" signal and having to rebuild your resources.
++ *
++ * The best guess this function may return is usually just the last resource
++ * scale the actor got painted with. If this resource scale couldn't be found
++ * because the actor was never painted so far or Clutter was unable to
++ * determine its position and size, this function will return the resource
++ * scale of a parent.
++ *
++ * Returns: The resource scale the actor should use for its textures
+  */
+-gboolean
+-clutter_actor_get_resource_scale (ClutterActor *self,
+-                                  gfloat       *resource_scale)
++float
++clutter_actor_get_resource_scale (ClutterActor *self)
+ {
+-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+-  g_return_val_if_fail (resource_scale != NULL, FALSE);
++  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), 1.f);
+ 
+-  if (_clutter_actor_get_real_resource_scale (self, resource_scale))
+-    {
+-      *resource_scale = ceilf (*resource_scale);
+-      return TRUE;
+-    }
+-
+-  return FALSE;
++  return ceilf (clutter_actor_get_real_resource_scale (self));
+ }
+ 
+ static gboolean
+@@ -16246,8 +16150,40 @@ out:
+     }
+ }
+ 
++static void
++update_resource_scale (ClutterActor *self,
++                       int           phase)
++{
++  ClutterActorPrivate *priv = self->priv;
++  float new_resource_scale, old_resource_scale;
++
++  new_resource_scale =
++    CLUTTER_ACTOR_GET_CLASS (self)->calculate_resource_scale (self, phase);
++
++  if (priv->resource_scale == new_resource_scale)
++    return;
++
++  /* If the actor moved out of the stage, simply keep the last scale */
++  if (new_resource_scale == -1.f)
++    return;
++
++  old_resource_scale = priv->resource_scale;
++  priv->resource_scale = new_resource_scale;
++
++  /* Never notify the initial change, otherwise, to be consistent,
++   * we'd also have to notify if we guessed correctly in
++   * clutter_actor_get_real_resource_scale().
++   */
++  if (old_resource_scale == -1.f)
++    return;
++
++  if (ceilf (old_resource_scale) != ceilf (priv->resource_scale))
++    g_signal_emit (self, actor_signals[RESOURCE_SCALE_CHANGED], 0);
++}
++
+ void
+-clutter_actor_update_stage_views (ClutterActor *self)
++clutter_actor_update_stage_views (ClutterActor *self,
++                                  gboolean      use_max_scale)
+ {
+   ClutterActorPrivate *priv = self->priv;
+   ClutterActor *child;
+@@ -16260,11 +16196,12 @@ clutter_actor_update_stage_views (ClutterActor *self)
+     return;
+ 
+   update_stage_views (self);
++  update_resource_scale (self, use_max_scale);
+ 
+   priv->needs_update_stage_views = FALSE;
+ 
+   for (child = priv->first_child; child; child = child->priv->next_sibling)
+-    clutter_actor_update_stage_views (child);
++    clutter_actor_update_stage_views (child, use_max_scale);
+ }
+ 
+ /**
+@@ -19788,3 +19725,17 @@ clutter_actor_has_accessible (ClutterActor *actor)
+ 
+   return TRUE;
+ }
++
++void
++clutter_actor_queue_immediate_relayout (ClutterActor *self)
++{
++  ClutterStage *stage;
++
++  g_return_if_fail (CLUTTER_IS_ACTOR (self));
++
++  clutter_actor_queue_relayout (self);
++
++  stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
++  if (stage)
++    clutter_stage_set_actor_needs_immediate_relayout (stage);
++}
+diff --git a/clutter/clutter/clutter-actor.h b/clutter/clutter/clutter-actor.h
+index c6b375e1dc6c45609eaf05ccde0df77f105a7d5b..67d327b5b46ce64c6814f2c15c30b71fff71f5ce 100644
+--- a/clutter/clutter/clutter-actor.h
++++ b/clutter/clutter/clutter-actor.h
+@@ -296,6 +296,9 @@ struct _ClutterActorClass
+   gboolean (* touch_event)          (ClutterActor         *self,
+                                      ClutterTouchEvent    *event);
+   gboolean (* has_accessible)       (ClutterActor         *self);
++  void     (* resource_scale_changed) (ClutterActor *self);
++  float    (* calculate_resource_scale) (ClutterActor *self,
++                                         int           phase);
+ 
+   /*< private >*/
+   /* padding for future expansion */
+@@ -587,8 +590,7 @@ gboolean                        clutter_actor_get_paint_box
+                                                                                  ClutterActorBox            *box);
+ 
+ CLUTTER_EXPORT
+-gboolean                        clutter_actor_get_resource_scale                (ClutterActor *self,
+-                                                                                 gfloat       *resource_scale);
++float                           clutter_actor_get_resource_scale                (ClutterActor *self);
+ 
+ CLUTTER_EXPORT
+ gboolean                        clutter_actor_has_overlaps                      (ClutterActor               *self);
+diff --git a/clutter/clutter/clutter-backend-private.h b/clutter/clutter/clutter-backend-private.h
+index c7c54f85be5167cb8afe5c06eca7dee094e280f4..d5dca0d25db3cbc9b15b04961afc2b0b65fd1d85 100644
+--- a/clutter/clutter/clutter-backend-private.h
++++ b/clutter/clutter/clutter-backend-private.h
+@@ -53,6 +53,8 @@ struct _ClutterBackend
+   gfloat units_per_em;
+   gint32 units_serial;
+ 
++  float fallback_resource_scale;
++
+   ClutterStageWindow *stage_window;
+ 
+   ClutterInputMethod *input_method;
+@@ -134,6 +136,12 @@ void                    clutter_set_allowed_drivers                     (const c
+ CLUTTER_EXPORT
+ ClutterStageWindow *    clutter_backend_get_stage_window                (ClutterBackend         *backend);
+ 
++CLUTTER_EXPORT
++void clutter_backend_set_fallback_resource_scale (ClutterBackend *backend,
++                                                  float           fallback_resource_scale);
++
++float clutter_backend_get_fallback_resource_scale (ClutterBackend *backend);
++
+ G_END_DECLS
+ 
+ #endif /* __CLUTTER_BACKEND_PRIVATE_H__ */
+diff --git a/clutter/clutter/clutter-backend.c b/clutter/clutter/clutter-backend.c
+index 3cc4ca29746de6826abfe0bf4018159d0197a92a..20d896115412c26ed0ecd188af1ede04518a8cad 100644
+--- a/clutter/clutter/clutter-backend.c
++++ b/clutter/clutter/clutter-backend.c
+@@ -1031,3 +1031,16 @@ clutter_backend_get_default_seat (ClutterBackend *backend)
+ 
+   return CLUTTER_BACKEND_GET_CLASS (backend)->get_default_seat (backend);
+ }
++
++void
++clutter_backend_set_fallback_resource_scale (ClutterBackend *backend,
++                                             float           fallback_resource_scale)
++{
++  backend->fallback_resource_scale = fallback_resource_scale;
++}
++
++float
++clutter_backend_get_fallback_resource_scale (ClutterBackend *backend)
++{
++  return backend->fallback_resource_scale;
++}
+diff --git a/clutter/clutter/clutter-offscreen-effect.c b/clutter/clutter/clutter-offscreen-effect.c
+index a3b4b9d991cf18651dc9a287cc42fae69e89ad1e..75174ef1042eafb68b35d93afa92fb3fb10cfeb8 100644
+--- a/clutter/clutter/clutter-offscreen-effect.c
++++ b/clutter/clutter/clutter-offscreen-effect.c
+@@ -238,8 +238,8 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
+   gfloat stage_width, stage_height;
+   gfloat target_width = -1, target_height = -1;
+   CoglFramebuffer *framebuffer;
+-  gfloat resource_scale;
+-  gfloat ceiled_resource_scale;
++  float resource_scale;
++  float ceiled_resource_scale;
+   graphene_point3d_t local_offset;
+   gfloat old_viewport[4];
+ 
+@@ -254,17 +254,11 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
+   stage = _clutter_actor_get_stage_internal (priv->actor);
+   clutter_actor_get_size (stage, &stage_width, &stage_height);
+ 
+-  if (_clutter_actor_get_real_resource_scale (priv->actor, &resource_scale))
+-    {
+-      ceiled_resource_scale = ceilf (resource_scale);
+-      stage_width *= ceiled_resource_scale;
+-      stage_height *= ceiled_resource_scale;
+-    }
+-  else
+-    {
+-      /* We are sure we have a resource scale set to a good value at paint */
+-      g_assert_not_reached ();
+-    }
++  resource_scale = clutter_actor_get_real_resource_scale (priv->actor);
++
++  ceiled_resource_scale = ceilf (resource_scale);
++  stage_width *= ceiled_resource_scale;
++  stage_height *= ceiled_resource_scale;
+ 
+   /* Get the minimal bounding box for what we want to paint, relative to the
+    * parent of priv->actor. Note that we may actually be painting a clone of
+@@ -417,8 +411,9 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect,
+    */
+   cogl_framebuffer_get_modelview_matrix (framebuffer, &modelview);
+ 
+-  if (clutter_actor_get_resource_scale (priv->actor, &resource_scale) &&
+-      resource_scale != 1.0f)
++  resource_scale = clutter_actor_get_resource_scale (priv->actor);
++
++  if (resource_scale != 1.0f)
+     {
+       float paint_scale = 1.0f / resource_scale;
+       cogl_matrix_scale (&modelview, paint_scale, paint_scale, 1);
+diff --git a/clutter/clutter/clutter-stage-private.h b/clutter/clutter/clutter-stage-private.h
+index 5d785b644aa8a04f8d757ffac8de991444f936c9..2ce0cd05b5932d74897816a9c97f5577bc5dca00 100644
+--- a/clutter/clutter/clutter-stage-private.h
++++ b/clutter/clutter/clutter-stage-private.h
+@@ -136,6 +136,8 @@ void            clutter_stage_queue_actor_relayout      (ClutterStage *stage,
+ GList * clutter_stage_get_views_for_rect (ClutterStage          *stage,
+                                           const graphene_rect_t *rect);
+ 
++void clutter_stage_set_actor_needs_immediate_relayout (ClutterStage *stage);
++
+ G_END_DECLS
+ 
+ #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index 4f64df66e619c7e440df671b7e02da3da230f2c0..8d3fc8b8009ba413369decfe06d5092b7383f52e 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -146,6 +146,7 @@ struct _ClutterStagePrivate
+   guint min_size_changed       : 1;
+   guint motion_events_enabled  : 1;
+   guint stage_was_relayout     : 1;
++  guint actor_needs_immediate_relayout : 1;
+ };
+ 
+ enum
+@@ -1354,8 +1355,34 @@ static void
+ update_actor_stage_views (ClutterStage *stage)
+ {
+   ClutterActor *actor = CLUTTER_ACTOR (stage);
++  ClutterStagePrivate *priv = stage->priv;
++  int phase;
++
++  COGL_TRACE_BEGIN_SCOPED (ClutterStageUpdateActorStageViews,
++                           "Actor stage-views");
++
++  /* If an actor needs an immediate relayout because its resource scale
++   * changed, we give it another chance to allocate correctly before
++   * the paint.
++   *
++   * We're doing the whole thing twice and pass the phase to
++   * clutter_actor_update_stage_views() to allow actors to detect loops:
++   * If the resource scale changes again after the relayout, the new
++   * allocation of an actor probably moved the actor onto another stage
++   * view, so if an actor sees phase == 1, it can choose a "final" scale.
++   */
++  for (phase = 0; phase < 2; phase++)
++    {
++      clutter_actor_update_stage_views (actor, phase);
++
++      if (!priv->actor_needs_immediate_relayout)
++        break;
++
++      priv->actor_needs_immediate_relayout = FALSE;
++      _clutter_stage_maybe_relayout (actor);
++    }
+ 
+-  clutter_actor_update_stage_views (actor);
++  g_warn_if_fail (!priv->actor_needs_immediate_relayout);
+ }
+ 
+ /**
+@@ -1405,9 +1432,7 @@ _clutter_stage_do_update (ClutterStage *stage)
+   if (stage_was_relayout)
+     pointers = _clutter_stage_check_updated_pointers (stage);
+ 
+-  COGL_TRACE_BEGIN (ClutterStageUpdateActorStageViews, "Actor stage-views");
+   update_actor_stage_views (stage);
+-  COGL_TRACE_END (ClutterStageUpdateActorStageViews);
+ 
+   COGL_TRACE_BEGIN (ClutterStagePaint, "Paint");
+ 
+@@ -3822,9 +3847,7 @@ clutter_stage_get_capture_final_size (ClutterStage          *stage,
+ 
+       clutter_actor_get_allocation_box (CLUTTER_ACTOR (stage), &alloc);
+       clutter_actor_box_get_size (&alloc, &stage_width, &stage_height);
+-      if (!_clutter_actor_get_real_resource_scale (CLUTTER_ACTOR (stage),
+-                                                   &max_scale))
+-        return FALSE;
++      max_scale = clutter_actor_get_real_resource_scale (CLUTTER_ACTOR (stage));
+ 
+       if (out_width)
+         *out_width = (gint) roundf (stage_width * max_scale);
+@@ -4117,3 +4140,11 @@ clutter_stage_get_views_for_rect (ClutterStage          *stage,
+ 
+   return views_for_rect;
+ }
++
++void
++clutter_stage_set_actor_needs_immediate_relayout (ClutterStage *stage)
++{
++  ClutterStagePrivate *priv = stage->priv;
++
++  priv->actor_needs_immediate_relayout = TRUE;
++}
+diff --git a/clutter/clutter/clutter-text.c b/clutter/clutter/clutter-text.c
+index 444786125b60b75efb7660cbf45bedded2724bf1..2fef356cd324d518c51aac28e7db38f033ce2479 100644
+--- a/clutter/clutter/clutter-text.c
++++ b/clutter/clutter/clutter-text.c
+@@ -187,9 +187,6 @@ struct _ClutterTextPrivate
+   ClutterInputContentHintFlags input_hints;
+   ClutterInputContentPurpose input_purpose;
+ 
+-  /* Signal handler for when the :resource-scale changes */
+-  gulong resource_scale_changed_id;
+-
+   /* bitfields */
+   guint alignment               : 2;
+   guint wrap                    : 1;
+@@ -598,9 +595,7 @@ ensure_effective_pango_scale_attribute (ClutterText *self)
+   float resource_scale;
+   ClutterTextPrivate *priv = self->priv;
+ 
+-  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale) ||
+-      resource_scale == 1.0)
+-    return;
++  resource_scale = clutter_actor_get_resource_scale (CLUTTER_ACTOR (self));
+ 
+   if (priv->effective_attrs != NULL)
+     {
+@@ -922,18 +917,6 @@ clutter_text_direction_changed_cb (GObject    *gobject,
+   /* no need to queue a relayout: set_text_direction() will do that for us */
+ }
+ 
+-static void
+-clutter_text_resource_scale_changed_cb (GObject    *gobject,
+-                                        GParamSpec *pspec)
+-{
+-  ClutterText *self = CLUTTER_TEXT (gobject);
+-  ClutterTextPrivate *priv = self->priv;
+-
+-  g_clear_pointer (&priv->effective_attrs, pango_attr_list_unref);
+-  clutter_text_dirty_cache (self);
+-  clutter_actor_queue_relayout (CLUTTER_ACTOR (gobject));
+-}
+-
+ /*
+  * clutter_text_create_layout:
+  * @text: a #ClutterText
+@@ -1137,8 +1120,7 @@ maybe_create_text_layout_with_resource_scale (ClutterText *text,
+ {
+   float resource_scale;
+ 
+-  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (text), &resource_scale))
+-    return NULL;
++  resource_scale = clutter_actor_get_resource_scale (CLUTTER_ACTOR (text));
+ 
+   return create_text_layout_with_scale (text,
+                                         allocation_width,
+@@ -1170,8 +1152,7 @@ clutter_text_coords_to_position (ClutterText *self,
+ 
+   g_return_val_if_fail (CLUTTER_IS_TEXT (self), 0);
+ 
+-  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale))
+-    return 0;
++  resource_scale = clutter_actor_get_resource_scale (CLUTTER_ACTOR (self));
+ 
+   /* Take any offset due to scrolling into account, and normalize
+    * the coordinates to PangoScale units
+@@ -1299,8 +1280,7 @@ clutter_text_position_to_coords (ClutterText *self,
+ 
+   g_return_val_if_fail (CLUTTER_IS_TEXT (self), FALSE);
+ 
+-  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale))
+-    return FALSE;
++  resource_scale = clutter_actor_get_resource_scale (CLUTTER_ACTOR (self));
+ 
+   ret = clutter_text_position_to_coords_internal (self, position,
+                                                   x, y, line_height);
+@@ -1776,7 +1756,6 @@ clutter_text_dispose (GObject *gobject)
+   clutter_text_dirty_cache (self);
+ 
+   g_clear_signal_handler (&priv->direction_changed_id, self);
+-  g_clear_signal_handler (&priv->resource_scale_changed_id, self);
+   g_clear_signal_handler (&priv->settings_changed_id,
+                           clutter_get_default_backend ());
+ 
+@@ -2641,8 +2620,7 @@ clutter_text_paint (ClutterActor        *self,
+       !clutter_text_should_draw_cursor (text))
+     return;
+ 
+-  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale))
+-    return;
++  resource_scale = clutter_actor_get_resource_scale (CLUTTER_ACTOR (self));
+ 
+   clutter_actor_box_scale (&alloc, resource_scale);
+   clutter_actor_box_get_size (&alloc, &alloc_width, &alloc_height);
+@@ -2874,8 +2852,7 @@ clutter_text_get_paint_volume (ClutterActor       *self,
+       if (!clutter_actor_has_allocation (self))
+         return FALSE;
+ 
+-      if (!clutter_actor_get_resource_scale (self, &resource_scale))
+-        return FALSE;
++      resource_scale = clutter_actor_get_resource_scale (self);
+ 
+       _clutter_paint_volume_init_static (&priv->paint_volume, self);
+ 
+@@ -2932,8 +2909,7 @@ clutter_text_get_preferred_width (ClutterActor *self,
+   gfloat layout_width;
+   gfloat resource_scale;
+ 
+-  if (!clutter_actor_get_resource_scale (self, &resource_scale))
+-    resource_scale = 1;
++  resource_scale = clutter_actor_get_resource_scale (self);
+ 
+   layout = clutter_text_create_layout (text, -1, -1);
+   pango_layout_get_extents (layout, NULL, &logical_rect);
+@@ -2989,8 +2965,7 @@ clutter_text_get_preferred_height (ClutterActor *self,
+       gfloat layout_height;
+       gfloat resource_scale;
+ 
+-      if (!clutter_actor_get_resource_scale (self, &resource_scale))
+-        resource_scale = 1;
++      resource_scale = clutter_actor_get_resource_scale (self);
+ 
+       if (priv->single_line_mode)
+         for_width = -1;
+@@ -3066,6 +3041,33 @@ clutter_text_has_overlaps (ClutterActor *self)
+   return clutter_text_should_draw_cursor ((ClutterText *) self);
+ }
+ 
++static float
++clutter_text_calculate_resource_scale (ClutterActor *actor,
++                                       int           phase)
++{
++  ClutterActorClass *parent_class = CLUTTER_ACTOR_CLASS (clutter_text_parent_class);
++  float new_resource_scale;
++
++  new_resource_scale = parent_class->calculate_resource_scale (actor, phase);
++
++  if (phase == 1)
++    return MAX (new_resource_scale, clutter_actor_get_real_resource_scale (actor));
++
++  return new_resource_scale;
++}
++
++static void
++clutter_text_resource_scale_changed (ClutterActor *actor)
++{
++  ClutterText *text = CLUTTER_TEXT (actor);
++  ClutterTextPrivate *priv = text->priv;
++
++  g_clear_pointer (&priv->effective_attrs, pango_attr_list_unref);
++  clutter_text_dirty_cache (text);
++
++  clutter_actor_queue_immediate_relayout (actor);
++}
++
+ static void
+ clutter_text_im_focus (ClutterText *text)
+ {
+@@ -3814,6 +3816,8 @@ clutter_text_class_init (ClutterTextClass *klass)
+   actor_class->key_focus_in = clutter_text_key_focus_in;
+   actor_class->key_focus_out = clutter_text_key_focus_out;
+   actor_class->has_overlaps = clutter_text_has_overlaps;
++  actor_class->calculate_resource_scale = clutter_text_calculate_resource_scale;
++  actor_class->resource_scale_changed = clutter_text_resource_scale_changed;
+ 
+   /**
+    * ClutterText:buffer:
+@@ -4621,11 +4625,6 @@ clutter_text_init (ClutterText *self)
+                       NULL);
+ 
+   priv->input_focus = clutter_text_input_focus_new (self);
+-
+-  priv->resource_scale_changed_id =
+-    g_signal_connect (self, "notify::resource-scale",
+-                      G_CALLBACK (clutter_text_resource_scale_changed_cb),
+-                      NULL);
+ }
+ 
+ /**
+diff --git a/src/backends/meta-renderer.c b/src/backends/meta-renderer.c
+index b5cc37efbfcfdc29161b8ec818dca418869a33d7..e0107ec9d63dbf70c28d0e5c8d6af0ff475f3fc9 100644
+--- a/src/backends/meta-renderer.c
++++ b/src/backends/meta-renderer.c
+@@ -153,6 +153,19 @@ meta_renderer_real_rebuild_views (MetaRenderer *renderer)
+     {
+       MetaLogicalMonitor *logical_monitor = l->data;
+ 
++      if (meta_logical_monitor_is_primary (logical_monitor))
++        {
++          ClutterBackend *clutter_backend;
++          float scale;
++
++          clutter_backend = meta_backend_get_clutter_backend (backend);
++          scale = meta_is_stage_views_scaled ()
++            ? meta_logical_monitor_get_scale (logical_monitor)
++            : 1.f;
++
++          clutter_backend_set_fallback_resource_scale (clutter_backend, scale);
++        }
++
+       meta_logical_monitor_foreach_crtc (logical_monitor,
+                                          create_crtc_view,
+                                          renderer);
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index e23b426a9114453d7bb627dc8d8f8c7386245a06..b35d90d2474f5e98bbc03fc0b9bbc4f184df7d29 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -1301,8 +1301,7 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
+   if (width == 0 || height == 0)
+     return FALSE;
+ 
+-  if (!clutter_actor_get_resource_scale (actor, &resource_scale))
+-    return FALSE;
++  resource_scale = clutter_actor_get_resource_scale (actor);
+ 
+   clutter_actor_inhibit_culling (actor);
+ 
+@@ -1460,8 +1459,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
+   if (width == 0 || height == 0)
+     goto out;
+ 
+-  if (!clutter_actor_get_resource_scale (actor, &resource_scale))
+-    goto out;
++  resource_scale = clutter_actor_get_resource_scale (actor);
+ 
+   width = ceilf (width * resource_scale);
+   height = ceilf (height * resource_scale);
+diff --git a/src/tests/clutter/conform/text.c b/src/tests/clutter/conform/text.c
+index e1b0cae438bf87ac16014d5fccec26d7c4bcaa40..304fa1dd4c7162238a3eaf9271825cc6680b161c 100644
+--- a/src/tests/clutter/conform/text.c
++++ b/src/tests/clutter/conform/text.c
+@@ -475,8 +475,7 @@ validate_markup_attributes (ClutterText   *text,
+           PangoAttrFloat *scale = (PangoAttrFloat*) a;
+           float resource_scale;
+ 
+-          if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (text), &resource_scale))
+-            resource_scale = 1.0;
++          resource_scale = clutter_actor_get_resource_scale (CLUTTER_ACTOR (text));
+ 
+           g_assert_cmpfloat (scale->value, ==, resource_scale);
+           g_slist_free_full (attributes, (GDestroyNotify) pango_attribute_destroy);
