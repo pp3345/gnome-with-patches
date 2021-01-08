@@ -1,0 +1,80 @@
+diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
+index 3808d2955935f1bb7691d81387fa92a431785217..d60ce7481ebb9d0390797bc5e6c654bcd04e67f7 100644
+--- a/clutter/clutter/clutter-stage.c
++++ b/clutter/clutter/clutter-stage.c
+@@ -114,6 +114,7 @@ struct _ClutterStagePrivate
+   ClutterActor *key_focused_actor;
+ 
+   GQueue *event_queue;
++  guint event_flushing_idle_source;
+ 
+   GArray *paint_volume_stack;
+ 
+@@ -639,6 +640,18 @@ clutter_stage_hide (ClutterActor *self)
+   CLUTTER_ACTOR_CLASS (clutter_stage_parent_class)->hide (self);
+ }
+ 
++static gboolean
++_clutter_stage_flush_events (gpointer user_data)
++{
++  ClutterStage *stage = CLUTTER_STAGE (user_data);
++  ClutterStagePrivate *priv = stage->priv;
++
++  priv->event_flushing_idle_source = 0;
++  _clutter_stage_process_queued_events (stage);
++
++  return G_SOURCE_REMOVE;
++}
++
+ static void
+ clutter_stage_emit_key_focus_event (ClutterStage *stage,
+                                     gboolean      focus_in)
+@@ -715,8 +728,27 @@ _clutter_stage_queue_event (ClutterStage *stage,
+ 
+   g_queue_push_tail (priv->event_queue, event);
+ 
+-  if (first_event)
+-    clutter_stage_schedule_update (stage);
++  if (!priv->throttle_motion_events)
++    {
++      if (!priv->event_flushing_idle_source)
++        {
++          /* Process events ASAP, but never at the expense of rendering
++           * performance. So a sufficiently fast machine will process all
++           * events synchronously. But in the worst case a slow machine will
++           * batch and throttle them to the refresh rate on the next master
++           * clock tick.
++           */
++          priv->event_flushing_idle_source =
++            g_idle_add_full (CLUTTER_PRIORITY_REDRAW + 1,
++                             _clutter_stage_flush_events,
++                             stage,
++                             NULL);
++        }
++    }
++  else if (first_event)
++    {
++      clutter_stage_schedule_update (stage);
++    }
+ }
+ 
+ gboolean
+@@ -1392,6 +1424,9 @@ clutter_stage_finalize (GObject *object)
+   ClutterStage *stage = CLUTTER_STAGE (object);
+   ClutterStagePrivate *priv = stage->priv;
+ 
++  if (priv->event_flushing_idle_source)
++    g_source_remove (priv->event_flushing_idle_source);
++
+   g_queue_foreach (priv->event_queue, (GFunc) clutter_event_free, NULL);
+   g_queue_free (priv->event_queue);
+ 
+@@ -1691,7 +1726,7 @@ clutter_stage_init (ClutterStage *self)
+ 
+   priv->event_queue = g_queue_new ();
+ 
+-  priv->throttle_motion_events = TRUE;
++  priv->throttle_motion_events = FALSE;
+   priv->min_size_changed = FALSE;
+   priv->sync_delay = -1;
+   priv->motion_events_enabled = TRUE;
