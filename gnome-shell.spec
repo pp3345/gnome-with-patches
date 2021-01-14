@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.38.2
-Release:        5%{?dist}
+Version:        3.38.3
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -10,17 +10,6 @@ Source0:        http://download.gnome.org/sources/gnome-shell/3.38/%{name}-%{ver
 
 # Replace Epiphany with Firefox in the default favourite apps list
 Patch1: gnome-shell-favourite-apps-firefox.patch
-
-Patch2: 0001-Revert-appDisplay-baseAppView-Cleanup-animate.patch
-
-Patch3: 0001-screenshot-Grab-screenshot-during-paint-on-X11.patch
-Patch4: 0001-screenshot-Grab-screenshot-during-paint-on-X11-for-a.patch
-
-# https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1540
-Patch5: 1540.patch
-
-# https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/1541.patch
-Patch6: 1541.patch
 
 %define eds_version 3.33.1
 %define gnome_desktop_version 3.35.91
@@ -228,6 +217,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Thu Jan 14 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.3-1
+- Update to 3.38.3
+
 * Mon Dec 28 2020 Łukasz Patron <priv.luk@gmail.com> - 3.38.2-5
 - Fix X11 screenshots of selected area for full screen apps/games (issue #1453)
 
