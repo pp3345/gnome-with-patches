@@ -7,7 +7,7 @@
 %global mutter_api_version 7
 
 Name:          mutter
-Version:       3.38.2
+Version:       3.38.3
 Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
@@ -167,6 +167,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Jan 14 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.3-1
+- Update to 3.38.3
+
 * Wed Dec 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.2-1
 - Update to 3.38.2
 
