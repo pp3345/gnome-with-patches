@@ -1,6 +1,6 @@
 Name:           gnome-shell
-Version:        3.38.2
-Release:        100%{?dist}.pp3345
+Version:        3.38.3
+Release:        1%{?dist}
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -223,6 +223,22 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Thu Jan 14 2021 Florian Müllner <fmuellner@redhat.com> - 3.38.3-1
+- Update to 3.38.3
+
+* Mon Dec 28 2020 Łukasz Patron <priv.luk@gmail.com> - 3.38.2-5
+- Fix X11 screenshots of selected area for full screen apps/games (issue #1453)
+
+* Mon Dec 21 2020 Michael Catanzaro <mcatanzaro@redhat.com> - 3.38.2-4
+- Fix crash when opening overview
+- Revert some theme changes
+
+* Mon Dec 14 2020 Łukasz Patron <priv.luk@gmail.com> - 3.38.2-3
+- Fix X11 screenshots for full screen apps/games (issue #1453)
+
+* Fri Dec 11 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.2-2
+- Fix vanishing app picker icons
+
 * Sun Dec 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.2-100
 - Remove !1481 "Make sure to allocate all children in allocate vfuncs" (merged)
 - Rebase to 3.38.2-1.fc33
