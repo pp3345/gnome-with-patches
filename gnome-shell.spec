@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.38.3
-Release:        1%{?dist}
+Release:        100%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -223,6 +223,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Sun Jan 17 2021 Yussuf Khalil <dev@pp3345.net> - 3.38.3-100
+- Rebase to 3.38.3-1.fc33
+
 * Thu Jan 14 2021 Florian Müllner <fmuellner@redhat.com> - 3.38.3-1
 - Update to 3.38.3
 
