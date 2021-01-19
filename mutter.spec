@@ -7,14 +7,14 @@
 %global mutter_api_version 7
 
 Name:          mutter
-Version:       3.38.2
+Version:       3.38.3
 Release:       101%{?dist}.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       mutter-3.38.2.tar.xz
+Source0:       mutter-3.38.3.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
@@ -96,20 +96,20 @@ Requires: zenity
 Requires:      json-glib%{?_isa} >= %{json_glib_version}
 Requires:      libinput%{?_isa} >= %{libinput_version}
 
-Patch100: 850.diff
+#Patch100: 850.diff
 Patch110: 1309.diff
 Patch120: rt-default.diff
 #Patch150: 1276.diff
-Patch151: 168.diff
+#Patch151: 168.diff
 #Patch152: 1474.diff
 #Patch153: 1496.diff
 #Patch160: 1489.diff
 #Patch170: 1509.diff
-Patch180: 984.diff
-Patch190: 1524.diff
-Patch200: 1507.diff
+#Patch180: 984.diff
+#Patch190: 1524.diff
+#Patch200: 1507.diff
 #Patch220: 1510.diff
-Patch230: 1268.diff
+#Patch230: 1268.diff
 Patch240: 1441.diff
 
 %description
