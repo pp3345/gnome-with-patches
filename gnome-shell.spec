@@ -217,7 +217,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
-* Thu Jan 14 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.3-1
+* Thu Jan 14 2021 Florian Müllner <fmuellner@redhat.com> - 3.38.3-1
 - Update to 3.38.3
 
 * Mon Dec 28 2020 Łukasz Patron <priv.luk@gmail.com> - 3.38.2-5
