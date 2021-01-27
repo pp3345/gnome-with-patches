@@ -15,13 +15,13 @@
 %global mutter_api_version 8
 
 Name:          mutter
-Version:       40.0.1.1.4.triple.buffering.v4
-Release:       1%{?gver}%{?dist}
+Version:       40.1
+Release:       101%{?dist}.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 URL:           http://www.gnome.org
-Source0:       mutter-40.0.1.1.4.triple.buffering.v4.tar.xz  
+Source0:       mutter-40.1.zip
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
