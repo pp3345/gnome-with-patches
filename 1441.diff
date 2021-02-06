@@ -1,5 +1,5 @@
 diff --git a/clutter/clutter/clutter-frame-clock.c b/clutter/clutter/clutter-frame-clock.c
-index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde582709698554dd729b 100644
+index 38f779732071f0e5451fe94c7e8c08963dfd2729..bb960ddad4d8563f26027ef615a35bc2207dc99e 100644
 --- a/clutter/clutter/clutter-frame-clock.c
 +++ b/clutter/clutter/clutter-frame-clock.c
 @@ -54,8 +54,9 @@ typedef enum _ClutterFrameClockState
@@ -82,7 +82,33 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
      }
  }
  
-@@ -222,7 +247,6 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
+@@ -225,11 +250,23 @@ clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
+     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
+       g_warn_if_reached ();
+       break;
+-    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
+-    case CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED:
++    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE:
+       frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
+       maybe_reschedule_update (frame_clock);
+       break;
++    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED:
++      /* The GPU has caught up now so we can start using
++       * last_presentation_time_us again. So rather than dropping back to
++       * SCHEDULED, let's force a reschedule from IDLE. This way we'll get a
++       * more precise next update time based on last_presentation_time_us.
++       */
++      frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
++      clutter_frame_clock_schedule_update (frame_clock);
++      break;
++    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO:
++      frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE;
++      maybe_reschedule_update (frame_clock);
++      break;
+     }
+ }
+ 
+@@ -240,7 +277,6 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
  {
    int64_t last_presentation_time_us;
    int64_t now_us;
@@ -90,7 +116,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
    int64_t refresh_interval_us;
    int64_t min_render_time_allowed_us;
    int64_t max_render_time_allowed_us;
-@@ -233,8 +257,7 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
+@@ -251,8 +287,7 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
  
    now_us = g_get_monotonic_time ();
  
@@ -100,7 +126,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
  
    min_render_time_allowed_us = refresh_interval_us / 2;
    max_render_time_allowed_us = refresh_interval_us - SYNC_DELAY_US;
-@@ -295,8 +318,12 @@ clutter_frame_clock_inhibit (ClutterFrameClock *frame_clock)
+@@ -313,8 +348,12 @@ clutter_frame_clock_inhibit (ClutterFrameClock *frame_clock)
            frame_clock->pending_reschedule = TRUE;
            frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
            break;
@@ -115,7 +141,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
            break;
          }
  
-@@ -332,11 +359,17 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
+@@ -350,11 +389,17 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
      case CLUTTER_FRAME_CLOCK_STATE_INIT:
      case CLUTTER_FRAME_CLOCK_STATE_IDLE:
        next_update_time_us = g_get_monotonic_time ();
@@ -135,7 +161,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
        frame_clock->pending_reschedule = TRUE;
        frame_clock->pending_reschedule_now = TRUE;
        return;
-@@ -345,7 +378,7 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
+@@ -363,7 +408,7 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
    g_warn_if_fail (next_update_time_us != -1);
  
    g_source_set_ready_time (frame_clock->source, next_update_time_us);
@@ -144,7 +170,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
    frame_clock->is_next_presentation_time_valid = FALSE;
  }
  
-@@ -364,17 +397,26 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
+@@ -382,17 +427,26 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
      {
      case CLUTTER_FRAME_CLOCK_STATE_INIT:
        next_update_time_us = g_get_monotonic_time ();
@@ -173,7 +199,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
        frame_clock->pending_reschedule = TRUE;
        return;
      }
-@@ -382,7 +424,7 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
+@@ -400,7 +454,7 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
    g_warn_if_fail (next_update_time_us != -1);
  
    g_source_set_ready_time (frame_clock->source, next_update_time_us);
@@ -182,7 +208,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
  }
  
  static void
-@@ -396,7 +438,21 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
+@@ -414,7 +468,21 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
  
    g_source_set_ready_time (frame_clock->source, -1);
  
@@ -205,7 +231,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
  
    frame_count = frame_clock->frame_count++;
  
-@@ -420,25 +476,31 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
+@@ -438,25 +506,31 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
                                                 frame_clock->listener.user_data);
    COGL_TRACE_END (ClutterFrameClockFrame);
  
@@ -249,7 +275,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
          }
        break;
      }
-@@ -502,7 +564,7 @@ clutter_frame_clock_new (float                            refresh_rate,
+@@ -520,7 +594,7 @@ clutter_frame_clock_new (float                            refresh_rate,
  
    init_frame_clock_source (frame_clock);
  
@@ -258,3 +284,16 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..3301233a8ab524a5a49dde5827096985
  
    return frame_clock;
  }
+diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
+index 50c21d26d1f79851b0f4ca70e12f4d859113b164..494d0d5353b678dc5a666a3a7b7a4a8621778703 100644
+--- a/src/backends/native/meta-onscreen-native.c
++++ b/src/backends/native/meta-onscreen-native.c
+@@ -197,8 +197,6 @@ meta_onscreen_native_notify_frame_complete (CoglOnscreen *onscreen)
+ 
+   info = cogl_onscreen_pop_head_frame_info (onscreen);
+ 
+-  g_assert (!cogl_onscreen_peek_head_frame_info (onscreen));
+-
+   _cogl_onscreen_notify_frame_sync (onscreen, info);
+   _cogl_onscreen_notify_complete (onscreen, info);
+   cogl_object_unref (info);
