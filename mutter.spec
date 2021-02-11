@@ -97,7 +97,7 @@ Requires:      json-glib%{?_isa} >= %{json_glib_version}
 Requires:      libinput%{?_isa} >= %{libinput_version}
 
 #Patch100: 850.diff
-#Patch110: 1309.diff
+Patch110: 1309.diff
 Patch120: rt-default.diff
 #Patch150: 1276.diff
 #Patch151: 168.diff
