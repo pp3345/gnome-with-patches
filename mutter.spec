@@ -1,26 +1,27 @@
+%global debug_package %{nil}
+%define _legacy_common_support 1
+
+%global commit0 c29d2adf31eedb29b1b4504d8006ddf596f50f9d
+%global shortcommit0 %(c=%{commit0}; echo ${c:0:7})
+%global gver .git%{shortcommit0}
+
+
 %global gtk3_version 3.19.8
 %global glib_version 2.53.2
 %global gsettings_desktop_schemas_version 3.33.0
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
 %global pipewire_version 0.3.0
-%global mutter_api_version 7
+%global mutter_api_version 8
 
 Name:          mutter
-Version:       3.38.3
-Release:       103%{?dist}.shrisha
+Version:       40.0~alpha
+Release:       1%{?gver}%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
-#VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       mutter-3.38.3.tar.xz
-
-# Work-around for OpenJDK's compliance test
-Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
-
-# To make s390x build pass
-Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
+Source0:       gnome-40.alpha.tar.xz
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -96,22 +97,6 @@ Requires: zenity
 Requires:      json-glib%{?_isa} >= %{json_glib_version}
 Requires:      libinput%{?_isa} >= %{libinput_version}
 
-#Patch100: 850.diff
-Patch110: 1309.diff
-Patch120: rt-default.diff
-#Patch150: 1276.diff
-#Patch151: 168.diff
-#Patch152: 1474.diff
-#Patch153: 1496.diff
-#Patch160: 1489.diff
-#Patch170: 1509.diff
-#Patch180: 984.diff
-#Patch190: 1524.diff
-#Patch200: 1507.diff
-#Patch220: 1510.diff
-#Patch230: 1268.diff
-Patch240: 1441.diff
-
 %description
 Mutter is a window and compositing manager that displays and manages
 your desktop via OpenGL. Mutter combines a sophisticated display engine
@@ -141,7 +126,7 @@ The %{name}-tests package contains tests that can be used to verify
 the functionality of the installed %{name} package.
 
 %prep
-%autosetup -S git
+%autosetup -n mutter-%{commit0} -p1 
 
 %build
 %meson -Degl_device=true -Dwayland_eglstream=true -Dxwayland_initfd=disabled
@@ -183,73 +168,11 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
-* Sun Dec 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.2-100
-- Remove !1468 "wayland/compositor: Only emit frame callbacks for the primary stage view" (merged)
-- Remove !1450 "clutter/text: Use new pango API to compare attribute lists" (obsoleted)
-- Remove !1470 "backend: Don't pull generated headers (indirectly)" (merged)
-- Rebase to 3.38.2-1.fc33
-
-* Wed Dec 02 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.2-1
-- Update to 3.38.2
-
-* Mon Nov 23 2020 Jonas Ådahl <jadahl@redhat.com> - 3.38.1-3
-- Fix fullscreen window regression
-  Resolves: #1900187
-
-* Tue Nov 17 2020 Jonas Ådahl <jadahl@redhat.com> - 3.38.1-2
-- Backport fixes from gnome-3-38 stable branch
-  Resolves: #1893375
-  Resolves: #1894316
-  Resolves: #1896097
-  Resolves: #1896265
-
-* Sun Nov 15 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-105
-- Add !1268 "window: "Hide" edge resistance behind modifier key" @22902a5e
-- Update !1309 "cogl-winsys-glx: Add a heuristically calculated presentation_time" @40300c94
-- Remove !1439 "graphene_matrix_t" (regression)
-- Remove !1498 "Small Clutter allocation cleanup and fix" (missing dependency)
-- Remove !1474 "Effects cleanups" (missing dependency)
-- Rebase to gnome-3-38@067af969
-
-* Mon Oct 26 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-104
-- Remove !1496 "Make CoglFramebuffer a GObject" (regression)
-- Remove !1489 "Clip Frusta" (missing dependency)
-- Remove !1509 "Raycast Pick" (missing dependency)
-- Remove !1510 "renderer-native: Fix GObjectify oversight" (missing dependency)
-
-* Mon Oct 26 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-103
-- Add !1510 "renderer-native: Fix GObjectify oversight" @b2f2050b
-
-* Sun Oct 25 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-102
-- Add !1439 "graphene_matrix_t" @b5749a8b
-- Add !1489 "Clip Frusta" @bc41a88c
-- Update !1309 "cogl-winsys-glx: Add a heuristically calculated presentation_time" @8d9a94cd
-- Add !1498 "Small Clutter allocation cleanup and fix" @de610a13
-- Add !1474 "Effects cleanups" @c7ab5f3f
-- Add !1496 "Make CoglFramebuffer a GObject" @5a58ccbe
-- Add !1509 "Raycast Pick" @08fcaa74
-- Add !984 "Ignore monitor connector ID when possible" @26a3b841
-- Add !1524 "clutter/actor: Don't check handlers when emitting stage-views-changed" @3d246ec0
-- Add !1507 "clutter/paint-volume: Use graphene for computing union of paint volumes" @d2f8a306
-- Add !1468 "wayland/compositor: Only emit frame callbacks for the best suited stage view" @3d40d94c
-- Rebase to gnome-3-38@d9e34ebb
-
-* Sat Oct 10 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-101
-- Add !1050 "clutter/text: Use new pango API to compare attribute lists" @097b2d17
-
-* Tue Oct 06 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.1-100
-- Update !1309 "cogl-winsys-glx: Add a heuristically calculated presentation_time" @39cd1d55
-- Add !1470 "backend: Don't pull generated headers (indirectly)" @ff379fb9
-- Rebase to 3.38.1-1.fc33
+* Wed Dec 02 2020 Florian Müllner <fmuellner@redhat.com> - 40.alpha-1
+- Update to 40.alpha
 
 * Mon Oct 05 2020 Florian Müllner <fmuellner@redhat.com> - 3.38.1-1
 - Update to 3.38.1
-
-* Sun Oct 04 2020 Yussuf Khalil <dev@pp3345.net> - 3.38.0-200
-- Enable real-time scheduling by default
-- Add !1309 "cogl-winsys-glx: Add a heuristically calculated presentation_time" @4b27cacc
-- Add !850 "Make default focus window on each workspace appear focused" @0c037021
-- Rebase to master@505b3481
 
 * Mon Sep 28 2020 Peter Robinson <pbrobinson@fedoraproject.org> - 3.38.0-2
 - Upstream fix for NVidia Jetson devices
@@ -1287,4 +1210,3 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 
 * Thu Jun 18 2009 Peter Robinson <pbrobinson@gmail.com> 2.27.0-0.1
 - Initial packaging
-
