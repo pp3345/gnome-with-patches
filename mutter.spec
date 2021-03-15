@@ -7,8 +7,8 @@
 %global mutter_api_version 7
 
 Name:          mutter
-Version:       3.38.3
-Release:       2%{?dist}
+Version:       3.38.4
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -21,9 +21,6 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 
 # To make s390x build pass
 Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
-
-# Patches after 3.38.3 to fix a handful of bugs before having 3.38.4
-Patch2:        mutter-commits-after-3.38.3.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
@@ -170,6 +167,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Mar 15 2021 Florian Müllner <fmuellner@redhat.com> - 3.38.4-1
+- Update to 3.38.4
+
 * Mon Nov 23 2020 Jonas Ådahl <jadahl@redhat.com> - 3.38.3-2
 - Backport patches from gnome-3-38
   Resolves: #1934169
