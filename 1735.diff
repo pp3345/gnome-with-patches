@@ -1,0 +1,196 @@
+diff --git a/cogl/cogl/cogl-framebuffer-private.h b/cogl/cogl/cogl-framebuffer-private.h
+index f4edadd89d95c53a6d4b2d8bfd9110e2cab57adf..5236478199691d9f8c1900fd20541e3c6084a58c 100644
+--- a/cogl/cogl/cogl-framebuffer-private.h
++++ b/cogl/cogl/cogl-framebuffer-private.h
+@@ -223,9 +223,6 @@ _cogl_framebuffer_save_clip_stack (CoglFramebuffer *framebuffer);
+ void
+ _cogl_framebuffer_restore_clip_stack (CoglFramebuffer *framebuffer);
+ 
+-void
+-_cogl_framebuffer_unref (CoglFramebuffer *framebuffer);
+-
+ /* This can be called directly by the CoglJournal to draw attributes
+  * skipping the implicit journal flush, the framebuffer flush and
+  * pipeline validation. */
+diff --git a/cogl/cogl/cogl-framebuffer.c b/cogl/cogl/cogl-framebuffer.c
+index 16324a0adb04a3af4e14d9c26603d6d9f73ccb55..7a8acecb96f3c815f0cc94e709d0f1a69e3c3249 100644
+--- a/cogl/cogl/cogl-framebuffer.c
++++ b/cogl/cogl/cogl-framebuffer.c
+@@ -336,6 +336,8 @@ cogl_framebuffer_dispose (GObject *object)
+ 
+   if (priv->journal)
+     {
++      _cogl_journal_flush (priv->journal);
++
+       g_signal_emit (framebuffer, signals[DESTROY], 0);
+ 
+       _cogl_fence_cancel_fences_for_framebuffer (framebuffer);
+@@ -2138,37 +2140,6 @@ cogl_framebuffer_pop_clip (CoglFramebuffer *framebuffer)
+     }
+ }
+ 
+-void
+-_cogl_framebuffer_unref (CoglFramebuffer *framebuffer)
+-{
+-  CoglFramebufferPrivate *priv =
+-    cogl_framebuffer_get_instance_private (framebuffer);
+-
+-  /* The journal holds a reference to the framebuffer whenever it is
+-     non-empty. Therefore if the journal is non-empty and we will have
+-     exactly one reference then we know the journal is the only thing
+-     keeping the framebuffer alive. In that case we want to flush the
+-     journal and let the framebuffer die. It is fine at this point if
+-     flushing the journal causes something else to take a reference to
+-     it and it comes back to life */
+-  if (priv->journal->entries->len > 0)
+-    {
+-      unsigned int ref_count = ((CoglObject *) framebuffer)->ref_count;
+-
+-      /* There should be at least two references - the one we are
+-         about to drop and the one held by the journal */
+-      if (ref_count < 2)
+-        g_warning ("Inconsistent ref count on a framebuffer with journal "
+-                   "entries.");
+-
+-      if (ref_count == 2)
+-        _cogl_framebuffer_flush_journal (framebuffer);
+-    }
+-
+-  /* Chain-up */
+-  _cogl_object_default_unref (framebuffer);
+-}
+-
+ #ifdef COGL_ENABLE_DEBUG
+ static int
+ get_index (void *indices,
+diff --git a/cogl/cogl/cogl-journal.c b/cogl/cogl/cogl-journal.c
+index 41652ddd7dbec7209daa39af6447530a3f417afd..23dfb5c34c80e4ad6455bc72c5ee100903e4cf5a 100644
+--- a/cogl/cogl/cogl-journal.c
++++ b/cogl/cogl/cogl-journal.c
+@@ -148,14 +148,7 @@ _cogl_journal_new (CoglFramebuffer *framebuffer)
+ {
+   CoglJournal *journal = g_slice_new0 (CoglJournal);
+ 
+-  /* The journal keeps a pointer back to the framebuffer because there
+-     is effectively a 1:1 mapping between journals and framebuffers.
+-     However, to avoid a circular reference the journal doesn't take a
+-     reference unless it is non-empty. The framebuffer has a special
+-     unref implementation to ensure that the journal is flushed when
+-     the journal is the only thing keeping it alive */
+   journal->framebuffer = framebuffer;
+-
+   journal->entries = g_array_new (FALSE, FALSE, sizeof (CoglJournalEntry));
+   journal->vertices = g_array_new (FALSE, FALSE, sizeof (float));
+ 
+@@ -1272,10 +1265,6 @@ _cogl_journal_discard (CoglJournal *journal)
+   g_array_set_size (journal->vertices, 0);
+   journal->needed_vbo_len = 0;
+   journal->fast_read_pixel_count = 0;
+-
+-  /* The journal only holds a reference to the framebuffer while the
+-     journal is not empty */
+-  g_object_unref (journal->framebuffer);
+ }
+ 
+ /* Note: A return value of FALSE doesn't mean 'no' it means
+@@ -1533,12 +1522,6 @@ _cogl_journal_log_quad (CoglJournal  *journal,
+ 
+   COGL_TIMER_START (_cogl_uprof_context, log_timer);
+ 
+-  /* If the framebuffer was previously empty then we'll take a
+-     reference to the current framebuffer. This reference will be
+-     removed when the journal is flushed */
+-  if (journal->vertices->len == 0)
+-    g_object_ref (framebuffer);
+-
+   /* The vertex data is logged into a separate array. The data needs
+      to be copied into a vertex array before it's given to GL so we
+      only store two vertices per quad and expand it to four while
+diff --git a/cogl/tests/conform/meson.build b/cogl/tests/conform/meson.build
+index b278dfd9cae6b8f344392e6ccd8f78ddf9f83ab6..e20cd04ed90fac4bc3187a6a5e0aa62d1b211a13 100644
+--- a/cogl/tests/conform/meson.build
++++ b/cogl/tests/conform/meson.build
+@@ -16,6 +16,7 @@ cogl_test_conformance_sources = [
+   'test-sub-texture.c',
+   'test-custom-attributes.c',
+   'test-offscreen.c',
++  'test-journal.c',
+   'test-primitive.c',
+   'test-sparse-pipeline.c',
+   'test-read-texture-formats.c',
+diff --git a/cogl/tests/conform/test-conform-main.c b/cogl/tests/conform/test-conform-main.c
+index c3619aa3c67b783fa042eac4ee1c5478b467e963..3a0844a4b785c19747247f880240a8782e238312 100644
+--- a/cogl/tests/conform/test-conform-main.c
++++ b/cogl/tests/conform/test-conform-main.c
+@@ -98,6 +98,7 @@ main (int argc, char **argv)
+   ADD_TEST (test_custom_attributes, TEST_REQUIREMENT_GLSL, 0);
+ 
+   ADD_TEST (test_offscreen, 0, 0);
++  ADD_TEST (test_journal_unref_flush, 0, 0);
+   ADD_TEST (test_framebuffer_get_bits,
+             TEST_REQUIREMENT_OFFSCREEN | TEST_REQUIREMENT_GL,
+             0);
+diff --git a/cogl/tests/conform/test-declarations.h b/cogl/tests/conform/test-declarations.h
+index 50052cd1e9c8656bf5963a0731d1bd9f44e8355f..58e065873cd7dc69226fcc876d30041422c19e38 100644
+--- a/cogl/tests/conform/test-declarations.h
++++ b/cogl/tests/conform/test-declarations.h
+@@ -28,6 +28,7 @@ void test_pipeline_uniforms (void);
+ void test_snippets (void);
+ void test_custom_attributes (void);
+ void test_offscreen (void);
++void test_journal_unref_flush (void);
+ void test_framebuffer_get_bits (void);
+ void test_point_size (void);
+ void test_point_size_attribute (void);
+diff --git a/cogl/tests/conform/test-journal.c b/cogl/tests/conform/test-journal.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..ec93e528fc6010336420fa69de6c796a31826458
+--- /dev/null
++++ b/cogl/tests/conform/test-journal.c
+@@ -0,0 +1,46 @@
++#include <cogl/cogl.h>
++
++#include <stdio.h>
++#include <string.h>
++
++#include "test-declarations.h"
++#include "test-utils.h"
++
++void
++test_journal_unref_flush (void)
++{
++  CoglTexture2D *texture;
++  CoglOffscreen *offscreen;
++  CoglPipeline *pipeline;
++  const int width = 1;
++  const int height = 1;
++  const int stride = width * 4;
++  uint8_t reference_data[] = {
++    0x33, 0x33, 0x33, 0x33,
++  };
++  uint8_t data[G_N_ELEMENTS (reference_data)];
++
++  G_STATIC_ASSERT (sizeof data == sizeof reference_data);
++
++  texture = cogl_texture_2d_new_with_size (test_ctx, width, height);
++  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture));
++  g_object_add_weak_pointer (G_OBJECT (offscreen), (gpointer *) &offscreen);
++
++  pipeline = cogl_pipeline_new (test_ctx);
++  cogl_pipeline_set_color4ub (pipeline, 0x33, 0x33, 0x33, 0x33);
++  cogl_framebuffer_draw_rectangle (COGL_FRAMEBUFFER (offscreen),
++                                   pipeline,
++                                   -1, -1, 1, 1);
++  cogl_object_unref (pipeline);
++
++  g_object_unref (offscreen);
++  g_assert_null (offscreen);
++
++  cogl_texture_get_data (COGL_TEXTURE (texture),
++                         COGL_PIXEL_FORMAT_RGBA_8888_PRE,
++                         stride, data);
++  g_assert_cmpmem (data, sizeof (data),
++                   reference_data, sizeof (reference_data));
++
++  cogl_object_unref (texture);
++}
