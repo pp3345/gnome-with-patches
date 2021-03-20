@@ -105,7 +105,6 @@ Patch120: rt-default.diff
 #Patch153: 1496.diff
 #Patch160: 1489.diff
 #Patch170: 1509.diff
-Patch180: 984.diff
 Patch190: 1524.diff
 Patch200: 1507.diff
 #Patch220: 1510.diff
