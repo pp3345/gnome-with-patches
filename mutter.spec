@@ -110,6 +110,8 @@ Patch200: 1507.diff
 Patch220: 1510.diff
 Patch230: 1268.diff
 Patch240: 1735.diff
+Patch250: 1713.reverted.diff
+Patch260: 1683.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages

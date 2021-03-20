@@ -1,0 +1,161 @@
+diff --git a/src/compositor/meta-dnd-actor.c b/src/compositor/meta-dnd-actor.c
+index 31a01db90bd4fcb401526671a6fec3f9f71306f4..80bffdeb75c76e20fd5d5f3504c5f222c2d752e4 100644
+--- a/src/compositor/meta-dnd-actor.c
++++ b/src/compositor/meta-dnd-actor.c
+@@ -28,6 +28,7 @@
+ #include "config.h"
+ 
+ #include "compositor/meta-dnd-actor-private.h"
++#include "compositor/meta-window-actor-private.h"
+ 
+ #include "clutter/clutter.h"
+ 
+@@ -206,16 +207,29 @@ meta_dnd_actor_drag_finish (MetaDnDActor *self,
+ 
+       if (CLUTTER_ACTOR_IS_VISIBLE (self->drag_origin))
+         {
++          MetaWindowActor *origin_actor;
+           float anchor_x, anchor_y;
+           graphene_point_t dest;
++          int origin_geometry_scale;
++          int feedback_geometry_scale;
+ 
+           clutter_actor_get_transformed_position (self->drag_origin,
+                                                   &dest.x, &dest.y);
++
++          origin_actor = meta_window_actor_from_actor (self->drag_origin);
++          g_return_if_fail (origin_actor);
++          origin_geometry_scale =
++            meta_window_actor_get_geometry_scale (origin_actor);
++
+           meta_feedback_actor_get_anchor (META_FEEDBACK_ACTOR (self),
+                                           &anchor_x, &anchor_y);
++          feedback_geometry_scale =
++            meta_feedback_actor_get_geometry_scale (META_FEEDBACK_ACTOR (self));
+ 
+-          dest.x += self->drag_start_x - anchor_x;
+-          dest.y += self->drag_start_y - anchor_y;
++          dest.x += ((self->drag_start_x * origin_geometry_scale) -
++                     (anchor_x * feedback_geometry_scale));
++          dest.y += ((self->drag_start_y * origin_geometry_scale) -
++                     (anchor_y * feedback_geometry_scale));
+           clutter_actor_set_position (actor, dest.x, dest.y);
+         }
+ 
+diff --git a/src/compositor/meta-feedback-actor-private.h b/src/compositor/meta-feedback-actor-private.h
+index 530bb2dc29f4940470d7da7168d3f5c45812f7a1..86cacb3607c25e7b6c3df3e1210b6ca5170e64d3 100644
+--- a/src/compositor/meta-feedback-actor-private.h
++++ b/src/compositor/meta-feedback-actor-private.h
+@@ -62,4 +62,9 @@ void meta_feedback_actor_set_position (MetaFeedbackActor  *self,
+ void meta_feedback_actor_update (MetaFeedbackActor  *self,
+                                  const ClutterEvent *event);
+ 
++void meta_feedback_actor_set_geometry_scale (MetaFeedbackActor *self,
++                                             int                geometry_scale);
++
++int meta_feedback_actor_get_geometry_scale (MetaFeedbackActor *self);
++
+ #endif /* META_FEEDBACK_ACTOR_PRIVATE_H */
+diff --git a/src/compositor/meta-feedback-actor.c b/src/compositor/meta-feedback-actor.c
+index c8eb0fcac0db2a8a271f7d2b2919b114f2ab0e5f..4b4bed78a2188f204ae5a94e9509dd32cf566074 100644
+--- a/src/compositor/meta-feedback-actor.c
++++ b/src/compositor/meta-feedback-actor.c
+@@ -44,6 +44,8 @@ struct _MetaFeedbackActorPrivate
+   float anchor_y;
+   float pos_x;
+   float pos_y;
++
++  int geometry_scale;
+ };
+ 
+ G_DEFINE_TYPE_WITH_PRIVATE (MetaFeedbackActor, meta_feedback_actor, CLUTTER_TYPE_ACTOR)
+@@ -65,8 +67,10 @@ meta_feedback_actor_update_position (MetaFeedbackActor *self)
+   MetaFeedbackActorPrivate *priv = meta_feedback_actor_get_instance_private (self);
+ 
+   clutter_actor_set_position (CLUTTER_ACTOR (self),
+-                              priv->pos_x - priv->anchor_x,
+-                              priv->pos_y - priv->anchor_y);
++                              priv->pos_x -
++                              (priv->anchor_x * priv->geometry_scale),
++                              priv->pos_y -
++                              (priv->anchor_y * priv->geometry_scale));
+ }
+ 
+ static void
+@@ -249,3 +253,33 @@ meta_feedback_actor_update (MetaFeedbackActor  *self,
+   clutter_event_get_position (event, &point);
+   meta_feedback_actor_set_position (self, point.x, point.y);
+ }
++
++void
++meta_feedback_actor_set_geometry_scale (MetaFeedbackActor *self,
++                                        int                geometry_scale)
++{
++  MetaFeedbackActorPrivate *priv =
++    meta_feedback_actor_get_instance_private (self);
++  graphene_matrix_t child_transform;
++
++  if (priv->geometry_scale == geometry_scale)
++    return;
++
++  priv->geometry_scale = geometry_scale;
++
++  graphene_matrix_init_scale (&child_transform,
++                              geometry_scale,
++                              geometry_scale,
++                              1);
++  clutter_actor_set_child_transform (CLUTTER_ACTOR (self),
++                                     &child_transform);
++}
++
++int
++meta_feedback_actor_get_geometry_scale (MetaFeedbackActor *self)
++{
++  MetaFeedbackActorPrivate *priv =
++    meta_feedback_actor_get_instance_private (self);
++
++  return priv->geometry_scale;
++}
+diff --git a/src/wayland/meta-wayland-dnd-surface.c b/src/wayland/meta-wayland-dnd-surface.c
+index bdd80f53a28b213747dd4aa93c73320d601cce42..047de6e2b3f33f1b7082524d3e20bc370003428b 100644
+--- a/src/wayland/meta-wayland-dnd-surface.c
++++ b/src/wayland/meta-wayland-dnd-surface.c
+@@ -30,7 +30,6 @@ struct _MetaWaylandSurfaceRoleDND
+   MetaWaylandActorSurface parent;
+   int32_t pending_offset_x;
+   int32_t pending_offset_y;
+-  int geometry_scale;
+ };
+ 
+ G_DEFINE_TYPE (MetaWaylandSurfaceRoleDND,
+@@ -122,27 +121,19 @@ dnd_subsurface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
+ 
+   geometry_scale =
+     meta_wayland_actor_surface_get_geometry_scale (actor_surface);
++  meta_feedback_actor_set_geometry_scale (feedback_actor, geometry_scale);
+ 
+   meta_feedback_actor_get_anchor (feedback_actor, &anchor_x, &anchor_y);
+-  anchor_x -= surface_role_dnd->pending_offset_x * geometry_scale;
+-  anchor_y -= surface_role_dnd->pending_offset_y * geometry_scale;
++  anchor_x -= surface_role_dnd->pending_offset_x;
++  anchor_y -= surface_role_dnd->pending_offset_y;
+   meta_feedback_actor_set_anchor (feedback_actor, anchor_x, anchor_y);
+ 
+-  if (surface_role_dnd->geometry_scale != geometry_scale)
+-    {
+-      surface_role_dnd->geometry_scale = geometry_scale;
+-      clutter_actor_set_scale (CLUTTER_ACTOR (surface_actor),
+-                               geometry_scale,
+-                               geometry_scale);
+-    }
+-
+   actor_surface_class->sync_actor_state (actor_surface);
+ }
+ 
+ static void
+ meta_wayland_surface_role_dnd_init (MetaWaylandSurfaceRoleDND *role)
+ {
+-  role->geometry_scale = 1;
+ }
+ 
+ static void
