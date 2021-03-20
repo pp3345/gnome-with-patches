@@ -7,8 +7,8 @@
 %global mutter_api_version 7
 
 Name:          mutter
-Version:       3.38.3
-Release:       100%{?dist}.pp3345
+Version:       3.38.4
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -182,6 +182,14 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Mar 15 2021 Florian Müllner <fmuellner@redhat.com> - 3.38.4-1
+- Update to 3.38.4
+
+* Wed Mar 10 2021 Jonas Ådahl <jadahl@redhat.com> - 3.38.3-2
+- Backport patches from gnome-3-38
+  Resolves: #1934169
+  Resolves: #1894257
+
 * Sun Jan 17 2021 Yussuf Khalil <dev@pp3345.net> - 3.38.3-100
 - Rebase to 3.38.3-1.fc33
 
