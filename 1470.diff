@@ -3,7 +3,7 @@ index 864b0440459bff0b13ea8a368ad0c0af727911cc..3ed2d89e13199a150e1c229e18c8581c
 --- a/src/st/st-viewport.c
 +++ b/src/st/st-viewport.c
 @@ -434,39 +434,24 @@ st_viewport_pick (ClutterActor       *actor,
-   ClutterActorBox allocation_box;
+   g_autoptr (ClutterActorBox) allocation_box = NULL;
    ClutterActorBox content_box;
    ClutterActor *child;
 -  CoglFramebuffer *fb = clutter_pick_context_get_framebuffer (pick_context);
@@ -23,8 +23,8 @@ index 864b0440459bff0b13ea8a368ad0c0af727911cc..3ed2d89e13199a150e1c229e18c8581c
    if (clutter_actor_get_n_children (actor) == 0)
      return;
  
-   clutter_actor_get_allocation_box (actor, &allocation_box);
-   st_theme_node_get_content_box (theme_node, &allocation_box, &content_box);
+   g_object_get (actor, "allocation", &allocation_box, NULL);
+   st_theme_node_get_content_box (theme_node, allocation_box, &content_box);
  
 +  get_border_paint_offsets (viewport, &x, &y);
 +
