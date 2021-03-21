@@ -22,6 +22,8 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 # To make s390x build pass
 Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 
+Patch2:        1441.patch
+
 BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
@@ -110,7 +112,7 @@ Patch120: rt-default.diff
 #Patch200: 1507.diff
 #Patch220: 1510.diff
 #Patch230: 1268.diff
-Patch240: 1441.diff
+#Patch240: 1441.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages
