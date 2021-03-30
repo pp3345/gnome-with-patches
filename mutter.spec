@@ -97,6 +97,8 @@ Requires: zenity
 Requires:      json-glib%{?_isa} >= %{json_glib_version}
 Requires:      libinput%{?_isa} >= %{libinput_version}
 
+Patch240: 1441-40.diff
+
 %description
 Mutter is a window and compositing manager that displays and manages
 your desktop via OpenGL. Mutter combines a sophisticated display engine
