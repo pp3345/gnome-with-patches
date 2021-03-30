@@ -21,7 +21,7 @@ Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 URL:           http://www.gnome.org
-Source0:       mutter-40.0.2.tar.xz  
+Source0:       mutter-40.0.2.zip  
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
