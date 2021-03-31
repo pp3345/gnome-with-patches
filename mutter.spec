@@ -10,12 +10,12 @@
 
 Name:          mutter
 Version:       40.0
-Release:       1.1%{?dist}
+Release:       201.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 URL:           http://www.gnome.org
-Source0:       http://download.gnome.org/sources/%{name}/40/%{name}-%{tarball_version}.tar.xz
+Source0:       mutter-40.0.zip
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
