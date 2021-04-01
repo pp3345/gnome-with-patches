@@ -1,5 +1,5 @@
 diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
-index 0d5eae78248785561ee35034c95a63d405e7feea..8b31a3193bf9cbcb33624d97dd8170321a9b96c8 100644
+index 3bab3d1ac4e0fa73b4275766c114fb968d3de48f..70b2b930b52a2d0b642e04325a9a10c42e87e5c2 100644
 --- a/clutter/clutter/clutter-actor.c
 +++ b/clutter/clutter/clutter-actor.c
 @@ -609,7 +609,6 @@
@@ -11,7 +11,7 @@ index 0d5eae78248785561ee35034c95a63d405e7feea..8b31a3193bf9cbcb33624d97dd817032
  #include "clutter-actor-private.h"
  
 diff --git a/clutter/clutter/clutter-backend.c b/clutter/clutter/clutter-backend.c
-index 91298c964c1e0ec4f304af252307e501c1df2e3a..977e7da94c0621fc21fac2a180f1ec80dc0a98b1 100644
+index b67f6c3b8ed7c53bcf146ea79617f6e281b51623..f3cac53dc3dbef24a5dc11b1a64df6d616958f12 100644
 --- a/clutter/clutter/clutter-backend.c
 +++ b/clutter/clutter/clutter-backend.c
 @@ -40,8 +40,6 @@
@@ -24,7 +24,7 @@ index 91298c964c1e0ec4f304af252307e501c1df2e3a..977e7da94c0621fc21fac2a180f1ec80
  #include "clutter-debug.h"
  #include "clutter-event-private.h"
 diff --git a/clutter/clutter/clutter-blur-effect.c b/clutter/clutter/clutter-blur-effect.c
-index 5236042de28edb48f902a6543bb662e08d2b850b..0a21af4f924a5e4e99826df2c69ddc606375ca2d 100644
+index 92aeca697cf75d0947105f3762296213539cbe2d..d3e7ddca6896aaf54d67034fd69e1b994e17aeb4 100644
 --- a/clutter/clutter/clutter-blur-effect.c
 +++ b/clutter/clutter/clutter-blur-effect.c
 @@ -39,8 +39,6 @@
@@ -37,7 +37,7 @@ index 5236042de28edb48f902a6543bb662e08d2b850b..0a21af4f924a5e4e99826df2c69ddc60
  
  #include "cogl/cogl.h"
 diff --git a/clutter/clutter/clutter-brightness-contrast-effect.c b/clutter/clutter/clutter-brightness-contrast-effect.c
-index be1df01cc65e70cf2008fc80f2ad4d388ad4d6af..7184d9a2806be9767eec3c48a4537f4e21bb9e7b 100644
+index 4942b87725dc43f9f602cb254185c4eabde64716..4f0ce2e5e9736119adbbe991e0125bd4af785eda 100644
 --- a/clutter/clutter/clutter-brightness-contrast-effect.c
 +++ b/clutter/clutter/clutter-brightness-contrast-effect.c
 @@ -41,8 +41,6 @@
@@ -75,7 +75,7 @@ index 86f124e6da336a2e3e988fc7c9f416c437ccedc5..42e3e07cdb438046c873eab2cad10eff
  #include "clutter-clone.h"
  #include "clutter-debug.h"
 diff --git a/clutter/clutter/clutter-colorize-effect.c b/clutter/clutter/clutter-colorize-effect.c
-index db372a9cb55d86cff0540740015523d3b6ba9b84..e6dd0363703c2e238cb4ded86c45f48680a3ebe7 100644
+index d73a0524fa6aca8000761226d2e1fb7e89cdcc94..6f7de95bdd66b62d85f6eedf6b48ff25388c421a 100644
 --- a/clutter/clutter/clutter-colorize-effect.c
 +++ b/clutter/clutter/clutter-colorize-effect.c
 @@ -39,8 +39,6 @@
@@ -88,7 +88,7 @@ index db372a9cb55d86cff0540740015523d3b6ba9b84..e6dd0363703c2e238cb4ded86c45f486
  
  #include "cogl/cogl.h"
 diff --git a/clutter/clutter/clutter-deform-effect.c b/clutter/clutter/clutter-deform-effect.c
-index e92d10600b3dee81f021af4cebacae6e70bb3c20..bac84d2801a7a4552629c2314d31eec258b82c3f 100644
+index eca46e8f93363a56a327054e78229a15408715f1..039ce014bb6186c2da8a46da5b00f54db4d14d61 100644
 --- a/clutter/clutter/clutter-deform-effect.c
 +++ b/clutter/clutter/clutter-deform-effect.c
 @@ -53,7 +53,6 @@
@@ -100,7 +100,7 @@ index e92d10600b3dee81f021af4cebacae6e70bb3c20..bac84d2801a7a4552629c2314d31eec2
  
  #include <cogl/cogl.h>
 diff --git a/clutter/clutter/clutter-desaturate-effect.c b/clutter/clutter/clutter-desaturate-effect.c
-index 0f498acb38e8db598b7e855db401663b28ec91a1..4863718b63ccf2885cf933f90473d351304aff0d 100644
+index d7035b6790ee7a0c29ff2627c470c4e95544b8e5..4ac60d0e0754dc08ea1d6b557b2639133737d5d7 100644
 --- a/clutter/clutter/clutter-desaturate-effect.c
 +++ b/clutter/clutter/clutter-desaturate-effect.c
 @@ -41,8 +41,6 @@
@@ -113,7 +113,7 @@ index 0f498acb38e8db598b7e855db401663b28ec91a1..4863718b63ccf2885cf933f90473d351
  
  #include "clutter-desaturate-effect.h"
 diff --git a/clutter/clutter/clutter-frame-clock.c b/clutter/clutter/clutter-frame-clock.c
-index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19ba81af2bc 100644
+index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..c4f2746fd247094177d37003df48fe3fad761c45 100644
 --- a/clutter/clutter/clutter-frame-clock.c
 +++ b/clutter/clutter/clutter-frame-clock.c
 @@ -19,11 +19,14 @@
@@ -126,7 +126,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
  #include "clutter/clutter-timeline-private.h"
  #include "cogl/cogl-trace.h"
  
-+#define DISPATCH_DURATION_QUEUE_LENGTH 16
++#define ESTIMATE_QUEUE_LENGTH 16
 +
  enum
  {
@@ -141,25 +141,36 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
  typedef struct _ClutterFrameListener
  {
    const ClutterFrameListenerIface *iface;
-@@ -75,6 +75,17 @@ struct _ClutterFrameClock
+@@ -75,6 +75,28 @@ struct _ClutterFrameClock
    gboolean is_next_presentation_time_valid;
    int64_t next_presentation_time_us;
  
 +  /*
-+   * How long the frame clock dispatch took from start to buffer swap
-+   * the last few times.
++   * Buffer must be submitted to KMS and GPU rendering must be finished
++   * this amount of time before the next presentation time.
 +   */
-+  int64_t dispatch_durations_us[DISPATCH_DURATION_QUEUE_LENGTH];
-+  int dispatch_duration_next_index;
-+  /* Time of the last buffer swap. */
++  int64_t vblank_duration_us;
++  /* Last dispatch start time. */
++  int64_t last_dispatch_time_us;
++  /* Last KMS buffer submission time. */
 +  int64_t last_flip_time_us;
-+  /* Estimate of minimum allowed time from buffer swap to presentation. */
-+  int min_flip_to_delayed_presentation;
++
++  /* Last few durations between dispatch start and buffer swap. */
++  int64_t dispatch_to_swap_us[ESTIMATE_QUEUE_LENGTH];
++  int dispatch_to_swap_next_index;
++  /* Last few durations between buffer swap and GPU rendering finish. */
++  int64_t swap_to_rendering_done_us[ESTIMATE_QUEUE_LENGTH];
++  int swap_to_rendering_done_next_index;
++  /* Last few durations between buffer swap and KMS submission. */
++  int64_t swap_to_flip_us[ESTIMATE_QUEUE_LENGTH];
++  int swap_to_flip_next_index;
++  /* If we got new measurements last frame. */
++  gboolean got_measurements_last_frame;
 +
    gboolean pending_reschedule;
    gboolean pending_reschedule_now;
  
-@@ -92,6 +103,18 @@ clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock)
+@@ -92,6 +114,18 @@ clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock)
    return frame_clock->refresh_rate;
  }
  
@@ -178,12 +189,13 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
  void
  clutter_frame_clock_add_timeline (ClutterFrameClock *frame_clock,
                                    ClutterTimeline   *timeline)
-@@ -181,20 +204,44 @@ void
+@@ -181,20 +215,63 @@ void
  clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                        ClutterFrameInfo  *frame_info)
  {
 -  int64_t presentation_time_us = frame_info->presentation_time;
--
++  frame_clock->got_measurements_last_frame = FALSE;
+ 
 -  if (presentation_time_us > frame_clock->last_presentation_time_us ||
 -      ((presentation_time_us - frame_clock->last_presentation_time_us) >
 -       INT64_MAX / 2))
@@ -203,28 +215,45 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
 -                      presentation_time_us);
 -      frame_clock->last_presentation_time_us = g_get_monotonic_time ();
 +      int64_t presentation_time_us = frame_info->presentation_time;
-+      int64_t flip_to_presentation_duration_us;
-+      int64_t refresh_interval_us;
 +
-+      refresh_interval_us =
-+        clutter_frame_clock_get_refresh_interval_us(frame_clock);
++      if (frame_info->cpu_time_before_buffer_swap_us != 0 &&
++          frame_info->gpu_rendering_duration_ns != 0)
++        {
++          int64_t dispatch_to_swap_us, swap_to_rendering_done_us, swap_to_flip_us;
 +
-+      flip_to_presentation_duration_us =
-+        presentation_time_us - frame_clock->last_flip_time_us;
++          dispatch_to_swap_us =
++            frame_info->cpu_time_before_buffer_swap_us - frame_clock->last_dispatch_time_us;
++          swap_to_rendering_done_us =
++            frame_info->gpu_rendering_duration_ns / 1000;
++          swap_to_flip_us =
++            frame_clock->last_flip_time_us - frame_info->cpu_time_before_buffer_swap_us;
 +
-+      if (flip_to_presentation_duration_us > refresh_interval_us)
-+        /*
-+         * We missed a frame. Assume we aimed for the previous refresh and
-+         * didn't make it, therefore raise the estimate up.
-+         */
-+        frame_clock->min_flip_to_delayed_presentation =
-+          MAX (frame_clock->min_flip_to_delayed_presentation,
-+               flip_to_presentation_duration_us - refresh_interval_us);
++          CLUTTER_NOTE (FRAME_TIMINGS,
++                        "dispatch2swap %ld µs, swap2render %ld µs, swap2flip %ld µs",
++                        dispatch_to_swap_us,
++                        swap_to_rendering_done_us,
++                        swap_to_flip_us);
 +
-+      /* We successfully refreshed, so we can lower the estimate. */
-+      frame_clock->min_flip_to_delayed_presentation =
-+        MIN (frame_clock->min_flip_to_delayed_presentation,
-+             flip_to_presentation_duration_us);
++          frame_clock->dispatch_to_swap_us[frame_clock->dispatch_to_swap_next_index] =
++            dispatch_to_swap_us;
++          frame_clock->dispatch_to_swap_next_index =
++            (frame_clock->dispatch_to_swap_next_index + 1) %
++            ESTIMATE_QUEUE_LENGTH;
++
++          frame_clock->swap_to_rendering_done_us[frame_clock->swap_to_rendering_done_next_index] =
++            swap_to_rendering_done_us;
++          frame_clock->swap_to_rendering_done_next_index =
++            (frame_clock->swap_to_rendering_done_next_index + 1) %
++            ESTIMATE_QUEUE_LENGTH;
++
++          frame_clock->swap_to_flip_us[frame_clock->swap_to_flip_next_index] =
++            swap_to_flip_us;
++          frame_clock->swap_to_flip_next_index =
++            (frame_clock->swap_to_flip_next_index + 1) %
++            ESTIMATE_QUEUE_LENGTH;
++
++          frame_clock->got_measurements_last_frame = TRUE;
++        }
 +
 +      /* Make sure we didn't travel back in time. */
 +      if (presentation_time_us > frame_clock->last_presentation_time_us ||
@@ -236,7 +265,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
      }
  
    if (frame_info->refresh_rate > 1)
-@@ -222,7 +269,6 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
+@@ -222,7 +299,6 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
  {
    int64_t last_presentation_time_us;
    int64_t now_us;
@@ -244,7 +273,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
    int64_t refresh_interval_us;
    int64_t min_render_time_allowed_us;
    int64_t max_render_time_allowed_us;
-@@ -233,11 +279,12 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
+@@ -233,11 +309,12 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
  
    now_us = g_get_monotonic_time ();
  
@@ -260,7 +289,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
  
    if (min_render_time_allowed_us > max_render_time_allowed_us)
      min_render_time_allowed_us = max_render_time_allowed_us;
-@@ -248,18 +295,63 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
+@@ -248,18 +325,63 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
    /* Skip ahead to get close to the actual next presentation time. */
    if (next_presentation_time_us < now_us)
      {
@@ -329,7 +358,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
    last_next_presentation_time_us = frame_clock->next_presentation_time_us;
    time_since_last_next_presentation_time_us =
        next_presentation_time_us - last_next_presentation_time_us;
-@@ -392,7 +484,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
+@@ -392,7 +514,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
    int64_t frame_count;
    ClutterFrameResult result;
  
@@ -338,7 +367,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
  
    g_source_set_ready_time (frame_clock->source, -1);
  
-@@ -459,6 +551,63 @@ frame_clock_source_dispatch (GSource     *source,
+@@ -459,6 +581,109 @@ frame_clock_source_dispatch (GSource     *source,
    return G_SOURCE_CONTINUE;
  }
  
@@ -347,12 +376,7 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
 +                                            int64_t            dispatch_time_us,
 +                                            int64_t            flip_time_us)
 +{
-+  frame_clock->dispatch_durations_us[frame_clock->dispatch_duration_next_index] =
-+    flip_time_us - dispatch_time_us;
-+  frame_clock->dispatch_duration_next_index =
-+    (frame_clock->dispatch_duration_next_index + 1) %
-+    DISPATCH_DURATION_QUEUE_LENGTH;
-+
++  frame_clock->last_dispatch_time_us = dispatch_time_us;
 +  frame_clock->last_flip_time_us = flip_time_us;
 +}
 +
@@ -362,34 +386,44 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
 +clutter_frame_clock_max_render_time_us (ClutterFrameClock *frame_clock)
 +{
 +  int refresh_interval_us;
-+  int64_t max_dispatch_duration_us = 0;
++  int64_t max_dispatch_to_swap_us = 0;
++  int64_t max_swap_to_rendering_done_us = 0;
++  int64_t max_swap_to_flip_us = 0;
 +  int max_render_time_us;
 +
 +  refresh_interval_us =
 +    clutter_frame_clock_get_refresh_interval_us(frame_clock);
 +
-+  if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME))
++  if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME) ||
++      frame_clock->got_measurements_last_frame)
++    /* Dynamic max render time is disabled or we don't have up-to-date data. */
 +    return refresh_interval_us - 2000;
 +
-+  if (frame_clock->dispatch_durations_us[0] == 0)
-+    /* No data yet. */
-+    return refresh_interval_us;
-+
-+  for (int i = 0; i < DISPATCH_DURATION_QUEUE_LENGTH; ++i)
-+    max_dispatch_duration_us =
-+      MAX (max_dispatch_duration_us, frame_clock->dispatch_durations_us[i]);
++  for (int i = 0; i < ESTIMATE_QUEUE_LENGTH; ++i)
++    {
++      max_dispatch_to_swap_us =
++        MAX (max_dispatch_to_swap_us, frame_clock->dispatch_to_swap_us[i]);
++      max_swap_to_rendering_done_us =
++        MAX (max_swap_to_rendering_done_us, frame_clock->swap_to_rendering_done_us[i]);
++      max_swap_to_flip_us =
++        MAX (max_swap_to_flip_us, frame_clock->swap_to_flip_us[i]);
++    }
 +
 +  /*
 +   * Max render time shows how early the frame clock needs to be dispatched
 +   * to make it to the predicted next presentation time. It is composed of:
-+   * - An estimate of compositing duration (frame clock dispatch to buffer swap).
-+   * - An estimate of minimum allowed time from buffer swap to presentation
-+   *   (how late can we swap buffers to still make it to the display refresh).
-+   * - A constant to account for variations in the above durations.
++   * - An estimate of duration from dispatch start to buffer swap.
++   * - Maximum between estimates of duration from buffer swap to GPU rendering
++   *   finish and duration from buffer swap to buffer submission to KMS. This
++   *   is because both of these things need to happen before the vblank, and
++   *   they are done in parallel.
++   * - Duration of the vblank.
++   * - A constant to account for variations in the above estimates.
 +   */
 +  max_render_time_us =
-+    max_dispatch_duration_us +
-+    frame_clock->min_flip_to_delayed_presentation +
++    max_dispatch_to_swap_us +
++    MAX (max_swap_to_rendering_done_us, max_swap_to_flip_us) +
++    frame_clock->vblank_duration_us +
 +    max_render_time_constant;
 +
 +  /* Sanity checks. */
@@ -399,14 +433,79 @@ index 355a2c00fbbb94c7f9f5460f4150900b3ccd3aa1..b7e6f45e0d47b996ae28b26fcf8ec19b
 +  return max_render_time_us;
 +}
 +
++GString *
++clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clock)
++{
++  int64_t max_dispatch_to_swap_us = 0;
++  int64_t max_swap_to_rendering_done_us = 0;
++  int64_t max_swap_to_flip_us = 0;
++  GString *string;
++
++  string = g_string_new (NULL);
++  g_string_append_printf (string, "Max render time: %d µs",
++                          clutter_frame_clock_max_render_time_us (frame_clock));
++
++  if (frame_clock->got_measurements_last_frame)
++    g_string_append_printf (string, " =");
++  else
++    g_string_append_printf (string, " (no measurements last frame)");
++
++  for (int i = 0; i < ESTIMATE_QUEUE_LENGTH; ++i)
++    {
++      max_dispatch_to_swap_us =
++        MAX (max_dispatch_to_swap_us, frame_clock->dispatch_to_swap_us[i]);
++      max_swap_to_rendering_done_us =
++        MAX (max_swap_to_rendering_done_us, frame_clock->swap_to_rendering_done_us[i]);
++      max_swap_to_flip_us =
++        MAX (max_swap_to_flip_us, frame_clock->swap_to_flip_us[i]);
++    }
++
++  g_string_append_printf (string, "\nVblank duration: %ld µs +",
++                          frame_clock->vblank_duration_us);
++  g_string_append_printf (string, "\nDispatch to swap: %ld µs +",
++                          max_dispatch_to_swap_us);
++  g_string_append_printf (string, "\nmax(Swap to rendering done: %ld µs,",
++                          max_swap_to_rendering_done_us);
++  g_string_append_printf (string, "\nSwap to flip: %ld µs) +",
++                          max_swap_to_flip_us);
++  g_string_append_printf (string, "\nConstant: %d µs",
++                          max_render_time_constant);
++
++  return string;
++}
++
  static GSourceFuncs frame_clock_source_funcs = {
    NULL,
    NULL,
+@@ -488,6 +713,7 @@ init_frame_clock_source (ClutterFrameClock *frame_clock)
+ 
+ ClutterFrameClock *
+ clutter_frame_clock_new (float                            refresh_rate,
++                         int64_t                          vblank_duration_us,
+                          const ClutterFrameListenerIface *iface,
+                          gpointer                         user_data)
+ {
+@@ -503,6 +729,7 @@ clutter_frame_clock_new (float                            refresh_rate,
+   init_frame_clock_source (frame_clock);
+ 
+   frame_clock->refresh_rate = refresh_rate;
++  frame_clock->vblank_duration_us = vblank_duration_us;
+ 
+   return frame_clock;
+ }
 diff --git a/clutter/clutter/clutter-frame-clock.h b/clutter/clutter/clutter-frame-clock.h
-index cf6c5c8569897f0fd73ce173a7cc0bd0b54e2fe6..e0f362c8a502fd77eda4c1d4cebb5d95f7f7ed32 100644
+index cf6c5c8569897f0fd73ce173a7cc0bd0b54e2fe6..1c6b9f38616d28ad61baffef1423bf48ff04952d 100644
 --- a/clutter/clutter/clutter-frame-clock.h
 +++ b/clutter/clutter/clutter-frame-clock.h
-@@ -87,4 +87,17 @@ void clutter_frame_clock_remove_timeline (ClutterFrameClock *frame_clock,
+@@ -56,6 +56,7 @@ typedef struct _ClutterFrameListenerIface
+ 
+ CLUTTER_EXPORT
+ ClutterFrameClock * clutter_frame_clock_new (float                            refresh_rate,
++                                             int64_t                          vblank_duration_us,
+                                              const ClutterFrameListenerIface *iface,
+                                              gpointer                         user_data);
+ 
+@@ -87,4 +88,19 @@ void clutter_frame_clock_remove_timeline (ClutterFrameClock *frame_clock,
  CLUTTER_EXPORT
  float clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock);
  
@@ -423,6 +522,8 @@ index cf6c5c8569897f0fd73ce173a7cc0bd0b54e2fe6..e0f362c8a502fd77eda4c1d4cebb5d95
 +CLUTTER_EXPORT
 +int clutter_frame_clock_max_render_time_us (ClutterFrameClock *frame_clock);
 +
++GString *clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clock);
++
  #endif /* CLUTTER_FRAME_CLOCK_H */
 diff --git a/clutter/clutter/clutter-image.c b/clutter/clutter/clutter-image.c
 index eb6c2f50aa3cc33fb0324ca2b6e6544ee955ae96..9d368e68d01f7646af06d0e11e77969db32dd35e 100644
@@ -438,23 +539,39 @@ index eb6c2f50aa3cc33fb0324ca2b6e6544ee955ae96..9d368e68d01f7646af06d0e11e77969d
  
  #include "clutter-actor-private.h"
 diff --git a/clutter/clutter/clutter-main.c b/clutter/clutter/clutter-main.c
-index e21d3d3fa04022ff963646c6b9cf8830ae9bcb49..cd9b9c6edbcf131f694ee5ba705302bae1b6b9b9 100644
+index c1fc47e57ef21011b7880faac9c2c6a6acc2f2af..927d9da6665a32a5e82a4b50595149498a07814d 100644
 --- a/clutter/clutter/clutter-main.c
 +++ b/clutter/clutter/clutter-main.c
-@@ -128,6 +128,8 @@ static const GDebugKey clutter_paint_debug_keys[] = {
+@@ -112,6 +112,7 @@ static const GDebugKey clutter_debug_keys[] = {
+   { "layout", CLUTTER_DEBUG_LAYOUT },
+   { "clipping", CLUTTER_DEBUG_CLIPPING },
+   { "oob-transforms", CLUTTER_DEBUG_OOB_TRANSFORMS },
++  { "frame-timings", CLUTTER_DEBUG_FRAME_TIMINGS },
+ };
+ #endif /* CLUTTER_ENABLE_DEBUG */
+ 
+@@ -129,6 +130,8 @@ static const GDebugKey clutter_paint_debug_keys[] = {
    { "continuous-redraw", CLUTTER_DEBUG_CONTINUOUS_REDRAW },
    { "paint-deform-tiles", CLUTTER_DEBUG_PAINT_DEFORM_TILES },
    { "damage-region", CLUTTER_DEBUG_PAINT_DAMAGE_REGION },
-+  { "paint-max-render-time", CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME },
++  { "max-render-time", CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME },
 +  { "disable-dynamic-max-render-time", CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME },
  };
  
  #define ENVIRONMENT_GROUP       "Environment"
 diff --git a/clutter/clutter/clutter-main.h b/clutter/clutter/clutter-main.h
-index 10e2aca997930062047449eec28e177daaabdab6..7f64548dcf6925eceeb75ae847aa2426333fdf0d 100644
+index 10e2aca997930062047449eec28e177daaabdab6..c83d5708b716e9000e3ccc73faad32e99b742304 100644
 --- a/clutter/clutter/clutter-main.h
 +++ b/clutter/clutter/clutter-main.h
-@@ -62,15 +62,17 @@ typedef enum
+@@ -53,6 +53,7 @@ typedef enum
+   CLUTTER_DEBUG_EVENTLOOP           = 1 << 14,
+   CLUTTER_DEBUG_CLIPPING            = 1 << 15,
+   CLUTTER_DEBUG_OOB_TRANSFORMS      = 1 << 16,
++  CLUTTER_DEBUG_FRAME_TIMINGS       = 1 << 17,
+ } ClutterDebugFlag;
+ 
+ typedef enum
+@@ -62,15 +63,17 @@ typedef enum
  
  typedef enum
  {
@@ -482,7 +599,7 @@ index 10e2aca997930062047449eec28e177daaabdab6..7f64548dcf6925eceeb75ae847aa2426
  
  /**
 diff --git a/clutter/clutter/clutter-paint-node.c b/clutter/clutter/clutter-paint-node.c
-index c91182bd06dce2095c860c84f317fa38a987a03b..e9d6d6dd8a744fd20a3364b344d845e9712baaf2 100644
+index 4df3dac34bf92b6a877f5abaa665d7303ce0911d..27142af87318808e189ff759ba2ded64341c0087 100644
 --- a/clutter/clutter/clutter-paint-node.c
 +++ b/clutter/clutter/clutter-paint-node.c
 @@ -60,8 +60,6 @@
@@ -495,7 +612,7 @@ index c91182bd06dce2095c860c84f317fa38a987a03b..e9d6d6dd8a744fd20a3364b344d845e9
  #include <cogl/cogl.h>
  #include <json-glib/json-glib.h>
 diff --git a/clutter/clutter/clutter-paint-nodes.c b/clutter/clutter/clutter-paint-nodes.c
-index 41e789a0721e90837b77122fe32ccb2857d915db..cf09cd1453cfda637dcd2bffbaa15884bec60576 100644
+index 3fb7d384a9ba2f5704d22db79a805f9b20a43dc7..f1f7fce318fde7b18d1dc6339d33a1bac4aa119e 100644
 --- a/clutter/clutter/clutter-paint-nodes.c
 +++ b/clutter/clutter/clutter-paint-nodes.c
 @@ -33,8 +33,6 @@
@@ -508,10 +625,26 @@ index 41e789a0721e90837b77122fe32ccb2857d915db..cf09cd1453cfda637dcd2bffbaa15884
  
  #include <pango/pango.h>
 diff --git a/clutter/clutter/clutter-stage-view.c b/clutter/clutter/clutter-stage-view.c
-index 8123eb7db507808851722c3d10f5c50a122cdcce..e259fb0a47cd583da8fc860248399df6c4132d37 100644
+index 8123eb7db507808851722c3d10f5c50a122cdcce..32872993c9f35410400f20749e450d10fa69114d 100644
 --- a/clutter/clutter/clutter-stage-view.c
 +++ b/clutter/clutter/clutter-stage-view.c
-@@ -1097,6 +1097,8 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
+@@ -42,6 +42,7 @@ enum
+   PROP_USE_SHADOWFB,
+   PROP_SCALE,
+   PROP_REFRESH_RATE,
++  PROP_VBLANK_DURATION_US,
+ 
+   PROP_LAST
+ };
+@@ -78,6 +79,7 @@ typedef struct _ClutterStageViewPrivate
+   cairo_region_t *redraw_clip;
+ 
+   float refresh_rate;
++  int64_t vblank_duration_us;
+   ClutterFrameClock *frame_clock;
+ 
+   guint dirty_viewport   : 1;
+@@ -1097,6 +1099,8 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
  
    if (clutter_stage_view_has_redraw_clip (view))
      {
@@ -520,7 +653,7 @@ index 8123eb7db507808851722c3d10f5c50a122cdcce..e259fb0a47cd583da8fc860248399df6
        ClutterStageWindow *stage_window;
  
        clutter_stage_emit_before_paint (stage, view);
-@@ -1104,6 +1106,11 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
+@@ -1104,6 +1108,11 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
        stage_window = _clutter_stage_get_window (stage);
        _clutter_stage_window_redraw_view (stage_window, view);
  
@@ -532,8 +665,51 @@ index 8123eb7db507808851722c3d10f5c50a122cdcce..e259fb0a47cd583da8fc860248399df6
        clutter_stage_emit_after_paint (stage, view);
  
        _clutter_stage_window_finish_frame (stage_window);
+@@ -1206,6 +1215,9 @@ clutter_stage_view_get_property (GObject    *object,
+     case PROP_REFRESH_RATE:
+       g_value_set_float (value, priv->refresh_rate);
+       break;
++    case PROP_VBLANK_DURATION_US:
++      g_value_set_int64 (value, priv->vblank_duration_us);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+     }
+@@ -1249,6 +1261,9 @@ clutter_stage_view_set_property (GObject      *object,
+     case PROP_REFRESH_RATE:
+       priv->refresh_rate = g_value_get_float (value);
+       break;
++    case PROP_VBLANK_DURATION_US:
++      priv->vblank_duration_us = g_value_get_int64 (value);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+     }
+@@ -1265,6 +1280,7 @@ clutter_stage_view_constructed (GObject *object)
+     init_shadowfb (view);
+ 
+   priv->frame_clock = clutter_frame_clock_new (priv->refresh_rate,
++                                               priv->vblank_duration_us,
+                                                &frame_clock_listener_iface,
+                                                view);
+ 
+@@ -1408,5 +1424,14 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
+                         G_PARAM_CONSTRUCT |
+                         G_PARAM_STATIC_STRINGS);
+ 
++  obj_props[PROP_VBLANK_DURATION_US] =
++    g_param_spec_int64 ("vblank-duration-us",
++                        "Vblank duration (µs)",
++                        "The vblank duration",
++                        0, G_MAXINT64, 0,
++                        G_PARAM_READWRITE |
++                        G_PARAM_CONSTRUCT_ONLY |
++                        G_PARAM_STATIC_STRINGS);
++
+   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
+ }
 diff --git a/clutter/clutter/clutter-stage.c b/clutter/clutter/clutter-stage.c
-index a7261d36dd084eba657ec61a5707f6d586fc0311..22389c9031a5291976e50fd1f2f1a0237162cb67 100644
+index 868881fa3ce7c75388c2743b748e22ca15cfaaef..439a0a8b6fd86f28c971a4c6803f292799b91a51 100644
 --- a/clutter/clutter/clutter-stage.c
 +++ b/clutter/clutter/clutter-stage.c
 @@ -48,7 +48,6 @@
@@ -544,16 +720,16 @@ index a7261d36dd084eba657ec61a5707f6d586fc0311..22389c9031a5291976e50fd1f2f1a023
  
  #include "clutter-stage.h"
  #include "deprecated/clutter-container.h"
-@@ -119,8 +118,6 @@ struct _ClutterStagePrivate
+@@ -128,8 +127,6 @@ struct _ClutterStagePrivate
    GSList *pending_relayouts;
    GHashTable *pending_queue_redraws;
  
 -  gint sync_delay;
 -
-   ClutterStageState current_state;
- 
    int update_freeze_count;
-@@ -1296,6 +1293,52 @@ clutter_stage_real_paint_view (ClutterStage         *stage,
+ 
+   gboolean needs_update_devices;
+@@ -1320,6 +1317,51 @@ clutter_stage_real_paint_view (ClutterStage         *stage,
    clutter_stage_do_paint_view (stage, view, redraw_clip);
  }
  
@@ -581,11 +757,10 @@ index a7261d36dd084eba657ec61a5707f6d586fc0311..22389c9031a5291976e50fd1f2f1a023
 +      clutter_stage_view_get_layout (view, &view_layout);
 +      frame_clock = clutter_stage_view_get_frame_clock (view);
 +
-+      string = g_string_new (NULL);
-+      g_string_append_printf (string, "Max render time (µs): %d",
-+                              clutter_frame_clock_max_render_time_us (frame_clock));
++      string = clutter_frame_clock_get_max_render_time_debug_info (frame_clock);
 +
 +      layout = clutter_actor_create_pango_layout (actor, string->str);
++      pango_layout_set_alignment(layout, PANGO_ALIGN_RIGHT);
 +      pango_layout_get_pixel_extents (layout, NULL, &logical);
 +
 +      clutter_color_init (&color, 255, 255, 255, 255);
@@ -606,7 +781,7 @@ index a7261d36dd084eba657ec61a5707f6d586fc0311..22389c9031a5291976e50fd1f2f1a023
  static void
  clutter_stage_class_init (ClutterStageClass *klass)
  {
-@@ -1319,6 +1362,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
+@@ -1343,6 +1385,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
    actor_class->hide_all = clutter_stage_hide_all;
    actor_class->queue_relayout = clutter_stage_real_queue_relayout;
    actor_class->apply_transform = clutter_stage_real_apply_transform;
@@ -614,16 +789,16 @@ index a7261d36dd084eba657ec61a5707f6d586fc0311..22389c9031a5291976e50fd1f2f1a023
  
    klass->paint_view = clutter_stage_real_paint_view;
  
-@@ -1573,7 +1617,6 @@ clutter_stage_init (ClutterStage *self)
+@@ -1600,7 +1643,6 @@ clutter_stage_init (ClutterStage *self)
  
    priv->throttle_motion_events = TRUE;
    priv->min_size_changed = FALSE;
 -  priv->sync_delay = -1;
    priv->motion_events_enabled = TRUE;
  
-   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
-@@ -3095,40 +3138,6 @@ _clutter_stage_update_state (ClutterStage      *stage,
-   return TRUE;
+   priv->pointer_devices =
+@@ -3029,40 +3071,6 @@ _clutter_stage_remove_touch_drag_actor (ClutterStage         *stage,
+                        NULL);
  }
  
 -/**
@@ -664,10 +839,10 @@ index a7261d36dd084eba657ec61a5707f6d586fc0311..22389c9031a5291976e50fd1f2f1a023
  clutter_stage_get_frame_counter (ClutterStage          *stage)
  {
 diff --git a/clutter/clutter/clutter-stage.h b/clutter/clutter/clutter-stage.h
-index 59a4ad145a5282b5ccd57f982da57541b3595c98..87206e71465b1c7cc08b9bc8f7ee4a8d57ef9f82 100644
+index a3b72b46c21233b451c5c9dc0a28f6c8aa9d0db0..15372db703046225028fc0c498e7d7b49c155df8 100644
 --- a/clutter/clutter/clutter-stage.h
 +++ b/clutter/clutter/clutter-stage.h
-@@ -114,14 +114,39 @@ struct _ClutterPerspective
+@@ -114,14 +114,42 @@ struct _ClutterPerspective
    gfloat z_far;
  };
  
@@ -705,10 +880,13 @@ index 59a4ad145a5282b5ccd57f982da57541b3595c98..87206e71465b1c7cc08b9bc8f7ee4a8d
 +
 +  /* delta between this frame's and the last frame's sequence */
 +  unsigned int sequence_delta;
++
++  int64_t gpu_rendering_duration_ns;
++  int64_t cpu_time_before_buffer_swap_us;
  };
  
  typedef struct _ClutterCapture
-@@ -195,15 +220,6 @@ void            clutter_stage_ensure_viewport                   (ClutterStage
+@@ -195,15 +223,6 @@ void            clutter_stage_ensure_viewport                   (ClutterStage
  CLUTTER_EXPORT
  gboolean        clutter_stage_is_redraw_queued_on_view          (ClutterStage          *stage,
                                                                   ClutterStageView      *view);
@@ -725,7 +903,7 @@ index 59a4ad145a5282b5ccd57f982da57541b3595c98..87206e71465b1c7cc08b9bc8f7ee4a8d
  void clutter_stage_schedule_update (ClutterStage *stage);
  
 diff --git a/clutter/clutter/cogl/clutter-stage-cogl.c b/clutter/clutter/cogl/clutter-stage-cogl.c
-index ffc13bad7c8adcd28310df7a421ac01cb959675c..00a6a520e47e24784b6fa4a44d349fdede1c7724 100644
+index ffc13bad7c8adcd28310df7a421ac01cb959675c..61769ff55f4e91294853d14420a22c422b895d36 100644
 --- a/clutter/clutter/cogl/clutter-stage-cogl.c
 +++ b/clutter/clutter/cogl/clutter-stage-cogl.c
 @@ -27,8 +27,6 @@
@@ -737,7 +915,24 @@ index ffc13bad7c8adcd28310df7a421ac01cb959675c..00a6a520e47e24784b6fa4a44d349fde
  #include "clutter-config.h"
  
  #include "clutter-stage-cogl.h"
-@@ -317,6 +315,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
+@@ -254,6 +252,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
+   ClutterStageCoglPrivate *priv =
+     _clutter_stage_cogl_get_instance_private (stage_cogl);
+   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
++  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
+ 
+   clutter_stage_view_before_swap_buffer (view, swap_region);
+ 
+@@ -276,7 +275,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
+           damage[i * 4 + 3] = rect.height;
+         }
+ 
+-      frame_info = cogl_frame_info_new (priv->global_frame_counter);
++      frame_info = cogl_frame_info_new (context, priv->global_frame_counter);
+       priv->global_frame_counter++;
+ 
+       /* push on the screen */
+@@ -317,6 +316,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
          .frame_counter = priv->global_frame_counter,
          .refresh_rate = clutter_stage_view_get_refresh_rate (view),
          .presentation_time = g_get_monotonic_time (),
@@ -746,7 +941,24 @@ index ffc13bad7c8adcd28310df7a421ac01cb959675c..00a6a520e47e24784b6fa4a44d349fde
        };
        priv->global_frame_counter++;
  
-@@ -773,14 +773,26 @@ frame_cb (CoglOnscreen  *onscreen,
+@@ -671,6 +672,7 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
+   ClutterStageCoglPrivate *priv =
+     _clutter_stage_cogl_get_instance_private (stage_cogl);
+   CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
++  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
+   CoglOnscreen *onscreen;
+   CoglFrameInfo *frame_info;
+ 
+@@ -678,7 +680,7 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
+ 
+   onscreen = COGL_ONSCREEN (framebuffer);
+ 
+-  frame_info = cogl_frame_info_new (priv->global_frame_counter);
++  frame_info = cogl_frame_info_new (context, priv->global_frame_counter);
+ 
+   if (!cogl_onscreen_direct_scanout (onscreen, scanout, frame_info, error))
+     {
+@@ -773,14 +775,28 @@ frame_cb (CoglOnscreen  *onscreen,
  {
    ClutterStageView *view = user_data;
    ClutterFrameInfo clutter_frame_info;
@@ -771,6 +983,8 @@ index ffc13bad7c8adcd28310df7a421ac01cb959675c..00a6a520e47e24784b6fa4a44d349fde
 +    .presentation_time = cogl_frame_info_get_presentation_time (frame_info),
 +    .flags = flags,
 +    .sequence_delta = cogl_frame_info_get_sequence_delta (frame_info),
++    .gpu_rendering_duration_ns = cogl_frame_info_get_rendering_duration_ns (frame_info),
++    .cpu_time_before_buffer_swap_us = cogl_frame_info_get_time_before_buffer_swap_us (frame_info),
    };
  
    clutter_stage_view_notify_presented (view, &clutter_frame_info);
@@ -831,13 +1045,15 @@ index b6e8b81521e67859ed9fb8008ee3ab3e5a01d5a7..20b9561b94f3006ad8d4603a6db2e527
   * CoglGraphicsResetStatus:
   * @COGL_GRAPHICS_RESET_STATUS_NO_ERROR:
 diff --git a/cogl/cogl/cogl-frame-info-private.h b/cogl/cogl/cogl-frame-info-private.h
-index 13d856175090bd9114d54a8a75eafa084c962607..75313194de94af5d4bd7e40806d6c09ba7b7b44b 100644
+index 13d856175090bd9114d54a8a75eafa084c962607..743627575b5fa397b735b8053ee40cc7602f84fc 100644
 --- a/cogl/cogl/cogl-frame-info-private.h
 +++ b/cogl/cogl/cogl-frame-info-private.h
-@@ -34,15 +34,40 @@
+@@ -33,19 +33,52 @@
+ 
  #include "cogl-frame-info.h"
  #include "cogl-object-private.h"
- 
++#include "cogl-context.h"
++
 +typedef enum
 +{
 +  /* presentation_time timestamp was provided by the hardware */
@@ -857,11 +1073,13 @@ index 13d856175090bd9114d54a8a75eafa084c962607..75313194de94af5d4bd7e40806d6c09b
 +   */
 +  COGL_FRAME_INFO_SYNTHETIC = (1 << 2),
 +} CoglFrameInfoFlags;
-+
+ 
  struct _CoglFrameInfo
  {
    CoglObject _parent;
  
++  CoglContext *context;
++
    int64_t frame_counter;
 -  int64_t presentation_time;
 +  int64_t presentation_time_us; /* microseconds; CLOCK_MONOTONIC */
@@ -873,14 +1091,53 @@ index 13d856175090bd9114d54a8a75eafa084c962607..75313194de94af5d4bd7e40806d6c09b
 +
 +  /* delta between this frame's and the last frame's sequence */
 +  unsigned int sequence_delta;
++
++  unsigned timestamp_query;
++  int64_t gpu_time_before_buffer_swap_ns;
++  int64_t cpu_time_before_buffer_swap_us;
  };
  
  COGL_EXPORT
+-CoglFrameInfo *cogl_frame_info_new (int64_t global_frame_counter);
++CoglFrameInfo *cogl_frame_info_new (CoglContext *context,
++                                    int64_t      global_frame_counter);
+ 
+ #endif /* __COGL_FRAME_INFO_PRIVATE_H */
 diff --git a/cogl/cogl/cogl-frame-info.c b/cogl/cogl/cogl-frame-info.c
-index b5da21110f331745dab2cef0c40be8733dbca555..d1063634f70626ce9c1f18170198a8265c43fbba 100644
+index b5da21110f331745dab2cef0c40be8733dbca555..c1f6305b598fc0ba35c4f45a9302fa25484cbd10 100644
 --- a/cogl/cogl/cogl-frame-info.c
 +++ b/cogl/cogl/cogl-frame-info.c
-@@ -64,7 +64,7 @@ cogl_frame_info_get_frame_counter (CoglFrameInfo *info)
+@@ -32,6 +32,7 @@
+ 
+ #include "cogl-frame-info-private.h"
+ #include "cogl-gtype-private.h"
++#include "cogl-context-private.h"
+ 
+ static void _cogl_frame_info_free (CoglFrameInfo *info);
+ 
+@@ -39,11 +40,12 @@ COGL_OBJECT_DEFINE (FrameInfo, frame_info);
+ COGL_GTYPE_DEFINE_CLASS (FrameInfo, frame_info);
+ 
+ CoglFrameInfo *
+-cogl_frame_info_new (int64_t global_frame_counter)
++cogl_frame_info_new (CoglContext *context, int64_t global_frame_counter)
+ {
+   CoglFrameInfo *info;
+ 
+   info = g_slice_new0 (CoglFrameInfo);
++  info->context = context;
+   info->global_frame_counter = global_frame_counter;
+ 
+   return _cogl_frame_info_object_new (info);
+@@ -52,6 +54,7 @@ cogl_frame_info_new (int64_t global_frame_counter)
+ static void
+ _cogl_frame_info_free (CoglFrameInfo *info)
+ {
++  info->context->glDeleteQueries (1, &info->timestamp_query);
+   g_slice_free (CoglFrameInfo, info);
+ }
+ 
+@@ -64,7 +67,7 @@ cogl_frame_info_get_frame_counter (CoglFrameInfo *info)
  int64_t
  cogl_frame_info_get_presentation_time (CoglFrameInfo *info)
  {
@@ -889,7 +1146,7 @@ index b5da21110f331745dab2cef0c40be8733dbca555..d1063634f70626ce9c1f18170198a826
  }
  
  float
-@@ -78,3 +78,27 @@ cogl_frame_info_get_global_frame_counter (CoglFrameInfo *info)
+@@ -78,3 +81,47 @@ cogl_frame_info_get_global_frame_counter (CoglFrameInfo *info)
  {
    return info->global_frame_counter;
  }
@@ -917,8 +1174,28 @@ index b5da21110f331745dab2cef0c40be8733dbca555..d1063634f70626ce9c1f18170198a826
 +{
 +  return info->sequence_delta;
 +}
++
++int64_t
++cogl_frame_info_get_rendering_duration_ns (CoglFrameInfo *info)
++{
++  int64_t gpu_time_rendering_done_ns;
++
++  if (info->timestamp_query == 0)
++    return 0;
++
++  info->context->glGetQueryObjecti64v (info->timestamp_query,
++                                       0x8866, /* GL_QUERY_RESULT */
++                                       &gpu_time_rendering_done_ns);
++
++  return gpu_time_rendering_done_ns - info->gpu_time_before_buffer_swap_ns;
++}
++
++int64_t cogl_frame_info_get_time_before_buffer_swap_us (CoglFrameInfo *info)
++{
++  return info->cpu_time_before_buffer_swap_us;
++}
 diff --git a/cogl/cogl/cogl-frame-info.h b/cogl/cogl/cogl-frame-info.h
-index 2204bafdb0e6da42bef55deef37845692a84aee4..64a0836722ed94df4f1923d57a68958cd1e9ca0e 100644
+index 2204bafdb0e6da42bef55deef37845692a84aee4..2887f8101b1737fbe464af7b9cb6d371b33e5bce 100644
 --- a/cogl/cogl/cogl-frame-info.h
 +++ b/cogl/cogl/cogl-frame-info.h
 @@ -96,12 +96,10 @@ int64_t cogl_frame_info_get_frame_counter (CoglFrameInfo *info);
@@ -937,7 +1214,7 @@ index 2204bafdb0e6da42bef55deef37845692a84aee4..64a0836722ed94df4f1923d57a68958c
   * incorrectly report non-monotonic timestamps.</note>
   *
   * Return value: the presentation time for the frame
-@@ -137,6 +135,30 @@ float cogl_frame_info_get_refresh_rate (CoglFrameInfo *info);
+@@ -137,6 +135,42 @@ float cogl_frame_info_get_refresh_rate (CoglFrameInfo *info);
  COGL_EXPORT
  int64_t cogl_frame_info_get_global_frame_counter (CoglFrameInfo *info);
  
@@ -965,6 +1242,18 @@ index 2204bafdb0e6da42bef55deef37845692a84aee4..64a0836722ed94df4f1923d57a68958c
 +COGL_EXPORT
 +unsigned int cogl_frame_info_get_sequence_delta (CoglFrameInfo *info);
 +
++/**
++ * cogl_frame_info_get_rendering_duration_ns: (skip)
++ */
++COGL_EXPORT
++int64_t cogl_frame_info_get_rendering_duration_ns (CoglFrameInfo *info);
++
++/**
++ * cogl_frame_info_get_time_before_buffer_swap_us: (skip)
++ */
++COGL_EXPORT
++int64_t cogl_frame_info_get_time_before_buffer_swap_us (CoglFrameInfo *info);
++
  G_END_DECLS
  
  #endif /* __COGL_FRAME_INFO_H */
@@ -985,6 +1274,85 @@ index f6d21cf0647897b48f73561c06270e27995aa3a1..30b93b838b44486eceb5c62503df0061
    g_queue_push_tail (&onscreen->pending_frame_infos, info);
  
    winsys = _cogl_framebuffer_get_winsys (framebuffer);
+diff --git a/cogl/cogl/gl-prototypes/cogl-all-functions.h b/cogl/cogl/gl-prototypes/cogl-all-functions.h
+index a0c6395af2407b45523c64579015aee1bb06cad4..7db1af9e26b69f0e470df786b332ce8ae9f84569 100644
+--- a/cogl/cogl/gl-prototypes/cogl-all-functions.h
++++ b/cogl/cogl/gl-prototypes/cogl-all-functions.h
+@@ -247,3 +247,31 @@ COGL_EXT_BEGIN (multitexture_part1, 1, 3,
+ COGL_EXT_FUNCTION (void, glClientActiveTexture,
+                    (GLenum                texture))
+ COGL_EXT_END ()
++
++COGL_EXT_BEGIN (query_counter, 3, 3,
++                0,
++                "ARB\0",
++                "timer_query\0")
++COGL_EXT_FUNCTION (void, glQueryCounter,
++                   (GLuint id, GLenum target))
++COGL_EXT_FUNCTION (void, glGetQueryObjecti64v,
++                   (GLuint id, GLenum pname, GLint64 *params))
++COGL_EXT_END ()
++
++COGL_EXT_BEGIN (get_int64, 3, 3,
++                0,
++                "\0",
++                "\0")
++COGL_EXT_FUNCTION (void, glGetInteger64v,
++                   (GLenum pname, GLint64 *params))
++COGL_EXT_END ()
++
++COGL_EXT_BEGIN (queries, 1, 5,
++                0,
++                "\0",
++                "\0")
++COGL_EXT_FUNCTION (void, glGenQueries,
++                   (GLsizei n, GLuint *ids))
++COGL_EXT_FUNCTION (void, glDeleteQueries,
++                   (GLsizei n, const GLuint *ids))
++COGL_EXT_END ()
+diff --git a/cogl/cogl/winsys/cogl-winsys-egl.c b/cogl/cogl/winsys/cogl-winsys-egl.c
+index b9b49af218e730486f7a4696dd77c5040c23fd3e..22ce50e87daf2839c760eea8baf4867b1fc84134 100644
+--- a/cogl/cogl/winsys/cogl-winsys-egl.c
++++ b/cogl/cogl/winsys/cogl-winsys-egl.c
+@@ -43,6 +43,7 @@
+ #include "cogl-onscreen-template-private.h"
+ #include "cogl-egl.h"
+ #include "cogl-private.h"
++#include "cogl-frame-info-private.h"
+ #include "cogl-trace.h"
+ #include "winsys/cogl-winsys-egl-private.h"
+ #include "winsys/cogl-winsys-private.h"
+@@ -77,6 +78,10 @@
+ #define EGL_CONTEXT_PRIORITY_LOW_IMG            0x3103
+ #endif
+ 
++#ifndef GL_TIMESTAMP
++#define GL_TIMESTAMP 0x8E28
++#endif
++
+ #define MAX_EGL_CONFIG_ATTRIBS 30
+ 
+ /* Define a set of arrays containing the functions required from GL
+@@ -829,6 +834,19 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
+                                  COGL_FRAMEBUFFER (onscreen),
+                                  COGL_FRAMEBUFFER_STATE_BIND);
+ 
++  if (context->glGenQueries && context->glQueryCounter && context->glGetInteger64v)
++    {
++      /* Set up a timestamp query for when all rendering will be finished. */
++      context->glGenQueries (1, &info->timestamp_query);
++      context->glQueryCounter (info->timestamp_query, GL_TIMESTAMP);
++
++      /* Get current GPU time. */
++      context->glGetInteger64v (GL_TIMESTAMP,
++                                &info->gpu_time_before_buffer_swap_ns);
++    }
++
++  info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
++
+   if (n_rectangles && egl_renderer->pf_eglSwapBuffersWithDamage)
+     {
+       CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
 diff --git a/cogl/cogl/winsys/cogl-winsys-glx.c b/cogl/cogl/winsys/cogl-winsys-glx.c
 index 759a15c715a44e25f3f649071abf97d3afd45018..a3397e2479769efc54215f54d4a206e8f62679f8 100644
 --- a/cogl/cogl/winsys/cogl-winsys-glx.c
@@ -1213,6 +1581,179 @@ index 2cf88f39b2d47b19e4c093a67b24ce98c8d9aad0..433f0701adcf07e3ad725d88cedc322c
    void
    (*onscreen_swap_region) (CoglOnscreen *onscreen,
                             const int *rectangles,
+diff --git a/src/backends/meta-crtc-mode.h b/src/backends/meta-crtc-mode.h
+index 87778b86625172a332438abb8f927dca9ec663db..2ac90e40894cb0d978a020ce02e82a4266b13421 100644
+--- a/src/backends/meta-crtc-mode.h
++++ b/src/backends/meta-crtc-mode.h
+@@ -54,6 +54,7 @@ typedef struct _MetaCrtcModeInfo
+   int width;
+   int height;
+   float refresh_rate;
++  int64_t vblank_duration_us;
+   MetaCrtcModeFlag flags;
+ } MetaCrtcModeInfo;
+ 
+diff --git a/src/backends/native/meta-crtc-mode-kms.c b/src/backends/native/meta-crtc-mode-kms.c
+index 8e2cec2ab1f59873ef63cee3bb58db626a712d5f..a45a5f97855efb33ebf9cae011111439a181ff00 100644
+--- a/src/backends/native/meta-crtc-mode-kms.c
++++ b/src/backends/native/meta-crtc-mode-kms.c
+@@ -53,6 +53,8 @@ meta_crtc_mode_kms_new (const drmModeModeInfo *drm_mode,
+   crtc_mode_info->flags = drm_mode->flags;
+   crtc_mode_info->refresh_rate =
+     meta_calculate_drm_mode_refresh_rate (drm_mode);
++  crtc_mode_info->vblank_duration_us =
++    meta_calculate_drm_mode_vblank_duration_us (drm_mode);
+ 
+   crtc_mode_name = g_strndup (drm_mode->name, DRM_DISPLAY_MODE_LEN);
+   mode_kms = g_object_new (META_TYPE_CRTC_MODE_KMS,
+diff --git a/src/backends/native/meta-drm-buffer-gbm.c b/src/backends/native/meta-drm-buffer-gbm.c
+index 7acd97bc4c050e1001f93c32570a1c2b8ecdc898..1604b6434dec4b6d3f5624f7c3ab99ea1bf41452 100644
+--- a/src/backends/native/meta-drm-buffer-gbm.c
++++ b/src/backends/native/meta-drm-buffer-gbm.c
+@@ -31,6 +31,10 @@
+ #include <xf86drm.h>
+ #include <xf86drmMode.h>
+ 
++#ifndef GL_TIMESTAMP
++#define GL_TIMESTAMP 0x8E28
++#endif
++
+ #define INVALID_FB_ID 0U
+ 
+ struct _MetaDrmBufferGbm
+@@ -167,6 +171,120 @@ meta_drm_buffer_gbm_get_fb_id (MetaDrmBuffer *buffer)
+   return META_DRM_BUFFER_GBM (buffer)->fb_id;
+ }
+ 
++void
++meta_drm_buffer_gbm_fill_timings (MetaDrmBufferGbm *buffer_gbm,
++                                  CoglFrameInfo    *info)
++{
++  MetaBackend *backend = meta_get_backend ();
++  MetaEgl *egl = meta_backend_get_egl (backend);
++  ClutterBackend *clutter_backend =
++    meta_backend_get_clutter_backend (backend);
++  CoglContext *cogl_context =
++    clutter_backend_get_cogl_context (clutter_backend);
++  CoglDisplay *cogl_display = cogl_context->display;
++  CoglRenderer *cogl_renderer = cogl_display->renderer;
++  CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
++  EGLDisplay egl_display = cogl_renderer_egl->edpy;
++  g_autoptr (GError) error = NULL;
++  EGLImageKHR egl_image;
++  CoglPixelFormat cogl_format;
++  CoglEglImageFlags flags;
++  g_autoptr (CoglOffscreen) cogl_fbo = NULL;
++  CoglTexture2D *cogl_tex;
++  uint32_t n_planes;
++  uint64_t *modifiers;
++  uint32_t *strides;
++  uint32_t *offsets;
++  uint32_t width;
++  uint32_t height;
++  uint32_t drm_format;
++  int *fds;
++  gboolean result;
++  int dmabuf_fd = -1;
++  uint32_t i;
++
++  if (!cogl_context->glGenQueries ||
++      !cogl_context->glQueryCounter ||
++      !cogl_context->glGetInteger64v)
++    return;
++
++  if (!buffer_gbm->bo)
++    return;
++
++  dmabuf_fd = gbm_bo_get_fd (buffer_gbm->bo);
++  if (dmabuf_fd == -1)
++    return;
++
++  drm_format = gbm_bo_get_format (buffer_gbm->bo);
++  result = meta_cogl_pixel_format_from_drm_format (drm_format,
++                                                   &cogl_format,
++                                                   NULL);
++  g_assert (result);
++
++  width = gbm_bo_get_width (buffer_gbm->bo);
++  height = gbm_bo_get_height (buffer_gbm->bo);
++  n_planes = gbm_bo_get_plane_count (buffer_gbm->bo);
++  fds = g_alloca (sizeof (int) * n_planes);
++  strides = g_alloca (sizeof (uint32_t) * n_planes);
++  offsets = g_alloca (sizeof (uint32_t) * n_planes);
++  modifiers = g_alloca (sizeof (uint64_t) * n_planes);
++
++  for (i = 0; i < n_planes; i++)
++    {
++      fds[i] = dmabuf_fd;
++      strides[i] = gbm_bo_get_stride_for_plane (buffer_gbm->bo, i);
++      offsets[i] = gbm_bo_get_offset (buffer_gbm->bo, i);
++      modifiers[i] = gbm_bo_get_modifier (buffer_gbm->bo);
++    }
++
++  egl_image = meta_egl_create_dmabuf_image (egl,
++                                            egl_display,
++                                            width,
++                                            height,
++                                            drm_format,
++                                            n_planes,
++                                            fds,
++                                            strides,
++                                            offsets,
++                                            modifiers,
++                                            &error);
++  if (egl_image == EGL_NO_IMAGE_KHR)
++    goto out;
++
++  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
++  cogl_tex = cogl_egl_texture_2d_new_from_image (cogl_context,
++                                                 width,
++                                                 height,
++                                                 cogl_format,
++                                                 egl_image,
++                                                 flags,
++                                                 &error);
++
++  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
++
++  if (!cogl_tex)
++    goto out;
++
++  cogl_fbo = cogl_offscreen_new_with_texture (COGL_TEXTURE (cogl_tex));
++  cogl_object_unref (cogl_tex);
++
++  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), &error))
++    goto out;
++
++  /* Set up a timestamp query for when all rendering will be finished. */
++  cogl_context->glGenQueries (1, &info->timestamp_query);
++  cogl_context->glQueryCounter (info->timestamp_query, GL_TIMESTAMP);
++
++  /* Get current GPU and CPU time. */
++  cogl_context->glGetInteger64v (GL_TIMESTAMP,
++      &info->gpu_time_before_buffer_swap_ns);
++
++  cogl_context->glFlush ();
++
++out:
++  close (dmabuf_fd);
++}
++
+ static gboolean
+ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
+                                          CoglFramebuffer  *framebuffer,
+diff --git a/src/backends/native/meta-drm-buffer-gbm.h b/src/backends/native/meta-drm-buffer-gbm.h
+index b46925ecc96997cd7d44dd37c1d8e2b1052c246e..00a2bb0c86e0f0295b083c5712a2301b2a6728c7 100644
+--- a/src/backends/native/meta-drm-buffer-gbm.h
++++ b/src/backends/native/meta-drm-buffer-gbm.h
+@@ -46,4 +46,7 @@ MetaDrmBufferGbm * meta_drm_buffer_gbm_new_take (MetaGpuKms     *gpu_kms,
+ 
+ struct gbm_bo * meta_drm_buffer_gbm_get_bo (MetaDrmBufferGbm *buffer_gbm);
+ 
++void meta_drm_buffer_gbm_fill_timings (MetaDrmBufferGbm *buffer_gbm,
++                                       CoglFrameInfo    *info);
++
+ #endif /* META_DRM_BUFFER_GBM_H */
 diff --git a/src/backends/native/meta-gpu-kms.c b/src/backends/native/meta-gpu-kms.c
 index 819bd2c9a3e619b76d42fb88143f09e5a72496a8..29b253dea36c32a7a35c71c24bd5d208adc536e2 100644
 --- a/src/backends/native/meta-gpu-kms.c
@@ -1308,8 +1849,54 @@ index ebdd8ed9d571b02235fa138e75d4f8fcf9c57294..e044e422214c9cddb8912327308ffcba
  MetaKmsCrtc *
  meta_kms_crtc_new (MetaKmsImplDevice *impl_device,
                     drmModeCrtc       *drm_crtc,
+diff --git a/src/backends/native/meta-kms-utils.c b/src/backends/native/meta-kms-utils.c
+index 11df09be885195d51715a27c4cf9e5360d1a5302..87e1227a1d590f9a73cdccceae58ac2a826f68c3 100644
+--- a/src/backends/native/meta-kms-utils.c
++++ b/src/backends/native/meta-kms-utils.c
+@@ -48,6 +48,28 @@ meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *drm_mode)
+   return refresh;
+ }
+ 
++int64_t
++meta_calculate_drm_mode_vblank_duration_us (const drmModeModeInfo *drm_mode)
++{
++  int64_t vblank_duration_us;
++
++  if (drm_mode->htotal <= 0 || drm_mode->vtotal <= 0)
++    return 0;
++
++  /* Convert to int64_t early. */
++  vblank_duration_us = drm_mode->vtotal - drm_mode->vdisplay;
++  vblank_duration_us *= drm_mode->htotal;
++
++  if (drm_mode->flags & DRM_MODE_FLAG_DBLSCAN)
++    vblank_duration_us *= 2;
++
++  /* Round the duration up as it is used for buffer swap deadline computation. */
++  vblank_duration_us =
++    (vblank_duration_us * 1000 + drm_mode->clock - 1) / drm_mode->clock;
++
++  return vblank_duration_us;
++}
++
+ /**
+  * meta_drm_format_to_string:
+  * @tmp: temporary buffer
+diff --git a/src/backends/native/meta-kms-utils.h b/src/backends/native/meta-kms-utils.h
+index 7a2fdfd7900730d5735c1af572bc9d8a096d2d27..daf1ff05c9b55e0d42abfc56486d2d1819aa54c1 100644
+--- a/src/backends/native/meta-kms-utils.h
++++ b/src/backends/native/meta-kms-utils.h
+@@ -31,6 +31,8 @@ typedef struct _MetaDrmFormatBuf
+ 
+ float meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *drm_mode);
+ 
++int64_t meta_calculate_drm_mode_vblank_duration_us (const drmModeModeInfo *drm_mode);
++
+ const char * meta_drm_format_to_string (MetaDrmFormatBuf *tmp,
+                                         uint32_t          drm_format);
+ 
 diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
-index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab057ce8d9 100644
+index 2de461bc5995a9092c135b6471228ea1d436bb6e..d571c4109a5239d011083a80ad92cf55aa4a2355 100644
 --- a/src/backends/native/meta-renderer-native.c
 +++ b/src/backends/native/meta-renderer-native.c
 @@ -64,6 +64,7 @@
@@ -1320,7 +1907,7 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
  #include "backends/native/meta-kms-device.h"
  #include "backends/native/meta-kms-update.h"
  #include "backends/native/meta-kms-utils.h"
-@@ -1054,7 +1055,10 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
+@@ -1053,7 +1054,10 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
  static void
  maybe_update_frame_info (MetaCrtc      *crtc,
                           CoglFrameInfo *frame_info,
@@ -1332,7 +1919,7 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
  {
    const MetaCrtcConfig *crtc_config;
    const MetaCrtcModeInfo *crtc_mode_info;
-@@ -1070,15 +1074,25 @@ maybe_update_frame_info (MetaCrtc      *crtc,
+@@ -1069,15 +1073,25 @@ maybe_update_frame_info (MetaCrtc      *crtc,
    refresh_rate = crtc_mode_info->refresh_rate;
    if (refresh_rate >= frame_info->refresh_rate)
      {
@@ -1360,7 +1947,7 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
  {
    ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
    CoglFramebuffer *framebuffer =
-@@ -1094,7 +1108,12 @@ notify_view_crtc_presented (MetaRendererView *view,
+@@ -1093,7 +1107,12 @@ notify_view_crtc_presented (MetaRendererView *view,
    frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
  
    crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
@@ -1374,7 +1961,7 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
  
    meta_onscreen_native_queue_swap_notify (onscreen);
  
-@@ -1114,12 +1133,9 @@ notify_view_crtc_presented (MetaRendererView *view,
+@@ -1113,12 +1132,9 @@ notify_view_crtc_presented (MetaRendererView *view,
  }
  
  static int64_t
@@ -1389,7 +1976,7 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
  }
  
  static void
-@@ -1131,14 +1147,39 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
+@@ -1130,14 +1146,39 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
  {
    MetaRendererView *view = user_data;
    struct timeval page_flip_time;
@@ -1430,7 +2017,7 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
  
    g_object_unref (view);
  }
-@@ -1148,20 +1189,16 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
+@@ -1147,20 +1188,16 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
                                        gpointer     user_data)
  {
    MetaRendererView *view = user_data;
@@ -1454,7 +2041,7 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
  
    g_object_unref (view);
  }
-@@ -1172,9 +1209,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
+@@ -1171,9 +1208,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
                                const GError *error)
  {
    MetaRendererView *view = user_data;
@@ -1465,7 +2052,7 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
  
    /*
     * Page flipping failed, but we want to fail gracefully, so to avoid freezing
-@@ -1184,11 +1219,9 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
+@@ -1183,11 +1218,9 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
    if (error)
      g_warning ("Page flip discarded: %s", error->message);
  
@@ -1479,7 +2066,34 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
  
    g_object_unref (view);
  }
-@@ -2844,15 +2877,6 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer,
+@@ -2178,6 +2211,26 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
+ 
+   g_set_object (&onscreen_native->gbm.next_fb, META_DRM_BUFFER (scanout));
+ 
++  /*
++   * Try to get a measurement of GPU rendering time on the scanout buffer.
++   *
++   * The successful operation here adds ~0.4 ms to a ~0.1 ms total frame clock
++   * dispatch duration when displaying an unredirected client, thus
++   * unfortunately bringing it more in line with duration of the regular
++   * non-unredirected frame clock dispatch. However, measuring GPU rendering
++   * time is important for computing accurate max render time without
++   * underestimating. Also this operation should be optimizable by caching
++   * EGLImage for each buffer instead of re-creating it every time it's needed.
++   * This should also help all other cases which convert the buffer to a
++   * EGLImage.
++   */
++  if (META_IS_DRM_BUFFER_GBM (scanout))
++    {
++      meta_drm_buffer_gbm_fill_timings (META_DRM_BUFFER_GBM (scanout), frame_info);
++    }
++
++  frame_info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
++
+   ensure_crtc_modes (onscreen, kms_update);
+   meta_onscreen_native_flip_crtcs (onscreen,
+                                    META_KMS_PAGE_FLIP_FLAG_NO_DISCARD_FEEDBACK,
+@@ -2878,15 +2931,6 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer,
    return fb;
  }
  
@@ -1495,7 +2109,7 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
  static const CoglWinsysVtable *
  get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
  {
-@@ -2883,8 +2907,6 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
+@@ -2917,8 +2961,6 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
          meta_onscreen_native_swap_buffers_with_damage;
        vtable.onscreen_direct_scanout = meta_onscreen_native_direct_scanout;
  
@@ -1503,6 +2117,35 @@ index 2365152c71d6d56b58c9837614ca5e52d4976baa..11c8d2cdbf7535a348268aeaef9371ab
 -
        vtable_inited = TRUE;
      }
+ 
+@@ -3109,6 +3151,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
+                        "use-shadowfb", use_shadowfb,
+                        "transform", view_transform,
+                        "refresh-rate", crtc_mode_info->refresh_rate,
++                       "vblank-duration-us", crtc_mode_info->vblank_duration_us,
+                        NULL);
+   g_clear_object (&offscreen);
+ 
+diff --git a/src/backends/x11/nested/meta-stage-x11-nested.c b/src/backends/x11/nested/meta-stage-x11-nested.c
+index 165d40c943db6042907021226717dfcae8f9648d..2b3687553f308b784d42640a81775df337870829 100644
+--- a/src/backends/x11/nested/meta-stage-x11-nested.c
++++ b/src/backends/x11/nested/meta-stage-x11-nested.c
+@@ -166,6 +166,7 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window)
+   MetaRenderer *renderer = meta_backend_get_renderer (backend);
+   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+   CoglFramebuffer *onscreen = COGL_FRAMEBUFFER (stage_x11->onscreen);
++  CoglContext *context = cogl_framebuffer_get_context (onscreen);
+   GList *l;
+   CoglFrameInfo *frame_info;
+ 
+@@ -193,7 +194,7 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window)
+       draw_view (stage_nested, renderer_view, texture);
+     }
+ 
+-  frame_info = cogl_frame_info_new (0);
++  frame_info = cogl_frame_info_new (context, 0);
+   cogl_onscreen_swap_buffers (stage_x11->onscreen, frame_info);
+ }
  
 diff --git a/src/compositor/compositor.c b/src/compositor/compositor.c
 index 3be8d2e9eeb34718d1bd04ff6c6231e9093ef890..9bd5326fb33b673af9a4972b38e5a6a9844491e6 100644
@@ -1671,7 +2314,7 @@ index 1a77927d188da7d45e4c4d512d521377ba80eb46..f1054209cf8b9303f397fd4f6570efec
  meta_get_debug_paint_flags (void)
  {
 diff --git a/src/meson.build b/src/meson.build
-index 6db0462fe774d32bd2f036fb56fe70b754800951..e7d55222b1f0c826bac6ad7cc1529a318a6eef45 100644
+index ef0b28702d787d49dfd4589863cdb2c054c8af8a..7bd708b787c623f0ebad1fc6a4df652e27c8d167 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -147,7 +147,6 @@ mutter_deps = [
@@ -1691,7 +2334,7 @@ index 6db0462fe774d32bd2f036fb56fe70b754800951..e7d55222b1f0c826bac6ad7cc1529a31
      'wayland/meta-wayland-private.h',
      'wayland/meta-wayland-region.c',
      'wayland/meta-wayland-region.h',
-@@ -842,6 +843,7 @@ if have_wayland
+@@ -840,6 +841,7 @@ if have_wayland
      ['linux-dmabuf', 'unstable', 'v1', ],
      ['pointer-constraints', 'unstable', 'v1', ],
      ['pointer-gestures', 'unstable', 'v1', ],
@@ -1727,7 +2370,7 @@ index 1bf80d86847651db17b2e012274f6b32affae34e..1e5bb32e70dfe78d22979330202bf95b
  MetaDebugPaintFlag meta_get_debug_paint_flags (void);
  
 diff --git a/src/tests/clutter/conform/actor-shader-effect.c b/src/tests/clutter/conform/actor-shader-effect.c
-index 79b792dc703a7d1bd983b980d18bcb7ed00214bf..fa2a3434ead2c179f011667c22930cd4a8beb935 100644
+index 38a2d862dd71e0585dd37748d549545978384aa4..a22ae5f9953c765d8c3c691f4c81731936591660 100644
 --- a/src/tests/clutter/conform/actor-shader-effect.c
 +++ b/src/tests/clutter/conform/actor-shader-effect.c
 @@ -1,4 +1,3 @@
@@ -1736,7 +2379,7 @@ index 79b792dc703a7d1bd983b980d18bcb7ed00214bf..fa2a3434ead2c179f011667c22930cd4
  #include <clutter/clutter.h>
  
 diff --git a/src/tests/clutter/conform/frame-clock-timeline.c b/src/tests/clutter/conform/frame-clock-timeline.c
-index 7e5798b4e27ac6be6053c990d2f4fffad4164c37..9fcc5bd37ad0fb19b63fe63d6ef377904e29bfa6 100644
+index 7e5798b4e27ac6be6053c990d2f4fffad4164c37..e781acf4ef1a8ff94f196945aa73dd5d4974c147 100644
 --- a/src/tests/clutter/conform/frame-clock-timeline.c
 +++ b/src/tests/clutter/conform/frame-clock-timeline.c
 @@ -14,6 +14,8 @@ timeline_frame_clock_frame (ClutterFrameClock *frame_clock,
@@ -1748,8 +2391,29 @@ index 7e5798b4e27ac6be6053c990d2f4fffad4164c37..9fcc5bd37ad0fb19b63fe63d6ef37790
    };
    clutter_frame_clock_notify_presented (frame_clock, &frame_info);
    clutter_frame_clock_schedule_update (frame_clock);
+@@ -62,6 +64,7 @@ frame_clock_timeline_basic (void)
+ 
+   main_loop = g_main_loop_new (NULL, FALSE);
+   frame_clock = clutter_frame_clock_new (refresh_rate,
++                                         0,
+                                          &timeline_frame_listener_iface,
+                                          NULL);
+   g_object_add_weak_pointer (G_OBJECT (frame_clock), (gpointer *) &frame_clock);
+@@ -141,10 +144,12 @@ frame_clock_timeline_switch (void)
+   main_loop = g_main_loop_new (NULL, FALSE);
+ 
+   frame_clock1 = clutter_frame_clock_new (refresh_rate,
++                                          0,
+                                           &timeline_frame_listener_iface,
+                                           NULL);
+   g_object_add_weak_pointer (G_OBJECT (frame_clock1), (gpointer *) &frame_clock1);
+   frame_clock2 = clutter_frame_clock_new (refresh_rate,
++                                          0,
+                                           &timeline_frame_listener_iface,
+                                           NULL);
+   g_object_add_weak_pointer (G_OBJECT (frame_clock2), (gpointer *) &frame_clock2);
 diff --git a/src/tests/clutter/conform/frame-clock.c b/src/tests/clutter/conform/frame-clock.c
-index 62a4176722b19add8900ea94bd63253f826f562f..9d365e7d5d0cb604cdf19dd8e0ccd2a7bd1c3f04 100644
+index 62a4176722b19add8900ea94bd63253f826f562f..c5272db1047bde1e19df74ee2c2bfc9ef04ab5ff 100644
 --- a/src/tests/clutter/conform/frame-clock.c
 +++ b/src/tests/clutter/conform/frame-clock.c
 @@ -32,6 +32,8 @@ init_frame_info (ClutterFrameInfo *frame_info,
@@ -1761,6 +2425,86 @@ index 62a4176722b19add8900ea94bd63253f826f562f..9d365e7d5d0cb604cdf19dd8e0ccd2a7
    };
  }
  
+@@ -144,6 +146,7 @@ frame_clock_schedule_update (void)
+ 
+   test.main_loop = g_main_loop_new (NULL, FALSE);
+   frame_clock = clutter_frame_clock_new (refresh_rate,
++                                         0,
+                                          &frame_listener_iface,
+                                          &test);
+ 
+@@ -226,6 +229,7 @@ frame_clock_immediate_present (void)
+ 
+   main_loop = g_main_loop_new (NULL, FALSE);
+   frame_clock = clutter_frame_clock_new (refresh_rate,
++                                         0,
+                                          &immediate_frame_listener_iface,
+                                          main_loop);
+ 
+@@ -304,6 +308,7 @@ frame_clock_delayed_damage (void)
+ 
+   test.main_loop = g_main_loop_new (NULL, FALSE);
+   frame_clock = clutter_frame_clock_new (refresh_rate,
++                                         0,
+                                          &delayed_damage_frame_listener_iface,
+                                          &test);
+ 
+@@ -364,6 +369,7 @@ frame_clock_no_damage (void)
+ 
+   main_loop = g_main_loop_new (NULL, FALSE);
+   frame_clock = clutter_frame_clock_new (refresh_rate,
++                                         0,
+                                          &no_damage_frame_listener_iface,
+                                          NULL);
+ 
+@@ -450,6 +456,7 @@ frame_clock_schedule_update_now (void)
+ 
+   test.base.main_loop = g_main_loop_new (NULL, FALSE);
+   frame_clock = clutter_frame_clock_new (refresh_rate,
++                                         0,
+                                          &update_now_frame_listener_iface,
+                                          &test);
+ 
+@@ -532,6 +539,7 @@ frame_clock_before_frame (void)
+ 
+   main_loop = g_main_loop_new (NULL, FALSE);
+   frame_clock = clutter_frame_clock_new (refresh_rate,
++                                         0,
+                                          &before_frame_frame_listener_iface,
+                                          &expected_frame_count);
+ 
+@@ -613,6 +621,7 @@ frame_clock_inhibit (void)
+ 
+   test.main_loop = g_main_loop_new (NULL, FALSE);
+   test.frame_clock = clutter_frame_clock_new (refresh_rate,
++                                              0,
+                                               &inhibit_frame_listener_iface,
+                                               &test);
+ 
+@@ -676,6 +685,7 @@ frame_clock_reschedule_on_idle (void)
+ 
+   test.base.main_loop = g_main_loop_new (NULL, FALSE);
+   frame_clock = clutter_frame_clock_new (refresh_rate,
++                                         0,
+                                          &reschedule_on_idle_listener_iface,
+                                          &test);
+   fake_hw_clock = fake_hw_clock_new (frame_clock, NULL, NULL);
+@@ -712,6 +722,7 @@ frame_clock_destroy_signal (void)
+   /* Test that the destroy signal is emitted when removing last reference. */
+ 
+   frame_clock = clutter_frame_clock_new (refresh_rate,
++                                         0,
+                                          &dummy_frame_listener_iface,
+                                          NULL);
+ 
+@@ -730,6 +741,7 @@ frame_clock_destroy_signal (void)
+    */
+ 
+   frame_clock = clutter_frame_clock_new (refresh_rate,
++                                         0,
+                                          &dummy_frame_listener_iface,
+                                          NULL);
+   frame_clock_backup = frame_clock;
 diff --git a/src/wayland/meta-wayland-actor-surface.c b/src/wayland/meta-wayland-actor-surface.c
 index 50af540a23971bfc93bffae739e29fbc752f9afd..a43fd76b19d9bcbdda15762fd83dc801124742ef 100644
 --- a/src/wayland/meta-wayland-actor-surface.c
@@ -2014,10 +2758,10 @@ index bd0cca275373ca77052831de2a3be6416046c63e..5e2b73298367139fa4b0b8b88d12dafc
  
  #endif /* META_WAYLAND_ACTOR_SURFACE_H */
 diff --git a/src/wayland/meta-wayland-legacy-xdg-shell.c b/src/wayland/meta-wayland-legacy-xdg-shell.c
-index 926ee14e3275d60dd218afb91c7042c1f3849b95..5c487e8cc0ea1ecf222102257c37fa2f39246804 100644
+index 6dc8cc402fd19b6d3cf321293d4386ff1208cbdc..59cf3e009097434f68f1ce5d1852936e3aeb63a4 100644
 --- a/src/wayland/meta-wayland-legacy-xdg-shell.c
 +++ b/src/wayland/meta-wayland-legacy-xdg-shell.c
-@@ -1412,6 +1412,11 @@ meta_wayland_zxdg_surface_v6_post_apply_state (MetaWaylandSurfaceRole  *surface_
+@@ -1421,6 +1421,11 @@ meta_wayland_zxdg_surface_v6_post_apply_state (MetaWaylandSurfaceRole  *surface_
      meta_wayland_zxdg_surface_v6_get_instance_private (xdg_surface);
    MetaWaylandShellSurface *shell_surface =
      META_WAYLAND_SHELL_SURFACE (xdg_surface);
@@ -2386,7 +3130,7 @@ index 0000000000000000000000000000000000000000..f850e864de357305e6052e9950728bd3
 +  return g_hash_table_lookup (presentation_time->feedbacks, stage_view);
 +}
 diff --git a/src/wayland/meta-wayland-private.h b/src/wayland/meta-wayland-private.h
-index 074644ebb56f7e9322e3de10f095b47d9b15b44e..c5850e1d2c63ce49a78ad4fb05192a3a9a70e98c 100644
+index 679e31804cb24b3b17c8c20a82c3b8722efa5561..463f61cd98a5974976ca4ff28989be5995fd51e3 100644
 --- a/src/wayland/meta-wayland-private.h
 +++ b/src/wayland/meta-wayland-private.h
 @@ -26,6 +26,7 @@
@@ -2397,7 +3141,7 @@ index 074644ebb56f7e9322e3de10f095b47d9b15b44e..c5850e1d2c63ce49a78ad4fb05192a3a
  #include "wayland/meta-wayland-pointer-gestures.h"
  #include "wayland/meta-wayland-seat.h"
  #include "wayland/meta-wayland-surface.h"
-@@ -86,6 +87,8 @@ struct _MetaWaylandCompositor
+@@ -90,6 +91,8 @@ struct _MetaWaylandCompositor
    MetaWaylandTabletManager *tablet_manager;
  
    GHashTable *scheduled_surface_associations;
@@ -2407,7 +3151,7 @@ index 074644ebb56f7e9322e3de10f095b47d9b15b44e..c5850e1d2c63ce49a78ad4fb05192a3a
  
  #define META_TYPE_WAYLAND_COMPOSITOR (meta_wayland_compositor_get_type ())
 diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
-index 91684cc52b0e0cb1085bd6054ec91bdeef436c36..94b3f286bbbae9ea8160018b701807fdd2ff636b 100644
+index 0f0c55b1c7456f163b2df880b74232795faf1be7..2d44e47349a5c0d9d7835c5e2a4e6c53f0f7a43e 100644
 --- a/src/wayland/meta-wayland-surface.c
 +++ b/src/wayland/meta-wayland-surface.c
 @@ -46,6 +46,7 @@
@@ -2529,7 +3273,7 @@ index 91684cc52b0e0cb1085bd6054ec91bdeef436c36..94b3f286bbbae9ea8160018b701807fd
    if (surface->resource)
      wl_resource_set_user_data (surface->resource, NULL);
  
-@@ -1399,6 +1455,8 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
+@@ -1397,6 +1453,8 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
    surface->outputs = g_hash_table_new (NULL, NULL);
    surface->shortcut_inhibited_seats = g_hash_table_new (NULL, NULL);
  
@@ -2574,10 +3318,10 @@ index 7a750413f1537d59995bcb3407e2e646b01c80a8..917461c4c3313db9e142733db1849dad
  
  #endif
 diff --git a/src/wayland/meta-wayland-xdg-shell.c b/src/wayland/meta-wayland-xdg-shell.c
-index 176f8a908fdc7a29fc6535a67375467d9cfada61..cd40c8cb3acd7412b35183b4e34aa13d5965bf6f 100644
+index 5548e558c2024ccf83ea8b275a503f743b537291..423ac8b592c775e1fbab7e651fbe94c03a9975ea 100644
 --- a/src/wayland/meta-wayland-xdg-shell.c
 +++ b/src/wayland/meta-wayland-xdg-shell.c
-@@ -1575,6 +1575,11 @@ meta_wayland_xdg_surface_post_apply_state (MetaWaylandSurfaceRole  *surface_role
+@@ -1584,6 +1584,11 @@ meta_wayland_xdg_surface_post_apply_state (MetaWaylandSurfaceRole  *surface_role
      meta_wayland_xdg_surface_get_instance_private (xdg_surface);
    MetaWaylandShellSurface *shell_surface =
      META_WAYLAND_SHELL_SURFACE (surface_role);
@@ -2590,7 +3334,7 @@ index 176f8a908fdc7a29fc6535a67375467d9cfada61..cd40c8cb3acd7412b35183b4e34aa13d
    if (pending->has_new_geometry)
      {
 diff --git a/src/wayland/meta-wayland.c b/src/wayland/meta-wayland.c
-index e5e9d900bbd3da83678421bb381858059237cbfc..ef4d81a3f6d0afea1fa17a71d7a3a6ae22b1efaf 100644
+index 7da43d911cc3a67b755dbaa107e185d4a09a61dc..4be576b5b42e57019f9e7f19a0a026f47ea8eafb 100644
 --- a/src/wayland/meta-wayland.c
 +++ b/src/wayland/meta-wayland.c
 @@ -39,6 +39,7 @@
@@ -2601,7 +3345,7 @@ index e5e9d900bbd3da83678421bb381858059237cbfc..ef4d81a3f6d0afea1fa17a71d7a3a6ae
  #include "wayland/meta-wayland-private.h"
  #include "wayland/meta-wayland-region.h"
  #include "wayland/meta-wayland-seat.h"
-@@ -202,9 +203,9 @@ on_after_update (ClutterStage          *stage,
+@@ -196,9 +197,9 @@ on_after_update (ClutterStage          *stage,
                   MetaWaylandCompositor *compositor)
  {
    GList *l;
@@ -2613,7 +3357,7 @@ index e5e9d900bbd3da83678421bb381858059237cbfc..ef4d81a3f6d0afea1fa17a71d7a3a6ae
  
    l = compositor->frame_callback_surfaces;
    while (l)
-@@ -227,12 +228,112 @@ on_after_update (ClutterStage          *stage,
+@@ -221,12 +222,112 @@ on_after_update (ClutterStage          *stage,
          continue;
  
        actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);
@@ -2728,7 +3472,7 @@ index e5e9d900bbd3da83678421bb381858059237cbfc..ef4d81a3f6d0afea1fa17a71d7a3a6ae
  }
  
  /**
-@@ -296,6 +397,25 @@ meta_wayland_compositor_remove_frame_callback_surface (MetaWaylandCompositor *co
+@@ -290,6 +391,25 @@ meta_wayland_compositor_remove_frame_callback_surface (MetaWaylandCompositor *co
      g_list_remove (compositor->frame_callback_surfaces, surface);
  }
  
@@ -2754,7 +3498,7 @@ index e5e9d900bbd3da83678421bb381858059237cbfc..ef4d81a3f6d0afea1fa17a71d7a3a6ae
  static void
  set_gnome_env (const char *name,
  	       const char *value)
-@@ -349,6 +469,7 @@ static void
+@@ -343,6 +463,7 @@ static void
  meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
  {
    compositor->scheduled_surface_associations = g_hash_table_new (NULL, NULL);
@@ -2762,7 +3506,7 @@ index e5e9d900bbd3da83678421bb381858059237cbfc..ef4d81a3f6d0afea1fa17a71d7a3a6ae
  
    wl_log_set_handler_server (meta_wayland_log_func);
  
-@@ -424,6 +545,8 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
+@@ -418,6 +539,8 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
  
    g_signal_connect (stage, "after-update",
                      G_CALLBACK (on_after_update), compositor);
@@ -2771,7 +3515,7 @@ index e5e9d900bbd3da83678421bb381858059237cbfc..ef4d81a3f6d0afea1fa17a71d7a3a6ae
  
    if (!wl_global_create (compositor->wayland_display,
  			 &wl_compositor_interface,
-@@ -450,6 +573,7 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
+@@ -444,6 +567,7 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
    meta_wayland_surface_inhibit_shortcuts_dialog_init ();
    meta_wayland_text_input_init (compositor);
    meta_wayland_gtk_text_input_init (compositor);
@@ -2780,10 +3524,10 @@ index e5e9d900bbd3da83678421bb381858059237cbfc..ef4d81a3f6d0afea1fa17a71d7a3a6ae
    /* Xwayland specific protocol, needs to be filtered out for all other clients */
    if (meta_xwayland_grab_keyboard_init (compositor))
 diff --git a/src/wayland/meta-wayland.h b/src/wayland/meta-wayland.h
-index 3549fb2d5b8cb7d6dfa55c86b20a99821f1d09b3..01dd2107a26746a182fa6eb8ea8eca5d525e64d2 100644
+index e59bb97bc4ec6e9e81e216069dbf4b6a87068744..81b6e39052dcaf90d8a476ba7d6561bf77baa6e2 100644
 --- a/src/wayland/meta-wayland.h
 +++ b/src/wayland/meta-wayland.h
-@@ -68,6 +68,12 @@ void                    meta_wayland_compositor_add_frame_callback_surface (Meta
+@@ -66,6 +66,12 @@ void                    meta_wayland_compositor_add_frame_callback_surface (Meta
  void                    meta_wayland_compositor_remove_frame_callback_surface (MetaWaylandCompositor *compositor,
                                                                                 MetaWaylandSurface    *surface);
  
