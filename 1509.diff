@@ -286,7 +286,7 @@ index 4e6db156b2dc36b1f0cc17f0b7dfe074177d0152..cfbfce6eb4967bf1005046a520cf6f6b
  
  #endif /* CLUTTER_PICK_CONTEXT_PRIVATE_H */
 diff --git a/clutter/clutter/clutter-pick-context.c b/clutter/clutter/clutter-pick-context.c
-index 5ecb907b09e1ddad5811ea3422bc7dacab823b6c..763cb92f06499133f94b2fc78d2a41b3d9475ba6 100644
+index 5ecb907b09e1ddad5811ea3422bc7dacab823b6c..4e6fb7a88210198b03782a6101fae50402ac260a 100644
 --- a/clutter/clutter/clutter-pick-context.c
 +++ b/clutter/clutter/clutter-pick-context.c
 @@ -17,13 +17,15 @@
@@ -378,8 +378,8 @@ index 5ecb907b09e1ddad5811ea3422bc7dacab823b6c..763cb92f06499133f94b2fc78d2a41b3
 + * @pick_context: a #ClutterPickContext
 + * @box: a #ClutterActorBox
 + *
-+ * Pushes a clip rectangle defined by @vertices into the pick stack.
-+ * Pop with clutter_pick_context_pop_clip() when done.
++ * Pushes a clip rectangle defined by @box into the pick stack. Pop with
++ * clutter_pick_context_pop_clip() when done.
 + */
 +void
 +clutter_pick_context_push_clip (ClutterPickContext    *pick_context,
@@ -556,10 +556,10 @@ index 0000000000000000000000000000000000000000..159b8c4ebba9d0b63ef2f8ba78770e1b
 +#endif /* CLUTTER_PICK_STACK_PRIVATE_H */
 diff --git a/clutter/clutter/clutter-pick-stack.c b/clutter/clutter/clutter-pick-stack.c
 new file mode 100644
-index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68810c9423
+index 0000000000000000000000000000000000000000..6a0b13e58b7fdca91a1d2416a3cfa154661465ce
 --- /dev/null
 +++ b/clutter/clutter/clutter-pick-stack.c
-@@ -0,0 +1,369 @@
+@@ -0,0 +1,385 @@
 +/*
 + * Copyright (C) 2020 Endless OS Foundation, LLC
 + *
@@ -590,14 +590,14 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +
 +typedef struct
 +{
-+  Record r;
++  Record base;
 +  ClutterActor *actor;
-+  int clip_stack_top;
++  int clip_index;
 +} PickRecord;
 +
 +typedef struct
 +{
-+  Record r;
++  Record base;
 +  int prev;
 +} PickClipRecord;
 +
@@ -608,7 +608,7 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +  CoglMatrixStack *matrix_stack;
 +  GArray *vertices_stack;
 +  GArray *clip_stack;
-+  int clip_stack_top;
++  int current_clip_stack_top;
 +
 +  gboolean sealed : 1;
 +};
@@ -619,7 +619,7 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +static void
 +project_vertices (CoglMatrixEntry       *matrix_entry,
 +                  const ClutterActorBox *box,
-+                  graphene_point3d_t    *vertices)
++                  graphene_point3d_t     vertices[4])
 +{
 +  graphene_matrix_t m;
 +  int i;
@@ -642,6 +642,7 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +                                          &w);
 +    }
 +}
++
 +static void
 +maybe_project_record (Record *rec)
 +{
@@ -661,6 +662,18 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +
 +  maybe_project_record (rec);
 +
++  /*
++   * Degrade the projected quad into the following triangles:
++   *
++   * 0 -------------- 1
++   * |  •             |
++   * |     •     t0   |
++   * |        •       |
++   * |   t1      •    |
++   * |              • |
++   * 3 -------------- 2
++   */
++
 +  graphene_triangle_init_from_point3d (&t0,
 +                                       &rec->vertices[0],
 +                                       &rec->vertices[1],
@@ -671,10 +684,13 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +                                       &rec->vertices[2],
 +                                       &rec->vertices[3]);
 +
-+  return graphene_triangle_contains_point (&t0, point) ||
-+         graphene_triangle_contains_point (&t1, point) ||
-+         graphene_ray_intersects_triangle (ray, &t0) ||
-+         graphene_ray_intersects_triangle (ray, &t1);
++  if (graphene_triangle_contains_point (&t0, point) ||
++      graphene_triangle_contains_point (&t1, point) ||
++      graphene_ray_intersects_triangle (ray, &t0) ||
++      graphene_ray_intersects_triangle (ray, &t1))
++    return TRUE;
++
++  return FALSE;
 +}
 +
 +static gboolean
@@ -685,16 +701,16 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +{
 +  int clip_index;
 +
-+  if (!ray_intersects_input_region (&rec->r, ray, point))
++  if (!ray_intersects_input_region (&rec->base, ray, point))
 +    return FALSE;
 +
-+  clip_index = rec->clip_stack_top;
++  clip_index = rec->clip_index;
 +  while (clip_index >= 0)
 +    {
 +      PickClipRecord *clip =
 +        &g_array_index (pick_stack->clip_stack, PickClipRecord, clip_index);
 +
-+      if (!ray_intersects_input_region (&clip->r, ray, point))
++      if (!ray_intersects_input_region (&clip->base, ray, point))
 +        return FALSE;
 +
 +      clip_index = clip->prev;
@@ -750,14 +766,14 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +clear_pick_record (gpointer data)
 +{
 +  PickRecord *rec = data;
-+  g_clear_pointer (&rec->r.matrix_entry, cogl_matrix_entry_unref);
++  g_clear_pointer (&rec->base.matrix_entry, cogl_matrix_entry_unref);
 +}
 +
 +static void
 +clear_clip_record (gpointer data)
 +{
 +  PickClipRecord *clip = data;
-+  g_clear_pointer (&clip->r.matrix_entry, cogl_matrix_entry_unref);
++  g_clear_pointer (&clip->base.matrix_entry, cogl_matrix_entry_unref);
 +}
 +
 +/**
@@ -778,7 +794,7 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +  pick_stack->matrix_stack = cogl_matrix_stack_new (context);
 +  pick_stack->vertices_stack = g_array_new (FALSE, FALSE, sizeof (PickRecord));
 +  pick_stack->clip_stack = g_array_new (FALSE, FALSE, sizeof (PickClipRecord));
-+  pick_stack->clip_stack_top = -1;
++  pick_stack->current_clip_stack_top = -1;
 +
 +  g_array_set_clear_func (pick_stack->vertices_stack, clear_pick_record);
 +  g_array_set_clear_func (pick_stack->clip_stack, clear_clip_record);
@@ -838,11 +854,11 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +  g_assert (!pick_stack->sealed);
 +
 +  rec.actor = actor;
-+  rec.clip_stack_top = pick_stack->clip_stack_top;
-+  rec.r.rect = *box;
-+  rec.r.projected = FALSE;
-+  rec.r.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
-+  cogl_matrix_entry_ref (rec.r.matrix_entry);
++  rec.clip_index = pick_stack->current_clip_stack_top;
++    rec.base.rect = *box;
++  rec.base.projected = FALSE;
++  rec.base.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
++  cogl_matrix_entry_ref (rec.base.matrix_entry);
 +
 +  g_array_append_val (pick_stack->vertices_stack, rec);
 +}
@@ -855,14 +871,14 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +
 +  g_assert (!pick_stack->sealed);
 +
-+  clip.prev = pick_stack->clip_stack_top;
-+  clip.r.rect = *box;
-+  clip.r.projected = FALSE;
-+  clip.r.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
-+  cogl_matrix_entry_ref (clip.r.matrix_entry);
++  clip.prev = pick_stack->current_clip_stack_top;
++  clip.base.rect = *box;
++  clip.base.projected = FALSE;
++  clip.base.matrix_entry = cogl_matrix_stack_get_entry (pick_stack->matrix_stack);
++  cogl_matrix_entry_ref (clip.base.matrix_entry);
 +
 +  g_array_append_val (pick_stack->clip_stack, clip);
-+  pick_stack->clip_stack_top = pick_stack->clip_stack->len - 1;
++  pick_stack->current_clip_stack_top = pick_stack->clip_stack->len - 1;
 +}
 +
 +void
@@ -871,19 +887,19 @@ index 0000000000000000000000000000000000000000..bfd27e48c02a12e8adea38dc9810df68
 +  const PickClipRecord *top;
 +
 +  g_assert (!pick_stack->sealed);
-+  g_assert (pick_stack->clip_stack_top >= 0);
++  g_assert (pick_stack->current_clip_stack_top >= 0);
 +
-+  /* Individual elements of pick_clip_stack are not freed. This is so they
-+   * can be shared as part of a tree of different stacks used by different
-+   * actors in the pick_stack. The whole pick_clip_stack does however get
-+   * freed later in clutter_pick_stack_clear_pick_stack.
++  /* Individual elements of clip_stack are not freed. This is so they can
++   * be shared as part of a tree of different stacks used by different
++   * actors in the pick_stack. The whole clip_stack does however get
++   * freed later in clutter_pick_stack_dispose.
 +   */
 +
 +  top = &g_array_index (pick_stack->clip_stack,
 +                        PickClipRecord,
-+                        pick_stack->clip_stack_top);
++                        pick_stack->current_clip_stack_top);
 +
-+  pick_stack->clip_stack_top = top->prev;
++  pick_stack->current_clip_stack_top = top->prev;
 +}
 +
 +void
