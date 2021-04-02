@@ -7,14 +7,14 @@
 %global mutter_api_version 7
 
 Name:          mutter
-Version:       3.38.5
-Release:       101%{?dist}.shrisha
+Version:       3.38.4
+Release:       102%{?dist}.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 #VCS:          git:git://git.gnome.org/mutter
 URL:           http://www.gnome.org
-Source0:       mutter-3.38.5.tar.xz
+Source0:       mutter-3.38.4.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
