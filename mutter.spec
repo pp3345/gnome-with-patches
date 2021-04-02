@@ -8,7 +8,7 @@
 
 Name:          mutter
 Version:       3.38.4
-Release:       1%{?dist}
+Release:       100%{?dist}.pp3345
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -185,6 +185,16 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Fri Apr 02 2021 Yussuf Khalil <dev@pp3345.net> - 3.38.4-100
+- Update !1509 "Raycast Pick" @da7671b5
+- Add !1808 "[3.38] Backport viepwort fixes" @346a9018
+- Add !1683 "wayland/dnd: Some coordinate system fixes" @7da34f15
+- Add !1735 "cogl/journal: Don't sometimes hold a ref on the framebuffer" @7ddbcd1f
+- Re-enable !1439, !1498, !1474, !1496, !1489, !1509, !1510
+- Remove !984 "Ignore monitor connector ID when possible" (conflict)
+- Update !850 "Make default focus window on each workspace appear focused" @811d853a
+- Rebase to 3.38.4-1.fc33
+
 * Mon Mar 15 2021 Florian Müllner <fmuellner@redhat.com> - 3.38.4-1
 - Update to 3.38.4
 
