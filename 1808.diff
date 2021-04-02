@@ -1,0 +1,158 @@
+diff --git a/src/compositor/meta-shaped-texture-private.h b/src/compositor/meta-shaped-texture-private.h
+index 672f24eb7c1b1443096f8a5820952f4852a0190f..2fe1b8ea48f611757024a4b7f5a981f07d692b87 100644
+--- a/src/compositor/meta-shaped-texture-private.h
++++ b/src/compositor/meta-shaped-texture-private.h
+@@ -71,4 +71,6 @@ void meta_shaped_texture_set_clip_region (MetaShapedTexture *stex,
+ void meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
+                                             cairo_region_t    *opaque_region);
+ 
++void meta_shaped_texture_ensure_size_valid (MetaShapedTexture *stex);
++
+ #endif
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index a8e8216dbf50854607f02b27005adca9a0a9071e..52f01a45805d80989ba930a52962f2b49a0f68a5 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -220,8 +220,8 @@ update_size (MetaShapedTexture *stex)
+     }
+ }
+ 
+-static void
+-ensure_size_valid (MetaShapedTexture *stex)
++void
++meta_shaped_texture_ensure_size_valid (MetaShapedTexture *stex)
+ {
+   if (stex->size_invalid)
+     update_size (stex);
+@@ -596,7 +596,7 @@ do_paint_content (MetaShapedTexture   *stex,
+   int sample_width, sample_height;
+   gboolean debug_paint_opaque_region;
+ 
+-  ensure_size_valid (stex);
++  meta_shaped_texture_ensure_size_valid (stex);
+ 
+   dst_width = stex->dst_width;
+   dst_height = stex->dst_height;
+@@ -910,7 +910,7 @@ meta_shaped_texture_get_preferred_size (ClutterContent *content,
+ {
+   MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
+ 
+-  ensure_size_valid (stex);
++  meta_shaped_texture_ensure_size_valid (stex);
+ 
+   if (width)
+     *width = stex->dst_width;
+@@ -1002,7 +1002,7 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
+                                clip);
+ 
+   inverted_transform = meta_monitor_transform_invert (stex->transform);
+-  ensure_size_valid (stex);
++  meta_shaped_texture_ensure_size_valid (stex);
+   meta_rectangle_transform (clip,
+                             inverted_transform,
+                             stex->dst_width,
+@@ -1027,8 +1027,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
+           viewport = (graphene_rect_t) {
+             .origin.x = 0,
+             .origin.y = 0,
+-            .size.width = stex->tex_width,
+-            .size.height = stex->tex_height,
++            .size.width = stex->tex_width / stex->buffer_scale,
++            .size.height = stex->tex_height / stex->buffer_scale,
+           };
+         }
+ 
+@@ -1039,8 +1039,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
+         }
+       else
+         {
+-          dst_width = (float) stex->tex_width;
+-          dst_height = (float) stex->tex_height;
++          dst_width = (float) viewport.size.width;
++          dst_height = (float) viewport.size.height;
+         }
+ 
+       inverted_viewport = (graphene_rect_t) {
+@@ -1215,7 +1215,7 @@ meta_shaped_texture_is_opaque (MetaShapedTexture *stex)
+ 
+   cairo_region_get_extents (stex->opaque_region, &opaque_rect);
+ 
+-  ensure_size_valid (stex);
++  meta_shaped_texture_ensure_size_valid (stex);
+ 
+   return meta_rectangle_equal (&opaque_rect,
+                                &(MetaRectangle) {
+@@ -1260,10 +1260,14 @@ meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
+                                            graphene_rect_t   *src_rect)
+ {
+   if (!stex->has_viewport_src_rect ||
+-      stex->viewport_src_rect.origin.x != src_rect->origin.x ||
+-      stex->viewport_src_rect.origin.y != src_rect->origin.y ||
+-      stex->viewport_src_rect.size.width != src_rect->size.width ||
+-      stex->viewport_src_rect.size.height != src_rect->size.height)
++      !G_APPROX_VALUE (stex->viewport_src_rect.origin.x,
++                       src_rect->origin.x, FLT_EPSILON) ||
++      !G_APPROX_VALUE (stex->viewport_src_rect.origin.y,
++                       src_rect->origin.y, FLT_EPSILON) ||
++      !G_APPROX_VALUE (stex->viewport_src_rect.size.width,
++                       src_rect->size.width, FLT_EPSILON) ||
++      !G_APPROX_VALUE (stex->viewport_src_rect.size.height,
++                       src_rect->size.height, FLT_EPSILON))
+     {
+       stex->has_viewport_src_rect = TRUE;
+       stex->viewport_src_rect = *src_rect;
+@@ -1477,7 +1481,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
+   if (texture == NULL)
+     return NULL;
+ 
+-  ensure_size_valid (stex);
++  meta_shaped_texture_ensure_size_valid (stex);
+ 
+   if (stex->dst_width == 0 || stex->dst_height == 0)
+     return NULL;
+@@ -1635,7 +1639,7 @@ meta_shaped_texture_get_width (MetaShapedTexture *stex)
+ {
+   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 0);
+ 
+-  ensure_size_valid (stex);
++  meta_shaped_texture_ensure_size_valid (stex);
+ 
+   return stex->dst_width;
+ }
+@@ -1651,7 +1655,7 @@ meta_shaped_texture_get_height (MetaShapedTexture *stex)
+ {
+   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 0);
+ 
+-  ensure_size_valid (stex);
++  meta_shaped_texture_ensure_size_valid (stex);
+ 
+   return stex->dst_height;
+ }
+diff --git a/src/compositor/region-utils.c b/src/compositor/region-utils.c
+index 02415cefbc7fe6c1801a9ca39957e1f3daabe854..ac4048a988424a9670509342f06a8ebc44f8e216 100644
+--- a/src/compositor/region-utils.c
++++ b/src/compositor/region-utils.c
+@@ -428,8 +428,8 @@ meta_region_crop_and_scale (cairo_region_t  *region,
+     {
+       viewport_region = cairo_region_copy (region);
+ 
+-      if (G_APPROX_VALUE (src_rect->origin.x, 0, FLT_EPSILON) ||
+-          G_APPROX_VALUE (src_rect->origin.y, 0, FLT_EPSILON))
++      if (!G_APPROX_VALUE (src_rect->origin.x, 0, FLT_EPSILON) ||
++          !G_APPROX_VALUE (src_rect->origin.y, 0, FLT_EPSILON))
+         {
+           cairo_region_translate (viewport_region,
+                                   (int) src_rect->origin.x,
+diff --git a/src/wayland/meta-wayland-actor-surface.c b/src/wayland/meta-wayland-actor-surface.c
+index 50af540a23971bfc93bffae739e29fbc752f9afd..797795f86123da41c8d184830c42da1f59286808 100644
+--- a/src/wayland/meta-wayland-actor-surface.c
++++ b/src/wayland/meta-wayland-actor-surface.c
+@@ -271,6 +271,8 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
+       meta_surface_actor_reset_viewport_dst_size (surface_actor);
+     }
+ 
++  meta_shaped_texture_ensure_size_valid (stex);
++
+   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+     {
+       MetaWaylandActorSurface *actor_surface;
