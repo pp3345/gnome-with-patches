@@ -1,6 +1,6 @@
 Name:           gnome-shell
 Version:        3.38.4
-Release:        1%{?dist}
+Release:        100%{?dist}.pp3345
 Summary:        Window management and application launching for GNOME
 
 License:        GPLv2+
@@ -223,6 +223,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/evolution-calendar.de
 %{_mandir}/man1/gnome-shell.1*
 
 %changelog
+* Fri Apr 02 2021 Yussuf Khalil <dev@pp3345.net> - 3.38.4-100
+- Re-enable !1436, !1470, !1465
+- Rebase to 3.38.4-1
+
 * Mon Mar 15 2021 Florian Müllner <fmuellner@redhat.com> - 3.38.4-1
 - Update to 3.38.4
 
