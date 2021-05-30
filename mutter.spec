@@ -9,13 +9,13 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name:          mutter
-Version:       40.0
-Release:       201.shrisha
+Version:       40.1
+Release:       101.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 URL:           http://www.gnome.org
-Source0:       mutter-40.0.zip
+Source0:       mutter-40.1.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
@@ -105,8 +105,9 @@ Requires:      json-glib%{?_isa} >= %{json_glib_version}
 Requires:      libinput%{?_isa} >= %{libinput_version}
 
 Provides: firstboot(windowmanager) = mutter
-
-Patch240: 1441-40.diff
+  
+Patch120: rt-default.diff
+Patch240: 1441-41.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages
