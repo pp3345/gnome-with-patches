@@ -108,6 +108,8 @@ Provides: firstboot(windowmanager) = mutter
   
 Patch120: rt-default.diff
 Patch240: 1441-41.diff
+Patch241: 1826.diff
+
 
 %description
 Mutter is a window and compositing manager that displays and manages
