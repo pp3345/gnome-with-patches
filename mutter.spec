@@ -1,13 +1,3 @@
-%global gtk3_version 3.19.8
-%global glib_version 2.53.2
-%global gsettings_desktop_schemas_version 40~alpha
-%global json_glib_version 0.12.0
-%global libinput_version 1.4
-%global pipewire_version 0.3.0
-%global mutter_api_version 8
-
-%global tarball_version %%(echo %{version} | tr '~' '.')
-
 Name:          mutter
 Version:       41.alpha
 Release:       100.shrisha
@@ -27,6 +17,16 @@ Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 #Patch2:        0001-Test-deny-atomic-KMS-for-tegra-RHBZ-1936991.patch
 
 #Patch3:        0001-Repaint-scheduling-part-1.patch
+
+%global gtk3_version 3.19.8
+%global glib_version 2.68.3
+%global gsettings_desktop_schemas_version 40~alpha
+%global json_glib_version 0.12.0
+%global libinput_version 1.4
+%global pipewire_version 0.3.0
+%global mutter_api_version 8
+
+%global tarball_version %%(echo %{version} | tr '~' '.')
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
