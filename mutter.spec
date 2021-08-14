@@ -32,8 +32,7 @@ BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
 BuildRequires: gnome-desktop3-devel
-BuildRequires: glib2-devel >= 2.68.3
-# BuildRequires: glib2-devel >= %{glib_version}
+BuildRequires: glib2-devel >= %{glib_version}
 BuildRequires: gtk3-devel >= %{gtk3_version}
 BuildRequires: pkgconfig
 BuildRequires: gobject-introspection-devel >= 1.41.0
