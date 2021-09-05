@@ -19,16 +19,15 @@ Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 #Patch3:        0001-Repaint-scheduling-part-1.patch
 
 %global gtk3_version 3.19.8
-%global glib_version 2.68.3
+%global glib_version 2.53.2
 %global gsettings_desktop_schemas_version 40~alpha
 %global json_glib_version 0.12.0
 %global libinput_version 1.4
 %global pipewire_version 0.3.0
-%global mutter_api_version 8
+%global mutter_api_version 9
 
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
-BuildRequires: chrpath
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
 BuildRequires: gnome-desktop3-devel
@@ -65,11 +64,12 @@ BuildRequires: sysprof-devel
 BuildRequires: systemd-devel
 BuildRequires: upower-devel
 BuildRequires: xorg-x11-server-Xorg
+BuildRequires: xorg-x11-server-Xvfb
 BuildRequires: xkeyboard-config-devel
 BuildRequires: zenity
 BuildRequires: desktop-file-utils
 # Bootstrap requirements
-BuildRequires: gtk-doc gnome-common gettext-devel git
+BuildRequires: gtk-doc gettext-devel git-core
 BuildRequires: libcanberra-devel
 BuildRequires: gsettings-desktop-schemas-devel >= %{gsettings_desktop_schemas_version}
 BuildRequires: gnome-settings-daemon-devel
@@ -85,29 +85,29 @@ BuildRequires: libgudev1-devel
 BuildRequires: libinput-devel >= %{libinput_version}
 BuildRequires: pkgconfig(xwayland)
 
-Obsoletes: mutter-wayland < 3.13.0
-Obsoletes: mutter-wayland-devel < 3.13.0
-
-# Make sure yum updates gnome-shell as well; otherwise we might end up with
-# broken gnome-shell installations due to mutter ABI changes.
-Conflicts: gnome-shell < 3.21.1
-
 Requires: control-center-filesystem
 Requires: gsettings-desktop-schemas%{?_isa} >= %{gsettings_desktop_schemas_version}
 Requires: gnome-settings-daemon
 Requires: gtk3%{?_isa} >= %{gtk3_version}
+Requires: json-glib%{?_isa} >= %{json_glib_version}
+Requires: libinput%{?_isa} >= %{libinput_version}
 Requires: pipewire%{_isa} >= %{pipewire_version}
 Requires: startup-notification
 Requires: dbus
 Requires: zenity
 
-Requires:      json-glib%{?_isa} >= %{json_glib_version}
-Requires:      libinput%{?_isa} >= %{libinput_version}
+Recommends: mesa-dri-drivers%{?_isa}
+
+Provides: firstboot(windowmanager) = mutter
+
+# Make sure yum updates gnome-shell as well; otherwise we might end up with
+# broken gnome-shell installations due to mutter ABI changes.
+Conflicts: gnome-shell < 3.21.1
 
 Provides: firstboot(windowmanager) = mutter
   
 Patch120: rt-default.diff
-Patch240: 1441-41beta.diff
+Patch240: gnome41-1441.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages
