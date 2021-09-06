@@ -230,7 +230,7 @@ index 16098b70f915f55628d37c0f82067d489f4b3ca9..19e30d34229bc03ba64be6cc394a280c
        break;
      }
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724fd512c93 100644
+index 00b2d9f89cc0d64eb325e0e83067ede50e42fa46..b25a247b3e4630cc5767019d48e1bd4c883d9a9e 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -93,6 +93,7 @@ struct _MetaOnscreenNative
@@ -319,19 +319,15 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
  }
  
  static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {
-@@ -413,16 +439,14 @@ meta_onscreen_native_dummy_power_save_page_flip (CoglOnscreen *onscreen)
- }
- 
- static void
--meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
--                                MetaRendererView            *view,
--                                MetaCrtc                    *crtc,
--                                MetaKmsPageFlipListenerFlag  flags)
-+meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
-+                                MetaRendererView *view,
-+                                MetaCrtc         *crtc)
+@@ -416,7 +442,6 @@ static void
+ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
+                                 MetaRendererView            *view,
+                                 MetaCrtc                    *crtc,
+-                                MetaKmsPageFlipListenerFlag  flags,
+                                 const int                   *rectangles,
+                                 int                          n_rectangles)
  {
-   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+@@ -424,7 +449,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
    MetaRendererNative *renderer_native = onscreen_native->renderer_native;
    MetaGpuKms *render_gpu = onscreen_native->render_gpu;
    MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
@@ -339,7 +335,7 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
    MetaRendererNativeGpuData *renderer_gpu_data;
    MetaGpuKms *gpu_kms;
    MetaKmsDevice *kms_device;
-@@ -470,6 +494,23 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
+@@ -480,6 +504,23 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
        break;
  #endif
      }
@@ -363,7 +359,7 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
  
    meta_kms_update_add_page_flip_listener (kms_update,
                                            kms_crtc,
-@@ -477,6 +518,8 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
+@@ -487,6 +528,8 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
                                            flags,
                                            g_object_ref (view),
                                            g_object_unref);
@@ -372,7 +368,7 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
  }
  
  static void
-@@ -996,10 +1039,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1006,10 +1049,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
    MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
    MetaRenderer *renderer = META_RENDERER (renderer_native);
    MetaBackend *backend = meta_renderer_get_backend (renderer);
@@ -383,7 +379,7 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
    MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
    MetaGpuKms *render_gpu = onscreen_native->render_gpu;
    MetaDeviceFile *render_device_file;
-@@ -1012,9 +1053,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1022,9 +1063,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
    MetaDrmBufferGbm *buffer_gbm;
    MetaKmsCrtc *kms_crtc;
    MetaKmsDevice *kms_device;
@@ -393,15 +389,15 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
  
    COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                             "Onscreen (swap-buffers)");
-@@ -1080,13 +1118,13 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
-       ensure_crtc_modes (onscreen);
+@@ -1091,7 +1129,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
        meta_onscreen_native_flip_crtc (onscreen,
                                        onscreen_native->view,
--                                      onscreen_native->crtc,
--                                      META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE);
-+                                      onscreen_native->crtc);
+                                       onscreen_native->crtc,
+-                                      META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
+                                       rectangles,
+                                       n_rectangles);
      }
-   else
+@@ -1099,6 +1136,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
      {
        meta_renderer_native_queue_power_save_page_flip (renderer_native,
                                                         onscreen);
@@ -409,7 +405,7 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
        clutter_frame_set_result (frame,
                                  CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
        return;
-@@ -1107,8 +1145,10 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1119,8 +1157,10 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                        meta_kms_crtc_get_id (kms_crtc),
                        meta_kms_device_get_path (kms_device));
  
@@ -422,7 +418,7 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
            return;
          }
        else if (meta_renderer_native_has_pending_mode_set (renderer_native))
-@@ -1116,10 +1156,14 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1128,10 +1168,14 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
            meta_topic (META_DEBUG_KMS, "Posting global mode set updates on %s",
                        meta_kms_device_get_path (kms_device));
  
@@ -439,7 +435,7 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
            return;
          }
        break;
-@@ -1130,34 +1174,66 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1142,34 +1186,66 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
      case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
        if (meta_renderer_native_has_pending_mode_set (renderer_native))
          {
@@ -513,21 +509,22 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
        feedback_error = meta_kms_feedback_get_error (kms_feedback);
        if (!g_error_matches (feedback_error,
                              G_IO_ERROR,
-@@ -1298,8 +1374,11 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
-   ensure_crtc_modes (onscreen);
+@@ -1311,10 +1387,13 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
    meta_onscreen_native_flip_crtc (onscreen,
                                    onscreen_native->view,
--                                  onscreen_native->crtc,
--                                  META_KMS_PAGE_FLIP_LISTENER_FLAG_DROP_ON_ERROR);
-+                                  onscreen_native->crtc);
-+
+                                   onscreen_native->crtc,
+-                                  META_KMS_PAGE_FLIP_LISTENER_FLAG_DROP_ON_ERROR,
+                                   NULL,
+                                   0);
+ 
 +  if (!add_page_flip_listener (onscreen,
 +                               META_KMS_PAGE_FLIP_LISTENER_FLAG_DROP_ON_ERROR))
 +    return FALSE;
- 
++
    kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
    kms_device = meta_kms_crtc_get_device (kms_crtc);
-@@ -1314,6 +1393,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
+ 
+@@ -1328,6 +1407,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
    switch (meta_kms_feedback_get_result (kms_feedback))
      {
      case META_KMS_FEEDBACK_PASSED:
@@ -535,7 +532,7 @@ index 112bd0d438b237280153790da708db6b5f437c6a..97a6e25ac10df74de917bc5d7a0ae724
        clutter_frame_set_result (frame,
                                  CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
        break;
-@@ -1356,24 +1436,18 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
+@@ -1370,24 +1450,18 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
    MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);;
    MetaKms *kms = meta_kms_device_get_kms (kms_device);
    MetaKmsUpdateFlag flags;
