@@ -106,8 +106,8 @@ Conflicts: gnome-shell < 3.21.1
 
 Provides: firstboot(windowmanager) = mutter
   
-#Patch120: rt-default.diff
-#Patch240: 1441-new.diff
+Patch120: rt-default.diff
+Patch240: 1441-new.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages
