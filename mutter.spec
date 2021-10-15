@@ -10,7 +10,7 @@
 
 Name:          mutter
 Version:       40.5
-Release:       100.shrisha
+Release:       101.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -24,7 +24,7 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 
 # Workaround for RHBZ#1936991 (blocks atomic KMS on "tegra" driver)
-Patch2:        1441.patch
+#Patch2:        1441.patch
 
 #Patch3:        0001-Repaint-scheduling-part-1.patch
 
