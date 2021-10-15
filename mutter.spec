@@ -1,11 +1,11 @@
 Name:          mutter
-Version:       41.1
-Release:       100.shrisha
+Version:       41.0
+Release:       200.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 URL:           http://www.gnome.org
-Source0:       mutter-41.1.zip
+Source0:       mutter-41.0.zip
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
@@ -106,7 +106,7 @@ Conflicts: gnome-shell < 3.21.1
 
 Provides: firstboot(windowmanager) = mutter
   
-Patch120: rt-default.diff
+#Patch120: rt-default.diff
 #Patch240: 1441-new.diff
 
 %description
