@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       41.0
-Release:       200.shrisha
+Release:       220.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
