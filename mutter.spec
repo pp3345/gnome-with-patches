@@ -1,6 +1,6 @@
 Name:          mutter
 Version:       41.2
-Release:       220.shrisha
+Release:       221.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -107,7 +107,7 @@ Conflicts: gnome-shell < 3.21.1
 Provides: firstboot(windowmanager) = mutter
   
 Patch120: rt-default.diff
-Patch240: 1441-nov16.diff
+Patch240: 1441-nov18.diff
 
 %description
 Mutter is a window and compositing manager that displays and manages
