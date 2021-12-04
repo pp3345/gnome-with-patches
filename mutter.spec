@@ -9,13 +9,13 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name:          mutter
-Version:       40.6
+Version:       40.7
 Release:       108.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 URL:           http://www.gnome.org
-Source0:       mutter-40.6.tar.xz
+Source0:       mutter-40.5.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
@@ -24,7 +24,7 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 
 # Workaround for RHBZ#1936991 (blocks atomic KMS on "tegra" driver)
-Patch2:        gnome-401441.patch
+Patch2:        1441.patch
 
 #Patch3:       0001-Repaint-scheduling-part-1.patch
 
