@@ -24,9 +24,9 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 
 # Workaround for RHBZ#1936991 (blocks atomic KMS on "tegra" driver)
-Patch2:        1441.patch
+Patch2:        gnome-401441.patch
 
-#Patch3:        0001-Repaint-scheduling-part-1.patch
+#Patch3:       0001-Repaint-scheduling-part-1.patch
 
 BuildRequires: chrpath
 BuildRequires: pango-devel
