@@ -9,13 +9,13 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name:          mutter
-Version:       40.5
-Release:       100.shrisha
+Version:       40.6
+Release:       108.shrisha
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
 URL:           http://www.gnome.org
-Source0:       mutter-40.5.tar.xz
+Source0:       mutter-40.6.tar.xz
 
 # Work-around for OpenJDK's compliance test
 Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
