@@ -24,7 +24,7 @@ Patch0:        0001-window-actor-Special-case-shaped-Java-windows.patch
 Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 
 # Workaround for RHBZ#1936991 (blocks atomic KMS on "tegra" driver)
-Patch2:        0001-Test-deny-atomic-KMS-for-tegra-RHBZ-1936991.patch
+#Patch2:        0001-Test-deny-atomic-KMS-for-tegra-RHBZ-1936991.patch
 
 BuildRequires: pango-devel
 BuildRequires: startup-notification-devel
