@@ -100,7 +100,7 @@ Recommends: mesa-dri-drivers%{?_isa}
 Provides: firstboot(windowmanager) = mutter
 
 Patch120: rt-default.diff
-Patch240: 1441.41.4.diff
+Patch240: 1441-jan21.diff
 
 # Cogl and Clutter were forked at these versions, but have diverged
 # significantly since then.
